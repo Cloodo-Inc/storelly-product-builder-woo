@@ -22,8 +22,65 @@ if (!class_exists('Printcart_PB_Admin_Options')) {
             add_action('printcart_pb_menu', array($this, 'tab_menu'));
             add_action('printcart_create_tables', array($this, 'create_options_table'));
             add_action('admin_enqueue_scripts', array($this, 'admin_enqueue_scripts'));
+            add_action('add_meta_boxes', array($this, 'add_meta_boxes'), 35);
+            add_action('save_post', array($this, 'save_product_option'));
         }
         public function ajax() {
+            $ajax_events = array(
+                'nbd_download_option_image'     => true,
+                'nbd_get_media_full_size_url'   => true
+            );
+            foreach ($ajax_events as $ajax_event => $nopriv) {
+                add_action('wp_ajax_' . $ajax_event, array($this, $ajax_event));
+                if ($nopriv) {
+                    // AJAX can be used for frontend ajax requests
+                    add_action('wp_ajax_nopriv_' . $ajax_event, array($this, $ajax_event));
+                }
+            }
+        }
+        public function nbd_get_media_full_size_url() {
+            if (!wp_verify_nonce($_POST['nonce'], 'save-design') && PRINTCART_ENABLE_NONCE) {
+                die('Security error');
+            }
+            $result = array(
+                'flag'      => 1,
+                'images'    => array()
+            );
+            $images = json_decode(stripslashes($_POST['images']), true);
+            foreach ($images as $key => $image) {
+                $result['images'][$key] = wp_get_attachment_url($image);
+            }
+            echo json_encode($result);
+            wp_die();
+        }
+        public function nbd_download_option_image() {
+            if (!wp_verify_nonce($_POST['nonce'], 'save-design') && PRINTCART_ENABLE_NONCE) {
+                die('Security error');
+            }
+            $result = array(
+                'flag'      => 1,
+                'image'     => array()
+            );
+            $url = wc_clean($_POST['image']);
+            require_once(PRINTCART_PB_PLUGIN_DIR . 'includes/class-download-image.php');
+            if (strpos($url, get_site_url()) > -1) {
+                $result['image'] = array(
+                    'current_site'  => 1
+                );
+            } else {
+                $download_remote_image = new Printcart_PB_Download_Image($url, array());
+                $attachment_id = $download_remote_image->download();
+                if ($attachment_id) {
+                    $result['image'] = array(
+                        'current_site'  => 0,
+                        'id'            => $attachment_id
+                    );
+                } else {
+                    $result['flag'] = 0;
+                }
+            }
+            echo json_encode($result);
+            wp_die();
         }
         public function tab_menu() {
             if (current_user_can('manage_product_builder')) {
@@ -49,12 +106,14 @@ if (!class_exists('Printcart_PB_Admin_Options')) {
 CREATE TABLE {$wpdb->prefix}printcart_product_builder_options ( 
  id bigint(20) unsigned NOT NULL auto_increment,
  title text NOT NULL,
+ published  TINYINT(1) NOT NULL default 1,
  product_ids text NULL, 
  created datetime NOT NULL default '0000-00-00 00:00:00',
  modified datetime NOT NULL default '0000-00-00 00:00:00', 
  created_by BIGINT(20) NULL, 
  modified_by BIGINT(20) NULL,  
  fields longtext,
+ builder text NULL,
  PRIMARY KEY  (id)
 ) $collate; 
                 ";
@@ -63,16 +122,20 @@ CREATE TABLE {$wpdb->prefix}printcart_product_builder_options (
         }
         public function admin_enqueue_scripts($hook) {
             wp_register_script('angularjs', PRINTCART_PB_ASSETS_URL . 'libs/angular.min.js', array('jquery'), '1.6.9');
-            wp_register_style('nbd_options', PRINTCART_PB_CSS_URL . 'admin-options.css', array('wp-color-picker'), PRINTCART_PB_VERSION);
+            wp_register_style('printcart_options', PRINTCART_PB_CSS_URL . 'admin-options.css', array('wp-color-picker'), PRINTCART_PB_VERSION);
+            wp_register_style('printcart-general', PRINTCART_PB_CSS_URL . 'printcart-general.css', array('dashicons'), PRINTCART_PB_VERSION);
             wp_register_script('snap_svg', PRINTCART_PB_ASSETS_URL . 'libs/snap.svg.js', array(), '0.3.0');
+            wp_enqueue_style(array('printcart-general'));
 
             if ($hook == 'toplevel_page_pc_product_builder_options') {
-                wp_register_script('nbd_options', PRINTCART_PB_JS_URL . 'admin-options.js', array('jquery', 'jquery-ui-resizable', 'jquery-ui-draggable', 'jquery-ui-droppable', 'jquery-ui-sortable', 'jquery-ui-datepicker', 'jquery-ui-autocomplete', 'wp-color-picker', 'angularjs', 'wc-enhanced-select', 'snap_svg'), PRINTCART_PB_VERSION);
-                wp_localize_script('nbd_options', 'nbd_options', array(
-                    'search_products_nonce'     =>  wp_create_nonce("search-products"),
+                wp_register_script('printcart_options', PRINTCART_PB_JS_URL . 'admin-options.js', array('jquery', 'jquery-ui-resizable', 'jquery-ui-draggable', 'jquery-ui-droppable', 'jquery-ui-sortable', 'jquery-ui-datepicker', 'jquery-ui-autocomplete', 'wp-color-picker', 'angularjs', 'wc-enhanced-select', 'snap_svg'), PRINTCART_PB_VERSION);
+                wp_localize_script('printcart_options', 'printcart_options', array(
+                    'search_products_nonce'     => wp_create_nonce("search-products"),
+                    'calendar_image'            => PRINTCART_PB_PLUGIN_URL . 'assets/images/calendar.png',
+                    'printcart_options_lang'    => $this->printcart_option_i18n(),
                 ));
-                wp_enqueue_style(array('wp-jquery-ui-dialog', 'wp-color-picker', 'nbd_options'));
-                wp_enqueue_script(array('wpdialogs', 'nbd_options'));
+                wp_enqueue_style(array('wp-jquery-ui-dialog', 'wp-color-picker', 'printcart_options'));
+                wp_enqueue_script(array('wpdialogs', 'printcart_options'));
             }
         }
         public function product_builder_options() {
@@ -115,12 +178,18 @@ CREATE TABLE {$wpdb->prefix}printcart_product_builder_options (
                         $options                    = $this->build_options($raw_options);
                         $options['id']              = $_options['id'];
                         $options['title']           = $_options['title'];
+                        $options['published']       = $_options['published'];
+                        $options['created']         = $_options['created'];
+                        $options['modified']        = $_options['modified'];
                         $options['product_ids']     = isset($_options['product_ids']) ? (!is_null(unserialize($_options['product_ids'])) ? unserialize($_options['product_ids']) : array()) : array();
                     } else {
                         $options = $this->build_options();
                         $options['id']              = 0;
                         $options['title']           = '';
                         $options['product_ids']     = array();
+                        $options['published']       = 1;
+                        $options['created']         = '';
+                        $options['modified']        = '';
                     }
                     $default_field = $this->default_config_field();
                     $product_id = (isset($_GET['product_id']) && absint($_GET['product_id']) > 0) ? absint($_GET['product_id']) : 0;
@@ -161,11 +230,6 @@ CREATE TABLE {$wpdb->prefix}printcart_product_builder_options (
             $arr            = array(
                 'title'         => wc_clean($_POST['title']),
                 'published'     => 1,
-                'priority'      => wc_clean($_POST['priority']),
-                'date_from'     => wc_clean($_POST['date_from']),
-                'date_to'       => wc_clean($_POST['date_to']),
-                'apply_for'     => wc_clean($_POST['apply_for']),
-                'product_cats'  => isset($_POST['product_cats']) ? serialize($_POST['product_cats']) : serialize(array()),
                 'product_ids'   => isset($_POST['product_ids']) ? serialize($_POST['product_ids']) : serialize(array()),
                 'modified'      => $modified_date->format('Y-m-d H:i:s')
             );
@@ -174,22 +238,21 @@ CREATE TABLE {$wpdb->prefix}printcart_product_builder_options (
                 $post_options['fields'] = json_decode(stripslashes($_POST['options']['jsonFields']), true);
                 unset($post_options['jsonFields']);
             }
-            $arr['fields'] = serialize($this->validate_option($post_options));
-
+            $arr['fields'] = serialize($post_options);
             global $wpdb;
             $date = new DateTime();
             if ($id > 0) {
                 $arr['modified']    = $date->format('Y-m-d H:i:s');
                 $arr['modified_by'] = wp_get_current_user()->ID;
-                $result             = $wpdb->update("{$wpdb->prefix}nbdesigner_options", $arr, array('id' => $id));
+                $result             = $wpdb->update("{$wpdb->prefix}printcart_product_builder_options", $arr, array('id' => $id));
             } else {
                 $arr['created']     = $date->format('Y-m-d H:i:s');
                 $arr['created_by']  = wp_get_current_user()->ID;
-                $result             = $wpdb->insert("{$wpdb->prefix}nbdesigner_options", $arr);
+                $result             = $wpdb->insert("{$wpdb->prefix}printcart_product_builder_options", $arr);
                 $id                 = $result ?  $wpdb->insert_id : 0;
             }
             $this->clear_transients();
-            do_action('nbo_save_print_option', $arr);
+            do_action('printcart_save_print_option', $arr);
             return array(
                 'status'    => $result,
                 'id'        => $id
@@ -208,16 +271,11 @@ CREATE TABLE {$wpdb->prefix}printcart_product_builder_options (
             foreach ($options['fields'] as $f_key => $field) {
                 $field = array_replace_recursive($this->default_field(), $field);
                 foreach ($field as $tab =>  $data) {
-                    if ($tab != 'id' && $tab != 'nbd_type' && $tab != 'nbpb_type' && $tab != 'nbe_type') {
+                    if ($tab != 'id' && $tab != 'nbpb_type' && $tab != 'nbd_template') {
                         foreach ($data as $key => $f) {
-                            if (!in_array($key, array('price_no_range', 'price_depend_no', 'component_icon', 'page_display', 'exclude_page', 'auto_select_page', 'mesure', 'mesure_type', 'mesure_min_area', 'mesure_range', 'mesure_base_pages', 'mesure_base_qty', 'min_width', 'max_width', 'step_width', 'default_width', 'min_height', 'max_height', 'step_height', 'default_height'))) {
-                                $funcname = "build_config_" . $tab . '_' . $key;
-                                if (is_callable(array($this, $funcname))) {
-                                    $options['fields'][$f_key][$tab][$key] = $this->$funcname($f);
-                                }
-                            }
-                            if ($key == 'component_icon') {
-                                $options['fields'][$f_key][$tab]['component_icon_url'] = printcart_get_image_thumbnail($f);
+                            $funcname = "build_config_" . $tab . '_' . $key;
+                            if (is_callable(array($this, $funcname))) {
+                                $options['fields'][$f_key][$tab][$key] = $this->$funcname($f);
                             }
                         }
                     }
@@ -226,16 +284,23 @@ CREATE TABLE {$wpdb->prefix}printcart_product_builder_options (
                     }
                 }
             }
+            if (isset($options['views'])) {
+                foreach ($options['views'] as $vkey => $view) {
+                    $view['base'] = isset($view['base']) ? $view['base'] : 0;
+                    $options['views'][$vkey]['base'] = $view['base'];
+                    $options['views'][$vkey]['base_url'] = pritcart_get_image_thumbnail($view['base']);
+                }
+            }
             return $options;
         }
-        public function build_config_conditional_show($value = null) {
-            if (is_null($value)) $value = 'n';
-            return $value;
-        }
-        public function build_config_conditional_logic($value = null) {
-            if (is_null($value)) $value = 'a';
-            return $value;
-        }
+        // public function build_config_conditional_show($value = null) {
+        //     if (is_null($value)) $value = 'n';
+        //     return $value;
+        // }
+        // public function build_config_conditional_logic($value = null) {
+        //     if (is_null($value)) $value = 'a';
+        //     return $value;
+        // }
         public function build_config_conditional_depend($value = null) {
             if (is_null($value) || count($value) == 0) $value = array(
                 0   =>  array(
@@ -249,7 +314,7 @@ CREATE TABLE {$wpdb->prefix}printcart_product_builder_options (
         public function default_config_field() {
             $field = $this->default_field();
             foreach ($field as $tab =>  $data) {
-                if ($tab != 'id') {
+                if ($tab != 'id' && $tab != 'nbpb_type' && $tab != 'nbd_template') {
                     foreach ($data as $key => $f) {
                         $funcname = "build_config_" . $tab . '_' . $key;
                         if (is_callable(array($this, $funcname))) {
@@ -277,23 +342,31 @@ CREATE TABLE {$wpdb->prefix}printcart_product_builder_options (
                 'general'       => array(
                     'title'             => null,
                     'description'       => null,
+                    'data_type'         => null,
+                    'input_type'        => null,
+                    'input_option'      => null,
+                    'text_option'       => null,
+                    'upload_option'     => null,
                     'enabled'           => null,
                     'required'          => null,
                     'published'         => null,
                     'price_type'        => null,
+                    'price'             => null,
                     'attributes'        => null
                 ),
                 'appearance' => array(
                     'display_type'          => null,
                     'change_image_product'  => null,
                     'css_class'             => null
-                )
+                ),
+                'nbpb_type' => 'nbpb_com',
+                'nbd_template' => 'nbd.nbpb_com',
             );
         }
         public function build_config_general_title($value = null) {
-            if (is_null($value)) $value = __('Option name', 'web-to-print-online-designer');
+            if (is_null($value)) $value = __('Component', 'web-to-print-online-designer');
             return array(
-                'title'         => __('Option name', 'web-to-print-online-designer'),
+                'title'         => __('Component', 'web-to-print-online-designer'),
                 'description'   =>  '',
                 'value'         => $value,
                 'type'          => 'text'
@@ -306,6 +379,120 @@ CREATE TABLE {$wpdb->prefix}printcart_product_builder_options (
                 'description'   => '',
                 'value'         => $value,
                 'type'          => 'textarea'
+            );
+        }
+        public function build_config_general_data_type($value = null) {
+            if (is_null($value)) $value = 'm';
+            return array(
+                'title'         => esc_html__('Data type', 'web-to-print-online-designer'),
+                'description'   => '',
+                'value'         => $value,
+                'type'          => 'dropdown',
+                'options'       => array(
+                    array(
+                        'key'       => 'i',
+                        'text'      => esc_html__('Custom input', 'web-to-print-online-designer')
+                    ),
+                    array(
+                        'key'       => 'm',
+                        'text'      => esc_html__('Multiple options', 'web-to-print-online-designer')
+                    )
+                )
+            );
+        }
+        public function build_config_general_input_type($value = null) {
+            if (is_null($value)) $value = 't';
+            return array(
+                'title'         => esc_html__('Input type', 'web-to-print-online-designer'),
+                'description'   =>  '',
+                'value'         => $value,
+                'type'          => 'dropdown',
+                'depend'        => array(
+                    array(
+                        'field'     =>  'data_type',
+                        'operator'  =>  '=',
+                        'value'     =>  'i'
+                    )
+                ),
+                'options'       => array(
+                    array(
+                        'key'       => 't',
+                        'text'      => esc_html__('Text', 'web-to-print-online-designer')
+                    ),
+                    array(
+                        'key'       => 'u',
+                        'text'      => esc_html__('Upload', 'web-to-print-online-designer')
+                    ),
+                    array(
+                        'key'       => 'a',
+                        'text'      => esc_html__('Textarea', 'web-to-print-online-designer')
+                    )
+                )
+            );
+        }
+        public function build_config_general_input_option($value = null) {
+            if (is_null($value)) {
+                $value = array(
+                    'min'       => 1,
+                    'max'       => 100,
+                    'step'      => 1,
+                    'default'   => 1
+                );
+            }
+            if (!isset($value['default'])) $value['default'] = $value['min'];
+            return array(
+                'title'         => esc_html__('Input option', 'web-to-print-online-designer'),
+                'description'   => '',
+                'value'         => $value,
+                'type'          => 'table',
+                'depend'        => array(
+                    array(
+                        'field'     => 'data_type',
+                        'operator'  => '=',
+                        'value'     => 'i'
+                    ),
+                    array(
+                        'field'     => 'input_type',
+                        'operator'  => '#',
+                        'value'     => 't'
+                    ),
+                    array(
+                        'field'     => 'input_type',
+                        'operator'  => '#',
+                        'value'     => 'u'
+                    ),
+                    array(
+                        'field'     => 'input_type',
+                        'operator'  => '#',
+                        'value'     => 'a'
+                    )
+                )
+            );
+        }
+        public function build_config_general_text_option($value = null) {
+            if (is_null($value)) {
+                $value = array(
+                    'min'   =>  0,
+                    'max'   =>  999
+                );
+            }
+            return array(
+                'title'         => esc_html__('Text input option', 'web-to-print-online-designer'),
+                'description'   =>  '',
+                'value'         => $value,
+                'type'          => 'table',
+                'depend'        =>  array(
+                    array(
+                        'field'     =>  'data_type',
+                        'operator'  =>  '=',
+                        'value'     =>  'i'
+                    ),
+                    array(
+                        'field'     =>  'input_type',
+                        'operator'  =>  '=',
+                        'value'     =>  't,a'
+                    )
+                )
             );
         }
         public function build_config_general_enabled($value = null) {
@@ -372,29 +559,56 @@ CREATE TABLE {$wpdb->prefix}printcart_product_builder_options (
                 )
             );
         }
+        public function build_config_general_upload_option($value = null) {
+            if (is_null($value)) {
+                $value = array(
+                    'min_size'      =>  0,
+                    'max_size'      =>  printcart_get_max_upload_default(),
+                    'allow_type'    =>  'png,jpg,jpeg'
+                );
+            }
+            return array(
+                'title'         => esc_html__('Upload file option', 'web-to-print-online-designer'),
+                'description'   =>  '',
+                'value'         => $value,
+                'type'          => 'table',
+                'depend'        =>  array(
+                    array(
+                        'field'     =>  'data_type',
+                        'operator'  =>  '=',
+                        'value'     =>  'i'
+                    ),
+                    array(
+                        'field'     =>  'input_type',
+                        'operator'  =>  '=',
+                        'value'     =>  'u'
+                    )
+                )
+            );
+        }
         public function build_config_general_price_type($value = null) {
             if (is_null($value)) $value = 'f';
             return array(
-                'title'         => __('Price type', 'web-to-print-online-designer'),
-                'description'   => __('Here you can choose how the price is calculated. Depending on the field there various types you can choose.'),
+                'title'         => esc_html__('Price type', 'web-to-print-online-designer'),
+                'description'   => esc_html__('Here you can choose how the price is calculated. Depending on the field there various types you can choose.'),
                 'value'         => $value,
                 'type'          => 'dropdown',
                 'options'       => array(
                     array(
                         'key'       => 'f',
-                        'text'      => __('Fixed amount', 'web-to-print-online-designer')
+                        'text'      => esc_html__('Fixed amount', 'web-to-print-online-designer')
                     ),
                     array(
                         'key'       => 'p',
-                        'text'      => __('Percent of the original price', 'web-to-print-online-designer')
+                        'text'      => esc_html__('Percent of the original price', 'web-to-print-online-designer')
                     ),
                     array(
                         'key'       => 'p+',
-                        'text'      => __('Percent of the original price + options', 'web-to-print-online-designer')
+                        'text'      => esc_html__('Percent of the original price + options', 'web-to-print-online-designer')
                     ),
                     array(
                         'key'       => 'c',
-                        'text'      => __('Current value * price', 'web-to-print-online-designer'),
+                        'text'      => esc_html__('Current value * price', 'web-to-print-online-designer'),
                         'depend'    => array(
                             array(
                                 'field'     => 'data_type',
@@ -420,7 +634,7 @@ CREATE TABLE {$wpdb->prefix}printcart_product_builder_options (
                     ),
                     array(
                         'key'       => 'cp',
-                        'text'      => __('Price per char', 'web-to-print-online-designer'),
+                        'text'      => esc_html__('Price per char', 'web-to-print-online-designer'),
                         'depend'    => array(
                             array(
                                 'field'     => 'data_type',
@@ -436,9 +650,30 @@ CREATE TABLE {$wpdb->prefix}printcart_product_builder_options (
                     ),
                     array(
                         'key'       => 'mf',
-                        'text'      => __('Math formula', 'web-to-print-online-designer')
+                        'text'      => esc_html__('Math formula', 'web-to-print-online-designer')
                     )
                 )
+            );
+        }
+        public function build_config_general_price($value = null) {
+            if (is_null($value)) $value = '';
+            return array(
+                'title'         => esc_html__('Additional Price', 'web-to-print-online-designer'),
+                'description'   => esc_html__('Enter the price for this field or leave it blank for no price.'),
+                'value'         => $value,
+                'depend'        => array(
+                    array(
+                        'field'     => 'depend_quantity',
+                        'operator'  => '#',
+                        'value'     => 'y'
+                    ),
+                    array(
+                        'field'     => 'data_type',
+                        'operator'  => '=',
+                        'value'     => 'i'
+                    )
+                ),
+                'type'          => 'number'
             );
         }
         public function build_config_general_attributes($attributes = null) {
@@ -449,26 +684,13 @@ CREATE TABLE {$wpdb->prefix}printcart_product_builder_options (
                         'des'                   => '',
                         'price'                 => array(),
                         'selected'              => 0,
-                        'enable_subattr'        => 0,
                         'preview_type'          => 'i',
                         'image'                 => 0,
                         'image_url'             => '',
                         'product_image'         => 0,
                         'product_image_url'     => '',
                         'color'                 => '#ffffff',
-                        'sub_attributes'        => array(),
-                        'sattr_display_type'    => 's',
                         'enable_con'            => 0,
-                        'con_show'              => 'n',
-                        'con_logic'             => 'a',
-                        'depend'                => array(
-                            0   => array(
-                                'id'        => '',
-                                'operator'  => 'i',
-                                'val'       => '',
-                                'subval'    => ''
-                            )
-                        ),
                         'implicit_value'        => ''
                     )
                 );
@@ -476,51 +698,10 @@ CREATE TABLE {$wpdb->prefix}printcart_product_builder_options (
                 $options = $attributes['options'];
             };
             foreach ($options as $key => $option) {
-                $options[$key]['enable_subattr']     = isset($options[$key]['enable_subattr']) ? $options[$key]['enable_subattr'] : 0;
-                $options[$key]['sub_attributes']     = isset($options[$key]['sub_attributes']) ? $options[$key]['sub_attributes'] : array();
-                $options[$key]['sattr_display_type'] = isset($options[$key]['sattr_display_type']) ? $options[$key]['sattr_display_type'] : 's';
-                $options[$key]['enable_con']         = isset($options[$key]['enable_con']) ? $options[$key]['enable_con'] : 0;
-                $options[$key]['con_show']           = isset($options[$key]['con_show']) ? $options[$key]['con_show'] : 'n';
-                $options[$key]['con_logic']          = isset($options[$key]['con_logic']) ? $options[$key]['con_logic'] : 'a';
-                $options[$key]['depend']             = (isset($option['depend']) && count($option['depend'])) ? $option['depend'] : array(0 => array('id' => '', 'operator' => 'i', 'val' => '', 'subval' => ''));
                 $options[$key]['implicit_value']     = isset($option['implicit_value']) ? $option['implicit_value'] : '';
-
-                if (isset($option['enable_subattr'])) {
-                    foreach ($options[$key]['sub_attributes'] as $sak => $sa) {
-                        $options[$key]['sub_attributes'][$sak]['enable_con']        = isset($sa['enable_con']) ? $sa['enable_con'] : 0;
-                        $options[$key]['sub_attributes'][$sak]['con_show']          = isset($sa['con_show']) ? $sa['con_show'] : 'n';
-                        $options[$key]['sub_attributes'][$sak]['con_logic']         = isset($sa['con_logic']) ? $sa['con_logic'] : 'a';
-                        $options[$key]['sub_attributes'][$sak]['depend']            = (isset($sa['depend']) && count($sa['depend'])) ? $sa['depend'] : array(0 => array('id' => '', 'operator' => 'i', 'val' => '', 'subval' => ''));
-                        $options[$key]['sub_attributes'][$sak]['implicit_value']    = isset($sa['implicit_value']) ? $sa['implicit_value'] : '';
-                    }
-                }
-
                 $options[$key]['image_url']          = printcart_get_image_thumbnail($option['image']);
                 if (isset($options[$key]['product_image'])) {
                     $options[$key]['product_image_url'] = printcart_get_image_thumbnail($option['product_image']);
-                }
-                if (isset($attributes['bg_type'])) {
-                    if ($attributes['bg_type'] == 'i') {
-                        foreach ($option['bg_image'] as $k => $bg) {
-                            $options[$key]['bg_image_url'][$k] = printcart_get_image_thumbnail($bg);
-                        }
-                    } else {
-                        $options[$key]['bg_image']      = array();
-                        $options[$key]['bg_image_url']  = array();
-                    }
-                }
-                if (isset($option['enable_subattr'])) {
-                    foreach ($options[$key]['sub_attributes'] as $sak => $sa) {
-                        $options[$key]['sub_attributes'][$sak]['image_url'] = printcart_get_image_thumbnail($sa['image']);
-                    }
-                }
-                if (isset($option['overlay_image'])) {
-                    foreach ($option['overlay_image'] as $k => $ov) {
-                        $options[$key]['overlay_image_url'][$k] = printcart_get_image_thumbnail($ov);
-                    }
-                }
-                if (isset($option['frame_image'])) {
-                    $options[$key]['frame_image_url'] = printcart_get_image_thumbnail($option['frame_image']);
                 }
             }
             $same_size          = isset($attributes['same_size']) ? $attributes['same_size'] : 'y';
@@ -535,120 +716,177 @@ CREATE TABLE {$wpdb->prefix}printcart_product_builder_options (
                 'bg_type'         => $bg_type,
                 'show_as_pt'      => $show_as_pt,
                 'number_of_sides' => $number_of_sides,
-                'depend'          =>  array(
-                    array(
-                        'field'     => 'data_type',
-                        'operator'  => '=',
-                        'value'     => 'm'
-                    )
-                ),
                 'options'         => $options
             );
         }
-        public function build_config_appearance_display_type( $value = null ){
+        public function build_config_general_pb_config($configs) {
+            foreach ($configs as $key => $o_config) {
+                foreach ($o_config as $skey => $so_config) {
+                    foreach ($so_config['views'] as $vkey => $view) {
+                        $configs[$key][$skey]['views'][$vkey]['display']    = (isset($view['display']) && $view['display'] == 'on') ? true : false;
+                        $configs[$key][$skey]['views'][$vkey]['image_url']  = nbd_get_image_thumbnail($view['image']);
+                    }
+                }
+            }
+            return $configs;
+        }
+        public function build_config_general_nbpb_text_configs($configs) {
+            if (!isset($configs['views'])) $configs['views'] = array();
+            foreach ($configs['views'] as $key => $view) {
+                $configs['views'][$key]['display'] = (isset($view['display']) && $view['display'] == 'on') ? true : false;
+            }
+            return $configs;
+        }
+        public function build_config_general_nbpb_image_configs($configs) {
+            if (!isset($configs['views'])) $configs['views'] = array();
+            foreach ($configs['views'] as $key => $view) {
+                $configs['views'][$key]['display'] = (isset($view['display']) && $view['display'] == 'on') ? true : false;
+            }
+            return $configs;
+        }
+        public function build_config_appearance_display_type($value = null) {
             if (is_null($value)) $value = 'd';
-            return array(  
-                'title'         => __( 'Display type', 'web-to-print-online-designer'),
+            return array(
+                'title'         => __('Display type', 'web-to-print-online-designer'),
                 'description'   => '',
                 'value'         => $value,
                 'type'          => 'dropdown',
                 'options'       => array(
                     array(
                         'key'   => 'd',
-                        'text'  => __( 'Dropdown', 'web-to-print-online-designer')
+                        'text'  => __('Dropdown', 'web-to-print-online-designer')
                     ),
                     array(
                         'key'   => 'r',
-                        'text'  => __( 'Radio button', 'web-to-print-online-designer')
+                        'text'  => __('Radio button', 'web-to-print-online-designer')
                     ),
                     array(
                         'key'   => 's',
-                        'text'  => __( 'Swatch', 'web-to-print-online-designer')
+                        'text'  => __('Swatch', 'web-to-print-online-designer')
                     ),
                     array(
                         'key'   => 'l',
-                        'text'  => __( 'Label', 'web-to-print-online-designer')
-                    ),    
-                     array(
+                        'text'  => __('Label', 'web-to-print-online-designer')
+                    ),
+                    array(
                         'key'   => 'ad',
-                        'text'  => __( 'Advanced Dropdown', 'web-to-print-online-designer')
+                        'text'  => __('Advanced Dropdown', 'web-to-print-online-designer')
                     ),
                     array(
                         'key'   => 'xl',
-                        'text'  => __( 'Large label', 'web-to-print-online-designer')
+                        'text'  => __('Large label', 'web-to-print-online-designer')
                     )
                 )
             );
         }
-        public function build_config_appearance_change_image_product( $value = null ){
+        public function build_config_appearance_change_image_product($value = null) {
             if (is_null($value)) $value = 'n';
-            return array(  
-                'title'         => __( 'Changes product image', 'web-to-print-online-designer'),
+            return array(
+                'title'         => __('Changes product image', 'web-to-print-online-designer'),
                 'description'   => __('Choose whether to change the product image.', 'web-to-print-online-designer'),
                 'type'          => 'dropdown',
                 'value'         => $value,
                 'options'       => array(
                     array(
                         'key'   => 'y',
-                        'text'  => __( 'Yes', 'web-to-print-online-designer')
+                        'text'  => __('Yes', 'web-to-print-online-designer')
                     ),
                     array(
                         'key'   => 'n',
-                        'text'  => __( 'No', 'web-to-print-online-designer')
+                        'text'  => __('No', 'web-to-print-online-designer')
                     )
                 )
             );
         }
-        public function build_config_appearance_css_class( $value = null ){
+        public function build_config_appearance_css_class($value = null) {
             if (is_null($value)) $value = '';
             return array(
-                'title'         => __( 'CSS Class', 'web-to-print-online-designer'),
+                'title'         => __('CSS Class', 'web-to-print-online-designer'),
                 'description'   => '',
                 'type'          => 'text',
                 'value'         => $value
             );
         }
-        private function validate_option($options) {
-            if ($options['display_type'] == 2) {
-                if (!isset($options['pm_hoz'])) {
-                    $options['pm_hoz'] = array();
+        function printcart_option_i18n() {
+            return array(
+                'nbpb_com'              => esc_html__('Component', 'web-to-print-online-designer'),
+                'nbpb_text'             => esc_html__('Text', 'web-to-print-online-designer'),
+                'nbpb_image'            => esc_html__('Image', 'web-to-print-online-designer'),
+                'attribute_name'        => esc_html__('Attribute name', 'web-to-print-online-designer'),
+                'sub_attribute_name'    => esc_html__('Sub attribute name', 'web-to-print-online-designer'),
+            );
+        }
+        public function add_meta_boxes() {
+            add_meta_box('printcart_product_builder', __('Printcart product builder', 'web-to-print-online-designer'), array($this, 'meta_box'), 'product', 'normal', 'high');
+        }
+        public function meta_box() {
+            $post_id            = get_the_ID();
+            $nbdpb_enable       = get_post_meta($post_id, '_printcart_pb_enable', true);
+            $option_id          = $this->get_product_option($post_id);
+            $option_id          = $option_id ? $option_id : 0;
+            $link_edit_option   = add_query_arg(
+                array(
+                    'product_id'    => $post_id,
+                    'action'        => 'edit',
+                    'paged'         => 1,
+                    'id'            => $option_id
+                ),
+                admin_url('admin.php?page=pc_product_builder_options')
+            );
+            include_once(PRINTCART_PB_PLUGIN_DIR . 'views/options/meta-box.php');
+        }
+        public function get_product_option($product_id) {
+            $enable = get_post_meta($product_id, '_printcart_pb_enable', true);
+            if (!$enable) return false;
+            $option_id = get_transient('printcart_product_builder_' . $product_id);
+            if (false === $option_id) {
+                global $wpdb;
+                $sql = "SELECT id, product_ids FROM {$wpdb->prefix}printcart_product_builder_options WHERE published = 1";
+                $options = $wpdb->get_results($sql, 'ARRAY_A');
+                if ($options) {
+                    $_options = array();
+                    foreach ($options as $option) {
+                        $execute_option = true;
+                        if ($execute_option) {
+                            $products = unserialize($option['product_ids']);
+                            $execute_option = in_array($product_id, $products) ? true : false;
+                        }
+                        if ($execute_option) {
+                            $_options[] = $option;
+                        }
+                    }
+                    $_options = array_reverse($_options);
+                    $option_id = isset($_options[0]) && isset($_options[0]['id']) ? $_options[0]['id'] : '';
+                    if ($option_id) {
+                        set_transient('printcart_product_builder_' . $product_id, $option_id);
+                    }
                 }
-                if (!isset($options['pm_ver'])) {
-                    $options['pm_ver'] = array();
-                }
-                if (!isset($options['manual_build_pm'])) {
-                    $options['manual_build_pm'] = 'off';
-                    $options['manual_pm']       = '';
-                }
-            } else if ($options['display_type'] == 3) {
-                if (!isset($options['bulk_fields'])) {
-                    $options['bulk_fields'] = array();
-                }
-            } else if ($options['display_type'] == 4) {
-                if (!isset($options['groups'])) {
-                    $options['groups'] = array();
-                }
-            } else if ($options['display_type'] == 6) {
-                if (!isset($options['popup_fields'])) {
-                    $options['popup_fields']        = array();
-                    $options['popup_trigger_field'] = '';
-                    $options['popup_trigger_value'] = '';
-                }
-            } else if (!isset($options['display_type'])) {
-                $options['display_type'] = 1;
             }
-
-            if (isset($options['popup_trigger_field'])) {
-                if (strpos($options['popup_trigger_field'], 'string') !== FALSE) {
-                    $options['popup_trigger_field'] = '';
+            return $option_id;
+        }
+        public function save_product_option($post_id) {
+            if (
+                !isset($_POST['pc_box_nonce']) || !wp_verify_nonce($_POST['pc_box_nonce'], 'pc_box')
+                || !(current_user_can('administrator') || current_user_can('shop_manager'))
+            ) {
+                return $post_id;
+            }
+            if (defined('DOING_AUTOSAVE') && DOING_AUTOSAVE) {
+                return $post_id;
+            }
+            if ('page' == $_POST['post_type']) {
+                if (!current_user_can('edit_page', $post_id)) {
+                    return $post_id;
+                }
+            } else {
+                if (!current_user_can('edit_post', $post_id)) {
+                    return $post_id;
                 }
             }
-            if (isset($options['popup_trigger_value'])) {
-                if (strpos($options['popup_trigger_value'], 'undefined') !== FALSE) {
-                    $options['popup_trigger_value'] = '';
-                }
+            if (isset($_POST['_printcart_pb_enable'])) {
+                $enable = wc_clean($_POST['_printcart_pb_enable']);
+                update_post_meta($post_id, '_printcart_pb_enable', $enable);
             }
-            return $options;
         }
     }
 }

@@ -178,11 +178,7 @@ class Printcart_Options_List_Table extends WP_List_Table {
     function column_date($item) {
         return (!empty($item['modified']) && $item['modified'] != '0000-00-00 00:00:00') ? $item['modified'] : $item['created'];
     }
-    function column_apply_for($item) {
-        return '<span class="nbo_color_emerald">' . ($item['apply_for'] == 'p' ? esc_html__('Products', 'web-to-print-online-designer') : esc_html__('Categories', 'web-to-print-online-designer')) . '</span>';
-    }
     function column_product_ids($item) {
-        if ($item['apply_for'] == 'c') return '<span class="nbo_color_pomegranate">' . esc_html__('Disabled', 'web-to-print-online-designer') . '</span>';
         $return = esc_html__('None', 'web-to-print-online-designer');
         if (!$item['product_ids']) return $return;
         $products = unserialize($item['product_ids']);
@@ -193,25 +189,6 @@ class Printcart_Options_List_Table extends WP_List_Table {
                 $links[]    = '<a title="' . esc_attr($title) . '" href="' . esc_url(admin_url('post.php?action=edit&post=' . $pid)) . '" rel="tag">' . $title . '</a>';
             }
             $return = implode(' , ', $links);
-        }
-        return $return;
-    }
-    function column_product_cats($item) {
-        if ($item['apply_for'] == 'p') return '<span class="nbo_color_pomegranate">' . esc_html__('Disabled', 'web-to-print-online-designer') . '</span>';
-        $return = esc_html__('None', 'web-to-print-online-designer');
-        if (!$item['product_cats']) return $return;
-        $cats = unserialize($item['product_cats']);
-        if (count($cats)) {
-            $links = array();
-            foreach ($cats as $cat_id) {
-                $category   = get_term_by('id', $cat_id, 'product_cat');
-                $link       = get_term_link($category, 'product_cat');
-                if (!is_wp_error($link)) {
-                    $links[] = '<a href="' . esc_url($link) . '" rel="tag">' . $category->name . '</a>';
-                }
-            }
-            $sep    = ' , ';
-            $return = join($sep, $links);
         }
         return $return;
     }

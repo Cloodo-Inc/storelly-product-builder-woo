@@ -4,16 +4,14 @@
         <div ng-dblclick="toggleExpandField($index, $event)" style="cursor: pointer;" title="<?php esc_html_e('Double click to expand option', 'web-to-print-online-designer') ?>">
             <ul nbd-tab ng-class="field.isExpand ? '' : 'left'" class="nbd-tab-nav">
                 <li class="nbd-field-tab active" data-target="tab-general"><?php esc_html_e('General', 'web-to-print-online-designer') ?></li>
-                <li class="nbd-field-tab" data-target="tab-conditional"><?php esc_html_e('Conditional', 'web-to-print-online-designer') ?></li>
                 <li class="nbd-field-tab" data-target="tab-appearance"><?php esc_html_e('Appearance', 'web-to-print-online-designer') ?></li>
                 <li ng-if="field.nbd_type" class="nbd-field-tab" data-target="tab-online-design"><?php esc_html_e('Online design', 'web-to-print-online-designer'); ?></li>
                 <li ng-if="field.nbpb_type" class="nbd-field-tab" data-target="tab-product-builder"><?php esc_html_e('Product builder', 'web-to-print-online-designer'); ?></li>
                 <li ng-if="field.nbe_type" class="nbd-field-tab" data-target="tab-extra-options"><?php esc_html_e('Extra options', 'web-to-print-online-designer'); ?></li>
             </ul>
-            <input ng-hide="true" ng-model="field.id" name="options[fields][{{fieldIndex}}][id]"/>
+            <input ng-hide="true" ng-model="field.id" name="options[fields][{{fieldIndex}}][id]" />
             <span class="nbd-field-name" ng-class="[{true: '', false: 'left'}[field.isExpand], {'n': 'nbo_blur'}[field.general.enabled.value]]">
                 <span>{{field.general.title.value}}</span>
-                <span style="color: #0085ba;">{{get_field_group_name( field.id )}}</span>
             </span>
             <span class="nbdesigner-right field-action">
                 <span class="nbo-type-label-wrap"><span class="nbo-type-label" ng-class="get_field_class((field.nbd_type != '' && field.nbd_type != null) ? field.nbd_type : field.nbpb_type)">{{get_field_type( (field.nbd_type != '' && field.nbd_type != null) ? field.nbd_type : ( (field.nbpb_type != '' && field.nbpb_type != null) ? field.nbpb_type : field.nbe_type ) )}}</span></span>
@@ -34,3 +32,22 @@
     <a style="background: rgba(170, 0, 0, 0.75);color: #fff;border-color: rgba(170, 0, 0, 0.75);" class="button" ng-click="clear_all_fields()"><span class="dashicons dashicons-no-alt"></span> <?php esc_html_e('Clear All Fields', 'web-to-print-online-designer'); ?></a>
     <a class="button button-primary" ng-click="add_field()"><span class="dashicons dashicons-plus"></span> <?php esc_html_e('Add Field', 'web-to-print-online-designer'); ?></a>
 </div>
+<?php
+include 'templates/field-body.php';
+include 'templates/nbpb_com.php';
+include 'templates/nbpb_text.php';
+include 'templates/nbpb_image.php';
+
+include 'templates/field-body/title.php';
+include 'templates/field-body/description.php';
+include 'templates/field-body/data_type.php';
+include 'templates/field-body/input_type.php';
+include 'templates/field-body/input_option.php';
+include 'templates/field-body/text_option.php';
+include 'templates/field-body/upload_option.php';
+include 'templates/field-body/enabled.php';
+include 'templates/field-body/published.php';
+include 'templates/field-body/required.php';
+include 'templates/field-body/price_type.php';
+include 'templates/field-body/price.php';
+include 'templates/field-body/attributes.php';

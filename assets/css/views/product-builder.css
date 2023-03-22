@@ -1,0 +1,77 @@
+body, html {
+  font-family: 'Poppins';
+  overflow: hidden !important;
+}
+.nbdpb-load-page {
+position: fixed;
+top: 0;
+bottom: 0;
+left: 0;
+right: 0;
+background: #fdfdfd;
+opacity: 0;
+visibility: hidden;
+z-index: -1;
+-webkit-transition: all .7s;
+-moz-transition: all .7s;
+transition: all .7s;
+}
+
+.nbdpb-load-page.nbdpb-show,
+.nbpb-stage-loading.nbdpb-show {
+  opacity: 1;
+  visibility: visible;
+  z-index: 99999999999;
+}
+
+.nbdpb-load-page .nbpb-loader,
+.nbpb-stage-loading .nbpb-loader {
+position: relative;
+margin: -50px auto 0 -50px;
+width: 100px;
+top: 50%;
+left: 50%;
+}
+
+.nbdpb-load-page .nbpb-loader:before,
+.nbpb-stage-loading .nbpb-loader:before {
+content: '';
+display: block;
+padding-top: 100%;
+}
+.nbpb-stage-loading {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  visibility: hidden;
+  z-index: -1;
+  -webkit-transition: all .2s;
+  -moz-transition: all .2s;
+  transition: all .2s;
+  background: rgba(255,255,255,0.65);
+}
+.circular {
+-webkit-animation: rotate 2s linear infinite;
+animation: rotate 2s linear infinite;
+height: 100%;
+-webkit-transform-origin: center center;
+transform-origin: center center;
+width: 100%;
+position: absolute;
+top: 0;
+bottom: 0;
+left: 0;
+right: 0;
+margin: auto;
+}
+
+.circular .path {
+stroke-dasharray: 1,200;
+stroke-dashoffset: 0;
+-webkit-animation: dash 1.5s ease-in-out infinite,color 6s ease-in-out infinite;
+animation: dash 1.5s ease-in-out infinite,color 6s ease-in-out infinite;
+stroke-linecap: round;
+}

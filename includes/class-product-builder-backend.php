@@ -2,8 +2,8 @@
 if (!defined('ABSPATH')) {
     exit;
 }
-if (!class_exists('Printcart_Product_Builder_Plugin')) {
-    class Printcart_Product_Builder_Plugin {
+if (!class_exists('Printcart_Product_Builder_Backend')) {
+    class Printcart_Product_Builder_Backend {
         public function __construct() {
         }
         public function init() {
@@ -63,6 +63,7 @@ if (!class_exists('Printcart_Product_Builder_Plugin')) {
             /* Install */
             Printcart_Install::create_pages();
             Printcart_Install::create_tables();
+            Printcart_Install::init_files_and_folders();
             update_option('printcart_version_plugin', PRINTCART_PB_VERSION);
         }
     }

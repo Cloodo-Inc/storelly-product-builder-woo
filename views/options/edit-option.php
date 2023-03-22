@@ -30,8 +30,8 @@ $max_input_vars = printcart_get_max_input_var();
 ?>
 <!-- No inline scripts or styles unless dynamic. -->
 <script type="text/javascript">
-    var NBDOPTIONS = <?php echo json_encode($options); ?>;
-    var NBDOPTION_FIELD = <?php echo json_encode($default_field); ?>;
+    var PRINTCART_OPTIONS = <?php echo json_encode($options); ?>;
+    var PRINTCART_OPTION_FIELD = <?php echo json_encode($default_field); ?>;
     var ajax_url = "<?php echo admin_url('admin-ajax.php'); ?>",
         nbnonce = "<?php echo wp_create_nonce('save-design'); ?>",
         max_input_vars = parseInt(<?php echo ($max_input_vars); ?>);
@@ -44,7 +44,7 @@ $max_input_vars = printcart_get_max_input_var();
 </div>
 <div class="message">
     <?php if (isset($message['flag'])) {
-        $message = nbd_custom_notices($message['flag'], $message['content']);
+        $message = printcart_custom_notices($message['flag'], $message['content']);
         echo ($message);
     } ?>
 </div>
@@ -68,7 +68,29 @@ $max_input_vars = printcart_get_max_input_var();
                             <h2 class="hndle ui-sortable-handle"><span><?php esc_html_e('Publish', 'pc-product-builder'); ?></span></h2>
                             <div class="inside">
                                 <div class="submitbox" id="submitpost">
+                                    <div class="minor-publishing">
+                                        <div class="misc-publishing-actions nbo-dates">
+                                            <div style="margin-bottom: 15px;">
+                                                <label for="date_from"><?php _e('Status:', 'web-to-print-online-designer'); ?></label>
+                                                <b style="vertical-align: middle;"><?php echo $options['published'] ? 'Published' : 'Trash';  ?></b>
+                                            </div>
+                                            <div style="margin-bottom: 15px;">
+                                                <label for="date_from"><?php _e('Published on:', 'web-to-print-online-designer'); ?></label>
+                                                <b style="vertical-align: middle;"><?php echo $options['created']; ?></b>
+                                            </div>
+                                            <div>
+                                                <label for="date_to"><?php _e('Modified on:', 'web-to-print-online-designer'); ?></label>
+                                                <b style="vertical-align: middle;"><?php echo $options['modified']; ?></b>
+                                            </div>
+                                        </div>
+                                        <div class="clear"></div>
+                                    </div>
                                     <div id="major-publishing-actions">
+                                        <div id="delete-action">
+                                            <?php if ($options['published'] == 1) : ?>
+                                                <a class="submitdelete deletion" href="<?php echo $link_unpublish; ?>"><?php _e('Move to Trash', 'web-to-print-online-designer'); ?></a>
+                                            <?php endif; ?>
+                                        </div>
                                         <div id="publishing-action">
                                             <input ng-disabled="!nboForm.$valid" name="save" type="submit" class="button button-primary button-large" id="publish" ng-click="updateJsonFields($event)" accesskey="p" value="<?php ($id != 0) ? esc_attr_e('Update') : esc_attr_e('Publish'); ?>" />
                                         </div>
@@ -79,7 +101,7 @@ $max_input_vars = printcart_get_max_input_var();
                         </div>
                         <div id="product_catdiv" class="postbox">
                             <h2 class="hndle ui-sortable-handle"><span><?php esc_html_e('Apply for', 'pc-product-builder'); ?></span></h2>
-                            <div class="inside nbo-toggle" id="nbo-products-wrap">
+                            <div class="inside nbo-toggle active" id="nbo-products-wrap">
                                 <label for="product_ids" style="display: inline-block;margin-bottom: 10px;"><?php esc_html_e('Select the Products to apply the options', 'pc-product-builder') ?></label>
                                 <select name="product_ids[]" id="product_ids" class="wc-product-search" multiple="multiple" style="width: 100%;" data-placeholder="<?php esc_html_e('Search for a product&hellip;', 'pc-product-builder'); ?>" data-action="woocommerce_json_search_products">
                                     <?php
@@ -103,29 +125,29 @@ $max_input_vars = printcart_get_max_input_var();
                         </div>
                     </div>
                     <div id="postbox-container-2" class="postbox-container">
-                        <!-- <div class="postbox">
+                        <div class="postbox">
                             <div class="inside">
                                 <div class="nbd-option-actions">
                                     <a ng-click="import()" class="button-primary"><span class="dashicons dashicons-migrate nbd-r180"></span> <?php esc_html_e('Import', 'pc-product-builder'); ?></a>
                                     <a ng-click="export()" class="button-primary"><span class="dashicons dashicons-migrate"></span> <?php esc_html_e('Export', 'pc-product-builder'); ?></a>
                                 </div>
                             </div>
-                        </div> -->
+                        </div>
                         <div class="postbox nbd-fields-wrap">
-                            <h2 style="border-bottom: 1px solid #ddd;"><?php esc_html_e('Printing fields', 'pc-product-builder'); ?></h2>
+                            <h2 style="border-bottom: 1px solid #ddd;"><?php esc_html_e('Production builder fields', 'pc-product-builder'); ?></h2>
                             <div class="inside">
                                 <div style="margin-top: 10px;">
                                     <p class="section-title"><input class="nbd-ip-readonly" value="<?php esc_html_e('Product builder fields', 'pc-product-builder'); ?>" readonly=""></p>
                                     <div class="nbd-section-wrap">
-                                        <a class="nbd-field-btn button" ng-click="add_field('nbpb_com', 'nbpb_com')"><?php esc_html_e('Component', 'pc-product-builder'); ?> <span class="nbo-type-label wpo">20</span></a>
-                                        <a class="nbd-field-btn button" ng-click="add_field('nbpb_text', 'nbpb_text')"><?php esc_html_e('Text', 'pc-product-builder'); ?> <span class="nbo-type-label wpo">21</span></a>
-                                        <a class="nbd-field-btn button" ng-click="add_field('nbpb_image', 'nbpb_image')"><?php esc_html_e('Image', 'pc-product-builder'); ?> <span class="nbo-type-label wpo">22</span></a>
+                                        <a class="nbd-field-btn button" ng-click="add_field('nbpb_com', 'nbpb_com')"><?php esc_html_e('Component', 'pc-product-builder'); ?> <span class="nbo-type-label wpo">1</span></a>
+                                        <a class="nbd-field-btn button" ng-click="add_field('nbpb_text', 'nbpb_text')"><?php esc_html_e('Text', 'pc-product-builder'); ?> <span class="nbo-type-label wpo">2</span></a>
+                                        <a class="nbd-field-btn button" ng-click="add_field('nbpb_image', 'nbpb_image')"><?php esc_html_e('Image', 'pc-product-builder'); ?> <span class="nbo-type-label wpo">3</span></a>
                                     </div>
                                 </div>
                             </div>
                         </div>
                         <div class="postbox">
-                            <h2 style="border-bottom: 1px solid #ddd;"><?php esc_html_e('Printing options', 'pc-product-builder'); ?></h2>
+                            <h2 style="border-bottom: 1px solid #ddd;"><?php esc_html_e('Production builder options', 'pc-product-builder'); ?></h2>
                             <div class="inside">
                                 <div class="nbd-fields-builder">
                                     <?php include_once('field.php'); ?>

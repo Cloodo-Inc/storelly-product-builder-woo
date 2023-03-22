@@ -1,6 +1,6 @@
 <?php
 if (!defined('ABSPATH')) exit;
-if (!class_exists('NBD_Install')) {
+if (!class_exists('Printcart_Install')) {
     class Printcart_Install {
         public function __construct() {
             //todo something when initial class
@@ -25,6 +25,11 @@ if (!class_exists('NBD_Install')) {
         }
         public static function create_tables() {
             do_action('printcart_create_tables');
+        }
+        public static function init_files_and_folders() {
+            Printcart_IO::mkdir(PRINTCART_PB_FONT_DIR);
+            Printcart_IO::mkdir(PRINTCART_PB_CUSTOMER_DIR);
+            do_action('printcart_init_files_and_folders');
         }
     }
 }

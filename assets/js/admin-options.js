@@ -1,6 +1,4 @@
 (function ($) {
-  "use strict";
-
   $.fn.tipTip = function (options) {
     var defaults = {
       activation: "hover",
@@ -221,20 +219,20 @@
     });
   };
 })(jQuery);
-var AD_NBD_OPTIONS = {
-  render_price_matrix: function () {},
-};
+// var AD_NBD_OPTIONS = {
+//   render_price_matrix: function () {},
+// };
 angular
   .module("optionApp", [])
   .controller(
     "optionCtrl",
     function (
       $scope,
-      $timeout,
-      pmFieldFilter,
-      bulkFieldFilter,
-      allFieldsFilter,
-      manualPMFieldFilter
+      $timeout
+      // pmFieldFilter,
+      // bulkFieldFilter,
+      // allFieldsFilter,
+      // manualPMFieldFilter
     ) {
       /* init parameters */
       $scope.showPreview = false;
@@ -251,65 +249,56 @@ angular
       };
       /* end init parameters */
       /* quantity */
-      $scope.validate_quantity_break = function () {};
       $scope.excludeField = function (actual, expected) {
         var _field = null;
         angular.forEach($scope.options.fields, function (field) {
           if (field.id == actual) _field = field;
         });
-        if (
-          _field.nbd_type == "page" ||
-          _field.nbd_type == "page2" ||
-          _field.nbd_type == "dimension"
-        )
-          return false;
+        // if (
+        //   _field.nbd_type == "page" ||
+        //   _field.nbd_type == "page2" ||
+        //   _field.nbd_type == "dimension"
+        // )
+        //   return false;
         if (_field.general.enabled.value == "n") return false;
         return actual != expected;
       };
       $scope.includeField = function (actual, expected) {
         return actual == expected;
       };
-      $scope.add_price_break = function () {
-        var last =
-          $scope.options.quantity_breaks.length > 0
-            ? $scope.options.quantity_breaks[
-                $scope.options.quantity_breaks.length - 1
-              ].val
-            : 0;
-        $scope.options.quantity_breaks.push({ val: parseInt(last) + 1 });
-      };
-      $scope.remove_price_break = function (index) {
-        if ($scope.options.quantity_breaks.length == 1) return;
-        $scope.options.quantity_breaks.splice(index, 1);
-      };
-      $scope.update_default_quantity = function (index) {
-        angular.forEach($scope.options.quantity_breaks, function (qty) {
-          qty.default = 0;
-        });
-        $scope.options.quantity_breaks[index].default = 1;
-      };
       /* end. quantity */
       $scope.add_field = function (type, ftype) {
         var field = {};
-        angular.copy(NBDOPTION_FIELD, field);
+        angular.copy(PRINTCART_OPTION_FIELD, field);
         var d = new Date();
         field["id"] = "f" + d.getTime();
         field.isExpand = true;
-        var extra_options = ["delivery", "actions", "frame", "number_file"];
-        if (angular.isDefined(type) && extra_options.indexOf(type) != -1) {
-          field.nbd_template = "nbd." + type;
-          field.nbe_type = type;
-          field.general.title.value = nbd_options.nbd_options_lang[type];
-        }
-        if (angular.isDefined(type) && extra_options.indexOf(type) == -1) {
-          field.general.title.value = nbd_options.nbd_options_lang[type];
+        if (angular.isDefined(type)) {
+          field.general.title.value =
+            printcart_options.printcart_options_lang[type];
           field.nbd_template = "nbd." + type;
           if (angular.isUndefined(ftype)) {
+            if (
+              angular.isDefined($scope.printcart_options[type]) &&
+              type != "builder" &&
+              $scope.printcart_options[type] == 1
+            ) {
+            } else {
+              $scope.printcart_options[type] = 1;
+            }
+            field.nbd_type = type;
+            angular.forEach(field.general.attributes, function (attr, a_key) {
+              attr.enable_subattr = 0;
+            });
           } else {
             field.nbpb_type = type;
+            console.log($scope.options);
             if (angular.isUndefined($scope.options.views))
               $scope.options.views = [
-                { name: nbd_options.nbd_options_lang.view_name, base: 0 },
+                {
+                  name: printcart_options.printcart_options_lang.view_name,
+                  base: 0,
+                },
               ];
             switch (type) {
               case "nbpb_com":
@@ -367,7 +356,7 @@ angular
       };
       $scope.addView = function () {
         $scope.options.views.push({
-          name: nbd_options.nbd_options_lang.view_name,
+          name: printcart_options.printcart_options_lang.view_name,
           base: 0,
         });
         $scope.initfieldValue();
@@ -386,9 +375,9 @@ angular
           return;
         }
         file_frame = wp.media.frames.file_frame = wp.media({
-          title: nbd_options.nbd_options_lang.choose_image,
+          title: printcart_options.printcart_options_lang.choose_image,
           button: {
-            text: nbd_options.nbd_options_lang.choose_image,
+            text: printcart_options.printcart_options_lang.choose_image,
           },
           library: {
             type: ["image"],
@@ -432,9 +421,9 @@ angular
           return;
         }
         file_frame = wp.media.frames.file_frame = wp.media({
-          title: nbd_options.nbd_options_lang.choose_image,
+          title: printcart_options.printcart_options_lang.choose_image,
           button: {
-            text: nbd_options.nbd_options_lang.choose_image,
+            text: printcart_options.printcart_options_lang.choose_image,
           },
           library: {
             type: ["image"],
@@ -480,34 +469,10 @@ angular
       $scope.get_field_class = function (type) {
         var klass = "default";
         switch (type) {
-          case "page":
-          case "page1":
-          case "page2":
-          case "page3":
-          case "color":
-          case "size":
-          case "dimension":
-          case "dpi":
-          case "area":
-          case "orientation":
-          case "padding":
-          case "rounded_corner":
-          case "overlay":
-          case "fold":
-          case "shape":
-            klass = "wod";
-            break;
           case "nbpb_com":
           case "nbpb_text":
           case "nbpb_image":
             klass = "wpo";
-            break;
-          case "frame":
-          case "number_file":
-            klass = "wpu";
-            break;
-          default:
-            klass = "default";
             break;
         }
         return klass;
@@ -516,110 +481,20 @@ angular
         type = angular.isDefined(type) ? type : "";
         var type_number;
         switch (type) {
-          case "page":
-            type_number = 2;
-            break;
-          case "page1":
-            type_number = 2.1;
-            break;
-          case "page2":
-            type_number = 2.2;
-            break;
-          case "page3":
-            type_number = 2.3;
-            break;
-          case "color":
-            type_number = 3;
-            break;
-          case "size":
-            type_number = 4;
-            break;
-          case "dimension":
-            type_number = 5;
-            break;
-          case "dpi":
-            type_number = 6;
-            break;
-          case "area":
-            type_number = 7;
-            break;
-          case "shape":
-            type_number = 7.1;
-            break;
-          case "orientation":
-            type_number = 8;
-            break;
-          case "padding":
-            type_number = 9;
-            break;
-          case "rounded_corner":
-            type_number = 10;
-            break;
           case "nbpb_com":
-            type_number = 20;
+            type_number = 1;
             break;
           case "nbpb_text":
-            type_number = 21;
+            type_number = 2;
             break;
           case "nbpb_image":
-            type_number = 22;
-            break;
-          case "delivery":
-            type_number = 30;
-            break;
-          case "actions":
-            type_number = 31;
-            break;
-          case "overlay":
-            type_number = 11;
-            break;
-          case "fold":
-            type_number = 12;
-            break;
-          case "frame":
-            type_number = 40;
-            break;
-          case "number_file":
-            type_number = 41;
+            type_number = 3;
             break;
           default:
             type_number = 1;
             break;
         }
         return type_number;
-      };
-      $scope.add_measurement_range = function (fieldIndex) {
-        $scope.options["fields"][fieldIndex].general.mesure_range.push([]);
-      };
-      $scope.delete_measurement_ranges = function (fieldIndex, $event) {
-        var mesure_range =
-          $scope.options["fields"][fieldIndex].general.mesure_range;
-        if (mesure_range.length) {
-          var need_delete = [];
-          angular.forEach(mesure_range, function (mr, mr_index) {
-            if (mr[3]) {
-              need_delete.push(mr_index);
-            }
-          });
-          for (var i = need_delete.length - 1; i >= 0; i--)
-            mesure_range.splice(need_delete[i], 1);
-        }
-        angular
-          .element($event.currentTarget)
-          .parents("table.nbo-measure-range")
-          .find("input.nbo-measure-range-select-all")
-          .prop("checked", false);
-      };
-      $scope.select_all_measurement_range = function (fieldIndex, $event) {
-        var mesure_range =
-          $scope.options["fields"][fieldIndex].general.mesure_range;
-        var el = angular.element($event.target),
-          check = el.prop("checked") ? true : false;
-        if (mesure_range.length) {
-          angular.forEach(mesure_range, function (mr, mr_index) {
-            mr[3] = check;
-          });
-        }
       };
       $scope.copy_field = function (index) {
         var field = {};
@@ -632,21 +507,22 @@ angular
         $scope.initfieldValue();
       };
       $scope.delete_field = function (index) {
-        var con = confirm(nbd_options.nbd_options_lang.want_to_delete);
+        var con = confirm(
+          printcart_options.printcart_options_lang.want_to_delete
+        );
         if (con) {
           var field = $scope.options.fields[index];
-          if (angular.isDefined(field.nbd_type)) {
-            $scope.nbd_options[field.nbd_type] = 0;
-          }
           $scope.options.fields.splice(index, 1);
           $scope.initfieldValue();
         }
       };
       $scope.clear_all_fields = function (index) {
-        var con = confirm(nbd_options.nbd_options_lang.want_to_delete_all);
+        var con = confirm(
+          printcart_options.printcart_options_lang.want_to_delete_all
+        );
         if (con) {
           $scope.options.fields = [];
-          angular.forEach($scope.nbd_options, function (option, key) {
+          angular.forEach($scope.printcart_options, function (option, key) {
             option = 0;
           });
           $scope.initfieldValue();
@@ -705,23 +581,10 @@ angular
             );
           }, 0);
         }
-
-        if (large_amount_field == "yes") {
-          jQuery(".nbp-loading-wrap").addClass("nbp-show");
-          $timeout(function () {
-            _toggleExpandField();
-            angular.forEach($scope.options.fields, function (field, key) {
-              if (key != index) {
-                $scope.options.fields[key].isExpand = false;
-              }
-            });
-            parent.find(".nbd-tab-nav li").removeClass("active");
-            parent.find(".nbd-tab-nav li:first-child").addClass("active");
-            jQuery(".nbp-loading-wrap").removeClass("nbp-show");
-          }, 100);
-        } else {
-          _toggleExpandField();
-        }
+        _toggleExpandField();
+      };
+      $scope.viewOptions = () => {
+        console.log($scope.options);
       };
       $scope.initfieldValue = function () {
         angular.forEach($scope.options.fields, function (field, key) {
@@ -730,19 +593,31 @@ angular
           )
             ? $scope.option_values[key]
             : "";
-
-          if (field.general.attributes.options.length == 0) {
+          if (field.general.data_type.value == "i") {
             $scope.option_values[key] = "";
           } else {
-            $scope.option_values[key] = 0;
-            angular.forEach(field.general.attributes.options, function (op, k) {
-              if (op.selected) $scope.option_values[key] = k;
-            });
+            if (field.general.attributes.options.length == 0) {
+              $scope.option_values[key] = "";
+            } else {
+              $scope.option_values[key] = 0;
+              angular.forEach(
+                field.general.attributes.options,
+                function (op, k) {
+                  if (op.selected) $scope.option_values[key] = k;
+                }
+              );
+            }
           }
-
           if (angular.isDefined(field.nbpb_type)) {
-            if (angular.isUndefined($scope.options.views))
-              $scope.options.views = [];
+            if (angular.isUndefined($scope.options.views)) {
+              $scope.options.views = [
+                {
+                  name: printcart_options.printcart_options_lang.view_name,
+                  base: 0,
+                },
+              ];
+            }
+
             $scope.has_product_builder_field = true;
             switch (field.nbpb_type) {
               case "nbpb_com":
@@ -832,16 +707,16 @@ angular
               "slow"
             );
             alert(
-              nbd_options.nbd_options_lang.max_input_var +
+              printcart_options.printcart_options_lang.max_input_var +
                 " " +
                 $scope.max_input_vars +
                 ". " +
-                nbd_options.nbd_options_lang.max_input_notice
+                printcart_options.printcart_options_lang.max_input_notice
             );
           }
         }, 2000);
 
-        $scope.maybeUpdateManualPm();
+        // $scope.maybeUpdateManualPm();
       };
       $scope.buildPbConfigFlat = function (field) {
         var options = field.general.attributes.options;
@@ -952,8 +827,8 @@ angular
         });
       };
       $scope.init = function (options) {
-        $scope.nbd_options = {};
-        $scope.options = NBDOPTIONS;
+        $scope.printcart_options = {};
+        $scope.options = PRINTCART_OPTIONS;
         $scope.current_input_vars = 1;
         $scope.max_input_vars = max_input_vars;
         if (angular.isDefined(options)) {
@@ -964,11 +839,9 @@ angular
           )
             $scope.$apply();
         }
-
         $scope.option_values = [];
         angular.forEach($scope.options.fields, function (field, key) {
           field.isExpand = false;
-          console.log(field.general);
           if (field.general.attributes.options.length) {
             angular.forEach(
               field.general.attributes.options,
@@ -988,64 +861,63 @@ angular
             );
           }
         });
-        if (angular.isDefined($scope.options.groups)) {
-          angular.forEach($scope.options.groups, function (group, gkey) {
-            group.isExpand = false;
-          });
-        }
+        // if (angular.isDefined($scope.options.groups)) {
+        //   angular.forEach($scope.options.groups, function (group, gkey) {
+        //     group.isExpand = false;
+        //   });
+        // }
         $scope.has_product_builder_field = false;
         $scope.initfieldValue();
-        $scope.options.pm_ver = $scope.options.pm_ver
-          ? $scope.options.pm_ver
-          : [];
-        $scope.options.pm_hoz = $scope.options.pm_hoz
-          ? $scope.options.pm_hoz
-          : [];
-        $scope.$watchCollection(
-          "options.fields",
-          function (newVal, oldVal) {
-            $scope.availablePmHozFileds = pmFieldFilter(
-              $scope.options.fields,
-              $scope.options.pm_ver
-            );
-            $scope.availablePmVerFileds = pmFieldFilter(
-              $scope.options.fields,
-              $scope.options.pm_hoz
-            );
-            $scope.availableBulkFileds = bulkFieldFilter($scope.options.fields);
-            $scope.allFields = allFieldsFilter($scope.options.fields);
-            $scope.manualPMFields = manualPMFieldFilter(
-              $scope.options.fields,
-              $scope.manualPMVerFields.concat($scope.manualPMHozFields)
-            );
-          },
-          true
-        );
-        $scope.$watchCollection(
-          "options.pm_ver",
-          function (newVal, oldVal) {
-            $scope.availablePmHozFileds = pmFieldFilter(
-              $scope.options.fields,
-              $scope.options.pm_ver
-            );
-          },
-          true
-        );
-        $scope.$watchCollection(
-          "options.pm_hoz",
-          function (newVal, oldVal) {
-            $scope.availablePmVerFileds = pmFieldFilter(
-              $scope.options.fields,
-              $scope.options.pm_hoz
-            );
-          },
-          true
-        );
-        $scope.updatePopupTriggerIndex(true);
+        // $scope.options.pm_ver = $scope.options.pm_ver
+        //   ? $scope.options.pm_ver
+        //   : [];
+        // $scope.options.pm_hoz = $scope.options.pm_hoz
+        //   ? $scope.options.pm_hoz
+        //   : [];
+        // $scope.$watchCollection(
+        //   "options.fields",
+        //   function (newVal, oldVal) {
+        //     $scope.availablePmHozFileds = pmFieldFilter(
+        //       $scope.options.fields,
+        //       $scope.options.pm_ver
+        //     );
+        //     $scope.availablePmVerFileds = pmFieldFilter(
+        //       $scope.options.fields,
+        //       $scope.options.pm_hoz
+        //     );
+        //     $scope.availableBulkFileds = bulkFieldFilter($scope.options.fields);
+        //     $scope.allFields = allFieldsFilter($scope.options.fields);
+        //     $scope.manualPMFields = manualPMFieldFilter(
+        //       $scope.options.fields,
+        //       $scope.manualPMVerFields.concat($scope.manualPMHozFields)
+        //     );
+        //   },
+        //   true
+        // );
+        // $scope.$watchCollection(
+        //   "options.pm_ver",
+        //   function (newVal, oldVal) {
+        //     $scope.availablePmHozFileds = pmFieldFilter(
+        //       $scope.options.fields,
+        //       $scope.options.pm_ver
+        //     );
+        //   },
+        //   true
+        // );
+        // $scope.$watchCollection(
+        //   "options.pm_hoz",
+        //   function (newVal, oldVal) {
+        //     $scope.availablePmVerFileds = pmFieldFilter(
+        //       $scope.options.fields,
+        //       $scope.options.pm_hoz
+        //     );
+        //   },
+        //   true
+        // );
 
-        $scope.options.manual_build_pm =
-          $scope.options.manual_build_pm == "on" ? true : false;
-        $scope.maybeUpdateManualPm(true);
+        // $scope.options.manual_build_pm =
+        //   $scope.options.manual_build_pm == "on" ? true : false;
+        // $scope.maybeUpdateManualPm(true);
       };
       $scope.export = function () {
         jQuery(".nbp-loading-wrap").addClass("nbp-show");
@@ -1103,6 +975,7 @@ angular
           var media_key = key_arr[key_arr.length - 1] + postfix;
           if (!/[image|icon|base]$/.test(key)) {
             media_key = key_arr[key_arr.length - 1];
+            //key_arr[key_arr.length - 2] = 'bg_image' + postfix;
             key_arr[key_arr.length - 2] = key_arr[key_arr.length - 2] + postfix;
           }
           key_arr.splice(key_arr.length - 1, 1);
@@ -1157,14 +1030,14 @@ angular
             }
           });
         }
-        if (angular.isDefined(options.groups)) {
-          angular.forEach(options.groups, function (group, key) {
-            if (group.image != "0") {
-              _key = "groups-" + key + "-image";
-              mediaObject[_key] = type == "url" ? group.image_url : group.image;
-            }
-          });
-        }
+        // if (angular.isDefined(options.groups)) {
+        //   angular.forEach(options.groups, function (group, key) {
+        //     if (group.image != "0") {
+        //       _key = "groups-" + key + "-image";
+        //       mediaObject[_key] = type == "url" ? group.image_url : group.image;
+        //     }
+        //   });
+        // }
         angular.forEach(options.fields, function (field, fkey) {
           if (angular.isDefined(field.general.attributes.options)) {
             angular.forEach(
@@ -1363,7 +1236,7 @@ angular
             callack(data);
           });
       };
-      $scope.check_depend = function (fields, data) {
+      $scope.check_depend = function (fields, data, type) {
         if (angular.isDefined(data.hidden)) return false;
         if (angular.isUndefined(data.depend)) return true;
         var check = [],
@@ -1427,7 +1300,7 @@ angular
             $scope.options["fields"][fieldIndex]["general"][key].remove_att
           )
         ) {
-          alert(nbd_options.nbd_options_lang.can_not_remove_att);
+          alert(printcart_options.printcart_options_lang.can_not_remove_att);
           return;
         }
         $scope.options["fields"][fieldIndex]["general"][key]["options"].splice(
@@ -1557,11 +1430,12 @@ angular
             $scope.options["fields"][fieldIndex]["general"][key].add_att
           )
         ) {
-          alert(nbd_options.nbd_options_lang.can_not_add_att);
+          alert(printcart_options.printcart_options_lang.can_not_add_att);
           return;
         }
+
         $scope.options["fields"][fieldIndex]["general"][key]["options"].push({
-          name: nbd_options.nbd_options_lang.attribute_name,
+          name: printcart_options.printcart_options_lang.attribute_name,
           des: "",
           price: [],
           selected: 0,
@@ -1572,9 +1446,9 @@ angular
           bg_image: [],
           bg_image_url: [],
           isExpand: true,
-          enable_con: 0,
-          con_show: "n",
-          con_logic: "a",
+          // enable_con: 0,
+          // con_show: "n",
+          // con_logic: "a",
           depend: [
             {
               id: "",
@@ -1602,7 +1476,7 @@ angular
         $scope.options["fields"][fieldIndex]["general"]["attributes"][
           "options"
         ][opIndex]["sub_attributes"].push({
-          name: nbd_options.nbd_options_lang.sub_attribute_name,
+          name: printcart_options.printcart_options_lang.sub_attribute_name,
           des: "",
           price: [],
           selected: 0,
@@ -1611,9 +1485,9 @@ angular
           image_url: "",
           color: "#ffffff",
           isExpand: true,
-          enable_con: 0,
-          con_show: "n",
-          con_logic: "a",
+          // enable_con: 0,
+          // con_show: "n",
+          // con_logic: "a",
           depend: [
             {
               id: "",
@@ -1659,9 +1533,9 @@ angular
           return;
         }
         file_frame = wp.media.frames.file_frame = wp.media({
-          title: nbd_options.nbd_options_lang.choose_image,
+          title: printcart_options.printcart_options_lang.choose_image,
           button: {
-            text: nbd_options.nbd_options_lang.choose_image,
+            text: printcart_options.printcart_options_lang.choose_image,
           },
           library: {
             type: ["image"],
@@ -1710,9 +1584,9 @@ angular
           return;
         }
         file_frame = wp.media.frames.file_frame = wp.media({
-          title: nbd_options.nbd_options_lang.choose_image,
+          title: printcart_options.printcart_options_lang.choose_image,
           button: {
-            text: nbd_options.nbd_options_lang.choose_image,
+            text: printcart_options.printcart_options_lang.choose_image,
           },
           library: {
             type: ["image"],
@@ -1757,9 +1631,9 @@ angular
           return;
         }
         file_frame = wp.media.frames.file_frame = wp.media({
-          title: nbd_options.nbd_options_lang.choose_image,
+          title: printcart_options.printcart_options_lang.choose_image,
           button: {
-            text: nbd_options.nbd_options_lang.choose_image,
+            text: printcart_options.printcart_options_lang.choose_image,
           },
           library: {
             type: ["image"],
@@ -1831,47 +1705,6 @@ angular
           ][opIndex].color2;
         }
       };
-      $scope.add_condition = function (fieldIndex) {
-        $scope.options["fields"][fieldIndex]["conditional"].depend.push({
-          id: "",
-          operator: "i",
-          val: "",
-        });
-      };
-      $scope.delete_condition = function (fieldIndex, cdIndex) {
-        if (
-          $scope.options["fields"][fieldIndex]["conditional"].depend.length == 1
-        )
-          return;
-        $scope.options["fields"][fieldIndex]["conditional"].depend.splice(
-          cdIndex,
-          1
-        );
-      };
-      $scope.add_attribute_condition = function (fieldIndex, opIndex) {
-        $scope.options["fields"][fieldIndex]["general"]["attributes"][
-          "options"
-        ][opIndex].depend.push({
-          id: "",
-          operator: "i",
-          val: "",
-        });
-      };
-      $scope.delete_attribute_condition = function (
-        fieldIndex,
-        opIndex,
-        ocIndex
-      ) {
-        if (
-          $scope.options["fields"][fieldIndex]["general"]["attributes"][
-            "options"
-          ][opIndex].depend.length == 1
-        )
-          return;
-        $scope.options["fields"][fieldIndex]["general"]["attributes"][
-          "options"
-        ][opIndex].depend.splice(ocIndex, 1);
-      };
       $scope.update_price_type = function (fieldIndex) {
         if (
           $scope.options["fields"][fieldIndex]["general"].data_type.value ==
@@ -1883,279 +1716,6 @@ angular
             "f";
         }
       };
-      $scope.update_condition_qty = function (fieldIndex) {
-        angular.forEach(
-          $scope.options["fields"][fieldIndex]["conditional"].depend,
-          function (con, _key) {
-            if (con.id != "") {
-              if (
-                con.id == "qty" &&
-                ["i", "ne", "e", "ne"].indexOf(con.operator) > -1
-              )
-                con.operator = "eq";
-            }
-          }
-        );
-      };
-      $scope.check_option_visible = function (fieldIndex) {
-        if ($scope.options["fields"][fieldIndex]["conditional"].enable == "n")
-          return true;
-        if (
-          angular.isUndefined(
-            $scope.options["fields"][fieldIndex]["conditional"].depend
-          )
-        )
-          return true;
-        if (
-          $scope.options["fields"][fieldIndex]["conditional"].depend.length == 0
-        )
-          return true;
-        var show = $scope.options["fields"][fieldIndex]["conditional"]["show"],
-          logic = $scope.options["fields"][fieldIndex]["conditional"]["logic"],
-          check = [];
-        var total_check = logic == "a" ? true : false;
-        function get_field(fieldId) {
-          var field = null;
-          $scope.options.fields.forEach(function (_field, key) {
-            if (_field.id == fieldId) {
-              field = _field;
-              field.index = key;
-            }
-          });
-          return field;
-        }
-        angular.forEach(
-          $scope.options["fields"][fieldIndex]["conditional"].depend,
-          function (con, _key) {
-            if (con.id != "") {
-              var field = get_field(con.id);
-              switch (con.operator) {
-                case "i":
-                  check[_key] =
-                    $scope.option_values[field.index] == con.val ? true : false;
-                  break;
-                case "n":
-                  check[_key] =
-                    $scope.option_values[field.index] != con.val ? true : false;
-                  break;
-                case "e":
-                  check[_key] =
-                    $scope.option_values[field.index] == "" ? true : false;
-                  break;
-                case "ne":
-                  check[_key] =
-                    $scope.option_values[field.index] != "" ? true : false;
-                  break;
-                case "eq":
-                case "gt":
-                case "lt":
-                  check[_key] = true;
-                  break;
-              }
-            } else {
-              check[_key] = true;
-            }
-          }
-        );
-        angular.forEach(check, function (c, k) {
-          total_check = logic == "a" ? total_check && c : total_check || c;
-        });
-        return show == "y" ? total_check : !total_check;
-      };
-      $scope.add_attr_condition = function (fieldIndex, opIndex) {
-        $scope.options.fields[fieldIndex].general.attributes.options[
-          opIndex
-        ].depend.push({
-          id: "",
-          operator: "i",
-          val: "",
-        });
-      };
-      $scope.delete_attr_condition = function (fieldIndex, opIndex, cdIndex) {
-        if (
-          $scope.options.fields[fieldIndex].general.attributes.options[opIndex]
-            .depend.length == 1
-        )
-          return;
-        $scope.options.fields[fieldIndex].general.attributes.options[
-          opIndex
-        ].depend.splice(cdIndex, 1);
-      };
-      $scope.add_sub_attr_condition = function (fieldIndex, opIndex, sopIndex) {
-        $scope.options.fields[fieldIndex].general.attributes.options[
-          opIndex
-        ].sub_attributes[sopIndex].depend.push({
-          id: "",
-          operator: "i",
-          val: "",
-        });
-      };
-      $scope.delete_sub_attr_condition = function (
-        fieldIndex,
-        opIndex,
-        sopIndex,
-        cdIndex
-      ) {
-        if (
-          $scope.options.fields[fieldIndex].general.attributes.options[opIndex]
-            .sub_attributes[sopIndex].depend.length == 1
-        )
-          return;
-        $scope.options.fields[fieldIndex].general.attributes.options[
-          opIndex
-        ].sub_attributes[sopIndex].depend.splice(cdIndex, 1);
-      };
-      $scope.set_group_image = function (gIndex) {
-        var file_frame;
-        if (file_frame) {
-          file_frame.open();
-          return;
-        }
-        file_frame = wp.media.frames.file_frame = wp.media({
-          title: nbd_options.nbd_options_lang.choose_image,
-          button: {
-            text: nbd_options.nbd_options_lang.choose_image,
-          },
-          library: {
-            type: ["image"],
-          },
-          multiple: false,
-        });
-        file_frame.on("select", function () {
-          var attachment = file_frame.state().get("selection").first().toJSON();
-          $scope.options.groups[gIndex]["image"] = attachment.id;
-          var url = attachment.url;
-          if (
-            angular.isDefined(attachment.sizes) &&
-            angular.isDefined(attachment.sizes.thumbnail)
-          ) {
-            url = attachment.sizes.thumbnail.url;
-          }
-          $scope.options.groups[gIndex]["image_url"] = url;
-          if (
-            $scope.$root.$$phase !== "$apply" &&
-            $scope.$root.$$phase !== "$digest"
-          )
-            $scope.$apply();
-        });
-        file_frame.open();
-      };
-      $scope.remove_group_image = function (gIndex) {
-        $scope.options.groups[gIndex]["image"] = 0;
-        $scope.options.groups[gIndex]["image_url"] = "";
-      };
-      $scope.sort_group = function (gIndex, direction) {
-        var dest_index = gIndex - 1;
-        if (direction == "up") {
-          if (gIndex == 0) return;
-        } else {
-          if (gIndex == gIndex.length - 1) return;
-          dest_index = gIndex + 1;
-        }
-        var temp_gr = {};
-        angular.copy($scope.options.groups[gIndex], temp_gr);
-        angular.copy(
-          $scope.options.groups[dest_index],
-          $scope.options.groups[gIndex]
-        );
-        angular.copy(temp_gr, $scope.options.groups[dest_index]);
-      };
-      $scope.remove_group = function ($index) {
-        $scope.options.groups.splice($index, 1);
-      };
-      $scope.add_group = function () {
-        $scope.options.groups.push({
-          title: nbd_options.nbd_options_lang.group_title,
-          des: nbd_options.nbd_options_lang.group_des,
-          note: nbd_options.nbd_options_lang.group_note,
-          image: 0,
-          cols: 1,
-          fields: [],
-          isExpand: true,
-        });
-      };
-      $scope.clear_group = function ($index) {
-        $scope.options.groups[$index].fields = [];
-      };
-      $scope.get_field_group_name = function (fieldIndex) {
-        var group_name = "";
-        if (
-          angular.isDefined($scope.options.groups) &&
-          $scope.options.groups.length
-        ) {
-          angular.forEach($scope.options.groups, function (group, _gIndex) {
-            angular.forEach(group.fields, function (f) {
-              if (fieldIndex == f) group_name = group.title;
-            });
-          });
-        }
-        return group_name != "" ? " - " + group_name : "";
-      };
-      $scope.availableGroupField = function (actual, gIndex) {
-        var _field = null,
-          available = true;
-        angular.forEach($scope.options.fields, function (field) {
-          if (field.id == actual) _field = field;
-        });
-        angular.forEach($scope.options.groups, function (group, _gIndex) {
-          angular.forEach(group.fields, function (f) {
-            if (_field.id == f && gIndex != _gIndex) available = false;
-          });
-        });
-        if (
-          angular.isDefined(_field.nbe_type) &&
-          _field.nbe_type == "delivery"
-        ) {
-          available = false;
-        }
-        return available;
-      };
-      $scope.toggle_expand_group = function (gIndex) {
-        $scope.options.groups[gIndex].isExpand =
-          !$scope.options.groups[gIndex].isExpand;
-      };
-      $scope.updatePopupTriggerIndex = function (init) {
-        $scope.options.popup_trigger_index = 0;
-        angular.forEach($scope.options.fields, function (field, field_index) {
-          if ($scope.options.popup_trigger_field == field.id) {
-            $scope.options.popup_trigger_index = field_index;
-            if (!init)
-              $scope.options.popup_trigger_value =
-                field.general.data_type.value == "i" ? "" : "0";
-          }
-        });
-        $scope.updateApp();
-      };
-      $scope.add_more_nop_break = function (fieldIndex) {
-        if (
-          angular.isUndefined(
-            $scope.options["fields"][fieldIndex].general.price_no_range
-          )
-        ) {
-          $scope.options["fields"][fieldIndex].general.price_no_range = [];
-        }
-        var len =
-            $scope.options["fields"][fieldIndex].general.price_no_range.length,
-          lastIndex = len > 0 ? len - 1 : 0,
-          newQty =
-            len > 0
-              ? parseInt(
-                  $scope.options["fields"][fieldIndex].general.price_no_range[
-                    lastIndex
-                  ]
-                ) + 1
-              : 1;
-        $scope.options["fields"][fieldIndex].general.price_no_range.push([
-          newQty,
-          "",
-        ]);
-      };
-      $scope.delete_nop_break = function (fieldIndex, pnrIndex) {
-        $scope.options["fields"][fieldIndex].general.price_no_range.splice(
-          pnrIndex,
-          1
-        );
-      };
       $scope.updateApp = function () {
         if (
           $scope.$root.$$phase !== "$apply" &&
@@ -2164,9 +1724,7 @@ angular
           $scope.$apply();
       };
       $scope.updateJsonFields = function (e) {
-        if (large_amount_field != "yes") {
-          return true;
-        }
+        return true;
         e.preventDefault();
         $scope.getJsonFields();
         return false;
@@ -2183,9 +1741,6 @@ angular
               input_type: field.general.input_type.value,
               input_option: field.general.input_option.value,
               text_option: field.general.text_option.value,
-              placeholder: !!field.general.placeholder
-                ? field.general.placeholder.value
-                : "",
               upload_option: field.general.upload_option.value,
               enabled: field.general.enabled.value,
               published: !!field.general.published
@@ -2193,16 +1748,8 @@ angular
                 : "y",
               required: field.general.required.value,
               price_type: field.general.price_type.value,
-              depend_qty: !!field.general.depend_qty
-                ? field.general.depend_qty.value
-                : "y",
-              depend_quantity: field.general.depend_quantity.value,
               price: field.general.price.value,
-              price_breaks: field.general.price_breaks.value,
               attributes: {},
-            },
-            conditional: {
-              enable: field.conditional.enable,
             },
             appearance: {},
           };
@@ -2224,31 +1771,6 @@ angular
                     : "",
                 };
 
-                if (field.general.depend_quantity.value == "n") {
-                  if (op.price.length == 0) {
-                    fields[fieldIndex].general.attributes.options[
-                      opIndex
-                    ].price = [""];
-                  }
-                } else {
-                  angular.forEach(
-                    $scope.options.quantity_breaks,
-                    function (br, brIndex) {
-                      fields[fieldIndex].general.attributes.options[
-                        opIndex
-                      ].price[brIndex] =
-                        typeof op.price[brIndex] != "undefined"
-                          ? op.price[brIndex]
-                          : "";
-                    }
-                  );
-                }
-
-                if (op.color2) {
-                  fields[fieldIndex].general.attributes.options[
-                    opIndex
-                  ].color2 = op.color2;
-                }
                 if (field.appearance.change_image_product.value == "y") {
                   fields[fieldIndex].general.attributes.options[
                     opIndex
@@ -2259,254 +1781,12 @@ angular
                     opIndex
                   ].selected = "on";
                 }
-                if (op.enable_subattr && op.enable_subattr != "off") {
-                  fields[fieldIndex].general.attributes.options[
-                    opIndex
-                  ].enable_subattr = "on";
-                  fields[fieldIndex].general.attributes.options[
-                    opIndex
-                  ].sattr_display_type = op.sattr_display_type;
-                  if (op.sub_attributes.length > 0) {
-                    fields[fieldIndex].general.attributes.options[
-                      opIndex
-                    ].sub_attributes = op.sub_attributes;
-                    fields[fieldIndex].general.attributes.options[
-                      opIndex
-                    ].sub_attributes.forEach(function (sa, saIndex) {
-                      fields[fieldIndex].general.attributes.options[
-                        opIndex
-                      ].sub_attributes[saIndex].implicit_value =
-                        angular.isDefined(sa.implicit_value)
-                          ? sa.implicit_value
-                          : "";
-                      if (sa.selected) {
-                        fields[fieldIndex].general.attributes.options[
-                          opIndex
-                        ].sub_attributes[saIndex].selected = "on";
-                      }
-
-                      if (field.general.depend_quantity.value == "n") {
-                        if (sa.price.length == 0) {
-                          fields[fieldIndex].general.attributes.options[
-                            opIndex
-                          ].sub_attributes[saIndex].price = [""];
-                        }
-                      } else {
-                        angular.forEach(
-                          $scope.options.quantity_breaks,
-                          function (br, brIndex) {
-                            fields[fieldIndex].general.attributes.options[
-                              opIndex
-                            ].sub_attributes[saIndex].price[brIndex] =
-                              typeof sa.price[brIndex] != "undefined"
-                                ? sa.price[brIndex]
-                                : "";
-                          }
-                        );
-                      }
-                    });
-                  }
-                }
-                if (op.enable_con && op.enable_con != "off") {
-                  ["enable_con", "con_show", "con_logic", "depend"].forEach(
-                    function (prop) {
-                      fields[fieldIndex].general.attributes.options[opIndex][
-                        prop
-                      ] = prop != "enable_con" ? op[prop] : "on";
-                    }
-                  );
-                }
               }
             );
           }
-
-          if (field.conditional.enable == "y") {
-            fields[fieldIndex].conditional.show = field.conditional.show;
-            fields[fieldIndex].conditional.logic = field.conditional.logic;
-
-            if (field.conditional.depend.length > 0) {
-              fields[fieldIndex].conditional.depend = field.conditional.depend;
-            }
-          }
-
           angular.forEach(field.appearance, function (data, key) {
             fields[fieldIndex].appearance[key] = data.value;
           });
-
-          if (field.nbd_type) {
-            fields[fieldIndex].nbd_type = field.nbd_type;
-            switch (field.nbd_type) {
-              case "page":
-                fields[fieldIndex].general.auto_select_page =
-                  field.general.auto_select_page;
-                fields[fieldIndex].general.page_display =
-                  field.general.page_display;
-                fields[fieldIndex].general.exclude_page =
-                  field.general.exclude_page;
-                break;
-              case "page1":
-                fields[fieldIndex].general.page_display =
-                  field.general.page_display;
-                fields[fieldIndex].general.exclude_page =
-                  field.general.exclude_page;
-                if (field.general.depend_quantity.value == "n") {
-                  fields[fieldIndex].general.price_depend_no =
-                    field.general.price_depend_no;
-                }
-                if (field.general.price_depend_no == "y") {
-                  fields[fieldIndex].general.price_no_range =
-                    field.general.price_no_range;
-                }
-                break;
-              case "page2":
-                fields[fieldIndex].general.auto_select_page =
-                  field.general.auto_select_page;
-                break;
-              case "color":
-                fields[fieldIndex].general.attributes.bg_type =
-                  field.general.attributes.bg_type;
-                fields[fieldIndex].general.attributes.number_of_sides =
-                  field.general.attributes.number_of_sides;
-                fields[fieldIndex].general.attributes.show_as_pt =
-                  field.general.attributes.show_as_pt;
-                if (field.general.attributes.options.length > 0) {
-                  if (field.general.attributes.bg_type == "c") {
-                    angular.forEach(
-                      field.general.attributes.options,
-                      function (op, opIndex) {
-                        fields[fieldIndex].general.attributes.options[
-                          opIndex
-                        ].bg_color = op.bg_color;
-                      }
-                    );
-                  } else {
-                    angular.forEach(
-                      field.general.attributes.options,
-                      function (op, opIndex) {
-                        fields[fieldIndex].general.attributes.options[
-                          opIndex
-                        ].bg_image = op.bg_image;
-                      }
-                    );
-                  }
-                }
-                break;
-              case "size":
-                fields[fieldIndex].general.attributes.same_size =
-                  field.general.attributes.same_size;
-                if (
-                  field.general.attributes.same_size == "n" &&
-                  field.general.attributes.options.length > 0
-                ) {
-                  angular.forEach(
-                    field.general.attributes.options,
-                    function (op, opIndex) {
-                      [
-                        "product_width",
-                        "product_height",
-                        "real_width",
-                        "real_height",
-                        "real_top",
-                        "real_left",
-                      ].forEach(function (prop) {
-                        fields[fieldIndex].general.attributes.options[opIndex][
-                          prop
-                        ] = field.general.attributes.options[opIndex][prop];
-                      });
-                    }
-                  );
-                }
-                break;
-              case "dimension":
-                [
-                  "min_width",
-                  "max_width",
-                  "step_width",
-                  "default_width",
-                  "min_height",
-                  "max_height",
-                  "step_height",
-                  "default_height",
-                  "mesure",
-                ].forEach(function (prop) {
-                  fields[fieldIndex].general[prop] = field.general[prop];
-                });
-                if (field.general.mesure == "y") {
-                  [
-                    "mesure_type",
-                    "mesure_min_area",
-                    "mesure_range",
-                    "mesure_base_pages",
-                    "mesure_base_qty",
-                  ].forEach(function (prop) {
-                    fields[fieldIndex].general[prop] = field.general[prop];
-                  });
-                }
-                break;
-              case "padding":
-                if (field.general.attributes.options.length > 0) {
-                  angular.forEach(
-                    field.general.attributes.options,
-                    function (op, opIndex) {
-                      fields[fieldIndex].general.attributes.options[
-                        opIndex
-                      ].padding = op.padding;
-                    }
-                  );
-                }
-                break;
-              case "rounded_corner":
-                if (field.general.attributes.options.length > 0) {
-                  angular.forEach(
-                    field.general.attributes.options,
-                    function (op, opIndex) {
-                      fields[fieldIndex].general.attributes.options[
-                        opIndex
-                      ].radius = op.radius;
-                    }
-                  );
-                }
-                break;
-              case "overlay":
-                fields[fieldIndex].general.attributes.number_of_sides =
-                  field.general.attributes.number_of_sides;
-                if (field.general.attributes.options.length > 0) {
-                  angular.forEach(
-                    field.general.attributes.options,
-                    function (op, opIndex) {
-                      fields[fieldIndex].general.attributes.options[
-                        opIndex
-                      ].overlay_image = op.overlay_image;
-                    }
-                  );
-                }
-                break;
-              case "fold":
-                if (field.general.attributes.options.length > 0) {
-                  angular.forEach(
-                    field.general.attributes.options,
-                    function (op, opIndex) {
-                      fields[fieldIndex].general.attributes.options[
-                        opIndex
-                      ].fold = op.fold;
-                    }
-                  );
-                }
-                break;
-              case "shape":
-                if (field.general.attributes.options.length > 0) {
-                  angular.forEach(
-                    field.general.attributes.options,
-                    function (op, opIndex) {
-                      fields[fieldIndex].general.attributes.options[
-                        opIndex
-                      ].shape = op.shape;
-                    }
-                  );
-                }
-                break;
-            }
-          }
 
           if (field.nbpb_type) {
             fields[fieldIndex].nbpb_type = field.nbpb_type;
@@ -2534,51 +1814,6 @@ angular
                 break;
             }
           }
-
-          if (field.nbe_type) {
-            fields[fieldIndex].nbe_type = field.nbe_type;
-            switch (field.nbe_type) {
-              case "frame":
-                if (field.general.attributes.options.length > 0) {
-                  angular.forEach(
-                    field.general.attributes.options,
-                    function (op, opIndex) {
-                      fields[fieldIndex].general.attributes.options[
-                        opIndex
-                      ].frame_image = op.frame_image;
-                    }
-                  );
-                }
-                break;
-              case "actions":
-                if (field.general.attributes.options.length > 0) {
-                  angular.forEach(
-                    field.general.attributes.options,
-                    function (op, opIndex) {
-                      fields[fieldIndex].general.attributes.options[
-                        opIndex
-                      ].action = op.action;
-                    }
-                  );
-                }
-                break;
-              case "delivery":
-                if (field.general.attributes.options.length > 0) {
-                  angular.forEach(
-                    field.general.attributes.options,
-                    function (op, opIndex) {
-                      fields[fieldIndex].general.attributes.options[
-                        opIndex
-                      ].delivery = op.delivery;
-                      fields[fieldIndex].general.attributes.options[
-                        opIndex
-                      ].max_qty = op.max_qty;
-                    }
-                  );
-                }
-                break;
-            }
-          }
         });
 
         function cleanse(obj, path) {
@@ -2588,6 +1823,7 @@ angular
             if (type === "object") {
               cleanse(value);
               if (!Object.keys(value).length) {
+                //delete obj[key]
               }
             } else {
               if (type === "undefined" || key == "$$hashKey") {
@@ -2607,422 +1843,305 @@ angular
 
         cleanse(fields);
         $scope.jsonFields = JSON.stringify(fields);
-
+        return;
         setTimeout(function () {
           jQuery('form[name="nboForm"]').submit();
         });
       };
-      $scope.initFormulaPrice = function (
-        price,
-        brIndex,
-        fieldIndex,
-        opIndex,
-        saIndex
-      ) {
-        var field = $scope.options.fields[fieldIndex];
-        if (field.general.price_type.value != "mf") return;
-        $scope.formula = {
-          active: true,
-          price: angular.isDefined(price) ? price : "",
-          brIndex: brIndex,
-          fieldIndex: angular.isDefined(fieldIndex) ? fieldIndex : null,
-          opIndex: angular.isDefined(opIndex) ? opIndex : null,
-          saIndex: angular.isDefined(saIndex) ? saIndex : null,
-          currentLinkField: "0",
-        };
-      };
-      $scope.saveFormulaPrice = function () {
-        var field = $scope.options.fields[$scope.formula.fieldIndex];
-        if ($scope.formula.saIndex !== null) {
-          field.general.attributes.options[
-            $scope.formula.opIndex
-          ].sub_attributes[$scope.formula.saIndex].price[
-            $scope.formula.brIndex
-          ] = $scope.formula.price;
-        } else {
-          if ($scope.formula.opIndex !== null) {
-            field.general.attributes.options[$scope.formula.opIndex].price[
-              $scope.formula.brIndex
-            ] = $scope.formula.price;
-          } else {
-            if (field.general.depend_quantity.value == "n") {
-              field.general.price.value = $scope.formula.price;
-            } else {
-              field.general.price_breaks.value[$scope.formula.brIndex] =
-                $scope.formula.price;
-            }
-          }
-        }
-        $scope.cancelFormulaPrice();
-      };
-      $scope.cancelFormulaPrice = function () {
-        $scope.formula = {
-          active: false,
-          price: "",
-          brIndex: null,
-          fieldIndex: null,
-          opIndex: null,
-          saIndex: null,
-          currentLinkField: "0",
-        };
-      };
-      $scope.addFormulaVariable = function (variable) {
-        var priceInput = jQuery("#nbo-formula-price")[0],
-          caretPos = priceInput.selectionStart,
-          front = $scope.formula.price.substring(0, caretPos),
-          back = $scope.formula.price.substring(
-            priceInput.selectionEnd,
-            $scope.formula.price.length
-          );
+      // $scope.manualPMFields = [];
+      // $scope.manualPMHozFields = [];
+      // $scope.manualPMVerFields = [];
+      // $scope.manualPMCells = [];
+      // $scope.manualPMCols = 1;
+      // $scope.manualPMRows = 1;
+      // $scope.$on("mpm:drop", function (event, dir, fieldId) {
+      //   var dirFields =
+      //     dir == "hoz" ? $scope.manualPMHozFields : $scope.manualPMVerFields;
+      //   angular.forEach($scope.options.fields, function (field, field_index) {
+      //     if (field.id == fieldId) {
+      //       var _field = {};
+      //       angular.copy(field, _field);
+      //       _field.field_index = field_index;
+      //       dirFields.push(_field);
+      //     }
+      //   });
+      //   $scope.updateManualPm();
+      // });
+      // $scope.removePmFiled = function (dir, fieldId) {
+      //   var dirFields =
+      //     dir == "hoz" ? $scope.manualPMHozFields : $scope.manualPMVerFields;
+      //   if (dir == "hoz") {
+      //     $scope.manualPMHozFields = dirFields.filter(function (field, index) {
+      //       return field.id != fieldId;
+      //     });
+      //   } else {
+      //     $scope.manualPMVerFields = dirFields.filter(function (field, index) {
+      //       return field.id != fieldId;
+      //     });
+      //   }
+      //   $scope.updateManualPm();
+      // };
+      // $scope.$on("mpm:sort", function (event, dir, ids) {
+      //   $scope.getPmFieldByIds(dir, ids);
+      //   // $scope.updateManualPm();
+      // });
+      // $scope.maybeUpdateManualPm = function (init) {
+      //   if (
+      //     ($scope.options.manual_build_pm === "on" ||
+      //       $scope.options.manual_build_pm === true) &&
+      //     $scope.options.manual_pm != ""
+      //   ) {
+      //     if (init) $scope.getPmFields($scope.options.manual_pm);
+      //     $scope.updateManualPm();
+      //   }
+      // };
+      // $scope.updateManualPmIndex = function () {
+      //   var manualPMHozFields = [],
+      //     manualPMVerFields = [];
+      //   angular.forEach($scope.options.fields, function (field, field_index) {
+      //     angular.forEach(
+      //       $scope.manualPMHozFields,
+      //       function (_field, _field_index) {
+      //         if (field.id == _field.id) {
+      //           var __field = {};
+      //           angular.copy(field, __field);
+      //           __field.field_index = field_index;
+      //           manualPMHozFields.push(__field);
+      //         }
+      //       }
+      //     );
+      //     angular.forEach(
+      //       $scope.manualPMVerFields,
+      //       function (_field, _field_index) {
+      //         if (field.id == _field.id) {
+      //           var __field = {};
+      //           angular.copy(field, __field);
+      //           __field.field_index = field_index;
+      //           manualPMVerFields.push(__field);
+      //         }
+      //       }
+      //     );
+      //   });
+      //   $scope.manualPMHozFields = manualPMHozFields;
+      //   $scope.manualPMVerFields = manualPMVerFields;
+      // };
+      // $scope.updateManualPm = function () {
+      //   $scope.manualPMFields = manualPMFieldFilter(
+      //     $scope.options.fields,
+      //     $scope.manualPMVerFields.concat($scope.manualPMHozFields)
+      //   );
+      //   $scope.updateManualPmIndex();
+      //   $scope.manual_pm = "";
+      //   if ($scope.manualPMHozFields.length) {
+      //     angular.forEach($scope.manualPMHozFields, function (field) {
+      //       $scope.manual_pm += field.id + ",";
+      //     });
+      //     $scope.manual_pm = $scope.manual_pm.slice(0, -1);
+      //   }
+      //   $scope.manual_pm += "|";
 
-        $scope.formula.price = front + variable + back;
-        caretPos = caretPos + variable.length;
-        $timeout(function () {
-          priceInput.selectionStart = caretPos;
-          priceInput.selectionEnd = caretPos;
-          priceInput.focus();
-        });
-      };
-      $scope._cancelFormulaPrice = function ($event) {
-        if (jQuery($event.target).is(jQuery(".nbo-formula-popup-wrap")))
-          $scope.cancelFormulaPrice();
-      };
-      $scope.validateSvgShape = function (fieldIndex, opIndex) {
-        $scope.options.fields[fieldIndex].general.attributes.options[
-          opIndex
-        ].shape = $scope.options.fields[fieldIndex].general.attributes.options[
-          opIndex
-        ].shape
-          .replace(/<!--[\s\S]*?-->/g, "")
-          .replace(/<\?xml[\s\S]*?\?>/g, "")
-          .replace(/<style[\s\S]*?style>/g, "")
-          .replace(/\n|\r/gm, " ")
-          .replace(/  /g, " ")
-          .replace(/^ /g, "")
-          .replace(/ $/g, "")
-          .replace(
-            /(?:class|id|style|xmlns\:xlink|xml\:space|fill)=['\"][^'\"]*['\"]/g,
-            ""
-          )
-          .replace(/<\/?g>/g, "")
-          .replace(/\s{2,}/g, " ")
-          .replace(/(\/?>) </g, "$1<")
-          .replace(/<path/g, '<path fill="rgba(0,0,0,0.001)"');
-        var reg = /d=["'](.*?)["']/g,
-          match = reg.exec(
-            $scope.options.fields[fieldIndex].general.attributes.options[
-              opIndex
-            ].shape
-          ),
-          path,
-          absPath;
-        if (match) {
-          path = match[1];
-          absPath = Snap.path.toAbsolute(path);
-          $scope.options.fields[fieldIndex].general.attributes.options[
-            opIndex
-          ].shape = $scope.options.fields[
-            fieldIndex
-          ].general.attributes.options[opIndex].shape.replace(
-            reg,
-            'd="' + absPath + '"'
-          );
-        }
-      };
-      $scope.manualPMFields = [];
-      $scope.manualPMHozFields = [];
-      $scope.manualPMVerFields = [];
-      $scope.manualPMCells = [];
-      $scope.manualPMCols = 1;
-      $scope.manualPMRows = 1;
-      $scope.$on("mpm:drop", function (event, dir, fieldId) {
-        var dirFields =
-          dir == "hoz" ? $scope.manualPMHozFields : $scope.manualPMVerFields;
-        angular.forEach($scope.options.fields, function (field, field_index) {
-          if (field.id == fieldId) {
-            var _field = {};
-            angular.copy(field, _field);
-            _field.field_index = field_index;
-            dirFields.push(_field);
-          }
-        });
-        $scope.updateManualPm();
-      });
-      $scope.removePmFiled = function (dir, fieldId) {
-        var dirFields =
-          dir == "hoz" ? $scope.manualPMHozFields : $scope.manualPMVerFields;
-        if (dir == "hoz") {
-          $scope.manualPMHozFields = dirFields.filter(function (field, index) {
-            return field.id != fieldId;
-          });
-        } else {
-          $scope.manualPMVerFields = dirFields.filter(function (field, index) {
-            return field.id != fieldId;
-          });
-        }
-        $scope.updateManualPm();
-      };
-      $scope.$on("mpm:sort", function (event, dir, ids) {
-        $scope.getPmFieldByIds(dir, ids);
-        $scope.updateManualPm();
-      });
-      $scope.maybeUpdateManualPm = function (init) {
-        if (
-          ($scope.options.manual_build_pm === "on" ||
-            $scope.options.manual_build_pm === true) &&
-          $scope.options.manual_pm != ""
-        ) {
-          if (init) $scope.getPmFields($scope.options.manual_pm);
-          $scope.updateManualPm();
-        }
-      };
-      $scope.updateManualPmIndex = function () {
-        var manualPMHozFields = [],
-          manualPMVerFields = [];
-        angular.forEach($scope.options.fields, function (field, field_index) {
-          angular.forEach(
-            $scope.manualPMHozFields,
-            function (_field, _field_index) {
-              if (field.id == _field.id) {
-                var __field = {};
-                angular.copy(field, __field);
-                __field.field_index = field_index;
-                manualPMHozFields.push(__field);
-              }
-            }
-          );
-          angular.forEach(
-            $scope.manualPMVerFields,
-            function (_field, _field_index) {
-              if (field.id == _field.id) {
-                var __field = {};
-                angular.copy(field, __field);
-                __field.field_index = field_index;
-                manualPMVerFields.push(__field);
-              }
-            }
-          );
-        });
-        $scope.manualPMHozFields = manualPMHozFields;
-        $scope.manualPMVerFields = manualPMVerFields;
-      };
-      $scope.updateManualPm = function () {
-        $scope.manualPMFields = manualPMFieldFilter(
-          $scope.options.fields,
-          $scope.manualPMVerFields.concat($scope.manualPMHozFields)
-        );
-        $scope.updateManualPmIndex();
-        $scope.manual_pm = "";
-        if ($scope.manualPMHozFields.length) {
-          angular.forEach($scope.manualPMHozFields, function (field) {
-            $scope.manual_pm += field.id + ",";
-          });
-          $scope.manual_pm = $scope.manual_pm.slice(0, -1);
-        }
-        $scope.manual_pm += "|";
+      //   if ($scope.manualPMVerFields.length) {
+      //     angular.forEach($scope.manualPMVerFields, function (field) {
+      //       $scope.manual_pm += field.id + ",";
+      //     });
+      //     $scope.manual_pm = $scope.manual_pm.slice(0, -1);
+      //   }
+      //   $scope.manual_pm += "|";
 
-        if ($scope.manualPMVerFields.length) {
-          angular.forEach($scope.manualPMVerFields, function (field) {
-            $scope.manual_pm += field.id + ",";
-          });
-          $scope.manual_pm = $scope.manual_pm.slice(0, -1);
-        }
-        $scope.manual_pm += "|";
+      //   var cols = 1,
+      //     rows = 1,
+      //     i,
+      //     j,
+      //     index,
+      //     colspan = 1,
+      //     rowspan = 1,
+      //     looptimes = 1;
+      //   angular.forEach($scope.manualPMHozFields, function (hField, hIndex) {
+      //     cols *= hField.general.attributes.options.length;
+      //     (looptimes = 1), (colspan = 1);
+      //     angular.forEach(
+      //       $scope.manualPMHozFields,
+      //       function (hField2, hIndex2) {
+      //         if (hIndex2 < hIndex) {
+      //           looptimes *= hField2.general.attributes.options.length;
+      //         } else if (hIndex2 > hIndex) {
+      //           colspan *= hField2.general.attributes.options.length;
+      //         }
+      //       }
+      //     );
+      //     hField.looptimes = looptimes;
+      //     hField.colspan = colspan;
+      //   });
+      //   angular.forEach($scope.manualPMVerFields, function (vField, vIndex) {
+      //     rows *= vField.general.attributes.options.length;
+      //     (looptimes = 1), (rowspan = 1);
+      //     angular.forEach(
+      //       $scope.manualPMVerFields,
+      //       function (vField2, vIndex2) {
+      //         if (vIndex2 < vIndex) {
+      //           looptimes *= vField2.general.attributes.options.length;
+      //         } else if (vIndex2 > vIndex) {
+      //           rowspan *= vField2.general.attributes.options.length;
+      //         }
+      //       }
+      //     );
+      //     vField.looptimes = looptimes;
+      //     vField.rowspan = rowspan;
+      //   });
+      //   if (
+      //     $scope.manualPMHozFields.length == 0 ||
+      //     $scope.manualPMVerFields.length == 0
+      //   ) {
+      //     if ($scope.manualPMHozFields.length == 0) {
+      //       if ($scope.manualPMVerFields.length == 0) {
+      //         $scope.manual_pm += ",";
+      //       } else {
+      //         for (j = 0; j < rows; j++) {
+      //           if (angular.isUndefined($scope.manualPMCells[j])) {
+      //             $scope.manualPMCells[j] = "";
+      //           }
+      //           $scope.manual_pm += $scope.manualPMCells[j] + ",";
+      //         }
+      //       }
+      //     } else {
+      //       for (i = 0; i < cols; i++) {
+      //         if (angular.isUndefined($scope.manualPMCells[i])) {
+      //           $scope.manualPMCells[i] = "";
+      //         }
+      //         $scope.manual_pm += $scope.manualPMCells[i] + ",";
+      //       }
+      //       $scope.manualPMCells = $scope.manualPMCells.slice(0, i * j);
+      //     }
+      //   } else {
+      //     for (j = 0; j < rows; j++) {
+      //       for (i = 0; i < cols; i++) {
+      //         index = j * cols + i;
+      //         if (angular.isUndefined($scope.manualPMCells[index])) {
+      //           $scope.manualPMCells[index] = "";
+      //         }
+      //         $scope.manual_pm += $scope.manualPMCells[index] + ",";
+      //       }
+      //     }
+      //   }
+      //   $scope.manualPMCells = $scope.manualPMCells.slice(0, rows * cols);
+      //   $scope.manual_pm = $scope.manual_pm.slice(0, -1);
+      //   $scope.manualPMCols = cols;
+      //   $scope.manualPMRows = rows;
 
-        var cols = 1,
-          rows = 1,
-          i,
-          j,
-          index,
-          colspan = 1,
-          rowspan = 1,
-          looptimes = 1;
-        angular.forEach($scope.manualPMHozFields, function (hField, hIndex) {
-          cols *= hField.general.attributes.options.length;
-          (looptimes = 1), (colspan = 1);
-          angular.forEach(
-            $scope.manualPMHozFields,
-            function (hField2, hIndex2) {
-              if (hIndex2 < hIndex) {
-                looptimes *= hField2.general.attributes.options.length;
-              } else if (hIndex2 > hIndex) {
-                colspan *= hField2.general.attributes.options.length;
-              }
-            }
-          );
-          hField.looptimes = looptimes;
-          hField.colspan = colspan;
-        });
-        angular.forEach($scope.manualPMVerFields, function (vField, vIndex) {
-          rows *= vField.general.attributes.options.length;
-          (looptimes = 1), (rowspan = 1);
-          angular.forEach(
-            $scope.manualPMVerFields,
-            function (vField2, vIndex2) {
-              if (vIndex2 < vIndex) {
-                looptimes *= vField2.general.attributes.options.length;
-              } else if (vIndex2 > vIndex) {
-                rowspan *= vField2.general.attributes.options.length;
-              }
-            }
-          );
-          vField.looptimes = looptimes;
-          vField.rowspan = rowspan;
-        });
-        if (
-          $scope.manualPMHozFields.length == 0 ||
-          $scope.manualPMVerFields.length == 0
-        ) {
-          if ($scope.manualPMHozFields.length == 0) {
-            if ($scope.manualPMVerFields.length == 0) {
-              $scope.manual_pm += ",";
-            } else {
-              for (j = 0; j < rows; j++) {
-                if (angular.isUndefined($scope.manualPMCells[j])) {
-                  $scope.manualPMCells[j] = "";
-                }
-                $scope.manual_pm += $scope.manualPMCells[j] + ",";
-              }
-            }
-          } else {
-            for (i = 0; i < cols; i++) {
-              if (angular.isUndefined($scope.manualPMCells[i])) {
-                $scope.manualPMCells[i] = "";
-              }
-              $scope.manual_pm += $scope.manualPMCells[i] + ",";
-            }
-            $scope.manualPMCells = $scope.manualPMCells.slice(0, i * j);
-          }
-        } else {
-          for (j = 0; j < rows; j++) {
-            for (i = 0; i < cols; i++) {
-              index = j * cols + i;
-              if (angular.isUndefined($scope.manualPMCells[index])) {
-                $scope.manualPMCells[index] = "";
-              }
-              $scope.manual_pm += $scope.manualPMCells[index] + ",";
-            }
-          }
-        }
-        $scope.manualPMCells = $scope.manualPMCells.slice(0, rows * cols);
-        $scope.manual_pm = $scope.manual_pm.slice(0, -1);
-        $scope.manualPMCols = cols;
-        $scope.manualPMRows = rows;
+      //   $scope.updateApp();
+      // };
+      // $scope.getPmFieldByIds = function (dir, ids) {
+      //   var dirFields =
+      //     dir == "hoz" ? "manualPMHozFields" : "manualPMVerFields";
+      //   if (ids.length > 0) {
+      //     $scope[dirFields] = [];
+      //     ids.map(function (fieldId) {
+      //       angular.forEach(
+      //         $scope.options.fields,
+      //         function (field, field_index) {
+      //           if (field.id == fieldId) {
+      //             var _field = {};
+      //             angular.copy(field, _field);
+      //             _field.field_index = field_index;
+      //             $scope[dirFields].push(_field);
+      //           }
+      //         }
+      //       );
+      //     });
+      //   }
+      // };
+      // $scope.getPmFields = function (manualPM) {
+      //   var arr = manualPM.split("|"),
+      //     hozIds = arr[0].split(","),
+      //     verIds = arr[1].split(","),
+      //     prices = arr[2].split(",");
 
-        $scope.updateApp();
-      };
-      $scope.getPmFieldByIds = function (dir, ids) {
-        var dirFields =
-          dir == "hoz" ? "manualPMHozFields" : "manualPMVerFields";
-        if (ids.length > 0) {
-          $scope[dirFields] = [];
-          ids.map(function (fieldId) {
-            angular.forEach(
-              $scope.options.fields,
-              function (field, field_index) {
-                if (field.id == fieldId) {
-                  var _field = {};
-                  angular.copy(field, _field);
-                  _field.field_index = field_index;
-                  $scope[dirFields].push(_field);
-                }
-              }
-            );
-          });
-        }
-      };
-      $scope.getPmFields = function (manualPM) {
-        var arr = manualPM.split("|"),
-          hozIds = arr[0].split(","),
-          verIds = arr[1].split(","),
-          prices = arr[2].split(",");
+      //   $scope.getPmFieldByIds("hoz", hozIds);
+      //   $scope.getPmFieldByIds("ver", verIds);
 
-        $scope.getPmFieldByIds("hoz", hozIds);
-        $scope.getPmFieldByIds("ver", verIds);
+      //   $scope.manualPMCells = [];
+      //   var cols = 1,
+      //     rows = 1,
+      //     i,
+      //     j,
+      //     index;
 
-        $scope.manualPMCells = [];
-        var cols = 1,
-          rows = 1,
-          i,
-          j,
-          index;
+      //   angular.forEach($scope.manualPMHozFields, function (hField, hIndex) {
+      //     cols *= hField.general.attributes.options.length;
+      //   });
+      //   angular.forEach($scope.manualPMVerFields, function (vField, hIndex) {
+      //     rows *= vField.general.attributes.options.length;
+      //   });
 
-        angular.forEach($scope.manualPMHozFields, function (hField, hIndex) {
-          cols *= hField.general.attributes.options.length;
-        });
-        angular.forEach($scope.manualPMVerFields, function (vField, hIndex) {
-          rows *= vField.general.attributes.options.length;
-        });
+      //   if (
+      //     $scope.manualPMHozFields.length == 0 ||
+      //     $scope.manualPMVerFields.length == 0
+      //   ) {
+      //     if ($scope.manualPMHozFields.length == 0) {
+      //       if ($scope.manualPMVerFields.length != 0) {
+      //         for (j = 0; j < rows; j++) {
+      //           $scope.manualPMCells[j] = angular.isDefined(prices[j])
+      //             ? prices[j]
+      //             : "";
+      //         }
+      //       }
+      //     } else {
+      //       for (i = 0; i < cols; i++) {
+      //         $scope.manualPMCells[i] = angular.isDefined(prices[i])
+      //           ? prices[i]
+      //           : "";
+      //       }
+      //     }
+      //   } else {
+      //     for (j = 0; j < rows; j++) {
+      //       for (i = 0; i < cols; i++) {
+      //         index = j * cols + i;
+      //         $scope.manualPMCells[index] = angular.isDefined(prices[index])
+      //           ? prices[index]
+      //           : "";
+      //       }
+      //     }
+      //   }
+      // };
+      // $scope.clearPm = function () {
+      //   $scope.manualPMCells = [];
+      //   var cols = 1,
+      //     rows = 1,
+      //     i,
+      //     j,
+      //     index;
 
-        if (
-          $scope.manualPMHozFields.length == 0 ||
-          $scope.manualPMVerFields.length == 0
-        ) {
-          if ($scope.manualPMHozFields.length == 0) {
-            if ($scope.manualPMVerFields.length != 0) {
-              for (j = 0; j < rows; j++) {
-                $scope.manualPMCells[j] = angular.isDefined(prices[j])
-                  ? prices[j]
-                  : "";
-              }
-            }
-          } else {
-            for (i = 0; i < cols; i++) {
-              $scope.manualPMCells[i] = angular.isDefined(prices[i])
-                ? prices[i]
-                : "";
-            }
-          }
-        } else {
-          for (j = 0; j < rows; j++) {
-            for (i = 0; i < cols; i++) {
-              index = j * cols + i;
-              $scope.manualPMCells[index] = angular.isDefined(prices[index])
-                ? prices[index]
-                : "";
-            }
-          }
-        }
-      };
-      $scope.clearPm = function () {
-        $scope.manualPMCells = [];
-        var cols = 1,
-          rows = 1,
-          i,
-          j,
-          index;
+      //   angular.forEach($scope.manualPMHozFields, function (hField, hIndex) {
+      //     cols *= hField.general.attributes.options.length;
+      //   });
+      //   angular.forEach($scope.manualPMVerFields, function (vField, hIndex) {
+      //     rows *= vField.general.attributes.options.length;
+      //   });
 
-        angular.forEach($scope.manualPMHozFields, function (hField, hIndex) {
-          cols *= hField.general.attributes.options.length;
-        });
-        angular.forEach($scope.manualPMVerFields, function (vField, hIndex) {
-          rows *= vField.general.attributes.options.length;
-        });
-
-        if (
-          $scope.manualPMHozFields.length == 0 ||
-          $scope.manualPMVerFields.length == 0
-        ) {
-          if ($scope.manualPMHozFields.length == 0) {
-            if ($scope.manualPMVerFields.length != 0) {
-              for (j = 0; j < rows; j++) {
-                $scope.manualPMCells[j] = "";
-              }
-            }
-          } else {
-            for (i = 0; i < cols; i++) {
-              $scope.manualPMCells[i] = "";
-            }
-          }
-        } else {
-          for (j = 0; j < rows; j++) {
-            for (i = 0; i < cols; i++) {
-              index = j * cols + i;
-              $scope.manualPMCells[index] = "";
-            }
-          }
-        }
-      };
+      //   if (
+      //     $scope.manualPMHozFields.length == 0 ||
+      //     $scope.manualPMVerFields.length == 0
+      //   ) {
+      //     if ($scope.manualPMHozFields.length == 0) {
+      //       if ($scope.manualPMVerFields.length != 0) {
+      //         for (j = 0; j < rows; j++) {
+      //           $scope.manualPMCells[j] = "";
+      //         }
+      //       }
+      //     } else {
+      //       for (i = 0; i < cols; i++) {
+      //         $scope.manualPMCells[i] = "";
+      //       }
+      //     }
+      //   } else {
+      //     for (j = 0; j < rows; j++) {
+      //       for (i = 0; i < cols; i++) {
+      //         index = j * cols + i;
+      //         $scope.manualPMCells[index] = "";
+      //       }
+      //     }
+      //   }
+      // };
       $scope.init();
     }
   )
@@ -3162,72 +2281,72 @@ angular
       template:
         '<select class="nbd-w-100i" name="options[fields][{{find}}][general][attributes][options][{{oind}}]{{sind_name}}[depend][{{cind}}][subval]" ng-if="available" ng-model="con.subval"><option ng-repeat="attr in attributes" value="{{$index}}">{{attr.name}}</option></select>',
       link: function (scope, element, attrs) {
-        var selectedField, selectedOption;
+        // var selectedField, selectedOption;
         if (scope.sind) {
           scope.sind_name = "[sub_attributes][" + scope.sind + "]";
         } else {
           scope.sind_name = "";
         }
 
-        function updateSubAttrs() {
-          scope.attributes = [];
-          scope.available = true;
+        // function updateSubAttrs() {
+        //   scope.attributes = [];
+        //   scope.available = true;
 
-          scope.fields.forEach(function (field) {
-            if (field.id == scope.con.id) {
-              selectedField = field;
-              if (field.general.data_type.value != "m") {
-                scope.available = false;
-              } else {
-                if (field.general.attributes.options.length == 0) {
-                  scope.available = false;
-                } else {
-                  field.general.attributes.options.forEach(function (
-                    op,
-                    opIndex
-                  ) {
-                    if (opIndex == scope.con.val) {
-                      selectedOption = op;
-                      if (op.enable_subattr && op.enable_subattr != "off") {
-                        if (op.sub_attributes.length == 0) {
-                          scope.available = false;
-                        } else {
-                          scope.attributes = op.sub_attributes;
-                        }
-                      } else {
-                        scope.available = false;
-                      }
-                    }
-                  });
-                }
-              }
-            }
-          });
+        //   scope.fields.forEach(function (field) {
+        //     if (field.id == scope.con.id) {
+        //       selectedField = field;
+        //       if (field.general.data_type.value != "m") {
+        //         scope.available = false;
+        //       } else {
+        //         if (field.general.attributes.options.length == 0) {
+        //           scope.available = false;
+        //         } else {
+        //           field.general.attributes.options.forEach(function (
+        //             op,
+        //             opIndex
+        //           ) {
+        //             if (opIndex == scope.con.val) {
+        //               selectedOption = op;
+        //               if (op.enable_subattr && op.enable_subattr != "off") {
+        //                 if (op.sub_attributes.length == 0) {
+        //                   scope.available = false;
+        //                 } else {
+        //                   scope.attributes = op.sub_attributes;
+        //                 }
+        //               } else {
+        //                 scope.available = false;
+        //               }
+        //             }
+        //           });
+        //         }
+        //       }
+        //     }
+        //   });
 
-          if (!selectedField || !selectedOption) scope.available = false;
-          if (!scope.available) {
-            scope.con.subval = "";
-          }
-        }
+        //   if (!selectedField || !selectedOption) scope.available = false;
+        //   if (!scope.available) {
+        //     scope.con.subval = "";
+        //   }
+        // }
 
-        scope.$watchCollection(
-          "con.id",
-          function (newValue, oldValue) {
-            if (newValue) {
-              updateSubAttrs();
-            }
-          },
-          true
-        );
-        scope.$watchCollection(
-          "con.val",
-          function (newValue, oldValue) {
-            if (newValue != oldValue) {
-              updateSubAttrs();
-            }
-          },
-          true
-        );
+        // scope.$watchCollection(
+        //   "con.id",
+        //   function (newValue, oldValue) {
+        //     if (newValue) {
+        //       updateSubAttrs();
+        //     }
+        //   },
+        //   true
+        // );
+        // scope.$watchCollection(
+        //   "con.val",
+        //   function (newValue, oldValue) {
+        //     if (newValue != oldValue) {
+        //       updateSubAttrs();
+        //     }
+        //   },
+        //   true
+        // );
       },
     };
   })
@@ -3289,90 +2408,104 @@ angular
         });
       },
     };
-  })
-  .filter("pmField", function () {
-    return function (fields, usedFields) {
-      var filtered_fileds = [];
-      angular.forEach(fields, function (field, field_index) {
-        if (
-          usedFields.indexOf("" + field_index) < 0 &&
-          field.general.enabled.value == "y" &&
-          field.general.attributes.options.length > 0
-        ) {
-          var _field = {};
-          angular.copy(field, _field);
-          _field.field_index = field_index;
-          filtered_fileds.push(_field);
-        }
-      });
-      return filtered_fileds;
-    };
-  })
-  .filter("bulkField", function () {
-    return function (fields) {
-      var filtered_fileds = [];
-      angular.forEach(fields, function (field, field_index) {
-        var check_od = true;
-        if (angular.isDefined(field.nbpb_type)) {
-          check_od = false;
-        }
-        if (
-          check_od &&
-          field.general.enabled.value == "y" &&
-          field.general.attributes.options.length > 0 &&
-          field.conditional.enable == "n"
-        ) {
-          var _field = {};
-          angular.copy(field, _field);
-          _field.field_index = field_index;
-          filtered_fileds.push(_field);
-        }
-      });
-      return filtered_fileds;
-    };
-  })
-  .filter("manualPMField", function () {
-    return function (fields, excludeFields) {
-      var filtered_fileds = [];
-      angular.forEach(fields, function (field, field_index) {
-        var check_od = true,
-          include = true;
-        if (excludeFields.length > 0) {
-          angular.forEach(excludeFields, function (excludeField) {
-            if (excludeField.id == field.id) include = false;
-          });
-        }
-        if (angular.isDefined(field.nbpb_type)) {
-          check_od = false;
-        }
-        if (
-          check_od &&
-          include &&
-          field.general.enabled.value == "y" &&
-          field.general.attributes.options.length > 0 &&
-          field.conditional.enable == "n"
-        ) {
-          var _field = {};
-          angular.copy(field, _field);
-          _field.field_index = field_index;
-          filtered_fileds.push(_field);
-        }
-      });
-      return filtered_fileds;
-    };
-  })
-  .filter("allFields", function () {
-    return function (fields) {
-      var filtered_fileds = [];
-      angular.forEach(fields, function (field, field_index) {
-        var _field = {};
-        angular.copy(field, _field);
-        _field.field_index = field_index;
-        filtered_fileds.push(_field);
-      });
-      return filtered_fileds;
-    };
   });
+// .filter("pmField", function () {
+//   return function (fields, usedFields) {
+//     var filtered_fileds = [];
+//     angular.forEach(fields, function (field, field_index) {
+//       if (
+//         usedFields.indexOf("" + field_index) < 0 &&
+//         field.general.data_type.value == "m" &&
+//         field.general.enabled.value == "y" &&
+//         field.general.attributes.options.length > 0
+//       ) {
+//         if (
+//           !(
+//             (angular.isDefined(field.nbd_type) &&
+//               (field.nbd_type == "page" || field.nbd_type == "page2")) ||
+//             angular.isDefined(field.nbpb_type) ||
+//             (angular.isDefined(field.nbe_type) &&
+//               (field.nbe_type == "delivery" || field.nbe_type == "actions"))
+//           )
+//         ) {
+//           var _field = {};
+//           angular.copy(field, _field);
+//           _field.field_index = field_index;
+//           filtered_fileds.push(_field);
+//         }
+//       }
+//     });
+//     return filtered_fileds;
+//   };
+// })
+// .filter("bulkField", function () {
+//   return function (fields) {
+//     var filtered_fileds = [];
+//     angular.forEach(fields, function (field, field_index) {
+//       var check_od = true;
+//       if (angular.isDefined(field.nbpb_type)) {
+//         check_od = false;
+//       }
+//       if (
+//         check_od &&
+//         field.general.data_type.value == "m" &&
+//         field.general.enabled.value == "y" &&
+//         field.general.attributes.options.length > 0
+//       ) {
+//         var _field = {};
+//         angular.copy(field, _field);
+//         _field.field_index = field_index;
+//         filtered_fileds.push(_field);
+//       }
+//     });
+//     return filtered_fileds;
+//   };
+// })
+// .filter("manualPMField", function () {
+//   return function (fields, excludeFields) {
+//     var filtered_fileds = [];
+//     angular.forEach(fields, function (field, field_index) {
+//       var check_od = true,
+//         include = true;
+//       if (excludeFields.length > 0) {
+//         angular.forEach(excludeFields, function (excludeField) {
+//           if (excludeField.id == field.id) include = false;
+//         });
+//       }
+//       if (
+//         angular.isDefined(field.nbe_type) &&
+//         (field.nbe_type == "delivery" || field.nbe_type == "actions")
+//       ) {
+//         check_od = false;
+//       }
+//       if (
+//         check_od &&
+//         include &&
+//         field.general.data_type.value == "m" &&
+//         field.general.enabled.value == "y" &&
+//         field.general.attributes.options.length > 0
+//       ) {
+//         var _field = {};
+//         angular.copy(field, _field);
+//         _field.field_index = field_index;
+//         filtered_fileds.push(_field);
+//       }
+//     });
+//     return filtered_fileds;
+//   };
+// })
+// .filter("allFields", function () {
+//   return function (fields) {
+//     var filtered_fileds = [];
+//     angular.forEach(fields, function (field, field_index) {
+//       var _field = {};
+//       angular.copy(field, _field);
+//       _field.field_index = field_index;
+//       filtered_fileds.push(_field);
+//     });
+//     return filtered_fileds;
+//   };
+// });
 jQuery(document).ready(function ($) {
   $(".nbo-dates input:not(.hasDatepicker)").datepicker({
     defaultDate: "",
@@ -3380,7 +2513,7 @@ jQuery(document).ready(function ($) {
     numberOfMonths: 1,
     showButtonPanel: true,
     showOn: "button",
-    buttonImage: nbd_options.calendar_image,
+    buttonImage: printcart_options.calendar_image,
     buttonImageOnly: true,
     onSelect: function (selectedDate) {
       var option = $(this).is(".date_from") ? "minDate" : "maxDate";
