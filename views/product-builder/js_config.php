@@ -57,14 +57,14 @@ $font_url   = PRINTCART_PB_FONT_URL;
         fonts: <?php echo json_encode($fonts); ?>,
         font_url: "<?php echo ($font_url); ?>",
         i18n: <?php echo json_encode(array(
-                    'only_support_image'    => esc_html__('Only support image!', 'web-to-print-online-designer'),
-                    'max_file_size'         => esc_html__('Max file size', 'web-to-print-online-designer'),
-                    'min_file_size'         => esc_html__('Min file size', 'web-to-print-online-designer'),
-                    'confirm_delete_image'  => esc_html__('Are you sure you want to delete this image?', 'web-to-print-online-designer'),
-                    'confirm_delete_text'   => esc_html__('Are you sure you want to delete this text?', 'web-to-print-online-designer'),
-                    'can_not_save_design'   => esc_html__('Oops! Design has not been saved!', 'web-to-print-online-designer'),
-                    'choose'                => esc_html__('Choose', 'web-to-print-online-designer'),
-                    'cancel'                => esc_html__('Cancel', 'web-to-print-online-designer')
+                    'only_support_image'    => esc_html__('Only support image!', 'pc-product-builder'),
+                    'max_file_size'         => esc_html__('Max file size', 'pc-product-builder'),
+                    'min_file_size'         => esc_html__('Min file size', 'pc-product-builder'),
+                    'confirm_delete_image'  => esc_html__('Are you sure you want to delete this image?', 'pc-product-builder'),
+                    'confirm_delete_text'   => esc_html__('Are you sure you want to delete this text?', 'pc-product-builder'),
+                    'can_not_save_design'   => esc_html__('Oops! Design has not been saved!', 'pc-product-builder'),
+                    'choose'                => esc_html__('Choose', 'pc-product-builder'),
+                    'cancel'                => esc_html__('Cancel', 'pc-product-builder')
                 )); ?>
     };
     var nbds_frontend = [];

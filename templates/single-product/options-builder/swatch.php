@@ -55,7 +55,7 @@
         </div>
         <div class="nbo-invalid-option" 
             ng-class="nbd_fields['<?php echo( $field['id'] ); ?>'].valid === false ? 'active' : ''"
-            ng-if="nbd_fields['<?php echo( $field['id'] ); ?>'].valid === false">{{nbd_fields['<?php echo( $field['id'] ); ?>'].invalidOption}} <?php esc_html_e('is not available.', 'web-to-print-online-designer'); ?>
+            ng-if="nbd_fields['<?php echo( $field['id'] ); ?>'].valid === false">{{nbd_fields['<?php echo( $field['id'] ); ?>'].invalidOption}} <?php esc_html_e('is not available.', 'pc-product-builder'); ?>
         </div>
     </div>
 </div>

@@ -484,7 +484,7 @@ if (!class_exists('PRINTCART_FRONTEND_OPTIONS')) {
         }
         public function add_to_cart_text($var) {
             if ($this->is_edit_mode) {
-                return esc_attr__('Update cart', 'web-to-print-online-designer');
+                return esc_attr__('Update cart', 'pc-product-builder');
             }
             return $var;
         }
@@ -597,17 +597,17 @@ if (!class_exists('PRINTCART_FRONTEND_OPTIONS')) {
                         }
                         $post_fix = '';
                         if (isset($field['ind_qty'])) {
-                            $post_fix = '<small>' . esc_html__('( cart fee )', 'web-to-print-online-designer') . '</small>';
+                            $post_fix = '<small>' . esc_html__('( cart fee )', 'pc-product-builder') . '</small>';
                         }
                         if (isset($field['fixed_amount'])) {
-                            $post_fix = '<small>' . esc_html__('( for all items )', 'web-to-print-online-designer') . '</small>';
+                            $post_fix = '<small>' . esc_html__('( for all items )', 'pc-product-builder') . '</small>';
                         }
                         $display_price = $price . $post_fix;
                         $item->add_meta_data($field['name'], $field['value_name'] . '&nbsp;&nbsp;' . $display_price);
                     }
                 }
                 if (floatval($values['pcpb_meta']['option_price']['discount_price']) > 0) {
-                    $item->add_meta_data(esc_html__('Quantity Discount', 'web-to-print-online-designer'), '-' . wc_price($values['pcpb_meta']['option_price']['discount_price'], array('decimals' => $num_decimals)));
+                    $item->add_meta_data(esc_html__('Quantity Discount', 'pc-product-builder'), '-' . wc_price($values['pcpb_meta']['option_price']['discount_price'], array('decimals' => $num_decimals)));
                 }
                 $item->add_meta_data('_pcpb_option_price', $values['pcpb_meta']['option_price']);
                 $item->add_meta_data('_pcpb_field', $values['pcpb_meta']['field']);
@@ -673,10 +673,10 @@ if (!class_exists('PRINTCART_FRONTEND_OPTIONS')) {
                         }
                         $post_fix = '';
                         if (isset($field['ind_qty'])) {
-                            $post_fix = '<small>' . esc_html__('( cart fee )', 'web-to-print-online-designer') . '</small>';
+                            $post_fix = '<small>' . esc_html__('( cart fee )', 'pc-product-builder') . '</small>';
                         }
                         if (isset($field['fixed_amount'])) {
-                            $post_fix = '<small>' . esc_html__('( for all items )', 'web-to-print-online-designer') . '</small>';
+                            $post_fix = '<small>' . esc_html__('( for all items )', 'pc-product-builder') . '</small>';
                         }
                         $item_data[] = array(
                             'name'      => $field['name'],
@@ -687,7 +687,7 @@ if (!class_exists('PRINTCART_FRONTEND_OPTIONS')) {
                 }
                 if (floatval($cart_item['pcpb_meta']['option_price']['discount_price']) > 0) {
                     $item_data[] = array(
-                        'name'      => esc_html__('Quantity Discount', 'web-to-print-online-designer'),
+                        'name'      => esc_html__('Quantity Discount', 'pc-product-builder'),
                         'display'   => '-' . wc_price($cart_item['pcpb_meta']['option_price']['discount_price'], array('decimals' => $num_decimals)),
                         'hidden'    => false
                     );
@@ -758,7 +758,7 @@ if (!class_exists('PRINTCART_FRONTEND_OPTIONS')) {
             );
             $link = wp_nonce_url($link, 'nbo-edit');
             $show_edit_link = apply_filters('nbo_show_edit_option_link_in_cart', true, $cart_item);
-            if ($show_edit_link) $title .= '<br /><a class="nbo-edit-option-cart" href="' . $link . '" class="nbo-cart-edit-options">' . esc_html__('Edit options', 'web-to-print-online-designer') . '</a><br />';
+            if ($show_edit_link) $title .= '<br /><a class="nbo-edit-option-cart" href="' . $link . '" class="nbo-cart-edit-options">' . esc_html__('Edit options', 'pc-product-builder') . '</a><br />';
             return apply_filters('nbo_cart_item_name', $title, $cart_item, $cart_item_key);
         }
         public function get_cart_item_from_session($cart_item, $values) {

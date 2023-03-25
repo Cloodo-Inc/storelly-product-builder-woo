@@ -41,10 +41,10 @@
         <input class="nbd-upload-hidden" id="nbd-upload-hidden-<?php echo( $field['id'] ); ?>" type="hidden" name="nbd-field[<?php echo( $field['id'] ); ?>]" value="<?php echo( $form_values[$field['id']] ); ?>" />
         <?php endif; ?>
         <?php if( $field['general']['input_type'] == 'u' && $field['general']['upload_option']['min_size'] != '' ): ?>
-        <span style="display: block; font-size: 12px;margin-top: 10px;"><?php echo esc_html__('Min size: ', 'web-to-print-online-designer') . $field['general']['upload_option']['min_size'] . ' MB'; ?></span>
+        <span style="display: block; font-size: 12px;margin-top: 10px;"><?php echo esc_html__('Min size: ', 'pc-product-builder') . $field['general']['upload_option']['min_size'] . ' MB'; ?></span>
         <?php endif; ?>
         <?php if( $field['general']['input_type'] == 'u' && $field['general']['upload_option']['max_size'] != '' ): ?>
-        <span style="display: block; font-size: 12px;"><?php echo esc_html__('Max size: ', 'web-to-print-online-designer') . $field['general']['upload_option']['max_size'] . ' MB'; ?></span>
+        <span style="display: block; font-size: 12px;"><?php echo esc_html__('Max size: ', 'pc-product-builder') . $field['general']['upload_option']['max_size'] . ' MB'; ?></span>
         <?php endif; ?>
     </div>
 </div>

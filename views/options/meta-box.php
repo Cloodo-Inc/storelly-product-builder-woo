@@ -8,7 +8,7 @@ if (!defined('ABSPATH')) {
     <div style="overflow: hidden;">
         <div class="nbo_options_panel" id="nbo-options">
             <p class="nbo-form-field">
-                <label for="_printcart_pb_enable"><?php _e('Enable Product builder', 'web-to-print-online-designer'); ?></label>
+                <label for="_printcart_pb_enable"><?php _e('Enable Product builder', 'pc-product-builder'); ?></label>
                 <span class="nbo-option-val">
                     <input type="hidden" value="0" name="_printcart_pb_enable" />
                     <input type="checkbox" value="1" name="_printcart_pb_enable" id="_printcart_pb_enable" <?php checked($nbdpb_enable); ?> class="short" />
@@ -18,9 +18,9 @@ if (!defined('ABSPATH')) {
                 <label>
                     <a href="<?php echo $link_edit_option; ?>" target="_blank" class="button">
                         <?php if ($option_id != 0) {
-                            _e('Edit option', 'web-to-print-online-designer');
+                            _e('Edit option', 'pc-product-builder');
                         } else {
-                            _e('Create option', 'web-to-print-online-designer');
+                            _e('Create option', 'pc-product-builder');
                         }; ?>
                     </a>
                 </label>

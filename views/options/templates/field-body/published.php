@@ -2,7 +2,7 @@
 <?php echo '<script type="text/ng-template" id="field_body_published">'; ?>
 <div class="pcpb-field-info" ng-show="check_depend(field.general, field.general.published)">
     <div class="pcpb-field-info-1">
-        <div><label><b><?php esc_html_e('Published', 'web-to-print-online-designer'); ?></b> <nbd-tip data-tip="<?php esc_html_e('Choose whether the option show in summary options or not.', 'web-to-print-online-designer'); ?>"></nbd-tip></label></div>
+        <div><label><b><?php esc_html_e('Published', 'pc-product-builder'); ?></b> <nbd-tip data-tip="<?php esc_html_e('Choose whether the option show in summary options or not.', 'pc-product-builder'); ?>"></nbd-tip></label></div>
     </div>
     <div class="pcpb-field-info-2">
         <div>

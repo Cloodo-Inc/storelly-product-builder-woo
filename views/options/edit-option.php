@@ -71,15 +71,15 @@ $max_input_vars = Printcart_PB_Util::printcart_get_max_input_var();
                                     <div class="minor-publishing">
                                         <div class="misc-publishing-actions nbo-dates">
                                             <div style="margin-bottom: 15px;">
-                                                <label for="date_from"><?php _e('Status:', 'web-to-print-online-designer'); ?></label>
+                                                <label for="date_from"><?php _e('Status:', 'pc-product-builder'); ?></label>
                                                 <b style="vertical-align: middle;"><?php echo $options['published'] ? 'Published' : 'Trash';  ?></b>
                                             </div>
                                             <div style="margin-bottom: 15px;">
-                                                <label for="date_from"><?php _e('Published on:', 'web-to-print-online-designer'); ?></label>
+                                                <label for="date_from"><?php _e('Published on:', 'pc-product-builder'); ?></label>
                                                 <b style="vertical-align: middle;"><?php echo $options['created']; ?></b>
                                             </div>
                                             <div>
-                                                <label for="date_to"><?php _e('Modified on:', 'web-to-print-online-designer'); ?></label>
+                                                <label for="date_to"><?php _e('Modified on:', 'pc-product-builder'); ?></label>
                                                 <b style="vertical-align: middle;"><?php echo $options['modified']; ?></b>
                                             </div>
                                         </div>
@@ -88,7 +88,7 @@ $max_input_vars = Printcart_PB_Util::printcart_get_max_input_var();
                                     <div id="major-publishing-actions">
                                         <div id="delete-action">
                                             <?php if ($options['published'] == 1) : ?>
-                                                <a class="submitdelete deletion" href="<?php echo $link_unpublish; ?>"><?php _e('Move to Trash', 'web-to-print-online-designer'); ?></a>
+                                                <a class="submitdelete deletion" href="<?php echo $link_unpublish; ?>"><?php _e('Move to Trash', 'pc-product-builder'); ?></a>
                                             <?php endif; ?>
                                         </div>
                                         <div id="publishing-action">
@@ -137,10 +137,10 @@ $max_input_vars = Printcart_PB_Util::printcart_get_max_input_var();
                             <h2 style="border-bottom: 1px solid #ddd;"><?php esc_html_e('Production builder fields', 'pc-product-builder'); ?></h2>
                             <div class="inside">
                                 <div>
-                                    <p class="section-title"><input class="nbd-ip-readonly" value="<?php esc_html_e('Default field', 'web-to-print-online-designer'); ?>" readonly=""></p>
+                                    <p class="section-title"><input class="nbd-ip-readonly" value="<?php esc_html_e('Default field', 'pc-product-builder'); ?>" readonly=""></p>
                                     <div class="nbd-section-wrap">
-                                        <a title="<?php esc_html_e('Add fields', 'web-to-print-online-designer'); ?>" class="pcpb-field-btn button" ng-click="add_field()">
-                                            <?php esc_html_e('Default field', 'web-to-print-online-designer'); ?> <span class="nbo-type-label default">1</span>
+                                        <a title="<?php esc_html_e('Add fields', 'pc-product-builder'); ?>" class="pcpb-field-btn button" ng-click="add_field()">
+                                            <?php esc_html_e('Default field', 'pc-product-builder'); ?> <span class="nbo-type-label default">1</span>
                                         </a>
                                     </div>
                                 </div>

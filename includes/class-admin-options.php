@@ -158,7 +158,7 @@ CREATE TABLE {$wpdb->prefix}printcart_product_builder_options (
                         if ($result['status']) {
                             $message = array(
                                 'flag'      => 'success',
-                                'content'   => esc_html__('Option updated.', 'web-to-print-online-designer')
+                                'content'   => esc_html__('Option updated.', 'pc-product-builder')
                             );
                             if ($id == 0) {
                                 $id = $result['id'];
@@ -368,18 +368,18 @@ CREATE TABLE {$wpdb->prefix}printcart_product_builder_options (
             );
         }
         public function build_config_general_title($value = null) {
-            if (is_null($value)) $value = __('Option name', 'web-to-print-online-designer');
+            if (is_null($value)) $value = __('Option name', 'pc-product-builder');
             return array(
-                'title'         => __('Option name', 'web-to-print-online-designer'),
+                'title'         => __('Option name', 'pc-product-builder'),
                 'description'   =>  '',
                 'value'         => $value,
                 'type'          => 'text'
             );
         }
         public function build_config_general_description($value = null) {
-            if (is_null($value)) $value = __('Option description', 'web-to-print-online-designer');
+            if (is_null($value)) $value = __('Option description', 'pc-product-builder');
             return array(
-                'title'         => __('Description', 'web-to-print-online-designer'),
+                'title'         => __('Description', 'pc-product-builder'),
                 'description'   => '',
                 'value'         => $value,
                 'type'          => 'textarea'
@@ -388,18 +388,18 @@ CREATE TABLE {$wpdb->prefix}printcart_product_builder_options (
         public function build_config_general_data_type($value = null) {
             if (is_null($value)) $value = 'm';
             return array(
-                'title'         => esc_html__('Data type', 'web-to-print-online-designer'),
+                'title'         => esc_html__('Data type', 'pc-product-builder'),
                 'description'   => '',
                 'value'         => $value,
                 'type'          => 'dropdown',
                 'options'       => array(
                     array(
                         'key'       => 'i',
-                        'text'      => esc_html__('Custom input', 'web-to-print-online-designer')
+                        'text'      => esc_html__('Custom input', 'pc-product-builder')
                     ),
                     array(
                         'key'       => 'm',
-                        'text'      => esc_html__('Multiple options', 'web-to-print-online-designer')
+                        'text'      => esc_html__('Multiple options', 'pc-product-builder')
                     )
                 )
             );
@@ -407,7 +407,7 @@ CREATE TABLE {$wpdb->prefix}printcart_product_builder_options (
         public function build_config_general_input_type($value = null) {
             if (is_null($value)) $value = 't';
             return array(
-                'title'         => esc_html__('Input type', 'web-to-print-online-designer'),
+                'title'         => esc_html__('Input type', 'pc-product-builder'),
                 'description'   =>  '',
                 'value'         => $value,
                 'type'          => 'dropdown',
@@ -421,15 +421,15 @@ CREATE TABLE {$wpdb->prefix}printcart_product_builder_options (
                 'options'       => array(
                     array(
                         'key'       => 't',
-                        'text'      => esc_html__('Text', 'web-to-print-online-designer')
+                        'text'      => esc_html__('Text', 'pc-product-builder')
                     ),
                     array(
                         'key'       => 'u',
-                        'text'      => esc_html__('Upload', 'web-to-print-online-designer')
+                        'text'      => esc_html__('Upload', 'pc-product-builder')
                     ),
                     array(
                         'key'       => 'a',
-                        'text'      => esc_html__('Textarea', 'web-to-print-online-designer')
+                        'text'      => esc_html__('Textarea', 'pc-product-builder')
                     )
                 )
             );
@@ -445,7 +445,7 @@ CREATE TABLE {$wpdb->prefix}printcart_product_builder_options (
             }
             if (!isset($value['default'])) $value['default'] = $value['min'];
             return array(
-                'title'         => esc_html__('Input option', 'web-to-print-online-designer'),
+                'title'         => esc_html__('Input option', 'pc-product-builder'),
                 'description'   => '',
                 'value'         => $value,
                 'type'          => 'table',
@@ -481,7 +481,7 @@ CREATE TABLE {$wpdb->prefix}printcart_product_builder_options (
                 );
             }
             return array(
-                'title'         => esc_html__('Text input option', 'web-to-print-online-designer'),
+                'title'         => esc_html__('Text input option', 'pc-product-builder'),
                 'description'   =>  '',
                 'value'         => $value,
                 'type'          => 'table',
@@ -502,18 +502,18 @@ CREATE TABLE {$wpdb->prefix}printcart_product_builder_options (
         public function build_config_general_enabled($value = null) {
             if (is_null($value)) $value = 'y';
             return array(
-                'title'         => __('Enabled', 'web-to-print-online-designer'),
-                'description'   => __('Choose whether the option is enabled or not.', 'web-to-print-online-designer'),
+                'title'         => __('Enabled', 'pc-product-builder'),
+                'description'   => __('Choose whether the option is enabled or not.', 'pc-product-builder'),
                 'value'         => $value,
                 'type'          => 'dropdown',
                 'options'       => array(
                     array(
                         'key'       => 'y',
-                        'text'      => __('Yes', 'web-to-print-online-designer')
+                        'text'      => __('Yes', 'pc-product-builder')
                     ),
                     array(
                         'key'       => 'n',
-                        'text'      => __('No', 'web-to-print-online-designer')
+                        'text'      => __('No', 'pc-product-builder')
                     )
                 )
             );
@@ -521,18 +521,18 @@ CREATE TABLE {$wpdb->prefix}printcart_product_builder_options (
         public function build_config_general_published($value = null) {
             if (is_null($value)) $value = 'y';
             return array(
-                'title'         => __('Published', 'web-to-print-online-designer'),
-                'description'   => __('Show in summary options or not.', 'web-to-print-online-designer'),
+                'title'         => __('Published', 'pc-product-builder'),
+                'description'   => __('Show in summary options or not.', 'pc-product-builder'),
                 'value'         => $value,
                 'type'          => 'dropdown',
                 'options' =>    array(
                     array(
                         'key'       => 'y',
-                        'text'      => __('Yes', 'web-to-print-online-designer')
+                        'text'      => __('Yes', 'pc-product-builder')
                     ),
                     array(
                         'key'       => 'n',
-                        'text'      => __('No', 'web-to-print-online-designer')
+                        'text'      => __('No', 'pc-product-builder')
                     )
                 )
             );
@@ -540,18 +540,18 @@ CREATE TABLE {$wpdb->prefix}printcart_product_builder_options (
         public function build_config_general_required($value = null) {
             if (is_null($value)) $value = 'n';
             return array(
-                'title'         => __('Required', 'web-to-print-online-designer'),
+                'title'         => __('Required', 'pc-product-builder'),
                 'description'   => __('Choose whether the option is required or not.'),
                 'value'         => $value,
                 'type'          => 'dropdown',
                 'options'       => array(
                     array(
                         'key'       => 'y',
-                        'text'      => __('Yes', 'web-to-print-online-designer')
+                        'text'      => __('Yes', 'pc-product-builder')
                     ),
                     array(
                         'key'       => 'n',
-                        'text'      => __('No', 'web-to-print-online-designer')
+                        'text'      => __('No', 'pc-product-builder')
                     )
                 ),
                 'depend'        => array(
@@ -572,7 +572,7 @@ CREATE TABLE {$wpdb->prefix}printcart_product_builder_options (
                 );
             }
             return array(
-                'title'         => esc_html__('Upload file option', 'web-to-print-online-designer'),
+                'title'         => esc_html__('Upload file option', 'pc-product-builder'),
                 'description'   =>  '',
                 'value'         => $value,
                 'type'          => 'table',
@@ -593,26 +593,26 @@ CREATE TABLE {$wpdb->prefix}printcart_product_builder_options (
         public function build_config_general_price_type($value = null) {
             if (is_null($value)) $value = 'f';
             return array(
-                'title'         => esc_html__('Price type', 'web-to-print-online-designer'),
+                'title'         => esc_html__('Price type', 'pc-product-builder'),
                 'description'   => esc_html__('Here you can choose how the price is calculated. Depending on the field there various types you can choose.'),
                 'value'         => $value,
                 'type'          => 'dropdown',
                 'options'       => array(
                     array(
                         'key'       => 'f',
-                        'text'      => esc_html__('Fixed amount', 'web-to-print-online-designer')
+                        'text'      => esc_html__('Fixed amount', 'pc-product-builder')
                     ),
                     array(
                         'key'       => 'p',
-                        'text'      => esc_html__('Percent of the original price', 'web-to-print-online-designer')
+                        'text'      => esc_html__('Percent of the original price', 'pc-product-builder')
                     ),
                     array(
                         'key'       => 'p+',
-                        'text'      => esc_html__('Percent of the original price + options', 'web-to-print-online-designer')
+                        'text'      => esc_html__('Percent of the original price + options', 'pc-product-builder')
                     ),
                     array(
                         'key'       => 'c',
-                        'text'      => esc_html__('Current value * price', 'web-to-print-online-designer'),
+                        'text'      => esc_html__('Current value * price', 'pc-product-builder'),
                         'depend'    => array(
                             array(
                                 'field'     => 'data_type',
@@ -638,7 +638,7 @@ CREATE TABLE {$wpdb->prefix}printcart_product_builder_options (
                     ),
                     array(
                         'key'       => 'cp',
-                        'text'      => esc_html__('Price per char', 'web-to-print-online-designer'),
+                        'text'      => esc_html__('Price per char', 'pc-product-builder'),
                         'depend'    => array(
                             array(
                                 'field'     => 'data_type',
@@ -658,7 +658,7 @@ CREATE TABLE {$wpdb->prefix}printcart_product_builder_options (
         public function build_config_general_price($value = null) {
             if (is_null($value)) $value = '';
             return array(
-                'title'         => esc_html__('Additional Price', 'web-to-print-online-designer'),
+                'title'         => esc_html__('Additional Price', 'pc-product-builder'),
                 'description'   => esc_html__('Enter the price for this field or leave it blank for no price.'),
                 'value'         => $value,
                 'depend'        => array(
@@ -680,7 +680,7 @@ CREATE TABLE {$wpdb->prefix}printcart_product_builder_options (
             if (is_null($attributes)) {
                 $options = array(
                     0 => array(
-                        'name'                  => __('Attribute name', 'web-to-print-online-designer'),
+                        'name'                  => __('Attribute name', 'pc-product-builder'),
                         'des'                   => '',
                         'price'                 => array(),
                         'selected'              => 0,
@@ -709,7 +709,7 @@ CREATE TABLE {$wpdb->prefix}printcart_product_builder_options (
             $show_as_pt         = isset($attributes['show_as_pt']) ? $attributes['show_as_pt'] : 'n';
             $number_of_sides    = isset($attributes['number_of_sides']) ? $attributes['number_of_sides'] : 2;
             return array(
-                'title'           => __('Attributes', 'web-to-print-online-designer'),
+                'title'           => __('Attributes', 'pc-product-builder'),
                 'description'     => __('Attributes let you define extra product data, such as size or color.'),
                 'type'            => 'attributes',
                 'same_size'       => $same_size,
@@ -747,34 +747,34 @@ CREATE TABLE {$wpdb->prefix}printcart_product_builder_options (
         public function build_config_appearance_display_type($value = null) {
             if (is_null($value)) $value = 'd';
             return array(
-                'title'         => __('Display type', 'web-to-print-online-designer'),
+                'title'         => __('Display type', 'pc-product-builder'),
                 'description'   => '',
                 'value'         => $value,
                 'type'          => 'dropdown',
                 'options'       => array(
                     array(
                         'key'   => 'd',
-                        'text'  => __('Dropdown', 'web-to-print-online-designer')
+                        'text'  => __('Dropdown', 'pc-product-builder')
                     ),
                     array(
                         'key'   => 'r',
-                        'text'  => __('Radio button', 'web-to-print-online-designer')
+                        'text'  => __('Radio button', 'pc-product-builder')
                     ),
                     array(
                         'key'   => 's',
-                        'text'  => __('Swatch', 'web-to-print-online-designer')
+                        'text'  => __('Swatch', 'pc-product-builder')
                     ),
                     array(
                         'key'   => 'l',
-                        'text'  => __('Label', 'web-to-print-online-designer')
+                        'text'  => __('Label', 'pc-product-builder')
                     ),
                     array(
                         'key'   => 'ad',
-                        'text'  => __('Advanced Dropdown', 'web-to-print-online-designer')
+                        'text'  => __('Advanced Dropdown', 'pc-product-builder')
                     ),
                     array(
                         'key'   => 'xl',
-                        'text'  => __('Large label', 'web-to-print-online-designer')
+                        'text'  => __('Large label', 'pc-product-builder')
                     )
                 )
             );
@@ -782,18 +782,18 @@ CREATE TABLE {$wpdb->prefix}printcart_product_builder_options (
         public function build_config_appearance_change_image_product($value = null) {
             if (is_null($value)) $value = 'n';
             return array(
-                'title'         => __('Changes product image', 'web-to-print-online-designer'),
-                'description'   => __('Choose whether to change the product image.', 'web-to-print-online-designer'),
+                'title'         => __('Changes product image', 'pc-product-builder'),
+                'description'   => __('Choose whether to change the product image.', 'pc-product-builder'),
                 'type'          => 'dropdown',
                 'value'         => $value,
                 'options'       => array(
                     array(
                         'key'   => 'y',
-                        'text'  => __('Yes', 'web-to-print-online-designer')
+                        'text'  => __('Yes', 'pc-product-builder')
                     ),
                     array(
                         'key'   => 'n',
-                        'text'  => __('No', 'web-to-print-online-designer')
+                        'text'  => __('No', 'pc-product-builder')
                     )
                 )
             );
@@ -801,7 +801,7 @@ CREATE TABLE {$wpdb->prefix}printcart_product_builder_options (
         public function build_config_appearance_css_class($value = null) {
             if (is_null($value)) $value = '';
             return array(
-                'title'         => __('CSS Class', 'web-to-print-online-designer'),
+                'title'         => __('CSS Class', 'pc-product-builder'),
                 'description'   => '',
                 'type'          => 'text',
                 'value'         => $value
@@ -809,15 +809,15 @@ CREATE TABLE {$wpdb->prefix}printcart_product_builder_options (
         }
         function printcart_option_i18n() {
             return array(
-                'nbpb_com'              => esc_html__('Component', 'web-to-print-online-designer'),
-                'nbpb_text'             => esc_html__('Text', 'web-to-print-online-designer'),
-                'nbpb_image'            => esc_html__('Image', 'web-to-print-online-designer'),
-                'attribute_name'        => esc_html__('Attribute name', 'web-to-print-online-designer'),
-                'sub_attribute_name'    => esc_html__('Sub attribute name', 'web-to-print-online-designer'),
+                'nbpb_com'              => esc_html__('Component', 'pc-product-builder'),
+                'nbpb_text'             => esc_html__('Text', 'pc-product-builder'),
+                'nbpb_image'            => esc_html__('Image', 'pc-product-builder'),
+                'attribute_name'        => esc_html__('Attribute name', 'pc-product-builder'),
+                'sub_attribute_name'    => esc_html__('Sub attribute name', 'pc-product-builder'),
             );
         }
         public function add_meta_boxes() {
-            add_meta_box('printcart_product_builder', __('Printcart product builder', 'web-to-print-online-designer'), array($this, 'meta_box'), 'product', 'normal', 'high');
+            add_meta_box('printcart_product_builder', __('Printcart product builder', 'pc-product-builder'), array($this, 'meta_box'), 'product', 'normal', 'high');
         }
         public function meta_box() {
             $post_id            = get_the_ID();

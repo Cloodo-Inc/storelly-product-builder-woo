@@ -49,38 +49,38 @@ if (!class_exists('Printcart_PB_Util')) {
             switch ($command) {
                 case 'success':
                     if (!isset($mes))
-                        $mes = esc_html__('Your settings have been saved.', 'web-to-print-online-designer');
+                        $mes = esc_html__('Your settings have been saved.', 'pc-product-builder');
                     $notice = '<div class="updated notice notice-success is-dismissible">
                                 <p>' . $mes . '</p>
                                 <button type="button" class="notice-dismiss">
-                                    <span class="screen-reader-text">' . esc_html__('Dismiss this notice.', 'web-to-print-online-designer') . '</span>
+                                    <span class="screen-reader-text">' . esc_html__('Dismiss this notice.', 'pc-product-builder') . '</span>
                                 </button>
                             </div>';
                     break;
                 case 'error':
                     if (!isset($mes))
-                        $mes = esc_html__('Irks! An error has occurred.', 'web-to-print-online-designer');
+                        $mes = esc_html__('Irks! An error has occurred.', 'pc-product-builder');
                     $notice = '<div class="notice notice-error is-dismissible">
                                 <p>' . $mes . '</p>
                                 <button type="button" class="notice-dismiss">
-                                    <span class="screen-reader-text">' . esc_html__('Dismiss this notice.', 'web-to-print-online-designer') . '</span>
+                                    <span class="screen-reader-text">' . esc_html__('Dismiss this notice.', 'pc-product-builder') . '</span>
                                 </button>
                             </div>';
                     break;
                 case 'notices':
                     if (!isset($mes))
-                        $mes = esc_html__('Irks! An error has occurred.', 'web-to-print-online-designer');
+                        $mes = esc_html__('Irks! An error has occurred.', 'pc-product-builder');
                     $notice = '<div class="notice notice-warning">
                                 <p>' . $mes . '</p>
                             </div>';
                     break;
                 case 'warning':
                     if (!isset($mes))
-                        $mes = esc_html__('Warning.', 'web-to-print-online-designer');
+                        $mes = esc_html__('Warning.', 'pc-product-builder');
                     $notice = '<div class="notice notice-warning is-dismissible">
                                 <p>' . $mes . '</p>
                                 <button type="button" class="notice-dismiss">
-                                    <span class="screen-reader-text">' . esc_html__('Dismiss this notice.', 'web-to-print-online-designer') . '</span>
+                                    <span class="screen-reader-text">' . esc_html__('Dismiss this notice.', 'pc-product-builder') . '</span>
                                 </button>
                             </div>';
                     break;

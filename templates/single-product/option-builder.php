@@ -98,16 +98,16 @@ $currentDir = realpath(dirname(__FILE__));
                 ?>
                 <div ng-if="fields.length" class="nbo-clear-option-wrap">
                     <?php if ($num_visible_field > 0) : ?>
-                        <a class="button nbd-button" ng-click="reset_options()"><?php _e('Clear selection', 'web-to-print-online-designer'); ?></a>
+                        <a class="button nbd-button" ng-click="reset_options()"><?php _e('Clear selection', 'pc-product-builder'); ?></a>
                     <?php endif; ?>
                 </div>
                 <input type="hidden" value="<?php echo $product_id; ?>" name="pcpb-add-to-cart" />
-                <p ng-if="!valid_form" class="nbd-invalid-form"><?php _e('Please check invalid fields and quantity input or choose a different combination!', 'web-to-print-online-designer'); ?></p>
+                <p ng-if="!valid_form" class="nbd-invalid-form"><?php _e('Please check invalid fields and quantity input or choose a different combination!', 'pc-product-builder'); ?></p>
             </div>
             <div class="nbo-summary-wrapper">
                 <div ng-if="valid_form" class="nbo-table-summary-wrap <?php echo ($style_class); ?>">
                     <p class="nbo-summary-title" ng-init="showNboSummary = true">
-                        <b><?php esc_html_e('Summary options', 'web-to-print-online-designer'); ?></b>
+                        <b><?php esc_html_e('Summary options', 'pc-product-builder'); ?></b>
                         <span class="nbo-minus nbo-toggle" ng-show="showNboSummary" ng-click="showNboSummary = !showNboSummary">
                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
                                 <path d="M19 13H5v-2h14v2z" />
@@ -130,32 +130,32 @@ $currentDir = realpath(dirname(__FILE__));
                         <tbody>
                             <tr ng-repeat="(key, field) in nbd_fields" ng-show="field.enable && field.published">
                                 <td>{{field.title}} : <b>{{field.value_name}}</b>
-                                    <br ng-if="field.ind_qty" /><small ng-if="field.ind_qty && field.price != ''"> <?php esc_html_e('( cart fee )', 'web-to-print-online-designer'); ?></small>
-                                    <br ng-if="field.fixed_amount" /><small ng-if="field.fixed_amount && field.price != ''"> <?php esc_html_e('( for all items )', 'web-to-print-online-designer'); ?></small>
+                                    <br ng-if="field.ind_qty" /><small ng-if="field.ind_qty && field.price != ''"> <?php esc_html_e('( cart fee )', 'pc-product-builder'); ?></small>
+                                    <br ng-if="field.fixed_amount" /><small ng-if="field.fixed_amount && field.price != ''"> <?php esc_html_e('( for all items )', 'pc-product-builder'); ?></small>
                                 </td>
                                 <td ng-bind-html="field.price | to_trusted"></td>
                             </tr>
                         </tbody>
                         <tfoot style="border-top: 1px solid #404762;">
                             <tr>
-                                <td><b><?php esc_html_e('Options price', 'web-to-print-online-designer'); ?></b></td>
-                                <td><span id="nbd-option-total"><span ng-bind-html="total_price | to_trusted"></span> / <?php esc_html_e('1 item', 'web-to-print-online-designer'); ?></span></td>
+                                <td><b><?php esc_html_e('Options price', 'pc-product-builder'); ?></b></td>
+                                <td><span id="nbd-option-total"><span ng-bind-html="total_price | to_trusted"></span> / <?php esc_html_e('1 item', 'pc-product-builder'); ?></span></td>
                             </tr>
                             <tr class="nbo-final-price">
-                                <td><b><?php esc_html_e('Final price', 'web-to-print-online-designer'); ?></b></td>
+                                <td><b><?php esc_html_e('Final price', 'pc-product-builder'); ?></b></td>
                                 <td>
                                     <span id="nbd-option-total">
-                                        <span ng-hide="_qty == 1" ng-bind-html="final_price | to_trusted"></span><span ng-show="_qty == 1" ng-bind-html="total_cart_price | to_trusted"></span> / <?php esc_html_e('1 item', 'web-to-print-online-designer'); ?>
+                                        <span ng-hide="_qty == 1" ng-bind-html="final_price | to_trusted"></span><span ng-show="_qty == 1" ng-bind-html="total_cart_price | to_trusted"></span> / <?php esc_html_e('1 item', 'pc-product-builder'); ?>
                                     </span>
                                 </td>
                             </tr>
                             <tr class="nbo-final-price" ng-if="cart_item_fee.enable">
-                                <td><b><?php esc_html_e('Cart item fee', 'web-to-print-online-designer'); ?></b></td>
-                                <td><span id="nbd-option-total"><span ng-bind-html="cart_item_fee.value | to_trusted"></span> / <?php esc_html_e('all items', 'web-to-print-online-designer'); ?></span></td>
+                                <td><b><?php esc_html_e('Cart item fee', 'pc-product-builder'); ?></b></td>
+                                <td><span id="nbd-option-total"><span ng-bind-html="cart_item_fee.value | to_trusted"></span> / <?php esc_html_e('all items', 'pc-product-builder'); ?></span></td>
                             </tr>
                             <tr class="nbo-final-price nbo-total-price" ng-if="_qty > 1">
-                                <td><b><?php esc_html_e('Subtotal price', 'web-to-print-online-designer'); ?></b></td>
-                                <td><span id="nbd-option-total"><span ng-bind-html="total_cart_price | to_trusted"></span> / {{_qty}} <?php esc_html_e('items', 'web-to-print-online-designer'); ?></span></td>
+                                <td><b><?php esc_html_e('Subtotal price', 'pc-product-builder'); ?></b></td>
+                                <td><span id="nbd-option-total"><span ng-bind-html="total_cart_price | to_trusted"></span> / {{_qty}} <?php esc_html_e('items', 'pc-product-builder'); ?></span></td>
                             </tr>
                         </tfoot>
                     </table>
@@ -1610,14 +1610,14 @@ $currentDir = realpath(dirname(__FILE__));
                                 if (scope.maxsize != '') {
                                     var max_size = parseInt(scope.maxsize) * 1024 * 1024;
                                     if (max_size < file.size) {
-                                        alert("<?php _e('Sorry, file is too big, max size: ', 'web-to-print-online-designer'); ?>" + scope.maxsize + 'MB');
+                                        alert("<?php _e('Sorry, file is too big, max size: ', 'pc-product-builder'); ?>" + scope.maxsize + 'MB');
                                         resetInput();
                                     }
                                 }
                                 if (scope.minsize != '') {
                                     var minsize = parseInt(scope.minsize) * 1024 * 1024;
                                     if (minsize > file.size) {
-                                        alert("<?php _e('Sorry, file is too small, min size: ', 'web-to-print-online-designer'); ?>" + scope.minsize + 'MB');
+                                        alert("<?php _e('Sorry, file is too small, min size: ', 'pc-product-builder'); ?>" + scope.minsize + 'MB');
                                         resetInput();
                                     }
                                 }
@@ -1633,7 +1633,7 @@ $currentDir = realpath(dirname(__FILE__));
                                         }
                                     });
                                     if (!checType) {
-                                        alert("<?php _e('Sorry, this file type is not permitted for security reasons. Only accept: ', 'web-to-print-online-designer'); ?>" + scope.types);
+                                        alert("<?php _e('Sorry, this file type is not permitted for security reasons. Only accept: ', 'pc-product-builder'); ?>" + scope.types);
                                         resetInput();
                                     }
                                 }

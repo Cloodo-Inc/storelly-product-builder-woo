@@ -12,7 +12,7 @@ if (!class_exists('Printcart_Install')) {
                 $post = array(
                     'post_name'         => 'product-builder',
                     'post_status'       => 'publish',
-                    'post_title'        => esc_html__('Product Builder', 'web-to-print-online-designer'),
+                    'post_title'        => esc_html__('Product Builder', 'pc-product-builder'),
                     'post_type'         => 'page',
                     'post_author'       => 1,
                     'post_content'      => '',

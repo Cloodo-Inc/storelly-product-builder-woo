@@ -2,7 +2,7 @@
 <?php echo '<script type="text/ng-template" id="nbd.nbpb_image">'; ?>
 <div class="pcpb-field-info">
     <div class="pcpb-field-info-1">
-        <div><b><?php esc_html_e('Show in view', 'web-to-print-online-designer'); ?></b></div>
+        <div><b><?php esc_html_e('Show in view', 'pc-product-builder'); ?></b></div>
     </div>
     <div class="pcpb-field-info-2">
         <div class="nbd-table-wrap">

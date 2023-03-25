@@ -5,8 +5,8 @@ if (!class_exists('WP_List_Table')) {
 class Printcart_Options_List_Table extends WP_List_Table {
     public function __construct() {
         parent::__construct(array(
-            'singular'  => esc_html__('Printing option', 'web-to-print-online-designer'),
-            'plural'    => esc_html__('Printing options', 'web-to-print-online-designer'),
+            'singular'  => esc_html__('Printing option', 'pc-product-builder'),
+            'plural'    => esc_html__('Printing options', 'pc-product-builder'),
             'ajax'      => false
         ));
     }
@@ -29,9 +29,9 @@ class Printcart_Options_List_Table extends WP_List_Table {
     function get_columns() {
         $columns = array(
             'cb'            => '<input type="checkbox" />',
-            'title'         => esc_html__('Title', 'web-to-print-online-designer'),
-            'product_ids'   => esc_html__('Products', 'web-to-print-online-designer'),
-            'date'          => esc_html__('Date', 'web-to-print-online-designer')
+            'title'         => esc_html__('Title', 'pc-product-builder'),
+            'product_ids'   => esc_html__('Products', 'pc-product-builder'),
+            'date'          => esc_html__('Date', 'pc-product-builder')
         );
         return $columns;
     }
@@ -154,32 +154,32 @@ class Printcart_Options_List_Table extends WP_List_Table {
     }
     public function get_bulk_actions() {
         $actions = array(
-            'bulk-delete'       => esc_html__('Delete', 'web-to-print-online-designer'),
-            'bulk-publish'      => esc_html__('Publish', 'web-to-print-online-designer'),
-            'bulk-unpublish'    => esc_html__('Unpublish', 'web-to-print-online-designer'),
+            'bulk-delete'       => esc_html__('Delete', 'pc-product-builder'),
+            'bulk-publish'      => esc_html__('Publish', 'pc-product-builder'),
+            'bulk-unpublish'    => esc_html__('Unpublish', 'pc-product-builder'),
         );
         return $actions;
     }
     public function no_items() {
-        esc_html_e('No options avaliable.', 'web-to-print-online-designer');
+        esc_html_e('No options avaliable.', 'pc-product-builder');
     }
     function column_title($item) {
         $title      = $item['title'];
         $_nonce     = wp_create_nonce('nbd_options_nonce');
         $actions    = array(
-            'edit' => sprintf('<a href="?page=%s&action=%s&id=%s&paged=%s&_wpnonce=%s">' . esc_html__('Edit', 'web-to-print-online-designer') . '</a>', esc_attr($_REQUEST['page']), 'edit', absint($item['id']), $this->get_pagenum(), $_nonce),
-            'copy' => sprintf('<a href="?page=%s&action=%s&id=%s&paged=%s&_wpnonce=%s">' . esc_html__('Copy', 'web-to-print-online-designer') . '</a>', esc_attr($_REQUEST['page']), 'copy', absint($item['id']), $this->get_pagenum(), $_nonce)
+            'edit' => sprintf('<a href="?page=%s&action=%s&id=%s&paged=%s&_wpnonce=%s">' . esc_html__('Edit', 'pc-product-builder') . '</a>', esc_attr($_REQUEST['page']), 'edit', absint($item['id']), $this->get_pagenum(), $_nonce),
+            'copy' => sprintf('<a href="?page=%s&action=%s&id=%s&paged=%s&_wpnonce=%s">' . esc_html__('Copy', 'pc-product-builder') . '</a>', esc_attr($_REQUEST['page']), 'copy', absint($item['id']), $this->get_pagenum(), $_nonce)
         );
         return $title . $this->row_actions($actions);
     }
     function column_published($item) {
-        return $item['published'] == 1 ? esc_html__('Publish', 'web-to-print-online-designer') : esc_html__('Unpublish', 'web-to-print-online-designer');
+        return $item['published'] == 1 ? esc_html__('Publish', 'pc-product-builder') : esc_html__('Unpublish', 'pc-product-builder');
     }
     function column_date($item) {
         return (!empty($item['modified']) && $item['modified'] != '0000-00-00 00:00:00') ? $item['modified'] : $item['created'];
     }
     function column_product_ids($item) {
-        $return = esc_html__('None', 'web-to-print-online-designer');
+        $return = esc_html__('None', 'pc-product-builder');
         if (!$item['product_ids']) return $return;
         $products = unserialize($item['product_ids']);
         if (count($products)) {
