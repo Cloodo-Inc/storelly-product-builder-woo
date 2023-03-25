@@ -1,0 +1,50 @@
+<?php if (!defined('ABSPATH')) exit; ?>
+<div class="nbd-option-field pcpb-field-input-wrap <?php echo( $class ); ?>" ng-if="nbd_fields['<?php echo( $field['id'] ); ?>'].enable">
+    <?php include( $currentDir .'/options-builder/field-header.php' ); ?>
+    <div class="pcpb-field-content">
+        <input 
+            ng-change="check_valid()"
+            ng-model="nbd_fields['<?php echo( $field['id'] ); ?>'].value" class="nbd-input-<?php echo( $field['general']['input_type'] ); ?>"
+            <?php if( $field['general']['required'] == 'y' ) echo 'required'; ?> name="nbd-field[<?php echo( $field['id'] ); ?>]" id="pcpb-field-<?php echo( $field['id'] ); ?>"
+            <?php if( $field['general']['input_type'] == 't' ): ?>
+            type="text" <?php if( $field['general']['text_option']['min'] != '' ): ?>pattern=".{0}|.{<?php echo( $field['general']['text_option']['min'] ); ?>,}"<?php endif; ?> <?php if( $field['general']['text_option']['max'] != '' ): ?>maxlength="<?php echo( $field['general']['text_option']['max'] ); ?>"<?php endif; ?>
+                <?php if( isset( $field['general']['placeholder'] ) && $field['general']['placeholder'] != '' ): ?>
+                    placeholder="<?php echo( $field['general']['placeholder'] ); ?>"
+                <?php endif; ?>
+            <?php elseif( $field['general']['input_type'] == 'u' ): ?>
+            type="file" nbo-input-file="check_valid()" data-field-id="<?php echo( $field['id'] ); ?>" data-types="<?php echo strtolower( trim( $field['general']['upload_option']['allow_type'] ) ); ?>" 
+                data-minsize="<?php echo( $field['general']['upload_option']['min_size'] ); ?>" data-maxsize="<?php echo( $field['general']['upload_option']['max_size'] ); ?>"
+                <?php 
+                    $file_url = '';
+                    $filename = '';
+                    $uploaded = 0;
+                    if( isset($form_values[$field['id']]) ){
+                        $file_url = PRINTCART_PB_UPLOAD_URL . '/' . $form_values[$field['id']];
+                        $filename = explode('/', $form_values[$field['id']])[1];
+                        $uploaded = 1;
+                    }
+                ?>
+                data-file="<?php echo( $file_url ); ?>" data-filename="<?php echo( $filename ); ?>" data-uploaded="<?php echo( $uploaded ); ?>"
+                <?php 
+                    if( $field['general']['upload_option']['allow_type'] != '' ):
+                        $allow_type = strtolower( trim( $field['general']['upload_option']['allow_type'] ) );
+                        $allow_type_arr = explode(',', $allow_type);
+                        $delimiter = '';
+                ?>
+                accept="<?php foreach( $allow_type_arr as $_type ){ $_type = trim($_type); if($_type == 'jpg' || $_type == 'jpeg'){ $_type = 'jpg,.jpeg'; }; $__type = $delimiter . '.' . $_type; $delimiter = ','; echo( $__type ); } ?>"
+                <?php endif; ?>
+            <?php endif; ?>
+        />
+        <?php 
+            if( $field['general']['input_type'] == 'u' && isset($form_values[$field['id']]) ):
+        ?>
+        <input class="nbd-upload-hidden" id="nbd-upload-hidden-<?php echo( $field['id'] ); ?>" type="hidden" name="nbd-field[<?php echo( $field['id'] ); ?>]" value="<?php echo( $form_values[$field['id']] ); ?>" />
+        <?php endif; ?>
+        <?php if( $field['general']['input_type'] == 'u' && $field['general']['upload_option']['min_size'] != '' ): ?>
+        <span style="display: block; font-size: 12px;margin-top: 10px;"><?php echo esc_html__('Min size: ', 'pc-product-builder') . $field['general']['upload_option']['min_size'] . ' MB'; ?></span>
+        <?php endif; ?>
+        <?php if( $field['general']['input_type'] == 'u' && $field['general']['upload_option']['max_size'] != '' ): ?>
+        <span style="display: block; font-size: 12px;"><?php echo esc_html__('Max size: ', 'pc-product-builder') . $field['general']['upload_option']['max_size'] . ' MB'; ?></span>
+        <?php endif; ?>
+    </div>
+</div>
