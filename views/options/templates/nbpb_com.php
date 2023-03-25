@@ -32,9 +32,6 @@
                     <tr>
                         <td colspan="3"><a class="button btn-primary" ng-click="addView()"><?php esc_html_e('Add View', 'web-to-print-online-designer'); ?></a></td>
                     </tr>
-                    <tr>
-                        <td colspan="3"><a class="button btn-primary" ng-click="viewOptions()">test</a></td>
-                    </tr>
                 </tfoot>
             </table>
         </div>

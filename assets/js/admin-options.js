@@ -340,9 +340,6 @@ angular
       }
       _toggleExpandField();
     };
-    $scope.viewOptions = () => {
-      console.log($scope.options);
-    };
     $scope.initfieldValue = function () {
       angular.forEach($scope.options.fields, function (field, key) {
         $scope.option_values[key] = angular.isDefined($scope.option_values[key])
