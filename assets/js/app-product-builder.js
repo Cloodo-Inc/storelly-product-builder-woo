@@ -444,7 +444,7 @@ nbdpbApp.controller("nbpbCtrl", [
         "" + currentComponent.current_pb_configs[index].a_index;
       $scope.resource.values[currentComponent.id].sub_value =
         "" + currentComponent.current_pb_configs[index].sa_index;
-      jQuery(document).triggerHandler("update_nbo_options_from_builder", {
+      jQuery(document).triggerHandler("update_pcpb_options_from_builder", {
         nbd_fields: $scope.resource.values,
         pro: true,
       });
@@ -498,7 +498,7 @@ nbdpbApp.controller("nbpbCtrl", [
       );
       $scope.resource.values[currentComponent.id].value =
         currentComponent.currentContent;
-      jQuery(document).triggerHandler("update_nbo_options_from_builder", {
+      jQuery(document).triggerHandler("update_pcpb_options_from_builder", {
         nbd_fields: $scope.resource.values,
         pro: true,
       });
@@ -707,7 +707,7 @@ nbdpbApp.controller("nbpbCtrl", [
     };
     $scope.saveData = function () {
       $scope.toggleAppLoading();
-      jQuery(".nbdpb-custom-design").empty().hide();
+      jQuery(".pcpb-custom-design").empty().hide();
       $scope.saveDesign();
       $scope.resource.config.views = $scope.resource.views;
       $scope.resource.config.viewport = $scope.calcViewport();
@@ -719,13 +719,13 @@ nbdpbApp.controller("nbpbCtrl", [
         var key = "frame_" + index;
         dataObj[key] = $scope.makeblob(stage.design);
       });
-      ["nbo_cart_item_key", "is_creating_task", "oid"].forEach(function (key) {
+      ["pcpb_cart_item_key", "is_creating_task", "oid"].forEach(function (key) {
         dataObj[key] = NBPBCONFIG[key];
       });
       dataObj.config = new Blob([JSON.stringify($scope.resource.config)], {
         type: "application/json",
       });
-      var action = "nbd_save_product_builder_design";
+      var action = "printcart_save_product_builder_design";
       NBDDataFactory.get(action, dataObj, function (data) {
         data = JSON.parse(data);
         if (data.flag == "success") {
@@ -734,7 +734,7 @@ nbdpbApp.controller("nbpbCtrl", [
               window.location = $scope.settings.redirect_url;
           } else {
             $scope.toggleAppLoading();
-            jQuery(".nbdpb-custom-design").show();
+            jQuery(".pcpb-custom-design").show();
             _.each(data.image, function (image) {
               image += "?t=" + Math.random();
               var item =
@@ -743,10 +743,10 @@ nbdpbApp.controller("nbpbCtrl", [
                 image +
                 '" alt="Custom Design"/>' +
                 "</div>";
-              jQuery(".nbdpb-custom-design").append(item);
+              jQuery(".pcpb-custom-design").append(item);
             });
             jQuery(".variations_form, form.cart").append(
-              '<input type="hidden" name="nbdpb-folder" value="' +
+              '<input type="hidden" name="prcpb-folder" value="' +
                 data.folder +
                 '" />'
             );
@@ -1051,7 +1051,7 @@ nbdpbApp.controller("nbpbCtrl", [
                 fabric.Image.fromObject(item, function (_image) {
                   if (angular.isDefined(_image.isLogo) && _image.isLogo == 1) {
                     if (
-                      NBPBCONFIG.nbo_cart_item_key == "" &&
+                      NBPBCONFIG.pcpb_cart_item_key == "" &&
                       NBPBCONFIG.is_creating_task == 0
                     )
                       _image.set({ visible: false });
@@ -1075,7 +1075,7 @@ nbdpbApp.controller("nbpbCtrl", [
                   var klass = fabric.util.getKlass(type);
                   klass.fromObject(item, function (item) {
                     if (
-                      NBPBCONFIG.nbo_cart_item_key == "" &&
+                      NBPBCONFIG.pcpb_cart_item_key == "" &&
                       NBPBCONFIG.is_creating_task == 0
                     )
                       item.set({ visible: false, text: "" });
@@ -1344,7 +1344,7 @@ nbdpbApp.controller("nbpbCtrl", [
         jQuery(".nbo-fields-wrapper").append(
           '<input class="nbd-upload-hidden" id="nbd-upload-hidden-' +
             currentComponent.id +
-            '" type="hidden" name="nbd-field[' +
+            '" type="hidden" name="pcpb-field[' +
             currentComponent.id +
             ']" value="' +
             url +
@@ -1352,7 +1352,7 @@ nbdpbApp.controller("nbpbCtrl", [
         );
       }
       $scope.resource.values[currentComponent.id].value = url;
-      jQuery(document).triggerHandler("update_nbo_options_from_builder", {
+      jQuery(document).triggerHandler("update_pcpb_options_from_builder", {
         nbd_fields: $scope.resource.values,
         pro: true,
       });
@@ -1480,7 +1480,7 @@ nbdpbApp.controller("nbpbCtrl", [
         currentComponent.currentContent = "";
       }
       $scope.resource.values[currentComponent.id].value = "";
-      jQuery(document).triggerHandler("update_nbo_options_from_builder", {
+      jQuery(document).triggerHandler("update_pcpb_options_from_builder", {
         nbd_fields: $scope.resource.values,
         pro: true,
       });
@@ -1877,7 +1877,7 @@ function getTransform(el) {
   return results.slice(5, 8);
 }
 jQuery(document).ready(function () {
-  jQuery("#nbdpb-start-design").on("click", function () {
+  jQuery("#pcpb-start-design").on("click", function () {
     console.log(123);
     var $scope = angular
       .element(document.getElementById("nbpb-container"))

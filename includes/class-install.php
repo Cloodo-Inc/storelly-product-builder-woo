@@ -7,7 +7,7 @@ if (!class_exists('Printcart_Install')) {
         }
         public static function create_pages() {
             /* Create product builder page */
-            $printcart_product_builder_page_id = printcart_get_page_id('product_builder');
+            $printcart_product_builder_page_id = Printcart_PB_Util::printcart_get_page_id('product_builder');
             if ($printcart_product_builder_page_id == -1 || !get_post($printcart_product_builder_page_id)) {
                 $post = array(
                     'post_name'         => 'product-builder',

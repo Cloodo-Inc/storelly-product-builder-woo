@@ -1,7 +1,7 @@
 <?php if (!defined('ABSPATH')) exit; ?>
-<div class="nbd-option-field nbd-field-radio-wrap <?php echo( $class ); ?>" data-id="<?php echo( $field['id'] ); ?>" ng-if="nbd_fields['<?php echo( $field['id'] ); ?>'].enable">
+<div class="nbd-option-field pcpb-field-radio-wrap <?php echo( $class ); ?>" data-id="<?php echo( $field['id'] ); ?>" ng-if="nbd_fields['<?php echo( $field['id'] ); ?>'].enable">
     <?php include( $currentDir .'/options-builder/field-header.php' ); ?>
-    <div class="nbd-field-content">
+    <div class="pcpb-field-content">
         <div class="nbd-radio __nbd-radio-wrap">
             <?php 
                 foreach ($field['general']['attributes']["options"] as $key => $attr): 
@@ -10,8 +10,8 @@
                     $show_subattr = ($enable_subattr == 'on' && count($attr['sub_attributes']) > 0) ? true : false;
                     $field['general']['attributes']["options"][$key]['show_subattr'] = $show_subattr;
             ?>
-            <input ng-change="check_valid();updateMapOptions('<?php echo( $field['id'] ); ?>')" value="<?php echo( $key ); ?>" ng-model="nbd_fields['<?php echo( $field['id'] ); ?>'].value" id='nbd-field-<?php echo( $field['id'].'-'.$key ); ?>' 
-                   name="nbd-field[<?php echo( $field['id'] ); ?>]<?php if($show_subattr) echo '[value]'; ?>" type="radio" 
+            <input ng-change="check_valid();updateMapOptions('<?php echo( $field['id'] ); ?>')" value="<?php echo( $key ); ?>" ng-model="nbd_fields['<?php echo( $field['id'] ); ?>'].value" id='pcpb-field-<?php echo( $field['id'].'-'.$key ); ?>' 
+                   name="pcpb-field[<?php echo( $field['id'] ); ?>]<?php if($show_subattr) echo '[value]'; ?>" type="radio" 
                    nbo-disabled="!status_fields['<?php echo( $field['id'] ); ?>'][<?php echo( $key ); ?>].enable" nbo-disabled-type="attr" 
                 <?php
                     if( isset($form_values[$field['id']]) ){
@@ -20,7 +20,7 @@
                     }else{
                         checked( isset($attr['selected']) ? $attr['selected'] : 'off', 'on' ); 
                     }
-                ?>/> <label for='nbd-field-<?php echo( $field['id'].'-'.$key ); ?>' nbo-disabled="!status_fields['<?php echo( $field['id'] ); ?>'][<?php echo( $key ); ?>].enable" nbo-disabled-type="class" ><?php echo( $attr['name'] ); ?></label>
+                ?>/> <label for='pcpb-field-<?php echo( $field['id'].'-'.$key ); ?>' nbo-disabled="!status_fields['<?php echo( $field['id'] ); ?>'][<?php echo( $key ); ?>].enable" nbo-disabled-type="class" ><?php echo( $attr['name'] ); ?></label>
             <?php endforeach; ?>
         </div>
         <div class="nbo-invalid-option" 

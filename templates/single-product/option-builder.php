@@ -39,7 +39,7 @@ $currentDir = realpath(dirname(__FILE__));
                 if (is_array($options_fields)) {
                     foreach ($options_fields as $key => $field) {
                         $class = '';
-                        if ($field['nbpb_type'] == 'nbpb_text' || $field['nbpb_type'] == 'nbpb_image') {
+                        if (isset($field['nbpb_type']) && ($field['nbpb_type'] == 'nbpb_com' || $field['nbpb_type'] == 'nbpb_text' || $field['nbpb_type'] == 'nbpb_image')) {
                             $class      = 'nbo-hidden';
                             $has_nbpb   = true;
                         }
@@ -97,14 +97,11 @@ $currentDir = realpath(dirname(__FILE__));
                 if ($has_nbpb) do_action('nbo_after_default_options');
                 ?>
                 <div ng-if="fields.length" class="nbo-clear-option-wrap">
-                    <?php if ($in_design_editor) : ?>
-                        <a ng-class="printingOptionsAvailable ? '' : 'nbd-disabled'" class="nbd-button nbo-apply" ng-click="applyOptions()">{{settings.task2 == '' ? "<?php _e('Apply options', 'web-to-print-online-designer'); ?>" : "<?php _e('Start design', 'web-to-print-online-designer'); ?>" }}</a>
-                    <?php endif; ?>
                     <?php if ($num_visible_field > 0) : ?>
                         <a class="button nbd-button" ng-click="reset_options()"><?php _e('Clear selection', 'web-to-print-online-designer'); ?></a>
                     <?php endif; ?>
                 </div>
-                <input type="hidden" value="<?php echo $product_id; ?>" name="nbo-add-to-cart" />
+                <input type="hidden" value="<?php echo $product_id; ?>" name="pcpb-add-to-cart" />
                 <p ng-if="!valid_form" class="nbd-invalid-form"><?php _e('Please check invalid fields and quantity input or choose a different combination!', 'web-to-print-online-designer'); ?></p>
             </div>
             <div class="nbo-summary-wrapper">
@@ -144,10 +141,6 @@ $currentDir = realpath(dirname(__FILE__));
                                 <td><b><?php esc_html_e('Options price', 'web-to-print-online-designer'); ?></b></td>
                                 <td><span id="nbd-option-total"><span ng-bind-html="total_price | to_trusted"></span> / <?php esc_html_e('1 item', 'web-to-print-online-designer'); ?></span></td>
                             </tr>
-                            <tr>
-                                <td><b><?php esc_html_e('Quantity Discount', 'web-to-print-online-designer'); ?></b></td>
-                                <td><span id="nbd-option-total"><span ng-bind-html="discount_by_qty | to_trusted"></span> / <?php esc_html_e('1 item', 'web-to-print-online-designer'); ?></span></td>
-                            </tr>
                             <tr class="nbo-final-price">
                                 <td><b><?php esc_html_e('Final price', 'web-to-print-online-designer'); ?></b></td>
                                 <td>
@@ -171,189 +164,6 @@ $currentDir = realpath(dirname(__FILE__));
         </div>
     </div>
     <script type="text/javascript">
-        (function($) {
-            $.fn.tipTip = function(options) {
-                var defaults = {
-                    activation: "hover",
-                    keepAlive: false,
-                    maxWidth: "200px",
-                    edgeOffset: 3,
-                    defaultPosition: "bottom",
-                    delay: 400,
-                    fadeIn: 200,
-                    fadeOut: 200,
-                    attribute: "title",
-                    content: false, // HTML or String to fill TipTIp with
-                    enter: function() {},
-                    exit: function() {}
-                };
-                var opts = $.extend(defaults, options);
-
-                // Setup tip tip elements and render them to the DOM
-                if ($("#tiptip_holder").length <= 0) {
-                    var tiptip_holder = $('<div id="tiptip_holder" style="max-width:' + opts.maxWidth + ';"></div>');
-                    var tiptip_content = $('<div id="tiptip_content"></div>');
-                    var tiptip_arrow = $('<div id="tiptip_arrow"></div>');
-                    $("body").append(tiptip_holder.html(tiptip_content).prepend(tiptip_arrow.html('<div id="tiptip_arrow_inner"></div>')));
-                } else {
-                    var tiptip_holder = $("#tiptip_holder");
-                    var tiptip_content = $("#tiptip_content");
-                    var tiptip_arrow = $("#tiptip_arrow");
-                }
-
-                return this.each(function() {
-                    var org_elem = $(this);
-                    if (opts.content) {
-                        var org_title = opts.content;
-                    } else {
-                        var org_title = org_elem.attr(opts.attribute);
-                    }
-                    if (org_title != "") {
-                        if (!opts.content) {
-                            org_elem.removeAttr(opts.attribute); //remove original Attribute
-                        }
-                        var timeout = false;
-
-                        if (opts.activation == "hover") {
-                            org_elem.hover(function() {
-                                active_tiptip();
-                            }, function() {
-                                if (!opts.keepAlive) {
-                                    deactive_tiptip();
-                                }
-                            });
-                            if (opts.keepAlive) {
-                                tiptip_holder.hover(function() {}, function() {
-                                    deactive_tiptip();
-                                });
-                            }
-                        } else if (opts.activation == "focus") {
-                            org_elem.focus(function() {
-                                active_tiptip();
-                            }).blur(function() {
-                                deactive_tiptip();
-                            });
-                        } else if (opts.activation == "click") {
-                            org_elem.click(function() {
-                                active_tiptip();
-                                return false;
-                            }).hover(function() {}, function() {
-                                if (!opts.keepAlive) {
-                                    deactive_tiptip();
-                                }
-                            });
-                            if (opts.keepAlive) {
-                                tiptip_holder.hover(function() {}, function() {
-                                    deactive_tiptip();
-                                });
-                            }
-                        }
-
-                        function active_tiptip() {
-                            opts.enter.call(this);
-                            tiptip_content.html(org_title);
-                            tiptip_holder.hide().removeAttr("class").css("margin", "0");
-                            tiptip_arrow.removeAttr("style");
-
-                            var top = parseInt(org_elem.offset()['top']);
-                            var left = parseInt(org_elem.offset()['left']);
-                            var org_width = parseInt(org_elem.outerWidth());
-                            var org_height = parseInt(org_elem.outerHeight());
-                            var tip_w = tiptip_holder.outerWidth();
-                            var tip_h = tiptip_holder.outerHeight();
-                            var w_compare = Math.round((org_width - tip_w) / 2);
-                            var h_compare = Math.round((org_height - tip_h) / 2);
-                            var marg_left = Math.round(left + w_compare);
-                            var marg_top = Math.round(top + org_height + opts.edgeOffset);
-                            var t_class = "";
-                            var arrow_top = "";
-                            var arrow_left = Math.round(tip_w - 12) / 2;
-
-                            if (opts.defaultPosition == "bottom") {
-                                t_class = "_bottom";
-                            } else if (opts.defaultPosition == "top") {
-                                t_class = "_top";
-                            } else if (opts.defaultPosition == "left") {
-                                t_class = "_left";
-                            } else if (opts.defaultPosition == "right") {
-                                t_class = "_right";
-                            }
-
-                            var right_compare = (w_compare + left) < parseInt($(window).scrollLeft());
-                            var left_compare = (tip_w + left) > parseInt($(window).width());
-
-                            if ((right_compare && w_compare < 0) || (t_class == "_right" && !left_compare) || (t_class == "_left" && left < (tip_w + opts.edgeOffset + 5))) {
-                                t_class = "_right";
-                                arrow_top = Math.round(tip_h - 13) / 2;
-                                arrow_left = -12;
-                                marg_left = Math.round(left + org_width + opts.edgeOffset);
-                                marg_top = Math.round(top + h_compare);
-                            } else if ((left_compare && w_compare < 0) || (t_class == "_left" && !right_compare)) {
-                                t_class = "_left";
-                                arrow_top = Math.round(tip_h - 13) / 2;
-                                arrow_left = Math.round(tip_w);
-                                marg_left = Math.round(left - (tip_w + opts.edgeOffset + 5));
-                                marg_top = Math.round(top + h_compare);
-                            }
-
-                            var top_compare = (top + org_height + opts.edgeOffset + tip_h + 8) > parseInt($(window).height() + $(window).scrollTop());
-                            var bottom_compare = ((top + org_height) - (opts.edgeOffset + tip_h + 8)) < 0;
-
-                            if (top_compare || (t_class == "_bottom" && top_compare) || (t_class == "_top" && !bottom_compare)) {
-                                if (t_class == "_top" || t_class == "_bottom") {
-                                    t_class = "_top";
-                                } else {
-                                    t_class = t_class + "_top";
-                                }
-                                arrow_top = tip_h;
-                                marg_top = Math.round(top - (tip_h + 5 + opts.edgeOffset));
-                            } else if (bottom_compare | (t_class == "_top" && bottom_compare) || (t_class == "_bottom" && !top_compare)) {
-                                if (t_class == "_top" || t_class == "_bottom") {
-                                    t_class = "_bottom";
-                                } else {
-                                    t_class = t_class + "_bottom";
-                                }
-                                arrow_top = -12;
-                                marg_top = Math.round(top + org_height + opts.edgeOffset);
-                            }
-
-                            if (t_class == "_right_top" || t_class == "_left_top") {
-                                marg_top = marg_top + 5;
-                            } else if (t_class == "_right_bottom" || t_class == "_left_bottom") {
-                                marg_top = marg_top - 5;
-                            }
-                            if (t_class == "_left_top" || t_class == "_left_bottom") {
-                                marg_left = marg_left + 5;
-                            }
-                            tiptip_arrow.css({
-                                "margin-left": arrow_left + "px",
-                                "margin-top": arrow_top + "px"
-                            });
-                            tiptip_holder.css({
-                                "margin-left": marg_left + "px",
-                                "margin-top": marg_top + "px"
-                            }).attr("class", "tip" + t_class);
-
-                            if (timeout) {
-                                clearTimeout(timeout);
-                            }
-                            timeout = setTimeout(function() {
-                                tiptip_holder.stop(true, true).fadeIn(opts.fadeIn);
-                            }, opts.delay);
-                        }
-
-                        function deactive_tiptip() {
-                            opts.exit.call(this);
-                            if (timeout) {
-                                clearTimeout(timeout);
-                            }
-                            tiptip_holder.fadeOut(opts.fadeOut);
-                        }
-                    }
-                });
-            }
-        })(jQuery);
-
         var in_quick_view = <?php echo $in_quick_view ? 1 : 0; ?>;
         nbds_frontend = <?php echo json_encode($nbds_frontend); ?>;
         var nbOption = {
@@ -361,7 +171,6 @@ $currentDir = realpath(dirname(__FILE__));
             initialed: false,
             options: <?php echo json_encode($options); ?>,
             nbd_fields: {},
-            odOption: {},
             extraOdOption: {},
             lastOdOption: {},
             lastExtraOdOption: {},
@@ -569,8 +378,6 @@ $currentDir = realpath(dirname(__FILE__));
             $scope.product_img = [];
             $scope.price_table = [];
             $scope.turnaround_matrix = [];
-            $scope.has_price_matrix = false;
-            $scope.can_start_design = true;
             $scope.custom_quantity = false;
             $scope.current_group_panel = 0;
             $scope.total_cart_item_price_num = 0;
@@ -627,15 +434,45 @@ $currentDir = realpath(dirname(__FILE__));
                                 field.value_name = selected_option.name;
                                 if (angular.isDefined($scope.nbd_fields[field_id])) {
                                     $scope.nbd_fields[field_id].form_name = '';
+                                    if (angular.isDefined(selected_option.enable_subattr) && selected_option.enable_subattr == 'on') {
+                                        if (angular.isDefined(selected_option.sub_attributes) && selected_option.sub_attributes.length > 0) {
+                                            $scope.nbd_fields[field_id].form_name = selected_option.form_name;
+                                            if (angular.isUndefined(selected_option.sub_attributes[$scope.nbd_fields[field_id].sub_value])) {
+                                                $scope.nbd_fields[field_id].sub_value = '0';
+                                            }
+                                            field.value_name += ' - ' + selected_option.sub_attributes[$scope.nbd_fields[field_id].sub_value].name;
+                                        }
+                                    }
                                     if (origin_field.appearance.display_type == 'ad') {
                                         $scope.nbd_fields[field_id].form_name = '[value]';
                                     }
                                 }
                                 if (origin_field.general.attributes.options.length) {
+                                    origin_field.general.attributes.options.forEach(function(op, opIndex) {
+                                        $scope.checkAttributeStatus(field_id, opIndex);
+
+                                        if (angular.isDefined(op.enable_subattr) && op.enable_subattr == 'on' && op.sub_attributes.length > 0) {
+                                            op.sub_attributes.forEach(function(sop, sopIndex) {
+                                                $scope.checkAttributeStatus(field_id, opIndex, sopIndex);
+                                            });
+                                        }
+                                    });
+
                                     if (!$scope.status_fields[field_id][field.value].enable) {
                                         check[field_id] = false;
                                         field.valid = false;
                                         field.invalidOption = selected_option.name;
+                                    }
+
+                                    if (angular.isDefined(field.sub_value)) {
+                                        if (angular.isDefined(selected_option.enable_subattr) && selected_option.enable_subattr == 'on' && selected_option.sub_attributes.length > 0) {
+                                            var selected_sub_option = selected_option.sub_attributes[field.sub_value];
+                                            if (!$scope.status_fields[field_id][field.value].sub_attributes[field.sub_value]) {
+                                                check[field_id] = false;
+                                                field.valid = false;
+                                                field.invalidOption = selected_sub_option.name;
+                                            }
+                                        }
                                     }
                                 }
 
@@ -654,38 +491,18 @@ $currentDir = realpath(dirname(__FILE__));
                         total_check = total_check && c;
                     });
                     if (total_check) {
-                        $scope.postOptionsToEditor();
+                        $scope.calculate_price();
                         $scope.valid_form = true;
                         jQuery('.single_add_to_cart_button').removeClass("nbo-disabled nbo-hidden");
                         jQuery('.variations_form, form.cart').find('[name="nbo-ignore-design"]').remove();
-                        if ($scope.can_start_design) {
-                            if ($scope.type == 'variable') {
-                                var variation_id = jQuery('input[name="variation_id"], input.variation_id').val();
-                                if (variation_id != '' && variation_id != 0) {
-                                    jQuery('#triggerDesign').removeClass('nbdesigner_disable');
-                                }
-                            } else {
-                                jQuery('#triggerDesign').removeClass('nbdesigner_disable');
-                            }
-                        } else {
-                            jQuery('.variations_form, form.cart').append('<input name="nbo-ignore-design" type="hidden" value="1" />');
-                            jQuery('#triggerDesign').addClass('nbdesigner_disable');
-                        };
                         jQuery(document).triggerHandler('nbo_valid_form');
                     } else {
                         jQuery(document).triggerHandler('invalid_nbo_options');
                         jQuery('.single_add_to_cart_button').addClass("nbo-disabled");
-                        if (nbds_frontend.nbdesigner_hide_add_cart_until_form_filled == 'yes') {
-                            jQuery('.single_add_to_cart_button').addClass("nbo-hidden");
-                        }
                         $scope.valid_form = false;
-                        jQuery('#triggerDesign').addClass('nbdesigner_disable');
                         jQuery(document).triggerHandler('nbo_invalid_form');
                     }
                     $scope.may_be_change_product_image();
-                    if ($scope.has_price_matrix && (angular.isUndefined(calculate_pm) || calculate_pm)) {
-                        $scope.calculate_price_matrix();
-                    }
                     angular.copy($scope.nbd_fields, nbOption.nbd_fields);
                     if (!nbOption.initialed) {
                         jQuery(document).triggerHandler('initialed_nbo_options');
@@ -726,35 +543,6 @@ $currentDir = realpath(dirname(__FILE__));
                     $scope.update_app();
                 });
             };
-            $scope.postOptionsToEditor = function() {
-                angular.copy(nbOption.odOption, nbOption.lastOdOption);
-                angular.copy(nbOption.extraOdOption, nbOption.lastExtraOdOption);
-                nbOption.odOption = {};
-                nbOption.extraOdOption = {};
-                var options_str = '';
-                angular.forEach($scope.nbd_fields, function(field, field_id) {
-                    if (field.enable) {
-                        var origin_field = $scope.get_field(field_id);
-                    }
-                });
-                /* send option to editor */
-                if (angular.equals(nbOption.odOption, nbOption.lastOdOption)) {
-                    jQuery(document).triggerHandler('change_nbo_options_without_od_option');
-                } else {
-                    jQuery(document).triggerHandler('change_nbo_options_with_od_option');
-                };
-                if (!angular.equals(nbOption.extraOdOption, nbOption.lastExtraOdOption)) {
-                    jQuery(document).triggerHandler('change_nbo_extra_od_options');
-                }
-                jQuery(document).triggerHandler('change_nbo_options');
-            };
-            $scope.getFieldIndexById = function(field_id) {
-                var currentFieldIndex = 0;
-                angular.forEach($scope.options.fields, function(__field, __index) {
-                    if (__field.id == field_id) currentFieldIndex = __index;
-                });
-                return currentFieldIndex;
-            };
             $scope.updateVariations = function() {
                 nbOption.variations = [];
                 var bulkForm = jQuery('.nbo-bulk-variation input, .nbo-bulk-variation select').serializeJSON();
@@ -767,26 +555,6 @@ $currentDir = realpath(dirname(__FILE__));
                     jQuery(document).triggerHandler('change_nbo_size_variations');
                 }
             };
-            $scope.updateMultiselectValue = function(field_id) {
-                $scope.nbd_fields[field_id].values = [];
-                angular.forEach($scope.nbd_fields[field_id]._values, function(val, index) {
-                    if (val) {
-                        $scope.nbd_fields[field_id].values.push(index);
-                    }
-                });
-                $scope.nbd_fields[field_id].value = $scope.nbd_fields[field_id].values[0];
-                $scope.check_valid();
-            };
-            $scope.lastTickDpi = new Date().getTime();
-            $scope.update_dpi = function() {
-                $scope.lastTickDpi = new Date().getTime();
-                $timeout(function() {
-                    var current = new Date().getTime();
-                    if ((current - $scope.lastTickDpi) >= 500) {
-                        $scope.check_valid();
-                    };
-                }, 500);
-            };
             $scope.set_product_image_attr = function(ele, attr, value, id) {
                 if (angular.isUndefined($scope.product_image[id]) || angular.isUndefined($scope.product_image[id][attr])) {
                     if (angular.isUndefined($scope.product_image[id])) $scope.product_image[id] = {};
@@ -797,10 +565,6 @@ $currentDir = realpath(dirname(__FILE__));
                 } else {
                     ele.attr(attr, value);
                 }
-            };
-            $scope.reset_product_image_attr = function(ele, attr, id) {
-                ele.attr(attr, $scope.product_image[id][attr]);
-                delete $scope.product_image[id][attr];
             };
             $scope.may_be_change_product_image = function() {
                 $scope.product_img = [];
@@ -856,56 +620,6 @@ $currentDir = realpath(dirname(__FILE__));
                         $scope.set_product_image_attr(product_link, 'href', option_data.full_src, 3);
                         $scope.set_product_image_attr(product_link, 'title', option_data.image_caption, 3);
                     }
-                    $scope.init_product_gallery_and_zoom();
-                }
-            };
-            $scope.change_gallery_image = function(gallery_images, folder) {
-                if (angular.isDefined(folder)) {
-                    nbOption.template_folder = folder;
-                    nbOption.gallery = {};
-                    nbOption.design_stored = 1;
-                }
-                var _options_folder = 'product_id,' + $scope.product_id + '|' + 'template,' + nbOption.template_folder + '|' + nbOption.options_str;
-                _options_folder = window.btoa(_options_folder);
-                nbOption.gallery[_options_folder] = gallery_images;
-                var product_element = jQuery('#product-' + $scope.product_id),
-                    product_images = product_element.find('.woocommerce-product-gallery__image:not(.clone), .woocommerce-product-gallery__image--placeholder:not(.clone)'),
-                    thumbnail_images = product_element.find('.flex-control-nav li');
-                if (product_images.length > 1 && gallery_images.length > 0) {
-                    jQuery.each(product_images, function(index, el) {
-                        if (index > 0 && index <= gallery_images.length) {
-                            var timestamp = new Date().getTime(),
-                                src = gallery_images[index - 1].src + '?t=' + timestamp;
-                            jQuery(el).find('a img').attr({
-                                'src': src,
-                                'srcset': src + ' 320w',
-                                'sizes': gallery_images[index - 1].sizes,
-                                'title': gallery_images[index - 1].title,
-                                'data-src': src,
-                                'data-large_image': src,
-                                'data-large_image_width': gallery_images[index - 1].width,
-                                'data-large_image_height': gallery_images[index - 1].height,
-                                'data-thumb': src
-                            });
-                            jQuery(el).find('a').attr('href', src);
-                            jQuery(el).addClass('nbo-gallery-loading');
-                            thumbnail_images.eq(index).addClass('nbo-gallery-loading');
-                            var image = new Image();
-                            image.onload = function() {
-                                thumbnail_images.eq(index).find('img').attr({
-                                    'src': src,
-                                    'alt': gallery_images[index - 1].title
-                                });
-                                thumbnail_images.eq(index).removeClass('nbo-gallery-loading');
-                                jQuery(el).removeClass('nbo-gallery-loading');
-                                jQuery('#nbdesigner_frontend_area .img-con').eq(index - 1).find('img').attr({
-                                    'src': src,
-                                    'alt': gallery_images[index - 1].title
-                                });
-                            };
-                            image.src = src;
-                        }
-                    });
                     $scope.init_product_gallery_and_zoom();
                 }
             };
@@ -991,13 +705,13 @@ $currentDir = realpath(dirname(__FILE__));
                 });
                 return _field;
             };
-            $scope.get_field_index = function(field_id) {
-                var _index = null;
-                angular.forEach($scope.fields, function(field, index) {
-                    if (field.id == field_id) _index = index;
-                });
-                return _index;
-            };
+            // $scope.get_field_index = function(field_id) {
+            //     var _index = null;
+            //     angular.forEach($scope.fields, function(field, index) {
+            //         if (field.id == field_id) _index = index;
+            //     });
+            //     return _index;
+            // };
             $scope.check_depend = function(field_id) {
                 if (angular.isUndefined($scope.nbd_fields[field_id])) return;
                 var field = $scope.get_field(field_id),
@@ -1065,33 +779,6 @@ $currentDir = realpath(dirname(__FILE__));
                                 if (!selectedOp) {
                                     selectedOp = field.general.attributes.options[0];
                                 }
-                                if ($scope.isMultipleSelectPage(field)) {
-                                    if (angular.isDefined($scope.form_values[field.id])) {
-                                        $scope.nbd_fields[field.id].values = [parseInt($scope.nbd_fields[field.id].value)];
-                                    } else {
-                                        $scope.nbd_fields[field.id].values = [];
-                                    }
-                                    $scope.nbd_fields[field.id]._values = [];
-                                    angular.forEach(field.general.attributes.options, function(op, k) {
-                                        if (angular.isDefined($scope.form_values[field.id])) {
-                                            $scope.nbd_fields[field.id]._values[k] = false;
-                                        } else {
-                                            if (angular.isDefined(field.general.auto_select_page) && field.general.auto_select_page == 'n') {
-                                                if (op.selected == 'on') {
-                                                    $scope.nbd_fields[field.id]._values[k] = true;
-                                                    $scope.nbd_fields[field.id].values.push(k);
-                                                }
-                                            } else {
-                                                $scope.nbd_fields[field.id]._values[k] = true;
-                                                $scope.nbd_fields[field.id].values.push(k);
-                                            }
-                                        }
-                                    });
-                                    if ($scope.nbd_fields[field.id]._values.length == 0) {
-                                        $scope.nbd_fields[field.id]._values[0] = true;
-                                        $scope.nbd_fields[field.id].values.push(0);
-                                    }
-                                }
                             }
                         }
                     }
@@ -1106,14 +793,6 @@ $currentDir = realpath(dirname(__FILE__));
                         } else {
                             $scope.nbd_fields[field_id].value = value;
                         }
-                    }
-                    var origin_field = $scope.get_field(field_id);
-                    if ($scope.isMultipleSelectPage(origin_field)) {
-                        $scope.nbd_fields[field_id].value = value[0];
-                        $scope.nbd_fields[field_id].values = value;
-                        angular.forEach(value, function(val) {
-                            $scope.nbd_fields[origin_field.id]._values[val] = true;
-                        });
                     }
                 });
                 angular.forEach($scope.fields, function(field) {
@@ -1190,7 +869,7 @@ $currentDir = realpath(dirname(__FILE__));
                                 jQuery(this).find('option').each(function(index, el) {
                                     var val = jQuery(el).val();
                                     if (index > 0) {
-                                        var option = optionWrap.find('.nbd-field-content ' + selector).eq(index - 1);
+                                        var option = optionWrap.find('.pcpb-field-content ' + selector).eq(index - 1);
                                         if (!avaiable_options[val]) {
                                             option.addClass('nbo_map_disable').attr('disabled', 'disabled');
                                         } else {
@@ -1218,12 +897,12 @@ $currentDir = realpath(dirname(__FILE__));
                                     jQuery(this).parents('tr').hide();
                                     if (val != '') {
                                         var index = jQuery(this).find("[value='" + val + "']").index();
-                                        var option = optionWrap.find('.nbd-field-content ' + selector).eq(index - 1);
+                                        var option = optionWrap.find('.pcpb-field-content ' + selector).eq(index - 1);
                                     } else {
-                                        option = optionWrap.find('.nbd-field-content ' + selector).eq(0);
+                                        option = optionWrap.find('.pcpb-field-content ' + selector).eq(0);
                                     }
                                     if (option.attr('disabled') == 'disabled') {
-                                        var enabledOption = optionWrap.find('.nbd-field-content ' + selector + ':enabled').eq(0);
+                                        var enabledOption = optionWrap.find('.pcpb-field-content ' + selector + ':enabled').eq(0);
                                         if (enabledOption.length) {
                                             enabledIndex = enabledOption.val();
                                             $scope.nbd_fields[field_id].value = enabledIndex;
@@ -1386,40 +1065,6 @@ $currentDir = realpath(dirname(__FILE__));
                 if (angular.isDefined($scope.quantity)) $scope.change_quantity();
                 jQuery(document).triggerHandler('reset_nbo_options');
             };
-            // $scope.change_delivery_date = function(qty_break_index, delivery_index) {
-            //     $scope.quantity = $scope.validate_int($scope.turnaround_quantity_breaks[qty_break_index].val);
-            //     $scope.nbd_fields[nbOption.delivery_field_id].value = '' + delivery_index;
-            //     var delivery_field = $scope.get_field(nbOption.delivery_field_id);
-            //     angular.forEach($scope.turnaround_quantity_breaks, function(_break, key) {
-            //         angular.forEach(delivery_field.general.attributes.options, function(op, okey) {
-            //             $scope.turnaround_matrix[key][okey].active = false;
-            //         });
-            //     });
-            //     $scope.turnaround_matrix[qty_break_index][delivery_index].active = true;
-            //     $scope.custom_quantity = false;
-            //     $scope.current_turnaround_position = [qty_break_index, delivery_index];
-            //     $scope.change_quantity();
-            // };
-            $scope.update_delivery_date = function() {
-                var qty = $scope.validate_int(jQuery('input[name="quantity"]').val()),
-                    quantity_break = $scope.get_quantity_break(qty),
-                    position = quantity_break.index;
-                if (angular.isDefined($scope.current_turnaround_position[1])) {
-                    if ($scope.turnaround_matrix[position][$scope.current_turnaround_position[1]].show == false) {
-                        $scope.turnaround_matrix[$scope.current_turnaround_position[0]][$scope.current_turnaround_position[1]].active = false;
-                        var delivery_field = $scope.get_field(nbOption.delivery_field_id);
-                        for (i = 0; i < delivery_field.general.attributes.options.length; i++) {
-                            if ($scope.turnaround_matrix[position][i].show == true) {
-                                $scope.nbd_fields[nbOption.delivery_field_id].value = '' + i;
-                                $scope.current_turnaround_position[1] = i;
-                                $scope.current_turnaround_position[0] = position;
-                                $scope.turnaround_matrix[position][i].active = true;
-                                break;
-                            }
-                        }
-                    }
-                }
-            };
             $scope.custom_qty = {
                 enable: false,
                 value: !!$scope.quantity ? $scope.quantity : 1
@@ -1468,23 +1113,6 @@ $currentDir = realpath(dirname(__FILE__));
                 el.parents('table.nbo-bulk-variation').find('input.nbo-bulk-checkbox').prop('checked', false);
                 $scope.calculate_bulk_total_price();
             };
-            $scope.select_price_matrix = function(_i, _j) {
-                var i, j;
-                for (i = 0; i < $scope.options.pm_num_row; i++) {
-                    for (j = 0; j < $scope.options.pm_num_col; j++) {
-                        $scope.options.price_matrix[i][j].class = '';
-                    }
-                }
-                $scope.options.price_matrix[_i][_j].class = 'selected';
-                angular.copy($scope.options.price_matrix[_i][_j].fields, $scope.nbd_fields);
-                $scope.options.pm_selected = [_i, _j];
-                $scope.check_valid(false);
-            };
-            $scope.get_mpm_base_price = function(i, j) {
-                var index = i * $scope.options.pm_num_col + j;
-                if (angular.isDefined($scope.options.mpm_prices[index])) return $scope.convert_wc_price_to_float($scope.options.mpm_prices[index]);
-                return 0;
-            };
             $scope.convert_to_wc_price = function(price, required) {
                 var precision = parseInt(nbds_frontend.wc_currency_format_num_decimals);
                 if (price.toFixed(precision) == 0 && angular.isUndefined(required)) return '';
@@ -1531,36 +1159,156 @@ $currentDir = realpath(dirname(__FILE__));
                 if (isNaN(output)) output = 0;
                 return output;
             };
-            $scope.get_quantity_break = function(qty) {
-                var quantity_break = {
-                    index: 0,
-                    oparator: 'gt'
+            $scope.calculate_price = function() {
+                $scope.basePrice = $scope.price;
+                if (this.type == 'variable') {
+                    var variation_id = jQuery('input[name="variation_id"], input.variation_id').val();
+                    $scope.basePrice = (variation_id != '' && variation_id != 0) ? $scope.variations[variation_id] : $scope.basePrice;
+                }
+                $scope.basePrice = $scope.convert_wc_price_to_float($scope.basePrice);
+                $scope.total_price = 0;
+                $scope.cart_item_fee = {
+                    enable: false,
+                    value: 0
                 };
-                var quantity_breaks = [];
-                angular.forEach($scope.options.quantity_breaks, function(_break, key) {
-                    quantity_breaks[key] = $scope.validate_int(_break.val);
+                var qty = 0;
+                if ($scope.is_sold_individually == 1) {
+                    qty = 1;
+                } else {
+                    qty = $scope.validate_int(jQuery('input[name="quantity"]').val());
+                }
+                $scope._qty = qty;
+                var xfactor = 1,
+                    line_price = {
+                        fixed: 0,
+                        percent: 0,
+                        xfactor: 1
+                    },
+                    fixed_amount = 0;
+                angular.forEach($scope.nbd_fields, function(field, field_id) {
+                    if (field.enable) {
+                        var origin_field = $scope.get_field(field_id);
+                        var factor = null;
+                        if (origin_field.general.data_type == 'i') {
+                            factor = origin_field.general.price;
+                            if (origin_field.general.input_type == 'u' && (angular.isUndefined(field.value) || field.value == "")) {
+                                factor = 0;
+                            }
+                        } else {
+                            var option = origin_field.general.attributes.options[field.value];
+                            if (option) {
+                                var option_price = option.price;
+                                factor = $scope.validate_float(option_price[0]);
+                                if (angular.isDefined(option.enable_subattr) && option.enable_subattr == 'on') {
+                                    if (angular.isDefined(option.sub_attributes) && option.sub_attributes.length > 0) {
+                                        soption_price = option.sub_attributes[field.sub_value].price;
+                                        factor += $scope.validate_float(soption_price[0]);
+                                    }
+                                }
+                            }
+                        }
+
+                        factor = $scope.validate_float(factor);
+                        field.is_pp = 0;
+                        var _factor = factor;
+                        if ($scope.is_independent_qty(origin_field)) {
+                            factor = 0;
+                            field.ind_qty = true;
+                        }
+                        if ($scope.is_fixed_amount(origin_field)) {
+                            factor /= qty;
+                        }
+                        switch (origin_field.general.price_type) {
+                            case 'f':
+                                field.price_val = _factor;
+                                field.price = $scope.convert_to_wc_price(_factor);
+                                $scope.total_price += factor;
+                                if ($scope.is_independent_qty(origin_field)) {
+                                    line_price.fixed += _factor;
+                                }
+                                break;
+                            case 'p':
+                                field.price_val = $scope.basePrice * _factor / 100;
+                                field.price = $scope.convert_to_wc_price(field.price_val);
+                                $scope.total_price += ($scope.basePrice * factor / 100);
+                                if ($scope.is_independent_qty(origin_field)) {
+                                    line_price.percent += _factor;
+                                }
+                                break;
+                            case 'p+':
+                                field.price = factor / 100;
+                                field._price = _factor / 100;
+                                xfactor *= (1 + factor / 100);
+                                field.is_pp = 1;
+                                if ($scope.is_independent_qty(origin_field)) {
+                                    line_price.xfactor *= (1 + _factor / 100);
+                                }
+                                break;
+                            case 'c':
+                                var current_value = $scope.validate_int(field.value);
+                                field.price_val = _factor * current_value;
+                                field.price = $scope.convert_to_wc_price(field.price_val);
+                                $scope.total_price += factor * current_value;
+                                if ($scope.is_independent_qty(origin_field)) {
+                                    line_price.fixed += field.price_val;
+                                }
+                                break;
+                            case 'cp':
+                                field.price_val = _factor * $scope.validate_int(field.value.length);
+                                field.price = $scope.convert_to_wc_price(field.price_val);
+                                $scope.total_price += factor * $scope.validate_int(field.value.length);
+                                if ($scope.is_independent_qty(origin_field)) {
+                                    line_price.fixed += field.price_val;
+                                }
+                                break;
+                        }
+                        if ($scope.is_fixed_amount(origin_field)) {
+                            field.fixed_amount = true;
+                        }
+
+                    }
                 });
-                angular.forEach(quantity_breaks, function(_break, key) {
-                    if (key == 0 && qty < _break) {
-                        quantity_break = {
-                            index: 0,
-                            oparator: 'lt'
-                        };
-                    }
-                    if (qty >= _break && key < (quantity_breaks.length - 1)) {
-                        quantity_break = {
-                            index: key,
-                            oparator: 'bw'
-                        };
-                    }
-                    if (key == (quantity_breaks.length - 1) && qty >= _break) {
-                        quantity_break = {
-                            index: key,
-                            oparator: 'gt'
-                        };
+                $scope.total_price += (($scope.basePrice + $scope.total_price) * (xfactor - 1));
+                angular.forEach($scope.nbd_fields, function(field) {
+                    if (field.is_pp == 1) {
+                        field.price_val = field.price * ($scope.basePrice + $scope.total_price) / (field.price + 1);
+                        field.price = $scope.convert_to_wc_price(field.price_val);
                     }
                 });
-                return quantity_break;
+                $scope.final_price = $scope.total_price + $scope.basePrice;
+                $scope.final_price = $scope.final_price > 0 ? $scope.final_price : 0;
+                $scope.total_cart_price = $scope.final_price * qty;
+                if (line_price.fixed != 0 || line_price.xfactor != 1 || line_price.percent != 0) {
+                    $scope.cart_item_fee.enable = true;
+                    var _total_cart_price = $scope.total_cart_price;
+                    if (line_price.fixed != 0) {
+                        $scope.total_cart_price += line_price.fixed;
+                    }
+                    if (line_price.percent != 0) {
+                        $scope.total_cart_price += ($scope.basePrice * line_price.percent / 100);
+                    }
+                    if (line_price.xfactor != 1) {
+                        $scope.total_cart_price += ($scope.total_cart_price * (line_price.xfactor - 1));
+                        angular.forEach($scope.nbd_fields, function(field) {
+                            if (field.is_pp == 1 && field.ind_qty) {
+                                field.price = $scope.convert_to_wc_price(field._price * $scope.total_cart_price / (field._price + 1));
+                            }
+                        });
+                    }
+                    $scope.cart_item_fee.value = $scope.total_cart_price - _total_cart_price;
+                    $scope.cart_item_fee.value = $scope.convert_to_wc_price($scope.cart_item_fee.value);
+                }
+                $scope.total_cart_item_price_num = $scope.total_cart_price;
+                $scope.total_cart_price = $scope.convert_to_wc_price($scope.total_cart_price);
+                $scope.final_price = $scope.convert_to_wc_price($scope.final_price, true);
+                $scope.total_price = $scope.convert_to_wc_price($scope.total_price, true);
+            };
+            $scope.is_independent_qty = function(field) {
+                if (angular.isDefined(field.general.depend_qty) && field.general.depend_qty == 'n') {
+                    return true;
+                } else {
+                    return false;
+                }
             };
             $scope.is_fixed_amount = function(field) {
                 if (angular.isDefined(field.general.depend_qty) && field.general.depend_qty == 'n2') {
@@ -1568,9 +1316,6 @@ $currentDir = realpath(dirname(__FILE__));
                 } else {
                     return false;
                 }
-            };
-            $scope.isMultipleSelectPage = function(field) {
-                return false;
             };
             $scope.eval_price = function(formula, origin_field, qty, fields) {
                 if (!formula) return 0;
@@ -1788,7 +1533,7 @@ $currentDir = realpath(dirname(__FILE__));
                 link: function(scope, element, attrs) {
                     $timeout(function() {
                         jQuery('body').click(function(event) {
-                            jQuery.each(jQuery('.nbd-field-ad-dropdown-wrap'), function(ind, el) {
+                            jQuery.each(jQuery('.pcpb-field-ad-dropdown-wrap'), function(ind, el) {
                                 var re_el = jQuery(el).find('.nbo-ad-result');
                                 if (!(re_el.is(jQuery(event.target)) ||
                                         jQuery(event.target).parents('.nbo-ad-result').is(re_el) ||
@@ -1899,7 +1644,7 @@ $currentDir = realpath(dirname(__FILE__));
                         } else {
                             ctrl.$setViewValue('');
                         }
-                        jQuery(element).parent('.nbd-field-content').find('.nbd-upload-hidden').remove();
+                        jQuery(element).parent('.pcpb-field-content').find('.nbd-upload-hidden').remove();
                         scope.fileChange();
                     }
                 }
@@ -1959,7 +1704,7 @@ $currentDir = realpath(dirname(__FILE__));
                 angular.bootstrap(appEl, ['nboApp']);
             });
         <?php endif; ?>
-        jQuery(document).on('update_nbo_options_from_builder', function(e, data) {
+        jQuery(document).on('update_pcpb_options_from_builder', function(e, data) {
             var $scope = angular.element(document.getElementById(nbOption.crtlId)).scope();
             angular.forEach(data.nbd_fields, function(nbd_field, field_id) {
                 $scope.nbd_fields[field_id].value = nbd_field.value;

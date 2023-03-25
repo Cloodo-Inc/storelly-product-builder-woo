@@ -25,23 +25,22 @@ if (!class_exists('Printcart_Product_Builder_Frontend')) {
         }
         public function ajax() {
             $ajax_events = array(
-                'nbd_save_product_builder_design'   => true
+                'printcart_save_product_builder_design'   => true
             );
             foreach ($ajax_events as $ajax_event => $nopriv) {
                 add_action('wp_ajax_' . $ajax_event, array($this, $ajax_event));
                 if ($nopriv) {
-                    // NBDesigner AJAX can be used for frontend ajax requests
                     add_action('wp_ajax_nopriv_' . $ajax_event, array($this, $ajax_event));
                 }
             }
         }
         public function template_redirect() {
-            if (is_printcart_product_builder_page() && (current_user_can('editor') || current_user_can('administrator'))) {
+            if (Printcart_PB_Util::is_printcart_product_builder_page() && (current_user_can('editor') || current_user_can('administrator'))) {
                 include(PRINTCART_PB_PLUGIN_DIR . 'views/product-builder/index.php');
                 exit();
             }
         }
-        public function nbd_save_product_builder_design() {
+        public function printcart_save_product_builder_design() {
             if (!wp_verify_nonce($_POST['nonce'], 'save-design') && PRINTCART_ENABLE_NONCE) {
                 die('Security error');
             }
@@ -50,26 +49,26 @@ if (!class_exists('Printcart_Product_Builder_Frontend')) {
                 'link'  =>  '',
                 'folder' => ''
             );
-            do_action('before_nbd_save_product_builder_design');
-            $nbd_item_pb_key = (isset($_POST['nbd_item_pb_key']) && $_POST['nbd_item_pb_key'] != '') ? wc_clean($_POST['nbd_item_pb_key']) : substr(md5(uniqid()), 0, 5) . rand(1, 100) . time();
+            do_action('before_printcart_save_product_builder_design');
+            $pcpb_item_pb_key = (isset($_POST['pcpb_item_pb_key']) && $_POST['pcpb_item_pb_key'] != '') ? wc_clean($_POST['pcpb_item_pb_key']) : substr(md5(uniqid()), 0, 5) . rand(1, 100) . time();
             $is_creating_task = (isset($_POST['is_creating_task']) && $_POST['is_creating_task'] != '') ? wc_clean($_POST['is_creating_task']) :  '0';
             $oid = (isset($_POST['oid']) && $_POST['oid'] != '') ? absint($_POST['oid']) :  0;
-            $path = PRINTCART_PB_CUSTOMER_DIR . '/' . $nbd_item_pb_key;
-            $save_status = $this->store_product_builder_design_data($nbd_item_pb_key, $_FILES);
+            $path = PRINTCART_PB_CUSTOMER_DIR . '/' . $pcpb_item_pb_key;
+            $save_status = $this->store_product_builder_design_data($pcpb_item_pb_key, $_FILES);
             if (false != $save_status) {
-                $result['image'] = $this->create_preview(PRINTCART_PB_CUSTOMER_DIR . '/' . $nbd_item_pb_key);
+                $result['image'] = $this->create_preview($path);
                 asort($result['image']);
                 $result['flag'] = 'success';
-                $result['folder'] = $nbd_item_pb_key;
+                $result['folder'] = $pcpb_item_pb_key;
                 if ($is_creating_task == '1' && $oid != 0) {
                     global $wpdb;
                     $arr = array(
-                        'builder'   =>  $nbd_item_pb_key
+                        'builder'   =>  $pcpb_item_pb_key
                     );
                     $result_update = $wpdb->update("{$wpdb->prefix}printcart_product_builder_options", $arr, array('id' => $oid));
                 }
             }
-            do_action('after_nbd_save_product_builder_design', $result);
+            do_action('after_printcart_save_product_builder_design', $result);
             echo json_encode($result);
             wp_die();
         }
@@ -87,9 +86,9 @@ if (!class_exists('Printcart_Product_Builder_Frontend')) {
                         if (is_file($base_img_path)) {
                             $base_img_info = pathinfo($base_img_path);
                             if ($base_img_info['extension'] == "png") {
-                                $base_img = NBD_Image::nbdesigner_resize_imagepng($base_img_path, $width, $height);
+                                $base_img = PRINTCART_IMAGE::resize_imagepng($base_img_path, $width, $height);
                             } else {
-                                $base_img = NBD_Image::nbdesigner_resize_imagejpg($base_img_path, $width, $height);
+                                $base_img = PRINTCART_IMAGE::resize_imagepng($base_img_path, $width, $height);
                             }
                             $design = imagecreatefrompng($design_path);
                             imagecopy($base_img, $design, 0, 0, 0, 0, $width, $height);
@@ -99,15 +98,15 @@ if (!class_exists('Printcart_Product_Builder_Frontend')) {
                         } else {
                             copy($design_path, $path . '/preview/' . $index . '.png');
                         }
-                        $images[] = Nbdesigner_IO::wp_convert_path_to_url($path . '/preview/' . $index . '.png');
+                        $images[] = Printcart_IO::wp_convert_path_to_url($path . '/preview/' . $index . '.png');
                     }
                 }
             };
             return $images;
         }
-        private function store_product_builder_design_data($nbd_item_pb_key, $data) {
-            $path = PRINTCART_PB_CUSTOMER_DIR . '/' . $nbd_item_pb_key;
-            if (file_exists($path . '_old')) Nbdesigner_IO::delete_folder($path . '_old');
+        private function store_product_builder_design_data($pcpb_item_pb_key, $data) {
+            $path = PRINTCART_PB_CUSTOMER_DIR . '/' . $pcpb_item_pb_key;
+            if (file_exists($path . '_old')) Printcart_IO::delete_folder($path . '_old');
             if (file_exists($path)) rename($path, $path . '_old');
             if (wp_mkdir_p($path)) {
                 foreach ($data as $key => $val) {
@@ -132,7 +131,7 @@ if (!class_exists('Printcart_Product_Builder_Frontend')) {
         }
         public function before_product_container() {
             $pid = get_the_ID();
-            if (is_printcart_product_builder($pid)) {
+            if (Printcart_PB_Util::is_printcart_product_builder($pid)) {
                 add_action('nbo_after_default_options', array(&$this, 'product_builder_html'), 1);
                 add_action('wp_footer', array(&$this, 'nbd_modal_product_builder'), 1);
             }
@@ -154,6 +153,11 @@ if (!class_exists('Printcart_Product_Builder_Frontend')) {
                         'link' => PRINTCART_PB_ASSETS_URL . 'libs/fabric.2.6.0.min.js',
                         'version'   => '2.6.0',
                         'depends'  => array()
+                    ),
+                    'angularjs' => array(
+                        'link' => PRINTCART_PB_ASSETS_URL . 'libs/angular.min.js',
+                        'version'   => '1.6.9',
+                        'depends'  => array('jquery')
                     ),
                     'product-builder' => array(
                         'link' => PRINTCART_PB_JS_URL . 'app-product-builder.js',
@@ -177,13 +181,13 @@ if (!class_exists('Printcart_Product_Builder_Frontend')) {
                     $link = $css['link'];
                     wp_register_style($key, $link, $css['depends'], $css['version']);
                 }
+                foreach ($js_libs as $key => $js) {
+                    $link = $js['link'];
+                    wp_register_script($key, $link, $js['depends'], $js['version'], false);
+                }
                 $pid = get_the_ID();
-                if (is_singular('product') && is_printcart_product_builder($pid)) {
+                if (is_singular('product') && Printcart_PB_Util::is_printcart_product_builder($pid)) {
                     wp_enqueue_style('product-builder');
-                    foreach ($js_libs as $key => $js) {
-                        $link = $js['link'];
-                        wp_register_script($key, $link, $js['depends'], $js['version'], false);
-                    }
                     wp_enqueue_script('product-builder');
                 }
             });
@@ -194,7 +198,7 @@ if (!class_exists('Printcart_Product_Builder_Frontend')) {
         public function nbd_modal_product_builder() {
             $product_id = get_the_ID();
             $option_id = get_transient('printcart_product_builder_' . $product_id);
-            if (is_printcart_product_builder($product_id)) {
+            if (Printcart_PB_Util::is_printcart_product_builder($product_id)) {
                 include(PRINTCART_PB_PLUGIN_DIR . 'views/product-builder/wrapper.php');
             }
         }

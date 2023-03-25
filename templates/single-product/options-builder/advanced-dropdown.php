@@ -1,20 +1,21 @@
 <?php if (!defined('ABSPATH')) exit; ?>
-<div nbo-adv-dropdown class="nbd-option-field nbd-field-ad-dropdown-wrap <?php echo ($class); ?>" data-id="<?php echo ($field['id']); ?>" ng-if="nbd_fields['<?php echo ($field['id']); ?>'].enable">
+<div nbo-adv-dropdown class="nbd-option-field pcpb-field-ad-dropdown-wrap <?php echo ($class); ?>" data-id="<?php echo ($field['id']); ?>" ng-if="nbd_fields['<?php echo ($field['id']); ?>'].enable">
     <?php include($currentDir . '/options-builder/field-header.php'); ?>
-    <div class="nbd-field-content">
+    <div class="pcpb-field-content">
         <div>
-            <select ng-change="check_valid()" name="nbd-field[<?php echo ($field['id']); ?>]{{nbd_fields['<?php echo ($field['id']); ?>'].form_name}}" class="nbo-dropdown" ng-model="nbd_fields['<?php echo ($field['id']); ?>'].value">
+            <select ng-change="check_valid()" name="pcpb-field[<?php echo ($field['id']); ?>]{{nbd_fields['<?php echo ($field['id']); ?>'].form_name}}" class="nbo-dropdown" ng-model="nbd_fields['<?php echo ($field['id']); ?>'].value">
                 <?php
                 foreach ($field['general']['attributes']["options"] as $key => $attr) :
+                    $selected = isset($attr['selected']) ? $attr['selected'] : 'off';
+                    $current = 'on';
+                    if (isset($form_values[$field['id']])) {
+                        $selected = (is_array($form_values[$field['id']]) && isset($form_values[$field['id']]['value'])) ? $form_values[$field['id']]['value'] : $form_values[$field['id']];
+                        $current = $key;
+                    }
                 ?>
-                    <option value="<?php echo ($key); ?>" <?php
-                                                            if (isset($form_values[$field['id']])) {
-                                                                $fvalue = (is_array($form_values[$field['id']]) && isset($form_values[$field['id']]['value'])) ? $form_values[$field['id']]['value'] : $form_values[$field['id']];
-                                                                selected($fvalue, $key);
-                                                            } else {
-                                                                selected(isset($attr['selected']) ? $attr['selected'] : 'off', 'on');
-                                                            }
-                                                            ?>><?php echo ($attr['name']); ?></option>
+                    <option value="<?php echo ($key); ?>" <?php selected($selected, $selected); ?>>
+                        <?php echo ($attr['name']); ?>
+                    </option>
                 <?php endforeach; ?>
             </select>
             <div class="nbo-ad-result">
@@ -26,7 +27,7 @@
             <div class="nbo-ad-pseudo-list <?php if ($sublist_position == 'r') echo 'nbo-ad-right'; ?>">
                 <?php
                 foreach ($field['general']['attributes']["options"] as $key => $attr) :
-                    $image_url = nbd_get_image_thumbnail($attr['image']);
+                    $image_url = Printcart_PB_Util::pritcart_get_image_thumbnail($attr['image']);
                     $enable_subattr = isset($attr['enable_subattr']) ? $attr['enable_subattr'] : 0;
                     $attr['sub_attributes'] = isset($attr['sub_attributes']) ? $attr['sub_attributes'] : array();
                     $show_subattr = ($enable_subattr == 'on' && count($attr['sub_attributes']) > 0) ? true : false;
@@ -56,22 +57,25 @@
                                 </svg>
                             </span>
                             <div class="nbo-ad-pseudo-sublist">
-                                <select ng-change="check_valid()" name="nbd-field[<?php echo ($field['id']); ?>][sub_value]" class="nbo-dropdown" ng-model="nbd_fields['<?php echo ($field['id']); ?>'].sub_value">
-                                    <?php foreach ($attr['sub_attributes'] as $skey => $sattr) : ?>
-                                        <option value="<?php echo ($skey); ?>" <?php
-                                                                                if (isset($form_values[$field['id']]) && isset($form_values[$field['id']]['sub_value'])) {
-                                                                                    selected($form_values[$field['id']]['sub_value'], $skey);
-                                                                                } else {
-                                                                                    selected(isset($sattr['selected']) ? $sattr['selected'] : 'off', 'on');
-                                                                                }
-                                                                                ?>><?php echo ($sattr['name']); ?></option>
+                                <select ng-change="check_valid()" name="pcpb-field[<?php echo ($field['id']); ?>][sub_value]" class="nbo-dropdown" ng-model="nbd_fields['<?php echo ($field['id']); ?>'].sub_value">
+                                    <?php foreach ($attr['sub_attributes'] as $skey => $sattr) :
+                                        $selectedSub = isset($sattr['selected']) ? $sattr['selected'] : 'off';
+                                        $currentSub = 'on';
+                                        if (isset($form_values[$field['id']]) && isset($form_values[$field['id']]['sub_value'])) {
+                                            $selectedSub = $form_values[$field['id']]['sub_value'];
+                                            $currentSub = $skey;
+                                        }
+                                    ?>
+                                        <option value="<?php echo ($skey); ?>" <?php selected($selectedSub, $currentSub); ?>>
+                                            <?php echo ($sattr['name']); ?>
+                                        </option>
                                     <?php endforeach; ?>
                                 </select>
                                 <?php foreach ($attr['sub_attributes'] as $skey => $sattr) : ?>
                                     <div class="nbo-ad-list-item" ng-click="select_adv_subattr('<?php echo ($field['id']); ?>', '<?php echo ($key); ?>', '<?php echo ($skey); ?>')" ng-class="( nbd_fields['<?php echo ($field['id']); ?>'].value == '<?php echo ($key); ?>' && nbd_fields['<?php echo ($field['id']); ?>'].sub_value == '<?php echo ($skey); ?>' ) ? 'active' : ''" nbo-disabled="!status_fields['<?php echo ($field['id']); ?>'][<?php echo ($key); ?>].sub_attributes[<?php echo ($skey); ?>]" nbo-disabled-type="class">
                                         <?php
                                         if ($sattr['preview_type'] == 'i' && $sattr['image'] != '0') :
-                                            $simage_url = nbd_get_image_thumbnail($sattr['image']);
+                                            $simage_url = Printcart_PB_Util::pritcart_get_image_thumbnail($sattr['image']);
                                         ?>
                                             <img src="<?php echo ($simage_url); ?>" class="nbo-ad-item-thumb" />
                                         <?php elseif ($sattr['preview_type'] == 'c') : ?>

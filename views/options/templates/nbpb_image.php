@@ -1,10 +1,10 @@
 <?php if (!defined('ABSPATH')) exit; ?>
 <?php echo '<script type="text/ng-template" id="nbd.nbpb_image">'; ?>
-<div class="nbd-field-info">
-    <div class="nbd-field-info-1">
+<div class="pcpb-field-info">
+    <div class="pcpb-field-info-1">
         <div><b><?php esc_html_e('Show in view', 'web-to-print-online-designer'); ?></b></div>
     </div>
-    <div class="nbd-field-info-2">
+    <div class="pcpb-field-info-2">
         <div class="nbd-table-wrap">
             <table class="nbd-table" style="text-align: center;">
                 <thead>

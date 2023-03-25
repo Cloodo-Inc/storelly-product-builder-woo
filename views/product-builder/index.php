@@ -98,13 +98,13 @@
                         foreach ($field['general']['attributes']['options'] as $op_index => $option) {
                             if (isset($option['enable_subattr']) && $option['enable_subattr'] == 'on' && count($option['sub_attributes']) > 0) {
                                 foreach ($option['sub_attributes'] as $sa_index => $sattr) {
-                                    $options['fields'][$key]['general']['attributes']['options'][$op_index]['sub_attributes'][$sa_index]['image_url'] = printcart_get_image_thumbnail($sattr['image']);
+                                    $options['fields'][$key]['general']['attributes']['options'][$op_index]['sub_attributes'][$sa_index]['image_url'] = Printcart_PB_Util::printcart_get_image_thumbnail($sattr['image']);
                                 }
                             } else {
-                                $options['fields'][$key]['general']['attributes']['options'][$op_index]['image_url'] = printcart_get_image_thumbnail($option['image']);
+                                $options['fields'][$key]['general']['attributes']['options'][$op_index]['image_url'] = Printcart_PB_Util::printcart_get_image_thumbnail($option['image']);
                             }
                         };
-                        $options['fields'][$key]['general']['component_icon_url'] = printcart_get_image_thumbnail($field['general']['component_icon']);
+                        $options['fields'][$key]['general']['component_icon_url'] = Printcart_PB_Util::printcart_get_image_thumbnail($field['general']['component_icon']);
                     }
                     if (isset($field['general']['attributes']['bg_type']) && $field['general']['attributes']['bg_type'] == 'i') {
                         foreach ($field['general']['attributes']['options'] as $op_index => $option) {
@@ -131,7 +131,7 @@
                 $quantity       = 1;
                 $width = $height = '';
                 ob_start();
-                printcart_get_template('single-product/option-builder.php', array(
+                Printcart_PB_Util::printcart_get_template('single-product/option-builder.php', array(
                     'product_id'            => $product_id,
                     'options'               => $options,
                     'type'                  => $type,

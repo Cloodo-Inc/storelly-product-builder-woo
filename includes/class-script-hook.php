@@ -68,19 +68,20 @@ class PC_PB_Script_Hook {
         wp_register_style('pc-product-builder', PRINTCART_PB_CSS_URL . 'views/product-builder.css', array(), PRINTCART_PB_VERSION);
 
         wp_register_script('pc-printcart-ext', PRINTCART_PB_PLUGIN_URL . 'assets/libs/printcart-ext.js', array(), PRINTCART_PB_VERSION, true);
-        wp_register_script('pc-angular', 'https://ajax.googleapis.com/ajax/libs/angularjs/1.6.9/angular.min.js', array(), '1.6.9', true);
         wp_register_script('wc-accounting',  WC()->plugin_url() . '/assets/js/accounting/accounting.min.js', array(), '0.4.2', true);
+        wp_register_script('pc-angular', 'https://ajax.googleapis.com/ajax/libs/angularjs/1.6.9/angular.min.js', array('jquery', 'wc-accounting'), '1.6.9', true);
         wp_register_script('pc-lodash-min', 'https://cdn.jsdelivr.net/npm/lodash@4.17.11/lodash.min.js', array(), '4.17.11', true);
         wp_register_script('pc-fontfaceobserver', PRINTCART_PB_PLUGIN_URL . 'assets/libs/fontfaceobserver.js', array(), '2.0.13', true);
         wp_register_script('pc-fabric', PRINTCART_PB_PLUGIN_URL . 'assets/libs/fabric.2.6.0.min.js', array(), '2.6.0', true);
         wp_register_script('pc-spectrum', PRINTCART_PB_JS_URL . 'spectrum.js', array(), PRINTCART_PB_VERSION, true);
+        wp_register_script('pc-tiptip', PRINTCART_PB_ASSETS_URL . 'js/tiptip.js', array('jquery'), PRINTCART_PB_VERSION, true);
 
         if ($page == 'product-builder') {
             $this->pc_enqueue_style(array('pc-poppins-font-r', 'pc-spectrum', 'pc-app-product-builder', 'pc-product-builder'));
             $this->pc_enqueue_script(array('pc-printcart-ext', 'pc-angular', 'wc-accounting'));
         }
         if ($page == 'single-product') {
-            $this->pc_enqueue_script(array('pc-angular'));
+            $this->pc_enqueue_script(array('pc-angular', 'pc-tiptip'));
         }
     }
 

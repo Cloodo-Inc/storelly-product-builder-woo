@@ -1,10 +1,10 @@
 <?php if (!defined('ABSPATH')) exit; ?>
 <?php echo '<script type="text/ng-template" id="field_body_attributes">'; ?>
-<div class="nbd-field-info" ng-show="check_depend(field.general, field.general.attributes)">
-    <div class="nbd-field-info-1">
+<div class="pcpb-field-info" ng-show="check_depend(field.general, field.general.attributes)">
+    <div class="pcpb-field-info-1">
         <div><label><b><?php esc_html_e('Attributes', 'web-to-print-online-designer'); ?></b> <nbd-tip data-tip="<?php esc_html_e('Attributes let you define extra product data, such as size or color.', 'web-to-print-online-designer'); ?>"></nbd-tip></label></div>
     </div>
-    <div class="nbd-field-info-2">
+    <div class="pcpb-field-info-2">
         <div>
             <div ng-repeat="(opIndex, op) in field.general.attributes.options" class="nbd-attribute-wrap">
                 <div ng-show="op.isExpand" class="nbd-attribute-img-wrap">
@@ -67,11 +67,11 @@
                     </div>
                     <div class="nbd-margin-10"></div>
                     <div class="nbd-subattributes-wrapper" ng-if="op.enable_subattr === true || op.enable_subattr == 'on'">
-                        <div class="nbd-field-info">
-                            <div class="nbd-field-info-1">
+                        <div class="pcpb-field-info">
+                            <div class="pcpb-field-info-1">
                                 <div><label><b><?php esc_html_e('Sub attributes type', 'web-to-print-online-designer'); ?></b></label></div>
                             </div>
-                            <div class="nbd-field-info-2">
+                            <div class="pcpb-field-info-2">
                                 <div>
                                     <select style="width: 150px;" name="options[fields][{{fieldIndex}}][general][attributes][options][{{$index}}][sattr_display_type]" ng-model="op.sattr_display_type">
                                         <option value="d"><?php esc_html_e('Dropdown', 'web-to-print-online-designer'); ?></option>
@@ -95,7 +95,7 @@
                                 <div class="nbd-attribute-img-inner" ng-show="sop.preview_type == 'i'">
                                     <span class="dashicons dashicons-no remove-attribute-img" ng-click="remove_sub_attribute_image(fieldIndex, opIndex, sopIndex)"></span>
                                     <input ng-hide="true" ng-model="sop.image" name="options[fields][{{fieldIndex}}][general][attributes][options][{{opIndex}}][sub_attributes][{{sopIndex}}][image]" />
-                                    <img title="<?php esc_html_e('Click to change image', 'web-to-print-online-designer'); ?>" ng-click="set_sub_attribute_image(fieldIndex, opIndex, sopIndex)" ng-src="{{sop.image != 0 ? sop.image_url : '<?php echo NBDESIGNER_ASSETS_URL . 'images/placeholder.png' ?>'}}" />
+                                    <img title="<?php esc_html_e('Click to change image', 'web-to-print-online-designer'); ?>" ng-click="set_sub_attribute_image(fieldIndex, opIndex, sopIndex)" ng-src="{{sop.image != 0 ? sop.image_url : '<?php echo PRINTCART_PB_ASSETS_URL . 'images/placeholder.png' ?>'}}" />
                                 </div>
                                 <div class="nbd-attribute-color-inner" ng-show="sop.preview_type == 'c'">
                                     <input type="text" name="options[fields][{{fieldIndex}}][general][attributes][options][{{opIndex}}][sub_attributes][{{sopIndex}}][color]" ng-model="sop.color" class="nbd-color-picker" nbd-color-picker="sop.color" />

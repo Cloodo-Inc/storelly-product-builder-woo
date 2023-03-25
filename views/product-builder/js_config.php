@@ -1,7 +1,7 @@
 <?php
-$nbo_cart_item_key  = (isset($_GET['nbo_cart_item_key']) &&  $_GET['nbo_cart_item_key'] != '') ? sanitize_text_field($_GET['nbo_cart_item_key']) : '';
+$pcpb_cart_item_key  = (isset($_GET['pcpb_cart_item_key']) &&  $_GET['pcpb_cart_item_key'] != '') ? sanitize_text_field($_GET['pcpb_cart_item_key']) : '';
 $oid                = (isset($_GET['oid']) && $_GET['oid'] != '') ? absint(sanitize_text_field($_GET['oid'])) :  0;
-$redirect_url       = (isset($_GET['rd']) && $_GET['rd'] != '') ? printcart_get_redirect_url(sanitize_text_field($_GET['rd'])) :  '';
+$redirect_url       = (isset($_GET['rd']) && $_GET['rd'] != '') ? Printcart_PB_Util::printcart_get_redirect_url(sanitize_text_field($_GET['rd'])) :  '';
 if ($is_creating_task == 0) {
     $oid = $option_id;
 } else if ($oid == 0) {
@@ -48,12 +48,12 @@ $font_url   = PRINTCART_PB_FONT_URL;
         plg_url: "<?php echo PRINTCART_PB_PLUGIN_URL; ?>",
         ajax_url: "<?php echo admin_url('admin-ajax.php'); ?>",
         nonce: "<?php echo wp_create_nonce('save-design'); ?>",
-        nbo_cart_item_key: "<?php echo ($nbo_cart_item_key); ?>",
+        pcpb_cart_item_key: "<?php echo ($pcpb_cart_item_key); ?>",
         oid: "<?php echo ($oid); ?>",
         redirect_url: "<?php echo ($redirect_url); ?>",
         custom_fonts: <?php echo json_encode($custom_fonts); ?>,
         google_fonts: <?php echo json_encode($google_fonts); ?>,
-        pre_builder: <?php echo json_encode(printcart_get_product_pre_builder($oid, $nbo_cart_item_key)); ?>,
+        pre_builder: <?php echo json_encode(Printcart_PB_Util::printcart_get_product_pre_builder($oid, $pcpb_cart_item_key)); ?>,
         fonts: <?php echo json_encode($fonts); ?>,
         font_url: "<?php echo ($font_url); ?>",
         i18n: <?php echo json_encode(array(

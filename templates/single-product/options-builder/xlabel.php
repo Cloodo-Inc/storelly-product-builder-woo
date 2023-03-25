@@ -1,11 +1,11 @@
 <?php if (!defined('ABSPATH')) exit; ?>
-<div nbo-adv-dropdown class="nbd-option-field nbd-field-xlabel-wrap <?php echo( $class ); ?>" data-id="<?php echo( $field['id'] ); ?>" ng-if="nbd_fields['<?php echo( $field['id'] ); ?>'].enable">
+<div nbo-adv-dropdown class="nbd-option-field pcpb-field-xlabel-wrap <?php echo( $class ); ?>" data-id="<?php echo( $field['id'] ); ?>" ng-if="nbd_fields['<?php echo( $field['id'] ); ?>'].enable">
     <?php include( $currentDir .'/options-builder/field-header.php' ); ?>
-    <div class="nbd-field-content">
+    <div class="pcpb-field-content">
         <div class="nbd-xlabel-wrapper nbo-clearfix">
             <?php 
                 foreach ($field['general']['attributes']["options"] as $key => $attr): 
-                    $image_url = nbd_get_image_thumbnail( $attr['image'] );
+                    $image_url = Printcart_PB_Util::printcart_get_image_thumbnail( $attr['image'] );
                     $enable_subattr = isset($attr['enable_subattr']) ? $attr['enable_subattr'] : 0;
                     $attr['sub_attributes'] = isset( $attr['sub_attributes'] ) ? $attr['sub_attributes'] : array();
                     $show_subattr = ($enable_subattr == 'on' && count($attr['sub_attributes']) > 0) ? true : false;
@@ -14,8 +14,8 @@
             <div class="nbd-xlabel-wrap">
                 <div class="nbd-xlabel-value">
                     <div class="nbd-xlabel-value-inner" title="<?php echo( $attr['name'] ); ?>">
-                        <input ng-change="check_valid();updateMapOptions('<?php echo( $field['id'] ); ?>')" value="<?php echo( $key ); ?>" ng-model="nbd_fields['<?php echo( $field['id'] ); ?>'].value" name="nbd-field[<?php echo( $field['id'] ); ?>]<?php if($show_subattr) echo '[value]'; ?>" 
-                               type="radio" id='nbd-field-<?php echo( $field['id'].'-'.$key ); ?>' 
+                        <input ng-change="check_valid();updateMapOptions('<?php echo( $field['id'] ); ?>')" value="<?php echo( $key ); ?>" ng-model="nbd_fields['<?php echo( $field['id'] ); ?>'].value" name="pcpb-field[<?php echo( $field['id'] ); ?>]<?php if($show_subattr) echo '[value]'; ?>" 
+                               type="radio" id='pcpb-field-<?php echo( $field['id'].'-'.$key ); ?>' 
                             <?php 
                                 if( isset($form_values[$field['id']]) ){
                                     $fvalue = (is_array($form_values[$field['id']]) && isset($form_values[$field['id']]['value'])) ? $form_values[$field['id']]['value'] : $form_values[$field['id']];
@@ -25,7 +25,7 @@
                                 }
                             ?> />
                         <label class="nbd-xlabel" style="<?php if( $attr['preview_type'] == 'i' ){echo 'background: url('.$image_url . ') 0% 0% / cover';}else{echo 'background: '.$attr['color'];}?>" 
-                             for='nbd-field-<?php echo( $field['id'].'-'.$key ); ?>' 
+                             for='pcpb-field-<?php echo( $field['id'].'-'.$key ); ?>' 
                              nbo-disabled="!status_fields['<?php echo( $field['id'] ); ?>'][<?php echo( $key ); ?>].enable" nbo-disabled-type="class" >
                             <?php if(isset($attr['des']) && $attr['des'] != ''): ?>
                             <span class="nbd-help-tip" data-tip="<?php echo( $attr['des'] ); ?>"></span>
@@ -38,7 +38,7 @@
                         </label>
                     </div>
                 </div>
-                <label for='nbd-field-<?php echo( $field['id'].'-'.$key ); ?>'>
+                <label for='pcpb-field-<?php echo( $field['id'].'-'.$key ); ?>'>
                     <b><?php echo( $attr['name'] ); ?></b>
                 </label>
             </div>

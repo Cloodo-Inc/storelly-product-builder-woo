@@ -24,6 +24,11 @@ if (!class_exists('Printcart_PB_Admin_Options')) {
             add_action('admin_enqueue_scripts', array($this, 'admin_enqueue_scripts'));
             add_action('add_meta_boxes', array($this, 'add_meta_boxes'), 35);
             add_action('save_post', array($this, 'save_product_option'));
+
+            // Alter the product thumbnail in order
+            add_filter('woocommerce_admin_order_item_thumbnail', array($this, 'admin_order_item_thumbnail'), 50, 3);
+            //Hide some price option data in order
+            add_filter('woocommerce_hidden_order_itemmeta', array($this, 'hidden_custom_order_item_metada'));
         }
         public function ajax() {
             $ajax_events = array(
@@ -122,20 +127,21 @@ CREATE TABLE {$wpdb->prefix}printcart_product_builder_options (
         }
         public function admin_enqueue_scripts($hook) {
             wp_register_script('angularjs', PRINTCART_PB_ASSETS_URL . 'libs/angular.min.js', array('jquery'), '1.6.9');
-            wp_register_style('printcart_options', PRINTCART_PB_CSS_URL . 'admin-options.css', array('wp-color-picker'), PRINTCART_PB_VERSION);
+            wp_register_style('printcart_options', PRINTCART_PB_CSS_URL . 'admin-options.css', array('wp-color-picker', 'wp-jquery-ui-dialog'), PRINTCART_PB_VERSION);
             wp_register_style('printcart-general', PRINTCART_PB_CSS_URL . 'printcart-general.css', array('dashicons'), PRINTCART_PB_VERSION);
             wp_register_script('snap_svg', PRINTCART_PB_ASSETS_URL . 'libs/snap.svg.js', array(), '0.3.0');
-            wp_enqueue_style(array('printcart-general'));
+            wp_register_script('pc-tiptip', PRINTCART_PB_ASSETS_URL . 'js/tiptip.js', array('jquery'), PRINTCART_PB_VERSION);
+            wp_enqueue_style('printcart-general');
 
             if ($hook == 'toplevel_page_pc_product_builder_options') {
-                wp_register_script('printcart_options', PRINTCART_PB_JS_URL . 'admin-options.js', array('jquery', 'jquery-ui-resizable', 'jquery-ui-draggable', 'jquery-ui-droppable', 'jquery-ui-sortable', 'jquery-ui-datepicker', 'jquery-ui-autocomplete', 'wp-color-picker', 'angularjs', 'wc-enhanced-select', 'snap_svg'), PRINTCART_PB_VERSION);
+                wp_register_script('printcart_options', PRINTCART_PB_JS_URL . 'admin-options.js', array('jquery', 'wpdialogs', 'jquery-ui-resizable', 'jquery-ui-draggable', 'jquery-ui-droppable', 'jquery-ui-sortable', 'jquery-ui-datepicker', 'jquery-ui-autocomplete', 'wp-color-picker', 'angularjs', 'wc-enhanced-select', 'snap_svg', 'pc-tiptip'), PRINTCART_PB_VERSION);
                 wp_localize_script('printcart_options', 'printcart_options', array(
                     'search_products_nonce'     => wp_create_nonce("search-products"),
                     'calendar_image'            => PRINTCART_PB_PLUGIN_URL . 'assets/images/calendar.png',
                     'printcart_options_lang'    => $this->printcart_option_i18n(),
                 ));
-                wp_enqueue_style(array('wp-jquery-ui-dialog', 'wp-color-picker', 'printcart_options'));
-                wp_enqueue_script(array('wpdialogs', 'printcart_options'));
+                wp_enqueue_style('printcart_options');
+                wp_enqueue_script('printcart_options');
             }
         }
         public function product_builder_options() {
@@ -288,7 +294,7 @@ CREATE TABLE {$wpdb->prefix}printcart_product_builder_options (
                 foreach ($options['views'] as $vkey => $view) {
                     $view['base'] = isset($view['base']) ? $view['base'] : 0;
                     $options['views'][$vkey]['base'] = $view['base'];
-                    $options['views'][$vkey]['base_url'] = pritcart_get_image_thumbnail($view['base']);
+                    $options['views'][$vkey]['base_url'] = Printcart_PB_Util::pritcart_get_image_thumbnail($view['base']);
                 }
             }
             return $options;
@@ -359,14 +365,12 @@ CREATE TABLE {$wpdb->prefix}printcart_product_builder_options (
                     'change_image_product'  => null,
                     'css_class'             => null
                 ),
-                'nbpb_type' => 'nbpb_com',
-                'nbd_template' => 'nbd.nbpb_com',
             );
         }
         public function build_config_general_title($value = null) {
-            if (is_null($value)) $value = __('Component', 'web-to-print-online-designer');
+            if (is_null($value)) $value = __('Option name', 'web-to-print-online-designer');
             return array(
-                'title'         => __('Component', 'web-to-print-online-designer'),
+                'title'         => __('Option name', 'web-to-print-online-designer'),
                 'description'   =>  '',
                 'value'         => $value,
                 'type'          => 'text'
@@ -563,7 +567,7 @@ CREATE TABLE {$wpdb->prefix}printcart_product_builder_options (
             if (is_null($value)) {
                 $value = array(
                     'min_size'      =>  0,
-                    'max_size'      =>  printcart_get_max_upload_default(),
+                    'max_size'      =>  Printcart_PB_Util::printcart_get_max_upload_default(),
                     'allow_type'    =>  'png,jpg,jpeg'
                 );
             }
@@ -648,10 +652,6 @@ CREATE TABLE {$wpdb->prefix}printcart_product_builder_options (
                             )
                         )
                     ),
-                    array(
-                        'key'       => 'mf',
-                        'text'      => esc_html__('Math formula', 'web-to-print-online-designer')
-                    )
                 )
             );
         }
@@ -699,9 +699,9 @@ CREATE TABLE {$wpdb->prefix}printcart_product_builder_options (
             };
             foreach ($options as $key => $option) {
                 $options[$key]['implicit_value']     = isset($option['implicit_value']) ? $option['implicit_value'] : '';
-                $options[$key]['image_url']          = printcart_get_image_thumbnail($option['image']);
+                $options[$key]['image_url']          = Printcart_PB_Util::printcart_get_image_thumbnail($option['image']);
                 if (isset($options[$key]['product_image'])) {
-                    $options[$key]['product_image_url'] = printcart_get_image_thumbnail($option['product_image']);
+                    $options[$key]['product_image_url'] = Printcart_PB_Util::printcart_get_image_thumbnail($option['product_image']);
                 }
             }
             $same_size          = isset($attributes['same_size']) ? $attributes['same_size'] : 'y';
@@ -724,7 +724,7 @@ CREATE TABLE {$wpdb->prefix}printcart_product_builder_options (
                 foreach ($o_config as $skey => $so_config) {
                     foreach ($so_config['views'] as $vkey => $view) {
                         $configs[$key][$skey]['views'][$vkey]['display']    = (isset($view['display']) && $view['display'] == 'on') ? true : false;
-                        $configs[$key][$skey]['views'][$vkey]['image_url']  = nbd_get_image_thumbnail($view['image']);
+                        $configs[$key][$skey]['views'][$vkey]['image_url']  = Printcart_PB_Util::pritcart_get_image_thumbnail($view['image']);
                     }
                 }
             }
@@ -887,6 +887,31 @@ CREATE TABLE {$wpdb->prefix}printcart_product_builder_options (
                 $enable = wc_clean($_POST['_printcart_pb_enable']);
                 update_post_meta($post_id, '_printcart_pb_enable', $enable);
             }
+        }
+        public function hidden_custom_order_item_metada($order_items) {
+            $order_items[] = '_pcpb_option_price';
+            $order_items[] = '_pcpb_field';
+            $order_items[] = '_pcpb_options';
+            $order_items[] = '_pcpb_original_price';
+            return $order_items;
+        }
+        public function admin_order_item_thumbnail($image = "", $item_id = "", $item = "") {
+            if (!$item_id) {
+                return  $image;
+            }
+            $option_price = wc_get_order_item_meta($item_id, '_pcpb_option_price', false);
+            if ($option_price) {
+                $option_price = maybe_unserialize($option_price);
+                if (isset($option_price[0]) && $option_price[0]['cart_image']) {
+                    $size = 'shop_thumbnail';
+                    $dimensions = wc_get_image_size($size);
+                    $image = '<img src="' . $option_price[0]['cart_image']
+                        . '" width="' . esc_attr($dimensions['width'])
+                        . '" height="' . esc_attr($dimensions['height'])
+                        . '" class="pcpb-thumbnail woocommerce-placeholder wp-post-image" />';
+                }
+            }
+            return $image;
         }
     }
 }

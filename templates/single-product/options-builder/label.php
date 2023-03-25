@@ -1,7 +1,7 @@
 <?php if (!defined('ABSPATH')) exit; ?>
 <div class="nbd-option-field <?php echo( $class ); ?>" data-id="<?php echo( $field['id'] ); ?>" ng-if="nbd_fields['<?php echo( $field['id'] ); ?>'].enable">
     <?php include( $currentDir .'/options-builder/field-header.php' ); ?>
-    <div class="nbd-field-content">
+    <div class="pcpb-field-content">
         <div class="nbd-label-wrap">
         <?php 
             foreach ($field['general']['attributes']["options"] as $key => $attr): 
@@ -10,7 +10,7 @@
                 $show_subattr = ($enable_subattr == 'on' && count($attr['sub_attributes']) > 0) ? true : false;
                 $field['general']['attributes']["options"][$key]['show_subattr'] = $show_subattr;
         ?>
-        <input ng-change="check_valid();updateMapOptions('<?php echo( $field['id'] ); ?>')" value="<?php echo( $key ); ?>" ng-model="nbd_fields['<?php echo( $field['id'] ); ?>'].value" name="nbd-field[<?php echo( $field['id'] ); ?>]<?php if($show_subattr) echo '[value]'; ?>" type="radio" id='nbd-field-<?php echo( $field['id'].'-'.$key ); ?>' 
+        <input ng-change="check_valid();updateMapOptions('<?php echo( $field['id'] ); ?>')" value="<?php echo( $key ); ?>" ng-model="nbd_fields['<?php echo( $field['id'] ); ?>'].value" name="pcpb-field[<?php echo( $field['id'] ); ?>]<?php if($show_subattr) echo '[value]'; ?>" type="radio" id='pcpb-field-<?php echo( $field['id'].'-'.$key ); ?>' 
             <?php 
                 if( isset($form_values[$field['id']]) ){
                     $fvalue = (is_array($form_values[$field['id']]) && isset($form_values[$field['id']]['value'])) ? $form_values[$field['id']]['value'] : $form_values[$field['id']];
@@ -19,7 +19,7 @@
                     checked( isset($attr['selected']) ? $attr['selected'] : 'off', 'on' ); 
                 }
             ?> />
-        <label class="nbd-label" for='nbd-field-<?php echo( $field['id'].'-'.$key ); ?>' 
+        <label class="nbd-label" for='pcpb-field-<?php echo( $field['id'].'-'.$key ); ?>' 
             nbo-disabled="!status_fields['<?php echo( $field['id'] ); ?>'][<?php echo( $key ); ?>].enable" nbo-disabled-type="class" >
             <?php echo( $attr['name'] ); ?> 
         </label>

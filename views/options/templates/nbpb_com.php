@@ -1,10 +1,10 @@
 <?php if (!defined('ABSPATH')) exit; ?>
 <?php echo '<script type="text/ng-template" id="nbd.nbpb_com">'; ?>
-<div class="nbd-field-info">
-    <div class="nbd-field-info-1">
+<div class="pcpb-field-info">
+    <div class="pcpb-field-info-1">
         <div><b><?php esc_html_e('Views', 'web-to-print-online-designer'); ?></b><nbd-tip data-tip="<?php esc_html_e('Add product view/side, example: Front, Back, Top, Inside... and use them for all product components.', 'web-to-print-online-designer'); ?>"></nbd-tip></div>
     </div>
-    <div class="nbd-field-info-2">
+    <div class="pcpb-field-info-2">
         <div class="nbd-table-wrap">
             <table class="nbd-table" style="text-align: center;">
                 <thead>
@@ -40,11 +40,11 @@
         </div>
     </div>
 </div>
-<div class="nbd-field-info">
-    <div class="nbd-field-info-1">
+<div class="pcpb-field-info">
+    <div class="pcpb-field-info-1">
         <div><b><?php esc_html_e('Component icon', 'web-to-print-online-designer'); ?></b></div>
     </div>
-    <div class="nbd-field-info-2">
+    <div class="pcpb-field-info-2">
         <div class="image-icon-wrap">
             <span class="dashicons dashicons-no remove-image-icon" ng-click="remove_component_icon(fieldIndex)"></span>
             <input ng-hide="true" ng-model="field.general.component_icon" name="options[fields][{{fieldIndex}}][general][component_icon]" />
@@ -52,14 +52,14 @@
         </div>
     </div>
 </div>
-<div class="nbd-field-info">
-    <div class="nbd-field-info-1">
+<div class="pcpb-field-info">
+    <div class="pcpb-field-info-1">
         <div>
             <b><?php esc_html_e('Component configurations', 'web-to-print-online-designer'); ?></b>
             <nbd-tip data-tip="<?php esc_html_e('All images in the same view must have the same size.', 'web-to-print-online-designer'); ?>"></nbd-tip>
         </div>
     </div>
-    <div class="nbd-field-info-2">
+    <div class="pcpb-field-info-2">
         <div class="nbd-table-wrap">
             <table class="nbd-table" style="text-align: center;">
                 <thead>

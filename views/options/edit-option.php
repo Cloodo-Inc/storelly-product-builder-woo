@@ -25,8 +25,8 @@ $link_create_pre_builder = add_query_arg(array(
     'oid'   => sanitize_text_field($_GET['id']),
     'paged' => sanitize_text_field($_GET['paged']),
     'rd'    => 'print_option'
-), printcartGetUrlPage('product_builder'));
-$max_input_vars = printcart_get_max_input_var();
+), Printcart_PB_Util::printcartGetUrlPage('product_builder'));
+$max_input_vars = Printcart_PB_Util::printcart_get_max_input_var();
 ?>
 <!-- No inline scripts or styles unless dynamic. -->
 <script type="text/javascript">
@@ -44,7 +44,7 @@ $max_input_vars = printcart_get_max_input_var();
 </div>
 <div class="message">
     <?php if (isset($message['flag'])) {
-        $message = printcart_custom_notices($message['flag'], $message['content']);
+        $message = Printcart_PB_Util::printcart_custom_notices($message['flag'], $message['content']);
         echo ($message);
     } ?>
 </div>
@@ -133,15 +133,23 @@ $max_input_vars = printcart_get_max_input_var();
                                 </div>
                             </div>
                         </div>
-                        <div class="postbox nbd-fields-wrap">
+                        <div class="postbox pcpb-fields-wrap">
                             <h2 style="border-bottom: 1px solid #ddd;"><?php esc_html_e('Production builder fields', 'pc-product-builder'); ?></h2>
                             <div class="inside">
+                                <div>
+                                    <p class="section-title"><input class="nbd-ip-readonly" value="<?php esc_html_e('Default field', 'web-to-print-online-designer'); ?>" readonly=""></p>
+                                    <div class="nbd-section-wrap">
+                                        <a title="<?php esc_html_e('Add fields', 'web-to-print-online-designer'); ?>" class="pcpb-field-btn button" ng-click="add_field()">
+                                            <?php esc_html_e('Default field', 'web-to-print-online-designer'); ?> <span class="nbo-type-label default">1</span>
+                                        </a>
+                                    </div>
+                                </div>
                                 <div style="margin-top: 10px;">
                                     <p class="section-title"><input class="nbd-ip-readonly" value="<?php esc_html_e('Product builder fields', 'pc-product-builder'); ?>" readonly=""></p>
                                     <div class="nbd-section-wrap">
-                                        <a class="nbd-field-btn button" ng-click="add_field('nbpb_com', 'nbpb_com')"><?php esc_html_e('Component', 'pc-product-builder'); ?> <span class="nbo-type-label wpo">1</span></a>
-                                        <a class="nbd-field-btn button" ng-click="add_field('nbpb_text', 'nbpb_text')"><?php esc_html_e('Text', 'pc-product-builder'); ?> <span class="nbo-type-label wpo">2</span></a>
-                                        <a class="nbd-field-btn button" ng-click="add_field('nbpb_image', 'nbpb_image')"><?php esc_html_e('Image', 'pc-product-builder'); ?> <span class="nbo-type-label wpo">3</span></a>
+                                        <a class="pcpb-field-btn button" ng-click="add_field('nbpb_com', 'nbpb_com')"><?php esc_html_e('Component', 'pc-product-builder'); ?> <span class="nbo-type-label wpo">2</span></a>
+                                        <a class="pcpb-field-btn button" ng-click="add_field('nbpb_text', 'nbpb_text')"><?php esc_html_e('Text', 'pc-product-builder'); ?> <span class="nbo-type-label wpo">3</span></a>
+                                        <a class="pcpb-field-btn button" ng-click="add_field('nbpb_image', 'nbpb_image')"><?php esc_html_e('Image', 'pc-product-builder'); ?> <span class="nbo-type-label wpo">4</span></a>
                                     </div>
                                 </div>
                             </div>
@@ -149,7 +157,7 @@ $max_input_vars = printcart_get_max_input_var();
                         <div class="postbox">
                             <h2 style="border-bottom: 1px solid #ddd;"><?php esc_html_e('Production builder options', 'pc-product-builder'); ?></h2>
                             <div class="inside">
-                                <div class="nbd-fields-builder">
+                                <div class="pcpb-fields-builder">
                                     <?php include_once('field.php'); ?>
                                 </div>
                                 <div ng-repeat="view in options.views">

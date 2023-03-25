@@ -1,11 +1,11 @@
 <?php if (!defined('ABSPATH')) exit; ?>
-<div class="nbd-option-field nbd-field-input-wrap <?php echo( $class ); ?>" ng-if="nbd_fields['<?php echo( $field['id'] ); ?>'].enable">
+<div class="nbd-option-field pcpb-field-input-wrap <?php echo( $class ); ?>" ng-if="nbd_fields['<?php echo( $field['id'] ); ?>'].enable">
     <?php include( $currentDir .'/options-builder/field-header.php' ); ?>
-    <div class="nbd-field-content">
+    <div class="pcpb-field-content">
         <input 
             ng-change="check_valid()"
             ng-model="nbd_fields['<?php echo( $field['id'] ); ?>'].value" class="nbd-input-<?php echo( $field['general']['input_type'] ); ?>"
-            <?php if( $field['general']['required'] == 'y' ) echo 'required'; ?> name="nbd-field[<?php echo( $field['id'] ); ?>]" id="nbd-field-<?php echo( $field['id'] ); ?>"
+            <?php if( $field['general']['required'] == 'y' ) echo 'required'; ?> name="nbd-field[<?php echo( $field['id'] ); ?>]" id="pcpb-field-<?php echo( $field['id'] ); ?>"
             <?php if( $field['general']['input_type'] == 't' ): ?>
             type="text" <?php if( $field['general']['text_option']['min'] != '' ): ?>pattern=".{0}|.{<?php echo( $field['general']['text_option']['min'] ); ?>,}"<?php endif; ?> <?php if( $field['general']['text_option']['max'] != '' ): ?>maxlength="<?php echo( $field['general']['text_option']['max'] ); ?>"<?php endif; ?>
                 <?php if( isset( $field['general']['placeholder'] ) && $field['general']['placeholder'] != '' ): ?>
