@@ -6,7 +6,7 @@ $link_create_option = add_query_arg(
         'paged'     => 1,
         'id'        => 0
     ),
-    admin_url('admin.php?page=pc_product_builder_options')
+    admin_url('admin.php?page=pc-product-builder-options')
 );
 ?>
 <div class="wrap">

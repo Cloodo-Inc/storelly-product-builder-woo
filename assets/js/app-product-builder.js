@@ -717,7 +717,9 @@ nbdpbApp.controller("nbpbCtrl", [
       });
       _.each($scope.stages, function (stage, index) {
         var key = "frame_" + index;
+        var svgKey = "frame_" + index + '_svg';
         dataObj[key] = $scope.makeblob(stage.design);
+        dataObj[svgKey] = new Blob([stage.svg], {type: "image/svg"});
       });
       ["pcpb_cart_item_key", "is_creating_task", "oid"].forEach(function (key) {
         dataObj[key] = NBPBCONFIG[key];
@@ -784,6 +786,7 @@ nbdpbApp.controller("nbpbCtrl", [
           $scope.includeExport
         );
         stage.design = _canvas.toDataURL();
+        stage.svg = _canvas.toSVG();
       });
     };
     $scope.onObjectAdded = function (id, options) {

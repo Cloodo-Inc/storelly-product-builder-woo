@@ -28,7 +28,7 @@
             <option value="y"><?php esc_html_e('Yes', 'pc-product-builder'); ?></option>
             <option value="n"><?php esc_html_e('No', 'pc-product-builder'); ?></option>
         </select>
-        <br /><?php esc_html_e('Manage fonts', 'pc-product-builder'); ?> <a target="_blank" href="<?php echo esc_url(admin_url('admin.php?page=nbdesigner_manager_fonts')); ?>"><?php esc_html_e('here', 'pc-product-builder'); ?></a>
+        <br /><?php esc_html_e('Manage fonts', 'pc-product-builder'); ?> <a target="_blank" href="<?php echo esc_url(admin_url('admin.php?page=pc-product-builder-options/manager-fonts')); ?>"><?php esc_html_e('here', 'pc-product-builder'); ?></a>
     </div>
 </div>
 <div class="pcpb-field-info" ng-show="field.general.nbpb_text_configs.allow_font_family == 'y' && field.general.nbpb_text_configs.allow_all_font == 'n'">
