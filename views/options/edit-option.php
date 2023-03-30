@@ -2,11 +2,11 @@
 <?php
 $link = add_query_arg(array(
     'paged'    => sanitize_text_field($_GET['paged'])
-), admin_url('admin.php?page=pc_product_builder_options'));
+), admin_url('admin.php?page=pc-product-builder-options'));
 $link_update = add_query_arg(array(
     'action'    => 'update',
     'id'        => $options['id'],
-), admin_url('admin.php?page=pc_product_builder_options'));
+), admin_url('admin.php?page=pc-product-builder-options'));
 $link_unpublish = add_query_arg(array(
     'id'        => sanitize_text_field($_GET['id']),
     'action'    => 'unpublish'
@@ -17,10 +17,10 @@ $link_create_option = add_query_arg(
         'paged'     => 1,
         'id'        => 0
     ),
-    admin_url('admin.php?page=pc_product_builder_options')
+    admin_url('admin.php?page=pc-product-builder-options')
 );
 wp_enqueue_media();
-$current_url = add_query_arg($_GET, admin_url('admin.php?page=pc_product_builder_options'));
+$current_url = add_query_arg($_GET, admin_url('admin.php?page=pc-product-builder-options'));
 $link_create_pre_builder = add_query_arg(array(
     'oid'   => sanitize_text_field($_GET['id']),
     'paged' => sanitize_text_field($_GET['paged']),

@@ -12,32 +12,14 @@ if ($is_creating_task == 0) {
     exit();
 }
 $fonts = array();
-$custom_fonts = array();
-if (file_exists(PRINTCART_PB_ASSETS_DIR . '/fonts.json')) {
-    $custom_fonts = (array)json_decode(file_get_contents(PRINTCART_PB_ASSETS_DIR . '/fonts.json'));
-}
 $google_fonts = array();
-if (file_exists(PRINTCART_PB_ASSETS_DIR . '/googlefonts.json')) {
-    $google_fonts = (array)json_decode(file_get_contents(PRINTCART_PB_ASSETS_DIR . '/googlefonts.json'));
+if (file_exists(PRINTCART_PB_FONT_DIR . '/googlefonts.json')) {
+    $google_fonts = (array)json_decode(file_get_contents(PRINTCART_PB_FONT_DIR . '/googlefonts.json'));
 }
-$fonts      = array_merge($custom_fonts, $google_fonts);
+$fonts      = $google_fonts;
 
 $font_url   = PRINTCART_PB_FONT_URL;
 
-//check WPML
-// if (function_exists('icl_get_home_url')) {
-//     $icl_home_url = untrailingslashit(icl_get_home_url());
-//     if (class_exists('SitePress')) {
-//         global $sitepress;
-//         if ($sitepress) {
-//             $wpml_language_negotiation_type = $sitepress->get_setting('language_negotiation_type');
-//             if ($wpml_language_negotiation_type == 2) {
-//                 $is_wpml = 1;
-//                 $font_url = str_replace(untrailingslashit(get_option('home')), untrailingslashit(icl_get_home_url()), $font_url);
-//             }
-//         }
-//     }
-// };
 ?>
 <!-- No inline scripts or styles unless dynamic. -->
 <script type="text/javascript">
@@ -51,7 +33,6 @@ $font_url   = PRINTCART_PB_FONT_URL;
         pcpb_cart_item_key: "<?php echo ($pcpb_cart_item_key); ?>",
         oid: "<?php echo ($oid); ?>",
         redirect_url: "<?php echo ($redirect_url); ?>",
-        custom_fonts: <?php echo json_encode($custom_fonts); ?>,
         google_fonts: <?php echo json_encode($google_fonts); ?>,
         pre_builder: <?php echo json_encode(Printcart_PB_Util::printcart_get_product_pre_builder($oid, $pcpb_cart_item_key)); ?>,
         fonts: <?php echo json_encode($fonts); ?>,
