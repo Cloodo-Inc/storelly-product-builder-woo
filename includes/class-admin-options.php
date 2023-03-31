@@ -23,6 +23,8 @@ if (!class_exists('Printcart_PB_Admin_Options')) {
             add_action('printcart_create_tables', array($this, 'create_options_table'));
             add_action('admin_enqueue_scripts', array($this, 'admin_enqueue_scripts'));
             add_action('add_meta_boxes', array($this, 'add_meta_boxes'), 35);
+            // Add options design in Order WC
+            add_action('add_meta_boxes', array($this, 'printcart_add_design_box'), 38);
             add_action('save_post', array($this, 'save_product_option'));
 
             // Alter the product thumbnail in order
@@ -35,6 +37,7 @@ if (!class_exists('Printcart_PB_Admin_Options')) {
                 'nbd_download_option_image'     => true,
                 'nbd_get_media_full_size_url'   => true,
                 'printcart_add_google_font'   => true,
+                'printcart_download_order_designs'   => true,
             );
             foreach ($ajax_events as $ajax_event => $nopriv) {
                 add_action('wp_ajax_' . $ajax_event, array($this, $ajax_event));
@@ -43,6 +46,22 @@ if (!class_exists('Printcart_PB_Admin_Options')) {
                     add_action('wp_ajax_nopriv_' . $ajax_event, array($this, $ajax_event));
                 }
             }
+        }
+        public function printcart_add_design_box() {
+            add_meta_box(
+                'printcart_product_builder_design',
+                esc_html__('Product builder designs', 'printcart-integration'),
+                array($this, 'printcart_product_builder_design'),
+                'shop_order',
+                'side',
+                'default'
+            );
+        }
+        public function printcart_product_builder_design($post) {
+            $order_id       = $post->ID;
+            $order          = wc_get_order($order_id);
+            $order_items    = $order->get_items();
+            include_once(PRINTCART_PB_PLUGIN_DIR . 'views/box-order-metadata.php');
         }
         public function nbd_get_media_full_size_url() {
             if (!wp_verify_nonce($_POST['nonce'], 'save-design') && PRINTCART_ENABLE_NONCE) {
@@ -148,12 +167,17 @@ CREATE TABLE {$wpdb->prefix}printcart_product_builder_options (
             wp_register_script('pc-tiptip', PRINTCART_PB_ASSETS_URL . 'js/tiptip.js', array('jquery'), PRINTCART_PB_VERSION);
             wp_register_script('pc-fontfaceobserver', PRINTCART_PB_PLUGIN_URL . 'assets/libs/fontfaceobserver.js', array(), '2.0.13');
             wp_register_script('pc-sweetalert', PRINTCART_PB_PLUGIN_URL . 'assets/libs/sweetalert.min.js', array(), '5.6.10', true);
+            wp_register_script('printcart-general', PRINTCART_PB_ASSETS_URL . 'js/printcart-general.js', array('jquery'), PRINTCART_PB_VERSION, true);
 
             wp_register_style('printcart_options', PRINTCART_PB_CSS_URL . 'admin-options.css', array('wp-color-picker', 'wp-jquery-ui-dialog'), PRINTCART_PB_VERSION);
             wp_register_style('printcart-general', PRINTCART_PB_CSS_URL . 'printcart-general.css', array('dashicons'), PRINTCART_PB_VERSION);
             wp_register_style('pc-sweetalert', PRINTCART_PB_CSS_URL . 'sweetalert.css', array(), '5.6.10');
             wp_register_style('manager-fonts', PRINTCART_PB_CSS_URL . 'manager-fonts.css', array('pc-sweetalert'), PRINTCART_PB_VERSION);
+            wp_localize_script('printcart-general', 'printcart_admin', array(
+                'url'       => admin_url('admin-ajax.php'),
+            ));
             wp_enqueue_style('printcart-general');
+            wp_enqueue_script('printcart-general');
 
             if ($hook == 'toplevel_page_pc-product-builder-options') {
                 wp_register_script('printcart_options', PRINTCART_PB_JS_URL . 'admin-options.js', array('jquery', 'wpdialogs', 'jquery-ui-resizable', 'jquery-ui-draggable', 'jquery-ui-droppable', 'jquery-ui-sortable', 'jquery-ui-datepicker', 'jquery-ui-autocomplete', 'wp-color-picker', 'pc-angular', 'wc-enhanced-select', 'snap_svg', 'pc-tiptip'), PRINTCART_PB_VERSION);
@@ -917,6 +941,7 @@ CREATE TABLE {$wpdb->prefix}printcart_product_builder_options (
             $order_items[] = '_pcpb_field';
             $order_items[] = '_pcpb_options';
             $order_items[] = '_pcpb_original_price';
+            $order_items[] = '_pcpb_folder';
             return $order_items;
         }
         public function admin_order_item_thumbnail($image = "", $item_id = "", $item = "") {
@@ -998,6 +1023,117 @@ CREATE TABLE {$wpdb->prefix}printcart_product_builder_options (
             $current_cat            = filter_input(INPUT_GET, "cat_id", FILTER_VALIDATE_INT);
 
             include_once(PRINTCART_PB_PLUGIN_DIR . 'views/manager-fonts.php');
+        }
+        public function convert_svg_embed($path) {
+            $svgs       = Printcart_IO::get_list_files_by_type($path, 1, 'svg');
+            $svg_path   = $path . '/svg';
+            if (!file_exists($svg_path)) wp_mkdir_p($svg_path);
+            foreach ($svgs as $svg) {
+                $svg_name = pathinfo($svg, PATHINFO_BASENAME);
+                $new_svg_path = $svg_path . '/' . $svg_name;
+                $xdoc = new DomDocument;
+                $xdoc->Load($svg);
+                /* Embed images */
+                $images = $xdoc->getElementsByTagName('image');
+                for ($i = 0; $i < $images->length; $i++) {
+                    $tagName = $xdoc->getElementsByTagName('image')->item($i);
+                    $attribNode = $tagName->getAttributeNode('xlink:href');
+                    $img_src = $attribNode->value;
+                    if (strpos($img_src, "data:image") !== FALSE)
+                        continue;
+                    if (strpos($img_src, "data:img") !== FALSE)
+                        continue;
+                    $type = pathinfo($img_src, PATHINFO_EXTENSION);
+                    $type = ($type == 'svg') ? 'svg+xml' : $type;
+                    $path_image = Printcart_IO::convert_url_to_path($img_src);
+                    $data = nbd_file_get_contents($path_image);
+                    $base64 = 'data:image/' . $type . ';base64,' . base64_encode($data);
+                    $tagName->setAttribute('xlink:href', $base64);
+                }
+                /* Embed fonts */
+                $text_elements = $xdoc->getElementsByTagName('text');
+                for ($i = 0; $i < $text_elements->length; $i++) {
+                    $tagName = $xdoc->getElementsByTagName('text')->item($i);
+                    $attribNode = $tagName->getAttributeNode('font-family');
+                    $font_family = $attribNode->value;
+                    $font = nbd_get_font_by_alias($font_family);
+                    if ($font) {
+                        $tagName->setAttribute('font-family', $font->name);
+                    }
+                }
+                $new_svg = $xdoc->saveXML();
+                file_put_contents($new_svg_path, $new_svg);
+            }
+        }
+        public function printcart_download_order_designs() {
+            $item_ids     = isset($_POST['item_ids']) ? $_POST['item_ids'] : array();
+            $order_id           = isset($_POST['order_id']) ? sanitize_text_field($_POST['order_id']) : '';
+            $type_download      = isset($_POST['type_download']) ? sanitize_text_field($_POST['type_download']) : '';
+            $files = array();
+            $option_name = array();
+            if (is_array($item_ids) && count($item_ids) > 0) {
+                foreach ($item_ids as $key => $item_id) {
+                    $folder = wc_get_order_item_meta($item_id, '_pcpb_folder', true);
+                    $item_files = array();
+                    $item_option_name = array();
+                    if ($folder) {
+                        $path           = PRINTCART_PB_CUSTOMER_DIR . '/' . $folder;
+                        if ($type_download == 'svg') {
+                            $svg_path = $path . '/svg';
+                            if (!file_exists($svg_path)) {
+                                $this->convert_svg_embed($path);
+                            }
+                            $item_files = Printcart_IO::get_list_files_by_type($svg_path, 1, 'svg');
+                        } else if ($type_download == 'png') {
+                            $item_files = Printcart_IO::get_list_files_by_type($path, 1, 'png');
+                        } else if ($type_download == 'png-preview') {
+                            $item_files = Printcart_IO::get_list_files_by_type($path . '/preview', 1, 'png');
+                        } else if ($type_download == 'pdf') {
+                            nbd_export_pdfs($folder, false, false, 'no');
+                        } else if ($type_download == 'pdf-preview') {
+                            nbd_export_pdfs($folder, false, false, 'no');
+                        }
+                    }
+                    if (count($item_files)) {
+                        foreach ($item_files as $item_file) {
+                            global $wpdb;
+                            $order_item_name = $wpdb->get_var(
+                                $wpdb->prepare(
+                                    "SELECT order_item_name FROM {$wpdb->prefix}woocommerce_order_items WHERE order_item_id = %d LIMIT 1;",
+                                    $item_id
+                                )
+                            );
+                            $file_name  = pathinfo($item_file, PATHINFO_FILENAME);
+                            $item_option_name[] = $order_item_name  ? $order_item_name . '_' . $key . '_' . $file_name : $order_id . '_' . $item_id  . '_' . $file_name;
+                        }
+                        $option_name = array_merge($option_name, $item_option_name);
+                        $files = array_merge($files, $item_files);
+                    }
+                }
+            }
+            $zip_files = array();
+            if (count($files) > 0) {
+                foreach ($files as $key => $file) {
+                    $zip_files[] = $file;
+                }
+            }
+            $response = array(
+                'flag' => 0,
+                'file' => '',
+                'options' => $option_name
+            );
+            if (!count($zip_files)) {
+                exit();
+            } else {
+                $pathZip = PRINTCART_PB_DATA_DIR . '/download/' . $order_id . '_' . $type_download . '.zip';
+                $urlZip = PRINTCART_PB_DATA_URL . '/download/' . $order_id . '_' . $type_download . '.zip';
+                if (Printcart_PB_Util::zip_files($zip_files, $pathZip, $option_name)) {
+                    $response['flag'] = 1;
+                    $response['file'] = $urlZip;
+                }
+            }
+            echo json_encode($response);
+            wp_die();
         }
     }
 }

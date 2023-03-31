@@ -98,7 +98,7 @@ if (!class_exists('Printcart_Product_Builder_Frontend')) {
                         } else {
                             copy($design_path, $path . '/preview/' . $index . '.png');
                         }
-                        $images[] = Printcart_IO::wp_convert_path_to_url($path . '/preview/' . $index . '.png');
+                        $images[] = Printcart_IO::convert_path_to_url($path . '/preview/' . $index . '.png');
                     }
                 }
             };

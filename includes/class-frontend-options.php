@@ -295,7 +295,7 @@ if (!class_exists('PRINTCART_FRONTEND_OPTIONS')) {
                     $images = Printcart_IO::get_list_images($path, 1);
                     if (count($images)) {
                         ksort($images);
-                        $option_price['cart_image'] = Printcart_IO::wp_convert_path_to_url(end($images));
+                        $option_price['cart_image'] = Printcart_IO::convert_path_to_url(end($images));
                     }
                 }
                 $options['fields']                              = base64_encode($options['fields']);
@@ -568,7 +568,7 @@ if (!class_exists('PRINTCART_FRONTEND_OPTIONS')) {
                         $images = Printcart_IO::get_list_images($path, 1);
                         if (count($images)) {
                             ksort($images);
-                            $option_price['cart_image'] = Printcart_IO::wp_convert_path_to_url(end($images));
+                            $option_price['cart_image'] = Printcart_IO::convert_path_to_url(end($images));
                         }
                     }
                     $adjusted_price = $original_price + $option_price['total_price'] - $option_price['discount_price'];
@@ -591,7 +591,7 @@ if (!class_exists('PRINTCART_FRONTEND_OPTIONS')) {
                             if (strpos($field['val'], 'http') !== false) {
                                 $file_url = $field['val'];
                             } else {
-                                $file_url = Printcart_IO::wp_convert_path_to_url(PRINTCART_PB_UPLOAD_DIR . '/' . $field['val']);
+                                $file_url = Printcart_IO::convert_path_to_url(PRINTCART_PB_UPLOAD_DIR . '/' . $field['val']);
                             }
                             $field['value_name'] = '<a href="' . $file_url . '">' . $field['value_name'] . '</a>';
                         }
@@ -611,6 +611,7 @@ if (!class_exists('PRINTCART_FRONTEND_OPTIONS')) {
                 }
                 $item->add_meta_data('_pcpb_option_price', $values['pcpb_meta']['option_price']);
                 $item->add_meta_data('_pcpb_field', $values['pcpb_meta']['field']);
+                $item->add_meta_data('_pcpb_folder', $values['pcpb_meta']['pcpb']);
                 $item->add_meta_data('_pcpb_options', wp_slash($values['pcpb_meta']['options']));
                 $item->add_meta_data('_pcpb_original_price', $values['pcpb_meta']['original_price']);
             }
@@ -667,7 +668,7 @@ if (!class_exists('PRINTCART_FRONTEND_OPTIONS')) {
                             if (strpos($field['val'], 'http') !== false) {
                                 $file_url = $field['val'];
                             } else {
-                                $file_url = Nbdesigner_IO::wp_convert_path_to_url(PRINTCART_PB_UPLOAD_DIR . '/' . $field['val']);
+                                $file_url = Printcart_IO::convert_path_to_url(PRINTCART_PB_UPLOAD_DIR . '/' . $field['val']);
                             }
                             $field['value_name'] = '<a href="' . $file_url . '">' . $field['value_name'] . '</a>';
                         }
