@@ -34,10 +34,10 @@ if (!class_exists('Printcart_PB_Admin_Options')) {
         }
         public function ajax() {
             $ajax_events = array(
-                'nbd_download_option_image'     => true,
-                'nbd_get_media_full_size_url'   => true,
-                'printcart_add_google_font'   => true,
-                'printcart_download_order_designs'   => true,
+                'nbd_download_option_image'         => true,
+                'nbd_get_media_full_size_url'       => true,
+                'printcart_add_google_font'         => true,
+                'printcart_download_order_designs'  => true,
             );
             foreach ($ajax_events as $ajax_event => $nopriv) {
                 add_action('wp_ajax_' . $ajax_event, array($this, $ajax_event));
@@ -1089,9 +1089,9 @@ CREATE TABLE {$wpdb->prefix}printcart_product_builder_options (
                         } else if ($type_download == 'png-preview') {
                             $item_files = Printcart_IO::get_list_files_by_type($path . '/preview', 1, 'png');
                         } else if ($type_download == 'pdf') {
-                            nbd_export_pdfs($folder, false, false, 'no');
+                            $item_files = Printcart_Export_PDF::exportPDF($folder, false);
                         } else if ($type_download == 'pdf-preview') {
-                            nbd_export_pdfs($folder, false, false, 'no');
+                            $item_files = Printcart_Export_PDF::exportPDF($folder, true);
                         }
                     }
                     if (count($item_files)) {

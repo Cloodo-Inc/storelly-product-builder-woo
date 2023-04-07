@@ -114,6 +114,8 @@ if (!class_exists('Printcart_Product_Builder_Frontend')) {
                         $full_name = $path . '/design.json';
                     } else if ($key == 'config') {
                         $full_name = $path . '/config.json';
+                    } else if ($key == 'used_font') {
+                        $full_name = $path . '/used_font.json';
                     } else {
                         $ext = explode('/', $val["type"])[1];
                         $full_name = $path . '/' . $key . '.' . $ext;

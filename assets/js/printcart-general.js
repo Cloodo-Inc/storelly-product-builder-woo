@@ -22,6 +22,7 @@ jQuery(document).ready(function ($) {
     }
     if (item_ids.length === 0) {
       alert("No design selected.");
+      return;
     }
     var designType = $('[name="printcart_design_type_download"]').val();
     $("#printcart_order_submit_loading").removeClass("printcart_loaded");
@@ -41,6 +42,13 @@ jQuery(document).ready(function ($) {
         $("#printcart_order_submit_loading").addClass("printcart_loaded");
         $("#printcart_download_design_by_type").attr("disabled", false);
         var res = JSON.parse(data);
+        if (res.flag == 1 && res.file) {
+          var link = document.createElement("a");
+          link.href = res.file;
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+        }
       });
   });
 });

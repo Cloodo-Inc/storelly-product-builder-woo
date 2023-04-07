@@ -37,22 +37,26 @@
                 <?php endif; ?>
             <?php endif; ?>
         <?php endforeach; ?>
-        <div><input type="checkbox" class="" id="printcart_order_design_check_all" />
-            <label for="printcart_order_design_check_all"><small><?php esc_html_e('Check all', 'web-to-print-online-designer'); ?></small></label>
-        </div>
-        <hr />
-        <div>
-            <img src="<?php echo PRINTCART_PB_PLUGIN_URL . 'assets/images/loading.gif'; ?>" class="printcart_loaded" id="printcart_order_submit_loading" />
-            <div style="text-align: right">
-                <select name="printcart_design_type_download">
-                    <option value="png"><?php esc_html_e('png', 'web-to-print-online-designer'); ?></option>
-                    <option value="png-preview"><?php esc_html_e('png prev', 'web-to-print-online-designer'); ?></option>
-                    <option value="svg"><?php esc_html_e('svg', 'web-to-print-online-designer'); ?></option>
-                    <option value="pdf"><?php esc_html_e('pdf', 'web-to-print-online-designer'); ?></option>
-                    <option value="pdf-preview"><?php esc_html_e('pdf prev', 'web-to-print-online-designer'); ?></option>
-                </select>
-                <a href="#" class="button button-primary" id="printcart_download_design_by_type"><?php esc_html_e('Download', 'web-to-print-online-designer'); ?></a>
+        <?php if ($count_img_design > 0) : ?>
+            <div><input type="checkbox" class="" id="printcart_order_design_check_all" />
+                <label for="printcart_order_design_check_all"><small><?php esc_html_e('Check all', 'web-to-print-online-designer'); ?></small></label>
             </div>
-        </div>
+            <hr />
+            <div>
+                <img src="<?php echo PRINTCART_PB_PLUGIN_URL . 'assets/images/loading.gif'; ?>" class="printcart_loaded" id="printcart_order_submit_loading" />
+                <div style="text-align: right">
+                    <select name="printcart_design_type_download">
+                        <option value="png"><?php esc_html_e('png', 'web-to-print-online-designer'); ?></option>
+                        <option value="png-preview"><?php esc_html_e('png prev', 'web-to-print-online-designer'); ?></option>
+                        <option value="svg"><?php esc_html_e('svg', 'web-to-print-online-designer'); ?></option>
+                        <option value="pdf"><?php esc_html_e('pdf', 'web-to-print-online-designer'); ?></option>
+                        <option value="pdf-preview"><?php esc_html_e('pdf prev', 'web-to-print-online-designer'); ?></option>
+                    </select>
+                    <a href="#" class="button button-primary" id="printcart_download_design_by_type"><?php esc_html_e('Download', 'web-to-print-online-designer'); ?></a>
+                </div>
+            </div>
+        <?php else : ?>
+            <p><?php esc_html_e('No design in this order', 'web-to-print-online-designer'); ?></p>
+        <?php endif; ?>
     <?php endif; ?>
 </div>

@@ -97,5 +97,12 @@ if (!class_exists('Printcart_IO')) {
             $list       = preg_grep('/\.(' . $type . ')(?:[\?\#].*)?$/i', $_list);
             return $list;
         }
+        public static function checkFileType($file_name, $arr_mime) {
+            $check      = false;
+            $filetype   = explode('.', $file_name);
+            $file_exten = $filetype[count($filetype) - 1];
+            if (in_array(strtolower($file_exten), $arr_mime)) $check = true;
+            return $check;
+        }
     }
 }
