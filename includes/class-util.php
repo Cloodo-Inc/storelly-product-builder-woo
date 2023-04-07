@@ -362,5 +362,45 @@ if (!class_exists('Printcart_PB_Util')) {
                 )
             );
         }
+        public static function zip_files($file_names, $archive_file_name, $option_name = array()) {
+            if (file_exists($archive_file_name)) {
+                unlink($archive_file_name);
+            }
+            $pathZip = PRINTCART_PB_DATA_DIR . '/download';
+            if (!file_exists($pathZip)) {
+                mkdir($pathZip);
+            }
+            if (class_exists('ZipArchive')) {
+                $zip = new ZipArchive();
+                if ($zip->open($archive_file_name, ZIPARCHIVE::CREATE) !== TRUE) {
+                    exit("cannot open <$archive_file_name>\n");
+                }
+                foreach ($file_names as $key => $file) {
+
+                    $file_ext   = pathinfo($file, PATHINFO_EXTENSION);
+
+                    $path_arr = explode('/', $file);
+                    $name = $path_arr[count($path_arr) - 2] . '_' . basename($file);
+                    if (isset($option_name[$key]) && $option_name[$key]) {
+                        $name = $option_name[$key] . '.' . $file_ext;
+                    }
+
+                    $zip->addFile($file, $name);
+                }
+                $zip->close();
+            } else {
+                require_once(ABSPATH . 'wp-admin/includes/class-pclzip.php');
+                $archive = new PclZip($archive_file_name);
+                foreach ($file_names as $file) {
+                    $path_arr = explode('/', $file);
+                    $dir = dirname($file) . '/';
+                    $archive->add($file, PCLZIP_OPT_REMOVE_PATH, $dir, PCLZIP_OPT_ADD_PATH, $path_arr[count($path_arr) - 2]);
+                }
+            }
+            if (file_exists($archive_file_name)) {
+                return true;
+            }
+            return false;
+        }
     }
 }

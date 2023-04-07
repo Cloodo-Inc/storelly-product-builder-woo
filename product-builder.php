@@ -40,6 +40,7 @@ define('PRINTCART_PB_CSS_URL',                  PRINTCART_PB_PLUGIN_URL . 'asset
 define('PRINTCART_ENABLE_NONCE',                TRUE);
 
 require_once(PRINTCART_PB_PLUGIN_DIR .  'includes/class-script-hook.php');
+require_once(PRINTCART_PB_PLUGIN_DIR .  'includes/class-export-pdf.php');
 require_once(PRINTCART_PB_PLUGIN_DIR .  'includes/class-util.php');
 require_once(PRINTCART_PB_PLUGIN_DIR .  'includes/class-image.php');
 require_once(PRINTCART_PB_PLUGIN_DIR .  'includes/class-io.php');

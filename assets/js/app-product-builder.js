@@ -717,9 +717,9 @@ nbdpbApp.controller("nbpbCtrl", [
       });
       _.each($scope.stages, function (stage, index) {
         var key = "frame_" + index;
-        var svgKey = "frame_" + index + '_svg';
+        var svgKey = "frame_" + index + "_svg";
         dataObj[key] = $scope.makeblob(stage.design);
-        dataObj[svgKey] = new Blob([stage.svg], {type: "image/svg"});
+        dataObj[svgKey] = new Blob([stage.svg], { type: "image/svg" });
       });
       ["pcpb_cart_item_key", "is_creating_task", "oid"].forEach(function (key) {
         dataObj[key] = NBPBCONFIG[key];
@@ -727,6 +727,12 @@ nbdpbApp.controller("nbpbCtrl", [
       dataObj.config = new Blob([JSON.stringify($scope.resource.config)], {
         type: "application/json",
       });
+      dataObj.used_font = new Blob(
+        [JSON.stringify($scope.resource.used_font)],
+        {
+          type: "application/json",
+        }
+      );
       var action = "printcart_save_product_builder_design";
       NBDDataFactory.get(action, dataObj, function (data) {
         data = JSON.parse(data);
@@ -778,6 +784,7 @@ nbdpbApp.controller("nbpbCtrl", [
       });
     };
     $scope.saveDesign = function () {
+      var used_font = [];
       _.each($scope.stages, function (stage, index) {
         $scope.deactiveAllLayer(index);
         var _canvas = stage.canvas;
@@ -785,9 +792,40 @@ nbdpbApp.controller("nbpbCtrl", [
         $scope.resource.jsonDesign[index] = _canvas.toJSON(
           $scope.includeExport
         );
+        _canvas.getObjects().forEach(function (obj) {
+          if (
+            ["i-text", "text", "textbox", "curvedText"].indexOf(obj.type) > -1
+          ) {
+            if (!_.filter(used_font, ["alias", obj.fontFamily]).length) {
+              var font = $scope.getFontInfo(obj.fontFamily);
+              used_font.push(font);
+            }
+          }
+        });
         stage.design = _canvas.toDataURL();
         stage.svg = _canvas.toSVG();
       });
+      $scope.resource.used_font = used_font;
+    };
+    $scope.getFontInfo = function (alias) {
+      var font = _.filter(NBPBCONFIG.fonts, { alias: alias })[0],
+        _font = angular.copy(font, _font);
+      if (_font) {
+        _font.file = { r: font.file.r };
+        _font.file.i = angular.isDefined(font.file.i) ? font.file.i : 0;
+        _font.file.b = angular.isDefined(font.file.b) ? font.file.b : 0;
+        _font.file.bi = angular.isDefined(font.file.bi) ? font.file.bi : 0;
+      } else {
+        _font = {
+          name: "Roboto",
+          alias: "Roboto",
+          file: { r: 1, b: 1, i: 1, bi: 1 },
+          cat: ["99"],
+          type: "google",
+          subset: "latin",
+        };
+      }
+      return _font;
     };
     $scope.onObjectAdded = function (id, options) {
       /* Reindex layers */
@@ -1612,7 +1650,7 @@ nbdpbApp.factory("NBDDataFactory", function ($http) {
       formData.append("action", action);
       formData.append("nonce", NBPBCONFIG["nonce"]);
       angular.forEach(data, function (value, key) {
-        var keepDefault = ["file", "design", "config"];
+        var keepDefault = ["file", "design", "config", "used_font"];
         if (
           typeof value != "object" ||
           _.includes(keepDefault, key) ||

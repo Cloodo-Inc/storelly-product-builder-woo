@@ -83,13 +83,26 @@ if (!class_exists('Printcart_IO')) {
                 return $path;
             }
         }
-        public static function wp_convert_path_to_url($path = '') {
+        public static function convert_path_to_url($path = '') {
             $url = str_replace(
                 wp_normalize_path(untrailingslashit(ABSPATH)),
                 site_url(),
                 wp_normalize_path($path)
             );
             return esc_url_raw($url);
+        }
+        public static function get_list_files_by_type($path, $level = 100, $type) {
+            $list       = array();
+            $_list      = self::get_list_files($path, $level);
+            $list       = preg_grep('/\.(' . $type . ')(?:[\?\#].*)?$/i', $_list);
+            return $list;
+        }
+        public static function checkFileType($file_name, $arr_mime) {
+            $check      = false;
+            $filetype   = explode('.', $file_name);
+            $file_exten = $filetype[count($filetype) - 1];
+            if (in_array(strtolower($file_exten), $arr_mime)) $check = true;
+            return $check;
         }
     }
 }
