@@ -50,7 +50,7 @@ if (!class_exists('Printcart_PB_Admin_Options')) {
         public function printcart_add_design_box() {
             add_meta_box(
                 'printcart_product_builder_design',
-                esc_html__('Product builder designs', 'printcart-integration'),
+                esc_html__('Product builder designs', 'pc-product-builder'),
                 array($this, 'printcart_product_builder_design'),
                 'shop_order',
                 'side',
@@ -119,19 +119,27 @@ if (!class_exists('Printcart_PB_Admin_Options')) {
                 );
                 add_submenu_page(
                     'pc-product-builder-options',
-                    esc_html__('Builder options', 'printcart-integration'),
-                    esc_html__('Builder options', 'printcart-integration'),
+                    esc_html__('Builder options', 'pc-product-builder'),
+                    esc_html__('Builder options', 'pc-product-builder'),
                     'manage_options',
                     'pc-product-builder-options',
                     array($this, 'product_builder_options')
                 );
                 add_submenu_page(
                     'pc-product-builder-options',
-                    esc_html__('Fonts', 'printcart-integration'),
-                    esc_html__('Fonts', 'printcart-integration'),
+                    esc_html__('Fonts', 'pc-product-builder'),
+                    esc_html__('Fonts', 'pc-product-builder'),
                     'manage_options',
                     'pc-product-builder-options/manager-fonts',
                     array($this, 'printcart_manager_fonts')
+                );
+                add_submenu_page(
+                    'pc-product-builder-options',
+                    esc_html__('Settings', 'pc-product-builder'),
+                    esc_html__('Settings', 'pc-product-builder'),
+                    'manage_options',
+                    'pc-product-builder-options/settings',
+                    array($this, 'printcart_settings')
                 );
             }
         }
@@ -194,7 +202,7 @@ CREATE TABLE {$wpdb->prefix}printcart_product_builder_options (
                 wp_localize_script('manager-fonts', 'printcart_pb_fonts', array(
                     'url'       => admin_url('admin-ajax.php'),
                     'nonce'     => wp_create_nonce('printcart_update_fonts'),
-                    'complete'  => esc_html__('Complete!', 'web-to-print-online-designer'),
+                    'complete'  => esc_html__('Complete!', 'pc-product-builder'),
                 ));
                 wp_enqueue_script('manager-fonts');
                 wp_enqueue_style('manager-fonts');
@@ -326,6 +334,10 @@ CREATE TABLE {$wpdb->prefix}printcart_product_builder_options (
                     'version'                   => PRINTCART_PB_NUMBER_VERSION,
                     'fields'                    => array(
                         0   =>  $this->default_field()
+                    ),
+                    'design_output'  => array(
+                        'dpi'                   => 300,
+                        'dimension_unit'        => 'px',
                     )
                 );
             }
@@ -964,7 +976,7 @@ CREATE TABLE {$wpdb->prefix}printcart_product_builder_options (
         }
         public function printcart_add_google_font() {
             $data = array(
-                'mes'   =>  esc_html__('You do not have permission to add font!', 'web-to-print-online-designer'),
+                'mes'   =>  esc_html__('You do not have permission to add font!', 'pc-product-builder'),
                 'flag'  => 0
             );
             if (!wp_verify_nonce($_POST['nonce'], 'printcart_update_fonts')) {
@@ -1012,7 +1024,7 @@ CREATE TABLE {$wpdb->prefix}printcart_product_builder_options (
             }
             $path_font      = PRINTCART_PB_FONT_DIR . '/googlefonts.json';
             file_put_contents($path_font, json_encode($gg_fonts));
-            $data['mes']    = esc_html__('The google fonts have been added successfully!', 'web-to-print-online-designer');
+            $data['mes']    = esc_html__('The google fonts have been added successfully!', 'pc-product-builder');
             $data['flag']   = 1;
             echo json_encode($data);
             wp_die();
@@ -1023,6 +1035,23 @@ CREATE TABLE {$wpdb->prefix}printcart_product_builder_options (
             $current_cat            = filter_input(INPUT_GET, "cat_id", FILTER_VALIDATE_INT);
 
             include_once(PRINTCART_PB_PLUGIN_DIR . 'views/manager-fonts.php');
+        }
+        public function printcart_settings() {
+            $printcart_pb_settings = get_option('printcart_pb_settings');
+            if (!isset($printcart_pb_settings['enable_cloud2print_api'])) {
+                $printcart_pb_settings['enable_cloud2print_api'] = 'no';
+            }
+            $message = '';
+            $status = '';
+
+            if (isset($_POST['_action_printcart_settings']) && $_POST['_action_printcart_settings'] === 'submit') {
+                $printcart_enable_cloud2print_api      = isset($_POST['printcart_enable_cloud2print_api']) ? sanitize_text_field($_POST['printcart_enable_cloud2print_api']) : 'no';
+                $message        = esc_html__('Your settings have been saved.', 'pc-product-builder');
+                $status         = 'updated';
+                $printcart_pb_settings['enable_cloud2print_api'] = $printcart_enable_cloud2print_api;
+                update_option('printcart_pb_settings', $printcart_pb_settings);
+            }
+            include_once(PRINTCART_PB_PLUGIN_DIR . 'views/menu-settings.php');
         }
         public function convert_svg_embed($path) {
             $svgs       = Printcart_IO::get_list_files_by_type($path, 1, 'svg');

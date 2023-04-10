@@ -4,8 +4,6 @@ if (!defined('ABSPATH')) {
 }
 if (!class_exists('Printcart_Export_PDF')) {
     class Printcart_Export_PDF {
-        public static $dpi =  300;
-        public static $unit = 'px';
         public function __construct() {
         }
         public static function download_google_font($font_name = '') {
@@ -58,13 +56,16 @@ if (!class_exists('Printcart_Export_PDF')) {
                 wp_mkdir_p($folder);
             }
             $config         = file_exists($path . '/config.json') ? json_decode(file_get_contents($path . '/config.json')) : '';
-            $datas = array();
+            $design_output  = file_exists($path . '/design_output.json') ? json_decode(file_get_contents($path . '/design_output.json')) : '';
+            $dpi            = isset($design_output->dpi) ? (int) $design_output->dpi : 300;
+            $unit           = isset($design_output->dimension_unit) ? $design_output->dimension_unit : 'px';
+            $datas          = array();
             if (isset($config->views) && count($config->views)) {
                 foreach ($config->views as $side) {
                     $datas[] = (array)$side;
                 }
             };
-            $unit_ratio     = self::get_unit_ratio(self::$dpi, self::$unit);
+            $unit_ratio     = self::get_unit_ratio($dpi, $unit);
             $used_font_path = $path . '/used_font.json';
             $used_fonts     =  file_exists($used_font_path) ? json_decode(file_get_contents($used_font_path)) : array();
             $font_css       = self::build_font_css($used_fonts);
@@ -105,7 +106,6 @@ if (!class_exists('Printcart_Export_PDF')) {
                 if (file_exists($svg_path)) {
                     $html_url           = self::build_html_page($folder_design, $key, $svg_path, $page_settings, $font_css);
                     $url_segment        = urlencode($html_url);
-                    $url_segment        = urlencode('https://botaksign-dev.s3.us-east-1.amazonaws.com/test-product-builder/NBDesigner.html');
                     $settings_segment   = base64_encode(json_encode(array(
                         'width'         => $data['base_width'] * $unit_ratio . 'in',
                         'height'        => $data['base_height'] * $unit_ratio . 'in'
@@ -137,9 +137,10 @@ if (!class_exists('Printcart_Export_PDF')) {
             if (!file_exists($folder)) {
                 wp_mkdir_p($folder);
             }
-            $enable_Cloud_export_pdf = true;
-            if ($enable_Cloud_export_pdf) {
-                // self::cloudExportPdf($folder_design, $include_background);
+            $printcart_pb_settings = get_option('printcart_pb_settings');
+            $enable_cloud_export_pdf = $printcart_pb_settings && isset($printcart_pb_settings['enable_cloud2print_api']) && $printcart_pb_settings['enable_cloud2print_api'] == 'yes' ? true : false;
+            if ($enable_cloud_export_pdf) {
+                self::cloudExportPdf($folder_design, $include_background);
                 $output_file    = PRINTCART_PB_CUSTOMER_DIR . '/' . $folder_design . '/customer-pdfs' . '/' . $folder_design . '.pdf';
                 $result = Printcart_IO::get_list_files_by_type(PRINTCART_PB_CUSTOMER_DIR . '/' . $folder_design . '/customer-pdfs', 1, 'pdf');
             } else {
@@ -150,6 +151,9 @@ if (!class_exists('Printcart_Export_PDF')) {
                         $datas[] = (array)$side;
                     }
                 };
+                $design_output  = file_exists($path . '/design_output.json') ? json_decode(file_get_contents($path . '/design_output.json')) : '';
+                $dpi            = isset($design_output->dpi) ? (int) $design_output->dpi : 300;
+                $unit           = isset($design_output->dimension_unit) ? $design_output->dimension_unit : 'cm';
                 $used_font_path = $path . '/used_font.json';
                 $used_font      = file_exists($used_font_path) ? json_decode(file_get_contents($used_font_path)) : array();
                 $path_font      = array();
@@ -171,7 +175,7 @@ if (!class_exists('Printcart_Export_PDF')) {
                 }
                 $pdfs       = array();
                 $unitRatio  = 10;
-                switch (self::$unit) {
+                switch ($unit) {
                     case 'mm':
                         $unitRatio = 1;
                         break;
@@ -182,7 +186,7 @@ if (!class_exists('Printcart_Export_PDF')) {
                         $unitRatio = 304.8;
                         break;
                     case 'px':
-                        $unitRatio = 25.4 / self::$dpi;
+                        $unitRatio = 25.4 / $dpi;
                         break;
                     default:
                         $unitRatio = 10;
