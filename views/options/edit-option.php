@@ -168,6 +168,48 @@ $max_input_vars = Printcart_PB_Util::printcart_get_max_input_var();
                                 </div>
                             </div>
                         </div>
+                        <div class="postbox">
+                            <h2 style="border-bottom: 1px solid #ddd;"><?php esc_html_e('Output design file ( PDF ).', 'pc-product-builder'); ?></h2>
+                            <div class="inside">
+                                <div style="margin-top: 10px;">
+                                    <div class="pcpb-field-info ng-scope">
+                                        <div>
+                                            <div class="pcpb-field-info-1">
+                                                <label>
+                                                    <b>
+                                                        <?php esc_html_e('Output resolution - DPI', 'pc-product-builder'); ?>
+                                                    </b>
+                                                </label>
+                                            </div>
+                                            <div class="pcpb-field-info-2">
+                                                <div>
+                                                    <input name="options[design_output][dpi]" type="text" string-to-number name="dpi" size="30" id="dpi" ng-model="options.design_output.dpi" autocomplete="off">
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <div class="pcpb-field-info-1">
+                                                <label>
+                                                    <b>
+                                                        <?php esc_html_e('Dimensions unit', 'pc-product-builder'); ?>
+                                                    </b>
+                                                </label>
+                                            </div>
+                                            <div class="pcpb-field-info-2">
+                                                <div>
+                                                    <select name="options[design_output][dimension_unit]" ng-model="options.design_output.dimension_unit">
+                                                        <option value="cm">cm</option>
+                                                        <option value="in">in</option>
+                                                        <option value="mm">mm</option>
+                                                        <option value="px">px</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>

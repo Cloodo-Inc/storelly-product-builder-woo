@@ -44,7 +44,23 @@ nbdpbApp.controller("nbpbCtrl", [
           chooseText: NBPBCONFIG.i18n.choose,
           cancelText: NBPBCONFIG.i18n.cancel,
         },
+        design_output: {
+          dimension_unit: "px",
+          dpi: "300",
+        },
       };
+      if (angular.isDefined(nbOption.options.design_output)) {
+        $scope.resource.design_output.dimension_unit = angular.isDefined(
+          nbOption.options.design_output.dimension_unit
+        )
+          ? nbOption.options.design_output.dimension_unit
+          : "px";
+        $scope.resource.design_output.dpi = angular.isDefined(
+          nbOption.options.design_output.dpi
+        )
+          ? nbOption.options.design_output.dpi
+          : "300";
+      }
       var uploaded = localStorage.getItem("nbpb_uploaded");
       if (uploaded) {
         $scope.resource.uploaded = JSON.parse(uploaded);
@@ -729,6 +745,12 @@ nbdpbApp.controller("nbpbCtrl", [
       });
       dataObj.used_font = new Blob(
         [JSON.stringify($scope.resource.used_font)],
+        {
+          type: "application/json",
+        }
+      );
+      dataObj.design_output = new Blob(
+        [JSON.stringify($scope.resource.design_output)],
         {
           type: "application/json",
         }
@@ -1650,7 +1672,13 @@ nbdpbApp.factory("NBDDataFactory", function ($http) {
       formData.append("action", action);
       formData.append("nonce", NBPBCONFIG["nonce"]);
       angular.forEach(data, function (value, key) {
-        var keepDefault = ["file", "design", "config", "used_font"];
+        var keepDefault = [
+          "file",
+          "design",
+          "config",
+          "used_font",
+          "design_output",
+        ];
         if (
           typeof value != "object" ||
           _.includes(keepDefault, key) ||
@@ -1919,7 +1947,6 @@ function getTransform(el) {
 }
 jQuery(document).ready(function () {
   jQuery("#pcpb-start-design").on("click", function () {
-    console.log(123);
     var $scope = angular
       .element(document.getElementById("nbpb-container"))
       .scope();

@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8" />
     <meta http-equiv="Content-type" content="text/html; charset=utf-8">
-    <title><?php esc_html_e('NBDesigner', 'web-to-print-online-designer'); ?></title>
+    <title><?php esc_html_e('NBDesigner', 'pc-product-builder'); ?></title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=1, minimum-scale=0.5, maximum-scale=1.0" />
     <link rel="stylesheet" type="text/css" href="https://cloud2print.s3.amazonaws.com/normalize.css" />
     <?php echo ($font_css['google_font_link']); ?>
