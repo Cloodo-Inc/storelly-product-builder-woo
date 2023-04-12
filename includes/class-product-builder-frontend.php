@@ -158,7 +158,7 @@ if (!class_exists('Printcart_Product_Builder_Frontend')) {
                         'version'   => '2.6.0',
                         'depends'  => array()
                     ),
-                    'angularjs' => array(
+                    'pc-angularjs' => array(
                         'link' => PRINTCART_PB_ASSETS_URL . 'libs/angular.min.js',
                         'version'   => '1.6.9',
                         'depends'  => array('jquery')
@@ -166,7 +166,7 @@ if (!class_exists('Printcart_Product_Builder_Frontend')) {
                     'product-builder' => array(
                         'link' => PRINTCART_PB_JS_URL . 'app-product-builder.js',
                         'version'   => PRINTCART_PB_VERSION,
-                        'depends'  => array('jquery', 'underscore', 'angularjs', 'fabricjs', 'fontfaceobserver', 'spectrum')
+                        'depends'  => array('jquery', 'underscore', 'pc-angularjs', 'fabricjs', 'fontfaceobserver', 'spectrum')
                     )
                 );
                 $css_libs = array(
