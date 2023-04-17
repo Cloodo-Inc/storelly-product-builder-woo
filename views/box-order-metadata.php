@@ -43,15 +43,19 @@
             </div>
             <hr />
             <div>
-                <img src="<?php echo PRINTCART_PB_PLUGIN_URL . 'assets/images/loading.gif'; ?>" class="printcart_loaded" id="printcart_order_submit_loading" />
-                <div style="text-align: right">
-                    <select name="printcart_design_type_download">
+                <div style="padding-bottom: 4px">
+                    <select name="printcart_design_type_download" style="width: 100%">
                         <option value="png"><?php esc_html_e('png', 'pc-product-builder'); ?></option>
-                        <option value="png-preview"><?php esc_html_e('png prev', 'pc-product-builder'); ?></option>
+                        <option value="png-preview"><?php esc_html_e('png preview', 'pc-product-builder'); ?></option>
                         <option value="svg"><?php esc_html_e('svg', 'pc-product-builder'); ?></option>
                         <option value="pdf"><?php esc_html_e('pdf', 'pc-product-builder'); ?></option>
-                        <option value="pdf-preview"><?php esc_html_e('pdf prev', 'pc-product-builder'); ?></option>
+                        <option value="pdf-preview"><?php esc_html_e('pdf preview', 'pc-product-builder'); ?></option>
                     </select>
+                </div>
+                <div style="padding-bottom: 4px;">
+                    <img src="<?php echo PRINTCART_PB_PLUGIN_URL . 'assets/images/loading.gif'; ?>" class="printcart_loaded" id="printcart_order_submit_loading" />
+                </div>
+                <div style="padding-bottom: 4px">
                     <a href="#" class="button button-primary" id="printcart_download_design_by_type"><?php esc_html_e('Download', 'pc-product-builder'); ?></a>
                 </div>
             </div>

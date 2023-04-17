@@ -5,7 +5,7 @@ msgstr ""
 "v1.0.0\n"
 "Report-Msgid-Bugs-To: Translator Name "
 "<printcart@gmail.com>\n"
-"POT-Creation-Date: 2023-04-17 09:57+0700\n"
+"POT-Creation-Date: 2023-04-17 11:28+0700\n"
 "PO-Revision-Date: \n"
 "Last-Translator: Your Name <printcart@gmail."
 "com>\n"
@@ -524,31 +524,31 @@ msgstr ""
 msgid "Check all"
 msgstr ""
 
-#: views/box-order-metadata.php:49
+#: views/box-order-metadata.php:48
 msgid "png"
 msgstr ""
 
-#: views/box-order-metadata.php:50
-msgid "png prev"
+#: views/box-order-metadata.php:49
+msgid "png preview"
 msgstr ""
 
-#: views/box-order-metadata.php:51
+#: views/box-order-metadata.php:50
 msgid "svg"
 msgstr ""
 
-#: views/box-order-metadata.php:52
+#: views/box-order-metadata.php:51
 msgid "pdf"
 msgstr ""
 
-#: views/box-order-metadata.php:53
-msgid "pdf prev"
-msgstr ""
-
-#: views/box-order-metadata.php:55
-msgid "Download"
+#: views/box-order-metadata.php:52
+msgid "pdf preview"
 msgstr ""
 
 #: views/box-order-metadata.php:59
+msgid "Download"
+msgstr ""
+
+#: views/box-order-metadata.php:63
 msgid "No design in this order"
 msgstr ""
 
