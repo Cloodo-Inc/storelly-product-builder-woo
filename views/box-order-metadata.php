@@ -5,17 +5,17 @@
         <?php
         $count_img_design = 0;
         ?>
-        <?php foreach ($order_items as $order_item_id => $order_item) : ?>
-            <div class="printcart_order_product_name">
-                <b>
-                    <?php esc_html_e('Product:', 'pc-product-builder'); ?>
-                </b>
-                <?php esc_html_e($order_item->get_name()); ?>
-            </div>
-            <hr />
-            <?php
+        <?php foreach ($order_items as $order_item_id => $order_item) :
             $folder_design = wc_get_order_item_meta($order_item_id, '_pcpb_folder', true);
-            if ($folder_design) :
+            if ($folder_design) : ?>
+                <div class="printcart_order_product_name">
+                    <b>
+                        <?php esc_html_e('Product:', 'pc-product-builder'); ?>
+                    </b>
+                    <?php esc_html_e($order_item->get_name()); ?>
+                </div>
+                <hr />
+                <?php
                 $list_images = Printcart_IO::get_list_images(PRINTCART_PB_CUSTOMER_DIR . '/' . $folder_design . '/preview', 1);
                 asort($list_images);
                 $link_view_detail = '';

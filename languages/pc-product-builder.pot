@@ -5,7 +5,7 @@ msgstr ""
 "v1.0.0\n"
 "Report-Msgid-Bugs-To: Translator Name "
 "<printcart@gmail.com>\n"
-"POT-Creation-Date: 2023-04-11 09:30+0700\n"
+"POT-Creation-Date: 2023-04-17 09:57+0700\n"
 "PO-Revision-Date: \n"
 "Last-Translator: Your Name <printcart@gmail."
 "com>\n"
@@ -512,7 +512,7 @@ msgstr ""
 msgid "is not available."
 msgstr ""
 
-#: views/box-order-metadata.php:11
+#: views/box-order-metadata.php:13
 msgid "Product:"
 msgstr ""
 
