@@ -273,10 +273,9 @@ if (!class_exists('Printcart_Export_PDF')) {
                     $pdf->Output($output_file, 'F');
                     $result[] = $output_file;
                 }
-
-
-                return $result;
             }
+            
+            return $result;
         }
         public static function printcart_file_get_contents($url) {
             $response = wp_remote_get($url);

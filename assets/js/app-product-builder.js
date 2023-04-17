@@ -376,7 +376,6 @@ nbdpbApp.controller("nbpbCtrl", [
           var _stage = $scope.stages[viewIndex],
             _canvas = _stage.canvas,
             _item = $scope.getLayerById(currentComponent.id, viewIndex);
-          console.log(view);
           if (view.display == "on") {
             if (currentStage == -1) {
               currentStage = viewIndex;
