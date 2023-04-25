@@ -5,7 +5,7 @@ msgstr ""
 "v1.0.0\n"
 "Report-Msgid-Bugs-To: Translator Name "
 "<printcart@gmail.com>\n"
-"POT-Creation-Date: 2023-04-17 11:28+0700\n"
+"POT-Creation-Date: 2023-04-25 14:40+0700\n"
 "PO-Revision-Date: \n"
 "Last-Translator: Your Name <printcart@gmail."
 "com>\n"
@@ -69,8 +69,8 @@ msgstr ""
 #: includes/class-admin-options.php:442
 #: views/options/templates/field-body/attributes.php:44
 #: views/options/templates/field-body/attributes.php:46
-#: views/options/templates/field-body/attributes.php:111
-#: views/options/templates/field-body/attributes.php:113
+#: views/options/templates/field-body/attributes.php:104
+#: views/options/templates/field-body/attributes.php:106
 #: views/options/templates/field-body/description.php:5
 msgid "Description"
 msgstr ""
@@ -94,7 +94,7 @@ msgid "Input type"
 msgstr ""
 
 #: includes/class-admin-options.php:484
-#: includes/class-admin-options.php:873
+#: includes/class-admin-options.php:882
 #: views/options/edit-option.php:151
 msgid "Text"
 msgstr ""
@@ -130,7 +130,7 @@ msgstr ""
 #: includes/class-admin-options.php:572
 #: includes/class-admin-options.php:591
 #: includes/class-admin-options.php:610
-#: includes/class-admin-options.php:852
+#: includes/class-admin-options.php:861
 #: views/menu-settings.php:21
 #: views/options/templates/nbpb_text.php:17
 #: views/options/templates/nbpb_text.php:28
@@ -142,7 +142,7 @@ msgstr ""
 #: includes/class-admin-options.php:576
 #: includes/class-admin-options.php:595
 #: includes/class-admin-options.php:614
-#: includes/class-admin-options.php:856
+#: includes/class-admin-options.php:865
 #: views/menu-settings.php:24
 #: views/options/templates/nbpb_text.php:18
 #: views/options/templates/nbpb_text.php:29
@@ -213,7 +213,7 @@ msgstr ""
 
 #: includes/class-admin-options.php:721
 #: views/options/templates/field-body/attributes.php:51
-#: views/options/templates/field-body/attributes.php:117
+#: views/options/templates/field-body/attributes.php:110
 #: views/options/templates/field-body/price.php:5
 msgid "Additional Price"
 msgstr ""
@@ -226,100 +226,100 @@ msgid ""
 msgstr ""
 
 #: includes/class-admin-options.php:743
-#: includes/class-admin-options.php:875
+#: includes/class-admin-options.php:884
 msgid "Attribute name"
 msgstr ""
 
-#: includes/class-admin-options.php:772
+#: includes/class-admin-options.php:781
 #: views/options/templates/field-body/attributes.php:5
 msgid "Attributes"
 msgstr ""
 
-#: includes/class-admin-options.php:773
+#: includes/class-admin-options.php:782
 #: views/options/templates/field-body/attributes.php:5
 msgid ""
 "Attributes let you define extra product "
 "data, such as size or color."
 msgstr ""
 
-#: includes/class-admin-options.php:810
+#: includes/class-admin-options.php:819
 msgid "Display type"
 msgstr ""
 
-#: includes/class-admin-options.php:817
-#: views/options/templates/field-body/attributes.php:77
+#: includes/class-admin-options.php:826
+#: views/options/templates/field-body/attributes.php:70
 msgid "Dropdown"
 msgstr ""
 
-#: includes/class-admin-options.php:821
-#: views/options/templates/field-body/attributes.php:78
+#: includes/class-admin-options.php:830
+#: views/options/templates/field-body/attributes.php:71
 msgid "Radio button"
 msgstr ""
 
-#: includes/class-admin-options.php:825
-#: views/options/templates/field-body/attributes.php:79
+#: includes/class-admin-options.php:834
+#: views/options/templates/field-body/attributes.php:72
 msgid "Swatch"
 msgstr ""
 
-#: includes/class-admin-options.php:829
-#: views/options/templates/field-body/attributes.php:80
+#: includes/class-admin-options.php:838
+#: views/options/templates/field-body/attributes.php:73
 msgid "Label"
 msgstr ""
 
-#: includes/class-admin-options.php:833
+#: includes/class-admin-options.php:842
 msgid "Advanced Dropdown"
 msgstr ""
 
-#: includes/class-admin-options.php:837
+#: includes/class-admin-options.php:846
 msgid "Large label"
 msgstr ""
 
-#: includes/class-admin-options.php:845
+#: includes/class-admin-options.php:854
 msgid "Changes product image"
 msgstr ""
 
-#: includes/class-admin-options.php:846
+#: includes/class-admin-options.php:855
 msgid ""
 "Choose whether to change the product image."
 msgstr ""
 
-#: includes/class-admin-options.php:864
+#: includes/class-admin-options.php:873
 msgid "CSS Class"
 msgstr ""
 
-#: includes/class-admin-options.php:872
+#: includes/class-admin-options.php:881
 #: views/options/edit-option.php:150
 msgid "Component"
 msgstr ""
 
-#: includes/class-admin-options.php:874
+#: includes/class-admin-options.php:883
 #: views/options/edit-option.php:152
 #: views/options/templates/field-body/attributes.php:14
-#: views/options/templates/field-body/attributes.php:91
+#: views/options/templates/field-body/attributes.php:84
 #: views/options/templates/nbpb_com.php:82
 msgid "Image"
 msgstr ""
 
-#: includes/class-admin-options.php:876
+#: includes/class-admin-options.php:885
 msgid "Sub attribute name"
 msgstr ""
 
-#: includes/class-admin-options.php:880
+#: includes/class-admin-options.php:889
 msgid "Printcart product builder"
 msgstr ""
 
-#: includes/class-admin-options.php:979
+#: includes/class-admin-options.php:988
 msgid ""
 "You do not have permission to add font!"
 msgstr ""
 
-#: includes/class-admin-options.php:1027
+#: includes/class-admin-options.php:1036
 msgid ""
 "The google fonts have been added "
 "successfully!"
 msgstr ""
 
-#: includes/class-admin-options.php:1049
+#: includes/class-admin-options.php:1058
 #: includes/class-util.php:52
 msgid "Your settings have been saved."
 msgstr ""
@@ -378,7 +378,7 @@ msgstr ""
 
 #: includes/options/fields-list-table.php:32
 #: views/options/templates/field-body/attributes.php:38
-#: views/options/templates/field-body/attributes.php:105
+#: views/options/templates/field-body/attributes.php:98
 msgid "Title"
 msgstr ""
 
@@ -392,8 +392,8 @@ msgstr ""
 
 #: includes/options/fields-list-table.php:157
 #: views/options/field.php:20
-#: views/options/templates/field-body/attributes.php:137
-#: views/options/templates/field-body/attributes.php:154
+#: views/options/templates/field-body/attributes.php:123
+#: views/options/templates/field-body/attributes.php:140
 #: views/options/templates/nbpb_text.php:123
 #: views/product-builder/wrapper.php:170
 #: views/product-builder/wrapper.php:193
@@ -472,15 +472,15 @@ msgstr ""
 msgid "items"
 msgstr ""
 
-#: templates/single-product/option-builder.php:1613
+#: templates/single-product/option-builder.php:1623
 msgid "Sorry, file is too big, max size: "
 msgstr ""
 
-#: templates/single-product/option-builder.php:1620
+#: templates/single-product/option-builder.php:1630
 msgid "Sorry, file is too small, min size: "
 msgstr ""
 
-#: templates/single-product/option-builder.php:1636
+#: templates/single-product/option-builder.php:1646
 msgid ""
 "Sorry, this file type is not permitted for "
 "security reasons. Only accept: "
@@ -759,14 +759,14 @@ msgid "Product builder"
 msgstr ""
 
 #: views/options/field.php:17
-#: views/options/templates/field-body/attributes.php:134
-#: views/options/templates/field-body/attributes.php:151
+#: views/options/templates/field-body/attributes.php:120
+#: views/options/templates/field-body/attributes.php:137
 msgid "Up"
 msgstr ""
 
 #: views/options/field.php:18
-#: views/options/templates/field-body/attributes.php:135
-#: views/options/templates/field-body/attributes.php:152
+#: views/options/templates/field-body/attributes.php:121
+#: views/options/templates/field-body/attributes.php:138
 msgid "Down"
 msgstr ""
 
@@ -798,17 +798,17 @@ msgstr ""
 msgid "Product Builder Options"
 msgstr ""
 
-#: views/options/preview.php:4
+#: views/options/preview.php:5
 msgid "Create Pre builder"
 msgstr ""
 
 #: views/options/templates/field-body/attributes.php:11
-#: views/options/templates/field-body/attributes.php:88
+#: views/options/templates/field-body/attributes.php:81
 msgid "Swatch type"
 msgstr ""
 
 #: views/options/templates/field-body/attributes.php:15
-#: views/options/templates/field-body/attributes.php:92
+#: views/options/templates/field-body/attributes.php:85
 #: views/options/templates/nbpb_text.php:110
 #: views/product-builder/wrapper.php:159
 msgid "Color"
@@ -816,7 +816,7 @@ msgstr ""
 
 #: views/options/templates/field-body/attributes.php:21
 #: views/options/templates/field-body/attributes.php:33
-#: views/options/templates/field-body/attributes.php:98
+#: views/options/templates/field-body/attributes.php:91
 msgid "Click to change image"
 msgstr ""
 
@@ -825,39 +825,34 @@ msgid "Product image"
 msgstr ""
 
 #: views/options/templates/field-body/attributes.php:41
-#: views/options/templates/field-body/attributes.php:108
+#: views/options/templates/field-body/attributes.php:101
 #: views/options/templates/field-body/input_option.php:14
 msgid "Default"
 msgstr ""
 
 #: views/options/templates/field-body/attributes.php:49
-#: views/options/templates/field-body/attributes.php:115
+#: views/options/templates/field-body/attributes.php:108
 msgid "Price"
 msgstr ""
 
-#: views/options/templates/field-body/attributes.php:58
-#: views/options/templates/field-body/attributes.php:124
-msgid "Implicit Value"
-msgstr ""
-
-#: views/options/templates/field-body/attributes.php:66
+#: views/options/templates/field-body/attributes.php:59
 msgid "Enable sub attributes"
 msgstr ""
 
-#: views/options/templates/field-body/attributes.php:72
+#: views/options/templates/field-body/attributes.php:65
 msgid "Sub attributes type"
 msgstr ""
 
-#: views/options/templates/field-body/attributes.php:138
-#: views/options/templates/field-body/attributes.php:155
+#: views/options/templates/field-body/attributes.php:124
+#: views/options/templates/field-body/attributes.php:141
 msgid "Expend"
 msgstr ""
 
-#: views/options/templates/field-body/attributes.php:144
+#: views/options/templates/field-body/attributes.php:130
 msgid "Add sub attribute"
 msgstr ""
 
-#: views/options/templates/field-body/attributes.php:162
+#: views/options/templates/field-body/attributes.php:148
 msgid "Add attribute"
 msgstr ""
 

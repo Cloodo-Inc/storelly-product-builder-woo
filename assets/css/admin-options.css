@@ -1795,9 +1795,16 @@ label.view-config {
 .create-pre-builder-wrap {
   text-align: center;
   background: #fff;
-  padding: 15px;
+  padding: 10px;
   border-bottom: 1px solid #0085ba;
 }
+.create-pre-builder-desc {
+  color: #727171;
+  text-align: left;
+  font-size: 12px;
+  margin-bottom: 6px;
+}
+
 .nbo_blur.left {
   opacity: 0.5 !important;
 }
