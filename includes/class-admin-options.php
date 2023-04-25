@@ -751,17 +751,26 @@ CREATE TABLE {$wpdb->prefix}printcart_product_builder_options (
                         'product_image_url'     => '',
                         'color'                 => '#ffffff',
                         'enable_con'            => 0,
-                        'implicit_value'        => ''
+                        'enable_subattr'        => 0,
+                        'sub_attributes'        => array(),
+                        'sattr_display_type'    => 's',
                     )
                 );
             } else {
                 $options = $attributes['options'];
             };
             foreach ($options as $key => $option) {
-                $options[$key]['implicit_value']     = isset($option['implicit_value']) ? $option['implicit_value'] : '';
+                $options[$key]['enable_subattr']     = isset( $options[$key]['enable_subattr'] ) ? $options[$key]['enable_subattr'] : 0;
+                $options[$key]['sub_attributes']     = isset( $options[$key]['sub_attributes'] ) ? $options[$key]['sub_attributes'] : array();
+                $options[$key]['sattr_display_type'] = isset( $options[$key]['sattr_display_type'] ) ? $options[$key]['sattr_display_type'] : 's';
                 $options[$key]['image_url']          = Printcart_PB_Util::printcart_get_image_thumbnail($option['image']);
                 if (isset($options[$key]['product_image'])) {
                     $options[$key]['product_image_url'] = Printcart_PB_Util::printcart_get_image_thumbnail($option['product_image']);
+                }
+                if( isset( $option['enable_subattr'] ) ){
+                    foreach( $options[$key]['sub_attributes'] as $sak => $sa ){
+                        $options[$key]['sub_attributes'][$sak]['image_url'] = Printcart_PB_Util::printcart_get_image_thumbnail( $sa['image'] );
+                    }
                 }
             }
             $same_size          = isset($attributes['same_size']) ? $attributes['same_size'] : 'y';

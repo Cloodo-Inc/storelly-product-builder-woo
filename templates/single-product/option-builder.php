@@ -726,13 +726,23 @@ $currentDir = realpath(dirname(__FILE__));
                     currentOption = origin_field.general.attributes.options[attr_index],
                     option;
                 $scope.status_fields[field_id][attr_index] = $scope.status_fields[field_id][attr_index] || {
+                    sub_attributes: [],
                     enable: true
                 };
 
                 function assignCheck(check) {
-                    $scope.status_fields[field_id][attr_index].enable = check;
+                    if( typeof sub_attr_index != 'undefined' ){
+                        $scope.status_fields[field_id][attr_index].sub_attributes = $scope.status_fields[field_id][attr_index].sub_attributes || [];
+                        $scope.status_fields[field_id][attr_index].sub_attributes[sub_attr_index] = check;
+                    }else{
+                        $scope.status_fields[field_id][attr_index].enable = check;
+                    }
                 }
-                option = currentOption;
+                if( typeof sub_attr_index != 'undefined' ){
+                    option = currentOption.sub_attributes[sub_attr_index];
+                }else{
+                    option = currentOption;
+                }
                 assignCheck(check);
             };
             $scope.init = function() {

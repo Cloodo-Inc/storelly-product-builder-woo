@@ -1122,7 +1122,6 @@ angular
             subval: "",
           },
         ],
-        implicit_value: "",
       });
       $scope.initfieldValue();
     };
@@ -1150,9 +1149,6 @@ angular
         image_url: "",
         color: "#ffffff",
         isExpand: true,
-        // enable_con: 0,
-        // con_show: "n",
-        // con_logic: "a",
         depend: [
           {
             id: "",
@@ -1161,7 +1157,6 @@ angular
             subval: "",
           },
         ],
-        implicit_value: "",
       });
       $scope.initfieldValue();
     };
@@ -1421,9 +1416,6 @@ angular
                 name: op.name,
                 des: op.des,
                 price: op.price,
-                implicit_value: angular.isDefined(op.implicit_value)
-                  ? op.implicit_value
-                  : "",
               };
 
               if (field.appearance.change_image_product.value == "y") {

@@ -54,13 +54,6 @@
                         </div>
                     </div>
                     <div class="nbd-margin-10"></div>
-                    <div>
-                        <div><?php esc_html_e('Implicit Value', 'pc-product-builder'); ?></div>
-                        <div>
-                            <input class="nbd-short-ip" type="text" ng-model="op.implicit_value" name="options[fields][{{fieldIndex}}][general][attributes][options][{{opIndex}}][implicit_value]" />
-                        </div>
-                    </div>
-                    <div class="nbd-margin-10"></div>
                     <hr />
                     <div class="nbd-enable-subattribute" ng-hide="field.nbd_type != '' && field.nbd_type != null">
                         <label><input ng-click="toggle_enable_subattr(fieldIndex, $index)" type="checkbox" name="options[fields][{{fieldIndex}}][general][attributes][options][{{$index}}][enable_subattr]" ng-true-value="'on'" ng-false-value="'off'" ng-model="op.enable_subattr" ng-checked="op.enable_subattr" /> <?php esc_html_e('Enable sub attributes', 'pc-product-builder'); ?></label>
@@ -120,13 +113,6 @@
                                     </div>
                                 </div>
                                 <div class="nbd-margin-10"></div>
-                                <div>
-                                    <div><?php esc_html_e('Implicit Value', 'pc-product-builder'); ?></div>
-                                    <div>
-                                        <input class="nbd-short-ip" type="text" ng-model="sop.implicit_value" name="options[fields][{{fieldIndex}}][general][attributes][options][{{opIndex}}][sub_attributes][{{sopIndex}}][implicit_value]" />
-                                    </div>
-                                </div>
-                                <!-- <ng-include src="'field_body_sub_attributes_conditional'"></ng-include> -->
                             </div>
                             <div ng-show="!sop.isExpand" class="nbd-attribute-name-preview">{{sop.name}}</div>
                             <div class="nbd-attribute-action">
