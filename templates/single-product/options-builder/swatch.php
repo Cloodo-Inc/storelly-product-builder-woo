@@ -11,11 +11,7 @@
                     $show_subattr = ($enable_subattr == 'on' && count($attr['sub_attributes']) > 0) ? true : false;
                     $field['general']['attributes']["options"][$key]['show_subattr'] = $show_subattr;
             ?>
-            <?php if($hide_swatch_label == 'no'): ?>
-            <div class="nbd-swatch-label-wrap">
-                <div class="nbd-swatch-value">
-            <?php endif; ?>
-            <input ng-change="check_valid();updateMapOptions('<?php echo( $field['id'] ); ?>')" value="<?php echo( $key ); ?>" ng-model="nbd_fields['<?php echo( $field['id'] ); ?>'].value" name="pcpb-field[<?php echo( $field['id'] ); ?>]<?php if($show_subattr) echo '[value]'; ?>" 
+                <input ng-change="check_valid();updateMapOptions('<?php echo( $field['id'] ); ?>')" value="<?php echo( $key ); ?>" ng-model="nbd_fields['<?php echo( $field['id'] ); ?>'].value" name="pcpb-field[<?php echo( $field['id'] ); ?>]<?php if($show_subattr) echo '[value]'; ?>" 
                    type="radio" id='pcpb-field-<?php echo( $field['id'].'-'.$key ); ?>' 
                 <?php 
                     if( isset($form_values[$field['id']]) ){
@@ -25,7 +21,7 @@
                         checked( isset($attr['selected']) ? $attr['selected'] : 'off', 'on' ); 
                     }
                 ?> />
-            <label class="nbd-swatch" style="<?php if( $attr['preview_type'] == 'i' ){echo 'background: url('.$image_url . ') 0% 0% / cover';}else{ 
+                <label class="nbd-swatch" style="<?php if( $attr['preview_type'] == 'i' ){echo 'background: url('.$image_url . ') 0% 0% / cover';}else{ 
                     if(isset( $attr['color2'] )){
                         $style  = "background: -moz-linear-gradient(-35deg,  ". $attr['color'] ." 0%, ". $attr['color'] ." 50%, ". $attr['color2'] ." 51%, ". $attr['color2'] ." 100%);";
                         $style .= "background: -webkit-linear-gradient(-35deg,  ". $attr['color'] ." 0%, ". $attr['color'] ." 50%, ". $attr['color2'] ." 51%, ". $attr['color2'] ." 100%);";
@@ -37,20 +33,8 @@
                 }; ?>" 
                 title="<?php echo( $attr['name'] ); ?>" for='pcpb-field-<?php echo( $field['id'].'-'.$key ); ?>'
                 nbo-disabled="!status_fields['<?php echo( $field['id'] ); ?>'][<?php echo( $key ); ?>].enable" nbo-disabled-type="class" >
-                <?php if($hide_swatch_label == 'yes'): ?><span class="nbd-swatch-tooltip"><?php echo( $attr['name'] ); ?></span><?php endif; ?>
+                <span class="nbd-swatch-tooltip"><?php echo( $attr['name'] ); ?></span>
             </label>
-            <?php if($hide_swatch_label == 'no'): ?>
-                </div>
-                <label for='pcpb-field-<?php echo( $field['id'].'-'.$key ); ?>'>
-                    <div class="nbd-swatch-description">
-                        <div class="nbd-swatch-title"><b><?php echo( $attr['name'] ); ?></b></div>
-                        <?php if(isset($attr['des'])): ?>
-                        <div class="nbd-swatch-title"><?php echo( $attr['des'] ); ?></div>
-                        <?php endif; ?>
-                    </div>
-                </label>
-            </div>
-            <?php endif; ?>
             <?php endforeach; ?>
         </div>
         <div class="nbo-invalid-option" 

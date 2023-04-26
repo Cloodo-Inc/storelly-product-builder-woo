@@ -166,8 +166,13 @@ if (!class_exists('PRINTCART_FRONTEND_OPTIONS')) {
                                 $field['general']['pb_config'] = array();
                             }
                             foreach ($field['general']['attributes']['options'] as $op_index => $option) {
-
-                                $options['fields'][$key]['general']['attributes']['options'][$op_index]['image_url'] = Printcart_PB_Util::printcart_get_image_thumbnail($option['image']);
+                                if( isset($option['enable_subattr']) && $option['enable_subattr'] == 'on' && isset($option['sub_attributes']) && count($option['sub_attributes']) > 0 ){
+                                    foreach( $option['sub_attributes'] as $sa_index => $sattr ){
+                                        $options['fields'][$key]['general']['attributes']['options'][$op_index]['sub_attributes'][$sa_index]['image_url'] = Printcart_PB_Util::printcart_get_image_thumbnail( $sattr['image'] );
+                                    }
+                                }else{
+                                    $options['fields'][$key]['general']['attributes']['options'][$op_index]['image_url'] = Printcart_PB_Util::printcart_get_image_thumbnail( $option['image'] );
+                                }
                             };
                             $options['fields'][$key]['general']['component_icon_url'] = Printcart_PB_Util::printcart_get_image_thumbnail($field['general']['component_icon']);
                         }

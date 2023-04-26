@@ -351,6 +351,9 @@ CREATE TABLE {$wpdb->prefix}printcart_product_builder_options (
                             if (is_callable(array($this, $funcname))) {
                                 $options['fields'][$f_key][$tab][$key] = $this->$funcname($f);
                             }
+                            if( $key == 'component_icon' ){
+                                $options['fields'][$f_key][$tab]['component_icon_url'] =  Printcart_PB_Util::pritcart_get_image_thumbnail( $f );
+                            }
                         }
                     }
                     if ($tab == 'nbpb_type') {
