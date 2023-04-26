@@ -5,7 +5,7 @@ msgstr ""
 "v1.0.0\n"
 "Report-Msgid-Bugs-To: Translator Name "
 "<printcart@gmail.com>\n"
-"POT-Creation-Date: 2023-04-25 14:40+0700\n"
+"POT-Creation-Date: 2023-04-26 14:44+0700\n"
 "PO-Revision-Date: \n"
 "Last-Translator: Your Name <printcart@gmail."
 "com>\n"
@@ -56,17 +56,17 @@ msgstr ""
 msgid "Option updated."
 msgstr ""
 
-#: includes/class-admin-options.php:431
-#: includes/class-admin-options.php:433
+#: includes/class-admin-options.php:434
+#: includes/class-admin-options.php:436
 #: views/options/templates/field-body/title.php:5
 msgid "Option name"
 msgstr ""
 
-#: includes/class-admin-options.php:440
+#: includes/class-admin-options.php:443
 msgid "Option description"
 msgstr ""
 
-#: includes/class-admin-options.php:442
+#: includes/class-admin-options.php:445
 #: views/options/templates/field-body/attributes.php:44
 #: views/options/templates/field-body/attributes.php:46
 #: views/options/templates/field-body/attributes.php:104
@@ -75,62 +75,62 @@ msgstr ""
 msgid "Description"
 msgstr ""
 
-#: includes/class-admin-options.php:451
+#: includes/class-admin-options.php:454
 #: views/options/templates/field-body/data_type.php:5
 msgid "Data type"
 msgstr ""
 
-#: includes/class-admin-options.php:458
+#: includes/class-admin-options.php:461
 msgid "Custom input"
 msgstr ""
 
-#: includes/class-admin-options.php:462
+#: includes/class-admin-options.php:465
 msgid "Multiple options"
 msgstr ""
 
-#: includes/class-admin-options.php:470
+#: includes/class-admin-options.php:473
 #: views/options/templates/field-body/input_type.php:5
 msgid "Input type"
 msgstr ""
 
-#: includes/class-admin-options.php:484
-#: includes/class-admin-options.php:882
+#: includes/class-admin-options.php:487
+#: includes/class-admin-options.php:885
 #: views/options/edit-option.php:151
 msgid "Text"
 msgstr ""
 
-#: includes/class-admin-options.php:488
+#: includes/class-admin-options.php:491
 msgid "Upload"
 msgstr ""
 
-#: includes/class-admin-options.php:492
+#: includes/class-admin-options.php:495
 msgid "Textarea"
 msgstr ""
 
-#: includes/class-admin-options.php:508
+#: includes/class-admin-options.php:511
 #: views/options/templates/field-body/input_option.php:5
 msgid "Input option"
 msgstr ""
 
-#: includes/class-admin-options.php:544
+#: includes/class-admin-options.php:547
 msgid "Text input option"
 msgstr ""
 
-#: includes/class-admin-options.php:565
+#: includes/class-admin-options.php:568
 #: views/options/templates/field-body/enabled.php:5
 msgid "Enabled"
 msgstr ""
 
-#: includes/class-admin-options.php:566
+#: includes/class-admin-options.php:569
 #: views/options/templates/field-body/enabled.php:5
 msgid ""
 "Choose whether the option is enabled or not."
 msgstr ""
 
-#: includes/class-admin-options.php:572
-#: includes/class-admin-options.php:591
-#: includes/class-admin-options.php:610
-#: includes/class-admin-options.php:861
+#: includes/class-admin-options.php:575
+#: includes/class-admin-options.php:594
+#: includes/class-admin-options.php:613
+#: includes/class-admin-options.php:864
 #: views/menu-settings.php:21
 #: views/options/templates/nbpb_text.php:17
 #: views/options/templates/nbpb_text.php:28
@@ -139,10 +139,10 @@ msgstr ""
 msgid "Yes"
 msgstr ""
 
-#: includes/class-admin-options.php:576
-#: includes/class-admin-options.php:595
-#: includes/class-admin-options.php:614
-#: includes/class-admin-options.php:865
+#: includes/class-admin-options.php:579
+#: includes/class-admin-options.php:598
+#: includes/class-admin-options.php:617
+#: includes/class-admin-options.php:868
 #: views/menu-settings.php:24
 #: views/options/templates/nbpb_text.php:18
 #: views/options/templates/nbpb_text.php:29
@@ -151,38 +151,38 @@ msgstr ""
 msgid "No"
 msgstr ""
 
-#: includes/class-admin-options.php:584
+#: includes/class-admin-options.php:587
 #: views/options/templates/field-body/published.php:5
 msgid "Published"
 msgstr ""
 
-#: includes/class-admin-options.php:585
+#: includes/class-admin-options.php:588
 msgid "Show in summary options or not."
 msgstr ""
 
-#: includes/class-admin-options.php:603
+#: includes/class-admin-options.php:606
 #: views/options/templates/field-body/required.php:5
 msgid "Required"
 msgstr ""
 
-#: includes/class-admin-options.php:604
+#: includes/class-admin-options.php:607
 #: views/options/templates/field-body/required.php:5
 msgid ""
 "Choose whether the option is required or "
 "not."
 msgstr ""
 
-#: includes/class-admin-options.php:635
+#: includes/class-admin-options.php:638
 #: views/options/templates/field-body/upload_option.php:5
 msgid "Upload file option"
 msgstr ""
 
-#: includes/class-admin-options.php:656
+#: includes/class-admin-options.php:659
 #: views/options/templates/field-body/price_type.php:5
 msgid "Price type"
 msgstr ""
 
-#: includes/class-admin-options.php:657
+#: includes/class-admin-options.php:660
 #: views/options/templates/field-body/price_type.php:5
 msgid ""
 "Here you can choose how the price is "
@@ -190,109 +190,109 @@ msgid ""
 "various types you can choose."
 msgstr ""
 
-#: includes/class-admin-options.php:663
+#: includes/class-admin-options.php:666
 msgid "Fixed amount"
 msgstr ""
 
-#: includes/class-admin-options.php:667
+#: includes/class-admin-options.php:670
 msgid "Percent of the original price"
 msgstr ""
 
-#: includes/class-admin-options.php:671
+#: includes/class-admin-options.php:674
 msgid ""
 "Percent of the original price + options"
 msgstr ""
 
-#: includes/class-admin-options.php:675
+#: includes/class-admin-options.php:678
 msgid "Current value * price"
 msgstr ""
 
-#: includes/class-admin-options.php:701
+#: includes/class-admin-options.php:704
 msgid "Price per char"
 msgstr ""
 
-#: includes/class-admin-options.php:721
+#: includes/class-admin-options.php:724
 #: views/options/templates/field-body/attributes.php:51
 #: views/options/templates/field-body/attributes.php:110
 #: views/options/templates/field-body/price.php:5
 msgid "Additional Price"
 msgstr ""
 
-#: includes/class-admin-options.php:722
+#: includes/class-admin-options.php:725
 #: views/options/templates/field-body/price.php:5
 msgid ""
 "Enter the price for this field or leave it "
 "blank for no price."
 msgstr ""
 
-#: includes/class-admin-options.php:743
-#: includes/class-admin-options.php:884
+#: includes/class-admin-options.php:746
+#: includes/class-admin-options.php:887
 msgid "Attribute name"
 msgstr ""
 
-#: includes/class-admin-options.php:781
+#: includes/class-admin-options.php:784
 #: views/options/templates/field-body/attributes.php:5
 msgid "Attributes"
 msgstr ""
 
-#: includes/class-admin-options.php:782
+#: includes/class-admin-options.php:785
 #: views/options/templates/field-body/attributes.php:5
 msgid ""
 "Attributes let you define extra product "
 "data, such as size or color."
 msgstr ""
 
-#: includes/class-admin-options.php:819
+#: includes/class-admin-options.php:822
 msgid "Display type"
 msgstr ""
 
-#: includes/class-admin-options.php:826
+#: includes/class-admin-options.php:829
 #: views/options/templates/field-body/attributes.php:70
 msgid "Dropdown"
 msgstr ""
 
-#: includes/class-admin-options.php:830
+#: includes/class-admin-options.php:833
 #: views/options/templates/field-body/attributes.php:71
 msgid "Radio button"
 msgstr ""
 
-#: includes/class-admin-options.php:834
+#: includes/class-admin-options.php:837
 #: views/options/templates/field-body/attributes.php:72
 msgid "Swatch"
 msgstr ""
 
-#: includes/class-admin-options.php:838
+#: includes/class-admin-options.php:841
 #: views/options/templates/field-body/attributes.php:73
 msgid "Label"
 msgstr ""
 
-#: includes/class-admin-options.php:842
+#: includes/class-admin-options.php:845
 msgid "Advanced Dropdown"
 msgstr ""
 
-#: includes/class-admin-options.php:846
+#: includes/class-admin-options.php:849
 msgid "Large label"
 msgstr ""
 
-#: includes/class-admin-options.php:854
+#: includes/class-admin-options.php:857
 msgid "Changes product image"
 msgstr ""
 
-#: includes/class-admin-options.php:855
+#: includes/class-admin-options.php:858
 msgid ""
 "Choose whether to change the product image."
 msgstr ""
 
-#: includes/class-admin-options.php:873
+#: includes/class-admin-options.php:876
 msgid "CSS Class"
 msgstr ""
 
-#: includes/class-admin-options.php:881
+#: includes/class-admin-options.php:884
 #: views/options/edit-option.php:150
 msgid "Component"
 msgstr ""
 
-#: includes/class-admin-options.php:883
+#: includes/class-admin-options.php:886
 #: views/options/edit-option.php:152
 #: views/options/templates/field-body/attributes.php:14
 #: views/options/templates/field-body/attributes.php:84
@@ -300,52 +300,52 @@ msgstr ""
 msgid "Image"
 msgstr ""
 
-#: includes/class-admin-options.php:885
+#: includes/class-admin-options.php:888
 msgid "Sub attribute name"
 msgstr ""
 
-#: includes/class-admin-options.php:889
+#: includes/class-admin-options.php:892
 msgid "Printcart product builder"
 msgstr ""
 
-#: includes/class-admin-options.php:988
+#: includes/class-admin-options.php:991
 msgid ""
 "You do not have permission to add font!"
 msgstr ""
 
-#: includes/class-admin-options.php:1036
+#: includes/class-admin-options.php:1039
 msgid ""
 "The google fonts have been added "
 "successfully!"
 msgstr ""
 
-#: includes/class-admin-options.php:1058
+#: includes/class-admin-options.php:1061
 #: includes/class-util.php:52
 msgid "Your settings have been saved."
 msgstr ""
 
-#: includes/class-frontend-options.php:487
+#: includes/class-frontend-options.php:492
 msgid "Update cart"
 msgstr ""
 
-#: includes/class-frontend-options.php:600
-#: includes/class-frontend-options.php:677
+#: includes/class-frontend-options.php:605
+#: includes/class-frontend-options.php:682
 #: templates/single-product/option-builder.php:133
 msgid "( cart fee )"
 msgstr ""
 
-#: includes/class-frontend-options.php:603
-#: includes/class-frontend-options.php:680
+#: includes/class-frontend-options.php:608
+#: includes/class-frontend-options.php:685
 #: templates/single-product/option-builder.php:134
 msgid "( for all items )"
 msgstr ""
 
-#: includes/class-frontend-options.php:610
-#: includes/class-frontend-options.php:691
+#: includes/class-frontend-options.php:615
+#: includes/class-frontend-options.php:696
 msgid "Quantity Discount"
 msgstr ""
 
-#: includes/class-frontend-options.php:762
+#: includes/class-frontend-options.php:767
 msgid "Edit options"
 msgstr ""
 
@@ -508,7 +508,7 @@ msgstr ""
 msgid "Max size: "
 msgstr ""
 
-#: templates/single-product/options-builder/swatch.php:58
+#: templates/single-product/options-builder/swatch.php:42
 msgid "is not available."
 msgstr ""
 
