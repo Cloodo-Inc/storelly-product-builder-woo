@@ -393,7 +393,7 @@ if (!class_exists('PRINTCART_FRONTEND_OPTIONS')) {
                     }
                     $factor = floatval($option['price'][0]);
 
-                    if ($has_subattr) {
+                    if ($has_subattr && isset($val['sub_value'])) {
                         $soption = $option['sub_attributes'][$val['sub_value']];
                         $factor += floatval($soption['price'][0]);
                     }
