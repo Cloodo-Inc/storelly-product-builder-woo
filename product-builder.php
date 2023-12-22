@@ -54,3 +54,4 @@ register_activation_hook(__FILE__, array('Printcart_Product_Builder_Backend', 'p
 
 $printcart_product_builder = new Printcart_Product_Builder_Backend;
 $printcart_product_builder->init();
+
