@@ -2,15 +2,15 @@
 if (!defined('ABSPATH')) {
     exit;
 }
-if (!class_exists('Printcart_Export_PDF')) {
-    class Printcart_Export_PDF {
+if (!class_exists('Storelly_Export_PDF')) {
+    class Storelly_Export_PDF {
         public function __construct() {
         }
         public static function download_google_font($font_name = '') {
             $path_dst = array(
-                'r' =>  PRINTCART_PB_FONT_DIR . '/' . $font_name . '.ttf'
+                'r' =>  STORELLY_PB_FONT_DIR . '/' . $font_name . '.ttf'
             );
-            $google_font_path = PRINTCART_PB_DATA_CONFIG_DIR . '/google-fonts-ttf.json';
+            $google_font_path = STORELLY_PB_DATA_CONFIG_DIR . '/google-fonts-ttf.json';
             $fonts = json_decode(file_get_contents($google_font_path));
             $items = $fonts->items;
             foreach ($items as $item) {
@@ -25,19 +25,19 @@ if (!class_exists('Printcart_Export_PDF')) {
                     copy($path_src, $path_dst['r']);
                 }
                 if (isset($font->italic)) {
-                    $path_dst['i'] = PRINTCART_PB_FONT_DIR . '/' . $font_name . 'i.ttf';
+                    $path_dst['i'] = STORELLY_PB_FONT_DIR . '/' . $font_name . 'i.ttf';
                     if (!file_exists($path_dst['i'])) {
                         copy($font->italic, $path_dst['i']);
                     }
                 }
                 if (isset($font->{"700"})) {
-                    $path_dst['b'] = PRINTCART_PB_FONT_DIR . '/' . $font_name . 'b.ttf';
+                    $path_dst['b'] = STORELLY_PB_FONT_DIR . '/' . $font_name . 'b.ttf';
                     if (!file_exists($path_dst['b'])) {
                         copy($font->{"700"}, $path_dst['b']);
                     }
                 }
                 if (isset($font->{"700italic"})) {
-                    $path_dst['bi'] = PRINTCART_PB_FONT_DIR . '/' . $font_name . 'bi.ttf';
+                    $path_dst['bi'] = STORELLY_PB_FONT_DIR . '/' . $font_name . 'bi.ttf';
                     if (!file_exists($path_dst['bi'])) {
                         copy($font->{"700italic"}, $path_dst['bi']);
                     }
@@ -47,7 +47,7 @@ if (!class_exists('Printcart_Export_PDF')) {
             return $path_dst;
         }
         public static function cloudExportPdf($folder_design, $include_background = false) {
-            $path           = PRINTCART_PB_CUSTOMER_DIR . '/' . $folder_design;
+            $path           = STORELLY_PB_CUSTOMER_DIR . '/' . $folder_design;
             $folder         = $path . '/customer-pdfs';
             $result         = array();
             $pages          = array();
@@ -94,7 +94,7 @@ if (!class_exists('Printcart_Export_PDF')) {
 
                 if ($include_background) {
                     $product_bg     = is_numeric($data['base_url']) ? wp_get_attachment_url($data['base_url']) : $data['base_url'];
-                    if (Printcart_IO::checkFileType(basename($product_bg), $allow_exts)) {
+                    if (Storelly_IO::checkFileType(basename($product_bg), $allow_exts)) {
                         $page_settings['include_bg']    = true;
                         $page_settings['bg_src']        = $product_bg;
                     }
@@ -102,7 +102,7 @@ if (!class_exists('Printcart_Export_PDF')) {
 
                 $pages[$key]['page_settings'] = $page_settings;
 
-                $svg_path = PRINTCART_PB_CUSTOMER_DIR . '/' . $folder_design . '/frame_' . $key . '_svg.svg';
+                $svg_path = STORELLY_PB_CUSTOMER_DIR . '/' . $folder_design . '/frame_' . $key . '_svg.svg';
                 if (file_exists($svg_path)) {
                     $html_url           = self::build_html_page($folder_design, $key, $svg_path, $page_settings, $font_css);
                     $url_segment        = urlencode($html_url);
@@ -121,28 +121,28 @@ if (!class_exists('Printcart_Export_PDF')) {
             foreach ($pdfs as $key => $pdf) {
                 $pages[$key]['file'] = $pdf;
             }
-            $result = Printcart_IO::get_list_files($folder);
+            $result = Storelly_IO::get_list_files($folder);
             return $result;
         }
         public static function exportPDF($folder_design, $include_background = false) {
             if (!class_exists('TCPDF')) {
-                require_once(PRINTCART_PB_PLUGIN_DIR . 'lib/tcpdf/tcpdf.php');
+                require_once(STORELLY_PB_PLUGIN_DIR . 'lib/tcpdf/tcpdf.php');
             }
-            require_once(PRINTCART_PB_PLUGIN_DIR . 'lib/fpdi/autoload.php');
+            require_once(STORELLY_PB_PLUGIN_DIR . 'lib/fpdi/autoload.php');
 
-            $path           = PRINTCART_PB_CUSTOMER_DIR . '/' . $folder_design;
+            $path           = STORELLY_PB_CUSTOMER_DIR . '/' . $folder_design;
             $folder         = $path . '/customer-pdfs';
             $output_file    = $folder . '/' . $folder_design . '.pdf';
             $result         = array();
             if (!file_exists($folder)) {
                 wp_mkdir_p($folder);
             }
-            $printcart_pb_settings = get_option('printcart_pb_settings');
-            $enable_cloud_export_pdf = $printcart_pb_settings && isset($printcart_pb_settings['enable_cloud2print_api']) && $printcart_pb_settings['enable_cloud2print_api'] == 'yes' ? true : false;
+            $storelly_pb_settings = get_option('storelly_pb_settings');
+            $enable_cloud_export_pdf = $storelly_pb_settings && isset($storelly_pb_settings['enable_cloud2print_api']) && $storelly_pb_settings['enable_cloud2print_api'] == 'yes' ? true : false;
             if ($enable_cloud_export_pdf) {
                 self::cloudExportPdf($folder_design, $include_background);
-                $output_file    = PRINTCART_PB_CUSTOMER_DIR . '/' . $folder_design . '/customer-pdfs' . '/' . $folder_design . '.pdf';
-                $result = Printcart_IO::get_list_files_by_type(PRINTCART_PB_CUSTOMER_DIR . '/' . $folder_design . '/customer-pdfs', 1, 'pdf');
+                $output_file    = STORELLY_PB_CUSTOMER_DIR . '/' . $folder_design . '/customer-pdfs' . '/' . $folder_design . '.pdf';
+                $result = Storelly_IO::get_list_files_by_type(STORELLY_PB_CUSTOMER_DIR . '/' . $folder_design . '/customer-pdfs', 1, 'pdf');
             } else {
                 $config     = file_exists($path . '/config.json') ? json_decode(file_get_contents($path . '/config.json')) : '';
                 $datas = array();
@@ -226,7 +226,7 @@ if (!class_exists('Printcart_Export_PDF')) {
 
                 foreach ($pdfs as $key => $_pdf) {
                     $background         = $_pdf['background'];
-                    $path_bg = (absint($background) > 0) ? get_attached_file($background) : Printcart_IO::convert_url_to_path($background);
+                    $path_bg = (absint($background) > 0) ? get_attached_file($background) : Storelly_IO::convert_url_to_path($background);
                     $bgWidth    = (float)$_pdf['product-width'];
                     $bgHeight   = (float)$_pdf['product-height'];
                     $pdf_format     = array($bgWidth, $bgHeight);
@@ -251,9 +251,9 @@ if (!class_exists('Printcart_Export_PDF')) {
                         $svg_ext    = array('svg');
                         $eps_ext    = array('eps', 'ai');
 
-                        $check_img  = Printcart_IO::checkFileType(basename($path_bg), $img_ext);
-                        $check_svg  = Printcart_IO::checkFileType(basename($path_bg), $svg_ext);
-                        $check_eps  = Printcart_IO::checkFileType(basename($path_bg), $eps_ext);
+                        $check_img  = Storelly_IO::checkFileType(basename($path_bg), $img_ext);
+                        $check_svg  = Storelly_IO::checkFileType(basename($path_bg), $svg_ext);
+                        $check_eps  = Storelly_IO::checkFileType(basename($path_bg), $eps_ext);
 
                         $ext        = pathinfo($path_bg);
                         if ($check_img) {
@@ -277,7 +277,7 @@ if (!class_exists('Printcart_Export_PDF')) {
             
             return $result;
         }
-        public static function printcart_file_get_contents($url) {
+        public static function storelly_file_get_contents($url) {
             $response = wp_remote_get($url);
             if (is_array($response) && !is_wp_error($response)) {
                 $result   = trim($response['body']);
@@ -328,9 +328,9 @@ if (!class_exists('Printcart_Export_PDF')) {
                 $type           = strtolower(pathinfo($img_src, PATHINFO_EXTENSION));
                 $type           = ($type == 'svg') ? 'svg+xml' : $type;
 
-                $path_image     = Printcart_IO::convert_url_to_path($img_src);
+                $path_image     = Storelly_IO::convert_url_to_path($img_src);
 
-                $data   = self::printcart_file_get_contents($path_image);
+                $data   = self::storelly_file_get_contents($path_image);
                 $base64 = 'data:image/' . $type . ';base64,' . base64_encode($data);
                 $tagName->setAttribute('xlink:href', $base64);
             }
@@ -422,18 +422,18 @@ if (!class_exists('Printcart_Export_PDF')) {
             );
         }
         public static function build_html_page($folder_design, $key, $svg_path, $page_settings, $font_css) {
-            $pdf_temp_path = PRINTCART_PB_CUSTOMER_DIR . '/' . $folder_design . '/pdf-templates';
+            $pdf_temp_path = STORELLY_PB_CUSTOMER_DIR . '/' . $folder_design . '/pdf-templates';
             if (!file_exists($pdf_temp_path)) {
                 wp_mkdir_p($pdf_temp_path);
             }
 
             $html_path  =  $pdf_temp_path . '/' . $key . '.html';
-            $html_url   = PRINTCART_PB_CUSTOMER_URL . '/' . $folder_design . '/pdf-templates/' . $key . '.html';
+            $html_url   = STORELLY_PB_CUSTOMER_URL . '/' . $folder_design . '/pdf-templates/' . $key . '.html';
             $svg_string = file_get_contents($svg_path);
             $svg_string = preg_replace("/<(?:\?xml|!DOCTYPE).*?>/", "", $svg_string);
 
             ob_start();
-            include PRINTCART_PB_PLUGIN_DIR . 'views/pdf-template.php';
+            include STORELLY_PB_PLUGIN_DIR . 'views/pdf-template.php';
             $template    = ob_get_clean();
 
             file_put_contents($html_path, $template);

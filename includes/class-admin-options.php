@@ -2,8 +2,8 @@
 if (!defined('ABSPATH')) {
     exit;
 }
-if (!class_exists('Printcart_PB_Admin_Options')) {
-    class Printcart_PB_Admin_Options {
+if (!class_exists('Storelly_PB_Admin_Options')) {
+    class Storelly_PB_Admin_Options {
         protected static $instance;
         public function __construct() {
             //todo something
@@ -19,12 +19,12 @@ if (!class_exists('Printcart_PB_Admin_Options')) {
                 $this->ajax();
             }
             // Create a menu for the Product builder
-            add_action('printcart_pb_menu', array($this, 'tab_menu'));
-            add_action('printcart_create_tables', array($this, 'create_options_table'));
+            add_action('storelly_pb_menu', array($this, 'tab_menu'));
+            add_action('storelly_create_tables', array($this, 'create_options_table'));
             add_action('admin_enqueue_scripts', array($this, 'admin_enqueue_scripts'));
             add_action('add_meta_boxes', array($this, 'add_meta_boxes'), 35);
             // Add options design in Order WC
-            add_action('add_meta_boxes', array($this, 'printcart_add_design_box'), 38);
+            add_action('add_meta_boxes', array($this, 'storelly_add_design_box'), 38);
             add_action('save_post', array($this, 'save_product_option'));
 
             // Alter the product thumbnail in order
@@ -36,8 +36,8 @@ if (!class_exists('Printcart_PB_Admin_Options')) {
             $ajax_events = array(
                 'nbd_download_option_image'         => true,
                 'nbd_get_media_full_size_url'       => true,
-                'printcart_add_google_font'         => true,
-                'printcart_download_order_designs'  => true,
+                'storelly_add_google_font'         => true,
+                'storelly_download_order_designs'  => true,
             );
             foreach ($ajax_events as $ajax_event => $nopriv) {
                 add_action('wp_ajax_' . $ajax_event, array($this, $ajax_event));
@@ -47,24 +47,24 @@ if (!class_exists('Printcart_PB_Admin_Options')) {
                 }
             }
         }
-        public function printcart_add_design_box() {
+        public function storelly_add_design_box() {
             add_meta_box(
-                'printcart_product_builder_design',
+                'storelly_product_builder_design',
                 esc_html__('Product builder designs', 'pc-product-builder'),
-                array($this, 'printcart_product_builder_design'),
+                array($this, 'storelly_product_builder_design'),
                 'shop_order',
                 'side',
                 'default'
             );
         }
-        public function printcart_product_builder_design($post) {
+        public function storelly_product_builder_design($post) {
             $order_id       = $post->ID;
             $order          = wc_get_order($order_id);
             $order_items    = $order->get_items();
-            include_once(PRINTCART_PB_PLUGIN_DIR . 'views/box-order-metadata.php');
+            include_once(STORELLY_PB_PLUGIN_DIR . 'views/box-order-metadata.php');
         }
         public function nbd_get_media_full_size_url() {
-            if (!wp_verify_nonce($_POST['nonce'], 'save-design') && PRINTCART_ENABLE_NONCE) {
+            if (!wp_verify_nonce($_POST['nonce'], 'save-design') && STORELLY_ENABLE_NONCE) {
                 die('Security error');
             }
             $result = array(
@@ -79,7 +79,7 @@ if (!class_exists('Printcart_PB_Admin_Options')) {
             wp_die();
         }
         public function nbd_download_option_image() {
-            if (!wp_verify_nonce($_POST['nonce'], 'save-design') && PRINTCART_ENABLE_NONCE) {
+            if (!wp_verify_nonce($_POST['nonce'], 'save-design') && STORELLY_ENABLE_NONCE) {
                 die('Security error');
             }
             $result = array(
@@ -87,13 +87,13 @@ if (!class_exists('Printcart_PB_Admin_Options')) {
                 'image'     => array()
             );
             $url = wc_clean($_POST['image']);
-            require_once(PRINTCART_PB_PLUGIN_DIR . 'includes/class-download-image.php');
+            require_once(STORELLY_PB_PLUGIN_DIR . 'includes/class-download-image.php');
             if (strpos($url, get_site_url()) > -1) {
                 $result['image'] = array(
                     'current_site'  => 1
                 );
             } else {
-                $download_remote_image = new Printcart_PB_Download_Image($url, array());
+                $download_remote_image = new Storelly_PB_Download_Image($url, array());
                 $attachment_id = $download_remote_image->download();
                 if ($attachment_id) {
                     $result['image'] = array(
@@ -115,7 +115,7 @@ if (!class_exists('Printcart_PB_Admin_Options')) {
                     'manage_product_builder',
                     'pc-product-builder-options',
                     array($this, 'product_builder_options'),
-                    PRINTCART_PB_PLUGIN_URL . '/assets/images/logo.svg'
+                    STORELLY_PB_PLUGIN_URL . '/assets/images/logo.svg'
                 );
                 add_submenu_page(
                     'pc-product-builder-options',
@@ -131,7 +131,7 @@ if (!class_exists('Printcart_PB_Admin_Options')) {
                     esc_html__('Fonts', 'pc-product-builder'),
                     'manage_options',
                     'pc-product-builder-options/manager-fonts',
-                    array($this, 'printcart_manager_fonts')
+                    array($this, 'storelly_manager_fonts')
                 );
                 add_submenu_page(
                     'pc-product-builder-options',
@@ -139,7 +139,7 @@ if (!class_exists('Printcart_PB_Admin_Options')) {
                     esc_html__('Settings', 'pc-product-builder'),
                     'manage_options',
                     'pc-product-builder-options/settings',
-                    array($this, 'printcart_settings')
+                    array($this, 'storelly_settings')
                 );
             }
         }
@@ -150,9 +150,9 @@ if (!class_exists('Printcart_PB_Admin_Options')) {
                 $collate = $wpdb->get_charset_collate();
             }
             require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
-            if (PRINTCART_PB_VERSION != get_option("printcart_version_plugin")) {
+            if (STORELLY_PB_VERSION != get_option("storelly_version_plugin")) {
                 $tables =  "
-CREATE TABLE {$wpdb->prefix}printcart_product_builder_options ( 
+CREATE TABLE {$wpdb->prefix}storelly_product_builder_options ( 
  id bigint(20) unsigned NOT NULL auto_increment,
  title text NOT NULL,
  published  TINYINT(1) NOT NULL default 1,
@@ -171,37 +171,37 @@ CREATE TABLE {$wpdb->prefix}printcart_product_builder_options (
         }
         public function admin_enqueue_scripts($hook) {
             wp_register_script('pc-angular', 'https://ajax.googleapis.com/ajax/libs/angularjs/1.6.9/angular.min.js', array('jquery'), '1.6.9');
-            wp_register_script('snap_svg', PRINTCART_PB_ASSETS_URL . 'libs/snap.svg.js', array(), '0.3.0');
-            wp_register_script('pc-tiptip', PRINTCART_PB_ASSETS_URL . 'js/tiptip.js', array('jquery'), PRINTCART_PB_VERSION);
-            wp_register_script('pc-fontfaceobserver', PRINTCART_PB_PLUGIN_URL . 'assets/libs/fontfaceobserver.js', array(), '2.0.13');
-            wp_register_script('pc-sweetalert', PRINTCART_PB_PLUGIN_URL . 'assets/libs/sweetalert.min.js', array(), '5.6.10', true);
-            wp_register_script('printcart-general', PRINTCART_PB_ASSETS_URL . 'js/printcart-general.js', array('jquery'), PRINTCART_PB_VERSION, true);
+            wp_register_script('snap_svg', STORELLY_PB_ASSETS_URL . 'libs/snap.svg.js', array(), '0.3.0');
+            wp_register_script('pc-tiptip', STORELLY_PB_ASSETS_URL . 'js/tiptip.js', array('jquery'), STORELLY_PB_VERSION);
+            wp_register_script('pc-fontfaceobserver', STORELLY_PB_PLUGIN_URL . 'assets/libs/fontfaceobserver.js', array(), '2.0.13');
+            wp_register_script('pc-sweetalert', STORELLY_PB_PLUGIN_URL . 'assets/libs/sweetalert.min.js', array(), '5.6.10', true);
+            wp_register_script('storelly-general', STORELLY_PB_ASSETS_URL . 'js/storelly-general.js', array('jquery'), STORELLY_PB_VERSION, true);
 
-            wp_register_style('printcart_options', PRINTCART_PB_CSS_URL . 'admin-options.css', array('wp-color-picker', 'wp-jquery-ui-dialog'), PRINTCART_PB_VERSION);
-            wp_register_style('printcart-general', PRINTCART_PB_CSS_URL . 'printcart-general.css', array('dashicons'), PRINTCART_PB_VERSION);
-            wp_register_style('pc-sweetalert', PRINTCART_PB_CSS_URL . 'sweetalert.css', array(), '5.6.10');
-            wp_register_style('manager-fonts', PRINTCART_PB_CSS_URL . 'manager-fonts.css', array('pc-sweetalert'), PRINTCART_PB_VERSION);
-            wp_localize_script('printcart-general', 'printcart_admin', array(
+            wp_register_style('storelly_options', STORELLY_PB_CSS_URL . 'admin-options.css', array('wp-color-picker', 'wp-jquery-ui-dialog'), STORELLY_PB_VERSION);
+            wp_register_style('storelly-general', STORELLY_PB_CSS_URL . 'storelly-general.css', array('dashicons'), STORELLY_PB_VERSION);
+            wp_register_style('pc-sweetalert', STORELLY_PB_CSS_URL . 'sweetalert.css', array(), '5.6.10');
+            wp_register_style('manager-fonts', STORELLY_PB_CSS_URL . 'manager-fonts.css', array('pc-sweetalert'), STORELLY_PB_VERSION);
+            wp_localize_script('storelly-general', 'storelly_admin', array(
                 'url'       => admin_url('admin-ajax.php'),
             ));
-            wp_enqueue_style('printcart-general');
-            wp_enqueue_script('printcart-general');
+            wp_enqueue_style('storelly-general');
+            wp_enqueue_script('storelly-general');
 
             if ($hook == 'toplevel_page_pc-product-builder-options') {
-                wp_register_script('printcart_options', PRINTCART_PB_JS_URL . 'admin-options.js', array('jquery', 'wpdialogs', 'jquery-ui-resizable', 'jquery-ui-draggable', 'jquery-ui-droppable', 'jquery-ui-sortable', 'jquery-ui-datepicker', 'jquery-ui-autocomplete', 'wp-color-picker', 'pc-angular', 'wc-enhanced-select', 'snap_svg', 'pc-tiptip'), PRINTCART_PB_VERSION);
-                wp_localize_script('printcart_options', 'printcart_options', array(
+                wp_register_script('storelly_options', STORELLY_PB_JS_URL . 'admin-options.js', array('jquery', 'wpdialogs', 'jquery-ui-resizable', 'jquery-ui-draggable', 'jquery-ui-droppable', 'jquery-ui-sortable', 'jquery-ui-datepicker', 'jquery-ui-autocomplete', 'wp-color-picker', 'pc-angular', 'wc-enhanced-select', 'snap_svg', 'pc-tiptip'), STORELLY_PB_VERSION);
+                wp_localize_script('storelly_options', 'storelly_options', array(
                     'search_products_nonce'     => wp_create_nonce("search-products"),
-                    'calendar_image'            => PRINTCART_PB_PLUGIN_URL . 'assets/images/calendar.png',
-                    'printcart_options_lang'    => $this->printcart_option_i18n(),
+                    'calendar_image'            => STORELLY_PB_PLUGIN_URL . 'assets/images/calendar.png',
+                    'storelly_options_lang'    => $this->storelly_option_i18n(),
                 ));
-                wp_enqueue_style('printcart_options');
-                wp_enqueue_script('printcart_options');
+                wp_enqueue_style('storelly_options');
+                wp_enqueue_script('storelly_options');
             }
             if ($hook == 'product-builder-options_page_pc-product-builder-options/manager-fonts') {
-                wp_register_script('manager-fonts', PRINTCART_PB_JS_URL . 'manager-fonts.js', array('pc-fontfaceobserver', 'pc-sweetalert', 'pc-angular'), PRINTCART_PB_VERSION, true);
-                wp_localize_script('manager-fonts', 'printcart_pb_fonts', array(
+                wp_register_script('manager-fonts', STORELLY_PB_JS_URL . 'manager-fonts.js', array('pc-fontfaceobserver', 'pc-sweetalert', 'pc-angular'), STORELLY_PB_VERSION, true);
+                wp_localize_script('manager-fonts', 'storelly_pb_fonts', array(
                     'url'       => admin_url('admin-ajax.php'),
-                    'nonce'     => wp_create_nonce('printcart_update_fonts'),
+                    'nonce'     => wp_create_nonce('storelly_update_fonts'),
                     'complete'  => esc_html__('Complete!', 'pc-product-builder'),
                 ));
                 wp_enqueue_script('manager-fonts');
@@ -268,12 +268,12 @@ CREATE TABLE {$wpdb->prefix}printcart_product_builder_options (
                             $options['product_ids'] = array(0 => $product_id);
                         }
                     }
-                    include_once(PRINTCART_PB_PLUGIN_DIR . 'views/options/edit-option.php');
+                    include_once(STORELLY_PB_PLUGIN_DIR . 'views/options/edit-option.php');
                 }
             } else {
-                require_once PRINTCART_PB_PLUGIN_DIR . 'includes/options/fields-list-table.php';
-                $nbd_options = new Printcart_Options_List_Table();
-                include_once(PRINTCART_PB_PLUGIN_DIR . 'views/options/options-list-table.php');
+                require_once STORELLY_PB_PLUGIN_DIR . 'includes/options/fields-list-table.php';
+                $nbd_options = new Storelly_Options_List_Table();
+                include_once(STORELLY_PB_PLUGIN_DIR . 'views/options/options-list-table.php');
             }
         }
         function get_extension_filename() {
@@ -289,7 +289,7 @@ CREATE TABLE {$wpdb->prefix}printcart_product_builder_options (
         }
         public function get_option($id) {
             global $wpdb;
-            $sql = "SELECT * FROM {$wpdb->prefix}printcart_product_builder_options";
+            $sql = "SELECT * FROM {$wpdb->prefix}storelly_product_builder_options";
             $sql .= " WHERE id = " . esc_sql($id);
             $result = $wpdb->get_results($sql, 'ARRAY_A');
             return count($result[0]) ? $result[0] : false;
@@ -314,15 +314,15 @@ CREATE TABLE {$wpdb->prefix}printcart_product_builder_options (
             if ($id > 0) {
                 $arr['modified']    = $date->format('Y-m-d H:i:s');
                 $arr['modified_by'] = wp_get_current_user()->ID;
-                $result             = $wpdb->update("{$wpdb->prefix}printcart_product_builder_options", $arr, array('id' => $id));
+                $result             = $wpdb->update("{$wpdb->prefix}storelly_product_builder_options", $arr, array('id' => $id));
             } else {
                 $arr['created']     = $date->format('Y-m-d H:i:s');
                 $arr['created_by']  = wp_get_current_user()->ID;
-                $result             = $wpdb->insert("{$wpdb->prefix}printcart_product_builder_options", $arr);
+                $result             = $wpdb->insert("{$wpdb->prefix}storelly_product_builder_options", $arr);
                 $id                 = $result ?  $wpdb->insert_id : 0;
             }
             $this->clear_transients();
-            do_action('printcart_save_print_option', $arr);
+            do_action('storelly_save_print_option', $arr);
             return array(
                 'status'    => $result,
                 'id'        => $id
@@ -331,7 +331,7 @@ CREATE TABLE {$wpdb->prefix}printcart_product_builder_options (
         public function build_options($options = null) {
             if (is_null($options)) {
                 $options = array(
-                    'version'                   => PRINTCART_PB_NUMBER_VERSION,
+                    'version'                   => STORELLY_PB_NUMBER_VERSION,
                     'fields'                    => array(
                         0   =>  $this->default_field()
                     ),
@@ -352,7 +352,7 @@ CREATE TABLE {$wpdb->prefix}printcart_product_builder_options (
                                 $options['fields'][$f_key][$tab][$key] = $this->$funcname($f);
                             }
                             if( $key == 'component_icon' ){
-                                $options['fields'][$f_key][$tab]['component_icon_url'] =  Printcart_PB_Util::storelly_get_image_thumbnail( $f );
+                                $options['fields'][$f_key][$tab]['component_icon_url'] =  Storelly_PB_Util::storelly_get_image_thumbnail( $f );
                             }
                         }
                     }
@@ -365,7 +365,7 @@ CREATE TABLE {$wpdb->prefix}printcart_product_builder_options (
                 foreach ($options['views'] as $vkey => $view) {
                     $view['base'] = isset($view['base']) ? $view['base'] : 0;
                     $options['views'][$vkey]['base'] = $view['base'];
-                    $options['views'][$vkey]['base_url'] = Printcart_PB_Util::storelly_get_image_thumbnail($view['base']);
+                    $options['views'][$vkey]['base_url'] = Storelly_PB_Util::storelly_get_image_thumbnail($view['base']);
                 }
             }
             return $options;
@@ -630,7 +630,7 @@ CREATE TABLE {$wpdb->prefix}printcart_product_builder_options (
             if (is_null($value)) {
                 $value = array(
                     'min_size'      =>  0,
-                    'max_size'      =>  Printcart_PB_Util::printcart_get_max_upload_default(),
+                    'max_size'      =>  Storelly_PB_Util::storelly_get_max_upload_default(),
                     'allow_type'    =>  'png,jpg,jpeg'
                 );
             }
@@ -766,13 +766,13 @@ CREATE TABLE {$wpdb->prefix}printcart_product_builder_options (
                 $options[$key]['enable_subattr']     = isset( $options[$key]['enable_subattr'] ) ? $options[$key]['enable_subattr'] : 0;
                 $options[$key]['sub_attributes']     = isset( $options[$key]['sub_attributes'] ) ? $options[$key]['sub_attributes'] : array();
                 $options[$key]['sattr_display_type'] = isset( $options[$key]['sattr_display_type'] ) ? $options[$key]['sattr_display_type'] : 's';
-                $options[$key]['image_url']          = Printcart_PB_Util::printcart_get_image_thumbnail($option['image']);
+                $options[$key]['image_url']          = Storelly_PB_Util::storelly_get_image_thumbnail($option['image']);
                 if (isset($options[$key]['product_image'])) {
-                    $options[$key]['product_image_url'] = Printcart_PB_Util::printcart_get_image_thumbnail($option['product_image']);
+                    $options[$key]['product_image_url'] = Storelly_PB_Util::storelly_get_image_thumbnail($option['product_image']);
                 }
                 if( isset( $option['enable_subattr'] ) ){
                     foreach( $options[$key]['sub_attributes'] as $sak => $sa ){
-                        $options[$key]['sub_attributes'][$sak]['image_url'] = Printcart_PB_Util::printcart_get_image_thumbnail( $sa['image'] );
+                        $options[$key]['sub_attributes'][$sak]['image_url'] = Storelly_PB_Util::storelly_get_image_thumbnail( $sa['image'] );
                     }
                 }
             }
@@ -796,7 +796,7 @@ CREATE TABLE {$wpdb->prefix}printcart_product_builder_options (
                 foreach ($o_config as $skey => $so_config) {
                     foreach ($so_config['views'] as $vkey => $view) {
                         $configs[$key][$skey]['views'][$vkey]['display']    = (isset($view['display']) && $view['display'] == 'on') ? true : false;
-                        $configs[$key][$skey]['views'][$vkey]['image_url']  = Printcart_PB_Util::storelly_get_image_thumbnail($view['image']);
+                        $configs[$key][$skey]['views'][$vkey]['image_url']  = Storelly_PB_Util::storelly_get_image_thumbnail($view['image']);
                     }
                 }
             }
@@ -879,7 +879,7 @@ CREATE TABLE {$wpdb->prefix}printcart_product_builder_options (
                 'value'         => $value
             );
         }
-        function printcart_option_i18n() {
+        function storelly_option_i18n() {
             return array(
                 'nbpb_com'              => esc_html__('Component', 'pc-product-builder'),
                 'nbpb_text'             => esc_html__('Text', 'pc-product-builder'),
@@ -889,11 +889,11 @@ CREATE TABLE {$wpdb->prefix}printcart_product_builder_options (
             );
         }
         public function add_meta_boxes() {
-            add_meta_box('printcart_product_builder', __('Printcart product builder', 'pc-product-builder'), array($this, 'meta_box'), 'product', 'normal', 'high');
+            add_meta_box('storelly_product_builder', __('Storelly product builder', 'pc-product-builder'), array($this, 'meta_box'), 'product', 'normal', 'high');
         }
         public function meta_box() {
             $post_id            = get_the_ID();
-            $nbdpb_enable       = get_post_meta($post_id, '_printcart_pb_enable', true);
+            $nbdpb_enable       = get_post_meta($post_id, '_storelly_pb_enable', true);
             $option_id          = $this->get_product_option($post_id);
             $option_id          = $option_id ? $option_id : 0;
             $link_edit_option   = add_query_arg(
@@ -905,15 +905,15 @@ CREATE TABLE {$wpdb->prefix}printcart_product_builder_options (
                 ),
                 admin_url('admin.php?page=pc-product-builder-options')
             );
-            include_once(PRINTCART_PB_PLUGIN_DIR . 'views/options/meta-box.php');
+            include_once(STORELLY_PB_PLUGIN_DIR . 'views/options/meta-box.php');
         }
         public function get_product_option($product_id) {
-            $enable = get_post_meta($product_id, '_printcart_pb_enable', true);
+            $enable = get_post_meta($product_id, '_storelly_pb_enable', true);
             if (!$enable) return false;
-            $option_id = get_transient('printcart_product_builder_' . $product_id);
+            $option_id = get_transient('storelly_product_builder_' . $product_id);
             if (false === $option_id) {
                 global $wpdb;
-                $sql = "SELECT id, product_ids FROM {$wpdb->prefix}printcart_product_builder_options WHERE published = 1";
+                $sql = "SELECT id, product_ids FROM {$wpdb->prefix}storelly_product_builder_options WHERE published = 1";
                 $options = $wpdb->get_results($sql, 'ARRAY_A');
                 if ($options) {
                     $_options = array();
@@ -930,7 +930,7 @@ CREATE TABLE {$wpdb->prefix}printcart_product_builder_options (
                     $_options = array_reverse($_options);
                     $option_id = isset($_options[0]) && isset($_options[0]['id']) ? $_options[0]['id'] : '';
                     if ($option_id) {
-                        set_transient('printcart_product_builder_' . $product_id, $option_id);
+                        set_transient('storelly_product_builder_' . $product_id, $option_id);
                     }
                 }
             }
@@ -955,9 +955,9 @@ CREATE TABLE {$wpdb->prefix}printcart_product_builder_options (
                     return $post_id;
                 }
             }
-            if (isset($_POST['_printcart_pb_enable'])) {
-                $enable = wc_clean($_POST['_printcart_pb_enable']);
-                update_post_meta($post_id, '_printcart_pb_enable', $enable);
+            if (isset($_POST['_storelly_pb_enable'])) {
+                $enable = wc_clean($_POST['_storelly_pb_enable']);
+                update_post_meta($post_id, '_storelly_pb_enable', $enable);
             }
         }
         public function hidden_custom_order_item_metada($order_items) {
@@ -986,19 +986,19 @@ CREATE TABLE {$wpdb->prefix}printcart_product_builder_options (
             }
             return $image;
         }
-        public function printcart_add_google_font() {
+        public function storelly_add_google_font() {
             $data = array(
                 'mes'   =>  esc_html__('You do not have permission to add font!', 'pc-product-builder'),
                 'flag'  => 0
             );
-            if (!wp_verify_nonce($_POST['nonce'], 'printcart_update_fonts')) {
+            if (!wp_verify_nonce($_POST['nonce'], 'storelly_update_fonts')) {
                 die('Security error');
             }
             $gg_fonts = array();
             if (!isset($_POST['fonts'])) {
                 die('Empty data');
             } else {
-                $all_fonts  = json_decode(file_get_contents(PRINTCART_PB_PLUGIN_DIR . '/data/google-fonts-ttf.json'))->items;
+                $all_fonts  = json_decode(file_get_contents(STORELLY_PB_PLUGIN_DIR . '/data/google-fonts-ttf.json'))->items;
                 $fonts      = json_decode(stripslashes($_POST['fonts']));
                 foreach ($fonts as $key => $font) {
                     $subset = 'all';
@@ -1034,39 +1034,39 @@ CREATE TABLE {$wpdb->prefix}printcart_product_builder_options (
                     );
                 }
             }
-            $path_font      = PRINTCART_PB_FONT_DIR . '/googlefonts.json';
+            $path_font      = STORELLY_PB_FONT_DIR . '/googlefonts.json';
             file_put_contents($path_font, json_encode($gg_fonts));
             $data['mes']    = esc_html__('The google fonts have been added successfully!', 'pc-product-builder');
             $data['flag']   = 1;
             echo json_encode($data);
             wp_die();
         }
-        public function printcart_manager_fonts() {
-            $subsets                = Printcart_PB_Util::printcart_font_subsets();
+        public function storelly_manager_fonts() {
+            $subsets                = Storelly_PB_Util::storelly_font_subsets();
             $current_subset         = 'all';
             $current_cat            = filter_input(INPUT_GET, "cat_id", FILTER_VALIDATE_INT);
 
-            include_once(PRINTCART_PB_PLUGIN_DIR . 'views/manager-fonts.php');
+            include_once(STORELLY_PB_PLUGIN_DIR . 'views/manager-fonts.php');
         }
-        public function printcart_settings() {
-            $printcart_pb_settings = get_option('printcart_pb_settings');
-            if (!isset($printcart_pb_settings['enable_cloud2print_api'])) {
-                $printcart_pb_settings['enable_cloud2print_api'] = 'no';
+        public function storelly_settings() {
+            $storelly_pb_settings = get_option('storelly_pb_settings');
+            if (!isset($storelly_pb_settings['enable_cloud2print_api'])) {
+                $storelly_pb_settings['enable_cloud2print_api'] = 'no';
             }
             $message = '';
             $status = '';
 
-            if (isset($_POST['_action_printcart_settings']) && $_POST['_action_printcart_settings'] === 'submit') {
-                $printcart_enable_cloud2print_api      = isset($_POST['printcart_enable_cloud2print_api']) ? sanitize_text_field($_POST['printcart_enable_cloud2print_api']) : 'no';
+            if (isset($_POST['_action_storelly_settings']) && $_POST['_action_storelly_settings'] === 'submit') {
+                $storelly_enable_cloud2print_api      = isset($_POST['storelly_enable_cloud2print_api']) ? sanitize_text_field($_POST['storelly_enable_cloud2print_api']) : 'no';
                 $message        = esc_html__('Your settings have been saved.', 'pc-product-builder');
                 $status         = 'updated';
-                $printcart_pb_settings['enable_cloud2print_api'] = $printcart_enable_cloud2print_api;
-                update_option('printcart_pb_settings', $printcart_pb_settings);
+                $storelly_pb_settings['enable_cloud2print_api'] = $storelly_enable_cloud2print_api;
+                update_option('storelly_pb_settings', $storelly_pb_settings);
             }
-            include_once(PRINTCART_PB_PLUGIN_DIR . 'views/menu-settings.php');
+            include_once(STORELLY_PB_PLUGIN_DIR . 'views/menu-settings.php');
         }
         public function convert_svg_embed($path) {
-            $svgs       = Printcart_IO::get_list_files_by_type($path, 1, 'svg');
+            $svgs       = Storelly_IO::get_list_files_by_type($path, 1, 'svg');
             $svg_path   = $path . '/svg';
             if (!file_exists($svg_path)) wp_mkdir_p($svg_path);
             foreach ($svgs as $svg) {
@@ -1086,7 +1086,7 @@ CREATE TABLE {$wpdb->prefix}printcart_product_builder_options (
                         continue;
                     $type = pathinfo($img_src, PATHINFO_EXTENSION);
                     $type = ($type == 'svg') ? 'svg+xml' : $type;
-                    $path_image = Printcart_IO::convert_url_to_path($img_src);
+                    $path_image = Storelly_IO::convert_url_to_path($img_src);
                     $data = nbd_file_get_contents($path_image);
                     $base64 = 'data:image/' . $type . ';base64,' . base64_encode($data);
                     $tagName->setAttribute('xlink:href', $base64);
@@ -1106,7 +1106,7 @@ CREATE TABLE {$wpdb->prefix}printcart_product_builder_options (
                 file_put_contents($new_svg_path, $new_svg);
             }
         }
-        public function printcart_download_order_designs() {
+        public function storelly_download_order_designs() {
             $item_ids     = isset($_POST['item_ids']) ? $_POST['item_ids'] : array();
             $order_id           = isset($_POST['order_id']) ? sanitize_text_field($_POST['order_id']) : '';
             $type_download      = isset($_POST['type_download']) ? sanitize_text_field($_POST['type_download']) : '';
@@ -1118,21 +1118,21 @@ CREATE TABLE {$wpdb->prefix}printcart_product_builder_options (
                     $item_files = array();
                     $item_option_name = array();
                     if ($folder) {
-                        $path           = PRINTCART_PB_CUSTOMER_DIR . '/' . $folder;
+                        $path           = STORELLY_PB_CUSTOMER_DIR . '/' . $folder;
                         if ($type_download == 'svg') {
                             $svg_path = $path . '/svg';
                             if (!file_exists($svg_path)) {
                                 $this->convert_svg_embed($path);
                             }
-                            $item_files = Printcart_IO::get_list_files_by_type($svg_path, 1, 'svg');
+                            $item_files = Storelly_IO::get_list_files_by_type($svg_path, 1, 'svg');
                         } else if ($type_download == 'png') {
-                            $item_files = Printcart_IO::get_list_files_by_type($path, 1, 'png');
+                            $item_files = Storelly_IO::get_list_files_by_type($path, 1, 'png');
                         } else if ($type_download == 'png-preview') {
-                            $item_files = Printcart_IO::get_list_files_by_type($path . '/preview', 1, 'png');
+                            $item_files = Storelly_IO::get_list_files_by_type($path . '/preview', 1, 'png');
                         } else if ($type_download == 'pdf') {
-                            $item_files = Printcart_Export_PDF::exportPDF($folder, false);
+                            $item_files = Storelly_Export_PDF::exportPDF($folder, false);
                         } else if ($type_download == 'pdf-preview') {
-                            $item_files = Printcart_Export_PDF::exportPDF($folder, true);
+                            $item_files = Storelly_Export_PDF::exportPDF($folder, true);
                         }
                     }
                     if (count($item_files)) {
@@ -1166,9 +1166,9 @@ CREATE TABLE {$wpdb->prefix}printcart_product_builder_options (
             if (!count($zip_files)) {
                 exit();
             } else {
-                $pathZip = PRINTCART_PB_DATA_DIR . '/download/' . $order_id . '_' . $type_download . '.zip';
-                $urlZip = PRINTCART_PB_DATA_URL . '/download/' . $order_id . '_' . $type_download . '.zip';
-                if (Printcart_PB_Util::zip_files($zip_files, $pathZip, $option_name)) {
+                $pathZip = STORELLY_PB_DATA_DIR . '/download/' . $order_id . '_' . $type_download . '.zip';
+                $urlZip = STORELLY_PB_DATA_URL . '/download/' . $order_id . '_' . $type_download . '.zip';
+                if (Storelly_PB_Util::zip_files($zip_files, $pathZip, $option_name)) {
                     $response['flag'] = 1;
                     $response['file'] = $urlZip;
                 }
@@ -1178,5 +1178,5 @@ CREATE TABLE {$wpdb->prefix}printcart_product_builder_options (
         }
     }
 }
-$printcart_pb_admin_options = Printcart_PB_Admin_Options::instance();
-$printcart_pb_admin_options->init();
+$storelly_pb_admin_options = Storelly_PB_Admin_Options::instance();
+$storelly_pb_admin_options->init();

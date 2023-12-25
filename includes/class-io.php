@@ -2,8 +2,8 @@
 if (!defined('ABSPATH')) {
     exit; // Exit if accessed directly
 }
-if (!class_exists('Printcart_IO')) {
-    class Printcart_IO {
+if (!class_exists('Storelly_IO')) {
+    class Storelly_IO {
         public function __construct() {
         }
         public static function delete_folder($path) {

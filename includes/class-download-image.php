@@ -2,8 +2,8 @@
 if (!defined('ABSPATH')) {
     exit; // Exit if accessed directly
 }
-if (!class_exists('Printcart_PB_Download_Image')) {
-    class Printcart_PB_Download_Image {
+if (!class_exists('Storelly_PB_Download_Image')) {
+    class Storelly_PB_Download_Image {
         private $url = '';
         private $attachment_data = array();
         private $attachment_id = false;
