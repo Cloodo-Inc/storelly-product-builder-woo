@@ -352,7 +352,7 @@ CREATE TABLE {$wpdb->prefix}printcart_product_builder_options (
                                 $options['fields'][$f_key][$tab][$key] = $this->$funcname($f);
                             }
                             if( $key == 'component_icon' ){
-                                $options['fields'][$f_key][$tab]['component_icon_url'] =  Printcart_PB_Util::pritcart_get_image_thumbnail( $f );
+                                $options['fields'][$f_key][$tab]['component_icon_url'] =  Printcart_PB_Util::storelly_get_image_thumbnail( $f );
                             }
                         }
                     }
@@ -365,7 +365,7 @@ CREATE TABLE {$wpdb->prefix}printcart_product_builder_options (
                 foreach ($options['views'] as $vkey => $view) {
                     $view['base'] = isset($view['base']) ? $view['base'] : 0;
                     $options['views'][$vkey]['base'] = $view['base'];
-                    $options['views'][$vkey]['base_url'] = Printcart_PB_Util::pritcart_get_image_thumbnail($view['base']);
+                    $options['views'][$vkey]['base_url'] = Printcart_PB_Util::storelly_get_image_thumbnail($view['base']);
                 }
             }
             return $options;
@@ -796,7 +796,7 @@ CREATE TABLE {$wpdb->prefix}printcart_product_builder_options (
                 foreach ($o_config as $skey => $so_config) {
                     foreach ($so_config['views'] as $vkey => $view) {
                         $configs[$key][$skey]['views'][$vkey]['display']    = (isset($view['display']) && $view['display'] == 'on') ? true : false;
-                        $configs[$key][$skey]['views'][$vkey]['image_url']  = Printcart_PB_Util::pritcart_get_image_thumbnail($view['image']);
+                        $configs[$key][$skey]['views'][$vkey]['image_url']  = Printcart_PB_Util::storelly_get_image_thumbnail($view['image']);
                     }
                 }
             }

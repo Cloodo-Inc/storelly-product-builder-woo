@@ -5,7 +5,7 @@
         <div class="nbd-swatch-wrap">
             <?php 
                 foreach ($field['general']['attributes']["options"] as $key => $attr): 
-                    $image_url = Printcart_PB_Util::pritcart_get_image_thumbnail( $attr['image'] );
+                    $image_url = Storelly_PB_Util::storelly_get_image_thumbnail( $attr['image'] );
                     $enable_subattr = isset($attr['enable_subattr']) ? $attr['enable_subattr'] : 0;
                     $attr['sub_attributes'] = isset( $attr['sub_attributes'] ) ? $attr['sub_attributes'] : array();
                     $show_subattr = ($enable_subattr == 'on' && count($attr['sub_attributes']) > 0) ? true : false;

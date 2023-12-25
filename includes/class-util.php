@@ -185,7 +185,7 @@ if (!class_exists('Printcart_PB_Util')) {
             }
             return $data;
         }
-        public static function pritcart_get_image_thumbnail($id, $size = 'thumbnail') {
+        public static function storelly_get_image_thumbnail($id, $size = 'thumbnail') {
             if (absint($id) != 0) {
                 $image = wp_get_attachment_image_src($id, $size);
                 if (!$image) {
