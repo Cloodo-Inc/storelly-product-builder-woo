@@ -14,19 +14,19 @@
 
 <body>
     <?php
-    include(PRINTCART_PB_PLUGIN_DIR . 'views/product-builder/wrapper.php');
-    function printcart_get_product_builder($id) {
+    include(STORELLY_PB_PLUGIN_DIR . 'views/product-builder/wrapper.php');
+    function storelly_get_product_builder($id) {
         global $wpdb;
-        $sql = "SELECT * FROM {$wpdb->prefix}printcart_product_builder_options";
+        $sql = "SELECT * FROM {$wpdb->prefix}storelly_product_builder_options";
         $sql .= " WHERE id = " . esc_sql($id);
         $result = $wpdb->get_results($sql, 'ARRAY_A');
         return count($result[0]) ? $result[0] : false;
     }
-    function printcart_recursive_stripslashes($fields) {
+    function storelly_recursive_stripslashes($fields) {
         $valid_fields = array();
         foreach ($fields as $key => $field) {
             if (is_array($field)) {
-                $valid_fields[$key] = printcart_recursive_stripslashes($field);
+                $valid_fields[$key] = storelly_recursive_stripslashes($field);
             } else if (!is_null($field)) {
                 $valid_fields[$key] = stripslashes($field);
             }
@@ -37,13 +37,13 @@
         $product_id = 0;
         $option_id = sanitize_text_field($_GET['oid']);
         if ($option_id) {
-            $_options = printcart_get_product_builder($option_id);
+            $_options = storelly_get_product_builder($option_id);
             if ($_options) {
                 $options = maybe_unserialize($_options['fields']);
                 if (!isset($options['fields'])) {
                     $options['fields'] = array();
                 }
-                $options['fields'] = printcart_recursive_stripslashes($options['fields']);
+                $options['fields'] = storelly_recursive_stripslashes($options['fields']);
                 foreach ($options['fields'] as $key => $field) {
                     if (!isset($field['general']['attributes'])) {
                         $field['general']['attributes'] = array();
@@ -88,7 +88,7 @@
                                 foreach ($attr as $s_index => $sattr) {
                                     foreach ($sattr['views'] as $v_index => $view) {
                                         $pb_image_obj = wp_get_attachment_url(absint($view['image']));
-                                        $options['fields'][$key]['general']['pb_config'][$a_index][$s_index]['views'][$v_index]['image_url'] =  $pb_image_obj ? $pb_image_obj : PRINTCART_PB_ASSETS_URL . 'images/placeholder.png';
+                                        $options['fields'][$key]['general']['pb_config'][$a_index][$s_index]['views'][$v_index]['image_url'] =  $pb_image_obj ? $pb_image_obj : STORELLY_PB_ASSETS_URL . 'images/placeholder.png';
                                     }
                                 }
                             }
@@ -98,19 +98,19 @@
                         foreach ($field['general']['attributes']['options'] as $op_index => $option) {
                             if (isset($option['enable_subattr']) && $option['enable_subattr'] == 'on' && count($option['sub_attributes']) > 0) {
                                 foreach ($option['sub_attributes'] as $sa_index => $sattr) {
-                                    $options['fields'][$key]['general']['attributes']['options'][$op_index]['sub_attributes'][$sa_index]['image_url'] = Printcart_PB_Util::printcart_get_image_thumbnail($sattr['image']);
+                                    $options['fields'][$key]['general']['attributes']['options'][$op_index]['sub_attributes'][$sa_index]['image_url'] = Storelly_PB_Util::storelly_get_image_thumbnail($sattr['image']);
                                 }
                             } else {
-                                $options['fields'][$key]['general']['attributes']['options'][$op_index]['image_url'] = Printcart_PB_Util::printcart_get_image_thumbnail($option['image']);
+                                $options['fields'][$key]['general']['attributes']['options'][$op_index]['image_url'] = Storelly_PB_Util::storelly_get_image_thumbnail($option['image']);
                             }
                         };
-                        $options['fields'][$key]['general']['component_icon_url'] = Printcart_PB_Util::printcart_get_image_thumbnail($field['general']['component_icon']);
+                        $options['fields'][$key]['general']['component_icon_url'] = Storelly_PB_Util::storelly_get_image_thumbnail($field['general']['component_icon']);
                     }
                     if (isset($field['general']['attributes']['bg_type']) && $field['general']['attributes']['bg_type'] == 'i') {
                         foreach ($field['general']['attributes']['options'] as $op_index => $option) {
                             foreach ($option['bg_image'] as $bg_index => $bg) {
                                 $bg_obj = wp_get_attachment_url(absint($bg));
-                                $options['fields'][$key]['general']['attributes']['options'][$op_index]['bg_image_url'][$bg_index] = $bg_obj ? $bg_obj : PRINTCART_PB_ASSETS_URL . 'images/placeholder.png';
+                                $options['fields'][$key]['general']['attributes']['options'][$op_index]['bg_image_url'][$bg_index] = $bg_obj ? $bg_obj : STORELLY_PB_ASSETS_URL . 'images/placeholder.png';
                             }
                         };
                     }
@@ -120,7 +120,7 @@
                         $view['base'] = isset($view['base']) ? $view['base'] : 0;
                         $options['views'][$vkey]['base'] = $view['base'];
                         $view_bg_obj = wp_get_attachment_url(absint($view['base']));
-                        $options['views'][$vkey]['base_url'] = $view_bg_obj ? $view_bg_obj : PRINTCART_PB_ASSETS_URL . 'images/placeholder.png';
+                        $options['views'][$vkey]['base_url'] = $view_bg_obj ? $view_bg_obj : STORELLY_PB_ASSETS_URL . 'images/placeholder.png';
                     }
                 }
                 $type           = 'simple';
@@ -131,7 +131,7 @@
                 $quantity       = 1;
                 $width = $height = '';
                 ob_start();
-                Printcart_PB_Util::printcart_get_template('single-product/option-builder.php', array(
+                storelly_PB_Util::storelly_get_template('single-product/option-builder.php', array(
                     'product_id'            => $product_id,
                     'options'               => $options,
                     'type'                  => $type,

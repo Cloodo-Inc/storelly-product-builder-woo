@@ -25,13 +25,13 @@ $link_create_pre_builder = add_query_arg(array(
     'oid'   => sanitize_text_field($_GET['id']),
     'paged' => sanitize_text_field($_GET['paged']),
     'rd'    => 'print_option'
-), Printcart_PB_Util::printcartGetUrlPage('product_builder'));
-$max_input_vars = Printcart_PB_Util::printcart_get_max_input_var();
+), Storelly_PB_Util::storellyGetUrlPage('product_builder'));
+$max_input_vars = Storelly_PB_Util::storelly_get_max_input_var();
 ?>
 <!-- No inline scripts or styles unless dynamic. -->
 <script type="text/javascript">
-    var PRINTCART_OPTIONS = <?php echo json_encode($options); ?>;
-    var PRINTCART_OPTION_FIELD = <?php echo json_encode($default_field); ?>;
+    var STORELLY_OPTIONS = <?php echo json_encode($options); ?>;
+    var STORELLY_OPTION_FIELD = <?php echo json_encode($default_field); ?>;
     var ajax_url = "<?php echo admin_url('admin-ajax.php'); ?>",
         nbnonce = "<?php echo wp_create_nonce('save-design'); ?>",
         max_input_vars = parseInt(<?php echo ($max_input_vars); ?>);
@@ -44,7 +44,7 @@ $max_input_vars = Printcart_PB_Util::printcart_get_max_input_var();
 </div>
 <div class="message">
     <?php if (isset($message['flag'])) {
-        $message = Printcart_PB_Util::printcart_custom_notices($message['flag'], $message['content']);
+        $message = Storelly_PB_Util::storelly_custom_notices($message['flag'], $message['content']);
         echo ($message);
     } ?>
 </div>
@@ -59,7 +59,7 @@ $max_input_vars = Printcart_PB_Util::printcart_get_max_input_var();
                                 <label class="screen-reader-text" id="title-prompt-text" for="title"><?php esc_html_e('Enter title here', 'pc-product-builder'); ?></label>
                                 <input required="required" ng-model="options.title" type="text" name="title" size="30" value="<?php echo ($options['title']); ?>" id="title" autocomplete="off">
                                 <span style="color: red;" ng-show="nboForm.title.$invalid">* <small><i><?php esc_html_e('required', 'pc-product-builder'); ?></i></small></span>
-                                <input type="hidden" name="options[version]" value="<?php echo PRINTCART_PB_VERSION; ?>" />
+                                <input type="hidden" name="options[version]" value="<?php echo STORELLY_PB_VERSION; ?>" />
                             </div>
                         </div>
                     </div>

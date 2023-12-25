@@ -38,8 +38,8 @@
     <div class="pcpb-field-info-2">
         <?php
         $custom_fonts = array();
-        if (file_exists(PRINTCART_PB_ASSETS_DIR . '/fonts.json')) {
-            $custom_fonts = (array)json_decode(file_get_contents(PRINTCART_PB_ASSETS_DIR . '/fonts.json'));
+        if (file_exists(STORELLY_PB_ASSETS_DIR . '/fonts.json')) {
+            $custom_fonts = (array)json_decode(file_get_contents(STORELLY_PB_ASSETS_DIR . '/fonts.json'));
         }
         ?>
         <select nbd-select2 name="options[fields][{{fieldIndex}}][general][nbpb_text_configs][custom_fonts][]" ng-model="field.general.nbpb_text_configs.custom_fonts" multiple="multiple">
@@ -47,7 +47,7 @@
                 <?php
                 $font_id = $font->id;
                 $font_name = $font->name;
-                if ($enable_printcart_api) {
+                if ($enable_storelly_api) {
                     $font_id = isset($font['id']) ? $font['id'] : '';
                     $font_name = isset($font['name']) ? $font['name'] : '';
                 }
@@ -64,8 +64,8 @@
     <div class="pcpb-field-info-2">
         <?php
         $google_fonts = array();
-        if (file_exists(PRINTCART_PB_DATA_CONFIG_DIR . '/googlefonts.json')) {
-            $google_fonts = (array)json_decode(file_get_contents(PRINTCART_PB_DATA_CONFIG_DIR . '/googlefonts.json'));
+        if (file_exists(STORELLY_PB_DATA_CONFIG_DIR . '/googlefonts.json')) {
+            $google_fonts = (array)json_decode(file_get_contents(STORELLY_PB_DATA_CONFIG_DIR . '/googlefonts.json'));
         }
         ?>
         <select nbd-select2 name="options[fields][{{fieldIndex}}][general][nbpb_text_configs][google_fonts][]" ng-model="field.general.nbpb_text_configs.google_fonts" multiple="multiple">
