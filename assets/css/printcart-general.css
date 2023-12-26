@@ -16,6 +16,7 @@
   top: 0;
   font-weight: 400;
 }
+
 .has-nbd {
   display: block;
   text-indent: -9999px;
@@ -24,14 +25,17 @@
   height: 2em !important;
   width: 2em;
 }
+
 .nbdesigner-right {
   float: right;
 }
+
 h1.nbd-title {
   background: #fff;
   padding: 16px;
   border: 1px solid #ddd;
 }
+
 .nbd-page-title-action {
   margin-left: 4px;
   padding: 4px 8px;
@@ -50,11 +54,13 @@ h1.nbd-title {
   cursor: pointer;
   outline: 0;
 }
+
 .nbd-page-title-action:hover {
   border-color: #008ec2;
   background: #00a0d2;
   color: #fff;
 }
+
 .nbd-user-settings label {
   display: inline-block;
   width: 200px;
@@ -68,7 +74,7 @@ h1.nbd-title {
   vertical-align: top;
 }
 
-img.printcart_order_image_design {
+img.storelly_order_image_design {
   border: 1px solid #ddd;
   vertical-align: middle;
   max-width: 60px;
@@ -76,9 +82,11 @@ img.printcart_order_image_design {
   margin-left: 5px;
   margin-bottom: 5px;
 }
-#printcart_order_submit_loading {
+
+#storelly_order_submit_loading {
   display: block;
 }
-#printcart_order_submit_loading.printcart_loaded {
+
+#storelly_order_submit_loading.storelly_loaded {
   display: none !important;
 }

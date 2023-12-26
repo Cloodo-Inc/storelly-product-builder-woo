@@ -754,7 +754,7 @@ nbdpbApp.controller("nbpbCtrl", [
           type: "application/json",
         }
       );
-      var action = "printcart_save_product_builder_design";
+      var action = "storelly_save_product_builder_design";
       NBDDataFactory.get(action, dataObj, function (data) {
         data = JSON.parse(data);
         if (data.flag == "success") {
