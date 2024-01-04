@@ -16,7 +16,7 @@ if (!defined('ABSPATH')) {
             </p>
             <p class="storelly-form-field">
                 <label>
-                    <a href="<?php echo $link_edit_option; ?>" target="_blank" class="button">
+                    <a href="<?php echo($link_edit_option); ?>" target="_blank" class="button">
                         <?php if ($option_id != 0) {
                             _e('Edit option', 'pc-product-builder');
                         } else {

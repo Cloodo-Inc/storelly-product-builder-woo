@@ -33,7 +33,6 @@ $link_create_option = add_query_arg(
 </div>
 <script>
     if (jQuery('#the-list .no-items').length == 0) {
-        console.log('212');
         jQuery('p.note-text').css('display', 'none');
     }
 </script>

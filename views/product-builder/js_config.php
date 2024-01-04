@@ -1,4 +1,5 @@
 <?php
+if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly 
 $pcpb_cart_item_key  = (isset($_GET['pcpb_cart_item_key']) &&  $_GET['pcpb_cart_item_key'] != '') ? sanitize_text_field($_GET['pcpb_cart_item_key']) : '';
 $oid                = (isset($_GET['oid']) && $_GET['oid'] != '') ? absint(sanitize_text_field($_GET['oid'])) :  0;
 $redirect_url       = (isset($_GET['rd']) && $_GET['rd'] != '') ? Storelly_PB_Util::Storelly_get_redirect_url(sanitize_text_field($_GET['rd'])) :  '';

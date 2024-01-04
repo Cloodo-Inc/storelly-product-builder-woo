@@ -1,4 +1,5 @@
 <?php
+    if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly 
     if( !(isset($is_nbpb_creating_task) && $is_nbpb_creating_task) ){
         $is_creating_task = 0;
         include 'js_config.php';

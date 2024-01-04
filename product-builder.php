@@ -1,5 +1,5 @@
 <?php
-
+if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly 
 /**
  * @package Storelly
  */
@@ -55,13 +55,6 @@ register_activation_hook(__FILE__, array('Storelly_Product_Builder_Backend', 'pl
 $storelly_product_builder = new Storelly_Product_Builder_Backend;
 $storelly_product_builder->init();
 
-// add css
-function menu_setting_css()
-{
-    $plugin_url = plugin_dir_url(__FILE__);
-    wp_enqueue_style('menu-setting',  $plugin_url . '/assets/css/menu-setting.css', array(), '1.0', 'all');
-}
-add_action('admin_enqueue_scripts', 'menu_setting_css');
 
 function create_user_storelly(){
 

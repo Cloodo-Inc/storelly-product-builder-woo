@@ -26,7 +26,7 @@ class Storelly_Options_List_Table extends WP_List_Table {
         ));
         $this->items = self::get_options($per_page, $current_page);
     }
-    function get_columns() {
+    public function get_columns() {
         $columns = array(
             'cb'            => '<input type="checkbox" />',
             'title'         => esc_html__('Title', 'pc-product-builder'),

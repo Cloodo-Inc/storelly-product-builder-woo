@@ -262,7 +262,7 @@ if (!class_exists('STORELLY_FRONTEND_OPTIONS')) {
                         'nbau'                  => $nbau,
                     ));
                     $options_form = ob_get_clean();
-                    echo $options_form;
+                    echo($options_form);
                 }
             }
         }

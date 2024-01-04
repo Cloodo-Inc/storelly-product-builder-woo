@@ -170,7 +170,7 @@ CREATE TABLE {$wpdb->prefix}storelly_product_builder_options (
             }
         }
         public function admin_enqueue_scripts($hook) {
-            wp_register_script('pc-angular', 'https://ajax.googleapis.com/ajax/libs/angularjs/1.6.9/angular.min.js', array('jquery'), '1.6.9');
+            wp_register_script('pc-angular', STORELLY_PB_PLUGIN_URL . 'assets/libs/angular.min.js', array('jquery'), '1.6.9'); 
             wp_register_script('snap_svg', STORELLY_PB_ASSETS_URL . 'libs/snap.svg.js', array(), '0.3.0');
             wp_register_script('pc-tiptip', STORELLY_PB_ASSETS_URL . 'js/tiptip.js', array('jquery'), STORELLY_PB_VERSION);
             wp_register_script('pc-fontfaceobserver', STORELLY_PB_PLUGIN_URL . 'assets/libs/fontfaceobserver.js', array(), '2.0.13');
@@ -181,6 +181,10 @@ CREATE TABLE {$wpdb->prefix}storelly_product_builder_options (
             wp_register_style('storelly-general', STORELLY_PB_CSS_URL . 'storelly-general.css', array('dashicons'), STORELLY_PB_VERSION);
             wp_register_style('pc-sweetalert', STORELLY_PB_CSS_URL . 'sweetalert.css', array(), '5.6.10');
             wp_register_style('manager-fonts', STORELLY_PB_CSS_URL . 'manager-fonts.css', array('pc-sweetalert'), STORELLY_PB_VERSION);
+
+            // style menu setting
+            wp_enqueue_style('menu-setting',  STORELLY_PB_CSS_URL . '/menu-setting.css', array(), '1.0', 'all');
+
             wp_localize_script('storelly-general', 'storelly_admin', array(
                 'url'       => admin_url('admin-ajax.php'),
             ));

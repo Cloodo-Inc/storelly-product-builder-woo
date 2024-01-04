@@ -71,7 +71,7 @@ $secret = isset($api_key['consumer_secret']) ? $api_key['consumer_secret'] : '';
                         <p><?php esc_html_e('User name', 'pc-product-builder'); ?> :</p>
                     </div>
                     <div class="code-key">
-                        <input placeholder="" value="<?php echo $api_key['username'] ?>" />
+                        <input placeholder="" value="<?php echo($api_key['username']); ?>" />
                     </div>
                 </div>
                 <div class="grup-box">
@@ -79,7 +79,7 @@ $secret = isset($api_key['consumer_secret']) ? $api_key['consumer_secret'] : '';
                         <p><?php esc_html_e('Password', 'pc-product-builder'); ?> :</p>
                     </div>
                     <div class="code-key">
-                        <input placeholder="" value="<?php echo $api_key['username'] ?>" />
+                        <input placeholder="" value="<?php echo($api_key['username']); ?>" />
                         <p class="desc_sync "><?php esc_html_e('Please log in with the above account and password', 'pc-product-builder'); ?></p>
                     </div> 
                 </div>
@@ -101,7 +101,7 @@ $secret = isset($api_key['consumer_secret']) ? $api_key['consumer_secret'] : '';
                         <p><?php esc_html_e('Log', 'pc-product-builder'); ?> :</p>
                     </div>
                     <div class="code-key">
-                        <p><?php echo $api_key['log'] ?></p>
+                        <p><?php echo($api_key['log']); ?></p>
                     </div>
                 </div>
             </div>
