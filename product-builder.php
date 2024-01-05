@@ -1,10 +1,10 @@
 <?php
-if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly 
+ if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly 
 /**
- * @package Storelly
+ * @package Storelly 
  */
 /*
-Plugin Name: Storelly Product Builder
+Plugin Name: Storelly Product Builder 
 Plugin URI: https://storelly.com
 Description: Create product builder for WC products
 Version: 1.0.0
@@ -38,6 +38,7 @@ define('STORELLY_PB_ASSETS_DIR',               STORELLY_PB_PLUGIN_DIR . 'assets/
 define('STORELLY_PB_JS_URL',                   STORELLY_PB_PLUGIN_URL . 'assets/js/');
 define('STORELLY_PB_CSS_URL',                  STORELLY_PB_PLUGIN_URL . 'assets/css/');
 define('STORELLY_ENABLE_NONCE',                TRUE);
+define('STORELLY_API_URL',                      'https://dashboard.storelly.com/public');
 
 require_once(STORELLY_PB_PLUGIN_DIR .  'includes/class-script-hook.php');
 require_once(STORELLY_PB_PLUGIN_DIR .  'includes/class-export-pdf.php');
@@ -55,15 +56,13 @@ register_activation_hook(__FILE__, array('Storelly_Product_Builder_Backend', 'pl
 $storelly_product_builder = new Storelly_Product_Builder_Backend;
 $storelly_product_builder->init();
 
-
 function create_user_storelly(){
 
     $option = get_option('storelly_connect_api_keys');
 
     if (empty($option['username'])) {
         $current_user = wp_get_current_user();
-        //$user_data = get_currentuserinfo();
-
+    
         $curl = curl_init(); // Tạo mới một CURL
         $user_name = $current_user->user_login . '_' . time();
 
@@ -99,6 +98,8 @@ function create_user_storelly(){
 
         $resp = json_decode($resp, true);
 
+
+        
         if ($resp['success'] == 1) {
             $option['username'] = $resp['username'];
             $option['unauth_token'] = $resp['unauth_token'];
@@ -110,11 +111,6 @@ function create_user_storelly(){
         curl_close($curl); // Ngắt CURL, giải phóng
 
     }
-
-    //create_user_storelly();
-    //update_option('storelly_connect_api_keys', serialize($response));
-    //die('ccc');
-
 
 }
 function storelly_activation_redirect($plugin){
@@ -193,8 +189,7 @@ function storelly_order_processed($order_id){
 }
 add_action('woocommerce_store_api_checkout_order_processed', 'notify_on_new_order');
 function notify_on_new_order($order){
-    //$order_data = $order->get_data();
-
+    
     // Lấy thông tin product trong order
     $products = array();
     $cFile = [];
@@ -277,3 +272,4 @@ function storelly_img_design_order_items($item_id, $item, $order, $plain_text){
     }
     
 }
+

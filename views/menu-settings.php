@@ -44,7 +44,7 @@ $secret = isset($api_key['consumer_secret']) ? $api_key['consumer_secret'] : '';
                         <p><?php esc_html_e('Sid : ', 'pc-product-builder'); ?></p>
                     </div>
                     <div class="code-key">
-                        <input placeholder="Code SID" value="<?php echo ($sid) ?>" />
+                        <input placeholder="Code SID" value="<?php echo($sid); ?>" />
                         <p><?php esc_html_e('Enter your storelly sid API Key', 'pc-product-builder'); ?></p>
                     </div>
                 </div>
@@ -53,7 +53,7 @@ $secret = isset($api_key['consumer_secret']) ? $api_key['consumer_secret'] : '';
                         <p><?php esc_html_e('Secret :', 'pc-product-builder'); ?></p>
                     </div>
                     <div class="code-key">
-                        <input placeholder="Code secret API" value="<?php echo ($secret) ?>" />
+                        <input placeholder="Code secret API" value="<?php echo($secret); ?>" />
                         <p><?php esc_html_e('Enter your storelly secret API Key', 'pc-product-builder'); ?></p>
                     </div>
                 </div>
@@ -62,7 +62,7 @@ $secret = isset($api_key['consumer_secret']) ? $api_key['consumer_secret'] : '';
                         <p><?php esc_html_e('Unauth token :', 'pc-product-builder'); ?></p>
                     </div>
                     <div class="code-key">
-                        <input placeholder="" value="<?php echo ($api_key['unauth_token']) ?>" disabled />
+                        <input placeholder="" value="<?php echo ($api_key['unauth_token']); ?>" disabled />
                         <p><?php esc_html_e('Unauth token off store Storelly (Automatically generated when you enter calid sid end secret)', 'pc-product-builder'); ?></p>
                     </div>
                 </div>

@@ -3,15 +3,19 @@ if (!defined('ABSPATH')) {
     exit;
 }
 if (!class_exists('Storelly_PB_Util')) {
-    class Storelly_PB_Util {
-        public function __construct() {
+    class Storelly_PB_Util
+    {
+        public function __construct()
+        {
             //TODO
         }
-        public static function storelly_get_page_id($page) {
+        public static function storelly_get_page_id($page)
+        {
             $page = get_option('storelly_' . $page . '_page_id');
             return $page ? absint($page) : -1;
         }
-        public static function storellyGetUrlPage($page) {
+        public static function storellyGetUrlPage($page)
+        {
             switch ($page) {
                 case 'product_builder':
                     $post = self::storelly_get_page_id('product_builder');
@@ -22,17 +26,20 @@ if (!class_exists('Storelly_PB_Util')) {
             }
             return get_post($post) ? get_page_link($post) : '#';
         }
-        public static function storelly_get_max_input_var() {
+        public static function storelly_get_max_input_var()
+        {
             return abs(intval(ini_get('max_input_vars')));
         }
-        public static function storelly_get_max_upload_default() {
+        public static function storelly_get_max_upload_default()
+        {
             if (function_exists('wp_max_upload_size')) {
                 return round(wp_max_upload_size() / 1024 / 1024);
             } else {
                 return abs(intval(ini_get('post_max_size')));
             }
         }
-        public static function storelly_get_image_thumbnail($id, $size = 'thumbnail') {
+        public static function storelly_get_image_thumbnail($id, $size = 'thumbnail')
+        {
             if (absint($id) != 0) {
                 $image = wp_get_attachment_image_src($id, $size);
                 if (!$image) {
@@ -45,7 +52,8 @@ if (!class_exists('Storelly_PB_Util')) {
             }
             return $image_url;
         }
-        public static function storelly_custom_notices($command, $mes) {
+        public static function storelly_custom_notices($command, $mes)
+        {
             switch ($command) {
                 case 'success':
                     if (!isset($mes))
@@ -89,7 +97,8 @@ if (!class_exists('Storelly_PB_Util')) {
             }
             return $notice;
         }
-        public static function storelly_locate_template($template_name, $template_path = '', $default_path = '') {
+        public static function storelly_locate_template($template_name, $template_path = '', $default_path = '')
+        {
             // Set variable to search in pc-product-builder folder of theme.
             if (!$template_path) :
                 $template_path = 'pc-product-builder/';
@@ -109,7 +118,8 @@ if (!class_exists('Storelly_PB_Util')) {
             endif;
             return apply_filters('storelly_locate_template', $template, $template_name, $template_path, $default_path);
         }
-        public static function storelly_get_template($template_name, $args = array(), $tempate_path = '', $default_path = '') {
+        public static function storelly_get_template($template_name, $args = array(), $tempate_path = '', $default_path = '')
+        {
             if (is_array($args) && isset($args)) :
                 extract($args);
             endif;
@@ -120,17 +130,20 @@ if (!class_exists('Storelly_PB_Util')) {
             endif;
             include $template_file;
         }
-        public static function is_storelly_product_builder_page() {
+        public static function is_storelly_product_builder_page()
+        {
             return is_page(self::storelly_get_page_id('product_builder'));
         }
 
-        public static function is_storelly_product_builder($id) {
+        public static function is_storelly_product_builder($id)
+        {
             $id     = self::get_wpml_original_id($id);
             $check  = get_post_meta($id, '_storelly_pb_enable', true);
             if ($check) return true;
             return false;
         }
-        public static function get_wpml_original_id($id, $type = 'post', $current_lang = false) {
+        public static function get_wpml_original_id($id, $type = 'post', $current_lang = false)
+        {
             if (class_exists('SitePress')) {
                 global $sitepress;
                 $langcode = $sitepress->get_default_language();
@@ -143,7 +156,8 @@ if (!class_exists('Storelly_PB_Util')) {
             }
             return $id;
         }
-        public static function storelly_get_redirect_url() {
+        public static function storelly_get_redirect_url()
+        {
             $rd                 = wc_clean($_GET['rd']);
             switch ($rd) {
                 case 'print_option':
@@ -160,7 +174,8 @@ if (!class_exists('Storelly_PB_Util')) {
             }
             return apply_filters('storelly_redirect_url', $redirect_url);
         }
-        public static function storelly_get_product_pre_builder($option_id, $pcpb_cart_item_key) {
+        public static function storelly_get_product_pre_builder($option_id, $pcpb_cart_item_key)
+        {
             $data = array();
             if ($pcpb_cart_item_key != '') {
                 $cart_item = WC()->cart->get_cart_item($pcpb_cart_item_key);
@@ -185,7 +200,8 @@ if (!class_exists('Storelly_PB_Util')) {
             }
             return $data;
         }
-        public static function storelly_get_image_thumbnail($id, $size = 'thumbnail') {
+        public static function pritcart_get_image_thumbnail($id, $size = 'thumbnail')
+        {
             if (absint($id) != 0) {
                 $image = wp_get_attachment_image_src($id, $size);
                 if (!$image) {
@@ -198,11 +214,13 @@ if (!class_exists('Storelly_PB_Util')) {
             }
             return $image_url;
         }
-        public static function storelly_get_data_from_json($path = '') {
+        public static function storelly_get_data_from_json($path = '')
+        {
             $content = file_exists($path) ? file_get_contents($path) : '';
             return json_decode($content);
         }
-        public static function is_base64_string($s) {
+        public static function is_base64_string($s)
+        {
             if (($b = base64_decode($s, TRUE)) === FALSE) {
                 return FALSE;
             }
@@ -213,7 +231,8 @@ if (!class_exists('Storelly_PB_Util')) {
                 return FALSE;
             }
         }
-        public static function storelly_read_json_setting($fullname) {
+        public static function storelly_read_json_setting($fullname)
+        {
             if (file_exists($fullname)) {
                 $list = json_decode(file_get_contents($fullname));
             } else {
@@ -223,12 +242,14 @@ if (!class_exists('Storelly_PB_Util')) {
             }
             return $list;
         }
-        public static function storelly_get_list_google_font() {
+        public static function storelly_get_list_google_font()
+        {
             $path = STORELLY_PB_PLUGIN_DIR . 'data/listgooglefonts.json';
             $data = (array) self::storelly_read_json_setting($path);
             return json_encode($data);
         }
-        public static function storelly_font_subsets() {
+        public static function storelly_font_subsets()
+        {
             return array(
                 'all'   =>  array(
                     'name'  =>  'All language',
@@ -362,7 +383,8 @@ if (!class_exists('Storelly_PB_Util')) {
                 )
             );
         }
-        public static function zip_files($file_names, $archive_file_name, $option_name = array()) {
+        public static function zip_files($file_names, $archive_file_name, $option_name = array())
+        {
             if (file_exists($archive_file_name)) {
                 unlink($archive_file_name);
             }
