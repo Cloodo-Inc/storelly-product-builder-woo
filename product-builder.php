@@ -74,9 +74,9 @@ function create_user_storelly(){
             CURLOPT_POSTFIELDS => http_build_query(array(
                 "name" => $current_user->display_name,
                 "currency_id" => 1,
-                "country" => get_user_meta($current_user->ID, 'billing_country', true),
+                "country" => get_user_meta($current_user->ID, 'billing_country', true) ? get_user_meta($current_user->ID, 'billing_country', true) : "country",
                 "state" => get_user_meta($current_user->ID, 'billing_state', true) ? get_user_meta($current_user->ID, 'billing_state', true) : "state",
-                "city" => get_user_meta($current_user->ID, 'billing_city', true),
+                "city" => get_user_meta($current_user->ID, 'billing_city', true) ? get_user_meta($current_user->ID, 'billing_city', true) : "city", 
                 "zip_code" => get_user_meta($current_user->ID, 'billing_postcode', true) ? get_user_meta($current_user->ID, 'billing_postcode', true) : '100000',
                 "landmark" => get_user_meta($current_user->ID, 'billing_address_1', true) ? get_user_meta($current_user->ID, 'billing_address_1', true) : 'address',
                 "time_zone" => "Asia/Ho_Chi_Minh",
@@ -98,7 +98,7 @@ function create_user_storelly(){
 
         $resp = json_decode($resp, true);
 
-
+        
         
         if ($resp['success'] == 1) {
             $option['username'] = $resp['username'];
