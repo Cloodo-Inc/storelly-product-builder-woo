@@ -51,4 +51,8 @@ jQuery(document).ready(function ($) {
         }
       });
   });
+  
+  if (jQuery('#the-list .no-items').length == 0) {
+    jQuery('p.note-text').css('display', 'none');
+  }
 });

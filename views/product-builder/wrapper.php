@@ -14,7 +14,7 @@
     </div>
 </div>
 <?php endif; ?>
-<div class="nbdpb-popup popup-design <?php echo ($is_creating_task == 0 && is_admin_bar_showing()) ? 'is-admin-bar' : ''; ?>" data-animate="scale">
+<div class="nbdpb-popup popup-design <?php echo esc_attr($is_creating_task == 0 && is_admin_bar_showing()) ? 'is-admin-bar' : ''; ?>" data-animate="scale">
     <?php if( $is_creating_task == 0 ): ?>
     <div class="nbdpb-load-page">
         <div class="nbpb-loader">

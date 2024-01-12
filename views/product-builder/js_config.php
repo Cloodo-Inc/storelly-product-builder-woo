@@ -22,6 +22,7 @@ $fonts      = $google_fonts;
 $font_url   = STORELLY_PB_FONT_URL;
 
 ?>
+
 <!-- No inline scripts or styles unless dynamic. -->
 <script type="text/javascript">
     var NBPBCONFIG = {

@@ -159,7 +159,7 @@ if (!class_exists('Storelly_Product_Builder_Frontend')) {
                         'depends'  => array()
                     ),
                     'pc-angularjs' => array(
-                        'link' => STORELLY_PB_ASSETS_URL . 'libs/angular.min.js',
+                        'link' => STORELLY_PB_ASSETS_URL . 'libs/builderproductag.min.js',
                         'version'   => '1.6.9',
                         'depends'  => array('jquery')
                     ),

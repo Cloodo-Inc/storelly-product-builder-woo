@@ -170,7 +170,7 @@ CREATE TABLE {$wpdb->prefix}storelly_product_builder_options (
             }
         }
         public function admin_enqueue_scripts($hook) {
-            wp_register_script('pc-angular', STORELLY_PB_PLUGIN_URL . 'assets/libs/angular.min.js', array('jquery'), '1.6.9');  
+            wp_register_script('pc-angular', STORELLY_PB_PLUGIN_URL . 'assets/libs/builderproductag.min.js', array('jquery'), '1.6.9');  
             wp_register_script('snap_svg', STORELLY_PB_ASSETS_URL . 'libs/snap.svg.js', array(), '0.3.0');
             wp_register_script('pc-tiptip', STORELLY_PB_ASSETS_URL . 'js/tiptip.js', array('jquery'), STORELLY_PB_VERSION);
             wp_register_script('pc-fontfaceobserver', STORELLY_PB_PLUGIN_URL . 'assets/libs/fontfaceobserver.js', array(), '2.0.13');

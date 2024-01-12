@@ -7,6 +7,7 @@ $api_key = maybe_unserialize(get_option('storelly_connect_api_keys'));
 
 $sid = isset($api_key['consumer_key']) ? $api_key['consumer_key'] : '';
 $secret = isset($api_key['consumer_secret']) ? $api_key['consumer_secret'] : '';
+$url_new_product = get_home_url() . '/wp-admin/post-new.php?post_type=product';
 ?>
 
 <div class="storelly-box">
@@ -27,10 +28,10 @@ $secret = isset($api_key['consumer_secret']) ? $api_key['consumer_secret'] : '';
                         </th>
                         <td>
                             <p class="row">
-                                <input type="radio" name="storelly_enable_cloud2print_api" value="yes" <?php echo esc_attr(isset($storelly_pb_settings['enable_cloud2print_api']) && $storelly_pb_settings['enable_cloud2print_api'] == 'yes' ? 'checked' : ''); ?> /><?php esc_html_e('Yes', 'pc-product-builder'); ?>
+                                <input type="radio" name="storelly_enable_cloud2print_api" value="yes" <?php esc_attr_e(isset($storelly_pb_settings['enable_cloud2print_api']) && $storelly_pb_settings['enable_cloud2print_api'] == 'yes' ? 'checked' : ''); ?> /><?php esc_html_e('Yes', 'pc-product-builder'); ?>
                             </p>
                             <p class="row">
-                                <input type="radio" name="storelly_enable_cloud2print_api" value="no" <?php echo esc_attr(isset($storelly_pb_settings['enable_cloud2print_api']) && $storelly_pb_settings['enable_cloud2print_api'] == 'no' ? 'checked' : '');  ?> /><?php esc_html_e('No', 'pc-product-builder'); ?>
+                                <input type="radio" name="storelly_enable_cloud2print_api" value="no" <?php esc_attr_e(isset($storelly_pb_settings['enable_cloud2print_api']) && $storelly_pb_settings['enable_cloud2print_api'] == 'no' ? 'checked' : '');  ?> /><?php esc_html_e('No', 'pc-product-builder'); ?>
                             </p>
                         </td>
                     </tr>
@@ -44,7 +45,7 @@ $secret = isset($api_key['consumer_secret']) ? $api_key['consumer_secret'] : '';
                         <p><?php esc_html_e('Sid : ', 'pc-product-builder'); ?></p>
                     </div>
                     <div class="code-key">
-                        <input placeholder="Code SID" value="<?php echo($sid); ?>" />
+                        <input placeholder="Code SID" value="<?php esc_attr_e($sid); ?>" />
                         <p><?php esc_html_e('Enter your storelly sid API Key', 'pc-product-builder'); ?></p>
                     </div>
                 </div>
@@ -53,7 +54,7 @@ $secret = isset($api_key['consumer_secret']) ? $api_key['consumer_secret'] : '';
                         <p><?php esc_html_e('Secret :', 'pc-product-builder'); ?></p>
                     </div>
                     <div class="code-key">
-                        <input placeholder="Code secret API" value="<?php echo($secret); ?>" />
+                        <input placeholder="Code secret API" value="<?php  esc_attr_e($secret); ?>" />
                         <p><?php esc_html_e('Enter your storelly secret API Key', 'pc-product-builder'); ?></p>
                     </div>
                 </div>
@@ -62,7 +63,7 @@ $secret = isset($api_key['consumer_secret']) ? $api_key['consumer_secret'] : '';
                         <p><?php esc_html_e('Unauth token :', 'pc-product-builder'); ?></p>
                     </div>
                     <div class="code-key">
-                        <input placeholder="" value="<?php echo ($api_key['unauth_token']); ?>" disabled />
+                        <input placeholder="" value="<?php esc_attr_e($api_key['unauth_token']); ?>" disabled />
                         <p><?php esc_html_e('Unauth token off store Storelly (Automatically generated when you enter calid sid end secret)', 'pc-product-builder'); ?></p>
                     </div>
                 </div>
@@ -71,7 +72,7 @@ $secret = isset($api_key['consumer_secret']) ? $api_key['consumer_secret'] : '';
                         <p><?php esc_html_e('User name', 'pc-product-builder'); ?> :</p>
                     </div>
                     <div class="code-key">
-                        <input placeholder="" value="<?php echo($api_key['username']); ?>" />
+                        <input placeholder="" value="<?php esc_attr_e($api_key['username']); ?>" />
                     </div>
                 </div>
                 <div class="grup-box">
@@ -79,19 +80,19 @@ $secret = isset($api_key['consumer_secret']) ? $api_key['consumer_secret'] : '';
                         <p><?php esc_html_e('Password', 'pc-product-builder'); ?> :</p>
                     </div>
                     <div class="code-key">
-                        <input placeholder="" value="<?php echo($api_key['username']); ?>" />
+                        <input placeholder="" value="<?php esc_attr_e($api_key['username']); ?>" />
                         <p class="desc_sync "><?php esc_html_e('Please log in with the above account and password', 'pc-product-builder'); ?></p>
                     </div> 
                 </div>
                 
-                <?php if ($api_key['username']) : ?>
+                <?php if ($api_key['username']) : ?> 
                     <div class="grup-box">
                         <div class="desc-key">
                             <p><?php esc_html_e('Check connection to Storelly Dashboard :', 'pc-product-builder'); ?></p>
                         </div>
                         <div class="code-key">
                             <a href="https://dashboard.storelly.com/login?redirect=woocomerce"><?php esc_html_e('Click To Login', 'pc-product-builder'); ?></a>
-                            <a href="<?php echo get_home_url() . '/wp-admin/post-new.php?post_type=product'; ?>"><?php esc_html_e('Create your first product', 'pc-product-builder'); ?></a>
+                            <a href="<?php echo esc_url($url_new_product)?>"><?php esc_html_e('Create your first product', 'pc-product-builder'); ?></a>
                             <p class="desc_sync "><?php esc_html_e('Login to sync products', 'pc-product-builder'); ?></p>
                         </div>
                     </div>
@@ -101,7 +102,7 @@ $secret = isset($api_key['consumer_secret']) ? $api_key['consumer_secret'] : '';
                         <p><?php esc_html_e('Log', 'pc-product-builder'); ?> :</p>
                     </div>
                     <div class="code-key">
-                        <p><?php echo($api_key['log']); ?></p>
+                        <p><?php esc_html_e($api_key['log']); ?></p>
                     </div>
                 </div>
             </div>

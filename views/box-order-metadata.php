@@ -4,6 +4,7 @@
     <?php if (is_array($order_items)) : ?>
         <?php
         $count_img_design = 0;
+        $src_img = STORELLY_PB_PLUGIN_URL . 'assets/images/loading.gif';
         ?>
         <?php foreach ($order_items as $order_item_id => $order_item) :
             $folder_design = wc_get_order_item_meta($order_item_id, '_pcpb_folder', true);
@@ -53,7 +54,7 @@
                     </select>
                 </div>
                 <div style="padding-bottom: 4px;">
-                    <img src="<?php echo STORELLY_PB_PLUGIN_URL . 'assets/images/loading.gif'; ?>" class="storelly_loaded" id="storelly_order_submit_loading" />
+                    <img src="<?php echo esc_url($src_img); ?>" class="storelly_loaded" id="storelly_order_submit_loading" />
                 </div>
                 <div style="padding-bottom: 4px">
                     <a href="#" class="button button-primary" id="storelly_download_design_by_type"><?php esc_html_e('Download', 'pc-product-builder'); ?></a>
