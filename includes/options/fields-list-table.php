@@ -2,7 +2,7 @@
 if (!class_exists('WP_List_Table')) {
     require_once(ABSPATH . 'wp-admin/includes/class-wp-list-table.php');
 }
-class Printcart_Options_List_Table extends WP_List_Table {
+class Storelly_Options_List_Table extends WP_List_Table {
     public function __construct() {
         parent::__construct(array(
             'singular'  => esc_html__('Printing option', 'pc-product-builder'),
@@ -26,7 +26,7 @@ class Printcart_Options_List_Table extends WP_List_Table {
         ));
         $this->items = self::get_options($per_page, $current_page);
     }
-    function get_columns() {
+    public function get_columns() {
         $columns = array(
             'cb'            => '<input type="checkbox" />',
             'title'         => esc_html__('Title', 'pc-product-builder'),
@@ -43,12 +43,12 @@ class Printcart_Options_List_Table extends WP_List_Table {
     }
     public static function record_count() {
         global $wpdb;
-        $sql = "SELECT COUNT(*) FROM {$wpdb->prefix}printcart_product_builder_options";
+        $sql = "SELECT COUNT(*) FROM {$wpdb->prefix}storelly_product_builder_options";
         return $wpdb->get_var($sql);
     }
     public function get_options($per_page = 10, $page_number = 1) {
         global $wpdb;
-        $sql  = "SELECT * FROM {$wpdb->prefix}printcart_product_builder_options";
+        $sql  = "SELECT * FROM {$wpdb->prefix}storelly_product_builder_options";
         $sql .= " ORDER BY modified DESC LIMIT $per_page";
         $sql .= ' OFFSET ' . ($page_number - 1) * $per_page;
         $result = $wpdb->get_results($sql, 'ARRAY_A');
@@ -103,28 +103,28 @@ class Printcart_Options_List_Table extends WP_List_Table {
     }
     public function delete_option($id) {
         global $wpdb;
-        $sql = "DELETE FROM {$wpdb->prefix}printcart_product_builder_options";
+        $sql = "DELETE FROM {$wpdb->prefix}storelly_product_builder_options";
         $sql .= " WHERE id = " . esc_sql($id);
         $result = $wpdb->query($sql);
         if ($result) $this->clear_transients();
     }
     public function unpublish_option($id) {
         global $wpdb;
-        $result = $wpdb->update($wpdb->prefix . 'printcart_product_builder_options', array(
+        $result = $wpdb->update($wpdb->prefix . 'storelly_product_builder_options', array(
             'published' => 0
         ), array('id' => esc_sql($id)));
         if ($result) $this->clear_transients();
     }
     public function publish_option($id) {
         global $wpdb;
-        $result = $wpdb->update($wpdb->prefix . 'printcart_product_builder_options', array(
+        $result = $wpdb->update($wpdb->prefix . 'storelly_product_builder_options', array(
             'published' => 1
         ), array('id' => esc_sql($id)));
         if ($result) $this->clear_transients();
     }
     public function copy_options($id) {
         global $wpdb;
-        $sql    = "SELECT * FROM {$wpdb->prefix}printcart_product_builder_options";
+        $sql    = "SELECT * FROM {$wpdb->prefix}storelly_product_builder_options";
         $sql   .= " WHERE id = " . esc_sql($id);
         $result = $wpdb->get_results($sql, 'ARRAY_A');
         if (count($result[0])) {
@@ -139,7 +139,7 @@ class Printcart_Options_List_Table extends WP_List_Table {
                 'created'       => $modified_date->format('Y-m-d H:i:s'),
                 'created_by'    => wp_get_current_user()->ID
             );
-            $in_res = $wpdb->insert("{$wpdb->prefix}printcart_product_builder_options", $arr);
+            $in_res = $wpdb->insert("{$wpdb->prefix}storelly_product_builder_options", $arr);
             if ($in_res) {
                 $this->clear_transients();
                 return $in_res;

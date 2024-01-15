@@ -4,12 +4,12 @@ msgstr ""
 "Project-Id-Version: pc-product-builder "
 "v1.0.0\n"
 "Report-Msgid-Bugs-To: Translator Name "
-"<printcart@gmail.com>\n"
+"<storelly@gmail.com>\n"
 "POT-Creation-Date: 2023-04-26 14:44+0700\n"
 "PO-Revision-Date: \n"
-"Last-Translator: Your Name <printcart@gmail."
+"Last-Translator: Your Name <storelly@gmail."
 "com>\n"
-"Language-Team: Your Team <printcart@gmail."
+"Language-Team: Your Team <storelly@gmail."
 "com>\n"
 "Language: en_US\n"
 "MIME-Version: 1.0\n"
@@ -305,7 +305,7 @@ msgid "Sub attribute name"
 msgstr ""
 
 #: includes/class-admin-options.php:892
-msgid "Printcart product builder"
+msgid "Storelly product builder"
 msgstr ""
 
 #: includes/class-admin-options.php:991
@@ -622,12 +622,12 @@ msgid "Select"
 msgstr ""
 
 #: views/menu-settings.php:5
-msgid "Printcart settings"
+msgid "Storelly settings"
 msgstr ""
 
 #: views/menu-settings.php:17
 msgid ""
-"Enable Printcart cloud api to create PDF"
+"Enable Storelly cloud api to create PDF"
 msgstr ""
 
 #: views/menu-settings.php:31

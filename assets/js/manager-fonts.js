@@ -76,12 +76,12 @@ fontApp.controller("fontCtrl", [
     $scope.updateGoogleFont = function ($event) {
       jQuery
         .ajax({
-          url: printcart_pb_fonts.url,
+          url: storelly_pb_fonts.url,
           method: "POST",
           data: {
-            action: "printcart_add_google_font",
+            action: "storelly_add_google_font",
             fonts: JSON.stringify($scope.selectedFonts),
-            nonce: printcart_pb_fonts.nonce,
+            nonce: storelly_pb_fonts.nonce,
           },
           beforeSend: function () {
             jQuery(".showbox").show();
@@ -92,7 +92,7 @@ fontApp.controller("fontCtrl", [
         })
         .done(function (data) {
           data = JSON.parse(data);
-          swal(printcart_pb_fonts.complete, data.mes, "success");
+          swal(storelly_pb_fonts.complete, data.mes, "success");
         });
     };
     $scope.init();

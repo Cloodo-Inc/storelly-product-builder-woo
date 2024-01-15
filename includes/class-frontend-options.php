@@ -2,8 +2,8 @@
 if (!defined('ABSPATH')) {
     exit;
 }
-if (!class_exists('PRINTCART_FRONTEND_OPTIONS')) {
-    class PRINTCART_FRONTEND_OPTIONS {
+if (!class_exists('STORELLY_FRONTEND_OPTIONS')) {
+    class STORELLY_FRONTEND_OPTIONS {
         protected static $instance;
         public $is_edit_mode = FALSE;
         /** Holds the cart key when editing a product in the cart **/
@@ -58,18 +58,18 @@ if (!class_exists('PRINTCART_FRONTEND_OPTIONS')) {
         }
         public static function get_option($id) {
             global $wpdb;
-            $sql = "SELECT * FROM {$wpdb->prefix}printcart_product_builder_options";
+            $sql = "SELECT * FROM {$wpdb->prefix}storelly_product_builder_options";
             $sql .= " WHERE id = " . esc_sql($id);
             $result = $wpdb->get_results($sql, 'ARRAY_A');
             return count($result[0]) ? $result[0] : false;
         }
         public static function get_product_option($product_id) {
-            $enable = get_post_meta($product_id, '_printcart_pb_enable', true);
+            $enable = get_post_meta($product_id, '_storelly_pb_enable', true);
             if (!$enable) return false;
-            $option_id = get_transient('printcart_product_builder_' . $product_id);
+            $option_id = get_transient('storelly_product_builder_' . $product_id);
             if (false === $option_id) {
                 global $wpdb;
-                $sql = "SELECT id, product_ids FROM {$wpdb->prefix}printcart_product_builder_options WHERE published = 1";
+                $sql = "SELECT id, product_ids FROM {$wpdb->prefix}storelly_product_builder_options WHERE published = 1";
                 $options = $wpdb->get_results($sql, 'ARRAY_A');
                 if ($options) {
                     $_options = array();
@@ -86,7 +86,7 @@ if (!class_exists('PRINTCART_FRONTEND_OPTIONS')) {
                     $_options = array_reverse($_options);
                     $option_id = isset($_options[0]) && isset($_options[0]['id']) ? $_options[0]['id'] : '';
                     if ($option_id) {
-                        set_transient('printcart_product_builder_' . $product_id, $option_id);
+                        set_transient('storelly_product_builder_' . $product_id, $option_id);
                     }
                 }
             }
@@ -158,7 +158,7 @@ if (!class_exists('PRINTCART_FRONTEND_OPTIONS')) {
                                     foreach ($attr as $s_index => $sattr) {
                                         foreach ($sattr['views'] as $v_index => $view) {
                                             $pb_image_obj = wp_get_attachment_url(absint($view['image']));
-                                            $options['fields'][$key]['general']['pb_config'][$a_index][$s_index]['views'][$v_index]['image_url'] =  $pb_image_obj ? $pb_image_obj : PRINTCART_PB_ASSETS_URL . 'images/placeholder.png';
+                                            $options['fields'][$key]['general']['pb_config'][$a_index][$s_index]['views'][$v_index]['image_url'] =  $pb_image_obj ? $pb_image_obj : STORELLY_PB_ASSETS_URL . 'images/placeholder.png';
                                         }
                                     }
                                 }
@@ -168,19 +168,19 @@ if (!class_exists('PRINTCART_FRONTEND_OPTIONS')) {
                             foreach ($field['general']['attributes']['options'] as $op_index => $option) {
                                 if( isset($option['enable_subattr']) && $option['enable_subattr'] == 'on' && isset($option['sub_attributes']) && count($option['sub_attributes']) > 0 ){
                                     foreach( $option['sub_attributes'] as $sa_index => $sattr ){
-                                        $options['fields'][$key]['general']['attributes']['options'][$op_index]['sub_attributes'][$sa_index]['image_url'] = Printcart_PB_Util::printcart_get_image_thumbnail( $sattr['image'] );
+                                        $options['fields'][$key]['general']['attributes']['options'][$op_index]['sub_attributes'][$sa_index]['image_url'] = Storelly_PB_Util::storelly_get_image_thumbnail( $sattr['image'] );
                                     }
                                 }else{
-                                    $options['fields'][$key]['general']['attributes']['options'][$op_index]['image_url'] = Printcart_PB_Util::printcart_get_image_thumbnail( $option['image'] );
+                                    $options['fields'][$key]['general']['attributes']['options'][$op_index]['image_url'] = Storelly_PB_Util::storelly_get_image_thumbnail( $option['image'] );
                                 }
                             };
-                            $options['fields'][$key]['general']['component_icon_url'] = Printcart_PB_Util::printcart_get_image_thumbnail($field['general']['component_icon']);
+                            $options['fields'][$key]['general']['component_icon_url'] = Storelly_PB_Util::storelly_get_image_thumbnail($field['general']['component_icon']);
                         }
                         if (isset($field['general']['attributes']['bg_type']) && $field['general']['attributes']['bg_type'] == 'i') {
                             foreach ($field['general']['attributes']['options'] as $op_index => $option) {
                                 foreach ($option['bg_image'] as $bg_index => $bg) {
                                     $bg_obj = wp_get_attachment_url(absint($bg));
-                                    $options['fields'][$key]['general']['attributes']['options'][$op_index]['bg_image_url'][$bg_index] = $bg_obj ? $bg_obj : PRINTCART_PB_ASSETS_URL . 'images/placeholder.png';
+                                    $options['fields'][$key]['general']['attributes']['options'][$op_index]['bg_image_url'][$bg_index] = $bg_obj ? $bg_obj : STORELLY_PB_ASSETS_URL . 'images/placeholder.png';
                                 }
                             };
                         }
@@ -190,7 +190,7 @@ if (!class_exists('PRINTCART_FRONTEND_OPTIONS')) {
                             $view['base'] = isset($view['base']) ? $view['base'] : 0;
                             $options['views'][$vkey]['base'] = $view['base'];
                             $view_bg_obj = wp_get_attachment_url(absint($view['base']));
-                            $options['views'][$vkey]['base_url'] = $view_bg_obj ? $view_bg_obj : PRINTCART_PB_ASSETS_URL . 'images/placeholder.png';
+                            $options['views'][$vkey]['base_url'] = $view_bg_obj ? $view_bg_obj : STORELLY_PB_ASSETS_URL . 'images/placeholder.png';
                         }
                     }
                     $product        = wc_get_product($product_id);
@@ -201,7 +201,7 @@ if (!class_exists('PRINTCART_FRONTEND_OPTIONS')) {
                     $cart_item_key  = '';
                     $quantity       = 1;
                     $nbau           = '';
-                    $nbdpb_enable   = get_post_meta($product_id, '_printcart_pb_enable', true);
+                    $nbdpb_enable   = get_post_meta($product_id, '_storelly_pb_enable', true);
 
                     if (isset($_POST['pcpb-field'])) {
                         $form_values = $_POST['pcpb-field'];
@@ -247,7 +247,7 @@ if (!class_exists('PRINTCART_FRONTEND_OPTIONS')) {
                     }
 
                     ob_start();
-                    Printcart_PB_Util::printcart_get_template('single-product/option-builder.php', array(
+                    Storelly_PB_Util::storelly_get_template('single-product/option-builder.php', array(
                         'product_id'            => $product_id,
                         'options'               => $options,
                         'type'                  => $type,
@@ -262,7 +262,7 @@ if (!class_exists('PRINTCART_FRONTEND_OPTIONS')) {
                         'nbau'                  => $nbau,
                     ));
                     $options_form = ob_get_clean();
-                    echo $options_form;
+                    echo($options_form);
                 }
             }
         }
@@ -296,11 +296,11 @@ if (!class_exists('PRINTCART_FRONTEND_OPTIONS')) {
                 $option_price   = $this->option_processing($options, $original_price, $nbd_field, $quantity, null, $product);
                 if (isset($post_data['prcpb-folder'])) {
                     $cart_item_data['pcpb_meta']['pcpb'] = $post_data['prcpb-folder'];
-                    $path   = PRINTCART_PB_CUSTOMER_DIR . '/' . $post_data['prcpb-folder'] . '/preview';
-                    $images = Printcart_IO::get_list_images($path, 1);
+                    $path   = STORELLY_PB_CUSTOMER_DIR . '/' . $post_data['prcpb-folder'] . '/preview';
+                    $images = Storelly_IO::get_list_images($path, 1);
                     if (count($images)) {
                         ksort($images);
-                        $option_price['cart_image'] = Printcart_IO::convert_path_to_url(end($images));
+                        $option_price['cart_image'] = Storelly_IO::convert_path_to_url(end($images));
                     }
                 }
                 $options['fields']                              = base64_encode($options['fields']);
@@ -320,8 +320,8 @@ if (!class_exists('PRINTCART_FRONTEND_OPTIONS')) {
             if ($files['error'][$field_id] == 0) {
                 $ext = pathinfo($file, PATHINFO_EXTENSION);
                 $new_name = strtotime("now") . substr(md5(rand(1111, 9999)), 0, 8) . '.' . $ext;
-                $new_path = PRINTCART_PB_UPLOAD_DIR . '/' . $user_folder . '/' . $new_name;
-                $mkpath = wp_mkdir_p(PRINTCART_PB_UPLOAD_DIR . '/' . $user_folder);
+                $new_path = STORELLY_PB_UPLOAD_DIR . '/' . $user_folder . '/' . $new_name;
+                $mkpath = wp_mkdir_p(STORELLY_PB_UPLOAD_DIR . '/' . $user_folder);
                 if ($mkpath) {
                     if (move_uploaded_file($files['tmp_name'][$field_id], $new_path)) {
                         $nbd_upload_fields[$field_id] = $user_folder . '/' . $new_name;
@@ -338,7 +338,7 @@ if (!class_exists('PRINTCART_FRONTEND_OPTIONS')) {
             }
         }
         public function option_processing($options, $original_price, $fields, $quantity, $cart_item_key = null, $product) {
-            if (Printcart_PB_Util::is_base64_string($options['fields'])) {
+            if (Storelly_PB_Util::is_base64_string($options['fields'])) {
                 $options['fields'] = base64_decode($options['fields']);
             }
             $option_fields  = maybe_unserialize($options['fields']);
@@ -393,7 +393,7 @@ if (!class_exists('PRINTCART_FRONTEND_OPTIONS')) {
                     }
                     $factor = floatval($option['price'][0]);
 
-                    if ($has_subattr) {
+                    if ($has_subattr && isset($val['sub_value'])) {
                         $soption = $option['sub_attributes'][$val['sub_value']];
                         $factor += floatval($soption['price'][0]);
                     }
@@ -569,11 +569,11 @@ if (!class_exists('PRINTCART_FRONTEND_OPTIONS')) {
                     $quantity       = $cart_item['quantity'];
                     $option_price   = $this->option_processing($options, $original_price, $fields, $quantity, $cart_item_key, $product);
                     if (isset($cart_item['pcpb_meta']['pcpb'])) {
-                        $path   = PRINTCART_PB_CUSTOMER_DIR . '/' . $cart_item['pcpb_meta']['pcpb'] . '/preview';
-                        $images = Printcart_IO::get_list_images($path, 1);
+                        $path   = STORELLY_PB_CUSTOMER_DIR . '/' . $cart_item['pcpb_meta']['pcpb'] . '/preview';
+                        $images = Storelly_IO::get_list_images($path, 1);
                         if (count($images)) {
                             ksort($images);
-                            $option_price['cart_image'] = Printcart_IO::convert_path_to_url(end($images));
+                            $option_price['cart_image'] = Storelly_IO::convert_path_to_url(end($images));
                         }
                     }
                     $adjusted_price = $original_price + $option_price['total_price'] - $option_price['discount_price'];
@@ -596,7 +596,7 @@ if (!class_exists('PRINTCART_FRONTEND_OPTIONS')) {
                             if (strpos($field['val'], 'http') !== false) {
                                 $file_url = $field['val'];
                             } else {
-                                $file_url = Printcart_IO::convert_path_to_url(PRINTCART_PB_UPLOAD_DIR . '/' . $field['val']);
+                                $file_url = Storelly_IO::convert_path_to_url(STORELLY_PB_UPLOAD_DIR . '/' . $field['val']);
                             }
                             $field['value_name'] = '<a href="' . $file_url . '">' . $field['value_name'] . '</a>';
                         }
@@ -673,7 +673,7 @@ if (!class_exists('PRINTCART_FRONTEND_OPTIONS')) {
                             if (strpos($field['val'], 'http') !== false) {
                                 $file_url = $field['val'];
                             } else {
-                                $file_url = Printcart_IO::convert_path_to_url(PRINTCART_PB_UPLOAD_DIR . '/' . $field['val']);
+                                $file_url = Storelly_IO::convert_path_to_url(STORELLY_PB_UPLOAD_DIR . '/' . $field['val']);
                             }
                             $field['value_name'] = '<a href="' . $file_url . '">' . $field['value_name'] . '</a>';
                         }
@@ -784,5 +784,5 @@ if (!class_exists('PRINTCART_FRONTEND_OPTIONS')) {
         }
     }
 }
-$printcart_frontend_options = PRINTCART_FRONTEND_OPTIONS::instance();
-$printcart_frontend_options->init();
+$storelly_frontend_options = STORELLY_FRONTEND_OPTIONS::instance();
+$storelly_frontend_options->init();

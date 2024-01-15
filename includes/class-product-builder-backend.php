@@ -2,8 +2,8 @@
 if (!defined('ABSPATH')) {
     exit;
 }
-if (!class_exists('Printcart_Product_Builder_Backend')) {
-    class Printcart_Product_Builder_Backend {
+if (!class_exists('Storelly_Product_Builder_Backend')) {
+    class Storelly_Product_Builder_Backend {
         public function __construct() {
         }
         public function init() {
@@ -25,15 +25,15 @@ if (!class_exists('Printcart_Product_Builder_Backend')) {
             }
         }
         public function admin_hook() {
-            add_action('admin_menu', array($this, 'printcart_menu'));
-            add_action('plugins_loaded', array($this, 'printcart_user_role'));
+            add_action('admin_menu', array($this, 'storelly_menu'));
+            add_action('plugins_loaded', array($this, 'storelly_user_role'));
         }
         public function frontend_hook() {
         }
-        public function printcart_menu() {
-            do_action('printcart_pb_menu');
+        public function storelly_menu() {
+            do_action('storelly_pb_menu');
         }
-        public function printcart_user_role() {
+        public function storelly_user_role() {
             $capabilities = array(
                 1 => 'manage_product_builder',
             );
@@ -61,10 +61,10 @@ if (!class_exists('Printcart_Product_Builder_Backend')) {
         }
         public static function install() {
             /* Install */
-            Printcart_Install::create_pages();
-            Printcart_Install::create_tables();
-            Printcart_Install::init_files_and_folders();
-            update_option('printcart_version_plugin', PRINTCART_PB_VERSION);
+            Storelly_Install::create_pages();
+            Storelly_Install::create_tables();
+            Storelly_Install::init_files_and_folders();
+            update_option('pstorelly_version_plugin', STORELLY_PB_VERSION);
         }
     }
 }

@@ -2,8 +2,8 @@
 if (!defined('ABSPATH')) {
     exit;
 }
-if (!class_exists('PRINTCART_IMAGE')) {
-    class PRINTCART_IMAGE {
+if (!class_exists('STORELLY_IMAGE')) {
+    class STORELLY_IMAGE {
         public static function resize_imagepng($file, $w, $h, $path = '') {
             list($width, $height)   = getimagesize($file);
             if ($path != '') $h    = round($w / $width * $height);

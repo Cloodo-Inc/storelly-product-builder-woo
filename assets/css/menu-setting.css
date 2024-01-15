@@ -1,0 +1,102 @@
+.form-table td {
+    vertical-align: inherit;
+}
+
+.storelly-box {
+    margin: 5px 15px 2px;
+}
+
+.content-form {
+    display: flex;
+}
+
+.content-form .pc-table {
+    max-width: 23%;
+    width: 100%;
+}
+
+.content-form .box-key {
+    max-width: 57%;
+    width: 100%;
+    padding: 20px;
+    background-color: #fff;
+}
+
+.content-form .box-key .grup-box {
+    display: flex;
+    align-items: center;
+    margin-bottom: 30px;
+}
+
+.content-form .box-key .desc-key {
+    max-width: 20%;
+    width: 100%;
+}
+
+.content-form .box-key .desc-key p {
+    font-size: 14px;
+    color: #333;
+    font-weight: 500;
+}
+
+.content-form .box-key .code-key {
+    max-width: 60%;
+    width: 100%;
+    padding-left: 30px;
+}
+
+.content-form .box-key .code-key input {
+    max-width: 350px;
+    width: 100%;
+    height: 34px;
+    padding: 6px 12px;
+    font-size: 14px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075);
+}
+
+.content-form .box-key .code-key input:focus {
+    box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075);
+}
+
+.content-form .box-key .code-key p {
+    margin: 0px;
+}
+
+.content-form .box-key .code-key a {
+    padding: 10px;
+    border: 1px solid #2271b1;
+    border-radius: 4px;
+    display: inline-block;
+    text-decoration: none;
+}
+
+.content-form .box-key .code-key p {
+    margin: 0px;
+}
+
+.content-form .box-key .code-key p.desc_sync {
+    margin-top: 5px;
+}
+
+.content-form .box-key .code-key p.desc_sync a {
+    padding: 0px;
+    border: none;
+    border-radius: none;
+    font-size: 15px;
+    color: #2271b1;
+    text-decoration: underline;
+}
+
+.content-form .box-key .code-key p.desc_sync a:hover {
+    color: #2271b1;
+    color: #000;
+}
+
+/* hidden left menu  ( print pdf) */
+
+
+.storelly-form .content-form .form-table tbody {
+    display: none;
+}

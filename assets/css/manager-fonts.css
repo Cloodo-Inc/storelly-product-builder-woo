@@ -7,6 +7,7 @@
   z-index: 999;
   background: #fdfdfd;
 }
+
 .loader {
   position: relative;
   margin: -50px auto 0 -50px;
@@ -14,11 +15,13 @@
   top: 50%;
   left: 50%;
 }
+
 .loader:before {
   content: "";
   display: block;
   padding-top: 100%;
 }
+
 .circular {
   -webkit-animation: rotate 2s linear infinite;
   -moz-animation: rotate 2s linear infinite;
@@ -35,6 +38,7 @@
   right: 0;
   margin: auto;
 }
+
 .path {
   stroke-dasharray: 1, 200;
   stroke-dashoffset: 0;
@@ -45,10 +49,12 @@
   animation: dash 1.5s ease-in-out infinite, color 6s ease-in-out infinite;
   stroke-linecap: round;
 }
+
 .gg-font-pagination {
   margin-top: 10px;
   font-size: 0;
 }
+
 .gg-font-pagination span.active {
   background: #0085ba;
   color: #fff;
@@ -60,6 +66,7 @@
   -ms-box-shadow: 0 1px 4px 0 rgba(0, 0, 0, 0.14);
   box-shadow: 0 1px 4px 0 rgba(0, 0, 0, 0.14);
 }
+
 .gg-font-pagination span {
   padding: 0 11px;
   height: 30px;
@@ -71,26 +78,32 @@
   font-size: 14px;
   margin-right: 3px;
 }
+
 .gg-font-option {
   padding-top: 15px;
 }
+
 .gg-font-option select {
   vertical-align: top;
 }
+
 .gg-font-preview-wrap-inner {
   overflow: hidden;
   margin-left: -5px;
   margin-right: -5px;
 }
+
 .gg-font-preview {
   width: 25%;
   margin: 0;
   float: left;
   cursor: pointer;
 }
+
 .gg-font-preview-inner-wrap {
   padding: 5px;
 }
+
 .gg-font-preview-inner {
   padding: 5px 10px;
   -webkit-box-shadow: 0 1px 4px 0 rgba(0, 0, 0, 0.14);
@@ -100,20 +113,25 @@
   background: #fff;
   position: relative;
 }
+
 .gg-font-preview-inner p {
   margin: 0;
   word-wrap: break-word;
 }
+
 .gg-font-name {
   font-size: 20px;
 }
+
 .gg-font-preview:nth-child(4n + 1) {
   clear: both;
 }
+
 .gg-font-preview-inner .action.uncheck {
   color: #ddd;
   border: 1px solid #ddd;
 }
+
 .gg-font-preview-inner .action {
   position: absolute;
   right: 5px;
@@ -127,7 +145,8 @@
   text-align: center;
   border-radius: 50%;
 }
-.printcart-container .postbox {
+
+.storelly-container .postbox {
   background: #fff;
   -webkit-box-shadow: 0 1px 4px 0 rgba(0, 0, 0, 0.14);
   -moz-box-shadow: 0 1px 4px 0 rgba(0, 0, 0, 0.14);
@@ -135,16 +154,19 @@
   box-shadow: 0 1px 4px 0 rgba(0, 0, 0, 0.14);
   border: none;
 }
-.printcart-pagesize-wrap {
+
+.storelly-pagesize-wrap {
   overflow: hidden;
   margin: 10px 0;
   line-height: 30px;
 }
-.printcart-admin-font-warning {
+
+.storelly-admin-font-warning {
   font-size: 10px;
   font-weight: bold;
   color: red;
 }
+
 @-webkit-keyframes rotate {
   100% {
     -webkit-transform: rotate(360deg);
@@ -198,6 +220,7 @@
 }
 
 @-webkit-keyframes color {
+
   0%,
   100% {
     stroke: #d62d20;
@@ -218,6 +241,7 @@
 }
 
 @keyframes color {
+
   0%,
   100% {
     stroke: #d62d20;

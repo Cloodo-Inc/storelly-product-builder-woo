@@ -1,14 +1,14 @@
 <?php
 if (!defined('ABSPATH')) exit;
-if (!class_exists('Printcart_Install')) {
-    class Printcart_Install {
+if (!class_exists('Storelly_Install')) {
+    class Storelly_Install {
         public function __construct() {
             //todo something when initial class
         }
         public static function create_pages() {
             /* Create product builder page */
-            $printcart_product_builder_page_id = Printcart_PB_Util::printcart_get_page_id('product_builder');
-            if ($printcart_product_builder_page_id == -1 || !get_post($printcart_product_builder_page_id)) {
+            $storelly_product_builder_page_id = Storelly_PB_Util::storelly_get_page_id('product_builder');
+            if ($storelly_product_builder_page_id == -1 || !get_post($storelly_product_builder_page_id)) {
                 $post = array(
                     'post_name'         => 'product-builder',
                     'post_status'       => 'publish',
@@ -19,17 +19,17 @@ if (!class_exists('Printcart_Install')) {
                     'comment_status'    => 'closed',
                     'post_date'         => date('Y-m-d H:i:s')
                 );
-                $printcart_product_builder_page_id = wp_insert_post($post, false);
-                update_option('printcart_product_builder_page_id', $printcart_product_builder_page_id);
+                $storelly_product_builder_page_id = wp_insert_post($post, false);
+                update_option('storelly_product_builder_page_id', $storelly_product_builder_page_id);
             }
         }
         public static function create_tables() {
-            do_action('printcart_create_tables');
+            do_action('storelly_create_tables');
         }
         public static function init_files_and_folders() {
-            Printcart_IO::mkdir(PRINTCART_PB_FONT_DIR);
-            Printcart_IO::mkdir(PRINTCART_PB_CUSTOMER_DIR);
-            do_action('printcart_init_files_and_folders');
+            Storelly_IO::mkdir(STORELLY_PB_FONT_DIR);
+            Storelly_IO::mkdir(STORELLY_PB_CUSTOMER_DIR);
+            do_action('storelly_init_files_and_folders');
         }
     }
 }

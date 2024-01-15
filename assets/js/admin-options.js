@@ -30,22 +30,22 @@ angular
     /* end. quantity */
     $scope.add_field = function (type, ftype) {
       var field = {};
-      angular.copy(PRINTCART_OPTION_FIELD, field);
+      angular.copy(STORELLY_OPTION_FIELD, field);
       var d = new Date();
       field["id"] = "f" + d.getTime();
       field.isExpand = true;
       if (angular.isDefined(type)) {
         field.general.title.value =
-          printcart_options.printcart_options_lang[type];
+          storelly_options.storelly_options_lang[type];
         field.nbd_template = "nbd." + type;
         if (angular.isUndefined(ftype)) {
           if (
-            angular.isDefined($scope.printcart_options[type]) &&
+            angular.isDefined($scope.storelly_options[type]) &&
             type != "builder" &&
-            $scope.printcart_options[type] == 1
+            $scope.storelly_options[type] == 1
           ) {
           } else {
-            $scope.printcart_options[type] = 1;
+            $scope.storelly_options[type] = 1;
           }
           field.nbd_type = type;
           angular.forEach(field.general.attributes, function (attr, a_key) {
@@ -56,7 +56,7 @@ angular
           if (angular.isUndefined($scope.options.views))
             $scope.options.views = [
               {
-                name: printcart_options.printcart_options_lang.view_name,
+                name: storelly_options.storelly_options_lang.view_name,
                 base: 0,
               },
             ];
@@ -116,7 +116,7 @@ angular
     };
     $scope.addView = function () {
       $scope.options.views.push({
-        name: printcart_options.printcart_options_lang.view_name,
+        name: storelly_options.storelly_options_lang.view_name,
         base: 0,
       });
       $scope.initfieldValue();
@@ -135,9 +135,9 @@ angular
         return;
       }
       file_frame = wp.media.frames.file_frame = wp.media({
-        title: printcart_options.printcart_options_lang.choose_image,
+        title: storelly_options.storelly_options_lang.choose_image,
         button: {
-          text: printcart_options.printcart_options_lang.choose_image,
+          text: storelly_options.storelly_options_lang.choose_image,
         },
         library: {
           type: ["image"],
@@ -181,9 +181,9 @@ angular
         return;
       }
       file_frame = wp.media.frames.file_frame = wp.media({
-        title: printcart_options.printcart_options_lang.choose_image,
+        title: storelly_options.storelly_options_lang.choose_image,
         button: {
-          text: printcart_options.printcart_options_lang.choose_image,
+          text: storelly_options.storelly_options_lang.choose_image,
         },
         library: {
           type: ["image"],
@@ -268,7 +268,7 @@ angular
     };
     $scope.delete_field = function (index) {
       var con = confirm(
-        printcart_options.printcart_options_lang.want_to_delete
+        storelly_options.storelly_options_lang.want_to_delete
       );
       if (con) {
         var field = $scope.options.fields[index];
@@ -278,11 +278,11 @@ angular
     };
     $scope.clear_all_fields = function (index) {
       var con = confirm(
-        printcart_options.printcart_options_lang.want_to_delete_all
+        storelly_options.storelly_options_lang.want_to_delete_all
       );
       if (con) {
         $scope.options.fields = [];
-        angular.forEach($scope.printcart_options, function (option, key) {
+        angular.forEach($scope.storelly_options, function (option, key) {
           option = 0;
         });
         $scope.initfieldValue();
@@ -361,7 +361,7 @@ angular
           if (angular.isUndefined($scope.options.views)) {
             $scope.options.views = [
               {
-                name: printcart_options.printcart_options_lang.view_name,
+                name: storelly_options.storelly_options_lang.view_name,
                 base: 0,
               },
             ];
@@ -454,11 +454,11 @@ angular
             "slow"
           );
           alert(
-            printcart_options.printcart_options_lang.max_input_var +
+            storelly_options.storelly_options_lang.max_input_var +
               " " +
               $scope.max_input_vars +
               ". " +
-              printcart_options.printcart_options_lang.max_input_notice
+              storelly_options.storelly_options_lang.max_input_notice
           );
         }
       }, 2000);
@@ -566,8 +566,8 @@ angular
       });
     };
     $scope.init = function (options) {
-      $scope.printcart_options = {};
-      $scope.options = PRINTCART_OPTIONS;
+      $scope.storelly_options = {};
+      $scope.options = STORELLY_OPTIONS;
       $scope.current_input_vars = 1;
       $scope.max_input_vars = max_input_vars;
       if (angular.isDefined(options)) {
@@ -968,7 +968,7 @@ angular
           $scope.options["fields"][fieldIndex]["general"][key].remove_att
         )
       ) {
-        alert(printcart_options.printcart_options_lang.can_not_remove_att);
+        alert(storelly_options.storelly_options_lang.can_not_remove_att);
         return;
       }
       $scope.options["fields"][fieldIndex]["general"][key]["options"].splice(
@@ -1098,12 +1098,12 @@ angular
           $scope.options["fields"][fieldIndex]["general"][key].add_att
         )
       ) {
-        alert(printcart_options.printcart_options_lang.can_not_add_att);
+        alert(storelly_options.storelly_options_lang.can_not_add_att);
         return;
       }
 
       $scope.options["fields"][fieldIndex]["general"][key]["options"].push({
-        name: printcart_options.printcart_options_lang.attribute_name,
+        name: storelly_options.storelly_options_lang.attribute_name,
         des: "",
         price: [],
         selected: 0,
@@ -1140,7 +1140,7 @@ angular
       $scope.options["fields"][fieldIndex]["general"]["attributes"]["options"][
         opIndex
       ]["sub_attributes"].push({
-        name: printcart_options.printcart_options_lang.sub_attribute_name,
+        name: storelly_options.storelly_options_lang.sub_attribute_name,
         des: "",
         price: [],
         selected: 0,
@@ -1190,9 +1190,9 @@ angular
         return;
       }
       file_frame = wp.media.frames.file_frame = wp.media({
-        title: printcart_options.printcart_options_lang.choose_image,
+        title: storelly_options.storelly_options_lang.choose_image,
         button: {
-          text: printcart_options.printcart_options_lang.choose_image,
+          text: storelly_options.storelly_options_lang.choose_image,
         },
         library: {
           type: ["image"],
@@ -1241,9 +1241,9 @@ angular
         return;
       }
       file_frame = wp.media.frames.file_frame = wp.media({
-        title: printcart_options.printcart_options_lang.choose_image,
+        title: storelly_options.storelly_options_lang.choose_image,
         button: {
-          text: printcart_options.printcart_options_lang.choose_image,
+          text: storelly_options.storelly_options_lang.choose_image,
         },
         library: {
           type: ["image"],
@@ -1283,9 +1283,9 @@ angular
         return;
       }
       file_frame = wp.media.frames.file_frame = wp.media({
-        title: printcart_options.printcart_options_lang.choose_image,
+        title: storelly_options.storelly_options_lang.choose_image,
         button: {
-          text: printcart_options.printcart_options_lang.choose_image,
+          text: storelly_options.storelly_options_lang.choose_image,
         },
         library: {
           type: ["image"],
@@ -1705,7 +1705,7 @@ jQuery(document).ready(function ($) {
     numberOfMonths: 1,
     showButtonPanel: true,
     showOn: "button",
-    buttonImage: printcart_options.calendar_image,
+    buttonImage: storelly_options.calendar_image,
     buttonImageOnly: true,
     onSelect: function (selectedDate) {
       var option = $(this).is(".date_from") ? "minDate" : "maxDate";

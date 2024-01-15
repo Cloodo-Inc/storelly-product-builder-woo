@@ -754,7 +754,7 @@ nbdpbApp.controller("nbpbCtrl", [
           type: "application/json",
         }
       );
-      var action = "printcart_save_product_builder_design";
+      var action = "storelly_save_product_builder_design";
       NBDDataFactory.get(action, dataObj, function (data) {
         data = JSON.parse(data);
         if (data.flag == "success") {
@@ -1517,10 +1517,10 @@ nbdpbApp.controller("nbpbCtrl", [
     $scope.deleteLayer = function (type) {
       var type_confirm = "confirm_delete_" + type;
       var con = confirm($scope.settings.i18n[type_confirm]);
-      if (con) {
-        var currentComponent =
+      var currentComponent =
             $scope.resource.components[$scope.resource.currentComponent],
           views = currentComponent.general["nbpb_" + type + "_configs"].views;
+      if (con) {
         _.each(views, function (view, viewIndex) {
           var layerIndex = $scope.getLayerIndex(currentComponent.id, viewIndex),
             item = $scope.getLayerById(currentComponent.id, viewIndex),

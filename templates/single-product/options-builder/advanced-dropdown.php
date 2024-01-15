@@ -27,7 +27,7 @@
             <div class="nbo-ad-pseudo-list <?php if ($sublist_position == 'r') echo 'nbo-ad-right'; ?>">
                 <?php
                 foreach ($field['general']['attributes']["options"] as $key => $attr) :
-                    $image_url = Printcart_PB_Util::pritcart_get_image_thumbnail($attr['image']);
+                    $image_url = Storelly_PB_Util::storelly_get_image_thumbnail($attr['image']);
                     $enable_subattr = isset($attr['enable_subattr']) ? $attr['enable_subattr'] : 0;
                     $attr['sub_attributes'] = isset($attr['sub_attributes']) ? $attr['sub_attributes'] : array();
                     $show_subattr = ($enable_subattr == 'on' && count($attr['sub_attributes']) > 0) ? true : false;
@@ -75,7 +75,7 @@
                                     <div class="nbo-ad-list-item" ng-click="select_adv_subattr('<?php echo ($field['id']); ?>', '<?php echo ($key); ?>', '<?php echo ($skey); ?>')" ng-class="( nbd_fields['<?php echo ($field['id']); ?>'].value == '<?php echo ($key); ?>' && nbd_fields['<?php echo ($field['id']); ?>'].sub_value == '<?php echo ($skey); ?>' ) ? 'active' : ''" nbo-disabled="!status_fields['<?php echo ($field['id']); ?>'][<?php echo ($key); ?>].sub_attributes[<?php echo ($skey); ?>]" nbo-disabled-type="class">
                                         <?php
                                         if ($sattr['preview_type'] == 'i' && $sattr['image'] != '0') :
-                                            $simage_url = Printcart_PB_Util::pritcart_get_image_thumbnail($sattr['image']);
+                                            $simage_url = Storelly_PB_Util::storelly_get_image_thumbnail($sattr['image']);
                                         ?>
                                             <img src="<?php echo ($simage_url); ?>" class="nbo-ad-item-thumb" />
                                         <?php elseif ($sattr['preview_type'] == 'c') : ?>
