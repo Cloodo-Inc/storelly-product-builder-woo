@@ -74,7 +74,7 @@ h1.nbd-title {
   vertical-align: top;
 }
 
-img.storelly_order_image_design {
+img.printcart_order_image_design {
   border: 1px solid #ddd;
   vertical-align: middle;
   max-width: 60px;
@@ -83,10 +83,10 @@ img.storelly_order_image_design {
   margin-bottom: 5px;
 }
 
-#storelly_order_submit_loading {
+#printcart_order_submit_loading {
   display: block;
 }
 
-#storelly_order_submit_loading.storelly_loaded {
+#printcart_order_submit_loading.printcart_loaded {
   display: none !important;
 }

@@ -15,7 +15,7 @@ $nbds_frontend = array(
     'currency_format_decimal_sep'                   =>  stripslashes(wc_get_price_decimal_separator()),
     'currency_format_thousand_sep'                  =>  stripslashes(wc_get_price_thousand_separator()),
     'currency_format'                               =>  esc_attr(str_replace(array('%1$s', '%2$s'), array('%s', '%v'), get_woocommerce_price_format())),
-    'nbdesigner_hide_add_cart_until_form_filled'    =>  'yes'
+    'nbstorelly_hide_add_cart_until_form_filled'    =>  'yes'
 );
 
 $prefix             = '';
@@ -818,7 +818,7 @@ $currentDir = realpath(dirname(__FILE__));
                     }
                 });
                 jQuery(document).on('change_nbo_variations', function() {
-                    $scope.upDateVaritionQty(NBDESIGNERPRODUCT.variations);
+                    $scope.upDateVaritionQty(NBSTORELLYPRODUCT.variations);
                 });
             };
             $scope.mapOptions = function() {

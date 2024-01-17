@@ -11,7 +11,7 @@
             <span class="pcpb-field-name" ng-class="[{true: '', false: 'left'}[field.isExpand], {'n': 'nbo_blur'}[field.general.enabled.value]]">
                 <span>{{field.general.title.value}}</span>
             </span>
-            <span class="nbdesigner-right field-action">
+            <span class="nbstorelly-right field-action">
                 <span class="nbo-type-label-wrap"><span class="nbo-type-label" ng-class="get_field_class( field.nbpb_type)">{{get_field_type( field.nbpb_type ) }}</span></span>
                 <span class="nbo-sort-group">
                     <span ng-click="sort_field($index, 'up')" class="dashicons dashicons-arrow-up nbo-sort-up nbo-sort" title="<?php esc_html_e('Up', 'pc-product-builder') ?>"></span>

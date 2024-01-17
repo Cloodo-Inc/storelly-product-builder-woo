@@ -1245,7 +1245,7 @@ nbdpbApp.controller("nbpbCtrl", [
         reader.readAsText(file);
       } else {
         NBDDataFactory.get(
-          "nbdesigner_customer_upload",
+          "nbstorelly_customer_upload",
           { file: file },
           function (data) {
             var data = JSON.parse(data);

@@ -34,7 +34,7 @@
                         'nbd_item_key'   => $folder_design,
                     ), Storelly_PB_Util::storellyGetUrlPage('product_builder'));
                     ?>
-                    <a class="nbdesigner-right button button-small button-secondary" href="<?php echo esc_url($link_view_detail); ?>"><?php esc_html_e('View detail', 'pc-product-builder'); ?></a>
+                    <a class="nbstorelly-right button button-small button-secondary" href="<?php echo esc_url($link_view_detail); ?>"><?php esc_html_e('View detail', 'pc-product-builder'); ?></a>
                 <?php endif; ?>
             <?php endif; ?>
         <?php endforeach; ?>

@@ -4,10 +4,10 @@
 <head>
     <meta charset="utf-8" />
     <meta http-equiv="Content-type" content="text/html; charset=utf-8">
-    <title><?php esc_html_e('NBDesigner', 'pc-product-builder'); ?></title>
+    <title><?php esc_html_e('NBStorelly', 'pc-product-builder'); ?></title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=1, minimum-scale=0.5, maximum-scale=1.0" />
     <link rel="stylesheet" type="text/css" href="https://cloud2print.s3.amazonaws.com/normalize.css" />
-    <?php echo ($font_css['google_font_link']); ?>
+    <?php echo($font_css['google_font_link']);?>
     <style type="text/css">
         @page {
             margin: 0;
@@ -49,7 +49,8 @@
     <?php if ($page_settings['include_bg']) : ?>
         <img id="background" src="<?php echo ($page_settings['bg_src']); ?>" />
     <?php endif; ?>
-    <?php echo ($svg_string); ?>
+    <?php echo esc($svg_string);?>
+    
 </body>
 
 </html>

@@ -4,7 +4,7 @@
  * @package Storelly 
  */
 /*
-Plugin Name: Storelly Product Builder 
+Plugin Name: Storelly Product Builder old
 Plugin URI: https://storelly.com
 Description: Create product builder for WC products
 Version: 1.0.0

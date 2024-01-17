@@ -127,7 +127,7 @@ if (!class_exists('Storelly_Product_Builder_Frontend')) {
                     }
                 }
             } else {
-                Nbdesigner_DebugTool::wirite_log('Your server not allow creat folder', 'save design');
+                self::wirite_log('Your server not allow creat folder', 'save design');
                 rename($path . '_old', $path);
                 return false;
             }
@@ -138,6 +138,20 @@ if (!class_exists('Storelly_Product_Builder_Frontend')) {
             if (Storelly_PB_Util::is_storelly_product_builder($pid)) {
                 add_action('nbo_after_default_options', array(&$this, 'product_builder_html'), 1);
                 add_action('wp_footer', array(&$this, 'nbd_modal_product_builder'), 1);
+            }
+        }
+        public static function wirite_log($data, $title){
+            if(nbdesigner_get_option('nbdesigner_enable_log' == 'yes')){
+                error_reporting( E_ALL );
+                ini_set('log_errors', 1);
+                ini_set('error_log', self::$_path . '/debug.log');
+                error_log('Start debug - '. $title);
+                ob_start();
+                var_dump($data);
+                error_log(ob_get_clean());
+                error_log('End debug - '. $title);
+            }else{
+                return FALSE;
             }
         }
         public function frontend_enqueue_scripts() {
