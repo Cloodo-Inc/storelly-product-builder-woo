@@ -1,5 +1,5 @@
 <?php if (!defined('ABSPATH')) exit; ?>
-<div nbo-adv-dropdown class="nbd-option-field pcpb-field-xlabel-wrap <?php echo( $class ); ?>" data-id="<?php echo( $field['id'] ); ?>" ng-if="nbd_fields['<?php echo( $field['id'] ); ?>'].enable">
+<div nbo-adv-dropdown class="nbd-option-field pcpb-field-xlabel-wrap <?php echo esc_attr( $class ); ?>" data-id="<?php echo esc_attr( $field['id'] ); ?>" ng-if="nbd_fields['<?php echo esc_attr( $field['id'] ); ?>'].enable">
     <?php include( $currentDir .'/options-builder/field-header.php' ); ?>
     <div class="pcpb-field-content">
         <div class="nbd-xlabel-wrapper nbo-clearfix">
@@ -13,9 +13,9 @@
             ?>
             <div class="nbd-xlabel-wrap">
                 <div class="nbd-xlabel-value">
-                    <div class="nbd-xlabel-value-inner" title="<?php echo( $attr['name'] ); ?>">
-                        <input ng-change="check_valid();updateMapOptions('<?php echo( $field['id'] ); ?>')" value="<?php echo( $key ); ?>" ng-model="nbd_fields['<?php echo( $field['id'] ); ?>'].value" name="pcpb-field[<?php echo( $field['id'] ); ?>]<?php if($show_subattr) echo '[value]'; ?>" 
-                               type="radio" id='pcpb-field-<?php echo( $field['id'].'-'.$key ); ?>' 
+                    <div class="nbd-xlabel-value-inner" title="<?php echo esc_attr( $attr['name'] ); ?>">
+                        <input ng-change="check_valid();updateMapOptions('<?php echo esc_attr( $field['id'] ); ?>')" value="<?php echo esc_attr( $key ); ?>" ng-model="nbd_fields['<?php echo esc_attr( $field['id'] ); ?>'].value" name="pcpb-field[<?php echo esc_attr( $field['id'] ); ?>]<?php if($show_subattr) echo '[value]'; ?>" 
+                               type="radio" id='pcpb-field-<?php echo esc_attr( $field['id'].'-'.$key ); ?>' 
                             <?php 
                                 if( isset($form_values[$field['id']]) ){
                                     $fvalue = (is_array($form_values[$field['id']]) && isset($form_values[$field['id']]['value'])) ? $form_values[$field['id']]['value'] : $form_values[$field['id']];
@@ -25,10 +25,10 @@
                                 }
                             ?> />
                         <label class="nbd-xlabel" style="<?php if( $attr['preview_type'] == 'i' ){echo 'background: url('.$image_url . ') 0% 0% / cover';}else{echo 'background: '.$attr['color'];}?>" 
-                             for='pcpb-field-<?php echo( $field['id'].'-'.$key ); ?>' 
-                             nbo-disabled="!status_fields['<?php echo( $field['id'] ); ?>'][<?php echo( $key ); ?>].enable" nbo-disabled-type="class" >
+                             for='pcpb-field-<?php echo esc_attr( $field['id'].'-'.$key ); ?>' 
+                             nbo-disabled="!status_fields['<?php echo esc_attr_e( $field['id'] ); ?>'][<?php echo esc_attr( $key ); ?>].enable" nbo-disabled-type="class" >
                             <?php if(isset($attr['des']) && $attr['des'] != ''): ?>
-                            <span class="nbd-help-tip" data-tip="<?php echo( $attr['des'] ); ?>"></span>
+                            <span class="nbd-help-tip" data-tip="<?php echo esc_attr( $attr['des'] ); ?>"></span>
                             <?php endif; ?>
                             <?php if( isset($attr['selected']) && $attr['selected'] == 'on'  ): ?>
                             <span class="nbo-recomand" title="<?php esc_html_e('Recommended', 'pc-product-builder'); ?>">
@@ -38,15 +38,15 @@
                         </label>
                     </div>
                 </div>
-                <label for='pcpb-field-<?php echo( $field['id'].'-'.$key ); ?>'>
-                    <b><?php echo( $attr['name'] ); ?></b>
+                <label for='pcpb-field-<?php echo esc_attr( $field['id'].'-'.$key ); ?>'>
+                    <b><?php echo esc_html( $attr['name'] ); ?></b>
                 </label>
             </div>
             <?php endforeach; ?>
         </div>
         <div class="nbo-invalid-option" 
-            ng-class="nbd_fields['<?php echo( $field['id'] ); ?>'].valid === false ? 'active' : ''"
-            ng-if="nbd_fields['<?php echo( $field['id'] ); ?>'].valid === false">{{nbd_fields['<?php echo( $field['id'] ); ?>'].invalidOption}} <?php esc_html_e('is not available', 'pc-product-builder'); ?>
+            ng-class="nbd_fields['<?php echo esc_attr( $field['id'] ); ?>'].valid === false ? 'active' : ''"
+            ng-if="nbd_fields['<?php echo esc_attr( $field['id'] ); ?>'].valid === false">{{nbd_fields['<?php echo esc_attr( $field['id'] ); ?>'].invalidOption}} <?php esc_html_e('is not available', 'pc-product-builder'); ?>
         </div>
     </div>
 </div>

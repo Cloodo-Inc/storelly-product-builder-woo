@@ -32,20 +32,20 @@ $max_input_vars = Storelly_PB_Util::storelly_get_max_input_var();
 <script type="text/javascript">
     var STORELLY_OPTIONS = <?php echo json_encode($options); ?>;
     var STORELLY_OPTION_FIELD = <?php echo json_encode($default_field); ?>;
-    var ajax_url = "<?php echo admin_url('admin-ajax.php'); ?>",
-        nbnonce = "<?php echo wp_create_nonce('save-design'); ?>",
-        max_input_vars = parseInt(<?php echo ($max_input_vars); ?>);
+    var ajax_url = "<?php echo esc_url(admin_url('admin-ajax.php')); ?>",
+        nbnonce = "<?php echo esc_attr(wp_create_nonce('save-design')); ?>",
+        max_input_vars = parseInt(<?php echo esc_js($max_input_vars); ?>);
 </script>
 <div class="wrap">
     <h2>
         <?php esc_html_e('Edit Options', 'pc-product-builder'); ?>
-        <a class="nbd-page-title-action" href="<?php echo ($link_create_option); ?>"><?php esc_html_e('Add new', 'pc-product-builder'); ?></a>
+        <a class="nbd-page-title-action" href="<?php echo esc_url($link_create_option); ?>"><?php esc_html_e('Add new', 'pc-product-builder'); ?></a>
     </h2>
 </div>
 <div class="message">
     <?php if (isset($message['flag'])) {
         $message = Storelly_PB_Util::storelly_custom_notices($message['flag'], $message['content']);
-        echo ($message);
+        echo esc_html($message);
     } ?>
 </div>
 <div class="wrap" ng-app="optionApp" ng-cloak>
@@ -57,9 +57,9 @@ $max_input_vars = Storelly_PB_Util::storelly_get_max_input_var();
                         <div id="titlediv">
                             <div id="titlewrap">
                                 <label class="screen-reader-text" id="title-prompt-text" for="title"><?php esc_html_e('Enter title here', 'pc-product-builder'); ?></label>
-                                <input required="required" ng-model="options.title" type="text" name="title" size="30" value="<?php echo ($options['title']); ?>" id="title" autocomplete="off">
+                                <input required="required" ng-model="options.title" type="text" name="title" size="30" value="<?php echo esc_attr($options['title']); ?>" id="title" autocomplete="off">
                                 <span style="color: red;" ng-show="nboForm.title.$invalid">* <small><i><?php esc_html_e('required', 'pc-product-builder'); ?></i></small></span>
-                                <input type="hidden" name="options[version]" value="<?php echo STORELLY_PB_VERSION; ?>" />
+                                <input type="hidden" name="options[version]" value="<?php echo esc_attr(STORELLY_PB_VERSION); ?>" />
                             </div>
                         </div>
                     </div>
@@ -72,15 +72,15 @@ $max_input_vars = Storelly_PB_Util::storelly_get_max_input_var();
                                         <div class="misc-publishing-actions nbo-dates">
                                             <div style="margin-bottom: 15px;">
                                                 <label for="date_from"><?php _e('Status:', 'pc-product-builder'); ?></label>
-                                                <b style="vertical-align: middle;"><?php echo($options['published'] ? 'Published' : 'Trash');  ?></b>
+                                                <b style="vertical-align: middle;"><?php echo esc_html($options['published'] ? 'Published' : 'Trash');  ?></b>
                                             </div>
                                             <div style="margin-bottom: 15px;">
                                                 <label for="date_from"><?php _e('Published on:', 'pc-product-builder'); ?></label>
-                                                <b style="vertical-align: middle;"><?php echo($options['created']); ?></b>
+                                                <b style="vertical-align: middle;"><?php echo esc_html($options['created']); ?></b>
                                             </div>
                                             <div>
                                                 <label for="date_to"><?php _e('Modified on:', 'pc-product-builder'); ?></label>
-                                                <b style="vertical-align: middle;"><?php echo($options['modified']); ?></b>
+                                                <b style="vertical-align: middle;"><?php echo esc_html($options['modified']); ?></b>
                                             </div>
                                         </div>
                                         <div class="clear"></div>
@@ -88,7 +88,7 @@ $max_input_vars = Storelly_PB_Util::storelly_get_max_input_var();
                                     <div id="major-publishing-actions">
                                         <div id="delete-action">
                                             <?php if ($options['published'] == 1) : ?>
-                                                <a class="submitdelete deletion" href="<?php echo($link_unpublish); ?>"><?php _e('Move to Trash', 'pc-product-builder'); ?></a>
+                                                <a class="submitdelete deletion" href="<?php echo esc_url($link_unpublish); ?>"><?php _e('Move to Trash', 'pc-product-builder'); ?></a>
                                             <?php endif; ?>
                                         </div>
                                         <div id="publishing-action">
@@ -118,7 +118,7 @@ $max_input_vars = Storelly_PB_Util::storelly_get_max_input_var();
                         <div id="notice-max-input-vars" class="postbox" ng-show="current_input_vars > max_input_vars">
                             <h2 style="color: #ff4136;" class="hndle ui-sortable-handle"><span style="vertical-align: bottom; margin-top: 0;" class="dashicons dashicons-warning"></span> <span><?php esc_html_e('Notice', 'pc-product-builder'); ?></span></h2>
                             <div class="inside">
-                                <p><?php esc_html_e('PHP max input vars:', 'pc-product-builder'); ?> <?php echo ($max_input_vars); ?></p>
+                                <p><?php esc_html_e('PHP max input vars:', 'pc-product-builder'); ?> <?php echo esc_html($max_input_vars); ?></p>
                                 <p><?php esc_html_e('Current input vars:', 'pc-product-builder'); ?> <span>{{current_input_vars}}</span></p>
                                 <p><?php esc_html_e('Please increase "PHP max input vars"!', 'pc-product-builder'); ?></p>
                             </div>

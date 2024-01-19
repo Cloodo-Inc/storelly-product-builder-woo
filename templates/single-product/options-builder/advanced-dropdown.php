@@ -1,9 +1,9 @@
 <?php if (!defined('ABSPATH')) exit; ?>
-<div nbo-adv-dropdown class="nbd-option-field pcpb-field-ad-dropdown-wrap <?php echo ($class); ?>" data-id="<?php echo ($field['id']); ?>" ng-if="nbd_fields['<?php echo ($field['id']); ?>'].enable">
+<div nbo-adv-dropdown class="nbd-option-field pcpb-field-ad-dropdown-wrap <?php echo esc_attr($class); ?>" data-id="<?php echo esc_attr($field['id']); ?>" ng-if="nbd_fields['<?php echo esc_attr($field['id']); ?>'].enable">
     <?php include($currentDir . '/options-builder/field-header.php'); ?>
     <div class="pcpb-field-content">
         <div>
-            <select ng-change="check_valid()" name="pcpb-field[<?php echo ($field['id']); ?>]{{nbd_fields['<?php echo ($field['id']); ?>'].form_name}}" class="nbo-dropdown" ng-model="nbd_fields['<?php echo ($field['id']); ?>'].value">
+            <select ng-change="check_valid()" name="pcpb-field[<?php echo esc_attr($field['id']); ?>]{{nbd_fields['<?php echo esc_attr($field['id']); ?>'].form_name}}" class="nbo-dropdown" ng-model="nbd_fields['<?php echo esc_attr($field['id']); ?>'].value">
                 <?php
                 foreach ($field['general']['attributes']["options"] as $key => $attr) :
                     $selected = isset($attr['selected']) ? $attr['selected'] : 'off';
@@ -13,13 +13,13 @@
                         $current = $key;
                     }
                 ?>
-                    <option value="<?php echo ($key); ?>" <?php selected($selected, $selected); ?>>
-                        <?php echo ($attr['name']); ?>
+                    <option value="<?php echo esc_attr($key); ?>" <?php selected($selected, $selected); ?>>
+                        <?php echo esc_html($attr['name']); ?>
                     </option>
                 <?php endforeach; ?>
             </select>
             <div class="nbo-ad-result">
-                <span class="nbo-ad-result-name">{{nbd_fields['<?php echo ($field['id']); ?>'].value_name}}</span>
+                <span class="nbo-ad-result-name">{{nbd_fields['<?php echo esc_attr($field['id']); ?>'].value_name}}</span>
                 <svg xmlns="http://www.w3.org/2000/svg" version="1.1" width="24" height="24" viewBox="0 0 24 24">
                     <path d="M16.594 8.578l1.406 1.406-6 6-6-6 1.406-1.406 4.594 4.594z" />
                 </svg>
@@ -33,15 +33,15 @@
                     $show_subattr = ($enable_subattr == 'on' && count($attr['sub_attributes']) > 0) ? true : false;
                     $field['general']['attributes']["options"][$key]['show_subattr'] = $show_subattr;
                 ?>
-                    <div class="nbo-ad-list-item" ng-click="select_adv_attr('<?php echo ($field['id']); ?>', '<?php echo ($key); ?>');updateMapOptions('<?php echo ($field['id']); ?>')" ng-class="nbd_fields['<?php echo ($field['id']); ?>'].value == '<?php echo ($key); ?>' ? 'active' : ''" nbo-disabled="!status_fields['<?php echo ($field['id']); ?>'][<?php echo ($key); ?>].enable" nbo-disabled-type="class">
+                    <div class="nbo-ad-list-item" ng-click="select_adv_attr('<?php echo esc_attr($field['id']); ?>', '<?php echo esc_attr($key); ?>');updateMapOptions('<?php echo esc_attr($field['id']); ?>')" ng-class="nbd_fields['<?php echo esc_attr($field['id']); ?>'].value == '<?php echo esc_attr($key); ?>' ? 'active' : ''" nbo-disabled="!status_fields['<?php echo esc_attr($field['id']); ?>'][<?php echo esc_attr($key); ?>].enable" nbo-disabled-type="class">
                         <?php if ($attr['preview_type'] == 'i' && $attr['image'] != '0') : ?>
-                            <img src="<?php echo ($image_url); ?>" class="nbo-ad-item-thumb" />
+                            <img src="<?php echo esc_url($image_url); ?>" class="nbo-ad-item-thumb" />
                         <?php elseif ($attr['preview_type'] == 'c') : ?>
-                            <span class="nbo-ad-item-thumb" style="background: <?php echo ($attr['color']); ?>"></span>
+                            <span class="nbo-ad-item-thumb" style="background: <?php echo esc_attr($attr['color']); ?>"></span>
                         <?php endif; ?>
                         <div class="nbo-ad-item-main <?php if ($show_subattr) echo 'nbo-shrink'; ?>">
-                            <div class="nbo-ad-item-title"><?php echo ($attr['name']); ?></div>
-                            <div class="nbo-ad-item-description"><?php echo ($attr['des']); ?></div>
+                            <div class="nbo-ad-item-title"><?php echo esc_html($attr['name']); ?></div>
+                            <div class="nbo-ad-item-description"><?php echo esc_html($attr['des']); ?></div>
                         </div>
                         <?php if (isset($attr['selected']) && $attr['selected'] == 'on') : ?>
                             <span class="nbo-recomand" title="<?php esc_html_e('Recommended', 'pc-product-builder'); ?>">
@@ -57,7 +57,7 @@
                                 </svg>
                             </span>
                             <div class="nbo-ad-pseudo-sublist">
-                                <select ng-change="check_valid()" name="pcpb-field[<?php echo ($field['id']); ?>][sub_value]" class="nbo-dropdown" ng-model="nbd_fields['<?php echo ($field['id']); ?>'].sub_value">
+                                <select ng-change="check_valid()" name="pcpb-field[<?php echo esc_attr($field['id']); ?>][sub_value]" class="nbo-dropdown" ng-model="nbd_fields['<?php echo esc_attr($field['id']); ?>'].sub_value">
                                     <?php foreach ($attr['sub_attributes'] as $skey => $sattr) :
                                         $selectedSub = isset($sattr['selected']) ? $sattr['selected'] : 'off';
                                         $currentSub = 'on';
@@ -66,24 +66,24 @@
                                             $currentSub = $skey;
                                         }
                                     ?>
-                                        <option value="<?php echo ($skey); ?>" <?php selected($selectedSub, $currentSub); ?>>
-                                            <?php echo ($sattr['name']); ?>
+                                        <option value="<?php echo esc_attr($skey); ?>" <?php selected($selectedSub, $currentSub); ?>>
+                                            <?php echo esc_html($sattr['name']); ?>
                                         </option>
                                     <?php endforeach; ?>
                                 </select>
                                 <?php foreach ($attr['sub_attributes'] as $skey => $sattr) : ?>
-                                    <div class="nbo-ad-list-item" ng-click="select_adv_subattr('<?php echo ($field['id']); ?>', '<?php echo ($key); ?>', '<?php echo ($skey); ?>')" ng-class="( nbd_fields['<?php echo ($field['id']); ?>'].value == '<?php echo ($key); ?>' && nbd_fields['<?php echo ($field['id']); ?>'].sub_value == '<?php echo ($skey); ?>' ) ? 'active' : ''" nbo-disabled="!status_fields['<?php echo ($field['id']); ?>'][<?php echo ($key); ?>].sub_attributes[<?php echo ($skey); ?>]" nbo-disabled-type="class">
+                                    <div class="nbo-ad-list-item" ng-click="select_adv_subattr('<?php echo esc_attr($field['id']); ?>', '<?php echo esc_attr($key); ?>', '<?php echo esc_attr($skey); ?>')" ng-class="( nbd_fields['<?php echo esc_attr($field['id']); ?>'].value == '<?php echo esc_attr($key); ?>' && nbd_fields['<?php echo esc_attr($field['id']); ?>'].sub_value == '<?php echo ($skey); ?>' ) ? 'active' : ''" nbo-disabled="!status_fields['<?php echo esc_attr($field['id']); ?>'][<?php echo esc_attr($key); ?>].sub_attributes[<?php echo esc_attr($skey); ?>]" nbo-disabled-type="class">
                                         <?php
                                         if ($sattr['preview_type'] == 'i' && $sattr['image'] != '0') :
                                             $simage_url = Storelly_PB_Util::storelly_get_image_thumbnail($sattr['image']);
                                         ?>
-                                            <img src="<?php echo ($simage_url); ?>" class="nbo-ad-item-thumb" />
+                                            <img src="<?php echo esc_url($simage_url); ?>" class="nbo-ad-item-thumb" />
                                         <?php elseif ($sattr['preview_type'] == 'c') : ?>
-                                            <span class="nbo-ad-item-thumb" style="background: <?php echo ($sattr['color']); ?>"></span>
+                                            <span class="nbo-ad-item-thumb" style="background: <?php echo esc_attr($sattr['color']); ?>"></span>
                                         <?php endif; ?>
                                         <div class="nbo-ad-item-main">
-                                            <div class="nbo-ad-item-title"><?php echo ($sattr['name']); ?></div>
-                                            <div class="nbo-ad-item-description"><?php echo ($sattr['des']); ?></div>
+                                            <div class="nbo-ad-item-title"><?php echo esc_attr($sattr['name']); ?></div>
+                                            <div class="nbo-ad-item-description"><?php echo esc_attr($sattr['des']); ?></div>
                                         </div>
                                         <?php if (isset($sattr['selected']) && $sattr['selected'] == 'on') : ?>
                                             <span class="nbo-recomand" title="<?php esc_html_e('Recommended', 'pc-product-builder'); ?>">
@@ -99,7 +99,7 @@
                     </div>
                 <?php endforeach; ?>
             </div>
-            <div class="nbo-invalid-option" ng-class="nbd_fields['<?php echo ($field['id']); ?>'].valid === false ? 'active' : ''" ng-if="nbd_fields['<?php echo ($field['id']); ?>'].valid === false">{{nbd_fields['<?php echo ($field['id']); ?>'].invalidOption}} <?php esc_html_e('is not available', 'pc-product-builder'); ?>
+            <div class="nbo-invalid-option" ng-class="nbd_fields['<?php echo esc_attr($field['id']); ?>'].valid === false ? 'active' : ''" ng-if="nbd_fields['<?php echo esc_attr($field['id']); ?>'].valid === false">{{nbd_fields['<?php echo esc_attr($field['id']); ?>'].invalidOption}} <?php esc_html_e('is not available', 'pc-product-builder'); ?>
             </div>
         </div>
     </div>

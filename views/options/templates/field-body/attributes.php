@@ -18,7 +18,7 @@
                     <div class="nbd-attribute-img-inner" ng-show="op.preview_type == 'i'">
                         <span class="dashicons dashicons-no remove-attribute-img" ng-click="remove_attribute_image(fieldIndex, $index, 'image', 'image_url')"></span>
                         <input ng-hide="true" ng-model="op.image" name="options[fields][{{fieldIndex}}][general][attributes][options][{{opIndex}}][image]" />
-                        <img title="<?php esc_html_e('Click to change image', 'pc-product-builder'); ?>" ng-click="set_attribute_image(fieldIndex, $index, 'image', 'image_url')" ng-src="{{op.image != 0 ? op.image_url : '<?php echo STORELLY_PB_ASSETS_URL . 'images/placeholder.png' ?>'}}" />
+                        <img title="<?php esc_html_e('Click to change image', 'pc-product-builder'); ?>" ng-click="set_attribute_image(fieldIndex, $index, 'image', 'image_url')" ng-src="{{op.image != 0 ? op.image_url : '<?php echo esc_url(STORELLY_PB_ASSETS_URL . 'images/placeholder.png'); ?>'}}" />
                     </div>
                     <div class="nbd-attribute-color-inner" ng-show="op.preview_type == 'c'">
                         <input type="text" name="options[fields][{{fieldIndex}}][general][attributes][options][{{$index}}][color]" ng-model="op.color" class="nbd-color-picker" nbd-color-picker="op.color" />
@@ -30,7 +30,7 @@
                         <div class="nbd-attribute-img-inner">
                             <span class="dashicons dashicons-no remove-attribute-img" ng-click="remove_attribute_image(fieldIndex, $index, 'product_image', 'product_image_url')"></span>
                             <input ng-hide="true" ng-model="op.product_image" name="options[fields][{{fieldIndex}}][general][attributes][options][{{opIndex}}][product_image]" />
-                            <img title="<?php esc_html_e('Click to change image', 'pc-product-builder'); ?>" ng-click="set_attribute_image(fieldIndex, $index, 'product_image', 'product_image_url')" ng-src="{{op.product_image_url ? op.product_image_url : '<?php echo STORELLY_PB_ASSETS_URL . 'images/placeholder.png' ?>'}}" />
+                            <img title="<?php esc_html_e('Click to change image', 'pc-product-builder'); ?>" ng-click="set_attribute_image(fieldIndex, $index, 'product_image', 'product_image_url')" ng-src="{{op.product_image_url ? op.product_image_url : '<?php echo esc_url(STORELLY_PB_ASSETS_URL . 'images/placeholder.png'); ?>'}}" />
                         </div>
                     </div>
                 </div>
@@ -88,7 +88,7 @@
                                 <div class="nbd-attribute-img-inner" ng-show="sop.preview_type == 'i'">
                                     <span class="dashicons dashicons-no remove-attribute-img" ng-click="remove_sub_attribute_image(fieldIndex, opIndex, sopIndex)"></span>
                                     <input ng-hide="true" ng-model="sop.image" name="options[fields][{{fieldIndex}}][general][attributes][options][{{opIndex}}][sub_attributes][{{sopIndex}}][image]" />
-                                    <img title="<?php esc_html_e('Click to change image', 'pc-product-builder'); ?>" ng-click="set_sub_attribute_image(fieldIndex, opIndex, sopIndex)" ng-src="{{sop.image != 0 ? sop.image_url : '<?php echo STORELLY_PB_ASSETS_URL . 'images/placeholder.png' ?>'}}" />
+                                    <img title="<?php esc_html_e('Click to change image', 'pc-product-builder'); ?>" ng-click="set_sub_attribute_image(fieldIndex, opIndex, sopIndex)" ng-src="{{sop.image != 0 ? sop.image_url : '<?php echo esc_url(STORELLY_PB_ASSETS_URL . 'images/placeholder.png'); ?>'}}" />
                                 </div>
                                 <div class="nbd-attribute-color-inner" ng-show="sop.preview_type == 'c'">
                                     <input type="text" name="options[fields][{{fieldIndex}}][general][attributes][options][{{opIndex}}][sub_attributes][{{sopIndex}}][color]" ng-model="sop.color" class="nbd-color-picker" nbd-color-picker="sop.color" />

@@ -52,7 +52,7 @@
                     $font_name = isset($font['name']) ? $font['name'] : '';
                 }
                 ?>
-                <option value="<?php echo ($font_id); ?>"><?php echo ($font_name); ?></option>
+                <option value="<?php echo esc_attr($font_id); ?>"><?php echo esc_html($font_name); ?></option>
             <?php endforeach; ?>
         </select>
     </div>
@@ -70,7 +70,7 @@
         ?>
         <select nbd-select2 name="options[fields][{{fieldIndex}}][general][nbpb_text_configs][google_fonts][]" ng-model="field.general.nbpb_text_configs.google_fonts" multiple="multiple">
             <?php foreach ($google_fonts as $font) : ?>
-                <option value="<?php echo ($font->id); ?>"><?php echo ($font->name); ?></option>
+                <option value="<?php echo esc_attr($font->id); ?>"><?php echo esc_html($font->name); ?></option>
             <?php endforeach; ?>
         </select>
     </div>

@@ -145,7 +145,7 @@
                                                     <div ng-if="resource.currentComponentObj.general.nbpb_text_configs.allow_all_font == 'y'">
                                                         <select class="nbpb-dropdown" ng-change="updateText()" ng-model="resource.components[resource.currentComponent].currentFontId">
                                                             <?php foreach($fonts as $font): ?>
-                                                            <option value="<?php if($font->type == 'google') echo 'g' . $font->id; else echo 'c' . $font->id;  ?>" ><?php echo( $font->name ); ?></option>
+                                                            <option value="<?php if($font->type == 'google') echo 'g' . $font->id; else echo 'c' . $font->id;  ?>" ><?php echo esc_html($font->name ); ?></option>
                                                             <?php endforeach; ?>
                                                         </select>
                                                     </div>

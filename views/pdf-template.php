@@ -7,17 +7,17 @@
     <title><?php esc_html_e('NBStorelly', 'pc-product-builder'); ?></title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=1, minimum-scale=0.5, maximum-scale=1.0" />
     <link rel="stylesheet" type="text/css" href="https://cloud2print.s3.amazonaws.com/normalize.css" />
-    <?php echo($font_css['google_font_link']);?>
+    <?php echo esc_url($font_css['google_font_link']);?>
     <style type="text/css">
         @page {
             margin: 0;
             padding: 0;
-            size: <?php echo ($page_settings['width']); ?> <?php echo ($page_settings['height']); ?>;
+            size: <?php echo esc_attr($page_settings['width']); ?> <?php echo esc_attr($page_settings['height']); ?>;
         }
 
         body {
-            width: <?php echo ($page_settings['width']); ?>;
-            height: <?php echo ($page_settings['height']); ?>;
+            width: <?php echo esc_attr($page_settings['width']); ?>;
+            height: <?php echo esc_attr($page_settings['height']); ?>;
             position: relative;
             font-size: 0;
             font-family: sans-serif;
@@ -25,10 +25,10 @@
 
         svg {
             position: absolute;
-            width: <?php echo ($page_settings['design_width']); ?>;
-            height: <?php echo ($page_settings['design_height']); ?>;
-            top: <?php echo ($page_settings['design_top']); ?>;
-            left: <?php echo ($page_settings['design_left']); ?>;
+            width: <?php echo esc_attr($page_settings['design_width']); ?>;
+            height: <?php echo esc_attr($page_settings['design_height']); ?>;
+            top: <?php echo esc_attr($page_settings['design_top']); ?>;
+            left: <?php echo esc_attr($page_settings['design_left']); ?>;
             z-index: 2;
             max-width: 100%;
             max-height: 100%;
@@ -47,7 +47,7 @@
 
 <body>
     <?php if ($page_settings['include_bg']) : ?>
-        <img id="background" src="<?php echo ($page_settings['bg_src']); ?>" />
+        <img id="background" src="<?php echo esc_url($page_settings['bg_src']); ?>" />
     <?php endif; ?>
     <?php echo esc($svg_string);?>
     

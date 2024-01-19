@@ -5977,7 +5977,7 @@ td .nbo-dimension-label {
   background-color: transparent;
   line-height: 100%;
   outline: 0;
-  background-image: url(<?phpechoSTORELLY_PB_PLUGIN_URL."assets/images/arrow.png";?>);
+  background-image: url(<?php echo STORELLY_PB_PLUGIN_URL."assets/images/arrow.png";?>);
   background-position: right;
   background-repeat: no-repeat;
   position: relative;

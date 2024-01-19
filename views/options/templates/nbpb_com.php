@@ -20,7 +20,7 @@
                         <td>
                             <div class="image-icon-wrap">
                                 <span class="dashicons dashicons-no remove-image-icon" ng-click="remove_view_base(vIndex)"></span>
-                                <img ng-click="set_view_base(vIndex)" ng-src="{{view.base != 0 ? view.base_url : '<?php echo STORELLY_PB_ASSETS_URL . 'images/placeholder.png' ?>'}}" />
+                                <img ng-click="set_view_base(vIndex)" ng-src="{{view.base != 0 ? view.base_url : '<?php echo esc_url(STORELLY_PB_ASSETS_URL . 'images/placeholder.png'); ?>'}}" />
                             </div>
                         </td>
                         <td>
@@ -45,7 +45,7 @@
         <div class="image-icon-wrap">
             <span class="dashicons dashicons-no remove-image-icon" ng-click="remove_component_icon(fieldIndex)"></span>
             <input ng-hide="true" ng-model="field.general.component_icon" name="options[fields][{{fieldIndex}}][general][component_icon]" />
-            <img ng-click="set_component_icon(fieldIndex)" ng-src="{{field.general.component_icon != 0 ? field.general.component_icon_url : '<?php echo STORELLY_PB_ASSETS_URL . 'images/placeholder.png' ?>'}}" />
+            <img ng-click="set_component_icon(fieldIndex)" ng-src="{{field.general.component_icon != 0 ? field.general.component_icon_url : '<?php echo esc_url(STORELLY_PB_ASSETS_URL . 'images/placeholder.png'); ?>'}}" />
         </div>
     </div>
 </div>
@@ -83,7 +83,7 @@
                                 <div class="image-icon-wrap">
                                     <input ng-model="field.general.pb_config[pbcon.attr_index][pbcon.sattr_index].views[$index].image" name="options[fields][{{fieldIndex}}][general][pb_config][{{pbcon.attr_index}}][{{pbcon.sattr_index}}][views][{{$index}}][image]" ng-hide="true" />
                                     <span class="dashicons dashicons-no remove-image-icon" ng-click="remove_view_config_image(fieldIndex, pbcon.attr_index, pbcon.sattr_index, $index)"></span>
-                                    <img ng-click="set_view_config_image(fieldIndex, pbcon.attr_index, pbcon.sattr_index, $index)" ng-src="{{field.general.pb_config[pbcon.attr_index][pbcon.sattr_index].views[$index].image != 0 ? field.general.pb_config[pbcon.attr_index][pbcon.sattr_index].views[$index].image_url : '<?php echo STORELLY_PB_ASSETS_URL . 'images/placeholder.png' ?>'}}" />
+                                    <img ng-click="set_view_config_image(fieldIndex, pbcon.attr_index, pbcon.sattr_index, $index)" ng-src="{{field.general.pb_config[pbcon.attr_index][pbcon.sattr_index].views[$index].image != 0 ? field.general.pb_config[pbcon.attr_index][pbcon.sattr_index].views[$index].image_url : '<?php echo esc_url(STORELLY_PB_ASSETS_URL . 'images/placeholder.png'); ?>'}}" />
                                 </div>
                             </label>
                         </td>

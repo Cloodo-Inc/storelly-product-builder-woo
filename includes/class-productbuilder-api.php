@@ -235,7 +235,7 @@ if (!class_exists('Storelly_Product_Builder_API')) {
             $files = Storelly_IO::get_list_files_by_type($path_preview, 1, 'png');
             foreach ($files as $img){
                 ?>
-                <img width="80" src="<?php echo Storelly_IO::convert_path_to_url($img);?>" alt="">
+                <img width="80" src="<?php echo esc_url(Storelly_IO::convert_path_to_url($img)) ;?>" alt="">
                 <?php
             }
             

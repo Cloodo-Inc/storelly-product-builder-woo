@@ -1,19 +1,19 @@
 <?php if (!defined('ABSPATH')) exit; ?>
-<div class="nbd-option-field pcpb-field-input-wrap <?php echo( $class ); ?>" ng-if="nbd_fields['<?php echo( $field['id'] ); ?>'].enable">
+<div class="nbd-option-field pcpb-field-input-wrap <?php echo esc_attr( $class ); ?>" ng-if="nbd_fields['<?php echo esc_attr( $field['id'] ); ?>'].enable">
     <?php include( $currentDir .'/options-builder/field-header.php' ); ?>
     <div class="pcpb-field-content">
         <input 
             ng-change="check_valid()"
-            ng-model="nbd_fields['<?php echo( $field['id'] ); ?>'].value" class="nbd-input-<?php echo( $field['general']['input_type'] ); ?>"
-            <?php if( $field['general']['required'] == 'y' ) echo 'required'; ?> name="nbd-field[<?php echo( $field['id'] ); ?>]" id="pcpb-field-<?php echo( $field['id'] ); ?>"
+            ng-model="nbd_fields['<?php echo esc_attr( $field['id'] ); ?>'].value" class="nbd-input-<?php echo esc_attr( $field['general']['input_type'] ); ?>"
+            <?php if( $field['general']['required'] == 'y' ) echo 'required'; ?> name="nbd-field[<?php echo esc_attr( $field['id'] ); ?>]" id="pcpb-field-<?php echo esc_attr( $field['id'] ); ?>"
             <?php if( $field['general']['input_type'] == 't' ): ?>
-            type="text" <?php if( $field['general']['text_option']['min'] != '' ): ?>pattern=".{0}|.{<?php echo( $field['general']['text_option']['min'] ); ?>,}"<?php endif; ?> <?php if( $field['general']['text_option']['max'] != '' ): ?>maxlength="<?php echo( $field['general']['text_option']['max'] ); ?>"<?php endif; ?>
+            type="text" <?php if( $field['general']['text_option']['min'] != '' ): ?>pattern=".{0}|.{<?php echo esc_attr( $field['general']['text_option']['min'] ); ?>,}"<?php endif; ?> <?php if( $field['general']['text_option']['max'] != '' ): ?>maxlength="<?php echo esc_attr( $field['general']['text_option']['max'] ); ?>"<?php endif; ?>
                 <?php if( isset( $field['general']['placeholder'] ) && $field['general']['placeholder'] != '' ): ?>
                     placeholder="<?php echo( $field['general']['placeholder'] ); ?>"
                 <?php endif; ?>
             <?php elseif( $field['general']['input_type'] == 'u' ): ?>
-            type="file" nbo-input-file="check_valid()" data-field-id="<?php echo( $field['id'] ); ?>" data-types="<?php echo strtolower( trim( $field['general']['upload_option']['allow_type'] ) ); ?>" 
-                data-minsize="<?php echo( $field['general']['upload_option']['min_size'] ); ?>" data-maxsize="<?php echo( $field['general']['upload_option']['max_size'] ); ?>"
+            type="file" nbo-input-file="check_valid()" data-field-id="<?php echo esc_attr( $field['id'] ); ?>" data-types="<?php echo strtolower( trim( $field['general']['upload_option']['allow_type'] ) ); ?>" 
+                data-minsize="<?php echo esc_attr( $field['general']['upload_option']['min_size'] ); ?>" data-maxsize="<?php echo esc_attr( $field['general']['upload_option']['max_size'] ); ?>"
                 <?php 
                     $file_url = '';
                     $filename = '';
@@ -24,7 +24,7 @@
                         $uploaded = 1;
                     }
                 ?>
-                data-file="<?php echo( $file_url ); ?>" data-filename="<?php echo( $filename ); ?>" data-uploaded="<?php echo( $uploaded ); ?>"
+                data-file="<?php echo( $file_url ); ?>" data-filename="<?php echo esc_attr( $filename ); ?>" data-uploaded="<?php echo esc_attr( $uploaded ); ?>"
                 <?php 
                     if( $field['general']['upload_option']['allow_type'] != '' ):
                         $allow_type = strtolower( trim( $field['general']['upload_option']['allow_type'] ) );
@@ -38,7 +38,7 @@
         <?php 
             if( $field['general']['input_type'] == 'u' && isset($form_values[$field['id']]) ):
         ?>
-        <input class="nbd-upload-hidden" id="nbd-upload-hidden-<?php echo( $field['id'] ); ?>" type="hidden" name="nbd-field[<?php echo( $field['id'] ); ?>]" value="<?php echo( $form_values[$field['id']] ); ?>" />
+        <input class="nbd-upload-hidden" id="nbd-upload-hidden-<?php echo esc_attr( $field['id'] ); ?>" type="hidden" name="nbd-field[<?php echo esc_attr( $field['id'] ); ?>]" value="<?php echo esc_attr( $form_values[$field['id']] ); ?>" />
         <?php endif; ?>
         <?php if( $field['general']['input_type'] == 'u' && $field['general']['upload_option']['min_size'] != '' ): ?>
         <span style="display: block; font-size: 12px;margin-top: 10px;"><?php echo esc_html__('Min size: ', 'pc-product-builder') . $field['general']['upload_option']['min_size'] . ' MB'; ?></span>

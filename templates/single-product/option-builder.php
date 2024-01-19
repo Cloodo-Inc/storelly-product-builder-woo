@@ -25,8 +25,8 @@ $currentDir = realpath(dirname(__FILE__));
 
 ?>
 <div class="nbo-wrapper <?php if ($is_wqv) echo 'nbd-option-in-wqv'; ?> <?php echo 'wrapper-type-' . $display_type; ?>">
-    <div class="nbd-option-wrapper" id="<?php echo($appid); ?>">
-        <div ng-controller="optionCtrl" ng-form="nboForm" id="nbo-ctrl-<?php echo($appid); ?>" ng-cloak>
+    <div class="nbd-option-wrapper" id="<?php echo esc_attr($appid); ?>">
+        <div ng-controller="optionCtrl" ng-form="nboForm" id="nbo-ctrl-<?php echo esc_attr($appid); ?>" ng-cloak>
             <div class="nbo-fields-wrapper">
                 <?php
                 $html_field         = '';
@@ -101,11 +101,11 @@ $currentDir = realpath(dirname(__FILE__));
                         <a class="button nbd-button" ng-click="reset_options()"><?php _e('Clear selection', 'pc-product-builder'); ?></a>
                     <?php endif; ?>
                 </div>
-                <input type="hidden" value="<?php echo($product_id); ?>" name="pcpb-add-to-cart" />
+                <input type="hidden" value="<?php echo esc_attr($product_id); ?>" name="pcpb-add-to-cart" />
                 <p ng-if="!valid_form" class="nbd-invalid-form"><?php _e('Please check invalid fields and quantity input or choose a different combination!', 'pc-product-builder'); ?></p>
             </div>
             <div class="nbo-summary-wrapper">
-                <div ng-if="valid_form" class="nbo-table-summary-wrap <?php echo ($style_class); ?>">
+                <div ng-if="valid_form" class="nbo-table-summary-wrap <?php echo esc_attr($style_class); ?>">
                     <p class="nbo-summary-title" ng-init="showNboSummary = true">
                         <b><?php esc_html_e('Summary options', 'pc-product-builder'); ?></b>
                         <span class="nbo-minus nbo-toggle" ng-show="showNboSummary" ng-click="showNboSummary = !showNboSummary">
@@ -164,7 +164,7 @@ $currentDir = realpath(dirname(__FILE__));
         </div>
     </div>
     <script type="text/javascript">
-        var in_quick_view = <?php echo($in_quick_view ? 1 : 0); ?>;
+        var in_quick_view = <?php echo esc_js($in_quick_view ? 1 : 0); ?>;
         nbds_frontend = <?php echo json_encode($nbds_frontend); ?>;
         var nbOption = {
             status: false,
@@ -174,7 +174,7 @@ $currentDir = realpath(dirname(__FILE__));
             extraOdOption: {},
             lastOdOption: {},
             lastExtraOdOption: {},
-            crtlId: 'nbo-ctrl-<?php echo($appid); ?>',
+           c
             updateVariations: function() {
                 var scope = angular.element(document.getElementById(nbOption.crtlId)).scope();
                 scope.updateVariations();
@@ -256,7 +256,7 @@ $currentDir = realpath(dirname(__FILE__));
 
         function startApp(updateQty) {
             if (nbOption.status) {
-                var scope = angular.element(document.getElementById("nbo-ctrl-<?php echo($appid); ?>")).scope();
+                var scope = angular.element(document.getElementById("nbo-ctrl-<?php echo esc_attr($appid); ?>")).scope();
                 scope.mapOptions();
                 scope.check_valid();
                 scope.update_app();
@@ -363,7 +363,7 @@ $currentDir = realpath(dirname(__FILE__));
         };
 
         nboApp.controller('optionCtrl', ['$scope', '$timeout', function($scope, $timeout) {
-            $scope.product_id = <?php echo($product_id); ?>;
+            $scope.product_id = <?php echo esc_attr($product_id); ?>;
             $scope.options = nbOption.options;
             $scope.fields = $scope.options["fields"];
             $scope.price = "<?php echo($price); ?>";
@@ -372,7 +372,7 @@ $currentDir = realpath(dirname(__FILE__));
             $scope.form_values = <?php echo json_encode($form_values); ?>;
             $scope.is_sold_individually = "<?php echo($is_sold_individually); ?>";
             $scope._quantity = "<?php echo($quantity); ?>";
-            $scope.ajax_url = "<?php echo admin_url('admin-ajax.php'); ?>";
+            $scope.ajax_url = "<?php echo esc_url(admin_url('admin-ajax.php')); ?>";
             $scope.valid_form = false;
             $scope.product_image = [];
             $scope.product_img = [];
@@ -1709,7 +1709,7 @@ $currentDir = realpath(dirname(__FILE__));
             };
         }]);
         <?php if (!$in_design_editor) : ?>
-            var appEl = document.getElementById('<?php echo($appid); ?>');
+            var appEl = document.getElementById('<?php echo esc_attr($appid); ?>');
             angular.element(function() {
                 angular.bootstrap(appEl, ['nboApp']);
             });

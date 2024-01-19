@@ -1,7 +1,7 @@
 <?php if (!defined('ABSPATH')) exit; ?>
 <div class="pcpb-field-header">
-    <label for='pcpb-field-<?php echo ($field['id']); ?>'>
-        <?php echo ($field['general']['title']); ?>
+    <label for='pcpb-field-<?php echo esc_attr($field['id']); ?>'>
+        <?php echo esc_html($field['general']['title']); ?>
         <?php if ($field['general']['required'] == 'y') : ?>
             <span class="nbd-required">*</span>
         <?php endif; ?>
