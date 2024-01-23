@@ -26,7 +26,7 @@ WooCommerce Product Builder is a plugin for the WooCommerce e-commerce platform 
 
 = How to contact you? =
 
-You can contact my team via email: admin@storelly.com
+You can contact my team via email: support@storelly.com
 
 == Screenshots ==
 
