@@ -64,7 +64,7 @@ if (!class_exists('Storelly_Product_Builder_Backend')) {
             Storelly_Install::create_pages();
             Storelly_Install::create_tables();
             Storelly_Install::init_files_and_folders();
-            update_option('pstorelly_version_plugin', STORELLY_PB_VERSION);
+            update_option('storelly_version_plugin', STORELLY_PB_VERSION);
         }
     }
 }

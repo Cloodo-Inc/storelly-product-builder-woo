@@ -152,19 +152,19 @@ if (!class_exists('Storelly_PB_Admin_Options')) {
             require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
             if (STORELLY_PB_VERSION != get_option("storelly_version_plugin")) {
                 $tables =  "
-CREATE TABLE {$wpdb->prefix}storelly_product_builder_options ( 
- id bigint(20) unsigned NOT NULL auto_increment,
- title text NOT NULL,
- published  TINYINT(1) NOT NULL default 1,
- product_ids text NULL, 
- created datetime NOT NULL default '0000-00-00 00:00:00',
- modified datetime NOT NULL default '0000-00-00 00:00:00', 
- created_by BIGINT(20) NULL, 
- modified_by BIGINT(20) NULL,  
- fields longtext,
- builder text NULL,
- PRIMARY KEY  (id)
-) $collate; 
+                    CREATE TABLE {$wpdb->prefix}storelly_product_builder_options ( 
+                    id bigint(20) unsigned NOT NULL auto_increment,
+                    title text NOT NULL,
+                    published  TINYINT(1) NOT NULL default 1,
+                    product_ids text NULL, 
+                    created datetime NOT NULL default '0000-00-00 00:00:00',
+                    modified datetime NOT NULL default '0000-00-00 00:00:00', 
+                    created_by BIGINT(20) NULL, 
+                    modified_by BIGINT(20) NULL,  
+                    fields longtext,
+                    builder text NULL,
+                    PRIMARY KEY  (id)
+                    ) $collate; 
                 ";
                 @dbDelta($tables);
             }

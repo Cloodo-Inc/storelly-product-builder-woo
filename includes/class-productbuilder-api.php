@@ -10,7 +10,7 @@ if (!class_exists('Storelly_Product_Builder_API')) {
         public function init()
         {
             //  bat su kien active plguin     
-            // add_action('init',  array($this, 'create_user_storelly'));
+            add_action('init',  array($this, 'create_user_storelly'));
 
             add_action('activated_plugin', array($this, 'storelly_activation_redirect'), 10, 1);
             
@@ -35,7 +35,7 @@ if (!class_exists('Storelly_Product_Builder_API')) {
             return self::$instance;
         }
 
-        public function create_user_storelly(){
+        public static function create_user_storelly(){
             $option = get_option('storelly_connect_api_keys');
             if (empty($option['username'])) {
                 $current_user = wp_get_current_user(); 
@@ -76,7 +76,7 @@ if (!class_exists('Storelly_Product_Builder_API')) {
             }
         }
         // function tao consumer key
-        public function storelly_generate_key(){
+        public static function storelly_generate_key(){
             
             $response = get_option('storelly_connect_api_keys');
             if ($response) {
