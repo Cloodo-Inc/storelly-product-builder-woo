@@ -12,7 +12,7 @@ if (!class_exists('STORELLY_HTTP')) {
         public static function get_basic_auth() {
             $api_settings = get_option('storelly_connect_api_keys');
 
-            $unauth_token = isset($printcart_account['unauth_token']) ? $printcart_account['unauth_token'] : '';
+            $unauth_token = isset($storelly_account['unauth_token']) ? $storelly_account['unauth_token'] : '';
 
             return array(
                 'X-STORLY: ' . $unauth_token,
@@ -20,12 +20,12 @@ if (!class_exists('STORELLY_HTTP')) {
         }
 
         public static function get_header_unauth_token() {
-            $printcart_account = get_option('printcart_w2p_account');
+            $storelly_account = get_option('storelly_w2p_account');
 
-            $unauth_token = isset($printcart_account['unauth_token']) ? $printcart_account['unauth_token'] : '';
+            $unauth_token = isset($storelly_account['unauth_token']) ? $storelly_account['unauth_token'] : '';
 
             return array(
-                'X-PrintCart-Unauth-Token' => $unauth_token
+                'X-Storelly-Unauth-Token' => $unauth_token
             );
         }
 
