@@ -5,7 +5,7 @@
  */
 /*
 Plugin Name: Product Builder for Woocommerce
-Plugin URI: https://storelly.com
+Plugin URI: https://storelly.com/product-builder
 Description: Create product builder for Woocommerce products
 Version: 1.0.0
 Author: Storelly Team
