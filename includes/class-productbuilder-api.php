@@ -243,6 +243,16 @@ if (!class_exists('Storelly_Product_Builder_API')) {
         
     }
 }
+// Kiểm tra xem WooCommerce có được kích hoạt hay không trước khi kích hoạt product builder
+if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_option('active_plugins'))) == false) {
+     
+    function sample_admin_notice__error() {
+        $class = 'notice notice-error';
+        $message = __( 'Please enable WooCommerce before installing the plugin product builder.', 'pc-product-builder' ); 
+        printf( '<div class="%1$s"><p>%2$s</p></div>', esc_attr( $class ), esc_html( $message ) );
+    }
+    add_action( 'admin_notices', 'sample_admin_notice__error' );
+}
 
 $stll_product_builder_API = Storelly_Product_Builder_API::instance();
 $stll_product_builder_API->init();
