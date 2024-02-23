@@ -75,7 +75,7 @@ if (!class_exists('Storelly_PB_Admin_Options')) {
             foreach ($images as $key => $image) {
                 $result['images'][$key] = wp_get_attachment_url($image);
             }
-            echo json_encode($result);
+            echo wp_json_encode($result);
             wp_die();
         }
         public function nbd_download_option_image() {
@@ -104,7 +104,7 @@ if (!class_exists('Storelly_PB_Admin_Options')) {
                     $result['flag'] = 0;
                 }
             }
-            echo json_encode($result);
+            echo wp_json_encode($result);
             wp_die();
         }
         public function tab_menu() {
@@ -213,10 +213,10 @@ if (!class_exists('Storelly_PB_Admin_Options')) {
             }
         }
         public function product_builder_options() {
-            if (isset($_GET['action']) && $_GET['action'] != 'copy') {
+            if (isset($_GET['action']) && sanitize_text_field($_GET['action'] != 'copy')) {
                 $paged      = get_query_var('paged', 1);
                 $message    = array('content'  => '');
-                if ($_GET['action'] == 'unpublish') {
+                if (sanitize_text_field($_GET['action']) == 'unpublish') {
                     $this->unpublish_option($_REQUEST['id']);
                     wp_redirect(esc_url_raw(add_query_arg(array('paged' => $paged), admin_url('admin.php?page=pc-product-builder-options'))));
                 } else {
@@ -304,10 +304,10 @@ if (!class_exists('Storelly_PB_Admin_Options')) {
             $arr            = array(
                 'title'         => wc_clean($_POST['title']),
                 'published'     => 1,
-                'product_ids'   => isset($_POST['product_ids']) ? serialize($_POST['product_ids']) : serialize(array()),
+                'product_ids'   => isset($_POST['product_ids']) ? serialize(absint($_POST['product_ids'])) : serialize(array()),
                 'modified'      => $modified_date->format('Y-m-d H:i:s')
             );
-            $post_options = $_POST['options'];
+            $post_options = sanitize_text_field($_POST['options']);
             if (isset($_POST['options']['jsonFields'])) {
                 $post_options['fields'] = json_decode(stripslashes($_POST['options']['jsonFields']), true);
                 unset($post_options['jsonFields']);
@@ -942,7 +942,7 @@ if (!class_exists('Storelly_PB_Admin_Options')) {
         }
         public function save_product_option($post_id) {
             if (
-                !isset($_POST['pc_box_nonce']) || !wp_verify_nonce($_POST['pc_box_nonce'], 'pc_box')
+                !isset($_POST['pc_box_nonce']) || !wp_verify_nonce(sanitize_text_field($_POST['pc_box_nonce']), 'pc_box')
                 || !(current_user_can('administrator') || current_user_can('shop_manager'))
             ) {
                 return $post_id;
@@ -950,7 +950,7 @@ if (!class_exists('Storelly_PB_Admin_Options')) {
             if (defined('DOING_AUTOSAVE') && DOING_AUTOSAVE) {
                 return $post_id;
             }
-            if ('page' == $_POST['post_type']) {
+            if ('page' == sanitize_text_field($_POST['post_type'])) {
                 if (!current_user_can('edit_page', $post_id)) {
                     return $post_id;
                 }
@@ -995,7 +995,7 @@ if (!class_exists('Storelly_PB_Admin_Options')) {
                 'mes'   =>  esc_html__('You do not have permission to add font!', 'pc-product-builder'),
                 'flag'  => 0
             );
-            if (!wp_verify_nonce($_POST['nonce'], 'storelly_update_fonts')) {
+            if (!wp_verify_nonce(sanitize_text_field($_POST['nonce']), 'storelly_update_fonts')) {
                 die('Security error');
             }
             $gg_fonts = array();
@@ -1039,10 +1039,10 @@ if (!class_exists('Storelly_PB_Admin_Options')) {
                 }
             }
             $path_font      = STORELLY_PB_FONT_DIR . '/googlefonts.json';
-            file_put_contents($path_font, json_encode($gg_fonts));
+            file_put_contents($path_font, wp_json_encode($gg_fonts));
             $data['mes']    = esc_html__('The google fonts have been added successfully!', 'pc-product-builder');
             $data['flag']   = 1;
-            echo json_encode($data);
+            echo wp_json_encode($data);
             wp_die();
         }
         public function storelly_manager_fonts() {
@@ -1060,7 +1060,7 @@ if (!class_exists('Storelly_PB_Admin_Options')) {
             $message = '';
             $status = '';
 
-            if (isset($_POST['_action_storelly_settings']) && $_POST['_action_storelly_settings'] === 'submit') {
+            if (isset($_POST['_action_storelly_settings']) && sanitize_text_field($_POST['_action_storelly_settings'] === 'submit')) {
                 $storelly_enable_cloud2print_api      = isset($_POST['storelly_enable_cloud2print_api']) ? sanitize_text_field($_POST['storelly_enable_cloud2print_api']) : 'no';
                 $message        = esc_html__('Your settings have been saved.', 'pc-product-builder');
                 $status         = 'updated';
@@ -1070,7 +1070,7 @@ if (!class_exists('Storelly_PB_Admin_Options')) {
             include_once(STORELLY_PB_PLUGIN_DIR . 'views/menu-settings.php');
         }
         public function convert_svg_embed($path) {
-            $svgs       = Storelly_IO::get_list_files_by_type($path, 1, 'svg');
+            $svgs       = Storelly_IO::get_list_files_by_type($path, 'svg', 1);
             $svg_path   = $path . '/svg';
             if (!file_exists($svg_path)) wp_mkdir_p($svg_path);
             foreach ($svgs as $svg) {
@@ -1111,7 +1111,7 @@ if (!class_exists('Storelly_PB_Admin_Options')) {
             }
         }
         public function storelly_download_order_designs() {
-            $item_ids     = isset($_POST['item_ids']) ? $_POST['item_ids'] : array();
+            $item_ids     = isset($_POST['item_ids']) ? absint($_POST['item_ids']) : array();
             $order_id           = isset($_POST['order_id']) ? sanitize_text_field($_POST['order_id']) : '';
             $type_download      = isset($_POST['type_download']) ? sanitize_text_field($_POST['type_download']) : '';
             $files = array();
@@ -1128,11 +1128,11 @@ if (!class_exists('Storelly_PB_Admin_Options')) {
                             if (!file_exists($svg_path)) {
                                 $this->convert_svg_embed($path);
                             }
-                            $item_files = Storelly_IO::get_list_files_by_type($svg_path, 1, 'svg');
+                            $item_files = Storelly_IO::get_list_files_by_type($svg_path, 'svg', 1);
                         } else if ($type_download == 'png') {
-                            $item_files = Storelly_IO::get_list_files_by_type($path, 1, 'png');
+                            $item_files = Storelly_IO::get_list_files_by_type($path, 'png', 1);
                         } else if ($type_download == 'png-preview') {
-                            $item_files = Storelly_IO::get_list_files_by_type($path . '/preview', 1, 'png');
+                            $item_files = Storelly_IO::get_list_files_by_type($path . '/preview', 'png', 1);
                         } else if ($type_download == 'pdf') {
                             $item_files = Storelly_Export_PDF::exportPDF($folder, false);
                         } else if ($type_download == 'pdf-preview') {
@@ -1177,7 +1177,7 @@ if (!class_exists('Storelly_PB_Admin_Options')) {
                     $response['file'] = $urlZip;
                 }
             }
-            echo json_encode($response);
+            echo wp_json_encode($response);
             wp_die();
         }
     }

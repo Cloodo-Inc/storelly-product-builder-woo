@@ -9,7 +9,7 @@
             <?php if( $field['general']['input_type'] == 't' ): ?>
             type="text" <?php if( $field['general']['text_option']['min'] != '' ): ?>pattern=".{0}|.{<?php echo esc_attr( $field['general']['text_option']['min'] ); ?>,}"<?php endif; ?> <?php if( $field['general']['text_option']['max'] != '' ): ?>maxlength="<?php echo esc_attr( $field['general']['text_option']['max'] ); ?>"<?php endif; ?>
                 <?php if( isset( $field['general']['placeholder'] ) && $field['general']['placeholder'] != '' ): ?>
-                    placeholder="<?php echo( $field['general']['placeholder'] ); ?>"
+                    placeholder="<?php echo esc_attr( $field['general']['placeholder'] ); ?>"
                 <?php endif; ?>
             <?php elseif( $field['general']['input_type'] == 'u' ): ?>
             type="file" nbo-input-file="check_valid()" data-field-id="<?php echo esc_attr( $field['id'] ); ?>" data-types="<?php echo strtolower( trim( $field['general']['upload_option']['allow_type'] ) ); ?>" 

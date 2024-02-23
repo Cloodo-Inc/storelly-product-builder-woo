@@ -91,7 +91,7 @@ if (!class_exists('Storelly_IO')) {
             );
             return esc_url_raw($url);
         }
-        public static function get_list_files_by_type($path, $level = 100, $type) {
+        public static function get_list_files_by_type($path, $type, $level = 100) {
             $list       = array();
             $_list      = self::get_list_files($path, $level);
             $list       = preg_grep('/\.(' . $type . ')(?:[\?\#].*)?$/i', $_list);

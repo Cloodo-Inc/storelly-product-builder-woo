@@ -165,11 +165,11 @@ $currentDir = realpath(dirname(__FILE__));
     </div>
     <script type="text/javascript">
         var in_quick_view = <?php echo esc_js($in_quick_view ? 1 : 0); ?>;
-        nbds_frontend = <?php echo json_encode($nbds_frontend); ?>;
+        nbds_frontend = <?php echo wp_json_encode($nbds_frontend); ?>;
         var nbOption = {
             status: false,
             initialed: false,
-            options: <?php echo json_encode($options); ?>,
+            options: <?php echo wp_json_encode($options); ?>,
             nbd_fields: {},
             extraOdOption: {},
             lastOdOption: {},
@@ -369,7 +369,7 @@ $currentDir = realpath(dirname(__FILE__));
             $scope.price = "<?php echo($price); ?>";
             $scope.type = "<?php echo($type); ?>";
             $scope.variations = <?php echo($variations); ?>;
-            $scope.form_values = <?php echo json_encode($form_values); ?>;
+            $scope.form_values = <?php echo wp_json_encode($form_values); ?>;
             $scope.is_sold_individually = "<?php echo($is_sold_individually); ?>";
             $scope._quantity = "<?php echo($quantity); ?>";
             $scope.ajax_url = "<?php echo esc_url(admin_url('admin-ajax.php')); ?>";

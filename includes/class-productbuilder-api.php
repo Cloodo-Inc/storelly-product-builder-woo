@@ -149,7 +149,7 @@ if (!class_exists('Storelly_Product_Builder_API')) {
                 $folder_design = wc_get_order_item_meta($item_id, '_pcpb_folder', true);
                 Storelly_Export_PDF::exportPDF($folder_design);
                 $path_pdf = STORELLY_PB_CUSTOMER_DIR . '/' . $folder_design . '/customer-pdfs';
-                $files = Storelly_IO::get_list_files_by_type($path_pdf, 1, 'pdf');
+                $files = Storelly_IO::get_list_files_by_type($path_pdf, 'pdf', 1);
         
                 foreach ($files as $file) {
                     $cFile[] = Storelly_IO::convert_path_to_url($file);
@@ -232,7 +232,7 @@ if (!class_exists('Storelly_Product_Builder_API')) {
         public function storelly_img_design_order_items($item_id, $item, $order, $plain_text){
             $folder_design = wc_get_order_item_meta($item_id, '_pcpb_folder', true);
             $path_preview = STORELLY_PB_CUSTOMER_DIR . '/' . $folder_design . '/preview';
-            $files = Storelly_IO::get_list_files_by_type($path_preview, 1, 'png');
+            $files = Storelly_IO::get_list_files_by_type($path_preview, 'png', 1);
             foreach ($files as $img){
                 ?>
                 <img width="80" src="<?php echo esc_url(Storelly_IO::convert_path_to_url($img)) ;?>" alt="">

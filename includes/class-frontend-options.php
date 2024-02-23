@@ -11,7 +11,7 @@ if (!class_exists('STORELLY_FRONTEND_OPTIONS')) {
         public $new_add_to_cart_key = FALSE;
         /** Edit option in cart helper **/
         public function __construct() {
-            if (isset($_REQUEST['pcpb_cart_item_key']) && $_REQUEST['pcpb_cart_item_key'] != '') {
+            if (isset($_REQUEST['pcpb_cart_item_key']) && sanitize_text_field($_REQUEST['pcpb_cart_item_key']) != '') {
                 $this->is_edit_mode = true;
                 $this->cart_edit_key = $_REQUEST['pcpb_cart_item_key'];
             }
@@ -204,9 +204,9 @@ if (!class_exists('STORELLY_FRONTEND_OPTIONS')) {
                     $nbdpb_enable   = get_post_meta($product_id, '_storelly_pb_enable', true);
 
                     if (isset($_POST['pcpb-field'])) {
-                        $form_values = $_POST['pcpb-field'];
-                    } else if (isset($_GET['pcpb_cart_item_key']) && $_GET['pcpb_cart_item_key'] != '') {
-                        $cart_item_key  = $_GET['pcpb_cart_item_key'];
+                        $form_values = sanitize_text_field($_POST['pcpb-field']);
+                    } else if (isset($_GET['pcpb_cart_item_key']) && sanitize_text_field($_GET['pcpb_cart_item_key']) != '') {
+                        $cart_item_key  = sanitize_text_field($_GET['pcpb_cart_item_key']);
                         $cart_item      = WC()->cart->get_cart_item($cart_item_key);
                         if (isset($cart_item['pcpb_meta'])) {
                             $form_values = $cart_item['pcpb_meta']['field'];
@@ -255,8 +255,8 @@ if (!class_exists('STORELLY_FRONTEND_OPTIONS')) {
                         'nbdpb_enable'          => $nbdpb_enable,
                         'price'                 => $product->get_price('edit'),
                         'is_sold_individually'  => $product->is_sold_individually(),
-                        'variations'            => json_encode((array) $variations),
-                        'dimensions'            => json_encode((array) $dimensions),
+                        'variations'            => wp_json_encode((array) $variations),
+                        'dimensions'            => wp_json_encode((array) $dimensions),
                         'form_values'           => $form_values,
                         'cart_item_key'         => $cart_item_key,
                         'nbau'                  => $nbau,
@@ -283,7 +283,7 @@ if (!class_exists('STORELLY_FRONTEND_OPTIONS')) {
                     if (!empty($_FILES) && isset($_FILES["pcpb-field"])) {
                         foreach ($_FILES["pcpb-field"]['name'] as $field_id => $file) {
                             if (!isset($nbd_field[$field_id])) {
-                                $nbd_upload_field = $this->upload_file($_FILES["pcpb-field"], $field_id);
+                                $nbd_upload_field = $this->upload_file(sanitize_text_field($_FILES["pcpb-field"]), $field_id);
                                 if (!empty($nbd_upload_field)) {
                                     $nbd_field[$field_id] = $nbd_upload_field[$field_id];
                                 }

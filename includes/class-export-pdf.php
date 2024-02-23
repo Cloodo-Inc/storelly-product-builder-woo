@@ -106,7 +106,7 @@ if (!class_exists('Storelly_Export_PDF')) {
                 if (file_exists($svg_path)) {
                     $html_url           = self::build_html_page($folder_design, $key, $svg_path, $page_settings, $font_css);
                     $url_segment        = urlencode($html_url);
-                    $settings_segment   = base64_encode(json_encode(array(
+                    $settings_segment   = base64_encode(wp_json_encode(array(
                         'width'         => $data['base_width'] * $unit_ratio . 'in',
                         'height'        => $data['base_height'] * $unit_ratio . 'in'
                     )));
@@ -142,7 +142,7 @@ if (!class_exists('Storelly_Export_PDF')) {
             if ($enable_cloud_export_pdf) {
                 self::cloudExportPdf($folder_design, $include_background);
                 $output_file    = STORELLY_PB_CUSTOMER_DIR . '/' . $folder_design . '/customer-pdfs' . '/' . $folder_design . '.pdf';
-                $result = Storelly_IO::get_list_files_by_type(STORELLY_PB_CUSTOMER_DIR . '/' . $folder_design . '/customer-pdfs', 1, 'pdf');
+                $result = Storelly_IO::get_list_files_by_type(STORELLY_PB_CUSTOMER_DIR . '/' . $folder_design . '/customer-pdfs', 'pdf', 1);
             } else {
                 $config     = file_exists($path . '/config.json') ? json_decode(file_get_contents($path . '/config.json')) : '';
                 $datas = array();

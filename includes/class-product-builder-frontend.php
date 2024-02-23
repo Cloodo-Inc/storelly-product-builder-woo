@@ -50,11 +50,11 @@ if (!class_exists('Storelly_Product_Builder_Frontend')) {
                 'folder' => ''
             );
             do_action('before_storelly_save_product_builder_design');
-            $pcpb_item_pb_key = (isset($_POST['pcpb_item_pb_key']) && $_POST['pcpb_item_pb_key'] != '') ? wc_clean($_POST['pcpb_item_pb_key']) : substr(md5(uniqid()), 0, 5) . rand(1, 100) . time();
-            $is_creating_task = (isset($_POST['is_creating_task']) && $_POST['is_creating_task'] != '') ? wc_clean($_POST['is_creating_task']) :  '0';
-            $oid = (isset($_POST['oid']) && $_POST['oid'] != '') ? absint($_POST['oid']) :  0;
+            $pcpb_item_pb_key = (isset($_POST['pcpb_item_pb_key']) && sanitize_text_field($_POST['pcpb_item_pb_key'] != '')) ? wc_clean($_POST['pcpb_item_pb_key']) : substr(md5(uniqid()), 0, 5) . rand(1, 100) . time();
+            $is_creating_task = (isset($_POST['is_creating_task']) && sanitize_text_field($_POST['is_creating_task'] != '')) ? wc_clean($_POST['is_creating_task']) :  '0';
+            $oid = (isset($_POST['oid']) && absint($_POST['oid'] != '')) ? absint($_POST['oid']) :  0;
             $path = STORELLY_PB_CUSTOMER_DIR . '/' . $pcpb_item_pb_key;
-            $save_status = $this->store_product_builder_design_data($pcpb_item_pb_key, $_FILES);
+            $save_status = $this->store_product_builder_design_data($pcpb_item_pb_key, sanitize_text_field($_FILES));
             if (false != $save_status) {
                 $result['image'] = $this->create_preview($path);
                 asort($result['image']);
@@ -69,7 +69,7 @@ if (!class_exists('Storelly_Product_Builder_Frontend')) {
                 }
             }
             do_action('after_storelly_save_product_builder_design', $result);
-            echo json_encode($result);
+            echo wp_json_encode($result);
             wp_die();
         }
         private function create_preview($path) {

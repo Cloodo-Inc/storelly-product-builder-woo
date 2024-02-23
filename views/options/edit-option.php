@@ -30,8 +30,8 @@ $max_input_vars = Storelly_PB_Util::storelly_get_max_input_var();
 ?>
 <!-- No inline scripts or styles unless dynamic. -->
 <script type="text/javascript">
-    var STORELLY_OPTIONS = <?php echo json_encode($options); ?>;
-    var STORELLY_OPTION_FIELD = <?php echo json_encode($default_field); ?>;
+    var STORELLY_OPTIONS = <?php echo wp_json_encode($options); ?>;
+    var STORELLY_OPTION_FIELD = <?php echo wp_json_encode($default_field); ?>;
     var ajax_url = "<?php echo esc_url(admin_url('admin-ajax.php')); ?>",
         nbnonce = "<?php echo esc_attr(wp_create_nonce('save-design')); ?>",
         max_input_vars = parseInt(<?php echo esc_js($max_input_vars); ?>);

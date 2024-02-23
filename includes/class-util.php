@@ -246,7 +246,7 @@ if (!class_exists('Storelly_PB_Util')) {
         {
             $path = STORELLY_PB_PLUGIN_DIR . 'data/listgooglefonts.json';
             $data = (array) self::storelly_read_json_setting($path);
-            return json_encode($data);
+            return wp_json_encode($data);
         }
         public static function storelly_font_subsets()
         {

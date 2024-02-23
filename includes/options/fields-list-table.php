@@ -73,7 +73,7 @@ class Storelly_Options_List_Table extends WP_List_Table {
             wp_redirect(esc_url_raw(admin_url('admin.php?page=nbd_printing_options')));
             exit;
         }
-        if ((isset($_POST['action']) && $_POST['action'] == 'bulk-publish') || (isset($_POST['action2']) && $_POST['action2'] == 'bulk-publish')) {
+        if ((isset($_POST['action']) && sanitize_text_field($_POST['action'] == 'bulk-publish')) || (isset($_POST['action2']) && sanitize_text_field($_POST['action2'] == 'bulk-publish'))) {
             if (isset($_POST['bulk-delete'])) {
                 $bulk_ids = esc_sql($_POST['bulk-delete']);
                 foreach ($bulk_ids as $id) {
@@ -82,7 +82,7 @@ class Storelly_Options_List_Table extends WP_List_Table {
             }
             wp_redirect(esc_url_raw(add_query_arg('', '')));
         }
-        if ((isset($_POST['action']) && $_POST['action'] == 'bulk-unpublish') || (isset($_POST['action2']) && $_POST['action2'] == 'bulk-unpublish')) {
+        if ((isset($_POST['action']) && sanitize_text_field($_POST['action'] == 'bulk-unpublish')) || (isset($_POST['action2']) && sanitize_text_field($_POST['action2'] == 'bulk-unpublish'))) {
             if (isset($_POST['bulk-delete'])) {
                 $bulk_ids = esc_sql($_POST['bulk-delete']);
                 foreach ($bulk_ids as $id) {
@@ -91,7 +91,7 @@ class Storelly_Options_List_Table extends WP_List_Table {
             }
             wp_redirect(esc_url_raw(add_query_arg('', '')));
         }
-        if ((isset($_POST['action']) && $_POST['action'] == 'bulk-delete') || (isset($_POST['action2']) && $_POST['action2'] == 'bulk-delete')) {
+        if ((isset($_POST['action']) && sanitize_text_field($_POST['action'] == 'bulk-delete')) || (isset($_POST['action2']) && sanitize_text_field($_POST['action2'] == 'bulk-delete'))) {
             if (isset($_POST['bulk-delete'])) {
                 $bulk_ids = esc_sql($_POST['bulk-delete']);
                 foreach ($bulk_ids as $id) {

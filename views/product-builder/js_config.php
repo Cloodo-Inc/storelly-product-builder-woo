@@ -1,6 +1,6 @@
 <?php
 if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly 
-$pcpb_cart_item_key  = (isset($_GET['pcpb_cart_item_key']) &&  $_GET['pcpb_cart_item_key'] != '') ? sanitize_text_field($_GET['pcpb_cart_item_key']) : '';
+$pcpb_cart_item_key  = (isset($_GET['pcpb_cart_item_key']) &&  sanitize_text_field($_GET['pcpb_cart_item_key']) != '') ? sanitize_text_field($_GET['pcpb_cart_item_key']) : '';
 $oid                = (isset($_GET['oid']) && $_GET['oid'] != '') ? absint(sanitize_text_field($_GET['oid'])) :  0;
 $redirect_url       = (isset($_GET['rd']) && $_GET['rd'] != '') ? Storelly_PB_Util::Storelly_get_redirect_url(sanitize_text_field($_GET['rd'])) :  '';
 if ($is_creating_task == 0) {
@@ -35,11 +35,11 @@ $font_url   = STORELLY_PB_FONT_URL;
         pcpb_cart_item_key: "<?php echo esc_js($pcpb_cart_item_key); ?>",
         oid: "<?php echo esc_js($oid); ?>",
         redirect_url: "<?php echo esc_url($redirect_url); ?>",
-        google_fonts: <?php echo json_encode($google_fonts); ?>,
-        pre_builder: <?php echo json_encode(Storelly_PB_Util::Storelly_get_product_pre_builder($oid, $pcpb_cart_item_key)); ?>,
-        fonts: <?php echo json_encode($fonts); ?>,
+        google_fonts: <?php echo wp_json_encode($google_fonts); ?>,
+        pre_builder: <?php echo wp_json_encode(Storelly_PB_Util::Storelly_get_product_pre_builder($oid, $pcpb_cart_item_key)); ?>,
+        fonts: <?php echo wp_json_encode($fonts); ?>,
         font_url: "<?php echo esc_url($font_url); ?>",
-        i18n: <?php echo json_encode(array(
+        i18n: <?php echo wp_json_encode(array(
                     'only_support_image'    => esc_html__('Only support image!', 'pc-product-builder'),
                     'max_file_size'         => esc_html__('Max file size', 'pc-product-builder'),
                     'min_file_size'         => esc_html__('Min file size', 'pc-product-builder'),
