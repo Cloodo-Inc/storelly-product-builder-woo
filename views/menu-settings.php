@@ -102,7 +102,11 @@ $url_new_product = get_home_url() . '/wp-admin/post-new.php?post_type=product';
                         <p><?php esc_html_e('Log', 'pc-product-builder'); ?> :</p>
                     </div>
                     <div class="code-key">
-                        <p><?php esc_html_e($api_key['log']); ?></p>
+                    <p><?php  if (isset($api_key['log'])) { 
+                            esc_html_e($api_key['log']);  
+                        } else {
+                            echo"no logs"; 
+                        } ?></p>
                     </div>
                 </div>
             </div>
