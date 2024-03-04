@@ -40,6 +40,17 @@ define('STORELLY_PB_CSS_URL',                  STORELLY_PB_PLUGIN_URL . 'assets/
 define('STORELLY_ENABLE_NONCE',                TRUE);
 define('STORELLY_API_URL',                      'https://dashboard.storelly.com/public');
 
+
+// check if woocommerce works
+register_activation_hook(__FILE__, 'Storelly_plugin_activation');
+function Storelly_plugin_activation() {
+    if (!is_plugin_active('woocommerce/woocommerce.php')) {
+        $message = '<div class="error"><p>' . esc_html__('WooCommerce is not active. Please activate WooCommerce before using', 'pc-product-builder') . ' <b>
+        ' . esc_html__('Product Builder Integration', 'pc-product-builder') . '</b></p></div>';
+        wp_die($message);
+    }
+}
+
 require_once(STORELLY_PB_PLUGIN_DIR .  'includes/class-script-hook.php');
 require_once(STORELLY_PB_PLUGIN_DIR .  'includes/class-export-pdf.php');
 require_once(STORELLY_PB_PLUGIN_DIR .  'includes/class-util.php');
