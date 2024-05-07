@@ -4,16 +4,19 @@
  * @package Storelly 
  */
 /*
-Plugin Name: Product Builder for Woocommerce
-Plugin URI: https://storelly.com/product-builder
-Description: Create product builder for Woocommerce products
-Version: 1.0.0
-Author: Storelly Team
-Author URI: https://storelly.com
-Text Domain: pc-product-builder
-WC requires at least: 6.0.0
-WC tested up to: 6.5.1
-PHP: >=7.0
+
+Plugin Name:            Product Builder for Woocommerce
+Plugin URI:             https://storelly.com/product-builder
+Description:            Create product builder for Woocommerce products
+Version:                1.0.0
+WC requires at least:   6.0.0
+WC tested up to:        6.5.1
+PHP:                    >=7.0
+Author:                 Storelly Team
+Author URI:             https://storelly.com
+License:                GPL v2 or later
+License URI:            https://www.gnu.org/licenses/gpl-2.0.html 
+Text Domain:            pc-product-builder
 */
 
 $upload_dir = wp_upload_dir();

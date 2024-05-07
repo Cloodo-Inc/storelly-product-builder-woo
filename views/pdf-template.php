@@ -1,4 +1,7 @@
-<?php if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly ?>
+<?php if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly 
+
+$link_css_pdf = get_home_url().'/assets/css/views/normalize.css';
+?>
 <html>
 
 <head>
@@ -6,7 +9,8 @@
     <meta http-equiv="Content-type" content="text/html; charset=utf-8">
     <title><?php esc_html_e('NBStorelly', 'pc-product-builder'); ?></title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=1, minimum-scale=0.5, maximum-scale=1.0" />
-    <link rel="stylesheet" type="text/css" href="https://cloud2print.s3.amazonaws.com/normalize.css" />
+    <link rel="stylesheet" type="text/css" href="<?php echo esc_url($link_css_pdf);?>" /> 
+   
     <?php echo esc_url($font_css['google_font_link']);?>
     <style type="text/css">
         @page {

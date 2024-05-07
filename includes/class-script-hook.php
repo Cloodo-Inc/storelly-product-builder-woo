@@ -68,9 +68,8 @@ class PC_PB_Script_Hook {
         wp_register_style('pc-product-builder', STORELLY_PB_CSS_URL . 'views/product-builder.css', array(), STORELLY_PB_VERSION);
 
         wp_register_script('pc-storelly-ext', STORELLY_PB_PLUGIN_URL . 'assets/libs/storelly-ext.js', array(), STORELLY_PB_VERSION, true);
-        wp_register_script('wc-accounting',  WC()->plugin_url() . '/assets/js/accounting/accounting.min.js', array(), '0.4.2', true);
-        wp_register_script('pc-angular', 'https://ajax.googleapis.com/ajax/libs/angularjs/1.6.9/angular.min.js', array('jquery', 'wc-accounting'), '1.6.9', true);
-        wp_register_script('pc-lodash-min', 'https://cdn.jsdelivr.net/npm/lodash@4.17.11/lodash.min.js', array(), '4.17.11', true);
+        wp_register_script('wc-accounting',  WC()->plugin_url() . '/assets/js/accounting/accounting.min.js', array(), '0.4.2', true); 
+        wp_register_script('pc-angular', STORELLY_PB_PLUGIN_URL . 'assets/libs/angular.min.js', array('jquery', 'wc-accounting'), '1.6.9', true); 
         wp_register_script('pc-fontfaceobserver', STORELLY_PB_PLUGIN_URL . 'assets/libs/fontfaceobserver.js', array(), '2.0.13', true);
         wp_register_script('pc-fabric', STORELLY_PB_PLUGIN_URL . 'assets/libs/fabric.2.6.0.min.js', array(), '2.6.0', true);
         wp_register_script('pc-spectrum', STORELLY_PB_JS_URL . 'spectrum.js', array(), STORELLY_PB_VERSION, true);
@@ -90,7 +89,7 @@ class PC_PB_Script_Hook {
     }
 
     public function pc_enqueue_script_footer($page) {
-        wp_register_script('pc-lodash-min', 'https://cdn.jsdelivr.net/npm/lodash@4.17.11/lodash.min.js', array(), '4.17.11', true);
+        wp_register_script('pc-lodash-min', STORELLY_PB_PLUGIN_URL . 'assets/libs/lodash.min.js', array(), '4.17.11', true);
         wp_register_script('pc-fontfaceobserver', STORELLY_PB_PLUGIN_URL . 'assets/libs/fontfaceobserver.js', array(), '2.0.13', true);
         wp_register_script('pc-fabric', STORELLY_PB_PLUGIN_URL . 'assets/libs/fabric.2.6.0.min.js', array(), '2.6.0', true);
         wp_register_script('pc-spectrum', STORELLY_PB_JS_URL . 'spectrum.js', array(), STORELLY_PB_VERSION, true);
