@@ -44,7 +44,7 @@ if (!class_exists('Storelly_Product_Builder_Backend')) {
                 }
             }
         }
-        public static function plugin_activation($network_wide) {
+        public static function plugin_activation($network_wide = '') {
             if (is_multisite() && $network_wide) {
                 global $wpdb;
                 foreach ($wpdb->get_col("SELECT blog_id FROM $wpdb->blogs") as $blog_id) {
