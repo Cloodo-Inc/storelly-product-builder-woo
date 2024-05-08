@@ -26,7 +26,7 @@
                             ?> />
                         <label class="nbd-xlabel" style="<?php if( $attr['preview_type'] == 'i' ){echo 'background: url('.$image_url . ') 0% 0% / cover';}else{echo 'background: '.$attr['color'];}?>" 
                              for='pcpb-field-<?php echo esc_attr( $field['id'].'-'.$key ); ?>' 
-                             nbo-disabled="!status_fields['<?php echo esc_attr_e( $field['id'] ); ?>'][<?php echo esc_attr( $key ); ?>].enable" nbo-disabled-type="class" >
+                             nbo-disabled="!status_fields['<?php echo esc_attr( $field['id'] ); ?>'][<?php echo esc_attr( $key ); ?>].enable" nbo-disabled-type="class" >
                             <?php if(isset($attr['des']) && $attr['des'] != ''): ?>
                             <span class="nbd-help-tip" data-tip="<?php echo esc_attr( $attr['des'] ); ?>"></span>
                             <?php endif; ?>

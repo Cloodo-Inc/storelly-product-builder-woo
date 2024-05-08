@@ -52,11 +52,11 @@ if (!class_exists('Storelly_PB_Util')) {
             }
             return $image_url;
         }
-        public static function storelly_custom_notices($command, $mes)
+        public static function storelly_custom_notices($command, $mes = '')
         {
             switch ($command) {
                 case 'success':
-                    if (!isset($mes))
+                    if (!$mes)
                         $mes = esc_html__('Your settings have been saved.', 'pc-product-builder');
                     $notice = '<div class="updated notice notice-success is-dismissible">
                                 <p>' . $mes . '</p>
@@ -66,7 +66,7 @@ if (!class_exists('Storelly_PB_Util')) {
                             </div>';
                     break;
                 case 'error':
-                    if (!isset($mes))
+                    if (!$mes)
                         $mes = esc_html__('Irks! An error has occurred.', 'pc-product-builder');
                     $notice = '<div class="notice notice-error is-dismissible">
                                 <p>' . $mes . '</p>
@@ -76,14 +76,14 @@ if (!class_exists('Storelly_PB_Util')) {
                             </div>';
                     break;
                 case 'notices':
-                    if (!isset($mes))
+                    if (!$mes)
                         $mes = esc_html__('Irks! An error has occurred.', 'pc-product-builder');
                     $notice = '<div class="notice notice-warning">
                                 <p>' . $mes . '</p>
                             </div>';
                     break;
                 case 'warning':
-                    if (!isset($mes))
+                    if (!$mes)
                         $mes = esc_html__('Warning.', 'pc-product-builder');
                     $notice = '<div class="notice notice-warning is-dismissible">
                                 <p>' . $mes . '</p>

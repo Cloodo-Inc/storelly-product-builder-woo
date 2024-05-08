@@ -26,7 +26,7 @@
                     <?php
                     foreach ($subsets as $key => $subset) :
                     ?>
-                        <option value="<?php esc_attr_e($key); ?>" <?php selected($key, $current_subset); ?>><?php esc_html_e($subset['name']); ?></option>
+                        <option value="<?php echo esc_attr($key); ?>" <?php selected($key, $current_subset); ?>><?php echo esc_html($subset['name']); ?></option>
                     <?php endforeach; ?>
                 </select>
                 <a class="button button-primary" ng-click="updateGoogleFont($event)"><?php esc_html_e('Update', 'pc-product-builder'); ?></a>

@@ -13,7 +13,7 @@
                     <b>
                         <?php esc_html_e('Product:', 'pc-product-builder'); ?>
                     </b>
-                    <?php esc_html_e($order_item->get_name()); ?>
+                    <?php echo esc_html($order_item->get_name()); ?>
                 </div>
                 <hr />
                 <?php
