@@ -18,9 +18,7 @@ if (file_exists(STORELLY_PB_FONT_DIR . '/googlefonts.json')) {
     $google_fonts = (array)json_decode(file_get_contents(STORELLY_PB_FONT_DIR . '/googlefonts.json'));
 }
 $fonts      = $google_fonts;
-
 $font_url   = STORELLY_PB_FONT_URL;
-
 ?>
 
 <!-- No inline scripts or styles unless dynamic. -->

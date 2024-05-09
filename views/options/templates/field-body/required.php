@@ -1,4 +1,5 @@
 <?php if (!defined('ABSPATH')) exit; ?>
+<!-- No inline scripts or styles unless dynamic. -->
 <?php echo '<script type="text/ng-template" id="field_body_required">'; ?>
 <div class="pcpb-field-info" ng-show="check_depend(field.general, field.general.required)">
     <div class="pcpb-field-info-1">

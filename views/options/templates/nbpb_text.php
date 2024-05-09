@@ -1,4 +1,5 @@
 <?php if (!defined('ABSPATH')) exit; ?>
+<!-- No inline scripts or styles unless dynamic. -->
 <?php echo '<script type="text/ng-template" id="nbd.nbpb_text">'; ?>
 <div class="pcpb-field-info">
     <div class="pcpb-field-info-1">

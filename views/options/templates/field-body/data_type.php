@@ -1,4 +1,5 @@
 <?php if (!defined('ABSPATH')) exit; ?>
+<!-- No inline scripts or styles unless dynamic. -->
 <?php echo '<script type="text/ng-template" id="field_body_data_type">'; ?>
 <div class="pcpb-field-info" ng-show="check_depend(field.general, field.general.data_type)">
     <div class="pcpb-field-info-1">

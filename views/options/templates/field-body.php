@@ -1,4 +1,5 @@
 <?php if (!defined('ABSPATH')) exit; ?>
+<!-- No inline scripts or styles unless dynamic. -->
 <?php echo '<script type="text/ng-template" id="field_body">'; ?>
 <div ng-show="field.isExpand">
     <div class="tab-general pcpb-field-content active">

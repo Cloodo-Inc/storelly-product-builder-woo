@@ -163,6 +163,7 @@ $currentDir = realpath(dirname(__FILE__));
             </div>
         </div>
     </div>
+    <!-- No inline scripts or styles unless dynamic. -->
     <script type="text/javascript">
         var in_quick_view = <?php echo esc_js($in_quick_view ? 1 : 0); ?>;
         nbds_frontend = <?php echo wp_json_encode($nbds_frontend); ?>;
