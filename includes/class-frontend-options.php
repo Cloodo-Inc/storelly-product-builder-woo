@@ -55,6 +55,8 @@ if (!class_exists('STORELLY_FRONTEND_OPTIONS')) {
             add_filter('woocommerce_get_cart_item_from_session', array($this, 'get_cart_item_from_session'), 1, 2);
             // on add to cart set the price when needed, and do it first, before any other plugins
             add_filter('woocommerce_add_cart_item', array($this, 'set_product_prices'), 1, 1);
+
+            add_action('wp_enqueue_scripts', array($this , 'frontend_enqueue_scripts'));
         }
         public static function get_option($id) {
             global $wpdb;
@@ -102,6 +104,174 @@ if (!class_exists('STORELLY_FRONTEND_OPTIONS')) {
                 }
             }
             return $valid_fields;
+        }
+        public function frontend_enqueue_scripts(){
+            $product_id = get_the_ID();
+            $option_id = $this->get_product_option($product_id);
+             if ($option_id) {
+                $_options = $this->get_option($option_id);
+                if ($_options) {
+                    $options = unserialize($_options['fields']);
+                    if (!isset($options['fields'])) {
+                        $options['fields'] = array();
+                    }
+                    $options['fields'] = $this->recursive_stripslashes($options['fields']);
+                    foreach ($options['fields'] as $key => $field) {
+                        if (!isset($field['general']['attributes'])) {
+                            $field['general']['attributes'] = array();
+                            $field['general']['attributes']['options'] = array();
+                            $options['fields'][$key]['general']['attributes'] = array();
+                            $options['fields'][$key]['general']['attributes']['options'] = array();
+                        }
+                        if ($field['appearance']['change_image_product'] == 'y') {
+                            foreach ($field['general']['attributes']['options'] as $op_index => $option) {
+                                $option['product_image'] = isset($option['product_image']) ? $option['product_image'] : 0;
+                                $attachment_id = absint($option['product_image']);
+                                if ($attachment_id != 0) {
+                                    $image_link         = wp_get_attachment_url($attachment_id);
+                                    $attachment_object  = get_post($attachment_id);
+                                    $full_src           = wp_get_attachment_image_src($attachment_id, 'large');
+                                    $image_title        = get_the_title($attachment_id);
+                                    $image_alt          = trim(strip_tags(get_post_meta($attachment_id, '_wp_attachment_image_alt', TRUE)));
+                                    $image_srcset       = function_exists('wp_get_attachment_image_srcset') ? wp_get_attachment_image_srcset($attachment_id, 'shop_single') : FALSE;
+                                    $image_sizes        = function_exists('wp_get_attachment_image_sizes') ? wp_get_attachment_image_sizes($attachment_id, 'shop_single') : FALSE;
+                                    $image_caption      = $attachment_object->post_excerpt;
+                                    $options['fields'][$key]['general']['attributes']['options'][$op_index] = array_replace_recursive($options['fields'][$key]['general']['attributes']['options'][$op_index], array(
+                                        'imagep'        => 'y',
+                                        'image_link'    => $image_link,
+                                        'image_title'   => $image_title,
+                                        'image_alt'     => $image_alt,
+                                        'image_srcset'  => $image_srcset,
+                                        'image_sizes'   => $image_sizes,
+                                        'image_caption' => $image_caption,
+                                        'full_src'      => $full_src[0],
+                                        'full_src_w'    => $full_src[1],
+                                        'full_src_h'    => $full_src[2]
+                                    ));
+                                } else {
+                                    $options['fields'][$key]['general']['attributes']['options'][$op_index]['imagep'] = 'n';
+                                }
+                            }
+                        }
+                        if (isset($field['nbpb_type']) && $field['nbpb_type'] == 'nbpb_com') {
+                            if (isset($field['general']['pb_config'])) {
+                                foreach ($field['general']['pb_config'] as $a_index => $attr) {
+                                    foreach ($attr as $s_index => $sattr) {
+                                        foreach ($sattr['views'] as $v_index => $view) {
+                                            $pb_image_obj = wp_get_attachment_url(absint($view['image']));
+                                            $options['fields'][$key]['general']['pb_config'][$a_index][$s_index]['views'][$v_index]['image_url'] =  $pb_image_obj ? $pb_image_obj : STORELLY_PB_ASSETS_URL . 'images/placeholder.png';
+                                        }
+                                    }
+                                }
+                            } else {
+                                $field['general']['pb_config'] = array();
+                            }
+                            foreach ($field['general']['attributes']['options'] as $op_index => $option) {
+                                if( isset($option['enable_subattr']) && $option['enable_subattr'] == 'on' && isset($option['sub_attributes']) && count($option['sub_attributes']) > 0 ){
+                                    foreach( $option['sub_attributes'] as $sa_index => $sattr ){
+                                        $options['fields'][$key]['general']['attributes']['options'][$op_index]['sub_attributes'][$sa_index]['image_url'] = Storelly_PB_Util::storelly_get_image_thumbnail( $sattr['image'] );
+                                    }
+                                }else{
+                                    $options['fields'][$key]['general']['attributes']['options'][$op_index]['image_url'] = Storelly_PB_Util::storelly_get_image_thumbnail( $option['image'] );
+                                }
+                            };
+                            $options['fields'][$key]['general']['component_icon_url'] = Storelly_PB_Util::storelly_get_image_thumbnail($field['general']['component_icon']);
+                        }
+                        if (isset($field['general']['attributes']['bg_type']) && $field['general']['attributes']['bg_type'] == 'i') {
+                            foreach ($field['general']['attributes']['options'] as $op_index => $option) {
+                                foreach ($option['bg_image'] as $bg_index => $bg) {
+                                    $bg_obj = wp_get_attachment_url(absint($bg));
+                                    $options['fields'][$key]['general']['attributes']['options'][$op_index]['bg_image_url'][$bg_index] = $bg_obj ? $bg_obj : STORELLY_PB_ASSETS_URL . 'images/placeholder.png';
+                                }
+                            };
+                        }
+                    }
+                    if (isset($options['views'])) {
+                        foreach ($options['views'] as $vkey => $view) {
+                            $view['base'] = isset($view['base']) ? $view['base'] : 0;
+                            $options['views'][$vkey]['base'] = $view['base'];
+                            $view_bg_obj = wp_get_attachment_url(absint($view['base']));
+                            $options['views'][$vkey]['base_url'] = $view_bg_obj ? $view_bg_obj : STORELLY_PB_ASSETS_URL . 'images/placeholder.png';
+                        }
+                    }
+                    $product        = wc_get_product($product_id);
+                    $type           = $product->get_type();
+                    $variations     = array();
+                    $dimensions     = array();
+                    $form_values    = array();
+                    $cart_item_key  = '';
+                    $quantity       = 1;
+                    $nbau           = '';
+                    $nbdpb_enable   = get_post_meta($product_id, '_storelly_pb_enable', true);
+
+                    if (isset($_POST['pcpb-field'])) {
+                        $form_values = sanitize_text_field($_POST['pcpb-field']);
+                    } else if (isset($_GET['pcpb_cart_item_key']) && sanitize_text_field($_GET['pcpb_cart_item_key']) != '') {
+                        $cart_item_key  = sanitize_text_field($_GET['pcpb_cart_item_key']);
+                        $cart_item      = WC()->cart->get_cart_item($cart_item_key);
+                        if (isset($cart_item['pcpb_meta'])) {
+                            $form_values = $cart_item['pcpb_meta']['field'];
+                        }
+                    }
+
+                    if (isset($_GET['nbo_values'])) {
+                        $params     = array();
+                        $value_str  = base64_decode(wc_clean($_GET['nbo_values']));
+                        parse_str($value_str, $params);
+                        if (isset($params['pcpb-field'])) {
+                            $form_values = $params['pcpb-field'];
+                        }
+                        if (isset($params["qty"])) {
+                            $quantity = $params["qty"];
+                        }
+                    }
+
+                    if ($type == 'variable') {
+                        $all = get_posts(array(
+                            'post_parent' => $product_id,
+                            'post_type'   => 'product_variation',
+                            'orderby'     => array('menu_order' => 'ASC', 'ID' => 'ASC'),
+                            'post_status' => 'publish',
+                            'numberposts' => -1,
+                        ));
+                        foreach ($all as $child) {
+                            $vid                = $child->ID;
+                            $variation          = wc_get_product($vid);
+                            $variations[$vid]   = $variation->get_price('edit');
+
+                            $width = $height = '';
+                            $dimensions[$vid]   = array(
+                                'width'     => $variation->get_width(),
+                                'height'    => $variation->get_length()
+                            );
+                        }
+                    }
+                    $nbds_frontend = array(
+                        'wc_currency_format_num_decimals'               =>  wc_get_price_decimals(),
+                        'currency_format_num_decimals'                  =>  4,
+                        'currency_format_symbol'                        =>  html_entity_decode((string) get_woocommerce_currency_symbol(), ENT_QUOTES, 'UTF-8'),
+                        'currency_format_decimal_sep'                   =>  stripslashes(wc_get_price_decimal_separator()),
+                        'currency_format_thousand_sep'                  =>  stripslashes(wc_get_price_thousand_separator()),
+                        'currency_format'                               =>  esc_attr(str_replace(array('%1$s', '%2$s'), array('%s', '%v'), get_woocommerce_price_format())),
+                        'nbstorelly_hide_add_cart_until_form_filled'    =>  'yes'
+                    );
+                    wp_register_script('option_builder', STORELLY_PB_JS_URL . 'option-builder.js',('pc-angularjs'), '1.0.0', false);
+                    wp_localize_script( 'option_builder', 'option_builder_variable', array(
+                        'ajaxUrl' => admin_url( 'admin-ajax.php' ),
+                        'nbds_frontend' => $nbds_frontend,
+                        'options' => $options,
+                        'product_id' => $product_id,
+                        'type' => $type,
+                        'quantity' => $quantity,
+                        'variations' => wp_json_encode((array) $variations),
+                        'form_values' => $form_values,
+                        'is_sold_individually' => $product->is_sold_individually(),
+                        'file_too_big' => __('Sorry, file is too big, max size: ', 'pc-product-builder'),
+                        'file_too_small' => __('Sorry, file is too small, min size: ', 'pc-product-builder'),
+                        'file_type' => __('Sorry, this file type is not permitted for security reasons. Only accept: ', 'pc-product-builder'),
+                    ) );
+                }
+            }
         }
         public function show_option_fields() {
             global $product;
@@ -245,7 +415,6 @@ if (!class_exists('STORELLY_FRONTEND_OPTIONS')) {
                             );
                         }
                     }
-
                     ob_start();
                     Storelly_PB_Util::storelly_get_template('single-product/option-builder.php', array(
                         'product_id'            => $product_id,
@@ -267,7 +436,7 @@ if (!class_exists('STORELLY_FRONTEND_OPTIONS')) {
             }
         }
         public function add_cart_item_data($cart_item_data, $product_id, $variation_id, $quantity = 1) {
-            $post_data = $_POST;
+            $post_data = map_deep( $_POST, 'sanitize_text_field' );
             $option_id = $this->get_product_option($product_id);
             if (!$option_id) {
                 return $cart_item_data;
@@ -281,7 +450,8 @@ if (!class_exists('STORELLY_FRONTEND_OPTIONS')) {
                     unset($cart_item_data['pcpb-field']);
                 } else {
                     if (!empty($_FILES) && isset($_FILES["pcpb-field"])) {
-                        foreach ($_FILES["pcpb-field"]['name'] as $field_id => $file) {
+                        $files = $_FILES["pcpb-field"]
+                        foreach ($files['name'] as $field_id => $file) {
                             if (!isset($nbd_field[$field_id])) {
                                 $nbd_upload_field = $this->upload_file(sanitize_text_field($_FILES["pcpb-field"]), $field_id);
                                 if (!empty($nbd_upload_field)) {
@@ -312,6 +482,15 @@ if (!class_exists('STORELLY_FRONTEND_OPTIONS')) {
             }
             return $cart_item_data;
         }
+
+        public function custom_upload_directory_no_date(){
+            $user_folder = md5($woocommerce->session->get_customer_id());
+            $upload['subdir'] = '/storelly-product-builder/uploads/' . $user_folder;
+            $upload['path'] = $upload['basedir'] . $upload['subdir'];
+            $upload['url'] = $upload['baseurl'] . $upload['subdir'];
+            return $upload;
+        }
+
         public function upload_file($files, $field_id) {
             $nbd_upload_fields = array();
             global $woocommerce;
@@ -322,8 +501,20 @@ if (!class_exists('STORELLY_FRONTEND_OPTIONS')) {
                 $new_name = strtotime("now") . substr(md5(rand(1111, 9999)), 0, 8) . '.' . $ext;
                 $new_path = STORELLY_PB_UPLOAD_DIR . '/' . $user_folder . '/' . $new_name;
                 $mkpath = wp_mkdir_p(STORELLY_PB_UPLOAD_DIR . '/' . $user_folder);
+
                 if ($mkpath) {
-                    if (move_uploaded_file($files['tmp_name'][$field_id], $new_path)) {
+                    add_filter( 'upload_dir',array($this,'custom_upload_directory_no_date' ));
+                    $file = array(
+                        'name' => $new_name,
+                        'type' => $files['type'][$field_id],
+                        'tmp_name' => $files['tmp_name'][ $field_id ],
+                        'error' => $files['error'][ $field_id ],
+                        'size' => $files['size'][ $field_id ]
+                    );
+                    $upload_overrides = array( 'test_form' => false );
+                    $movefile = wp_handle_upload( $file, $upload_overrides );
+                    remove_filterr( 'upload_dir',array($this,'custom_upload_directory_no_date' ));
+                    if ($movefile && !isset( $movefile['error'] )) {
                         $nbd_upload_fields[$field_id] = $user_folder . '/' . $new_name;
                     } else {
                         //todo

@@ -1829,22 +1829,11 @@ class TCPDF_STATIC {
 	 * @public static
 	 */
 	public static function url_exists($url) {
-		$crs = curl_init();
-		curl_setopt($crs, CURLOPT_URL, $url);
-		curl_setopt($crs, CURLOPT_NOBODY, true);
-		curl_setopt($crs, CURLOPT_FAILONERROR, true);
-		if ((ini_get('open_basedir') == '') && (!ini_get('safe_mode'))) {
-			curl_setopt($crs, CURLOPT_FOLLOWLOCATION, true);
-		}
-		curl_setopt($crs, CURLOPT_CONNECTTIMEOUT, 5);
-		curl_setopt($crs, CURLOPT_TIMEOUT, 30);
-		curl_setopt($crs, CURLOPT_SSL_VERIFYPEER, false);
-		curl_setopt($crs, CURLOPT_SSL_VERIFYHOST, false);
-		curl_setopt($crs, CURLOPT_USERAGENT, 'tc-lib-file');
-		curl_exec($crs);
-		$code = curl_getinfo($crs, CURLINFO_HTTP_CODE);
-		curl_close($crs);
-		return ($code == 200);
+		$response = wp_remote_get($url, array(
+		  'timeout' => 20,
+		  'User-Agent' => 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.8; rv:20.0) Gecko/20100101 Firefox/20.0'
+		));
+		return $response;
 	}
 
 	/**
@@ -1939,23 +1928,12 @@ class TCPDF_STATIC {
 				&& preg_match('%^(https?|ftp)://%', $path)
 			) {
 				// try to get remote file data using cURL
-				$crs = curl_init();
-				curl_setopt($crs, CURLOPT_URL, $path);
-				curl_setopt($crs, CURLOPT_BINARYTRANSFER, true);
-				curl_setopt($crs, CURLOPT_FAILONERROR, true);
-				curl_setopt($crs, CURLOPT_RETURNTRANSFER, true);
-				if ((ini_get('open_basedir') == '') && (!ini_get('safe_mode'))) {
-				    curl_setopt($crs, CURLOPT_FOLLOWLOCATION, true);
-				}
-				curl_setopt($crs, CURLOPT_CONNECTTIMEOUT, 5);
-				curl_setopt($crs, CURLOPT_TIMEOUT, 30);
-				curl_setopt($crs, CURLOPT_SSL_VERIFYPEER, false);
-				curl_setopt($crs, CURLOPT_SSL_VERIFYHOST, false);
-				curl_setopt($crs, CURLOPT_USERAGENT, 'tc-lib-file');
-				$ret = curl_exec($crs);
-				curl_close($crs);
-				if ($ret !== false) {
-					return $ret;
+				$response = wp_remote_get($path, array(
+				  	'timeout' => 20,
+				  	'User-Agent' => 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.8; rv:20.0) Gecko/20100101 Firefox/20.0'
+				));
+				if ($response !== false) {
+					return $response;
 				}
 			}
 		}

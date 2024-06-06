@@ -64,7 +64,7 @@ if (!class_exists('Storelly_PB_Admin_Options')) {
             include_once(STORELLY_PB_PLUGIN_DIR . 'views/box-order-metadata.php');
         }
         public function nbd_get_media_full_size_url() {
-            if (!wp_verify_nonce($_POST['nonce'], 'save-design') && STORELLY_ENABLE_NONCE) {
+            if (!wp_verify_nonce(sanitize_text_field($_POST['nonce']), 'save-design') && STORELLY_ENABLE_NONCE) {
                 die('Security error');
             }
             $result = array(

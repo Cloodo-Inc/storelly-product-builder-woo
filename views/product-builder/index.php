@@ -33,7 +33,7 @@
         }
         return $valid_fields;
     }
-    function show_option_fields() {
+    function storelly_show_option_fields() {
         $product_id = 0;
         $option_id = sanitize_text_field($_GET['oid']);
         if ($option_id) {
@@ -154,7 +154,7 @@
             }
         }
     }
-    show_option_fields();
+    storelly_show_option_fields();
     ?>
     <?php do_action('pc_footer', 'product-builder'); ?>
 </body>

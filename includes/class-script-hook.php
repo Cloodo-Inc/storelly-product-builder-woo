@@ -1,6 +1,6 @@
 <?php
 defined('ABSPATH') || exit;
-class PC_PB_Script_Hook {
+class Storelly_PB_Script_Hook {
     protected static $instance;
     public static function instance() {
         if (is_null(self::$instance)) {
@@ -99,5 +99,5 @@ class PC_PB_Script_Hook {
         }
     }
 }
-$pc_pb_script_hook = PC_PB_Script_Hook::instance();
+$pc_pb_script_hook = Storelly_PB_Script_Hook::instance();
 $pc_pb_script_hook->init();
