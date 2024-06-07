@@ -11,7 +11,7 @@
                     $field['general']['attributes']["options"][$key]['show_subattr'] = $show_subattr;
             ?>
             <input ng-change="check_valid();updateMapOptions('<?php echo esc_attr( $field['id'] ); ?>')" value="<?php echo esc_attr( $key ); ?>" ng-model="nbd_fields['<?php echo esc_attr( $field['id'] ); ?>'].value" id='pcpb-field-<?php echo esc_attr( $field['id'].'-'.$key ); ?>' 
-                   name="pcpb-field[<?php echo esc_attr( $field['id'] ); ?>]<?php if($show_subattr) echo '[value]'; ?>" type="radio" 
+                   name="pcpb-field[<?php echo esc_attr( $field['id'] ); ?>]<?php if($show_subattr) echo esc_attr('[value]'); ?>" type="radio" 
                    nbo-disabled="!status_fields['<?php echo esc_attr( $field['id'] ); ?>'][<?php echo esc_attr( $key ); ?>].enable" nbo-disabled-type="attr" 
                 <?php
                     if( isset($form_values[$field['id']]) ){

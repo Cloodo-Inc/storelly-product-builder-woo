@@ -10,7 +10,7 @@
                 $show_subattr = ($enable_subattr == 'on' && count($attr['sub_attributes']) > 0) ? true : false;
                 $field['general']['attributes']["options"][$key]['show_subattr'] = $show_subattr;
         ?>
-        <input ng-change="check_valid();updateMapOptions('<?php echo esc_attr( $field['id'] ); ?>')" value="<?php echo esc_attr( $key ); ?>" ng-model="nbd_fields['<?php echo esc_attr( $field['id'] ); ?>'].value" name="pcpb-field[<?php echo esc_attr( $field['id'] ); ?>]<?php if($show_subattr) echo '[value]'; ?>" type="radio" id='pcpb-field-<?php echo esc_attr( $field['id'].'-'.$key ); ?>' 
+        <input ng-change="check_valid();updateMapOptions('<?php echo esc_attr( $field['id'] ); ?>')" value="<?php echo esc_attr( $key ); ?>" ng-model="nbd_fields['<?php echo esc_attr( $field['id'] ); ?>'].value" name="pcpb-field[<?php echo esc_attr( $field['id'] ); ?>]<?php if($show_subattr) echo esc_attr('[value]'); ?>" type="radio" id='pcpb-field-<?php echo esc_attr( $field['id'].'-'.$key ); ?>' 
             <?php 
                 if( isset($form_values[$field['id']]) ){
                     $fvalue = (is_array($form_values[$field['id']]) && isset($form_values[$field['id']]['value'])) ? $form_values[$field['id']]['value'] : $form_values[$field['id']];

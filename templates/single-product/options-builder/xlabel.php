@@ -14,7 +14,7 @@
             <div class="nbd-xlabel-wrap">
                 <div class="nbd-xlabel-value">
                     <div class="nbd-xlabel-value-inner" title="<?php echo esc_attr( $attr['name'] ); ?>">
-                        <input ng-change="check_valid();updateMapOptions('<?php echo esc_attr( $field['id'] ); ?>')" value="<?php echo esc_attr( $key ); ?>" ng-model="nbd_fields['<?php echo esc_attr( $field['id'] ); ?>'].value" name="pcpb-field[<?php echo esc_attr( $field['id'] ); ?>]<?php if($show_subattr) echo '[value]'; ?>" 
+                        <input ng-change="check_valid();updateMapOptions('<?php echo esc_attr( $field['id'] ); ?>')" value="<?php echo esc_attr( $key ); ?>" ng-model="nbd_fields['<?php echo esc_attr( $field['id'] ); ?>'].value" name="pcpb-field[<?php echo esc_attr( $field['id'] ); ?>]<?php if($show_subattr) echo esc_attr('[value]'); ?>" 
                                type="radio" id='pcpb-field-<?php echo esc_attr( $field['id'].'-'.$key ); ?>' 
                             <?php 
                                 if( isset($form_values[$field['id']]) ){
@@ -24,7 +24,7 @@
                                     checked( isset($attr['selected']) ? $attr['selected'] : 'off', 'on' ); 
                                 }
                             ?> />
-                        <label class="nbd-xlabel" style="<?php if( $attr['preview_type'] == 'i' ){echo 'background: url('.$image_url . ') 0% 0% / cover';}else{echo 'background: '.$attr['color'];}?>" 
+                        <label class="nbd-xlabel" style="<?php if( $attr['preview_type'] == 'i' ){echo esc_attr('background: url('.$image_url . ') 0% 0% / cover');}else{echo esc_attr('background: '.$attr['color']);}?>" 
                              for='pcpb-field-<?php echo esc_attr( $field['id'].'-'.$key ); ?>' 
                              nbo-disabled="!status_fields['<?php echo esc_attr( $field['id'] ); ?>'][<?php echo esc_attr( $key ); ?>].enable" nbo-disabled-type="class" >
                             <?php if(isset($attr['des']) && $attr['des'] != ''): ?>

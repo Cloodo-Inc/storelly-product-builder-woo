@@ -71,15 +71,15 @@ $max_input_vars = Storelly_PB_Util::storelly_get_max_input_var();
                                     <div class="minor-publishing">
                                         <div class="misc-publishing-actions nbo-dates">
                                             <div style="margin-bottom: 15px;">
-                                                <label for="date_from"><?php _e('Status:', 'pc-product-builder'); ?></label>
+                                                <label for="date_from"><?php esc_html_e('Status:', 'pc-product-builder'); ?></label>
                                                 <b style="vertical-align: middle;"><?php echo esc_html($options['published'] ? 'Published' : 'Trash');  ?></b>
                                             </div>
                                             <div style="margin-bottom: 15px;">
-                                                <label for="date_from"><?php _e('Published on:', 'pc-product-builder'); ?></label>
+                                                <label for="date_from"><?php esc_html_e('Published on:', 'pc-product-builder'); ?></label>
                                                 <b style="vertical-align: middle;"><?php echo esc_html($options['created']); ?></b>
                                             </div>
                                             <div>
-                                                <label for="date_to"><?php _e('Modified on:', 'pc-product-builder'); ?></label>
+                                                <label for="date_to"><?php esc_html_e('Modified on:', 'pc-product-builder'); ?></label>
                                                 <b style="vertical-align: middle;"><?php echo esc_html($options['modified']); ?></b>
                                             </div>
                                         </div>
@@ -88,7 +88,7 @@ $max_input_vars = Storelly_PB_Util::storelly_get_max_input_var();
                                     <div id="major-publishing-actions">
                                         <div id="delete-action">
                                             <?php if ($options['published'] == 1) : ?>
-                                                <a class="submitdelete deletion" href="<?php echo esc_url($link_unpublish); ?>"><?php _e('Move to Trash', 'pc-product-builder'); ?></a>
+                                                <a class="submitdelete deletion" href="<?php echo esc_url($link_unpublish); ?>"><?php esc_html_e('Move to Trash', 'pc-product-builder'); ?></a>
                                             <?php endif; ?>
                                         </div>
                                         <div id="publishing-action">
