@@ -20,7 +20,7 @@ $link_create_option = add_query_arg(
     admin_url('admin.php?page=pc-product-builder-options')
 );
 wp_enqueue_media();
-$current_url = add_query_arg($_GET, admin_url('admin.php?page=pc-product-builder-options'));
+
 $link_create_pre_builder = add_query_arg(array(
     'oid'   => sanitize_text_field($_GET['id']),
     'paged' => sanitize_text_field($_GET['paged']),

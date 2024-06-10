@@ -56,7 +56,7 @@ class Storelly_Options_List_Table extends WP_List_Table {
     }
     public function process_bulk_action() {
         if ('delete' === $this->current_action()) {
-            $nonce = esc_attr($_REQUEST['_wpnonce']);
+            $nonce = sanitize_text_field($_REQUEST['_wpnonce']);
             if (!wp_verify_nonce($nonce, 'nbd_options_nonce')) {
                 die('Go get a life script kiddies');
             }
@@ -65,7 +65,7 @@ class Storelly_Options_List_Table extends WP_List_Table {
             exit;
         }
         if ('copy' === $this->current_action()) {
-            $nonce = esc_attr($_REQUEST['_wpnonce']);
+            $nonce = sanitize_text_field($_REQUEST['_wpnonce']);
             if (!wp_verify_nonce($nonce, 'nbd_options_nonce')) {
                 die('Go get a life script kiddies');
             }
@@ -75,8 +75,9 @@ class Storelly_Options_List_Table extends WP_List_Table {
         }
         if ((isset($_POST['action']) && sanitize_text_field($_POST['action'] == 'bulk-publish')) || (isset($_POST['action2']) && sanitize_text_field($_POST['action2'] == 'bulk-publish'))) {
             if (isset($_POST['bulk-delete'])) {
-                $bulk_ids = esc_sql($_POST['bulk-delete']);
+                $bulk_ids = sanitize_text_field($_POST['bulk-delete']);
                 foreach ($bulk_ids as $id) {
+                    $id = sanitize_text_field($id);
                     $this->publish_option($id);
                 }
             }
@@ -84,8 +85,9 @@ class Storelly_Options_List_Table extends WP_List_Table {
         }
         if ((isset($_POST['action']) && sanitize_text_field($_POST['action'] == 'bulk-unpublish')) || (isset($_POST['action2']) && sanitize_text_field($_POST['action2'] == 'bulk-unpublish'))) {
             if (isset($_POST['bulk-delete'])) {
-                $bulk_ids = esc_sql($_POST['bulk-delete']);
+                $bulk_ids = sanitize_text_field($_POST['bulk-delete']);
                 foreach ($bulk_ids as $id) {
+                    $id = sanitize_text_field($id);
                     $this->unpublish_option($id);
                 }
             }
@@ -93,8 +95,9 @@ class Storelly_Options_List_Table extends WP_List_Table {
         }
         if ((isset($_POST['action']) && sanitize_text_field($_POST['action'] == 'bulk-delete')) || (isset($_POST['action2']) && sanitize_text_field($_POST['action2'] == 'bulk-delete'))) {
             if (isset($_POST['bulk-delete'])) {
-                $bulk_ids = esc_sql($_POST['bulk-delete']);
+                $bulk_ids = sanitize_text_field($_POST['bulk-delete']);
                 foreach ($bulk_ids as $id) {
+                    $id = sanitize_text_field($id);
                     $this->delete_option($id);
                 }
             }
@@ -199,10 +202,5 @@ class Storelly_Options_List_Table extends WP_List_Table {
         return sprintf('<input type="checkbox" name="bulk-delete[]" value="%s" />', $item['id']);
     }
     function extra_tablenav($which) {
-    }
-    function save_option() {
-        ob_start();
-        var_dump($_POST);
-        error_log(ob_get_clean());
     }
 }

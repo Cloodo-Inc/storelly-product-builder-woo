@@ -290,22 +290,6 @@ if (!class_exists('Storelly_Export_PDF')) {
                 } else {
                     $result = file_get_contents($url);
                 }
-            } else {
-                $ch = curl_init();
-                curl_setopt($ch, CURLOPT_SSLVERSION, 3);
-                curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
-                curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 2);
-                curl_setopt($ch, CURLOPT_URL, $url);
-                curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-                $result = curl_exec($ch);
-                curl_close($ch);
-                if (false === $result) {
-                    $ch     = curl_init();
-                    curl_setopt($ch, CURLOPT_URL, $url);
-                    curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-                    $result = curl_exec($ch);
-                    curl_close($ch);
-                }
             }
             return $result;
         }
@@ -441,25 +425,16 @@ if (!class_exists('Storelly_Export_PDF')) {
         }
         public static function request_create_pdf($requests, $folder, $folder_design) {
             $result     = array();
-            $mh         = curl_multi_init();
             $multiCurl  = array();
             foreach ($requests as $i => $request) {
-                $multiCurl[$i] = curl_init();
-                curl_setopt($multiCurl[$i], CURLOPT_URL, $request['url']);
-                curl_setopt($multiCurl[$i], CURLOPT_RETURNTRANSFER, 1);
-                curl_setopt($multiCurl[$i], CURLOPT_USERAGENT, "Mozilla/4.0 (compatible;)");
-                curl_setopt($multiCurl[$i], CURLOPT_TIMEOUT, 30);
-                curl_setopt($multiCurl[$i], CURLOPT_HEADER, 0);
-                curl_multi_add_handle($mh, $multiCurl[$i]);
+                $multiCurl[$i] = wp_remote_get($request['url'], array(
+                    'timeout' => 30,
+                    'User-Agent' => 'Mozilla/4.0 (compatible;)'
+                ));
             }
 
-            $index = null;
-            do {
-                curl_multi_exec($mh, $index);
-            } while ($index > 0);
-
-            foreach ($multiCurl as $k => $ch) {
-                $res            = curl_multi_getcontent($ch);
+            foreach ($multiCurl as $k => $res) {
+                
                 $output_file    = $folder . '/' . $folder_design . '_' . $requests[$k]['index'] . '.pdf';
                 $download       = self::download_remote_file($res, $output_file);
                 if ($download) {
@@ -470,24 +445,17 @@ if (!class_exists('Storelly_Export_PDF')) {
             return $result;
         }
         public static function download_remote_file($url, $path) {
-            $ch = curl_init();
-            curl_setopt($ch, CURLOPT_URL, $url);
-            curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-            curl_setopt($ch, CURLOPT_USERAGENT, "Mozilla/4.0 (compatible;)");
-            curl_setopt($ch, CURLOPT_TIMEOUT, 30);
-            curl_setopt($ch, CURLOPT_HEADER, 0);
-            $data = curl_exec($ch);
-            $info = curl_getinfo($ch);
-            if ($info['http_code'] == 200) {
-                if ($data) {
-                    $file = fopen($path, "w+");
-                    fputs($file, $data);
-                    fclose($file);
-                    return true;
-                }
-                return false;
+            $data = wp_remote_get($url, array(
+                'timeout' => 20,
+                'User-Agent' => 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.8; rv:20.0) Gecko/20100101 Firefox/20.0'
+            ));
+
+            if ($data) {
+                $file = fopen($path, "w+");
+                fputs($file, $data);
+                fclose($file);
+                return true;
             }
-            curl_close($ch);
             return false;
         }
     }
