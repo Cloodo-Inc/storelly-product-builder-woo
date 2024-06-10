@@ -11,7 +11,7 @@
                     $show_subattr = ($enable_subattr == 'on' && count($attr['sub_attributes']) > 0) ? true : false;
                     $field['general']['attributes']["options"][$key]['show_subattr'] = $show_subattr;
             ?>
-                <input ng-change="check_valid();updateMapOptions('<?php echo esc_attr( $field['id'] ); ?>')" value="<?php echo esc_attr( $key ); ?>" ng-model="nbd_fields['<?php echo esc_attr( $field['id'] ); ?>'].value" name="pcpb-field[<?php echo esc_attr( $field['id'] ); ?>]<?php if($show_subattr) echo '[value]'; ?>" 
+                <input ng-change="check_valid();updateMapOptions('<?php echo esc_attr( $field['id'] ); ?>')" value="<?php echo esc_attr( $key ); ?>" ng-model="nbd_fields['<?php echo esc_attr( $field['id'] ); ?>'].value" name="pcpb-field[<?php echo esc_attr( $field['id'] ); ?>]<?php if($show_subattr) echo esc_attr('[value]'); ?>" 
                    type="radio" id='pcpb-field-<?php echo esc_attr( $field['id'].'-'.$key ); ?>' 
                 <?php 
                     if( isset($form_values[$field['id']]) ){
@@ -21,14 +21,15 @@
                         checked( isset($attr['selected']) ? $attr['selected'] : 'off', 'on' ); 
                     }
                 ?> />
-                <label class="nbd-swatch" style="<?php if( $attr['preview_type'] == 'i' ){echo 'background: url('.$image_url . ') 0% 0% / cover';}else{ 
+                <label class="nbd-swatch" style="<?php if( $attr['preview_type'] == 'i' ){echo esc_attr('background: url('.$image_url . ') 0% 0% / cover');}else{ 
                     if(isset( $attr['color2'] )){
                         $style  = "background: -moz-linear-gradient(-35deg,  ". $attr['color'] ." 0%, ". $attr['color'] ." 50%, ". $attr['color2'] ." 51%, ". $attr['color2'] ." 100%);";
                         $style .= "background: -webkit-linear-gradient(-35deg,  ". $attr['color'] ." 0%, ". $attr['color'] ." 50%, ". $attr['color2'] ." 51%, ". $attr['color2'] ." 100%);";
                         $style .= "background: linear-gradient(150deg,  ". $attr['color'] ." 0%, ". $attr['color'] ." 50%, ". $attr['color2'] ." 51%, ". $attr['color2'] ." 100%);";
-                        echo( $style ); 
+                        echo esc_attr($style); 
+                        
                     }else{
-                        echo 'background: '.$attr['color']; 
+                        echo esc_attr('background: ' . $attr['color']);  
                     }
                 }; ?>" 
                 title="<?php echo esc_attr( $attr['name'] ); ?>" for='pcpb-field-<?php echo esc_attr( $field['id'].'-'.$key ); ?>'

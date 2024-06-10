@@ -431,7 +431,7 @@ if (!class_exists('STORELLY_FRONTEND_OPTIONS')) {
                         'nbau'                  => $nbau,
                     ));
                     $options_form = ob_get_clean();
-                    echo($options_form);
+                    echo esc_html($options_form);
                 }
             }
         }
@@ -448,9 +448,9 @@ if (!class_exists('STORELLY_FRONTEND_OPTIONS')) {
                     /* Bulk variation */
                     $nbd_field = $cart_item_data['pcpb-field'];
                     unset($cart_item_data['pcpb-field']);
-                } else {
+                } else { 
                     if (!empty($_FILES) && isset($_FILES["pcpb-field"])) {
-                        $files = $_FILES["pcpb-field"]
+                        $files = $_FILES["pcpb-field"];
                         foreach ($files['name'] as $field_id => $file) {
                             if (!isset($nbd_field[$field_id])) {
                                 $nbd_upload_field = $this->upload_file(sanitize_text_field($_FILES["pcpb-field"]), $field_id);

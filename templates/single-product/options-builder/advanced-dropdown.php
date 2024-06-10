@@ -24,7 +24,7 @@
                     <path d="M16.594 8.578l1.406 1.406-6 6-6-6 1.406-1.406 4.594 4.594z" />
                 </svg>
             </div>
-            <div class="nbo-ad-pseudo-list <?php if ($sublist_position == 'r') echo 'nbo-ad-right'; ?>">
+            <div class="nbo-ad-pseudo-list <?php if ($sublist_position == 'r') echo esc_attr('nbo-ad-right'); ?>">
                 <?php
                 foreach ($field['general']['attributes']["options"] as $key => $attr) :
                     $image_url = Storelly_PB_Util::storelly_get_image_thumbnail($attr['image']);
@@ -39,7 +39,7 @@
                         <?php elseif ($attr['preview_type'] == 'c') : ?>
                             <span class="nbo-ad-item-thumb" style="background: <?php echo esc_attr($attr['color']); ?>"></span>
                         <?php endif; ?>
-                        <div class="nbo-ad-item-main <?php if ($show_subattr) echo 'nbo-shrink'; ?>">
+                        <div class="nbo-ad-item-main <?php if ($show_subattr) echo esc_attr('nbo-shrink'); ?>">
                             <div class="nbo-ad-item-title"><?php echo esc_html($attr['name']); ?></div>
                             <div class="nbo-ad-item-description"><?php echo esc_html($attr['des']); ?></div>
                         </div>
@@ -72,7 +72,7 @@
                                     <?php endforeach; ?>
                                 </select>
                                 <?php foreach ($attr['sub_attributes'] as $skey => $sattr) : ?>
-                                    <div class="nbo-ad-list-item" ng-click="select_adv_subattr('<?php echo esc_attr($field['id']); ?>', '<?php echo esc_attr($key); ?>', '<?php echo esc_attr($skey); ?>')" ng-class="( nbd_fields['<?php echo esc_attr($field['id']); ?>'].value == '<?php echo esc_attr($key); ?>' && nbd_fields['<?php echo esc_attr($field['id']); ?>'].sub_value == '<?php echo ($skey); ?>' ) ? 'active' : ''" nbo-disabled="!status_fields['<?php echo esc_attr($field['id']); ?>'][<?php echo esc_attr($key); ?>].sub_attributes[<?php echo esc_attr($skey); ?>]" nbo-disabled-type="class">
+                                    <div class="nbo-ad-list-item" ng-click="select_adv_subattr('<?php echo esc_attr($field['id']); ?>', '<?php echo esc_attr($key); ?>', '<?php echo esc_attr($skey); ?>')" ng-class="( nbd_fields['<?php echo esc_attr($field['id']); ?>'].value == '<?php echo esc_attr($key); ?>' && nbd_fields['<?php echo esc_attr($field['id']); ?>'].sub_value == '<?php echo esc_attr($skey); ?>' ) ? 'active' : ''" nbo-disabled="!status_fields['<?php echo esc_attr($field['id']); ?>'][<?php echo esc_attr($key); ?>].sub_attributes[<?php echo esc_attr($skey); ?>]" nbo-disabled-type="class">
                                         <?php
                                         if ($sattr['preview_type'] == 'i' && $sattr['image'] != '0') :
                                             $simage_url = Storelly_PB_Util::storelly_get_image_thumbnail($sattr['image']);

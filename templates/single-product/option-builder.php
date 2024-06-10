@@ -24,7 +24,7 @@ $style_class        = 'nbo-style-1';
 $currentDir = realpath(dirname(__FILE__));
 
 ?>
-<div class="nbo-wrapper <?php if ($is_wqv) echo 'nbd-option-in-wqv'; ?> <?php echo 'wrapper-type-' . $display_type; ?>">
+<div class="nbo-wrapper <?php if ($is_wqv) echo esc_attr('nbd-option-in-wqv'); ?> <?php echo esc_attr('wrapper-type-' . $display_type); ?>">
     <div class="nbd-option-wrapper" id="<?php echo esc_attr($appid); ?>">
         <div ng-controller="optionCtrl" ng-form="nboForm" id="nbo-ctrl-<?php echo esc_attr($appid); ?>" ng-cloak>
             <div class="nbo-fields-wrapper">
@@ -98,11 +98,11 @@ $currentDir = realpath(dirname(__FILE__));
                 ?>
                 <div ng-if="fields.length" class="nbo-clear-option-wrap">
                     <?php if ($num_visible_field > 0) : ?>
-                        <a class="button nbd-button" ng-click="reset_options()"><?php _e('Clear selection', 'pc-product-builder'); ?></a>
+                        <a class="button nbd-button" ng-click="reset_options()"><?php esc_html_e('Clear selection', 'pc-product-builder'); ?></a>
                     <?php endif; ?>
                 </div>
                 <input type="hidden" value="<?php echo esc_attr($product_id); ?>" name="pcpb-add-to-cart" />
-                <p ng-if="!valid_form" class="nbd-invalid-form"><?php _e('Please check invalid fields and quantity input or choose a different combination!', 'pc-product-builder'); ?></p>
+                <p ng-if="!valid_form" class="nbd-invalid-form"><?php esc_html_e('Please check invalid fields and quantity input or choose a different combination!', 'pc-product-builder'); ?></p>
             </div>
             <div class="nbo-summary-wrapper">
                 <div ng-if="valid_form" class="nbo-table-summary-wrap <?php echo esc_attr($style_class); ?>">

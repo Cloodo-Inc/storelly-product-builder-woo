@@ -6,7 +6,7 @@
             <span class="nbd-required">*</span>
         <?php endif; ?>
     </label>
-    <?php if ($field['general']['description'] != '') : ?>
-        <span data-position="top" data-tip="<?php echo html_entity_decode($field['general']['description']); ?>" class="nbd-help-tip"></span>
+    <?php if ($field['general']['description'] != '') : ?> 
+        <span data-position="top" data-tip="<?php echo esc_attr($field['general']['description']); ?>" class="nbd-help-tip"></span>
     <?php endif; ?>
 </div>
