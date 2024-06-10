@@ -107,7 +107,7 @@ $stt_no_cloud2print_api = isset($storelly_pb_settings['enable_cloud2print_api'])
                     <p><?php  if (isset($api_key['log'])) { 
                             echo esc_html($api_key['log']);  
                         } else {
-                            echo"no logs"; 
+                            echo esc_html("no logs"); 
                         } ?></p>
                     </div>
                 </div>

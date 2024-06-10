@@ -39,7 +39,7 @@
                         <?php elseif ($attr['preview_type'] == 'c') : ?>
                             <span class="nbo-ad-item-thumb" style="background: <?php echo esc_attr($attr['color']); ?>"></span>
                         <?php endif; ?>
-                        <div class="nbo-ad-item-main <?php if ($show_subattr) echo 'nbo-shrink'; ?>">
+                        <div class="nbo-ad-item-main <?php if ($show_subattr) echo esc_attr('nbo-shrink'); ?>">
                             <div class="nbo-ad-item-title"><?php echo esc_html($attr['name']); ?></div>
                             <div class="nbo-ad-item-description"><?php echo esc_html($attr['des']); ?></div>
                         </div>

@@ -53,7 +53,7 @@ $link_css_pdf = get_home_url().'/assets/css/views/normalize.css';
     <?php if ($page_settings['include_bg']) : ?>
         <img id="background" src="<?php echo esc_url($page_settings['bg_src']); ?>" />
     <?php endif; ?>
-    <?php echo esc($svg_string);?>
+    <?php echo esc_html($svg_string);?> 
     
 </body>
 
