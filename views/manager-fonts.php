@@ -77,7 +77,7 @@
     $selected_fonts = file_get_contents($path);
     if ($selected_fonts == '') $selected_fonts = '[]';
     ?>
-    var selected_fonts = <?php echo json_encode($selected_fonts); ?>; 
+    var selected_fonts = <?php echo wp_json_encode($selected_fonts); ?>; 
     var ggFonts = <?php echo file_get_contents(STORELLY_PB_DATA_CONFIG_DIR . '/google-fonts-ttf.json'); ?>;
     var fSubsets = <?php echo wp_json_encode($subsets); ?>; 
 </script>

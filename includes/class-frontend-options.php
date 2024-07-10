@@ -12,8 +12,8 @@ if (!class_exists('STORELLY_FRONTEND_OPTIONS')) {
         /** Edit option in cart helper **/
         public function __construct() {
             if (isset($_REQUEST['pcpb_cart_item_key']) && sanitize_text_field($_REQUEST['pcpb_cart_item_key']) != '') {
-                $this->is_edit_mode = true;
-                $this->cart_edit_key = $_REQUEST['pcpb_cart_item_key'];
+                $this->is_edit_mode = true; 
+                $this->cart_edit_key = sanitize_text_field( $_REQUEST['pcpb_cart_item_key'] );
             }
         }
         public static function instance() {
@@ -60,9 +60,9 @@ if (!class_exists('STORELLY_FRONTEND_OPTIONS')) {
         }
         public static function get_option($id) {
             global $wpdb;
-            $sql = "SELECT * FROM {$wpdb->prefix}storelly_product_builder_options";
-            $sql .= " WHERE id = " . esc_sql($id);
-            $result = $wpdb->get_results($sql, 'ARRAY_A');
+
+            $table_name = $wpdb->prefix . 'storelly_product_builder_options';
+            $options = $wpdb->get_results($wpdb->prepare("SELECT * FROM $table_name WHERE `id` = %d", $id), 'ARRAY_A');   
             return count($result[0]) ? $result[0] : false;
         }
         public static function get_product_option($product_id) {
@@ -71,8 +71,8 @@ if (!class_exists('STORELLY_FRONTEND_OPTIONS')) {
             $option_id = get_transient('storelly_product_builder_' . $product_id);
             if (false === $option_id) {
                 global $wpdb;
-                $sql = "SELECT id, product_ids FROM {$wpdb->prefix}storelly_product_builder_options WHERE published = 1";
-                $options = $wpdb->get_results($sql, 'ARRAY_A');
+                $table_name = $wpdb->prefix . 'storelly_product_builder_options';
+                $options = $wpdb->get_results($wpdb->prepare("SELECT id, product_ids FROM $table_name WHERE published = 1", $product_id), 'ARRAY_A');   
                 if ($options) {
                     $_options = array();
                     foreach ($options as $option) {
@@ -449,8 +449,8 @@ if (!class_exists('STORELLY_FRONTEND_OPTIONS')) {
                     $nbd_field = $cart_item_data['pcpb-field'];
                     unset($cart_item_data['pcpb-field']);
                 } else { 
-                    if (!empty($_FILES) && isset($_FILES["pcpb-field"])) {
-                        $files = $_FILES["pcpb-field"];
+                    if (!empty($_FILES) && isset($_FILES["pcpb-field"])) { 
+                        $files = sanitize_text_field( $_FILES["pcpb-field"] );
                         foreach ($files['name'] as $field_id => $file) {
                             if (!isset($nbd_field[$field_id])) {
                                 $nbd_upload_field = $this->upload_file(sanitize_text_field($_FILES["pcpb-field"]), $field_id);

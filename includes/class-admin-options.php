@@ -71,15 +71,16 @@ if (!class_exists('Storelly_PB_Admin_Options')) {
                 'flag'      => 1,
                 'images'    => array()
             );
-            $images = json_decode(stripslashes($_POST['images']), true);
+            $sanitized_images = sanitize_text_field( $_POST['images'] );
+            $images = json_decode(stripslashes($sanitized_images), true);
             foreach ($images as $key => $image) {
                 $result['images'][$key] = wp_get_attachment_url($image);
             }
             echo wp_json_encode($result);
             wp_die();
         }
-        public function nbd_download_option_image() {
-            if (!wp_verify_nonce($_POST['nonce'], 'save-design') && STORELLY_ENABLE_NONCE) {
+        public function nbd_download_option_image() { 
+            if (!wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['nonce'])), 'save-design') && STORELLY_ENABLE_NONCE) {
                 die('Security error');
             }
             $result = array(
@@ -215,12 +216,13 @@ if (!class_exists('Storelly_PB_Admin_Options')) {
         public function product_builder_options() {
             if (isset($_GET['action']) && sanitize_text_field($_GET['action'] != 'copy')) {
                 $paged      = get_query_var('paged', 1);
-                $message    = array('content'  => '');
-                if (sanitize_text_field($_GET['action']) == 'unpublish') {
-                    $this->unpublish_option($_REQUEST['id']);
+                $ID = intval($_REQUEST['id']);
+                $message    = array('content'  => ''); 
+                if (sanitize_text_field($_GET['action']) == 'unpublish') { 
+                    $this->unpublish_option($ID);
                     wp_redirect(esc_url_raw(add_query_arg(array('paged' => $paged), admin_url('admin.php?page=pc-product-builder-options'))));
                 } else {
-                    $id = (isset($_REQUEST['id']) && absint($_REQUEST['id']) > 0) ? absint($_REQUEST['id']) : 0;
+                    $id = (isset($ID) && absint($ID) > 0) ? absint($ID) : 0;
                     if (isset($_POST['save']) || isset($_POST['options'])) {
                         $result = $this->save_option();
                         if ($result['status']) {
@@ -243,9 +245,10 @@ if (!class_exists('Storelly_PB_Admin_Options')) {
                             );
                         }
                     }
-                    $_options = ($id > 0) ? $this->get_option($id) : false;
+                    $_options = ($id > 0) ? (array) $this->get_option($id) : false;
                     if ($_options) {
-                        $raw_options = unserialize($_options['fields']);
+                        $raw_options['fields'] = unserialize($_options['fields']);
+                        write_log($raw_options);
                         if (!isset($raw_options["fields"])) {
                             $raw_options["fields"] = array();
                         }
@@ -293,10 +296,9 @@ if (!class_exists('Storelly_PB_Admin_Options')) {
         }
         public function get_option($id) {
             global $wpdb;
-            $sql = "SELECT * FROM {$wpdb->prefix}storelly_product_builder_options";
-            $sql .= " WHERE id = " . esc_sql($id);
-            $result = $wpdb->get_results($sql, 'ARRAY_A');
-            return count($result[0]) ? $result[0] : false;
+            $table_name = $wpdb->prefix . 'storelly_product_builder_options';
+            $result = $wpdb->get_results($wpdb->prepare("SELECT * FROM $table_name WHERE `id` = %d", $id), 'ARRAY_A');
+            return count($result[0]) ? $result[0] : false;          
         }
         public function save_option() {
             $id             = absint($_REQUEST['id']);
@@ -307,11 +309,12 @@ if (!class_exists('Storelly_PB_Admin_Options')) {
                 'product_ids'   => isset($_POST['product_ids']) ? serialize(absint($_POST['product_ids'])) : serialize(array()),
                 'modified'      => $modified_date->format('Y-m-d H:i:s')
             );
-            $post_options = sanitize_text_field($_POST['options']);
-            if (isset($_POST['options']['jsonFields'])) {
-                $post_options['fields'] = json_decode(stripslashes($_POST['options']['jsonFields']), true);
+            $post_options = sanitize_recursive(wp_unslash($_POST['options']));
+            if (isset($post_options['jsonFields'])) {
+                $post_options['fields'] = json_decode(stripslashes($post_options['jsonFields']), true); 
                 unset($post_options['jsonFields']);
             }
+           
             $arr['fields'] = serialize($post_options);
             global $wpdb;
             $date = new DateTime();
@@ -345,7 +348,10 @@ if (!class_exists('Storelly_PB_Admin_Options')) {
                     )
                 );
             }
+            write_log($options['fields']);
             $options['fields'] = $this->recursive_stripslashes($options['fields']);
+            // write_log($options['fields']);
+
             foreach ($options['fields'] as $f_key => $field) {
                 $field = array_replace_recursive($this->default_field(), $field);
                 foreach ($field as $tab =>  $data) {
@@ -608,7 +614,7 @@ if (!class_exists('Storelly_PB_Admin_Options')) {
             if (is_null($value)) $value = 'n';
             return array(
                 'title'         => __('Required', 'pc-product-builder'),
-                'description'   => __('Choose whether the option is required or not.'),
+                'description'   => __('Choose whether the option is required or not.', 'pc-product-builder'),
                 'value'         => $value,
                 'type'          => 'dropdown',
                 'options'       => array(
@@ -661,7 +667,7 @@ if (!class_exists('Storelly_PB_Admin_Options')) {
             if (is_null($value)) $value = 'f';
             return array(
                 'title'         => esc_html__('Price type', 'pc-product-builder'),
-                'description'   => esc_html__('Here you can choose how the price is calculated. Depending on the field there various types you can choose.'),
+                'description'   => esc_html__('Here you can choose how the price is calculated. Depending on the field there various types you can choose.', 'pc-product-builder'),
                 'value'         => $value,
                 'type'          => 'dropdown',
                 'options'       => array(
@@ -726,7 +732,7 @@ if (!class_exists('Storelly_PB_Admin_Options')) {
             if (is_null($value)) $value = '';
             return array(
                 'title'         => esc_html__('Additional Price', 'pc-product-builder'),
-                'description'   => esc_html__('Enter the price for this field or leave it blank for no price.'),
+                'description'   => esc_html__('Enter the price for this field or leave it blank for no price.', 'pc-product-builder'),
                 'value'         => $value,
                 'depend'        => array(
                     array(
@@ -786,7 +792,7 @@ if (!class_exists('Storelly_PB_Admin_Options')) {
             $number_of_sides    = isset($attributes['number_of_sides']) ? $attributes['number_of_sides'] : 2;
             return array(
                 'title'           => __('Attributes', 'pc-product-builder'),
-                'description'     => __('Attributes let you define extra product data, such as size or color.'),
+                'description'     => __('Attributes let you define extra product data, such as size or color.','pc-product-builder'),
                 'type'            => 'attributes',
                 'same_size'       => $same_size,
                 'bg_type'         => $bg_type,
@@ -917,8 +923,9 @@ if (!class_exists('Storelly_PB_Admin_Options')) {
             $option_id = get_transient('storelly_product_builder_' . $product_id);
             if (false === $option_id) {
                 global $wpdb;
-                $sql = "SELECT id, product_ids FROM {$wpdb->prefix}storelly_product_builder_options WHERE published = 1";
-                $options = $wpdb->get_results($sql, 'ARRAY_A');
+
+                $table_name = $wpdb->prefix . 'storelly_product_builder_options';
+                $options = $wpdb->get_results($wpdb->prepare("id, product_ids FROM $table_name WHERE published = 1"), 'ARRAY_A');  
                 if ($options) {
                     $_options = array();
                     foreach ($options as $option) {

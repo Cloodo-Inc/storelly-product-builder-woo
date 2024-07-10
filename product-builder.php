@@ -70,6 +70,19 @@ require_once(STORELLY_PB_PLUGIN_DIR .  'includes/class-productbuilder-api.php');
 
 register_activation_hook(__FILE__, array('Storelly_Product_Builder_API', 'storelly_generate_key'));
 
+// Before convert array to string, after sanitize_text_field to text
+function sanitize_recursive($data) {
+    if (is_array($data)) {
+        foreach ($data as $key => $value) {
+            $data[$key] = sanitize_recursive($value);
+        }
+    } elseif (is_string($data)) {
+        $data = sanitize_text_field($data);
+    }
+    return $data;
+}
+
+
 $storelly_product_builder = new Storelly_Product_Builder_Backend();
 $storelly_product_builder->init();
 

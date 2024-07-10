@@ -3,6 +3,7 @@ if (!class_exists('WP_List_Table')) {
     require_once(ABSPATH . 'wp-admin/includes/class-wp-list-table.php');
 }
 class Storelly_Options_List_Table extends WP_List_Table {
+
     public function __construct() {
         parent::__construct(array(
             'singular'  => esc_html__('Printing option', 'pc-product-builder'),
@@ -43,17 +44,17 @@ class Storelly_Options_List_Table extends WP_List_Table {
     }
     public static function record_count() {
         global $wpdb;
-        $sql = "SELECT COUNT(*) FROM {$wpdb->prefix}storelly_product_builder_options";
-        return $wpdb->get_var($sql);
+        $table_name = $wpdb->prefix . 'storelly_product_builder_options';
+        $result = $wpdb->get_var($wpdb->prepare("SELECT COUNT(*) FROM $table_name"));
+        return $result;
     }
     public function get_options($per_page = 10, $page_number = 1) {
         global $wpdb;
-        $sql  = "SELECT * FROM {$wpdb->prefix}storelly_product_builder_options";
-        $sql .= " ORDER BY modified DESC LIMIT $per_page";
-        $sql .= ' OFFSET ' . ($page_number - 1) * $per_page;
-        $result = $wpdb->get_results($sql, 'ARRAY_A');
+        $table_name = $wpdb->prefix . 'storelly_product_builder_options';
+        $number_page = ($page_number - 1) * $per_page;
+        $result = $wpdb->get_results($wpdb->prepare("SELECT * FROM $table_name ORDER BY modified DESC LIMIT %d OFFSET %d", $per_page, $number_page), 'ARRAY_A');
         return $result;
-    }
+    } 
     public function process_bulk_action() {
         if ('delete' === $this->current_action()) {
             $nonce = sanitize_text_field($_REQUEST['_wpnonce']);
@@ -61,7 +62,7 @@ class Storelly_Options_List_Table extends WP_List_Table {
                 die('Go get a life script kiddies');
             }
             $this->delete_option(absint($_GET['id']));
-            wp_redirect(esc_url_raw(add_query_arg(array('paged' => $this->get_pagenum()), admin_url('admin.php?page=nbd_printing_options'))));
+            wp_redirect(esc_url_raw(add_query_arg(array('paged' => $this->get_pagenum()), admin_url('admin.php?page=pc-product-builder-options'))));
             exit;
         }
         if ('copy' === $this->current_action()) {
@@ -70,7 +71,7 @@ class Storelly_Options_List_Table extends WP_List_Table {
                 die('Go get a life script kiddies');
             }
             $this->copy_options(absint($_GET['id']));
-            wp_redirect(esc_url_raw(admin_url('admin.php?page=nbd_printing_options')));
+            wp_redirect(esc_url_raw(admin_url('admin.php?page=pc-product-builder-options')));
             exit;
         }
         if ((isset($_POST['action']) && sanitize_text_field($_POST['action'] == 'bulk-publish')) || (isset($_POST['action2']) && sanitize_text_field($_POST['action2'] == 'bulk-publish'))) {
@@ -95,7 +96,8 @@ class Storelly_Options_List_Table extends WP_List_Table {
         }
         if ((isset($_POST['action']) && sanitize_text_field($_POST['action'] == 'bulk-delete')) || (isset($_POST['action2']) && sanitize_text_field($_POST['action2'] == 'bulk-delete'))) {
             if (isset($_POST['bulk-delete'])) {
-                $bulk_ids = sanitize_text_field($_POST['bulk-delete']);
+                $bulk_ids = sanitize_recursive($_POST['bulk-delete']);
+                write_log($bulk_ids);
                 foreach ($bulk_ids as $id) {
                     $id = sanitize_text_field($id);
                     $this->delete_option($id);
@@ -106,9 +108,8 @@ class Storelly_Options_List_Table extends WP_List_Table {
     }
     public function delete_option($id) {
         global $wpdb;
-        $sql = "DELETE FROM {$wpdb->prefix}storelly_product_builder_options";
-        $sql .= " WHERE id = " . esc_sql($id);
-        $result = $wpdb->query($sql);
+        $table_name = $wpdb->prefix . 'storelly_product_builder_options';
+        $result = $wpdb->delete($table_name, array('id' => $id));
         if ($result) $this->clear_transients();
     }
     public function unpublish_option($id) {
@@ -126,11 +127,10 @@ class Storelly_Options_List_Table extends WP_List_Table {
         if ($result) $this->clear_transients();
     }
     public function copy_options($id) {
-        global $wpdb;
-        $sql    = "SELECT * FROM {$wpdb->prefix}storelly_product_builder_options";
-        $sql   .= " WHERE id = " . esc_sql($id);
-        $result = $wpdb->get_results($sql, 'ARRAY_A');
-        if (count($result[0])) {
+        global $wpdb;   
+        $table_name = $wpdb->prefix . 'storelly_product_builder_options';
+        $result = $wpdb->get_results($wpdb->prepare("SELECT * FROM $table_name WHERE `id` = %d", $id), 'ARRAY_A');
+        if (count($result)) {
             $res            = $result[0];
             $modified_date  = new DateTime();
             $arr            = array(
@@ -141,7 +141,7 @@ class Storelly_Options_List_Table extends WP_List_Table {
                 'builder'       => $res['builder'],
                 'created'       => $modified_date->format('Y-m-d H:i:s'),
                 'created_by'    => wp_get_current_user()->ID
-            );
+            ); 
             $in_res = $wpdb->insert("{$wpdb->prefix}storelly_product_builder_options", $arr);
             if ($in_res) {
                 $this->clear_transients();
@@ -169,9 +169,10 @@ class Storelly_Options_List_Table extends WP_List_Table {
     function column_title($item) {
         $title      = $item['title'];
         $_nonce     = wp_create_nonce('nbd_options_nonce');
+        $page       = sanitize_text_field( $_REQUEST['page'] );
         $actions    = array(
-            'edit' => sprintf('<a href="?page=%s&action=%s&id=%s&paged=%s&_wpnonce=%s">' . esc_html__('Edit', 'pc-product-builder') . '</a>', esc_attr($_REQUEST['page']), 'edit', absint($item['id']), $this->get_pagenum(), $_nonce),
-            'copy' => sprintf('<a href="?page=%s&action=%s&id=%s&paged=%s&_wpnonce=%s">' . esc_html__('Copy', 'pc-product-builder') . '</a>', esc_attr($_REQUEST['page']), 'copy', absint($item['id']), $this->get_pagenum(), $_nonce)
+            'edit' => sprintf('<a href="?page=%s&action=%s&id=%s&paged=%s&_wpnonce=%s">' . esc_html__('Edit', 'pc-product-builder') . '</a>', esc_attr($page), 'edit', absint($item['id']), $this->get_pagenum(), $_nonce),
+            'copy' => sprintf('<a href="?page=%s&action=%s&id=%s&paged=%s&_wpnonce=%s">' . esc_html__('Copy', 'pc-product-builder') . '</a>', esc_attr($page), 'copy', absint($item['id']), $this->get_pagenum(), $_nonce)
         );
         return $title . $this->row_actions($actions);
     }

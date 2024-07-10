@@ -187,8 +187,8 @@ if (!class_exists('Storelly_PB_Util')) {
                 }
             } else {
                 global $wpdb;
-                $sql = "SELECT builder FROM {$wpdb->prefix}storelly_product_builder_options WHERE id = {$option_id}";
-                $options = $wpdb->get_results($sql, 'ARRAY_A');
+                $table_name = $wpdb->prefix . 'storelly_product_builder_options';
+                $options = $wpdb->get_results($wpdb->prepare("SELECT builder FROM $table_name WHERE `id` = %d", $option_id), 'ARRAY_A');   
                 if (isset($options[0])) {
                     $builder_folder = $options[0]['builder'];
                     if ($builder_folder) {

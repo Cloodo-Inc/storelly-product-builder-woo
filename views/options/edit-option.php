@@ -92,7 +92,7 @@ $max_input_vars = Storelly_PB_Util::storelly_get_max_input_var();
                                             <?php endif; ?>
                                         </div>
                                         <div id="publishing-action">
-                                            <input ng-disabled="!nboForm.$valid" name="save" type="submit" class="button button-primary button-large" id="publish" ng-click="updateJsonFields($event)" accesskey="p" value="<?php ($id != 0) ? esc_attr_e('Update') : esc_attr_e('Publish'); ?>" />
+                                            <input ng-disabled="!nboForm.$valid" name="save" type="submit" class="button button-primary button-large" id="publish" ng-click="updateJsonFields($event)" accesskey="p" value="<?php ($id != 0) ? esc_attr_e('Update', 'pc-product-builder') : esc_attr_e('Publish', 'pc-product-builder'); ?>" />
                                         </div>
                                         <div class="clear"></div>
                                     </div>

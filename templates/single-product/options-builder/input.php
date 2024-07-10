@@ -24,7 +24,7 @@
                         $uploaded = 1;
                     }
                 ?>
-                data-file="<?php esc_attr_e( $file_url ); ?>" data-filename="<?php echo esc_attr( $filename ); ?>" data-uploaded="<?php echo esc_attr( $uploaded ); ?>"
+                data-file="<?php printf( esc_attr__( '%s', 'pc-product-builder' ), esc_attr( $file_url ) ); ?>" data-filename="<?php echo esc_attr( $filename ); ?>" data-uploaded="<?php echo esc_attr( $uploaded ); ?>"
                 <?php 
                     if( $field['general']['upload_option']['allow_type'] != '' ):
                         $allow_type = strtolower( trim( $field['general']['upload_option']['allow_type'] ) );
