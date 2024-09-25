@@ -45,7 +45,7 @@ $max_input_vars = Storelly_PB_Util::storelly_get_max_input_var();
 <div class="message">
     <?php if (isset($message['flag'])) {
         $message = Storelly_PB_Util::storelly_custom_notices($message['flag'], $message['content']);
-        echo esc_html($message);  
+        echo $message;
     } ?>
 </div>
 <div class="wrap" ng-app="optionApp" ng-cloak>

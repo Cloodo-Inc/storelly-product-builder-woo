@@ -248,7 +248,6 @@ if (!class_exists('Storelly_PB_Admin_Options')) {
                     $_options = ($id > 0) ? (array) $this->get_option($id) : false;
                     if ($_options) {
                         $raw_options['fields'] = unserialize($_options['fields']);
-                        write_log($raw_options);
                         if (!isset($raw_options["fields"])) {
                             $raw_options["fields"] = array();
                         }
@@ -348,26 +347,28 @@ if (!class_exists('Storelly_PB_Admin_Options')) {
                     )
                 );
             }
-            write_log($options['fields']);
             $options['fields'] = $this->recursive_stripslashes($options['fields']);
-            // write_log($options['fields']);
-
             foreach ($options['fields'] as $f_key => $field) {
-                $field = array_replace_recursive($this->default_field(), $field);
-                foreach ($field as $tab =>  $data) {
-                    if ($tab != 'id' && $tab != 'nbpb_type' && $tab != 'nbd_template') {
-                        foreach ($data as $key => $f) {
-                            $funcname = "build_config_" . $tab . '_' . $key;
-                            if (is_callable(array($this, $funcname))) {
-                                $options['fields'][$f_key][$tab][$key] = $this->$funcname($f);
-                            }
-                            if( $key == 'component_icon' ){
-                                $options['fields'][$f_key][$tab]['component_icon_url'] =  Storelly_PB_Util::storelly_get_image_thumbnail( $f );
+                if(is_array($field) && !empty($field)){
+                    $field = array_replace_recursive($this->default_field(), $field);
+                    foreach ($field as $tab =>  $data) {
+                        if(is_array($data) && !empty($data)){
+                            // error_log(print_r($data, true));
+                            if ($tab != 'id' && $tab != 'nbpb_type' && $tab != 'nbd_template') {
+                                foreach ($data as $key => $f) {
+                                    $funcname = "build_config_" . $tab . '_' . $key;
+                                    if (is_callable(array($this, $funcname))) {
+                                        $options['fields'][$f_key][$tab][$key] = $this->$funcname($f);
+                                    }
+                                    if( $key == 'component_icon' ){
+                                        $options['fields'][$f_key][$tab]['component_icon_url'] =  Storelly_PB_Util::storelly_get_image_thumbnail( $f );
+                                    }
+                                }
                             }
                         }
-                    }
-                    if ($tab == 'nbpb_type') {
-                        $options['fields'][$f_key]['nbd_template'] = 'nbd.' . $data;
+                        if ($tab == 'nbpb_type') {
+                            $options['fields'][$f_key]['nbd_template'] = 'nbd.' . $data;
+                        }
                     }
                 }
             }
