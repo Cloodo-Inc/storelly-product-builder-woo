@@ -185,7 +185,6 @@ class Storelly_Options_List_Table extends WP_List_Table {
         $return = esc_html__('None', 'pc-product-builder');
         if (!$item['product_ids']) return $return;
         $products = unserialize($item['product_ids']);
-        if(is_array($products)){
             if (count($products)) {
                 $links = array();
                 foreach ($products as $pid) {
@@ -194,7 +193,6 @@ class Storelly_Options_List_Table extends WP_List_Table {
                 }
                 $return = implode(' , ', $links);
             }
-        }
         return $return;
     }
     function column_default($item, $column_name) {
