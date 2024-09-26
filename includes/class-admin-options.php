@@ -1058,7 +1058,12 @@ if (!class_exists('Storelly_PB_Admin_Options')) {
             $subsets                = Storelly_PB_Util::storelly_font_subsets();
             $current_subset         = 'all';
             $current_cat            = filter_input(INPUT_GET, "cat_id", FILTER_VALIDATE_INT);
-
+            
+            $path_font      = STORELLY_PB_FONT_DIR . '/googlefonts.json';
+            if(!file_exists( $path_font )){
+                $gg_fonts = [];
+                file_put_contents($path_font, json_encode($gg_fonts));
+            }
             include_once(STORELLY_PB_PLUGIN_DIR . 'views/manager-fonts.php');
         }
         public function storelly_settings() {
