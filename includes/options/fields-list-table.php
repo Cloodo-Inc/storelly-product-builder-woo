@@ -185,13 +185,15 @@ class Storelly_Options_List_Table extends WP_List_Table {
         $return = esc_html__('None', 'pc-product-builder');
         if (!$item['product_ids']) return $return;
         $products = unserialize($item['product_ids']);
-        if (count($products)) {
-            $links = array();
-            foreach ($products as $pid) {
-                $title      = get_the_title($pid);
-                $links[]    = '<a title="' . esc_attr($title) . '" href="' . esc_url(admin_url('post.php?action=edit&post=' . $pid)) . '" rel="tag">' . $title . '</a>';
+        if(is_array($products)){
+            if (count($products)) {
+                $links = array();
+                foreach ($products as $pid) {
+                    $title      = get_the_title($pid);
+                    $links[]    = '<a title="' . esc_attr($title) . '" href="' . esc_url(admin_url('post.php?action=edit&post=' . $pid)) . '" rel="tag">' . $title . '</a>';
+                }
+                $return = implode(' , ', $links);
             }
-            $return = implode(' , ', $links);
         }
         return $return;
     }

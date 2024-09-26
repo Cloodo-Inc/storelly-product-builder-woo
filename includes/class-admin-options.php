@@ -353,7 +353,6 @@ if (!class_exists('Storelly_PB_Admin_Options')) {
                     $field = array_replace_recursive($this->default_field(), $field);
                     foreach ($field as $tab =>  $data) {
                         if(is_array($data) && !empty($data)){
-                            // error_log(print_r($data, true));
                             if ($tab != 'id' && $tab != 'nbpb_type' && $tab != 'nbd_template') {
                                 foreach ($data as $key => $f) {
                                     $funcname = "build_config_" . $tab . '_' . $key;
@@ -926,14 +925,16 @@ if (!class_exists('Storelly_PB_Admin_Options')) {
                 global $wpdb;
 
                 $table_name = $wpdb->prefix . 'storelly_product_builder_options';
-                $options = $wpdb->get_results($wpdb->prepare("id, product_ids FROM $table_name WHERE published = 1"), 'ARRAY_A');  
+                $options = $wpdb->get_results($wpdb->prepare("SELECT id, product_ids FROM $table_name WHERE published = 1"), 'ARRAY_A');  
                 if ($options) {
                     $_options = array();
                     foreach ($options as $option) {
                         $execute_option = true;
                         if ($execute_option) {
                             $products = unserialize($option['product_ids']);
-                            $execute_option = in_array($product_id, $products) ? true : false;
+                            if(is_array($products) && !empty($products)){
+                                $execute_option = in_array($product_id, $products) ? true : false;
+                            }
                         }
                         if ($execute_option) {
                             $_options[] = $option;
