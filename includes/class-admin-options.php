@@ -308,7 +308,7 @@ if (!class_exists('Storelly_PB_Admin_Options')) {
                 'product_ids'   => isset($_POST['product_ids']) ? serialize(absint($_POST['product_ids'])) : serialize(array()),
                 'modified'      => $modified_date->format('Y-m-d H:i:s')
             );
-            $post_options = sanitize_recursive(wp_unslash($_POST['options']));
+            $post_options = storelly_sanitize_recursive(wp_unslash($_POST['options']));
             if (isset($post_options['jsonFields'])) {
                 $post_options['fields'] = json_decode(stripslashes($post_options['jsonFields']), true); 
                 unset($post_options['jsonFields']);

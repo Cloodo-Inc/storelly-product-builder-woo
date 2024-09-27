@@ -4,7 +4,7 @@
 
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <?php do_action('pc_head', 'product-builder'); ?>
+    <?php do_action('storelly_head', 'product-builder'); ?>
     <?php
     $is_nbpb_creating_task = true;
     $is_creating_task = 1;
@@ -155,7 +155,7 @@
     }
     storelly_show_option_fields();
     ?>
-    <?php do_action('pc_footer', 'product-builder'); ?>
+    <?php do_action('storelly_footer', 'product-builder'); ?>
 </body>
 
 </html>

@@ -50,7 +50,7 @@ if (!class_exists('Storelly_Product_Builder_Frontend')) {
                 'link'  =>  '',
                 'folder' => ''
             );
-            do_action('before_storelly_save_product_builder_design');
+            do_action('storelly_before_save_product_builder_design');
             $pcpb_item_pb_key = (isset($_POST['pcpb_item_pb_key']) && sanitize_text_field($_POST['pcpb_item_pb_key'] != '')) ? wc_clean($_POST['pcpb_item_pb_key']) : substr(md5(uniqid()), 0, 5) . rand(1, 100) . time();
             $is_creating_task = (isset($_POST['is_creating_task']) && sanitize_text_field($_POST['is_creating_task'] != '')) ? wc_clean($_POST['is_creating_task']) :  '0';
             $oid = (isset($_POST['oid']) && absint($_POST['oid'] != '')) ? absint($_POST['oid']) :  0;
@@ -69,7 +69,7 @@ if (!class_exists('Storelly_Product_Builder_Frontend')) {
                     $result_update = $wpdb->update("{$wpdb->prefix}storelly_product_builder_options", $arr, array('id' => $oid));
                 }
             }
-            do_action('after_storelly_save_product_builder_design', $result);
+            do_action('storelly_after_save_product_builder_design', $result);
             echo wp_json_encode($result);
             wp_die();
         }
@@ -150,7 +150,7 @@ if (!class_exists('Storelly_Product_Builder_Frontend')) {
         public function before_product_container() {
             $pid = get_the_ID();
             if (Storelly_PB_Util::is_storelly_product_builder($pid)) {
-                add_action('nbo_after_default_options', array(&$this, 'product_builder_html'), 1);
+                add_action('storelly_after_default_options', array(&$this, 'product_builder_html'), 1);
                 add_action('wp_footer', array(&$this, 'nbd_modal_product_builder'), 1);
             }
         }

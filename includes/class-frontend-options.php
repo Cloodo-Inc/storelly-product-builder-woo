@@ -770,9 +770,9 @@ if (!class_exists('STORELLY_FRONTEND_OPTIONS')) {
                     $adjusted_price = $original_price + $option_price['total_price'] - $option_price['discount_price'];
                     $adjusted_price = $adjusted_price > 0 ? $adjusted_price : 0;
                     WC()->cart->cart_contents[$cart_item_key]['pcpb_meta']['option_price'] = $option_price;
-                    $adjusted_price = apply_filters('pc_adjusted_price', $adjusted_price, $cart_item);
+                    $adjusted_price = apply_filters('storelly_adjusted_price', $adjusted_price, $cart_item);
                     WC()->cart->cart_contents[$cart_item_key]['pcpb_meta']['price'] = $adjusted_price;
-                    $needed_change  = apply_filters('pc_need_change_cart_item_price', true, WC()->cart->cart_contents[$cart_item_key]);
+                    $needed_change  = apply_filters('storelly_need_change_cart_item_price', true, WC()->cart->cart_contents[$cart_item_key]);
                     if ($needed_change) WC()->cart->cart_contents[$cart_item_key]['data']->set_price($adjusted_price);
                 }
             }
@@ -928,7 +928,7 @@ if (!class_exists('STORELLY_FRONTEND_OPTIONS')) {
                     . '" height="' . esc_attr($dimensions['height'])
                     . '" class="pcpb-thumbnail woocommerce-placeholder wp-post-image" />';
             }
-            $image = apply_filters('pcpb_cart_item_thumbnail', $image, $cart_item);
+            $image = apply_filters('storelly_cart_item_thumbnail', $image, $cart_item);
             return $image;
         }
         public function remove_cart_item_quantity($quantity_html, $cart_item, $cart_item_key) {
@@ -954,9 +954,9 @@ if (!class_exists('STORELLY_FRONTEND_OPTIONS')) {
                 $product->get_permalink($cart_item)
             );
             $link = wp_nonce_url($link, 'nbo-edit');
-            $show_edit_link = apply_filters('nbo_show_edit_option_link_in_cart', true, $cart_item);
+            $show_edit_link = apply_filters('storelly_show_edit_option_link_in_cart', true, $cart_item);
             if ($show_edit_link) $title .= '<br /><a class="nbo-edit-option-cart" href="' . $link . '" class="nbo-cart-edit-options">' . esc_html__('Edit options', 'pc-product-builder') . '</a><br />';
-            return apply_filters('nbo_cart_item_name', $title, $cart_item, $cart_item_key);
+            return apply_filters('storelly_cart_item_name', $title, $cart_item, $cart_item_key);
         }
         public function get_cart_item_from_session($cart_item, $values) {
             if (isset($values['pcpb_meta'])) {
@@ -968,7 +968,7 @@ if (!class_exists('STORELLY_FRONTEND_OPTIONS')) {
         public function set_product_prices($cart_item) {
             if (isset($cart_item['pcpb_meta'])) {
                 $new_price = (float) $cart_item['pcpb_meta']['price'];
-                $needed_change = apply_filters('nbo_need_change_cart_item_price', true, $cart_item);
+                $needed_change = apply_filters('storelly_need_change_cart_item_price', true, $cart_item);
                 if ($needed_change) $cart_item['data']->set_price($new_price);
             }
             return $cart_item;

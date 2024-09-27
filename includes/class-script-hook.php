@@ -13,9 +13,9 @@ class Storelly_PB_Script_Hook {
     }
     public function init() {
 
-        add_action('pc_head', array($this, 'pc_enqueue_script_head'), 1, 1);
+        add_action('storelly_head', array($this, 'pc_enqueue_script_head'), 1, 1);
 
-        add_action('pc_footer', array($this, 'pc_enqueue_script_footer'), 1, 1);
+        add_action('storelly_footer', array($this, 'pc_enqueue_script_footer'), 1, 1);
     }
 
     public function pc_print_styles($handles = false) {
@@ -84,8 +84,8 @@ class Storelly_PB_Script_Hook {
         }
     }
 
-    public function _pc_enqueue_script() {
-        do_action('_pc_enqueue_script');
+    public function storelly_enqueue_script() {
+        do_action('storelly_enqueue_script');
     }
 
     public function pc_enqueue_script_footer($page) {

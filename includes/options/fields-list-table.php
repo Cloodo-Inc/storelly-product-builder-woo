@@ -96,7 +96,7 @@ class Storelly_Options_List_Table extends WP_List_Table {
         }
         if ((isset($_POST['action']) && sanitize_text_field($_POST['action'] == 'bulk-delete')) || (isset($_POST['action2']) && sanitize_text_field($_POST['action2'] == 'bulk-delete'))) {
             if (isset($_POST['bulk-delete'])) {
-                $bulk_ids = sanitize_recursive($_POST['bulk-delete']);
+                $bulk_ids = storelly_sanitize_recursive($_POST['bulk-delete']);
                 foreach ($bulk_ids as $id) {
                     $id = sanitize_text_field($id);
                     $this->delete_option($id);
