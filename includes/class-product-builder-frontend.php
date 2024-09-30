@@ -161,12 +161,12 @@ if (!class_exists('Storelly_Product_Builder_Frontend')) {
                     'fontfaceobserver' => array(
                         'link' => STORELLY_PB_ASSETS_URL . 'libs/fontfaceobserver.js',
                         'version'   => '2.0.13',
-                        'depends'  => array()
+                        'depends'  => array('jQuery')
                     ),
                     'spectrum' => array(
                         'link' => STORELLY_PB_JS_URL . 'spectrum.js',
                         'version'   => '1.8.0',
-                        'depends'  => array()
+                        'depends'  => array('jQuery')
                     ),
                     'fabricjs' => array(
                         'link' => STORELLY_PB_ASSETS_URL . 'libs/fabric.2.6.0.min.js',
@@ -181,7 +181,7 @@ if (!class_exists('Storelly_Product_Builder_Frontend')) {
                     'product-builder' => array(
                         'link' => STORELLY_PB_JS_URL . 'app-product-builder.js',
                         'version'   => STORELLY_PB_VERSION,
-                        'depends'  => array('jquery', 'underscore', 'pc-angularjs', 'fabricjs', 'fontfaceobserver', 'spectrum')
+                        'depends'  => array('jQuery', 'underscore', 'pc-angularjs', 'fabricjs', 'fontfaceobserver', 'spectrum')
                     )
                 );
                 $css_libs = array(

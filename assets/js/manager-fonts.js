@@ -7,7 +7,7 @@ fontApp.controller("fontCtrl", [
   "filterFontFilter",
   function ($scope, fontObject, filterFontFilter) {
     $scope.init = function () {
-      angular.forEach(selected_fonts, function (_font, k) {
+      angular.forEach(storelly_manager_fonts_variable.selected_fonts, function (_font, k) {
         $scope.selectedFonts.push({
           name: _font.name,
         });
@@ -15,8 +15,8 @@ fontApp.controller("fontCtrl", [
       $scope.updateSelectedFont();
     };
     $scope.selectedFonts = [];
-    $scope.allFonts = ggFonts.items;
-    $scope.fSubsets = fSubsets;
+    $scope.allFonts = storelly_manager_fonts_variable.ggFonts.items;
+    $scope.fSubsets = storelly_manager_fonts_variable.fSubsets;
     $scope.filterFont = {};
     $scope.filterFont.currentPage = 0;
     $scope.filterFont.pageSize = 20;

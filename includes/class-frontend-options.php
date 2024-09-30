@@ -60,15 +60,16 @@ if (!class_exists('STORELLY_FRONTEND_OPTIONS')) {
         }
         public static function get_option($id) {
             global $wpdb;
-
             $table_name = $wpdb->prefix . 'storelly_product_builder_options';
-            $options = $wpdb->get_results($wpdb->prepare("SELECT * FROM $table_name WHERE `id` = %d", $id), 'ARRAY_A');   
-            return count($result[0]) ? $result[0] : false;
+            $options = $wpdb->get_results($wpdb->prepare("SELECT * FROM $table_name WHERE `id` = %d", $id), 'ARRAY_A');  
+            return count($options[0]) ? $options[0] : false;
         }
         public static function get_product_option($product_id) {
             $enable = get_post_meta($product_id, '_storelly_pb_enable', true);
             if (!$enable) return false;
             $option_id = get_transient('storelly_product_builder_' . $product_id);
+            error_log(print_r( $option_id, true));
+            error_log(print_r(  $product_id, true));
             if (false === $option_id) {
                 global $wpdb;
                 $table_name = $wpdb->prefix . 'storelly_product_builder_options';
@@ -431,7 +432,7 @@ if (!class_exists('STORELLY_FRONTEND_OPTIONS')) {
                         'nbau'                  => $nbau,
                     ));
                     $options_form = ob_get_clean();
-                    echo esc_html($options_form);
+                    echo $options_form;
                 }
             }
         }
