@@ -69,11 +69,11 @@ class Storelly_PB_Script_Hook {
 
         wp_register_script('pc-storelly-ext', STORELLY_PB_PLUGIN_URL . 'assets/libs/storelly-ext.js', array(), STORELLY_PB_VERSION, true);
         wp_register_script('wc-accounting',  WC()->plugin_url() . '/assets/js/accounting/accounting.min.js', array(), '0.4.2', true); 
-        wp_register_script('pc-angular', STORELLY_PB_PLUGIN_URL . 'assets/libs/angular.min.js', array('jQuery', 'wc-accounting'), '1.6.9', true); 
+        wp_register_script('pc-angular', STORELLY_PB_PLUGIN_URL . 'assets/libs/angular.min.js', array('jquery', 'wc-accounting'), '1.6.9', true); 
         wp_register_script('pc-fontfaceobserver', STORELLY_PB_PLUGIN_URL . 'assets/libs/fontfaceobserver.js', array(), '2.0.13', true);
         wp_register_script('pc-fabric', STORELLY_PB_PLUGIN_URL . 'assets/libs/fabric.2.6.0.min.js', array(), '2.6.0', true);
         wp_register_script('pc-spectrum', STORELLY_PB_JS_URL . 'spectrum.js', array(), STORELLY_PB_VERSION, true);
-        wp_register_script('pc-tiptip', STORELLY_PB_ASSETS_URL . 'js/tiptip.js', array('jQuery'), STORELLY_PB_VERSION, true);
+        wp_register_script('pc-tiptip', STORELLY_PB_ASSETS_URL . 'js/tiptip.js', array('jquery'), STORELLY_PB_VERSION, true);
 
         if ($page == 'product-builder') {
             $this->pc_enqueue_style(array('pc-poppins-font-r', 'pc-spectrum', 'pc-app-product-builder', 'pc-product-builder'));
@@ -89,11 +89,11 @@ class Storelly_PB_Script_Hook {
     }
 
     public function pc_enqueue_script_footer($page) {
-        wp_register_script('pc-lodash-min', STORELLY_PB_PLUGIN_URL . 'assets/libs/lodash.min.js', array('jQuery'), '4.17.11', true);
-        wp_register_script('pc-fontfaceobserver', STORELLY_PB_PLUGIN_URL . 'assets/libs/fontfaceobserver.js', array('jQuery'), '2.0.13', true);
-        wp_register_script('pc-fabric', STORELLY_PB_PLUGIN_URL . 'assets/libs/fabric.2.6.0.min.js', array('jQuery'), '2.6.0', true);
+        wp_register_script('pc-lodash-min', STORELLY_PB_PLUGIN_URL . 'assets/libs/lodash.min.js', array('jquery'), '4.17.11', true);
+        wp_register_script('pc-fontfaceobserver', STORELLY_PB_PLUGIN_URL . 'assets/libs/fontfaceobserver.js', array('jquery'), '2.0.13', true);
+        wp_register_script('pc-fabric', STORELLY_PB_PLUGIN_URL . 'assets/libs/fabric.2.6.0.min.js', array('jquery'), '2.6.0', true);
         wp_register_script('pc-spectrum', STORELLY_PB_JS_URL . 'spectrum.js', array('jQuery'), STORELLY_PB_VERSION, true);
-        wp_register_script('pc-app-product-builder', STORELLY_PB_JS_URL . 'app-product-builder.js', array('jQuery'), STORELLY_PB_VERSION, true);
+        wp_register_script('pc-app-product-builder', STORELLY_PB_JS_URL . 'app-product-builder.js', array('jquery'), STORELLY_PB_VERSION, true);
         if ($page == 'product-builder') {
             $this->pc_enqueue_script(array('pc-lodash-min', 'pc-fontfaceobserver', 'pc-spectrum', 'pc-fabric', 'pc-app-product-builder'));
         }

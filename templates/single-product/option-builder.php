@@ -163,8 +163,4 @@ $currentDir = realpath(dirname(__FILE__));
             </div>
         </div>
     </div>
-    <!-- No inline scripts or styles unless dynamic. -->
-    <script type="text/javascript">
-        
-    </script>
 </div>

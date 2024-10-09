@@ -68,8 +68,6 @@ if (!class_exists('STORELLY_FRONTEND_OPTIONS')) {
             $enable = get_post_meta($product_id, '_storelly_pb_enable', true);
             if (!$enable) return false;
             $option_id = get_transient('storelly_product_builder_' . $product_id);
-            error_log(print_r( $option_id, true));
-            error_log(print_r(  $product_id, true));
             if (false === $option_id) {
                 global $wpdb;
                 $table_name = $wpdb->prefix . 'storelly_product_builder_options';
@@ -256,7 +254,7 @@ if (!class_exists('STORELLY_FRONTEND_OPTIONS')) {
                         'currency_format'                               =>  esc_attr(str_replace(array('%1$s', '%2$s'), array('%s', '%v'), get_woocommerce_price_format())),
                         'nbstorelly_hide_add_cart_until_form_filled'    =>  'yes'
                     );
-                    wp_register_script('option_builder', STORELLY_PB_JS_URL . 'option-builder.js',('pc-angularjs'), '1.0.0', false);
+                    wp_register_script('option_builder', STORELLY_PB_JS_URL . 'option-builder.js',('pc-angularjs'), '1.0.0', true);
                     wp_localize_script( 'option_builder', 'option_builder_variable', array(
                         'ajaxUrl' => admin_url( 'admin-ajax.php' ),
                         'nbds_frontend' => $nbds_frontend,
@@ -270,7 +268,8 @@ if (!class_exists('STORELLY_FRONTEND_OPTIONS')) {
                         'file_too_big' => __('Sorry, file is too big, max size: ', 'pc-product-builder'),
                         'file_too_small' => __('Sorry, file is too small, min size: ', 'pc-product-builder'),
                         'file_type' => __('Sorry, this file type is not permitted for security reasons. Only accept: ', 'pc-product-builder'),
-                    ) );
+                    ));
+                    wp_enqueue_script('option_builder');
                 }
             }
         }
