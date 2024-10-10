@@ -3,11 +3,9 @@ do_action('storelly_head', 'single-product');
 if (!defined('ABSPATH')) exit;
 $in_quick_view      = false;
 $is_wqv             = false;
-$appid              = "nbo-app-6204";
 $display_type       = '1';
 $in_design_editor   = false;
 $group_mode = false;
-
 $nbds_frontend = array(
     'wc_currency_format_num_decimals'               =>  wc_get_price_decimals(),
     'currency_format_num_decimals'                  =>  4,

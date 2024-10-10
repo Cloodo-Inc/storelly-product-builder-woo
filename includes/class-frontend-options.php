@@ -8,13 +8,16 @@ if (!class_exists('STORELLY_FRONTEND_OPTIONS')) {
         public $is_edit_mode = FALSE;
         /** Holds the cart key when editing a product in the cart **/
         public $cart_edit_key = NULL;
+        public $appid;
         public $new_add_to_cart_key = FALSE;
         /** Edit option in cart helper **/
         public function __construct() {
+
             if (isset($_REQUEST['pcpb_cart_item_key']) && sanitize_text_field($_REQUEST['pcpb_cart_item_key']) != '') {
                 $this->is_edit_mode = true; 
                 $this->cart_edit_key = sanitize_text_field( $_REQUEST['pcpb_cart_item_key'] );
             }
+            $this->appid = "nbo-app-" . time() . rand(1, 1000);
         }
         public static function instance() {
             if (is_null(self::$instance)) {
@@ -256,18 +259,19 @@ if (!class_exists('STORELLY_FRONTEND_OPTIONS')) {
                     );
                     wp_register_script('option_builder', STORELLY_PB_JS_URL . 'option-builder.js',('pc-angularjs'), '1.0.0', true);
                     wp_localize_script( 'option_builder', 'option_builder_variable', array(
-                        'ajaxUrl' => admin_url( 'admin-ajax.php' ),
-                        'nbds_frontend' => $nbds_frontend,
-                        'options' => $options,
-                        'product_id' => $product_id,
-                        'type' => $type,
-                        'quantity' => $quantity,
-                        'variations' => wp_json_encode((array) $variations),
-                        'form_values' => $form_values,
-                        'is_sold_individually' => $product->is_sold_individually(),
-                        'file_too_big' => __('Sorry, file is too big, max size: ', 'pc-product-builder'),
-                        'file_too_small' => __('Sorry, file is too small, min size: ', 'pc-product-builder'),
-                        'file_type' => __('Sorry, this file type is not permitted for security reasons. Only accept: ', 'pc-product-builder'),
+                        'ajaxUrl'               => admin_url( 'admin-ajax.php' ),
+                        'appid'                 => $this->appid,
+                        'nbds_frontend'         => $nbds_frontend,
+                        'options'               => $options,
+                        'product_id'            => $product_id,
+                        'type'                  => $type,
+                        'quantity'              => $quantity,
+                        'variations'            => wp_json_encode((array) $variations),
+                        'form_values'           => $form_values,
+                        'is_sold_individually'  => $product->is_sold_individually(),
+                        'file_too_big'          => __('Sorry, file is too big, max size: ', 'pc-product-builder'),
+                        'file_too_small'        => __('Sorry, file is too small, min size: ', 'pc-product-builder'),
+                        'file_type'             => __('Sorry, this file type is not permitted for security reasons. Only accept: ', 'pc-product-builder'),
                     ));
                     wp_enqueue_script('option_builder');
                 }
@@ -418,6 +422,7 @@ if (!class_exists('STORELLY_FRONTEND_OPTIONS')) {
                     ob_start();
                     Storelly_PB_Util::storelly_get_template('single-product/option-builder.php', array(
                         'product_id'            => $product_id,
+                        'appid'                 => $this->appid,
                         'options'               => $options,
                         'type'                  => $type,
                         'quantity'              => $quantity,
@@ -513,7 +518,7 @@ if (!class_exists('STORELLY_FRONTEND_OPTIONS')) {
                     );
                     $upload_overrides = array( 'test_form' => false );
                     $movefile = wp_handle_upload( $file, $upload_overrides );
-                    remove_filterr( 'upload_dir',array($this,'custom_upload_directory_no_date' ));
+                    remove_filter( 'upload_dir',array($this,'custom_upload_directory_no_date' ));
                     if ($movefile && !isset( $movefile['error'] )) {
                         $nbd_upload_fields[$field_id] = $user_folder . '/' . $new_name;
                     } else {

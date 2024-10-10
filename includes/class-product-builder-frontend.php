@@ -204,11 +204,6 @@ if (!class_exists('Storelly_Product_Builder_Frontend')) {
                     $link = $js['link'];
                     wp_register_script($key, $link, $js['depends'], $js['version'], false);
                 }
-                $pid = get_the_ID();
-                if (is_singular('product') && Storelly_PB_Util::is_storelly_product_builder($pid)) {
-                    wp_enqueue_style('product-builder'); 
-                    wp_enqueue_script('product-builder');
-                }
             });
         }
         public function product_builder_html() {

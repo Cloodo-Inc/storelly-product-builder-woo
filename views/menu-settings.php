@@ -2,7 +2,6 @@
 if (!defined('ABSPATH')) exit; // Exit if accessed directly  
 ?>
 <?php
-//truyền dữ liệu rest api vào option wordpress
 $api_key = maybe_unserialize(get_option('storelly_connect_api_keys'));
 
 $sid = isset($api_key['consumer_key']) ? $api_key['consumer_key'] : '';
@@ -120,4 +119,3 @@ $stt_no_cloud2print_api = isset($storelly_pb_settings['enable_cloud2print_api'])
         </div>
     </form>
 </div>
-<?php
