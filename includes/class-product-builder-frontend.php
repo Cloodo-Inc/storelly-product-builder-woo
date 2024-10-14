@@ -105,12 +105,6 @@ if (!class_exists('Storelly_Product_Builder_Frontend')) {
             };
             return $images;
         }
-        public function nbdesigner_upload_directory_no_date( $upload ) {
-            $upload['subdir'] =  '/storelly-product-builder/' . $this->path;
-            $upload['path'] = STORELLY_PB_CUSTOMER_DIR . '/' . $this->path;
-            $upload['url'] =STORELLY_PB_DATA_URL . '' . $this->path;;
-            return $upload;
-        }
         private function store_product_builder_design_data($pcpb_item_pb_key, $data) {
             if ( ! function_exists( 'wp_handle_upload' ) ) {
                 require_once( ABSPATH . 'wp-admin/includes/file.php' );
@@ -134,14 +128,20 @@ if (!class_exists('Storelly_Product_Builder_Frontend')) {
                         $ext = explode('/', $val["type"])[1];
                         $full_name = $path . '/' . $key . '.' . $ext;
                     }
-                    add_filter( 'upload_dir', array($this, 'nbdesigner_upload_directory_no_date' ));
-                    $movefile = wp_handle_upload( $val, $upload_overrides );
-                    remove_filter( 'upload_dir', array($this, 'nbdesigner_upload_directory_no_date' ));
-                    if (isset( $movefile['error'] )) {
+                    $_FILES[$key] = [
+                        'name' => basename($full_name),
+                        'type' => $val['type'],
+                        'tmp_name' => $val['tmp_name'],
+                        'error' => $val['error'],
+                        'size' => $val['size']
+                    ];
+                    $uploaded_file = wp_handle_upload($_FILES[$key], $upload_overrides);
+                    if (isset($uploaded_file['error'])) {
                         return false;
                     }
+                    rename($uploaded_file['file'], $full_name);
                 }
-            } else { 
+            } else {
                 rename($path . '_old', $path);
                 return false;
             }

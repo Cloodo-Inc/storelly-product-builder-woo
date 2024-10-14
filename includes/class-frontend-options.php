@@ -533,7 +533,7 @@ if (!class_exists('STORELLY_FRONTEND_OPTIONS')) {
                 if ($field['id'] == $field_id) return $field;
             }
         }
-        public function option_processing($options, $original_price, $fields, $quantity, $product, $cart_item_key = null) {
+        public function option_processing($options, $original_price, $fields, $quantity, $cart_item_key = null, $product = null) {
             if (Storelly_PB_Util::is_base64_string($options['fields'])) {
                 $options['fields'] = base64_decode($options['fields']);
             }
