@@ -86,7 +86,7 @@ function storelly_allow_uploads($mimes) {
     $mimes['svg'] = 'image/svg+xml';
     return $mimes;
 }
-add_filter('storelly_upload_mimes', 'storelly_allow_json_uploads');
+add_filter('storelly_upload_mimes', 'storelly_allow_uploads');
 $storelly_product_builder = new Storelly_Product_Builder_Backend();
 $storelly_product_builder->init();
 
