@@ -26,6 +26,8 @@ if (!class_exists('STORELLY_FRONTEND_OPTIONS')) {
             return self::$instance;
         }
         public function init() {
+            add_filter('upload_mimes', [__CLASS__, 'storelly_allow_uploads']);
+            
             add_action('woocommerce_before_add_to_cart_button', array($this, 'show_option_fields'));
 
             // handle customer input as order item meta
@@ -60,7 +62,14 @@ if (!class_exists('STORELLY_FRONTEND_OPTIONS')) {
             add_filter('woocommerce_add_cart_item', array($this, 'set_product_prices'), 1, 1);
 
             add_action('wp_enqueue_scripts', array($this , 'frontend_enqueue_scripts'));
+            
         }
+        public static function storelly_allow_uploads($mimes) {
+            $mimes['json'] = 'application/json';
+            $mimes['svg'] = 'image/svg+xml';
+            return $mimes;
+        }
+        
         public static function get_option($id) {
             global $wpdb;
             $table_name = $wpdb->prefix . 'storelly_product_builder_options';

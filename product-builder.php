@@ -81,12 +81,7 @@ function storelly_sanitize_recursive($data) {
     }
     return $data;
 }
-function storelly_allow_uploads($mimes) {
-    $mimes['json'] = 'application/json';
-    $mimes['svg'] = 'image/svg+xml';
-    return $mimes;
-}
-add_filter('storelly_upload_mimes', 'storelly_allow_uploads');
+
 $storelly_product_builder = new Storelly_Product_Builder_Backend();
 $storelly_product_builder->init();
 
