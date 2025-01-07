@@ -4,7 +4,7 @@
 
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <?php do_action('storelly_head', 'product-builder'); ?>
+    <?php do_action('pc_head', 'product-builder'); ?>
     <?php
     $is_nbpb_creating_task = true;
     $is_creating_task = 1;
@@ -153,9 +153,76 @@
             }
         }
     }
+    function enqueue_pdf_styles() {
+      
+        wp_register_style(
+            'normalize-css',
+            get_home_url() . '/assets/css/views/normalize.css',
+            array(), 
+            null 
+        );
+    
+        wp_enqueue_style('normalize-css');
+    }
+    function enqueue_google_fonts() {
+        
+        wp_enqueue_style(
+            'google-fonts', 
+            'https://fonts.googleapis.com/css?family=Roboto:400,400i,700,700i', 
+            array(),
+            null 
+        );
+    }
+    function add_inline_pdf_styles() {
+        global $page_settings; 
+        if (empty($page_settings)) return;
+    
+     
+        $custom_css = "
+            @page {
+                margin: 0;
+                padding: 0;
+                size: {$page_settings['width']} {$page_settings['height']};
+            }
+            body {
+                width: {$page_settings['width']};
+                height: {$page_settings['height']};
+                position: relative;
+                font-size: 0;
+                font-family: sans-serif;
+            }
+            svg {
+                position: absolute;
+                width: {$page_settings['design_width']};
+                height: {$page_settings['design_height']};
+                top: {$page_settings['design_top']};
+                left: {$page_settings['design_left']};
+                z-index: 2;
+                max-width: 100%;
+                max-height: 100%;
+            }
+            #background {
+                z-index: 1;
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+            }
+        ";
+  
+        wp_add_inline_style('normalize-css', $custom_css);
+    }
+    function custom_pdf_enqueue_assets() {
+        enqueue_pdf_styles(); 
+        enqueue_google_fonts(); 
+        add_inline_pdf_styles();
+    }
+    add_action('wp_enqueue_scripts', 'custom_pdf_enqueue_assets');
+                
     storelly_show_option_fields();
     ?>
-    <?php do_action('storelly_footer', 'product-builder'); ?>
+    <?php do_action('pc_footer', 'product-builder'); ?>
 </body>
 
 </html>

@@ -391,20 +391,20 @@ if (!class_exists('Storelly_Export_PDF')) {
             return $unit_ratio;
         }
         public static function build_font_css($fonts) {
-            $google_font_link = '';
-
+            $google_fonts = array();
+        
             foreach ($fonts as $font) {
-                $font_name = str_replace(' ', '+', $font->name);
-
                 if ($font->type == 'google') {
-                    $google_font_link .= '<link rel="stylesheet" href="//fonts.googleapis.com/css?family=' . $font_name . ':400,400i,700,700i" />';
+                    $font_name = str_replace(' ', '+', $font->name);
+                    $google_fonts[] = $font_name;
                 }
+            }  
+            if (!empty($google_fonts)) {
+                $google_font_url = '//fonts.googleapis.com/css?family=' . implode('|', $google_fonts) . ':400,400i,700,700i';
+                wp_enqueue_style('custom-google-fonts', $google_font_url, array(), null);
             }
-
-            return array(
-                'google_font_link'  => $google_font_link,
-            );
         }
+        
         public static function build_html_page($folder_design, $key, $svg_path, $page_settings, $font_css) {
             $pdf_temp_path = STORELLY_PB_CUSTOMER_DIR . '/' . $folder_design . '/pdf-templates';
             if (!file_exists($pdf_temp_path)) {
