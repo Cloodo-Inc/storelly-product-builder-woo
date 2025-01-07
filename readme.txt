@@ -3,7 +3,7 @@ Contributors: storelly
 Donate link: https://storelly.com/
 Tags: product builder, product customize, product customizer,
 Requires at least: 4.7
-Tested up to: 6.4.2
+Tested up to: 6.6.2
 Stable tag: 1.0.0
 Version: 1.0.0
 Requires PHP: 7.0 

@@ -96,8 +96,7 @@ class Storelly_Options_List_Table extends WP_List_Table {
         }
         if ((isset($_POST['action']) && sanitize_text_field($_POST['action'] == 'bulk-delete')) || (isset($_POST['action2']) && sanitize_text_field($_POST['action2'] == 'bulk-delete'))) {
             if (isset($_POST['bulk-delete'])) {
-                $bulk_ids = sanitize_recursive($_POST['bulk-delete']);
-                write_log($bulk_ids);
+                $bulk_ids = storelly_sanitize_recursive($_POST['bulk-delete']);
                 foreach ($bulk_ids as $id) {
                     $id = sanitize_text_field($id);
                     $this->delete_option($id);
@@ -186,14 +185,14 @@ class Storelly_Options_List_Table extends WP_List_Table {
         $return = esc_html__('None', 'pc-product-builder');
         if (!$item['product_ids']) return $return;
         $products = unserialize($item['product_ids']);
-        if (count($products)) {
-            $links = array();
-            foreach ($products as $pid) {
-                $title      = get_the_title($pid);
-                $links[]    = '<a title="' . esc_attr($title) . '" href="' . esc_url(admin_url('post.php?action=edit&post=' . $pid)) . '" rel="tag">' . $title . '</a>';
+            if (count($products)) {
+                $links = array();
+                foreach ($products as $pid) {
+                    $title      = get_the_title($pid);
+                    $links[]    = '<a title="' . esc_attr($title) . '" href="' . esc_url(admin_url('post.php?action=edit&post=' . $pid)) . '" rel="tag">' . $title . '</a>';
+                }
+                $return = implode(' , ', $links);
             }
-            $return = implode(' , ', $links);
-        }
         return $return;
     }
     function column_default($item, $column_name) {

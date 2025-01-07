@@ -64,7 +64,7 @@ if (!class_exists('Storelly_PB_Admin_Options')) {
             include_once(STORELLY_PB_PLUGIN_DIR . 'views/box-order-metadata.php');
         }
         public function nbd_get_media_full_size_url() {
-            if (!wp_verify_nonce(sanitize_text_field($_POST['nonce']), 'save-design') && STORELLY_ENABLE_NONCE) {
+            if (!wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['nonce'])), 'save-design') && STORELLY_ENABLE_NONCE) {
                 die('Security error');
             }
             $result = array(
@@ -247,8 +247,7 @@ if (!class_exists('Storelly_PB_Admin_Options')) {
                     }
                     $_options = ($id > 0) ? (array) $this->get_option($id) : false;
                     if ($_options) {
-                        $raw_options['fields'] = unserialize($_options['fields']);
-                        write_log($raw_options);
+                        $raw_options = unserialize($_options['fields']);
                         if (!isset($raw_options["fields"])) {
                             $raw_options["fields"] = array();
                         }
@@ -269,12 +268,22 @@ if (!class_exists('Storelly_PB_Admin_Options')) {
                         $options['modified']        = '';
                     }
                     $default_field = $this->default_config_field();
+                    $max_input_vars = Storelly_PB_Util::storelly_get_max_input_var();
                     $product_id = (isset($_GET['product_id']) && absint($_GET['product_id']) > 0) ? absint($_GET['product_id']) : 0;
                     if ($product_id) {
                         if (!$_options) {
                             $options['product_ids'] = array(0 => $product_id);
                         }
                     }
+                    wp_register_script('storelly_option_field_script', STORELLY_PB_JS_URL . 'admin-options.js');
+                    wp_localize_script('storelly_option_field_script', 'storelly_option_variable', array(
+                        'STORELLY_OPTIONS' =>  $options,
+                        'STORELLY_OPTION_FIELD' => $default_field,
+                        'ajax_url' => esc_url(admin_url('admin-ajax.php')),
+                        'nbnonce' => esc_attr(wp_create_nonce('save-design')),
+                        'max_input_vars' => (int) $max_input_vars
+                    ));
+                    wp_enqueue_script("storelly_option_field_script");
                     include_once(STORELLY_PB_PLUGIN_DIR . 'views/options/edit-option.php');
                 }
             } else {
@@ -306,15 +315,15 @@ if (!class_exists('Storelly_PB_Admin_Options')) {
             $arr            = array(
                 'title'         => wc_clean($_POST['title']),
                 'published'     => 1,
-                'product_ids'   => isset($_POST['product_ids']) ? serialize(absint($_POST['product_ids'])) : serialize(array()),
+                'product_ids'   => isset($_POST['product_ids']) ? serialize($_POST['product_ids']) : serialize(array()),
                 'modified'      => $modified_date->format('Y-m-d H:i:s')
             );
-            $post_options = sanitize_recursive(wp_unslash($_POST['options']));
+            $post_options = storelly_sanitize_recursive(wp_unslash($_POST['options']));
             if (isset($post_options['jsonFields'])) {
                 $post_options['fields'] = json_decode(stripslashes($post_options['jsonFields']), true); 
                 unset($post_options['jsonFields']);
             }
-           
+
             $arr['fields'] = serialize($post_options);
             global $wpdb;
             $date = new DateTime();
@@ -348,10 +357,7 @@ if (!class_exists('Storelly_PB_Admin_Options')) {
                     )
                 );
             }
-            write_log($options['fields']);
             $options['fields'] = $this->recursive_stripslashes($options['fields']);
-            // write_log($options['fields']);
-
             foreach ($options['fields'] as $f_key => $field) {
                 $field = array_replace_recursive($this->default_field(), $field);
                 foreach ($field as $tab =>  $data) {
@@ -925,14 +931,16 @@ if (!class_exists('Storelly_PB_Admin_Options')) {
                 global $wpdb;
 
                 $table_name = $wpdb->prefix . 'storelly_product_builder_options';
-                $options = $wpdb->get_results($wpdb->prepare("id, product_ids FROM $table_name WHERE published = 1"), 'ARRAY_A');  
+                $options = $wpdb->get_results($wpdb->prepare("SELECT id, product_ids FROM $table_name WHERE published = 1"), 'ARRAY_A');  
                 if ($options) {
                     $_options = array();
                     foreach ($options as $option) {
                         $execute_option = true;
                         if ($execute_option) {
                             $products = unserialize($option['product_ids']);
-                            $execute_option = in_array($product_id, $products) ? true : false;
+                            if(is_array($products) && !empty($products)){
+                                $execute_option = in_array($product_id, $products) ? true : false;
+                            }
                         }
                         if ($execute_option) {
                             $_options[] = $option;
@@ -1056,7 +1064,22 @@ if (!class_exists('Storelly_PB_Admin_Options')) {
             $subsets                = Storelly_PB_Util::storelly_font_subsets();
             $current_subset         = 'all';
             $current_cat            = filter_input(INPUT_GET, "cat_id", FILTER_VALIDATE_INT);
-
+            
+            $path_font      = STORELLY_PB_FONT_DIR . '/googlefonts.json';
+            if(!file_exists( $path_font )){
+                $gg_fonts = [];
+                file_put_contents($path_font, json_encode($gg_fonts));
+            }
+            $path = STORELLY_PB_FONT_DIR . '/googlefonts.json';
+            $selected_fonts = file_get_contents($path);
+            if ($selected_fonts == '') $selected_fonts = '[]';
+            wp_register_script('storelly_manager_fonts_script', STORELLY_PB_JS_URL . 'manager-fonts.js', array('pc-fontfaceobserver', 'pc-sweetalert', 'pc-angular'), STORELLY_PB_VERSION, true);
+            wp_localize_script('storelly_manager_fonts_script', 'storelly_manager_fonts_variable', array(
+                'selected_fonts' =>  $selected_fonts,
+                'ggFonts' => json_decode(file_get_contents(STORELLY_PB_DATA_CONFIG_DIR . '/google-fonts-ttf.json'), true),
+                'fSubsets' => $subsets
+            ));
+            wp_enqueue_script("storelly_manager_fonts_script");
             include_once(STORELLY_PB_PLUGIN_DIR . 'views/manager-fonts.php');
         }
         public function storelly_settings() {

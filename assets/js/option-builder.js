@@ -8,6 +8,7 @@ var nbOption = {
     extraOdOption: {},
     lastOdOption: {},
     lastExtraOdOption: {},
+    crtlId: 'nbo-ctrl-'+ option_builder_variable.appid,
     updateVariations: function() {
         var scope = angular.element(document.getElementById(nbOption.crtlId)).scope();
         scope.updateVariations();
@@ -65,7 +66,7 @@ jQuery(document).ready(function() {
 
 function startApp(updateQty) {
     if (nbOption.status) {
-        var scope = angular.element(document.getElementById("nbo-ctrl-nbo-app-6204")).scope();
+        var scope = angular.element(document.getElementById(nbOption.crtlId)).scope();
         scope.mapOptions();
         scope.check_valid();
         scope.update_app();
@@ -506,13 +507,6 @@ nboApp.controller('optionCtrl', ['$scope', '$timeout', function($scope, $timeout
         });
         return _field;
     };
-    // $scope.get_field_index = function(field_id) {
-    //     var _index = null;
-    //     angular.forEach($scope.fields, function(field, index) {
-    //         if (field.id == field_id) _index = index;
-    //     });
-    //     return _index;
-    // };
     $scope.check_depend = function(field_id) {
         if (angular.isUndefined($scope.nbd_fields[field_id])) return;
         var field = $scope.get_field(field_id),
@@ -1509,7 +1503,7 @@ nboApp.controller('optionCtrl', ['$scope', '$timeout', function($scope, $timeout
         return $sce.trustAsHtml(text);
     };
 }]);
-var appEl = document.getElementById('nbo-app-6204');
+var appEl = document.getElementById(nbOption.crtlId);
 angular.element(function() {
     angular.bootstrap(appEl, ['nboApp']);
 });

@@ -8,13 +8,16 @@ if (!class_exists('STORELLY_FRONTEND_OPTIONS')) {
         public $is_edit_mode = FALSE;
         /** Holds the cart key when editing a product in the cart **/
         public $cart_edit_key = NULL;
+        public $appid;
         public $new_add_to_cart_key = FALSE;
         /** Edit option in cart helper **/
         public function __construct() {
+
             if (isset($_REQUEST['pcpb_cart_item_key']) && sanitize_text_field($_REQUEST['pcpb_cart_item_key']) != '') {
                 $this->is_edit_mode = true; 
                 $this->cart_edit_key = sanitize_text_field( $_REQUEST['pcpb_cart_item_key'] );
             }
+            $this->appid = "nbo-app-" . time() . rand(1, 1000);
         }
         public static function instance() {
             if (is_null(self::$instance)) {
@@ -23,6 +26,8 @@ if (!class_exists('STORELLY_FRONTEND_OPTIONS')) {
             return self::$instance;
         }
         public function init() {
+            add_filter('upload_mimes', [__CLASS__, 'storelly_allow_uploads']);
+            
             add_action('woocommerce_before_add_to_cart_button', array($this, 'show_option_fields'));
 
             // handle customer input as order item meta
@@ -57,13 +62,19 @@ if (!class_exists('STORELLY_FRONTEND_OPTIONS')) {
             add_filter('woocommerce_add_cart_item', array($this, 'set_product_prices'), 1, 1);
 
             add_action('wp_enqueue_scripts', array($this , 'frontend_enqueue_scripts'));
+            
         }
+        public static function storelly_allow_uploads($mimes) {
+            $mimes['json'] = 'application/json';
+            $mimes['svg'] = 'image/svg+xml';
+            return $mimes;
+        }
+        
         public static function get_option($id) {
             global $wpdb;
-
             $table_name = $wpdb->prefix . 'storelly_product_builder_options';
-            $options = $wpdb->get_results($wpdb->prepare("SELECT * FROM $table_name WHERE `id` = %d", $id), 'ARRAY_A');   
-            return count($result[0]) ? $result[0] : false;
+            $options = $wpdb->get_results($wpdb->prepare("SELECT * FROM $table_name WHERE `id` = %d", $id), 'ARRAY_A');  
+            return count($options[0]) ? $options[0] : false;
         }
         public static function get_product_option($product_id) {
             $enable = get_post_meta($product_id, '_storelly_pb_enable', true);
@@ -255,21 +266,23 @@ if (!class_exists('STORELLY_FRONTEND_OPTIONS')) {
                         'currency_format'                               =>  esc_attr(str_replace(array('%1$s', '%2$s'), array('%s', '%v'), get_woocommerce_price_format())),
                         'nbstorelly_hide_add_cart_until_form_filled'    =>  'yes'
                     );
-                    wp_register_script('option_builder', STORELLY_PB_JS_URL . 'option-builder.js',('pc-angularjs'), '1.0.0', false);
+                    wp_register_script('option_builder', STORELLY_PB_JS_URL . 'option-builder.js',('pc-angularjs'), '1.0.0', true);
                     wp_localize_script( 'option_builder', 'option_builder_variable', array(
-                        'ajaxUrl' => admin_url( 'admin-ajax.php' ),
-                        'nbds_frontend' => $nbds_frontend,
-                        'options' => $options,
-                        'product_id' => $product_id,
-                        'type' => $type,
-                        'quantity' => $quantity,
-                        'variations' => wp_json_encode((array) $variations),
-                        'form_values' => $form_values,
-                        'is_sold_individually' => $product->is_sold_individually(),
-                        'file_too_big' => __('Sorry, file is too big, max size: ', 'pc-product-builder'),
-                        'file_too_small' => __('Sorry, file is too small, min size: ', 'pc-product-builder'),
-                        'file_type' => __('Sorry, this file type is not permitted for security reasons. Only accept: ', 'pc-product-builder'),
-                    ) );
+                        'ajaxUrl'               => admin_url( 'admin-ajax.php' ),
+                        'appid'                 => $this->appid,
+                        'nbds_frontend'         => $nbds_frontend,
+                        'options'               => $options,
+                        'product_id'            => $product_id,
+                        'type'                  => $type,
+                        'quantity'              => $quantity,
+                        'variations'            => wp_json_encode((array) $variations),
+                        'form_values'           => $form_values,
+                        'is_sold_individually'  => $product->is_sold_individually(),
+                        'file_too_big'          => __('Sorry, file is too big, max size: ', 'pc-product-builder'),
+                        'file_too_small'        => __('Sorry, file is too small, min size: ', 'pc-product-builder'),
+                        'file_type'             => __('Sorry, this file type is not permitted for security reasons. Only accept: ', 'pc-product-builder'),
+                    ));
+                    wp_enqueue_script('option_builder');
                 }
             }
         }
@@ -418,6 +431,7 @@ if (!class_exists('STORELLY_FRONTEND_OPTIONS')) {
                     ob_start();
                     Storelly_PB_Util::storelly_get_template('single-product/option-builder.php', array(
                         'product_id'            => $product_id,
+                        'appid'                 => $this->appid,
                         'options'               => $options,
                         'type'                  => $type,
                         'quantity'              => $quantity,
@@ -431,7 +445,7 @@ if (!class_exists('STORELLY_FRONTEND_OPTIONS')) {
                         'nbau'                  => $nbau,
                     ));
                     $options_form = ob_get_clean();
-                    echo esc_html($options_form);
+                    echo $options_form;
                 }
             }
         }
@@ -513,7 +527,7 @@ if (!class_exists('STORELLY_FRONTEND_OPTIONS')) {
                     );
                     $upload_overrides = array( 'test_form' => false );
                     $movefile = wp_handle_upload( $file, $upload_overrides );
-                    remove_filterr( 'upload_dir',array($this,'custom_upload_directory_no_date' ));
+                    remove_filter( 'upload_dir',array($this,'custom_upload_directory_no_date' ));
                     if ($movefile && !isset( $movefile['error'] )) {
                         $nbd_upload_fields[$field_id] = $user_folder . '/' . $new_name;
                     } else {
@@ -528,7 +542,7 @@ if (!class_exists('STORELLY_FRONTEND_OPTIONS')) {
                 if ($field['id'] == $field_id) return $field;
             }
         }
-        public function option_processing($options, $original_price, $fields, $quantity, $product, $cart_item_key = null) {
+        public function option_processing($options, $original_price, $fields, $quantity, $cart_item_key = null, $product = null) {
             if (Storelly_PB_Util::is_base64_string($options['fields'])) {
                 $options['fields'] = base64_decode($options['fields']);
             }
@@ -770,9 +784,9 @@ if (!class_exists('STORELLY_FRONTEND_OPTIONS')) {
                     $adjusted_price = $original_price + $option_price['total_price'] - $option_price['discount_price'];
                     $adjusted_price = $adjusted_price > 0 ? $adjusted_price : 0;
                     WC()->cart->cart_contents[$cart_item_key]['pcpb_meta']['option_price'] = $option_price;
-                    $adjusted_price = apply_filters('pc_adjusted_price', $adjusted_price, $cart_item);
+                    $adjusted_price = apply_filters('storelly_adjusted_price', $adjusted_price, $cart_item);
                     WC()->cart->cart_contents[$cart_item_key]['pcpb_meta']['price'] = $adjusted_price;
-                    $needed_change  = apply_filters('pc_need_change_cart_item_price', true, WC()->cart->cart_contents[$cart_item_key]);
+                    $needed_change  = apply_filters('storelly_need_change_cart_item_price', true, WC()->cart->cart_contents[$cart_item_key]);
                     if ($needed_change) WC()->cart->cart_contents[$cart_item_key]['data']->set_price($adjusted_price);
                 }
             }
@@ -928,7 +942,7 @@ if (!class_exists('STORELLY_FRONTEND_OPTIONS')) {
                     . '" height="' . esc_attr($dimensions['height'])
                     . '" class="pcpb-thumbnail woocommerce-placeholder wp-post-image" />';
             }
-            $image = apply_filters('pcpb_cart_item_thumbnail', $image, $cart_item);
+            $image = apply_filters('storelly_cart_item_thumbnail', $image, $cart_item);
             return $image;
         }
         public function remove_cart_item_quantity($quantity_html, $cart_item, $cart_item_key) {
@@ -954,9 +968,9 @@ if (!class_exists('STORELLY_FRONTEND_OPTIONS')) {
                 $product->get_permalink($cart_item)
             );
             $link = wp_nonce_url($link, 'nbo-edit');
-            $show_edit_link = apply_filters('nbo_show_edit_option_link_in_cart', true, $cart_item);
+            $show_edit_link = apply_filters('storelly_show_edit_option_link_in_cart', true, $cart_item);
             if ($show_edit_link) $title .= '<br /><a class="nbo-edit-option-cart" href="' . $link . '" class="nbo-cart-edit-options">' . esc_html__('Edit options', 'pc-product-builder') . '</a><br />';
-            return apply_filters('nbo_cart_item_name', $title, $cart_item, $cart_item_key);
+            return apply_filters('storelly_cart_item_name', $title, $cart_item, $cart_item_key);
         }
         public function get_cart_item_from_session($cart_item, $values) {
             if (isset($values['pcpb_meta'])) {
@@ -968,7 +982,7 @@ if (!class_exists('STORELLY_FRONTEND_OPTIONS')) {
         public function set_product_prices($cart_item) {
             if (isset($cart_item['pcpb_meta'])) {
                 $new_price = (float) $cart_item['pcpb_meta']['price'];
-                $needed_change = apply_filters('nbo_need_change_cart_item_price', true, $cart_item);
+                $needed_change = apply_filters('storelly_need_change_cart_item_price', true, $cart_item);
                 if ($needed_change) $cart_item['data']->set_price($new_price);
             }
             return $cart_item;

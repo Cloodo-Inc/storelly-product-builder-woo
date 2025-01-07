@@ -30,7 +30,7 @@ angular
     /* end. quantity */
     $scope.add_field = function (type, ftype) {
       var field = {};
-      angular.copy(STORELLY_OPTION_FIELD, field);
+      angular.copy(storelly_option_variable.STORELLY_OPTION_FIELD, field);
       var d = new Date();
       field["id"] = "f" + d.getTime();
       field.isExpand = true;
@@ -567,9 +567,9 @@ angular
     };
     $scope.init = function (options) {
       $scope.storelly_options = {};
-      $scope.options = STORELLY_OPTIONS;
+      $scope.options = storelly_option_variable.STORELLY_OPTIONS;
       $scope.current_input_vars = 1;
-      $scope.max_input_vars = max_input_vars;
+      $scope.max_input_vars = storelly_option_variable.max_input_vars;
       if (angular.isDefined(options)) {
         $scope.options = options;
         if (
@@ -629,7 +629,7 @@ angular
       var mediaObject = $scope.get_media_from_options($scope.options, "id");
       jQuery
         .ajax({
-          url: ajax_url,
+          url: storelly_option_variable.ajax_url,
           method: "POST",
           data: {
             action: "nbd_get_media_full_size_url",
@@ -893,11 +893,11 @@ angular
     $scope.download_import_image = function (image, callack) {
       jQuery
         .ajax({
-          url: ajax_url,
+          url: storelly_option_variable.ajax_url,
           method: "POST",
           data: {
             action: "nbd_download_option_image",
-            nonce: nbnonce,
+            nonce: storelly_option_variable.nbnonce,
             image: image,
           },
         })
