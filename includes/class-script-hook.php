@@ -100,9 +100,7 @@ class Storelly_PB_Script_Hook
 
     public function pc_enqueue_script_footer($page)
     {
-        // wp_register_script('pc-lodash-min', STORELLY_PB_PLUGIN_URL . 'assets/libs/lodash.min.js', array('jquery'), '4.17.11', true);
         wp_enqueue_script('lodash');
-
         wp_register_script('pc-fontfaceobserver', STORELLY_PB_PLUGIN_URL . 'assets/libs/fontfaceobserver.js', array('jquery'), '2.0.13', true);
         wp_register_script('pc-fabric', STORELLY_PB_PLUGIN_URL . 'assets/libs/fabric.2.6.0.min.js', array('jquery'), '2.6.0', true);
         wp_register_script('pc-spectrum', STORELLY_PB_JS_URL . 'spectrum.js', array('jQuery'), STORELLY_PB_VERSION, true);

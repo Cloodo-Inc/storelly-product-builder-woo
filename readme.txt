@@ -70,8 +70,6 @@ Angular JS
 License: MIT
 Source: https://angularjs.org/
 
-lodash.min.js
-Lodash lodash.com/license | Underscore.js 1.8.3 underscorejs.org/LICENSE
 
 fontfaceobserver.js
 https://github.com/bramstein/fontfaceobserver
