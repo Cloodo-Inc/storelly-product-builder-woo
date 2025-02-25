@@ -65,17 +65,26 @@ if (!class_exists('Storelly_Product_Builder_API')) {
                 );
                 
                 $resp = STORELLY_HTTP::postDataWithoutAuth(STORELLY_API_URL . '/api/v1/register', $datas);
-                if ($resp['success'] == 1) {
-                    $option['username'] = $resp['username'];
-                    $option['unauth_token'] = $resp['unauth_token'];
-                    update_option('storelly_connect_api_keys', $option);
+                if (isset($resp) && is_array($resp)) {
+                    if ($resp['success'] == 1) {
+                        if (isset($resp['username'])) {
+                            $option['username'] = $resp['username'];
+                        }
+                        if (isset($resp['unauth_token'])) {
+                            $option['unauth_token'] = $resp['unauth_token'];
+                        }
+                        update_option('storelly_connect_api_keys', $option);
+                    } else {
+                        if (isset($resp['msg'])) {
+                            $option['log'] = $resp['msg'];
+                        }
+                        update_option('storelly_connect_api_keys', $option);
+                    }
                 } else {
-                    $option['log'] = $resp['msg'];
                     update_option('storelly_connect_api_keys', $option);
-                }   
+                }
             }
         }
-        // function tao consumer key
         public static function storelly_generate_key(){
             
             $response = get_option('storelly_connect_api_keys');
@@ -141,8 +150,6 @@ if (!class_exists('Storelly_Product_Builder_API')) {
         } 
         
         public function notify_on_new_order($order){
-            
-            // Lấy thông tin product trong order
             $products = array();
             $cFile = [];
             foreach ($order->get_items() as $item_id => $item) {
@@ -193,8 +200,6 @@ if (!class_exists('Storelly_Product_Builder_API')) {
                 "price_group" => 0
             );
             $resp = STORELLY_HTTP::postData(STORELLY_API_URL . '/api/v1/update-orders',$body);
-        
-            //đồng bộ qua curl 
         
             $body = array(
                 "is_quotation" => 0,
