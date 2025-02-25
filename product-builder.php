@@ -70,6 +70,12 @@ require_once(STORELLY_PB_PLUGIN_DIR .  'includes/class-productbuilder-api.php');
 
 register_activation_hook(__FILE__, array('Storelly_Product_Builder_API', 'storelly_generate_key'));
 
+add_action( 'before_woocommerce_init', function() {
+    if ( class_exists( \Automattic\WooCommerce\Utilities\FeaturesUtil::class ) ) {
+        \Automattic\WooCommerce\Utilities\FeaturesUtil::declare_compatibility( 'custom_order_tables', __FILE__, true );
+    }
+} );
+
 // Before convert array to string, after sanitize_text_field to text
 function storelly_sanitize_recursive($data) {
     if (is_array($data)) {
