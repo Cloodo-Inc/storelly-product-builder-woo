@@ -136,12 +136,14 @@ if (!class_exists('Storelly_Product_Builder_Frontend')) {
                         'size' => $val['size']
                     ];
                     $uploaded_file = wp_handle_upload($_FILES[$key], $upload_overrides);
-                    if (isset($uploaded_file['error'])) {
-                        return false;
-                    }
+                    // if (isset($uploaded_file['error']) && $uploaded_file['error']) {
+                    
+                    //     return false;
+                    // }
                     rename($uploaded_file['file'], $full_name);
                 }
             } else {
+           
                 rename($path . '_old', $path);
                 return false;
             }
