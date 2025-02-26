@@ -2,6 +2,8 @@
 if (!defined('ABSPATH')) {
     exit;
 }
+use Automattic\WooCommerce\Internal\DataStores\Orders\CustomOrdersTableController;
+
 if (!class_exists('Storelly_PB_Admin_Options')) {
     class Storelly_PB_Admin_Options {
         protected static $instance;
@@ -48,15 +50,13 @@ if (!class_exists('Storelly_PB_Admin_Options')) {
             }
         }
         public function storelly_add_design_box() {
-            add_meta_box(
-                'storelly_product_builder_design',
-                esc_html__('Product builder designs', 'pc-product-builder'),
-                array($this, 'storelly_product_builder_design'),
-                'shop_order',
-                'side',
-                'default'
-            );
+            $screen = class_exists('Automattic\WooCommerce\Internal\DataStores\Orders\CustomOrdersTableController') && wc_get_container()->get( CustomOrdersTableController::class )->custom_orders_table_usage_is_enabled()
+            ? wc_get_page_screen_id( 'shop-order' )
+            : 'shop_order';
+
+            add_meta_box('storelly_product_builder_design',    esc_html__('Product builder designs', 'pc-product-builder'), array($this, 'storelly_product_builder_design'), $screen, 'side', 'default');
         }
+        
         public function storelly_product_builder_design($post) {
             $order_id       = $post->ID;
             $order          = wc_get_order($order_id);
@@ -1141,18 +1141,20 @@ if (!class_exists('Storelly_PB_Admin_Options')) {
             }
         }
         public function storelly_download_order_designs() {
-            $item_ids     = isset($_POST['item_ids']) ? absint($_POST['item_ids']) : array();
-            $order_id           = isset($_POST['order_id']) ? sanitize_text_field($_POST['order_id']) : '';
-            $type_download      = isset($_POST['type_download']) ? sanitize_text_field($_POST['type_download']) : '';
+            $item_ids      = is_array($_POST['item_ids']) ? wc_clean($_POST['item_ids']) : array();
+            $order_id      = isset($_POST['order_id']) ? sanitize_text_field($_POST['order_id']) : '';
+            $type_download = isset($_POST['type_download']) ? sanitize_text_field($_POST['type_download']) : '';
             $files = array();
             $option_name = array();
+            
             if (is_array($item_ids) && count($item_ids) > 0) {
                 foreach ($item_ids as $key => $item_id) {
                     $folder = wc_get_order_item_meta($item_id, '_pcpb_folder', true);
                     $item_files = array();
                     $item_option_name = array();
+                    
                     if ($folder) {
-                        $path           = STORELLY_PB_CUSTOMER_DIR . '/' . $folder;
+                        $path = STORELLY_PB_CUSTOMER_DIR . '/' . $folder;
                         if ($type_download == 'svg') {
                             $svg_path = $path . '/svg';
                             if (!file_exists($svg_path)) {
@@ -1169,6 +1171,7 @@ if (!class_exists('Storelly_PB_Admin_Options')) {
                             $item_files = Storelly_Export_PDF::exportPDF($folder, true);
                         }
                     }
+                    
                     if (count($item_files)) {
                         foreach ($item_files as $item_file) {
                             global $wpdb;
@@ -1178,35 +1181,41 @@ if (!class_exists('Storelly_PB_Admin_Options')) {
                                     $item_id
                                 )
                             );
-                            $file_name  = pathinfo($item_file, PATHINFO_FILENAME);
-                            $item_option_name[] = $order_item_name  ? $order_item_name . '_' . $key . '_' . $file_name : $order_id . '_' . $item_id  . '_' . $file_name;
+                            $file_name = pathinfo($item_file, PATHINFO_FILENAME);
+                            $item_option_name[] = $order_item_name ? $order_item_name . '_' . $key . '_' . $file_name : $order_id . '_' . $item_id . '_' . $file_name;
                         }
                         $option_name = array_merge($option_name, $item_option_name);
                         $files = array_merge($files, $item_files);
                     }
                 }
             }
+            
             $zip_files = array();
             if (count($files) > 0) {
                 foreach ($files as $key => $file) {
                     $zip_files[] = $file;
                 }
             }
+            
             $response = array(
                 'flag' => 0,
                 'file' => '',
                 'options' => $option_name
             );
+            
             if (!count($zip_files)) {
-                exit();
+                echo wp_json_encode($response);
+                wp_die();
             } else {
                 $pathZip = STORELLY_PB_DATA_DIR . '/download/' . $order_id . '_' . $type_download . '.zip';
                 $urlZip = STORELLY_PB_DATA_URL . '/download/' . $order_id . '_' . $type_download . '.zip';
+                
                 if (Storelly_PB_Util::zip_files($zip_files, $pathZip, $option_name)) {
                     $response['flag'] = 1;
                     $response['file'] = $urlZip;
                 }
             }
+            
             echo wp_json_encode($response);
             wp_die();
         }
