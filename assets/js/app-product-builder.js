@@ -1267,9 +1267,8 @@ nbdpbApp.controller("nbpbCtrl", [
       }
     };
     $scope.addImage = function (url) {
-      var currentComponent =
-          $scope.resource.components[$scope.resource.currentComponent],
-        views = currentComponent.general.nbpb_image_configs.views;
+      var currentComponent = $scope.resource.components[$scope.resource.currentComponent],
+      views = currentComponent?.general?.nbpb_image_configs?.views;
       var statusImages = [],
         firstView = true;
       function isLoadedAllImages() {
@@ -1422,7 +1421,7 @@ nbdpbApp.controller("nbpbCtrl", [
     $scope.addSvgFromString = function (svg) {
       var currentComponent =
           $scope.resource.components[$scope.resource.currentComponent],
-        views = currentComponent.general.nbpb_image_configs.views;
+        views = currentComponent?.general?.nbpb_image_configs?.views;
       var statusSvgs = [],
         firstView = true;
       function isLoadedAllImages() {
