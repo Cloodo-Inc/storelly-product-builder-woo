@@ -105,12 +105,11 @@ class Storelly_PB_Script_Hook
         wp_register_script('pc-fabric', STORELLY_PB_PLUGIN_URL . 'assets/libs/fabric.2.6.0.min.js', array('jquery'), '2.6.0', true);
         wp_register_script('pc-spectrum', STORELLY_PB_JS_URL . 'spectrum.js', array('jQuery'), STORELLY_PB_VERSION, true);
         wp_register_script('pc-app-product-builder', STORELLY_PB_JS_URL . 'app-product-builder.js', array('jquery'), STORELLY_PB_VERSION, true);
-
         if ($page === 'product-builder') {
-            wp_enqueue_script('pc-fontfaceobserver');
-            wp_enqueue_script('pc-fabric');
-            wp_enqueue_script('pc-spectrum');
-            wp_enqueue_script('pc-app-product-builder');
+            $this->pc_enqueue_script(array('pc-fontfaceobserver'));
+            $this->pc_enqueue_script(array('pc-fabric'));
+            $this->pc_enqueue_script(array('pc-spectrum'));
+            $this->pc_enqueue_script(array('pc-app-product-builder'));
         }
     }
 }

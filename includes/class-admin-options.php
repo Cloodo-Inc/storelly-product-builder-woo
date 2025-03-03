@@ -33,6 +33,8 @@ if (!class_exists('Storelly_PB_Admin_Options')) {
             add_filter('woocommerce_admin_order_item_thumbnail', array($this, 'admin_order_item_thumbnail'), 50, 3);
             //Hide some price option data in order
             add_filter('woocommerce_hidden_order_itemmeta', array($this, 'hidden_custom_order_item_metada'));
+            //Add title page
+            add_filter( 'display_post_states', array( $this, 'add_display_post_states' ), 10, 2 );
         }
         public function ajax() {
             $ajax_events = array(
@@ -48,6 +50,13 @@ if (!class_exists('Storelly_PB_Admin_Options')) {
                     add_action('wp_ajax_nopriv_' . $ajax_event, array($this, $ajax_event));
                 }
             }
+        }
+        public function add_display_post_states( $post_states, $post ){
+            
+            if (Storelly_PB_Util::storelly_get_page_id('product_builder') === $post->ID ) {
+                $post_states['nbd_product_builder_page'] = esc_html__( 'Storelly Product builder Page', 'web-to-print-online-designer' );
+            }
+            return $post_states;
         }
         public function storelly_add_design_box() {
             $screen = class_exists('Automattic\WooCommerce\Internal\DataStores\Orders\CustomOrdersTableController') && wc_get_container()->get( CustomOrdersTableController::class )->custom_orders_table_usage_is_enabled()
