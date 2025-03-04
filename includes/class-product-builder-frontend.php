@@ -27,7 +27,7 @@ if (!class_exists('Storelly_Product_Builder_Frontend')) {
         public function ajax() {
             $ajax_events = array(
                 'storelly_save_product_builder_design'   => true,
-                'nbstorelly_customer_upload'             => true,
+                'storelly_customer_upload'             => true,
             );
             foreach ($ajax_events as $ajax_event => $nopriv) {
                 add_action('wp_ajax_' . $ajax_event, array($this, $ajax_event));
@@ -42,7 +42,7 @@ if (!class_exists('Storelly_Product_Builder_Frontend')) {
                 exit();
             }
         }
-        public function nbstorelly_customer_upload() {
+        public function storelly_customer_upload() {
             if (!isset($_FILES['file'])) {
                 echo wp_json_encode(['flag' => 0, 'mes' => 'No file uploaded']);
                 wp_die();
