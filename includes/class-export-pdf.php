@@ -125,9 +125,9 @@ if (!class_exists('Storelly_Export_PDF')) {
             return $result;
         }
         public static function exportPDF($folder_design, $include_background = false) {
-            if (!class_exists('TCPDF')) {
-                require_once(STORELLY_PB_PLUGIN_DIR . 'lib/tcpdf/tcpdf.php');
-            }
+            // if (!class_exists('TCPDF')) {
+            //     // require_once(STORELLY_PB_PLUGIN_DIR . 'lib/tcpdf/tcpdf.php');
+            // }
             require_once(STORELLY_PB_PLUGIN_DIR . 'lib/fpdi/autoload.php');
 
             $path           = STORELLY_PB_CUSTOMER_DIR . '/' . $folder_design;
@@ -416,47 +416,47 @@ if (!class_exists('Storelly_Export_PDF')) {
             $svg_string = file_get_contents($svg_path);
             $svg_string = preg_replace("/<(?:\?xml|!DOCTYPE).*?>/", "", $svg_string);
 
-            ob_start();
-            include STORELLY_PB_PLUGIN_DIR . 'views/pdf-template.php';
-            $template    = ob_get_clean();
+ob_start();
+include STORELLY_PB_PLUGIN_DIR . 'views/pdf-template.php';
+$template = ob_get_clean();
 
-            file_put_contents($html_path, $template);
-            return $html_url;
-        }
-        public static function request_create_pdf($requests, $folder, $folder_design) {
-            $result     = array();
-            $multiCurl  = array();
-            foreach ($requests as $i => $request) {
-                $multiCurl[$i] = wp_remote_get($request['url'], array(
-                    'timeout' => 30,
-                    'User-Agent' => 'Mozilla/4.0 (compatible;)'
-                ));
-            }
+file_put_contents($html_path, $template);
+return $html_url;
+}
+public static function request_create_pdf($requests, $folder, $folder_design) {
+$result = array();
+$multiCurl = array();
+foreach ($requests as $i => $request) {
+$multiCurl[$i] = wp_remote_get($request['url'], array(
+'timeout' => 30,
+'User-Agent' => 'Mozilla/4.0 (compatible;)'
+));
+}
 
-            foreach ($multiCurl as $k => $res) {
-                
-                $output_file    = $folder . '/' . $folder_design . '_' . $requests[$k]['index'] . '.pdf';
-                $download       = self::download_remote_file($res, $output_file);
-                if ($download) {
-                    $result[$requests[$k]['index']] = $output_file;
-                }
-            }
+foreach ($multiCurl as $k => $res) {
 
-            return $result;
-        }
-        public static function download_remote_file($url, $path) {
-            $data = wp_remote_get($url, array(
-                'timeout' => 20,
-                'User-Agent' => 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.8; rv:20.0) Gecko/20100101 Firefox/20.0'
-            ));
+$output_file = $folder . '/' . $folder_design . '_' . $requests[$k]['index'] . '.pdf';
+$download = self::download_remote_file($res, $output_file);
+if ($download) {
+$result[$requests[$k]['index']] = $output_file;
+}
+}
 
-            if ($data) {
-                $file = fopen($path, "w+");
-                fputs($file, $data);
-                fclose($file);
-                return true;
-            }
-            return false;
-        }
-    }
+return $result;
+}
+public static function download_remote_file($url, $path) {
+$data = wp_remote_get($url, array(
+'timeout' => 20,
+'User-Agent' => 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.8; rv:20.0) Gecko/20100101 Firefox/20.0'
+));
+
+if ($data) {
+$file = fopen($path, "w+");
+fputs($file, $data);
+fclose($file);
+return true;
+}
+return false;
+}
+}
 }
