@@ -64,7 +64,7 @@ $stt_no_cloud2print_api = isset($storelly_pb_settings['enable_cloud2print_api'])
                         <p><?php esc_html_e('Unauth token :', 'pc-product-builder'); ?></p>
                     </div>
                     <div class="code-key">
-                        <input placeholder="" value="<?php echo esc_attr($api_key['unauth_token']); ?>" disabled />
+                        <input placeholder="" value="<?php echo esc_attr($api_key['unauth_token'] ?? ''); ?>" disabled />
                         <p><?php esc_html_e('Unauth token off store Storelly (Automatically generated when you enter calid sid end secret)', 'pc-product-builder'); ?></p>
                     </div>
                 </div>
@@ -73,7 +73,7 @@ $stt_no_cloud2print_api = isset($storelly_pb_settings['enable_cloud2print_api'])
                         <p><?php esc_html_e('User name', 'pc-product-builder'); ?> :</p>
                     </div>
                     <div class="code-key">
-                        <input placeholder="" value="<?php echo esc_attr($api_key['username']); ?>" />
+                        <input placeholder="" value="<?php echo esc_attr($api_key['username'] ?? ''); ?>" />
                     </div>
                 </div>
                 <div class="grup-box">
@@ -81,12 +81,12 @@ $stt_no_cloud2print_api = isset($storelly_pb_settings['enable_cloud2print_api'])
                         <p><?php esc_html_e('Password', 'pc-product-builder'); ?> :</p>
                     </div>
                     <div class="code-key">
-                        <input placeholder="" value="<?php echo esc_attr($api_key['username']); ?>" />
+                        <input placeholder="" value="<?php echo esc_attr($api_key['username'] ?? ''); ?>" />
                         <p class="desc_sync "><?php esc_html_e('Please log in with the above account and password', 'pc-product-builder'); ?></p>
                     </div> 
                 </div>
-                
-                <?php if ($api_key['username']) : ?> 
+
+                <?php if (!empty($api_key['username'])) : ?>
                     <div class="grup-box">
                         <div class="desc-key">
                             <p><?php esc_html_e('Check connection to Storelly Dashboard :', 'pc-product-builder'); ?></p>
