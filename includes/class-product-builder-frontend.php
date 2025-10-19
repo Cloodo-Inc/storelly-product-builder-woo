@@ -26,7 +26,8 @@ if (!class_exists('Storelly_Product_Builder_Frontend')) {
         }
         public function ajax() {
             $ajax_events = array(
-                'storelly_save_product_builder_design'   => true
+                'storelly_save_product_builder_design'   => true,
+                'storelly_customer_upload'             => true,
             );
             foreach ($ajax_events as $ajax_event => $nopriv) {
                 add_action('wp_ajax_' . $ajax_event, array($this, $ajax_event));
@@ -39,6 +40,29 @@ if (!class_exists('Storelly_Product_Builder_Frontend')) {
             if (Storelly_PB_Util::is_storelly_product_builder_page() && (current_user_can('editor') || current_user_can('administrator'))) {
                 include(STORELLY_PB_PLUGIN_DIR . 'views/product-builder/index.php');
                 exit();
+            }
+        }
+        public function storelly_customer_upload() {
+            if (!isset($_FILES['file'])) {
+                echo wp_json_encode(['flag' => 0, 'mes' => 'No file uploaded']);
+                wp_die();
+            }
+            $file = $_FILES['file'];
+            $allowed_types = ['image/jpeg', 'image/png', 'image/gif', 'image/svg+xml'];
+            if (!in_array($file['type'], $allowed_types)) {
+                echo wp_json_encode(['flag' => 0, 'mes' => 'Only image files are supported']);
+                wp_die();
+            }
+            $upload_dir = wp_upload_dir();
+            $target_dir = $upload_dir['path'] . '/';
+            $target_file = $target_dir . basename($file['name']);
+        
+            if (move_uploaded_file($file['tmp_name'], $target_file)) {
+                echo wp_json_encode(['flag' => 1, 'src' => $upload_dir['url'] . '/' . basename($file['name'])]);
+                wp_die();
+            } else {
+                echo wp_json_encode(['flag' => 0, 'mes' => 'Failed to upload file']);
+                wp_die();
             }
         }
         public function storelly_save_product_builder_design() {
@@ -136,9 +160,9 @@ if (!class_exists('Storelly_Product_Builder_Frontend')) {
                         'size' => $val['size']
                     ];
                     $uploaded_file = wp_handle_upload($_FILES[$key], $upload_overrides);
-                    if (isset($uploaded_file['error'])) {
-                        return false;
-                    }
+                    // if (isset($uploaded_file['error'])) {
+                    //     return false;
+                    // }
                     rename($uploaded_file['file'], $full_name);
                 }
             } else {

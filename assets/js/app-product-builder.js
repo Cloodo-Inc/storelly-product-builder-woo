@@ -483,7 +483,7 @@ nbdpbApp.controller("nbpbCtrl", [
       var font;
       if (currentComponent.currentFontId != "") {
         var type = currentComponent.currentFontId.slice(0, 1),
-          id = currentComponent.currentFontId.slice(1);
+        id = currentComponent.currentFontId.slice(1);
         if (type == "c") {
           font = $scope.getFontByIdAndType(id, "ttf");
         } else {
@@ -559,9 +559,17 @@ nbdpbApp.controller("nbpbCtrl", [
       }
     };
     $scope.getFontByIdAndType = function (id, type) {
-      var _font;
-      _.each(NBPBCONFIG.fonts, function (font, index) {
-        if (font["id"] == id && font["type"].toLowerCase() == type) {
+      var _font = null;
+      var fonts = NBPBCONFIG.fonts;
+      if (typeof fonts === 'string') {
+        try {
+          fonts = JSON.parse(fonts);
+        } catch (e) {
+          return null;
+        }
+      }
+      _.each(fonts, function (font) {
+        if (parseInt(font.id) === parseInt(id) && font.type.toLowerCase() === type.toLowerCase()) {
           _font = font;
         }
       });
@@ -1245,7 +1253,7 @@ nbdpbApp.controller("nbpbCtrl", [
         reader.readAsText(file);
       } else {
         NBDDataFactory.get(
-          "nbstorelly_customer_upload",
+           "storelly_customer_upload",
           { file: file },
           function (data) {
             var data = JSON.parse(data);
@@ -1267,9 +1275,8 @@ nbdpbApp.controller("nbpbCtrl", [
       }
     };
     $scope.addImage = function (url) {
-      var currentComponent =
-          $scope.resource.components[$scope.resource.currentComponent],
-        views = currentComponent.general.nbpb_image_configs.views;
+      var currentComponent = $scope.resource.components[$scope.resource.currentComponent],
+      views = currentComponent?.general?.nbpb_image_configs?.views;
       var statusImages = [],
         firstView = true;
       function isLoadedAllImages() {
@@ -1421,8 +1428,8 @@ nbdpbApp.controller("nbpbCtrl", [
     };
     $scope.addSvgFromString = function (svg) {
       var currentComponent =
-          $scope.resource.components[$scope.resource.currentComponent],
-        views = currentComponent.general.nbpb_image_configs.views;
+        $scope.resource.components[$scope.resource.currentComponent],
+        views = currentComponent?.general?.nbpb_image_configs?.views;
       var statusSvgs = [],
         firstView = true;
       function isLoadedAllImages() {
@@ -1591,8 +1598,8 @@ nbdpbApp.factory("FabricWindow", [
       cornerStrokeColor: "rgba(63, 70, 82, 1)",
       hoverCursor: "pointer",
       borderOpacityWhenMoving: 0,
-      selectable: NBPBCONFIG.is_creating_task == 1 ? true : false,
-      perPixelTargetFind: NBPBCONFIG.is_creating_task == 1 ? false : true,
+      selectable:  true ,
+      perPixelTargetFind:  true,
       originX: "center",
       originY: "center",
       centeredScaling: true,
@@ -1609,7 +1616,7 @@ nbdpbApp.factory("FabricWindow", [
       },
     });
     if (NBPBCONFIG.is_mobile)
-      $window.fabric.Object.prototype.set({ cornerSize: 17 });
+    $window.fabric.Object.prototype.set({ cornerSize: 17 });
     $window.fabric.Canvas.prototype.set({
       preserveObjectStacking: true,
       controlsAboveOverlay: true,

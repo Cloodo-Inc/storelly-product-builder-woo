@@ -31,6 +31,8 @@ if (!class_exists('Storelly_PB_Admin_Options')) {
             add_filter('woocommerce_admin_order_item_thumbnail', array($this, 'admin_order_item_thumbnail'), 50, 3);
             //Hide some price option data in order
             add_filter('woocommerce_hidden_order_itemmeta', array($this, 'hidden_custom_order_item_metada'));
+             //Add title page
+            add_filter( 'display_post_states', array( $this, 'add_display_post_states' ), 10, 2 );
         }
         public function ajax() {
             $ajax_events = array(
@@ -47,15 +49,19 @@ if (!class_exists('Storelly_PB_Admin_Options')) {
                 }
             }
         }
+        public function add_display_post_states( $post_states, $post ){
+            
+            if (Storelly_PB_Util::storelly_get_page_id('product_builder') === $post->ID ) {
+                $post_states['nbd_product_builder_page'] = esc_html__( 'Storelly Product builder Page', 'web-to-print-online-designer' );
+            }
+            return $post_states;
+        }
         public function storelly_add_design_box() {
-            add_meta_box(
-                'storelly_product_builder_design',
-                esc_html__('Product builder designs', 'pc-product-builder'),
-                array($this, 'storelly_product_builder_design'),
-                'shop_order',
-                'side',
-                'default'
-            );
+            $screen = class_exists('Automattic\WooCommerce\Internal\DataStores\Orders\CustomOrdersTableController') && wc_get_container()->get( CustomOrdersTableController::class )->custom_orders_table_usage_is_enabled()
+            ? wc_get_page_screen_id( 'shop-order' )
+            : 'shop_order';
+
+            add_meta_box('storelly_product_builder_design',    esc_html__('Product builder designs', 'pc-product-builder'), array($this, 'storelly_product_builder_design'), $screen, 'side', 'default');
         }
         public function storelly_product_builder_design($post) {
             $order_id       = $post->ID;
@@ -1141,9 +1147,9 @@ if (!class_exists('Storelly_PB_Admin_Options')) {
             }
         }
         public function storelly_download_order_designs() {
-            $item_ids     = isset($_POST['item_ids']) ? absint($_POST['item_ids']) : array();
-            $order_id           = isset($_POST['order_id']) ? sanitize_text_field($_POST['order_id']) : '';
-            $type_download      = isset($_POST['type_download']) ? sanitize_text_field($_POST['type_download']) : '';
+            $item_ids      = is_array($_POST['item_ids']) ? wc_clean($_POST['item_ids']) : array();
+            $order_id      = isset($_POST['order_id']) ? sanitize_text_field($_POST['order_id']) : '';
+            $type_download = isset($_POST['type_download']) ? sanitize_text_field($_POST['type_download']) : '';
             $files = array();
             $option_name = array();
             if (is_array($item_ids) && count($item_ids) > 0) {
@@ -1198,7 +1204,9 @@ if (!class_exists('Storelly_PB_Admin_Options')) {
                 'options' => $option_name
             );
             if (!count($zip_files)) {
-                exit();
+                $response['flag'] = 0;
+                echo wp_json_encode($response);
+                wp_die();
             } else {
                 $pathZip = STORELLY_PB_DATA_DIR . '/download/' . $order_id . '_' . $type_download . '.zip';
                 $urlZip = STORELLY_PB_DATA_URL . '/download/' . $order_id . '_' . $type_download . '.zip';
