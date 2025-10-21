@@ -17,6 +17,7 @@ Author URI:             https://storelly.com
 License:                GPL v2 or later
 License URI:            https://www.gnu.org/licenses/gpl-2.0.html 
 Text Domain:            pc-product-builder
+Domain Path: /languages
 */
 
 $upload_dir = wp_upload_dir();
@@ -87,9 +88,14 @@ function storelly_sanitize_recursive($data) {
     }
     return $data;
 }
+function pc_product_builder_load_textdomain() {
+    load_plugin_textdomain(
+        'pc-product-builder',
+        false,
+        dirname(plugin_basename(__FILE__)) . '/languages/'
+    );
+}
+add_action('plugins_loaded', 'pc_product_builder_load_textdomain');
 
 $storelly_product_builder = new Storelly_Product_Builder_Backend();
 $storelly_product_builder->init();
-
-
-

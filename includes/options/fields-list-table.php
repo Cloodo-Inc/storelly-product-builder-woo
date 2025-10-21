@@ -45,16 +45,33 @@ class Storelly_Options_List_Table extends WP_List_Table {
     public static function record_count() {
         global $wpdb;
         $table_name = $wpdb->prefix . 'storelly_product_builder_options';
-        $result = $wpdb->get_var($wpdb->prepare("SELECT COUNT(*) FROM $table_name"));
+        $cache_key = 'storelly_product_builder_count';
+        $result = wp_cache_get($cache_key, 'storelly');
+        if ($result === false) {
+            // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+            $result = $wpdb->get_var("SELECT COUNT(*) FROM $table_name");
+            wp_cache_set($cache_key, $result, 'storelly', 300);
+        }
         return $result;
     }
     public function get_options($per_page = 10, $page_number = 1) {
         global $wpdb;
         $table_name = $wpdb->prefix . 'storelly_product_builder_options';
-        $number_page = ($page_number - 1) * $per_page;
-        $result = $wpdb->get_results($wpdb->prepare("SELECT * FROM $table_name ORDER BY modified DESC LIMIT %d OFFSET %d", $per_page, $number_page), 'ARRAY_A');
+        $offset = ($page_number - 1) * $per_page;
+        $cache_key = sprintf('storelly_options_page_%d_%d', $page_number, $per_page);
+        $result = wp_cache_get($cache_key, 'storelly');
+        if ($result === false) {
+            // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+            $query = $wpdb->prepare(
+                "SELECT * FROM $table_name ORDER BY modified DESC LIMIT %d OFFSET %d",
+                $per_page,
+                $offset
+            );
+            $result = $wpdb->get_results($query, 'ARRAY_A');
+            wp_cache_set($cache_key, $result, 'storelly', 300);
+        }
         return $result;
-    } 
+    }
     public function process_bulk_action() {
         if ('delete' === $this->current_action()) {
             $nonce = sanitize_text_field($_REQUEST['_wpnonce']);
@@ -108,40 +125,63 @@ class Storelly_Options_List_Table extends WP_List_Table {
     public function delete_option($id) {
         global $wpdb;
         $table_name = $wpdb->prefix . 'storelly_product_builder_options';
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
         $result = $wpdb->delete($table_name, array('id' => $id));
-        if ($result) $this->clear_transients();
+
+        if ($result) {
+            $this->clear_transients();
+        }
     }
     public function unpublish_option($id) {
         global $wpdb;
-        $result = $wpdb->update($wpdb->prefix . 'storelly_product_builder_options', array(
-            'published' => 0
-        ), array('id' => esc_sql($id)));
-        if ($result) $this->clear_transients();
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+        $result = $wpdb->update(
+            $wpdb->prefix . 'storelly_product_builder_options',
+            array('published' => 0),
+            array('id' => esc_sql($id))
+        );
+
+        if ($result) {
+            $this->clear_transients();
+        }
     }
     public function publish_option($id) {
         global $wpdb;
-        $result = $wpdb->update($wpdb->prefix . 'storelly_product_builder_options', array(
-            'published' => 1
-        ), array('id' => esc_sql($id)));
-        if ($result) $this->clear_transients();
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+        $result = $wpdb->update(
+            $wpdb->prefix . 'storelly_product_builder_options',
+            array('published' => 1),
+            array('id' => absint($id))
+        );
+        if ($result) {
+            $this->clear_transients();
+        }
     }
     public function copy_options($id) {
         global $wpdb;   
         $table_name = $wpdb->prefix . 'storelly_product_builder_options';
-        $result = $wpdb->get_results($wpdb->prepare("SELECT * FROM $table_name WHERE `id` = %d", $id), 'ARRAY_A');
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+        $result = $wpdb->get_results(
+            $wpdb->prepare("SELECT * FROM $table_name WHERE id = %d", absint($id)),
+            ARRAY_A
+        );
+
         if (count($result)) {
-            $res            = $result[0];
-            $modified_date  = new DateTime();
-            $arr            = array(
-                'title'         => $res['title'],
-                'product_ids'   => $res['product_ids'],
-                'modified'      => $modified_date->format('Y-m-d H:i:s'),
-                'fields'        => $res['fields'],
-                'builder'       => $res['builder'],
-                'created'       => $modified_date->format('Y-m-d H:i:s'),
-                'created_by'    => wp_get_current_user()->ID
-            ); 
-            $in_res = $wpdb->insert("{$wpdb->prefix}storelly_product_builder_options", $arr);
+            $res = $result[0];
+            $modified_date = current_time('mysql'); 
+
+            $arr = array(
+                'title'       => $res['title'],
+                'product_ids' => $res['product_ids'],
+                'modified'    => $modified_date,
+                'fields'      => $res['fields'],
+                'builder'     => $res['builder'],
+                'created'     => $modified_date,
+                'created_by'  => get_current_user_id(), 
+            );
+            // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+            $in_res = $wpdb->insert($table_name, $arr);
+
             if ($in_res) {
                 $this->clear_transients();
                 return $in_res;
@@ -151,8 +191,15 @@ class Storelly_Options_List_Table extends WP_List_Table {
     }
     private function clear_transients() {
         global $wpdb;
-        $sql = "DELETE FROM $wpdb->options WHERE option_name LIKE '_transient_nbo_product_%' OR option_name LIKE '_transient_timeout_nbo_product_%'";
-        $wpdb->query($sql);
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+        $transients = $wpdb->get_col(
+            "SELECT option_name FROM {$wpdb->options} 
+            WHERE option_name LIKE '_transient_nbo_product_%'"
+        );
+        foreach ($transients as $transient) {
+            $key = str_replace('_transient_', '', $transient);
+            delete_transient($key);
+        }
     }
     public function get_bulk_actions() {
         $actions = array(

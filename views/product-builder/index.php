@@ -15,11 +15,32 @@
 <body>
     <?php
     include(STORELLY_PB_PLUGIN_DIR . 'views/product-builder/wrapper.php');
-    function storelly_get_product_builder($id) {
+    function storelly_get_product_builder( $id ) {
         global $wpdb;
-        $table_name = $wpdb->prefix . 'storelly_product_builder_options';
-        $result = $wpdb->get_results($wpdb->prepare("SELECT * FROM $table_name WHERE `id` = %d", $id), 'ARRAY_A'); 
-        return count($result[0]) ? $result[0] : false;
+
+        $table_name   = $wpdb->prefix . 'storelly_product_builder_options';
+        $cache_group  = 'storelly_product_builder';
+        $cache_key    = 'product_builder_' . $id;
+
+        $cached = wp_cache_get( $cache_key, $cache_group );
+        if ( false !== $cached ) {
+            return $cached;
+        }
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.PreparedSQL.NotPrepared
+        $result = $wpdb->get_results(
+            $wpdb->prepare(
+                "SELECT * FROM {$table_name} WHERE id = %d",
+                $id
+            ),
+            ARRAY_A
+        );
+        $data = ! empty( $result[0] ) ? $result[0] : false;
+
+        if ( false !== $data ) {
+            wp_cache_set( $cache_key, $data, $cache_group );
+        }
+
+        return $data;
     }
     function storelly_recursive_stripslashes($fields) {
         $valid_fields = array();

@@ -52,7 +52,7 @@ if (!class_exists('Storelly_PB_Admin_Options')) {
         public function add_display_post_states( $post_states, $post ){
             
             if (Storelly_PB_Util::storelly_get_page_id('product_builder') === $post->ID ) {
-                $post_states['nbd_product_builder_page'] = esc_html__( 'Storelly Product builder Page', 'web-to-print-online-designer' );
+                $post_states['nbd_product_builder_page'] = esc_html__( 'Storelly Product builder Page', 'pc-product-builder' );
             }
             return $post_states;
         }

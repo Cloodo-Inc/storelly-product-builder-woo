@@ -45,15 +45,28 @@ if (!class_exists('Storelly_Product_Builder_Backend')) {
             }
         }
         public static function plugin_activation($network_wide = '') {
+            global $wpdb;
+
             if (is_multisite() && $network_wide) {
-                global $wpdb;
-                foreach ($wpdb->get_col("SELECT blog_id FROM $wpdb->blogs") as $blog_id) {
+                // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+                $blog_ids = $wpdb->get_col("SELECT blog_id FROM {$wpdb->blogs}");
+                foreach ($blog_ids as $blog_id) {
                     switch_to_blog($blog_id);
                     self::_plugin_activation();
+                    if (function_exists('wp_cache_flush')) {
+                        wp_cache_flush();
+                    }
                     restore_current_blog();
                 }
             } else {
                 self::_plugin_activation();
+                if (function_exists('wp_cache_flush')) {
+                    wp_cache_flush();
+                }
+            }
+            wp_cache_delete('alloptions', 'options');
+            if (defined('WP_DEBUG') && WP_DEBUG) {
+                error_log('[Storelly] Plugin activated (network: ' . (is_multisite() && $network_wide ? 'yes' : 'no') . ')');
             }
         }
         public static function _plugin_activation() {

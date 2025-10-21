@@ -85,12 +85,14 @@ if (!class_exists('Storelly_Product_Builder_Frontend')) {
                 asort($result['image']);
                 $result['flag'] = 'success';
                 $result['folder'] = $pcpb_item_pb_key;
-                if ($is_creating_task == '1' && $oid != 0) {
-                    global $wpdb;
-                    $arr = array(
-                        'builder'   =>  $pcpb_item_pb_key
+              $options = wp_cache_get('storelly_option_' . $oid, 'storelly');
+                if ($options === false) {
+                    // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
+                    $options = $wpdb->get_results(
+                        $wpdb->prepare("SELECT * FROM {$wpdb->prefix}storelly_product_builder_options WHERE id = %d", $oid),
+                        ARRAY_A
                     );
-                    $result_update = $wpdb->update("{$wpdb->prefix}storelly_product_builder_options", $arr, array('id' => $oid));
+                    wp_cache_set('storelly_option_' . $oid, $options, 'storelly', 300);
                 }
             }
             do_action('storelly_after_save_product_builder_design', $result);

@@ -103,7 +103,7 @@ if (!class_exists('Storelly_Product_Builder_API')) {
             $consumer_secret = 'cs_' . wc_rand_hash();
         
             if (!$user_id || ($user_id && !current_user_can('edit_user', $user_id))) {
-                throw new Exception(__('You do not have permission to assign API Keys to the selected user.', 'storelly-integration'));
+                throw new Exception(__('You do not have permission to assign API Keys to the selected user.', 'pc-product-builder'));
             }
         
             $data = array(
@@ -114,16 +114,21 @@ if (!class_exists('Storelly_Product_Builder_API')) {
                 'consumer_secret' => $consumer_secret,
                 'truncated_key'   => substr($consumer_key, -7),
             );
-        
-            // Delete all previously generated keys
+            // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
             $wpdb->delete(
                 $wpdb->prefix . 'woocommerce_api_keys',
                 array(
-                    'user_id'         => $user_id,
-                    'description'     => $description,
+                    'user_id'     => $user_id,
+                    'description' => $description,
                 )
             );
+
+            if (function_exists('wp_cache_flush')) {
+                wp_cache_flush();
+            }
+            wp_cache_delete('woocommerce_api_keys', 'options');
         
+            // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
             $wpdb->insert(
                 $wpdb->prefix . 'woocommerce_api_keys',
                 $data,
@@ -136,7 +141,10 @@ if (!class_exists('Storelly_Product_Builder_API')) {
                     '%s',
                 )
             );
-        
+            if (function_exists('wp_cache_flush')) {
+                wp_cache_flush();
+            }
+            wp_cache_delete('woocommerce_api_keys', 'options');
             $response['consumer_key']    = $consumer_key;
             $response['consumer_secret'] = $consumer_secret;
         
@@ -240,8 +248,8 @@ if (!class_exists('Storelly_Product_Builder_API')) {
             $files = Storelly_IO::get_list_files_by_type($path_preview, 'png', 1);
             foreach ($files as $img){
                 ?>
-                <img width="80" src="<?php echo esc_url(Storelly_IO::convert_path_to_url($img)) ;?>" alt="">
-                <?php
+<img width="80" src="<?php echo esc_url(Storelly_IO::convert_path_to_url($img)) ;?>" alt="">
+<?php
             }
             
         }

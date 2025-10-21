@@ -188,7 +188,17 @@ if (!class_exists('Storelly_PB_Util')) {
             } else {
                 global $wpdb;
                 $table_name = $wpdb->prefix . 'storelly_product_builder_options';
-                $options = $wpdb->get_results($wpdb->prepare("SELECT builder FROM $table_name WHERE `id` = %d", $option_id), 'ARRAY_A');   
+                $cache_key = 'storelly_option_builder_' . $option_id;
+
+                $options = wp_cache_get($cache_key, 'storelly');
+                if ($options === false) {
+                    // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
+                    $options = $wpdb->get_results(
+                        $wpdb->prepare("SELECT builder FROM $table_name WHERE id = %d", $option_id),
+                        ARRAY_A
+                    );
+                    wp_cache_set($cache_key, $options, 'storelly', 300);
+                }
                 if (isset($options[0])) {
                     $builder_folder = $options[0]['builder'];
                     if ($builder_folder) {
