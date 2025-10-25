@@ -67,6 +67,7 @@ class Storelly_Options_List_Table extends WP_List_Table {
                 $per_page,
                 $offset
             );
+            // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
             $result = $wpdb->get_results($query, 'ARRAY_A');
             wp_cache_set($cache_key, $result, 'storelly', 300);
         }

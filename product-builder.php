@@ -45,13 +45,14 @@ define('STORELLY_ENABLE_NONCE',                TRUE);
 define('STORELLY_API_URL',                      'https://dashboard.storelly.com/public');
 
 
-// check if woocommerce works
 register_activation_hook(__FILE__, 'storelly_plugin_activation');
 function storelly_plugin_activation() {
-    if (!is_plugin_active('woocommerce/woocommerce.php')) {
-        $message = '<div class="error"><p>' . esc_html__('WooCommerce is not active. Please activate WooCommerce before using', 'pc-product-builder') . ' <b>
-        ' . esc_html__('Product Builder Integration', 'pc-product-builder') . '</b></p></div>';
-        wp_die($message);
+    if ( ! is_plugin_active( 'woocommerce/woocommerce.php' ) ) {
+        $message  = '<div class="error"><p>';
+        $message .= esc_html__( 'WooCommerce is not active. Please activate WooCommerce before using', 'pc-product-builder' );
+        $message .= ' <b>' . esc_html__( 'Product Builder Integration', 'pc-product-builder' ) . '</b>';
+        $message .= '</p></div>';
+        wp_die( wp_kses_post( $message ) );
     }
     Storelly_Product_Builder_Backend::plugin_activation();
 }

@@ -302,54 +302,91 @@ if (!class_exists('Storelly_PB_Admin_Options')) {
         }
         public function unpublish_option($id) {
             global $wpdb;
-            $result = $wpdb->update($wpdb->prefix . 'pc-product-builder-options', array(
-                'published' => 0
-            ), array('id' => esc_sql($id)));
-            if ($result) $this->clear_transients();
+            // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
+            $result = $wpdb->update(
+                $wpdb->prefix . 'pc-product-builder-options',
+                array('published' => 0),
+                array('id' => esc_sql($id))
+            );
+
+            if ($result) {
+                wp_cache_delete('storelly_option_' . $id, 'storelly');
+                $this->clear_transients();
+            }
         }
         private function clear_transients() {
         }
+        // phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery
+        // phpcs:disable WordPress.DB.DirectDatabaseQuery.NoCaching
         public function get_option($id) {
             global $wpdb;
             $table_name = $wpdb->prefix . 'storelly_product_builder_options';
-            $result = $wpdb->get_results($wpdb->prepare("SELECT * FROM $table_name WHERE `id` = %d", $id), 'ARRAY_A');
-            return count($result[0]) ? $result[0] : false;          
-        }
-        public function save_option() {
-            $id             = absint($_REQUEST['id']);
-            $modified_date  = new DateTime();
-            $arr            = array(
-                'title'         => wc_clean($_POST['title']),
-                'published'     => 1,
-                'product_ids'   => isset($_POST['product_ids']) ? serialize($_POST['product_ids']) : serialize(array()),
-                'modified'      => $modified_date->format('Y-m-d H:i:s')
+            $cache_key = 'storelly_option_' . $id;
+            $cached = wp_cache_get($cache_key, 'storelly');
+
+            if (false !== $cached) {
+                return $cached;
+            }
+            $result = $wpdb->get_row(
+                $wpdb->prepare("SELECT * FROM {$table_name} WHERE id = %d", $id),
+                ARRAY_A
             );
+
+            if ($result) {
+                wp_cache_set($cache_key, $result, 'storelly', HOUR_IN_SECONDS);
+                return $result;
+            }
+
+            return false;
+        }
+        // phpcs:enable
+        // phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery
+        // phpcs:disable WordPress.DB.DirectDatabaseQuery.NoCaching
+        public function save_option() {
+            global $wpdb;
+
+            $id            = absint($_REQUEST['id']);
+            $date          = new DateTime();
+            $table_name    = "{$wpdb->prefix}storelly_product_builder_options";
+
+            $arr = array(
+                'title'       => wc_clean($_POST['title']),
+                'published'   => 1,
+                'product_ids' => isset($_POST['product_ids']) ? maybe_serialize($_POST['product_ids']) : serialize(array()),
+                'modified'    => $date->format('Y-m-d H:i:s')
+            );
+
             $post_options = storelly_sanitize_recursive(wp_unslash($_POST['options']));
             if (isset($post_options['jsonFields'])) {
-                $post_options['fields'] = json_decode(stripslashes($post_options['jsonFields']), true); 
+                $post_options['fields'] = json_decode(stripslashes($post_options['jsonFields']), true);
                 unset($post_options['jsonFields']);
             }
 
-            $arr['fields'] = serialize($post_options);
-            global $wpdb;
-            $date = new DateTime();
+            $arr['fields'] = maybe_serialize($post_options);
+
             if ($id > 0) {
                 $arr['modified']    = $date->format('Y-m-d H:i:s');
-                $arr['modified_by'] = wp_get_current_user()->ID;
-                $result             = $wpdb->update("{$wpdb->prefix}storelly_product_builder_options", $arr, array('id' => $id));
+                $arr['modified_by'] = get_current_user_id();
+                $result             = $wpdb->update($table_name, $arr, array('id' => $id));
             } else {
                 $arr['created']     = $date->format('Y-m-d H:i:s');
-                $arr['created_by']  = wp_get_current_user()->ID;
-                $result             = $wpdb->insert("{$wpdb->prefix}storelly_product_builder_options", $arr);
-                $id                 = $result ?  $wpdb->insert_id : 0;
+                $arr['created_by']  = get_current_user_id();
+                $result             = $wpdb->insert($table_name, $arr);
+                $id                 = $result ? $wpdb->insert_id : 0;
             }
+
+            // Xóa cache nếu có
+            wp_cache_delete('storelly_option_' . $id, 'storelly');
             $this->clear_transients();
+
             do_action('storelly_save_print_option', $arr);
+
             return array(
-                'status'    => $result,
-                'id'        => $id
+                'status' => $result,
+                'id'     => $id
             );
         }
+        // phpcs:enable
         public function build_options($options = null) {
             if (is_null($options)) {
                 $options = array(
@@ -932,33 +969,40 @@ if (!class_exists('Storelly_PB_Admin_Options')) {
         public function get_product_option($product_id) {
             $enable = get_post_meta($product_id, '_storelly_pb_enable', true);
             if (!$enable) return false;
-            $option_id = get_transient('storelly_product_builder_' . $product_id);
+
+            $cache_key = 'storelly_product_builder_' . $product_id;
+            $option_id = get_transient($cache_key);
+
             if (false === $option_id) {
                 global $wpdb;
 
                 $table_name = $wpdb->prefix . 'storelly_product_builder_options';
-                $options = $wpdb->get_results($wpdb->prepare("SELECT id, product_ids FROM $table_name WHERE published = 1"), 'ARRAY_A');  
+
+                // phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+                $options = $wpdb->get_results(
+                    $wpdb->prepare("SELECT id, product_ids FROM {$table_name} WHERE published = %d", 1),
+                    ARRAY_A
+                );
+                // phpcs:enable
+
                 if ($options) {
                     $_options = array();
                     foreach ($options as $option) {
-                        $execute_option = true;
-                        if ($execute_option) {
-                            $products = unserialize($option['product_ids']);
-                            if(is_array($products) && !empty($products)){
-                                $execute_option = in_array($product_id, $products) ? true : false;
-                            }
-                        }
-                        if ($execute_option) {
+                        $products = maybe_unserialize($option['product_ids']);
+                        if (is_array($products) && in_array($product_id, $products, true)) {
                             $_options[] = $option;
                         }
                     }
+
                     $_options = array_reverse($_options);
-                    $option_id = isset($_options[0]) && isset($_options[0]['id']) ? $_options[0]['id'] : '';
+                    $option_id = isset($_options[0]['id']) ? $_options[0]['id'] : '';
+
                     if ($option_id) {
-                        set_transient('storelly_product_builder_' . $product_id, $option_id);
+                        set_transient($cache_key, $option_id, HOUR_IN_SECONDS);
                     }
                 }
             }
+
             return $option_id;
         }
         public function save_product_option($post_id) {
@@ -1178,12 +1222,14 @@ if (!class_exists('Storelly_PB_Admin_Options')) {
                     if (count($item_files)) {
                         foreach ($item_files as $item_file) {
                             global $wpdb;
+                            // phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
                             $order_item_name = $wpdb->get_var(
                                 $wpdb->prepare(
                                     "SELECT order_item_name FROM {$wpdb->prefix}woocommerce_order_items WHERE order_item_id = %d LIMIT 1;",
                                     $item_id
                                 )
                             );
+                            // phpcs:enable
                             $file_name  = pathinfo($item_file, PATHINFO_FILENAME);
                             $item_option_name[] = $order_item_name  ? $order_item_name . '_' . $key . '_' . $file_name : $order_id . '_' . $item_id  . '_' . $file_name;
                         }

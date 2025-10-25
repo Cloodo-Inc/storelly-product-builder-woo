@@ -125,7 +125,11 @@ if (!class_exists('Storelly_PB_Util')) {
             endif;
             $template_file = self::storelly_locate_template($template_name, $tempate_path, $default_path);
             if (!file_exists($template_file)) :
-                _doing_it_wrong(__FUNCTION__, sprintf('<code>%s</code> does not exist.', $template_file), '1.3.1');
+                _doing_it_wrong(
+                    __FUNCTION__,
+                    sprintf('<code>%s</code> does not exist.', esc_html($template_file)),
+                    '1.3.1'
+                );
                 return;
             endif;
             include $template_file;
@@ -393,46 +397,59 @@ if (!class_exists('Storelly_PB_Util')) {
                 )
             );
         }
-        public static function zip_files($file_names, $archive_file_name, $option_name = array())
-        {
+        public static function zip_files($file_names, $archive_file_name, $option_name = array()) {
             if (file_exists($archive_file_name)) {
                 unlink($archive_file_name);
             }
+
             $pathZip = STORELLY_PB_DATA_DIR . '/download';
             if (!file_exists($pathZip)) {
                 mkdir($pathZip);
             }
             if (class_exists('ZipArchive')) {
                 $zip = new ZipArchive();
-                if ($zip->open($archive_file_name, ZIPARCHIVE::CREATE) !== TRUE) {
-                    exit("cannot open <$archive_file_name>\n");
+                if ($zip->open($archive_file_name, ZIPARCHIVE::CREATE) !== true) {
+                    wp_die(
+                        sprintf(
+                             /* translators: %s: archive file name. */
+                            esc_html__('Cannot open archive file: %s', 'pc-product-builder'),
+                            esc_html($archive_file_name)
+                        )
+                    );
                 }
                 foreach ($file_names as $key => $file) {
-
-                    $file_ext   = pathinfo($file, PATHINFO_EXTENSION);
-
+                    $file_ext = pathinfo($file, PATHINFO_EXTENSION);
                     $path_arr = explode('/', $file);
                     $name = $path_arr[count($path_arr) - 2] . '_' . basename($file);
-                    if (isset($option_name[$key]) && $option_name[$key]) {
-                        $name = $option_name[$key] . '.' . $file_ext;
-                    }
 
-                    $zip->addFile($file, $name);
+                    if (isset($option_name[$key]) && $option_name[$key]) {
+                        $name = sanitize_file_name($option_name[$key]) . '.' . $file_ext;
+                    }
+                    if (file_exists($file)) {
+                        $zip->addFile($file, $name);
+                    }
                 }
+
                 $zip->close();
             } else {
-                require_once(ABSPATH . 'wp-admin/includes/class-pclzip.php');
+                require_once ABSPATH . 'wp-admin/includes/class-pclzip.php';
                 $archive = new PclZip($archive_file_name);
+
                 foreach ($file_names as $file) {
-                    $path_arr = explode('/', $file);
-                    $dir = dirname($file) . '/';
-                    $archive->add($file, PCLZIP_OPT_REMOVE_PATH, $dir, PCLZIP_OPT_ADD_PATH, $path_arr[count($path_arr) - 2]);
+                    if (file_exists($file)) {
+                        $path_arr = explode('/', $file);
+                        $dir = dirname($file) . '/';
+                        $archive->add(
+                            $file,
+                            PCLZIP_OPT_REMOVE_PATH,
+                            $dir,
+                            PCLZIP_OPT_ADD_PATH,
+                            $path_arr[count($path_arr) - 2]
+                        );
+                    }
                 }
             }
-            if (file_exists($archive_file_name)) {
-                return true;
-            }
-            return false;
+            return file_exists($archive_file_name);
         }
     }
 }

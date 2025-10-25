@@ -73,33 +73,50 @@ if (!class_exists('STORELLY_FRONTEND_OPTIONS')) {
         public static function get_option($id) {
             global $wpdb;
             $table_name = $wpdb->prefix . 'storelly_product_builder_options';
-            $options = $wpdb->get_results($wpdb->prepare("SELECT * FROM $table_name WHERE `id` = %d", $id), 'ARRAY_A');  
-            return count($options[0]) ? $options[0] : false;
+            $cache_key = 'storelly_option_' . $id;
+            $cached = wp_cache_get($cache_key, 'storelly');
+            if (false !== $cached) {
+                return $cached;
+            }
+            $query = $wpdb->prepare("SELECT * FROM {$table_name} WHERE id = %d", $id);
+            // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
+            $options = $wpdb->get_results($query, ARRAY_A);
+            if (!empty($options) && isset($options[0])) {
+                wp_cache_set($cache_key, $options[0], 'storelly', 3600);
+                return $options[0];
+            }
+            return false;
         }
         public static function get_product_option($product_id) {
             $enable = get_post_meta($product_id, '_storelly_pb_enable', true);
-            if (!$enable) return false;
-            $option_id = get_transient('storelly_product_builder_' . $product_id);
+            if (!$enable) {
+                return false;
+            }
+            $cache_key = 'storelly_product_builder_' . $product_id;
+            $option_id = wp_cache_get($cache_key, 'storelly');
+            if (false === $option_id) {
+                $option_id = get_transient($cache_key);
+            }
             if (false === $option_id) {
                 global $wpdb;
                 $table_name = $wpdb->prefix . 'storelly_product_builder_options';
-                $options = $wpdb->get_results($wpdb->prepare("SELECT id, product_ids FROM $table_name WHERE published = 1", $product_id), 'ARRAY_A');   
+                // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+                $options = $wpdb->get_results("SELECT id, product_ids FROM {$table_name} WHERE published = 1", ARRAY_A);
+
                 if ($options) {
                     $_options = array();
                     foreach ($options as $option) {
-                        $execute_option = true;
-                        if ($execute_option) {
-                            $products = unserialize($option['product_ids']);
-                            $execute_option = in_array($product_id, $products) ? true : false;
-                        }
-                        if ($execute_option) {
+                        $products = unserialize($option['product_ids']);
+                        if (in_array($product_id, $products, true)) {
                             $_options[] = $option;
                         }
                     }
                     $_options = array_reverse($_options);
-                    $option_id = isset($_options[0]) && isset($_options[0]['id']) ? $_options[0]['id'] : '';
+                    $option_id = $_options[0]['id'] ?? '';
+
                     if ($option_id) {
-                        set_transient('storelly_product_builder_' . $product_id, $option_id);
+                        wp_cache_set($cache_key, $option_id, 'storelly', 3600);
+                        set_transient($cache_key, $option_id, 12 * HOUR_IN_SECONDS);
                     }
                 }
             }
@@ -445,7 +462,7 @@ if (!class_exists('STORELLY_FRONTEND_OPTIONS')) {
                         'nbau'                  => $nbau,
                     ));
                     $options_form = ob_get_clean();
-                    echo $options_form;
+                    echo wp_kses_post( $options_form );
                 }
             }
         }

@@ -444,17 +444,22 @@ if (!class_exists('Storelly_Export_PDF')) {
 
             return $result;
         }
-        public static function download_remote_file($url, $path) {
-            $data = wp_remote_get($url, array(
-                'timeout' => 20,
-                'User-Agent' => 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.8; rv:20.0) Gecko/20100101 Firefox/20.0'
+        public static function download_remote_file( $url, $path ) {
+            $response = wp_remote_get( $url, array(
+                'timeout'    => 20,
+                'user-agent' => 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.8; rv:20.0) Gecko/20100101 Firefox/20.0'
             ));
-
-            if ($data) {
-                $file = fopen($path, "w+");
-                fputs($file, $data);
-                fclose($file);
-                return true;
+            if ( is_wp_error( $response ) ) {
+                return false;
+            }
+            $data = wp_remote_retrieve_body( $response );
+            if ( ! empty( $data ) ) {
+                global $wp_filesystem;
+                if ( empty( $wp_filesystem ) ) {
+                    require_once ABSPATH . 'wp-admin/includes/file.php';
+                    WP_Filesystem();
+                }
+                return $wp_filesystem->put_contents( $path, $data, FS_CHMOD_FILE );
             }
             return false;
         }

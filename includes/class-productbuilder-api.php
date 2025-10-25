@@ -103,7 +103,7 @@ if (!class_exists('Storelly_Product_Builder_API')) {
             $consumer_secret = 'cs_' . wc_rand_hash();
         
             if (!$user_id || ($user_id && !current_user_can('edit_user', $user_id))) {
-                throw new Exception(__('You do not have permission to assign API Keys to the selected user.', 'pc-product-builder'));
+                throw new Exception(esc_html__('You do not have permission to assign API Keys to the selected user.', 'pc-product-builder'));
             }
         
             $data = array(
@@ -238,7 +238,7 @@ if (!class_exists('Storelly_Product_Builder_API')) {
         
         public function storelly_activation_redirect($plugin){
             if ($plugin == plugin_basename(__FILE__)) {
-                exit(wp_redirect(admin_url('admin.php?page=pc-product-builder-options/settings')));
+                 wp_redirect( esc_url( admin_url('admin.php?page=pc-product-builder-options/settings') ) );
             }
         }
         
