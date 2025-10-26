@@ -6,16 +6,31 @@ if (!class_exists('Storelly_IO')) {
     class Storelly_IO {
         public function __construct() {
         }
-        public static function delete_folder($path) {
-            if (is_dir($path) === true) {
-                $files = array_diff(scandir($path), array('.', '..'));
-                foreach ($files as $file) {
-                    self::delete_folder(realpath($path) . '/' . $file);
-                }
-                return rmdir($path);
-            } else if (is_file($path) === true) {
-                return unlink($path);
+        public static function delete_folder( $path ) {
+            global $wp_filesystem;
+            if ( ! $wp_filesystem ) {
+                require_once ABSPATH . 'wp-admin/includes/file.php';
+                WP_Filesystem();
             }
+
+            if ( $wp_filesystem->is_dir( $path ) ) {
+                $files = $wp_filesystem->dirlist( $path );
+
+                foreach ( $files as $file ) {
+                    $file_path = trailingslashit( $path ) . $file['name'];
+
+                    if ( $file['type'] === 'f' ) {
+                        $wp_filesystem->delete( $file_path ); 
+                    } else if ( $file['type'] === 'd' ) {
+                        self::delete_folder( $file_path );
+                    }
+                }
+
+                return $wp_filesystem->rmdir( $path, true ); 
+            } elseif ( $wp_filesystem->is_file( $path ) ) {
+                return $wp_filesystem->delete( $path );
+            }
+
             return false;
         }
         public static function get_list_images($path, $level = 100) {

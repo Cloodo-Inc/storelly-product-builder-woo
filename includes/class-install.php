@@ -17,7 +17,7 @@ if (!class_exists('Storelly_Install')) {
                     'post_author'       => 1,
                     'post_content'      => '',
                     'comment_status'    => 'closed',
-                    'post_date'         => date('Y-m-d H:i:s')
+                    'post_date' => gmdate('Y-m-d H:i:s'),
                 );
                 $storelly_product_builder_page_id = wp_insert_post($post, false);
                 update_option('storelly_product_builder_page_id', $storelly_product_builder_page_id);

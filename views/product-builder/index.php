@@ -15,33 +15,35 @@
 <body>
     <?php
     include(STORELLY_PB_PLUGIN_DIR . 'views/product-builder/wrapper.php');
-    function storelly_get_product_builder( $id ) {
-        global $wpdb;
+   function storelly_get_product_builder( $id ) {
+    global $wpdb;
 
-        $table_name   = $wpdb->prefix . 'storelly_product_builder_options';
-        $cache_group  = 'storelly_product_builder';
-        $cache_key    = 'product_builder_' . $id;
+    $table_name  = esc_sql( $wpdb->prefix . 'storelly_product_builder_options' );
+    $cache_group = 'storelly_product_builder';
+    $cache_key   = 'product_builder_' . absint( $id );
 
-        $cached = wp_cache_get( $cache_key, $cache_group );
-        if ( false !== $cached ) {
-            return $cached;
-        }
-        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.PreparedSQL.NotPrepared
-        $result = $wpdb->get_results(
-            $wpdb->prepare(
-                "SELECT * FROM {$table_name} WHERE id = %d",
-                $id
-            ),
-            ARRAY_A
-        );
-        $data = ! empty( $result[0] ) ? $result[0] : false;
-
-        if ( false !== $data ) {
-            wp_cache_set( $cache_key, $data, $cache_group );
-        }
-
-        return $data;
+    $cached = wp_cache_get( $cache_key, $cache_group );
+    if ( false !== $cached ) {
+        return $cached;
     }
+
+    // Prepare query safely.
+    $query = $wpdb->prepare(
+        "SELECT * FROM `{$table_name}` WHERE id = %d",
+        absint( $id )
+    );
+
+    // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- $query is safely prepared above.
+    $result = $wpdb->get_results( $query, ARRAY_A );
+
+    $data = ! empty( $result[0] ) ? $result[0] : false;
+
+    if ( false !== $data ) {
+        wp_cache_set( $cache_key, $data, $cache_group );
+    }
+
+    return $data;
+}
     function storelly_recursive_stripslashes($fields) {
         $valid_fields = array();
         foreach ($fields as $key => $field) {
@@ -71,37 +73,47 @@
                         $options['fields'][$key]['general']['attributes'] = array();
                         $options['fields'][$key]['general']['attributes']['options'] = array();
                     }
-                    if ($field['appearance']['change_image_product'] == 'y') {
-                        foreach ($field['general']['attributes']['options'] as $op_index => $option) {
-                            $option['product_image'] = isset($option['product_image']) ? $option['product_image'] : 0;
-                            $attachment_id = absint($option['product_image']);
-                            if ($attachment_id != 0) {
-                                $image_link         = wp_get_attachment_url($attachment_id);
-                                $attachment_object  = get_post($attachment_id);
-                                $full_src           = wp_get_attachment_image_src($attachment_id, 'large');
-                                $image_title        = get_the_title($attachment_id);
-                                $image_alt          = trim(strip_tags(get_post_meta($attachment_id, '_wp_attachment_image_alt', TRUE)));
-                                $image_srcset       = function_exists('wp_get_attachment_image_srcset') ? wp_get_attachment_image_srcset($attachment_id, 'shop_single') : FALSE;
-                                $image_sizes        = function_exists('wp_get_attachment_image_sizes') ? wp_get_attachment_image_sizes($attachment_id, 'shop_single') : FALSE;
-                                $image_caption      = $attachment_object->post_excerpt;
-                                $options['fields'][$key]['general']['attributes']['options'][$op_index] = array_replace_recursive($options['fields'][$key]['general']['attributes']['options'][$op_index], array(
-                                    'imagep'    =>  'y',
-                                    'image_link'    => $image_link,
-                                    'image_title'   => $image_title,
-                                    'image_alt'     => $image_alt,
-                                    'image_srcset'  => $image_srcset,
-                                    'image_sizes'   => $image_sizes,
-                                    'image_caption' => $image_caption,
-                                    'full_src'      => $full_src[0],
-                                    'full_src_w'    => $full_src[1],
-                                    'full_src_h'    => $full_src[2]
+                    if ( isset( $field['appearance']['change_image_product'] ) && 'y' === $field['appearance']['change_image_product'] ) {
+                    if ( ! empty( $field['general']['attributes']['options'] ) && is_array( $field['general']['attributes']['options'] ) ) {
+                        foreach ( $field['general']['attributes']['options'] as $op_index => $option ) {
 
-                                ));
+                            $option['product_image'] = isset( $option['product_image'] ) ? absint( $option['product_image'] ) : 0;
+                            $attachment_id           = $option['product_image'];
+
+                            if ( 0 !== $attachment_id ) {
+                                $attachment_object = get_post( $attachment_id );
+
+                                if ( $attachment_object instanceof WP_Post ) {
+                                    $image_link    = wp_get_attachment_url( $attachment_id );
+                                    $full_src      = wp_get_attachment_image_src( $attachment_id, 'large' );
+                                    $image_title   = get_the_title( $attachment_id );
+                                    $image_alt     = trim( wp_strip_all_tags( get_post_meta( $attachment_id, '_wp_attachment_image_alt', true ) ) );
+                                    $image_srcset  = function_exists( 'wp_get_attachment_image_srcset' ) ? wp_get_attachment_image_srcset( $attachment_id, 'shop_single' ) : false;
+                                    $image_sizes   = function_exists( 'wp_get_attachment_image_sizes' ) ? wp_get_attachment_image_sizes( $attachment_id, 'shop_single' ) : false;
+                                    $image_caption = $attachment_object->post_excerpt;
+
+                                    $options['fields'][ $key ]['general']['attributes']['options'][ $op_index ] = array_replace_recursive(
+                                        $options['fields'][ $key ]['general']['attributes']['options'][ $op_index ],
+                                        array(
+                                            'imagep'        => 'y',
+                                            'image_link'    => esc_url( $image_link ),
+                                            'image_title'   => sanitize_text_field( $image_title ),
+                                            'image_alt'     => sanitize_text_field( $image_alt ),
+                                            'image_srcset'  => $image_srcset,
+                                            'image_sizes'   => $image_sizes,
+                                            'image_caption' => sanitize_text_field( $image_caption ),
+                                            'full_src'      => isset( $full_src[0] ) ? esc_url( $full_src[0] ) : '',
+                                            'full_src_w'    => isset( $full_src[1] ) ? absint( $full_src[1] ) : '',
+                                            'full_src_h'    => isset( $full_src[2] ) ? absint( $full_src[2] ) : '',
+                                        )
+                                    );
+                                }
                             } else {
-                                $options['fields'][$key]['general']['attributes']['options'][$op_index]['imagep'] = 'n';
+                                $options['fields'][ $key ]['general']['attributes']['options'][ $op_index ]['imagep'] = 'n';
                             }
                         }
                     }
+                }
                     if (isset($field['nbpb_type']) && $field['nbpb_type'] == 'nbpb_com') {
                         if (isset($field['general']['pb_config'])) {
                             foreach ($field['general']['pb_config'] as $a_index => $attr) {
@@ -170,7 +182,7 @@
                     'hide_zero_price'       => 'no'
                 ));
                 $options_form = ob_get_clean();
-                echo ($options_form);
+                echo wp_kses_post($options_form);
             }
         }
     }

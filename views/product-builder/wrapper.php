@@ -144,8 +144,10 @@
                                                     <label><?php esc_html_e('Font family', 'pc-product-builder'); ?></label>
                                                     <div ng-if="resource.currentComponentObj.general.nbpb_text_configs.allow_all_font == 'y'">
                                                         <select class="nbpb-dropdown" ng-change="updateText()" ng-model="resource.components[resource.currentComponent].currentFontId">
-                                                            <?php foreach($fonts as $font): ?>
-                                                            <option value="<?php if($font->type == 'google') echo esc_attr('g') . $font->id; else echo esc_attr('c') . $font->id;  ?>" ><?php echo esc_html($font->name ); ?></option>
+                                                            <?php foreach ( $fonts as $font ) : ?>
+                                                                <option value="<?php echo esc_attr( ( $font->type === 'google' ? 'g' : 'c' ) . $font->id ); ?>">
+                                                                    <?php echo esc_html( $font->name ); ?>
+                                                                </option>
                                                             <?php endforeach; ?>
                                                         </select>
                                                     </div>

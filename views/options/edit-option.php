@@ -1,31 +1,73 @@
 <?php if (!defined('ABSPATH')) exit; ?>
 <?php
-$link = add_query_arg(array(
-    'paged'    => sanitize_text_field($_GET['paged'])
-), admin_url('admin.php?page=pc-product-builder-options'));
-$link_update = add_query_arg(array(
-    'action'    => 'update',
-    'id'        => $options['id'],
-), admin_url('admin.php?page=pc-product-builder-options'));
-$link_unpublish = add_query_arg(array(
-    'id'        => sanitize_text_field($_GET['id']),
-    'action'    => 'unpublish'
-), $link);
+// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Reading GET params for display only.
+$paged = 1; 
+
+$nonce = '';
+if ( isset( $_GET['_wpnonce'] ) ) {
+    $nonce = wp_unslash( $_GET['_wpnonce'] );
+    $nonce = sanitize_text_field( $nonce );     
+}
+
+if ( $nonce && wp_verify_nonce( $nonce, 'my_paged_nonce' ) ) {
+    if ( isset( $_GET['paged'] ) && $_GET['paged'] !== '' ) {
+        $paged = absint( wp_unslash( $_GET['paged'] ) ); 
+    }
+}
+
+$id = '';
+// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Reading GET params for display only.
+if ( isset( $_GET['id'] ) && $_GET['id'] !== '' ) {
+    $id = sanitize_text_field( wp_unslash( $_GET['id'] ) );
+}
+
+$link_update = add_query_arg(
+    array(
+        'action' => 'update',
+        'id'     => isset( $options['id'] ) ? absint( $options['id'] ) : 0,
+    ),
+    admin_url( 'admin.php?page=pc-product-builder-options' )
+);
+
+$link_unpublish = add_query_arg(
+    array(
+        'id'     => $id,
+        'action' => 'unpublish',
+    ),
+    $link
+);
+
 $link_create_option = add_query_arg(
     array(
-        'action'    => 'edit',
-        'paged'     => 1,
-        'id'        => 0
+        'action' => 'edit',
+        'paged'  => 1,
+        'id'     => 0,
     ),
-    admin_url('admin.php?page=pc-product-builder-options')
+    admin_url( 'admin.php?page=pc-product-builder-options' )
 );
+
 wp_enqueue_media();
 
-$link_create_pre_builder = add_query_arg(array(
-    'oid'   => sanitize_text_field($_GET['id']),
-    'paged' => sanitize_text_field($_GET['paged']),
-    'rd'    => 'print_option'
-), Storelly_PB_Util::storellyGetUrlPage('product_builder'));
+// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Safe read-only GET usage.
+$oid = '';
+$paged_val = '';
+
+if ( isset( $_GET['id'] ) && $_GET['id'] !== '' ) {
+    $oid = sanitize_text_field( wp_unslash( $_GET['id'] ) );
+}
+
+if ( isset( $_GET['paged'] ) && $_GET['paged'] !== '' ) {
+    $paged_val = sanitize_text_field( wp_unslash( $_GET['paged'] ) );
+}
+
+$link_create_pre_builder = add_query_arg(
+    array(
+        'oid'   => $oid,
+        'paged' => $paged_val,
+        'rd'    => 'print_option',
+    ),
+    Storelly_PB_Util::storellyGetUrlPage( 'product_builder' )
+);
 ?>
 <div class="wrap">
     <h2>
@@ -34,10 +76,12 @@ $link_create_pre_builder = add_query_arg(array(
     </h2>
 </div>
 <div class="message">
-    <?php if (isset($message['flag'])) {
-        $message = Storelly_PB_Util::storelly_custom_notices($message['flag'], $message['content']);
-        echo $message;
-    } ?>
+    <?php
+        if (isset($message['flag'])) {
+            $message = Storelly_PB_Util::storelly_custom_notices($message['flag'], $message['content']);
+            echo wp_kses_post($message);
+        }
+    ?>
 </div>
 <div class="wrap" ng-app="optionApp" ng-cloak>
     <div ng-controller="optionCtrl">

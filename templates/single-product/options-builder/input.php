@@ -28,8 +28,9 @@
                         $filename = explode('/', $form_values[$field['id']])[1];
                         $uploaded = 1;
                     }
-                ?> /* translators: %s: File URL */
-            data-file="<?php printf( esc_attr__( '%s', 'pc-product-builder' ), esc_attr( $file_url ) ); ?>"
+                ?>
+            /* translators: %s: File URL */
+            data-file="<?php printf('data-file="%s"', esc_attr( $file_url )); ?>"
             data-filename="<?php echo esc_attr( $filename ); ?>" data-uploaded="<?php echo esc_attr( $uploaded ); ?>" <?php 
                     if( $field['general']['upload_option']['allow_type'] != '' ):
                         $allow_type = strtolower( trim( $field['general']['upload_option']['allow_type'] ) );
@@ -46,12 +47,20 @@
             value="<?php echo esc_attr( $form_values[$field['id']] ); ?>" />
         <?php endif; ?>
         <?php if( $field['general']['input_type'] == 'u' && $field['general']['upload_option']['min_size'] != '' ): ?>
-        <span
-            style="display: block; font-size: 12px;margin-top: 10px;"><?php echo esc_html__('Min size: ', 'pc-product-builder') . $field['general']['upload_option']['min_size'] . ' MB'; ?></span>
+        <span style="display: block; font-size: 12px; margin-top: 10px;">
+            <?php
+            echo esc_html__('Min size: ', 'pc-product-builder') .
+                esc_html($field['general']['upload_option']['min_size']) . ' MB';
+            ?>
+        </span>
         <?php endif; ?>
-        <?php if( $field['general']['input_type'] == 'u' && $field['general']['upload_option']['max_size'] != '' ): ?>
-        <span
-            style="display: block; font-size: 12px;"><?php echo esc_html__('Max size: ', 'pc-product-builder') . $field['general']['upload_option']['max_size'] . ' MB'; ?></span>
+        <?php if ( $field['general']['input_type'] == 'u' && $field['general']['upload_option']['max_size'] != '' ) : ?>
+            <span style="display: block; font-size: 12px;">
+                <?php
+                echo esc_html__('Max size: ', 'pc-product-builder') .
+                    esc_html($field['general']['upload_option']['max_size']) . ' MB';
+                ?>
+            </span>
         <?php endif; ?>
     </div>
 </div>

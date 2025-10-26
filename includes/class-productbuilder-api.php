@@ -55,7 +55,7 @@ if (!class_exists('Storelly_Product_Builder_API')) {
                     "first_name" => get_user_meta($current_user->ID, 'billing_first_name', true) ? get_user_meta($current_user->ID, 'billing_first_name', true) : 'firstname',
                     "username" => $user_name,
                     "password" => $user_name,
-                    "fy_start_month" => date('n'),
+                    "fy_start_month" => gmdate('n'),
                     "accounting_method" => "phuong_phap_1",
                     "woocommerce_api_settings" => array(
                         "woocommerce_app_url" => home_url(),

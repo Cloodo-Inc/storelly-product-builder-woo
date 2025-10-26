@@ -160,23 +160,28 @@ if (!class_exists('Storelly_PB_Util')) {
             }
             return $id;
         }
-        public static function storelly_get_redirect_url()
-        {
-            $rd                 = wc_clean($_GET['rd']);
-            switch ($rd) {
+        public static function storelly_get_redirect_url() {
+            if ( isset( $_GET['_wpnonce'] ) && ! wp_verify_nonce( wp_unslash( $_GET['_wpnonce'] ), 'storelly_redirect' ) ) {
+                return admin_url();
+            }
+            $rd = isset( $_GET['rd'] ) ? sanitize_text_field( wp_unslash( $_GET['rd'] ) ) : '';
+
+            switch ( $rd ) {
                 case 'print_option':
-                    $get                = array(
-                        'action'    => 'edit',
-                        'id'        => isset($_GET['oid']) ? absint($_GET['oid']) : '',
-                        'paged'     => isset($_GET['paged']) ? absint($_GET['paged']) : '',
+                    $get = array(
+                        'action' => 'edit',
+                        'id'     => isset( $_GET['oid'] ) ? absint( wp_unslash( $_GET['oid'] ) ) : '',
+                        'paged'  => isset( $_GET['paged'] ) ? absint( wp_unslash( $_GET['paged'] ) ) : '',
                     );
-                    $redirect_url       = add_query_arg($get, admin_url('admin.php?page=pc-product-builder-options'));
+                    $redirect_url = add_query_arg( $get, admin_url( 'admin.php?page=pc-product-builder-options' ) );
                     break;
+
                 default:
-                    $redirect_url       = $rd;
+                    $redirect_url = $rd;
                     break;
             }
-            return apply_filters('storelly_redirect_url', $redirect_url);
+
+            return apply_filters( 'storelly_redirect_url', $redirect_url );
         }
         public static function storelly_get_product_pre_builder($option_id, $pcpb_cart_item_key)
         {
@@ -397,59 +402,71 @@ if (!class_exists('Storelly_PB_Util')) {
                 )
             );
         }
-        public static function zip_files($file_names, $archive_file_name, $option_name = array()) {
-            if (file_exists($archive_file_name)) {
-                unlink($archive_file_name);
+        public static function zip_files( $file_names, $archive_file_name, $option_name = array() ) {
+            global $wp_filesystem;
+
+            if ( ! $wp_filesystem ) {
+                require_once ABSPATH . 'wp-admin/includes/file.php';
+                WP_Filesystem();
+            }
+
+            if ( $wp_filesystem->exists( $archive_file_name ) ) {
+                wp_delete_file( $archive_file_name );
             }
 
             $pathZip = STORELLY_PB_DATA_DIR . '/download';
-            if (!file_exists($pathZip)) {
-                mkdir($pathZip);
+            if ( ! $wp_filesystem->is_dir( $pathZip ) ) {
+                $wp_filesystem->mkdir( $pathZip );
             }
-            if (class_exists('ZipArchive')) {
+
+            if ( class_exists( 'ZipArchive' ) ) {
                 $zip = new ZipArchive();
-                if ($zip->open($archive_file_name, ZIPARCHIVE::CREATE) !== true) {
+                if ( $zip->open( $archive_file_name, ZIPARCHIVE::CREATE ) !== true ) {
                     wp_die(
                         sprintf(
-                             /* translators: %s: archive file name. */
-                            esc_html__('Cannot open archive file: %s', 'pc-product-builder'),
-                            esc_html($archive_file_name)
+                            /* translators: %s: archive file name. */
+                            esc_html__( 'Cannot open archive file: %s', 'pc-product-builder' ),
+                            esc_html( $archive_file_name )
                         )
                     );
                 }
-                foreach ($file_names as $key => $file) {
-                    $file_ext = pathinfo($file, PATHINFO_EXTENSION);
-                    $path_arr = explode('/', $file);
-                    $name = $path_arr[count($path_arr) - 2] . '_' . basename($file);
 
-                    if (isset($option_name[$key]) && $option_name[$key]) {
-                        $name = sanitize_file_name($option_name[$key]) . '.' . $file_ext;
+                foreach ( $file_names as $key => $file ) {
+                    $file_ext = pathinfo( $file, PATHINFO_EXTENSION );
+                    $path_arr = explode( '/', $file );
+                    $name     = $path_arr[ count( $path_arr ) - 2 ] . '_' . basename( $file );
+
+                    if ( isset( $option_name[ $key ] ) && $option_name[ $key ] ) {
+                        $name = sanitize_file_name( $option_name[ $key ] ) . '.' . $file_ext;
                     }
-                    if (file_exists($file)) {
-                        $zip->addFile($file, $name);
+
+                    if ( $wp_filesystem->exists( $file ) ) {
+                        $zip->addFile( $file, $name );
                     }
                 }
 
                 $zip->close();
             } else {
                 require_once ABSPATH . 'wp-admin/includes/class-pclzip.php';
-                $archive = new PclZip($archive_file_name);
+                $archive = new PclZip( $archive_file_name );
 
-                foreach ($file_names as $file) {
-                    if (file_exists($file)) {
-                        $path_arr = explode('/', $file);
-                        $dir = dirname($file) . '/';
+                foreach ( $file_names as $file ) {
+                    if ( $wp_filesystem->exists( $file ) ) {
+                        $path_arr = explode( '/', $file );
+                        $dir      = dirname( $file ) . '/';
                         $archive->add(
                             $file,
                             PCLZIP_OPT_REMOVE_PATH,
                             $dir,
                             PCLZIP_OPT_ADD_PATH,
-                            $path_arr[count($path_arr) - 2]
+                            $path_arr[ count( $path_arr ) - 2 ]
                         );
                     }
                 }
             }
-            return file_exists($archive_file_name);
+
+            return $wp_filesystem->exists( $archive_file_name );
         }
+
     }
 }

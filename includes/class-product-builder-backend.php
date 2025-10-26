@@ -66,7 +66,7 @@ if (!class_exists('Storelly_Product_Builder_Backend')) {
             }
             wp_cache_delete('alloptions', 'options');
             if (defined('WP_DEBUG') && WP_DEBUG) {
-                error_log('[Storelly] Plugin activated (network: ' . (is_multisite() && $network_wide ? 'yes' : 'no') . ')');
+                trigger_error('[Storelly] Plugin activated (network: ' . (is_multisite() && $network_wide ? 'yes' : 'no') . ')', E_USER_NOTICE);
             }
         }
         public static function _plugin_activation() {

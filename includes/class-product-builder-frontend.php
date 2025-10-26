@@ -43,25 +43,39 @@ if (!class_exists('Storelly_Product_Builder_Frontend')) {
             }
         }
         public function storelly_customer_upload() {
-            if (!isset($_FILES['file'])) {
-                echo wp_json_encode(['flag' => 0, 'mes' => 'No file uploaded']);
+            if ( ! isset( $_FILES['file'] ) ) {
+                echo wp_json_encode( [ 'flag' => 0, 'mes' => 'No file uploaded' ] );
                 wp_die();
             }
+
             $file = $_FILES['file'];
-            $allowed_types = ['image/jpeg', 'image/png', 'image/gif', 'image/svg+xml'];
-            if (!in_array($file['type'], $allowed_types)) {
-                echo wp_json_encode(['flag' => 0, 'mes' => 'Only image files are supported']);
+            $allowed_types = [ 'image/jpeg', 'image/png', 'image/gif', 'image/svg+xml' ];
+
+            if ( ! in_array( $file['type'], $allowed_types, true ) ) {
+                echo wp_json_encode( [ 'flag' => 0, 'mes' => 'Only image files are supported' ] );
                 wp_die();
             }
-            $upload_dir = wp_upload_dir();
-            $target_dir = $upload_dir['path'] . '/';
-            $target_file = $target_dir . basename($file['name']);
-        
-            if (move_uploaded_file($file['tmp_name'], $target_file)) {
-                echo wp_json_encode(['flag' => 1, 'src' => $upload_dir['url'] . '/' . basename($file['name'])]);
+            $upload_overrides = [
+                'test_form' => false,
+                'mimes'     => [
+                    'jpg|jpeg' => 'image/jpeg',
+                    'png'      => 'image/png',
+                    'gif'      => 'image/gif',
+                    'svg'      => 'image/svg+xml',
+                ],
+            ];
+
+            $movefile = wp_handle_upload( $file, $upload_overrides );
+
+            if ( $movefile && ! isset( $movefile['error'] ) ) {
+                echo wp_json_encode( [
+                    'flag' => 1,
+                    'src'  => $movefile['url'],
+                ] );
                 wp_die();
             } else {
-                echo wp_json_encode(['flag' => 0, 'mes' => 'Failed to upload file']);
+                $error = isset( $movefile['error'] ) ? $movefile['error'] : 'Failed to upload file';
+                echo wp_json_encode( [ 'flag' => 0, 'mes' => $error ] );
                 wp_die();
             }
         }
@@ -75,7 +89,7 @@ if (!class_exists('Storelly_Product_Builder_Frontend')) {
                 'folder' => ''
             );
             do_action('storelly_before_save_product_builder_design');
-            $pcpb_item_pb_key = (isset($_POST['pcpb_item_pb_key']) && sanitize_text_field($_POST['pcpb_item_pb_key'] != '')) ? wc_clean($_POST['pcpb_item_pb_key']) : substr(md5(uniqid()), 0, 5) . rand(1, 100) . time();
+            $pcpb_item_pb_key = (isset($_POST['pcpb_item_pb_key']) && sanitize_text_field($_POST['pcpb_item_pb_key'] != '')) ? wc_clean($_POST['pcpb_item_pb_key']) : substr( md5( uniqid() ), 0, 5 ) . bin2hex(random_bytes(2)) . time();
             $is_creating_task = (isset($_POST['is_creating_task']) && sanitize_text_field($_POST['is_creating_task'] != '')) ? wc_clean($_POST['is_creating_task']) :  '0';
             $oid = (isset($_POST['oid']) && absint($_POST['oid'] != '')) ? absint($_POST['oid']) :  0;
             $path = STORELLY_PB_CUSTOMER_DIR . '/' . $pcpb_item_pb_key;
@@ -131,48 +145,83 @@ if (!class_exists('Storelly_Product_Builder_Frontend')) {
             };
             return $images;
         }
-        private function store_product_builder_design_data($pcpb_item_pb_key, $data) {
+        private function store_product_builder_design_data( $pcpb_item_pb_key, $data ) {
+            global $wp_filesystem;
+
+            // Khởi tạo WP_Filesystem nếu chưa có
             if ( ! function_exists( 'wp_handle_upload' ) ) {
-                require_once( ABSPATH . 'wp-admin/includes/file.php' );
+                require_once ABSPATH . 'wp-admin/includes/file.php';
             }
-            $upload_overrides = array( 'test_form' => false );
+            if ( ! $wp_filesystem ) {
+                WP_Filesystem();
+            }
+
+            $upload_overrides = [ 'test_form' => false ];
             $path = STORELLY_PB_CUSTOMER_DIR . '/' . $pcpb_item_pb_key;
             $this->path = $pcpb_item_pb_key;
-            if (file_exists($path . '_old')) Storelly_IO::delete_folder($path . '_old');
-            if (file_exists($path)) rename($path, $path . '_old');
-            if (wp_mkdir_p($path)) {
-                foreach ($data as $key => $val) {
-                    if ($key == 'design') {
-                        $full_name = $path . '/design.json';
-                    } else if ($key == 'config') {
-                        $full_name = $path . '/config.json';
-                    } else if ($key == 'used_font') {
-                        $full_name = $path . '/used_font.json';
-                    } else if ($key == 'design_output') {
-                        $full_name = $path . '/design_output.json';
-                    } else {
-                        $ext = explode('/', $val["type"])[1];
-                        $full_name = $path . '/' . $key . '.' . $ext;
-                    }
-                    $_FILES[$key] = [
-                        'name' => basename($full_name),
-                        'type' => $val['type'],
-                        'tmp_name' => $val['tmp_name'],
-                        'error' => $val['error'],
-                        'size' => $val['size']
-                    ];
-                    $uploaded_file = wp_handle_upload($_FILES[$key], $upload_overrides);
-                    // if (isset($uploaded_file['error'])) {
-                    //     return false;
-                    // }
-                    rename($uploaded_file['file'], $full_name);
+
+            // Xóa folder _old nếu tồn tại
+            if ( $wp_filesystem->exists( $path . '_old' ) ) {
+                Storelly_IO::delete_folder( $path . '_old' );
+            }
+
+            // Đổi tên folder hiện tại sang _old
+            if ( $wp_filesystem->exists( $path ) ) {
+                $wp_filesystem->move( $path, $path . '_old', true ); // true = overwrite nếu cần
+            }
+
+            // Tạo folder mới
+            if ( ! $wp_filesystem->is_dir( $path ) && ! $wp_filesystem->mkdir( $path ) ) {
+                // Nếu tạo folder thất bại, phục hồi folder cũ
+                if ( $wp_filesystem->exists( $path . '_old' ) ) {
+                    $wp_filesystem->move( $path . '_old', $path, true );
                 }
-            } else {
-                rename($path . '_old', $path);
                 return false;
+            }
+
+            foreach ( $data as $key => $val ) {
+                switch ( $key ) {
+                    case 'design':
+                        $full_name = $path . '/design.json';
+                        break;
+                    case 'config':
+                        $full_name = $path . '/config.json';
+                        break;
+                    case 'used_font':
+                        $full_name = $path . '/used_font.json';
+                        break;
+                    case 'design_output':
+                        $full_name = $path . '/design_output.json';
+                        break;
+                    default:
+                        $ext       = explode( '/', $val['type'] )[1];
+                        $full_name = $path . '/' . $key . '.' . $ext;
+                        break;
+                }
+                $_FILES[$key] = [
+                    'name'     => basename( $full_name ),
+                    'type'     => $val['type'],
+                    'tmp_name' => $val['tmp_name'],
+                    'error'    => $val['error'],
+                    'size'     => $val['size'],
+                ];
+
+                $uploaded_file = wp_handle_upload( $_FILES[$key], $upload_overrides );
+
+                if ( isset( $uploaded_file['error'] ) ) {
+                    if ( $wp_filesystem->exists( $path . '_old' ) ) {
+                        $wp_filesystem->delete( $path ); // xóa folder lỗi
+                        $wp_filesystem->move( $path . '_old', $path, true );
+                    }
+                    return false;
+                }
+                if ( $wp_filesystem->exists( $uploaded_file['file'] ) ) {
+                    $wp_filesystem->move( $uploaded_file['file'], $full_name, true );
+                }
             }
             return true;
         }
+
         public function before_product_container() {
             $pid = get_the_ID();
             if (Storelly_PB_Util::is_storelly_product_builder($pid)) {

@@ -44,32 +44,37 @@ class Storelly_Options_List_Table extends WP_List_Table {
     }
     public static function record_count() {
         global $wpdb;
-        $table_name = $wpdb->prefix . 'storelly_product_builder_options';
-        $cache_key = 'storelly_product_builder_count';
-        $result = wp_cache_get($cache_key, 'storelly');
-        if ($result === false) {
-            // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
-            $result = $wpdb->get_var("SELECT COUNT(*) FROM $table_name");
-            wp_cache_set($cache_key, $result, 'storelly', 300);
+
+        $table_name = esc_sql( $wpdb->prefix . 'storelly_product_builder_options' );
+        $cache_key  = 'storelly_product_builder_count';
+        $result     = wp_cache_get( $cache_key, 'storelly' );
+
+        if ( false === $result ) {
+           // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.PreparedSQL.NotPrepared -- Safe static query, table name is escaped.
+           $result = (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$table_name}" );
+
+            wp_cache_set( $cache_key, $result, 'storelly', 300 );
         }
         return $result;
     }
-    public function get_options($per_page = 10, $page_number = 1) {
+    public function get_options( $per_page = 10, $page_number = 1 ) {
         global $wpdb;
         $table_name = $wpdb->prefix . 'storelly_product_builder_options';
-        $offset = ($page_number - 1) * $per_page;
-        $cache_key = sprintf('storelly_options_page_%d_%d', $page_number, $per_page);
-        $result = wp_cache_get($cache_key, 'storelly');
-        if ($result === false) {
-            // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
-            $query = $wpdb->prepare(
-                "SELECT * FROM $table_name ORDER BY modified DESC LIMIT %d OFFSET %d",
-                $per_page,
-                $offset
+        $offset     = ( $page_number - 1 ) * $per_page;
+        $cache_key  = sprintf( 'storelly_options_page_%d_%d', $page_number, $per_page );
+
+        $result = wp_cache_get( $cache_key, 'storelly' );
+        if ( false === $result ) {
+           // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery -- Safe prepared query.
+            $result = $wpdb->get_results(
+                $wpdb->prepare(
+                    "SELECT * FROM {$table_name} ORDER BY modified DESC LIMIT %d OFFSET %d",
+                    $per_page,
+                    $offset
+                ),
+                ARRAY_A
             );
-            // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
-            $result = $wpdb->get_results($query, 'ARRAY_A');
-            wp_cache_set($cache_key, $result, 'storelly', 300);
+            wp_cache_set( $cache_key, $result, 'storelly', 300 );
         }
         return $result;
     }
@@ -112,15 +117,20 @@ class Storelly_Options_List_Table extends WP_List_Table {
             }
             wp_redirect(esc_url_raw(add_query_arg('', '')));
         }
-        if ((isset($_POST['action']) && sanitize_text_field($_POST['action'] == 'bulk-delete')) || (isset($_POST['action2']) && sanitize_text_field($_POST['action2'] == 'bulk-delete'))) {
-            if (isset($_POST['bulk-delete'])) {
-                $bulk_ids = storelly_sanitize_recursive($_POST['bulk-delete']);
-                foreach ($bulk_ids as $id) {
-                    $id = sanitize_text_field($id);
-                    $this->delete_option($id);
+        if (
+            ( isset( $_POST['action'] ) && sanitize_text_field( wp_unslash( $_POST['action'] ) ) === 'bulk-delete' ) ||
+            ( isset( $_POST['action2'] ) && sanitize_text_field( wp_unslash( $_POST['action2'] ) ) === 'bulk-delete' )
+        ) {
+            if ( isset( $_POST['bulk-delete'] ) ) {
+                $bulk_ids = storelly_sanitize_recursive( wp_unslash( $_POST['bulk-delete'] ) );
+
+                foreach ( $bulk_ids as $id ) {
+                    $id = absint( $id ); 
+                    $this->delete_option( $id );
                 }
             }
-            wp_redirect(esc_url_raw(add_query_arg('', '')));
+            wp_safe_redirect( esc_url_raw( remove_query_arg( array_keys( $_GET ) ) ) );
+            exit;
         }
     }
     public function delete_option($id) {
@@ -159,17 +169,30 @@ class Storelly_Options_List_Table extends WP_List_Table {
         }
     }
     public function copy_options($id) {
-        global $wpdb;   
-        $table_name = $wpdb->prefix . 'storelly_product_builder_options';
-        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
-        $result = $wpdb->get_results(
-            $wpdb->prepare("SELECT * FROM $table_name WHERE id = %d", absint($id)),
-            ARRAY_A
-        );
+        global $wpdb;
+        $table_name = esc_sql( $wpdb->prefix . 'storelly_product_builder_options' );
+        $cache_key  = 'storelly_option_' . absint( $id );
 
-        if (count($result)) {
+        $result = wp_cache_get( $cache_key, 'storelly' );
+
+        if ( false === $result ) {
+            // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+            $result = $wpdb->get_results(
+                $wpdb->prepare(
+                    "SELECT * FROM {$table_name} WHERE id = %d",
+                    absint( $id )
+                ),
+                ARRAY_A
+            );
+
+            if ( ! empty( $result ) ) {
+                wp_cache_set( $cache_key, $result, 'storelly', 300 );
+            }
+        }
+
+        if ( count( $result ) ) {
             $res = $result[0];
-            $modified_date = current_time('mysql'); 
+            $modified_date = current_time( 'mysql' );
 
             $arr = array(
                 'title'       => $res['title'],
@@ -178,18 +201,22 @@ class Storelly_Options_List_Table extends WP_List_Table {
                 'fields'      => $res['fields'],
                 'builder'     => $res['builder'],
                 'created'     => $modified_date,
-                'created_by'  => get_current_user_id(), 
+                'created_by'  => get_current_user_id(),
             );
-            // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
-            $in_res = $wpdb->insert($table_name, $arr);
 
-            if ($in_res) {
+            // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+            $in_res = $wpdb->insert( $table_name, $arr );
+
+            if ( $in_res ) {
                 $this->clear_transients();
+                wp_cache_delete( $cache_key, 'storelly' );
                 return $in_res;
             }
         }
+
         return false;
     }
+
     private function clear_transients() {
         global $wpdb;
         // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
@@ -216,7 +243,7 @@ class Storelly_Options_List_Table extends WP_List_Table {
     function column_title($item) {
         $title      = $item['title'];
         $_nonce     = wp_create_nonce('nbd_options_nonce');
-        $page       = sanitize_text_field( $_REQUEST['page'] );
+        $page = isset( $_REQUEST['page'] ) ? sanitize_text_field( wp_unslash( $_REQUEST['page'] ) ) : '';
         $actions    = array(
             'edit' => sprintf('<a href="?page=%s&action=%s&id=%s&paged=%s&_wpnonce=%s">' . esc_html__('Edit', 'pc-product-builder') . '</a>', esc_attr($page), 'edit', absint($item['id']), $this->get_pagenum(), $_nonce),
             'copy' => sprintf('<a href="?page=%s&action=%s&id=%s&paged=%s&_wpnonce=%s">' . esc_html__('Copy', 'pc-product-builder') . '</a>', esc_attr($page), 'copy', absint($item['id']), $this->get_pagenum(), $_nonce)

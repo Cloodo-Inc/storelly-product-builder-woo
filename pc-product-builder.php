@@ -78,25 +78,25 @@ add_action( 'before_woocommerce_init', function() {
     }
 } );
 
-// Before convert array to string, after sanitize_text_field to text
-function storelly_sanitize_recursive($data) {
-    if (is_array($data)) {
-        foreach ($data as $key => $value) {
-            $data[$key] = storelly_sanitize_recursive($value);
+function storelly_sanitize_recursive( $data ) {
+    if ( is_array( $data ) ) {
+        foreach ( $data as $key => $value ) {
+            $clean_key = is_string( $key ) ? sanitize_key( $key ) : $key;
+
+            $data[ $clean_key ] = storelly_sanitize_recursive( $value );
+
+            if ( $clean_key !== $key ) {
+                unset( $data[ $key ] );
+            }
         }
-    } elseif (is_string($data)) {
-        $data = sanitize_text_field($data);
+    } elseif ( is_string( $data ) ) {
+        $data = sanitize_text_field( wp_unslash( $data ) );
+    } elseif ( is_numeric( $data ) ) {
+        $data = absint( $data );
     }
+
     return $data;
 }
-function pc_product_builder_load_textdomain() {
-    load_plugin_textdomain(
-        'pc-product-builder',
-        false,
-        dirname(plugin_basename(__FILE__)) . '/languages/'
-    );
-}
-add_action('plugins_loaded', 'pc_product_builder_load_textdomain');
 
 $storelly_product_builder = new Storelly_Product_Builder_Backend();
 $storelly_product_builder->init();

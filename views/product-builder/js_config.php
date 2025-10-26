@@ -1,8 +1,23 @@
 <?php
 if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly 
-$pcpb_cart_item_key  = (isset($_GET['pcpb_cart_item_key']) &&  sanitize_text_field($_GET['pcpb_cart_item_key']) != '') ? sanitize_text_field($_GET['pcpb_cart_item_key']) : '';
-$oid                = (isset($_GET['oid']) && $_GET['oid'] != '') ? absint(sanitize_text_field($_GET['oid'])) :  0;
-$redirect_url       = (isset($_GET['rd']) && $_GET['rd'] != '') ? Storelly_PB_Util::Storelly_get_redirect_url(sanitize_text_field($_GET['rd'])) :  '';
+if (
+    ! isset($_GET['_wpnonce']) ||
+    ! wp_verify_nonce(sanitize_text_field(wp_unslash($_GET['_wpnonce'])), 'storelly_action')
+) {
+    wp_die(esc_html__('Security check failed.', 'pc-product-builder'));
+}
+
+$pcpb_cart_item_key = isset($_GET['pcpb_cart_item_key']) && sanitize_text_field(wp_unslash($_GET['pcpb_cart_item_key'])) != ''
+    ? sanitize_text_field(wp_unslash($_GET['pcpb_cart_item_key']))
+    : '';
+
+$oid = isset($_GET['oid']) && $_GET['oid'] != ''
+    ? absint(sanitize_text_field(wp_unslash($_GET['oid'])))
+    : 0;
+
+$redirect_url = isset($_GET['rd']) && $_GET['rd'] != ''
+    ? Storelly_PB_Util::Storelly_get_redirect_url(sanitize_text_field(wp_unslash($_GET['rd'])))
+    : '';
 if ($is_creating_task == 0) {
     $oid = $option_id;
 } else if ($oid == 0) {

@@ -10,14 +10,22 @@ if (!class_exists('STORELLY_FRONTEND_OPTIONS')) {
         public $cart_edit_key = NULL;
         public $appid;
         public $new_add_to_cart_key = FALSE;
-        /** Edit option in cart helper **/
         public function __construct() {
+            if ( isset( $_REQUEST['_wpnonce'], $_REQUEST['pcpb_cart_item_key'] ) ) {
+                $nonce = wp_unslash( $_REQUEST['_wpnonce'] );
+                $nonce = sanitize_text_field( $nonce );
 
-            if (isset($_REQUEST['pcpb_cart_item_key']) && sanitize_text_field($_REQUEST['pcpb_cart_item_key']) != '') {
-                $this->is_edit_mode = true; 
-                $this->cart_edit_key = sanitize_text_field( $_REQUEST['pcpb_cart_item_key'] );
+                if ( wp_verify_nonce( $nonce, 'pcpb_cart_action' ) ) {
+                    $cart_item_key = wp_unslash( $_REQUEST['pcpb_cart_item_key'] );
+                    $cart_item_key = sanitize_text_field( $cart_item_key );
+
+                    if ( $cart_item_key !== '' ) {
+                        $this->is_edit_mode  = true;
+                        $this->cart_edit_key = $cart_item_key;
+                    }
+                }
             }
-            $this->appid = "nbo-app-" . time() . rand(1, 1000);
+            $this->appid = "nbo-app-" . bin2hex(random_bytes(5));
         }
         public static function instance() {
             if (is_null(self::$instance)) {
@@ -78,9 +86,10 @@ if (!class_exists('STORELLY_FRONTEND_OPTIONS')) {
             if (false !== $cached) {
                 return $cached;
             }
-            $query = $wpdb->prepare("SELECT * FROM {$table_name} WHERE id = %d", $id);
-            // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
-            $options = $wpdb->get_results($query, ARRAY_A);
+            $options = $wpdb->get_results(
+                $wpdb->prepare( "SELECT * FROM {$table_name} WHERE id = %d", $id ),
+                ARRAY_A
+            );
             if (!empty($options) && isset($options[0])) {
                 wp_cache_set($cache_key, $options[0], 'storelly', 3600);
                 return $options[0];
@@ -160,7 +169,7 @@ if (!class_exists('STORELLY_FRONTEND_OPTIONS')) {
                                     $attachment_object  = get_post($attachment_id);
                                     $full_src           = wp_get_attachment_image_src($attachment_id, 'large');
                                     $image_title        = get_the_title($attachment_id);
-                                    $image_alt          = trim(strip_tags(get_post_meta($attachment_id, '_wp_attachment_image_alt', TRUE)));
+                                    $image_alt = trim( wp_strip_all_tags( get_post_meta( $attachment_id, '_wp_attachment_image_alt', true ) ) );
                                     $image_srcset       = function_exists('wp_get_attachment_image_srcset') ? wp_get_attachment_image_srcset($attachment_id, 'shop_single') : FALSE;
                                     $image_sizes        = function_exists('wp_get_attachment_image_sizes') ? wp_get_attachment_image_sizes($attachment_id, 'shop_single') : FALSE;
                                     $image_caption      = $attachment_object->post_excerpt;
@@ -331,7 +340,7 @@ if (!class_exists('STORELLY_FRONTEND_OPTIONS')) {
                                     $attachment_object  = get_post($attachment_id);
                                     $full_src           = wp_get_attachment_image_src($attachment_id, 'large');
                                     $image_title        = get_the_title($attachment_id);
-                                    $image_alt          = trim(strip_tags(get_post_meta($attachment_id, '_wp_attachment_image_alt', TRUE)));
+                                    $image_alt = trim( wp_strip_all_tags( get_post_meta( $attachment_id, '_wp_attachment_image_alt', true ) ) );
                                     $image_srcset       = function_exists('wp_get_attachment_image_srcset') ? wp_get_attachment_image_srcset($attachment_id, 'shop_single') : FALSE;
                                     $image_sizes        = function_exists('wp_get_attachment_image_sizes') ? wp_get_attachment_image_sizes($attachment_id, 'shop_single') : FALSE;
                                     $image_caption      = $attachment_object->post_excerpt;
@@ -529,7 +538,7 @@ if (!class_exists('STORELLY_FRONTEND_OPTIONS')) {
             $file = $files['name'][$field_id];
             if ($files['error'][$field_id] == 0) {
                 $ext = pathinfo($file, PATHINFO_EXTENSION);
-                $new_name = strtotime("now") . substr(md5(rand(1111, 9999)), 0, 8) . '.' . $ext;
+                $new_name = strtotime("now") . substr(md5(wp_rand(1111, 9999)), 0, 8) . '.' . $ext;
                 $new_path = STORELLY_PB_UPLOAD_DIR . '/' . $user_folder . '/' . $new_name;
                 $mkpath = wp_mkdir_p(STORELLY_PB_UPLOAD_DIR . '/' . $user_folder);
 
