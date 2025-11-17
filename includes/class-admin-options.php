@@ -57,11 +57,31 @@ if (!class_exists('Storelly_PB_Admin_Options')) {
             return $post_states;
         }
         public function storelly_add_design_box() {
-            $screen = class_exists('Automattic\WooCommerce\Internal\DataStores\Orders\CustomOrdersTableController') && wc_get_container()->get( CustomOrdersTableController::class )->custom_orders_table_usage_is_enabled()
-            ? wc_get_page_screen_id( 'shop-order' )
-            : 'shop_order';
+            $cot_class = 'Automattic\\WooCommerce\\Internal\\DataStores\\Orders\\CustomOrdersTableController';
 
-            add_meta_box('storelly_product_builder_design',    esc_html__('Product builder designs', 'pc-product-builder'), array($this, 'storelly_product_builder_design'), $screen, 'side', 'default');
+            if ( class_exists( $cot_class ) ) {
+
+                // Lấy instance của WooCommerce Container theo FQCN
+                $controller = wc_get_container()->get( $cot_class );
+
+                if ( $controller && $controller->custom_orders_table_usage_is_enabled() ) {
+                    $screen = wc_get_page_screen_id( 'shop-order' );
+                } else {
+                    $screen = 'shop_order';
+                }
+
+            } else {
+                $screen = 'shop_order';
+            }
+
+            add_meta_box(
+                'storelly_product_builder_design',
+                esc_html__( 'Product builder designs', 'pc-product-builder' ),
+                array( $this, 'storelly_product_builder_design' ),
+                $screen,
+                'side',
+                'default'
+            );
         }
         public function storelly_product_builder_design($post) {
             $order_id       = $post->ID;
