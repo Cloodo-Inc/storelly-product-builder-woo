@@ -107,7 +107,7 @@ if (!class_exists('Storelly_Product_Builder_Frontend')) {
                         list($width, $height) = getimagesize($design_path);
                         $width = intval($width);
                         $height = intval($height);
-                        $base_img_path = Storelly_IO::convert_url_to_path($view->base_url);
+                        $base_img_path = SPBWC_Storelly_IO::spbwc_convert_url_to_path($view->base_url);
                         if (is_file($base_img_path)) {
                             $base_img_info = pathinfo($base_img_path);
                             if ($base_img_info['extension'] == "png") {
@@ -123,7 +123,7 @@ if (!class_exists('Storelly_Product_Builder_Frontend')) {
                         } else {
                             copy($design_path, $path . '/preview/' . $index . '.png');
                         }
-                        $images[] = Storelly_IO::convert_path_to_url($path . '/preview/' . $index . '.png');
+                        $images[] = SPBWC_Storelly_IO::spbwc_convert_path_to_url($path . '/preview/' . $index . '.png');
                     }
                 }
             };
@@ -136,7 +136,7 @@ if (!class_exists('Storelly_Product_Builder_Frontend')) {
             $upload_overrides = array( 'test_form' => false );
             $path = STORELLY_PB_CUSTOMER_DIR . '/' . $pcpb_item_pb_key;
             $this->path = $pcpb_item_pb_key;
-            if (file_exists($path . '_old')) Storelly_IO::delete_folder($path . '_old');
+            if (file_exists($path . '_old')) SPBWC_Storelly_IO::spbwc_delete_folder($path . '_old');
             if (file_exists($path)) rename($path, $path . '_old');
             if (wp_mkdir_p($path)) {
                 foreach ($data as $key => $val) {

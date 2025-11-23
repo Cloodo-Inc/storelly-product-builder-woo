@@ -27,8 +27,8 @@ if (!class_exists('Storelly_Install')) {
             do_action('storelly_create_tables');
         }
         public static function init_files_and_folders() {
-            Storelly_IO::mkdir(STORELLY_PB_FONT_DIR);
-            Storelly_IO::mkdir(STORELLY_PB_CUSTOMER_DIR);
+            SPBWC_Storelly_IO::spbwc_mkdir(STORELLY_PB_FONT_DIR);
+            SPBWC_Storelly_IO::spbwc_mkdir(STORELLY_PB_CUSTOMER_DIR);
             do_action('storelly_init_files_and_folders');
         }
     }

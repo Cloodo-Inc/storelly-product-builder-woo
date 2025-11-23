@@ -94,7 +94,7 @@ if (!class_exists('Storelly_Export_PDF')) {
 
                 if ($include_background) {
                     $product_bg     = is_numeric($data['base_url']) ? wp_get_attachment_url($data['base_url']) : $data['base_url'];
-                    if (Storelly_IO::checkFileType(basename($product_bg), $allow_exts)) {
+                    if (SPBWC_Storelly_IO::spbwc_check_file_type(basename($product_bg), $allow_exts)) {
                         $page_settings['include_bg']    = true;
                         $page_settings['bg_src']        = $product_bg;
                     }
@@ -121,7 +121,7 @@ if (!class_exists('Storelly_Export_PDF')) {
             foreach ($pdfs as $key => $pdf) {
                 $pages[$key]['file'] = $pdf;
             }
-            $result = Storelly_IO::get_list_files($folder);
+            $result = SPBWC_Storelly_IO::spbwc_get_list_files($folder);
             return $result;
         }
         public static function exportPDF($folder_design, $include_background = false) {
@@ -142,7 +142,7 @@ if (!class_exists('Storelly_Export_PDF')) {
             if ($enable_cloud_export_pdf) {
                 self::cloudExportPdf($folder_design, $include_background);
                 $output_file    = STORELLY_PB_CUSTOMER_DIR . '/' . $folder_design . '/customer-pdfs' . '/' . $folder_design . '.pdf';
-                $result = Storelly_IO::get_list_files_by_type(STORELLY_PB_CUSTOMER_DIR . '/' . $folder_design . '/customer-pdfs', 'pdf', 1);
+                $result = SPBWC_Storelly_IO::spbwc_get_list_files_by_type(STORELLY_PB_CUSTOMER_DIR . '/' . $folder_design . '/customer-pdfs', 'pdf', 1);
             } else {
                 $config     = file_exists($path . '/config.json') ? json_decode(file_get_contents($path . '/config.json')) : '';
                 $datas = array();
@@ -226,7 +226,7 @@ if (!class_exists('Storelly_Export_PDF')) {
 
                 foreach ($pdfs as $key => $_pdf) {
                     $background         = $_pdf['background'];
-                    $path_bg = (absint($background) > 0) ? get_attached_file($background) : Storelly_IO::convert_url_to_path($background);
+                    $path_bg = (absint($background) > 0) ? get_attached_file($background) : SPBWC_Storelly_IO::spbwc_convert_url_to_path($background);
                     $bgWidth    = (float)$_pdf['product-width'];
                     $bgHeight   = (float)$_pdf['product-height'];
                     $pdf_format     = array($bgWidth, $bgHeight);
@@ -251,9 +251,9 @@ if (!class_exists('Storelly_Export_PDF')) {
                         $svg_ext    = array('svg');
                         $eps_ext    = array('eps', 'ai');
 
-                        $check_img  = Storelly_IO::checkFileType(basename($path_bg), $img_ext);
-                        $check_svg  = Storelly_IO::checkFileType(basename($path_bg), $svg_ext);
-                        $check_eps  = Storelly_IO::checkFileType(basename($path_bg), $eps_ext);
+                        $check_img  = SPBWC_Storelly_IO::spbwc_check_file_type(basename($path_bg), $img_ext);
+                        $check_svg  = SPBWC_Storelly_IO::spbwc_check_file_type(basename($path_bg), $svg_ext);
+                        $check_eps  = SPBWC_Storelly_IO::spbwc_check_file_type(basename($path_bg), $eps_ext);
 
                         $ext        = pathinfo($path_bg);
                         if ($check_img) {
@@ -318,7 +318,7 @@ if (!class_exists('Storelly_Export_PDF')) {
                 $type           = strtolower(pathinfo($img_src, PATHINFO_EXTENSION));
                 $type           = ($type == 'svg') ? 'svg+xml' : $type;
 
-                $path_image     = Storelly_IO::convert_url_to_path($img_src);
+                $path_image     = SPBWC_Storelly_IO::spbwc_convert_url_to_path($img_src);
 
                 $data   = self::storelly_file_get_contents($path_image);
                 $base64 = 'data:image/' . $type . ';base64,' . base64_encode($data);

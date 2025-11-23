@@ -481,10 +481,10 @@ if (!class_exists('STORELLY_FRONTEND_OPTIONS')) {
                 if (isset($post_data['prcpb-folder'])) {
                     $cart_item_data['pcpb_meta']['pcpb'] = $post_data['prcpb-folder'];
                     $path   = STORELLY_PB_CUSTOMER_DIR . '/' . $post_data['prcpb-folder'] . '/preview';
-                    $images = Storelly_IO::get_list_images($path, 1);
+                    $images = SPBWC_Storelly_IO::spbwc_get_list_images($path, 1);
                     if (count($images)) {
                         ksort($images);
-                        $option_price['cart_image'] = Storelly_IO::convert_path_to_url(end($images));
+                        $option_price['cart_image'] = SPBWC_Storelly_IO::spbwc_convert_path_to_url(end($images));
                     }
                 }
                 $options['fields']                              = base64_encode($options['fields']);
@@ -775,10 +775,10 @@ if (!class_exists('STORELLY_FRONTEND_OPTIONS')) {
                     $option_price   = $this->option_processing($options, $original_price, $fields, $quantity, $cart_item_key, $product);
                     if (isset($cart_item['pcpb_meta']['pcpb'])) {
                         $path   = STORELLY_PB_CUSTOMER_DIR . '/' . $cart_item['pcpb_meta']['pcpb'] . '/preview';
-                        $images = Storelly_IO::get_list_images($path, 1);
+                        $images = SPBWC_Storelly_IO::spbwc_get_list_images($path, 1);
                         if (count($images)) {
                             ksort($images);
-                            $option_price['cart_image'] = Storelly_IO::convert_path_to_url(end($images));
+                            $option_price['cart_image'] = SPBWC_Storelly_IO::spbwc_convert_path_to_url(end($images));
                         }
                     }
                     $adjusted_price = $original_price + $option_price['total_price'] - $option_price['discount_price'];
@@ -801,7 +801,7 @@ if (!class_exists('STORELLY_FRONTEND_OPTIONS')) {
                             if (strpos($field['val'], 'http') !== false) {
                                 $file_url = $field['val'];
                             } else {
-                                $file_url = Storelly_IO::convert_path_to_url(STORELLY_PB_UPLOAD_DIR . '/' . $field['val']);
+                                $file_url = SPBWC_Storelly_IO::spbwc_convert_path_to_url(STORELLY_PB_UPLOAD_DIR . '/' . $field['val']);
                             }
                             $field['value_name'] = '<a href="' . $file_url . '">' . $field['value_name'] . '</a>';
                         }
@@ -878,7 +878,7 @@ if (!class_exists('STORELLY_FRONTEND_OPTIONS')) {
                             if (strpos($field['val'], 'http') !== false) {
                                 $file_url = $field['val'];
                             } else {
-                                $file_url = Storelly_IO::convert_path_to_url(STORELLY_PB_UPLOAD_DIR . '/' . $field['val']);
+                                $file_url = SPBWC_Storelly_IO::spbwc_convert_path_to_url(STORELLY_PB_UPLOAD_DIR . '/' . $field['val']);
                             }
                             $field['value_name'] = '<a href="' . $file_url . '">' . $field['value_name'] . '</a>';
                         }

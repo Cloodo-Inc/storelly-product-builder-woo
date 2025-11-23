@@ -17,7 +17,7 @@
                 </div>
                 <hr />
                 <?php
-                $list_images = Storelly_IO::get_list_images(STORELLY_PB_CUSTOMER_DIR . '/' . $folder_design . '/preview', 1);
+                $list_images = SPBWC_Storelly_IO::spbwc_get_list_images(STORELLY_PB_CUSTOMER_DIR . '/' . $folder_design . '/preview', 1);
                 asort($list_images);
                 $link_view_detail = '';
                 if (count($list_images) > 0) : ?>
@@ -25,7 +25,7 @@
                     <?php foreach ($list_images as $key => $image) : ?>
                         <?php
                         $count_img_design++;
-                        $src = Storelly_IO::convert_path_to_url($image);
+                        $src = SPBWC_Storelly_IO::spbwc_convert_path_to_url($image);
                         ?>
                         <img class="storelly_order_image_design" src="<?php echo esc_url($src); ?>" />
                     <?php endforeach; ?>

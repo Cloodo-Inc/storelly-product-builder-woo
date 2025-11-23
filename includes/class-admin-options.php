@@ -1126,7 +1126,7 @@ if (!class_exists('Storelly_PB_Admin_Options')) {
             include_once(STORELLY_PB_PLUGIN_DIR . 'views/menu-settings.php');
         }
         public function convert_svg_embed($path) {
-            $svgs       = Storelly_IO::get_list_files_by_type($path, 'svg', 1);
+            $svgs       = SPBWC_Storelly_IO::spbwc_get_list_files_by_type($path, 'svg', 1);
             $svg_path   = $path . '/svg';
             if (!file_exists($svg_path)) wp_mkdir_p($svg_path);
             foreach ($svgs as $svg) {
@@ -1146,7 +1146,7 @@ if (!class_exists('Storelly_PB_Admin_Options')) {
                         continue;
                     $type = pathinfo($img_src, PATHINFO_EXTENSION);
                     $type = ($type == 'svg') ? 'svg+xml' : $type;
-                    $path_image = Storelly_IO::convert_url_to_path($img_src);
+                    $path_image = SPBWC_Storelly_IO::spbwc_convert_url_to_path($img_src);
                     $data = nbd_file_get_contents($path_image);
                     $base64 = 'data:image/' . $type . ';base64,' . base64_encode($data);
                     $tagName->setAttribute('xlink:href', $base64);
@@ -1184,11 +1184,11 @@ if (!class_exists('Storelly_PB_Admin_Options')) {
                             if (!file_exists($svg_path)) {
                                 $this->convert_svg_embed($path);
                             }
-                            $item_files = Storelly_IO::get_list_files_by_type($svg_path, 'svg', 1);
+                            $item_files = SPBWC_Storelly_IO::spbwc_get_list_files_by_type($svg_path, 'svg', 1);
                         } else if ($type_download == 'png') {
-                            $item_files = Storelly_IO::get_list_files_by_type($path, 'png', 1);
+                            $item_files = SPBWC_Storelly_IO::spbwc_get_list_files_by_type($path, 'png', 1);
                         } else if ($type_download == 'png-preview') {
-                            $item_files = Storelly_IO::get_list_files_by_type($path . '/preview', 'png', 1);
+                            $item_files = SPBWC_Storelly_IO::spbwc_get_list_files_by_type($path . '/preview', 'png', 1);
                         } else if ($type_download == 'pdf') {
                             $item_files = Storelly_Export_PDF::exportPDF($folder, false);
                         } else if ($type_download == 'pdf-preview') {
