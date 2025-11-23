@@ -51,7 +51,7 @@ if (!class_exists('Storelly_PB_Admin_Options')) {
         }
         public function add_display_post_states( $post_states, $post ){
             
-            if (Storelly_PB_Util::storelly_get_page_id('product_builder') === $post->ID ) {
+            if (SPBWC_Storelly_PB_Util::spbwc_get_page_id('product_builder') === $post->ID ) {
                 $post_states['nbd_product_builder_page'] = esc_html__( 'Storelly Product builder Page', 'web-to-print-online-designer' );
             }
             return $post_states;
@@ -120,7 +120,7 @@ if (!class_exists('Storelly_PB_Admin_Options')) {
                     'current_site'  => 1
                 );
             } else {
-                $download_remote_image = new Storelly_PB_Download_Image($url, array());
+                $download_remote_image = new SPBWC_Storelly_PB_Download_Image($url, array());
                 $attachment_id = $download_remote_image->download();
                 if ($attachment_id) {
                     $result['image'] = array(
@@ -294,7 +294,7 @@ if (!class_exists('Storelly_PB_Admin_Options')) {
                         $options['modified']        = '';
                     }
                     $default_field = $this->default_config_field();
-                    $max_input_vars = Storelly_PB_Util::storelly_get_max_input_var();
+                    $max_input_vars = SPBWC_Storelly_PB_Util::spbwc_get_max_input_var();
                     $product_id = (isset($_GET['product_id']) && absint($_GET['product_id']) > 0) ? absint($_GET['product_id']) : 0;
                     if ($product_id) {
                         if (!$_options) {
@@ -394,7 +394,7 @@ if (!class_exists('Storelly_PB_Admin_Options')) {
                                 $options['fields'][$f_key][$tab][$key] = $this->$funcname($f);
                             }
                             if( $key == 'component_icon' ){
-                                $options['fields'][$f_key][$tab]['component_icon_url'] =  Storelly_PB_Util::storelly_get_image_thumbnail( $f );
+                                $options['fields'][$f_key][$tab]['component_icon_url'] =  SPBWC_Storelly_PB_Util::spbwc_get_image_thumbnail( $f );
                             }
                         }
                     }
@@ -407,7 +407,7 @@ if (!class_exists('Storelly_PB_Admin_Options')) {
                 foreach ($options['views'] as $vkey => $view) {
                     $view['base'] = isset($view['base']) ? $view['base'] : 0;
                     $options['views'][$vkey]['base'] = $view['base'];
-                    $options['views'][$vkey]['base_url'] = Storelly_PB_Util::storelly_get_image_thumbnail($view['base']);
+                    $options['views'][$vkey]['base_url'] = SPBWC_Storelly_PB_Util::spbwc_get_image_thumbnail($view['base']);
                 }
             }
             return $options;
@@ -672,7 +672,7 @@ if (!class_exists('Storelly_PB_Admin_Options')) {
             if (is_null($value)) {
                 $value = array(
                     'min_size'      =>  0,
-                    'max_size'      =>  Storelly_PB_Util::storelly_get_max_upload_default(),
+                    'max_size'      =>  SPBWC_Storelly_PB_Util::spbwc_get_max_upload_default(),
                     'allow_type'    =>  'png,jpg,jpeg'
                 );
             }
@@ -808,13 +808,13 @@ if (!class_exists('Storelly_PB_Admin_Options')) {
                 $options[$key]['enable_subattr']     = isset( $options[$key]['enable_subattr'] ) ? $options[$key]['enable_subattr'] : 0;
                 $options[$key]['sub_attributes']     = isset( $options[$key]['sub_attributes'] ) ? $options[$key]['sub_attributes'] : array();
                 $options[$key]['sattr_display_type'] = isset( $options[$key]['sattr_display_type'] ) ? $options[$key]['sattr_display_type'] : 's';
-                $options[$key]['image_url']          = Storelly_PB_Util::storelly_get_image_thumbnail($option['image']);
+                $options[$key]['image_url']          = SPBWC_Storelly_PB_Util::spbwc_get_image_thumbnail($option['image']);
                 if (isset($options[$key]['product_image'])) {
-                    $options[$key]['product_image_url'] = Storelly_PB_Util::storelly_get_image_thumbnail($option['product_image']);
+                    $options[$key]['product_image_url'] = SPBWC_Storelly_PB_Util::spbwc_get_image_thumbnail($option['product_image']);
                 }
                 if( isset( $option['enable_subattr'] ) ){
                     foreach( $options[$key]['sub_attributes'] as $sak => $sa ){
-                        $options[$key]['sub_attributes'][$sak]['image_url'] = Storelly_PB_Util::storelly_get_image_thumbnail( $sa['image'] );
+                        $options[$key]['sub_attributes'][$sak]['image_url'] = SPBWC_Storelly_PB_Util::spbwc_get_image_thumbnail( $sa['image'] );
                     }
                 }
             }
@@ -838,7 +838,7 @@ if (!class_exists('Storelly_PB_Admin_Options')) {
                 foreach ($o_config as $skey => $so_config) {
                     foreach ($so_config['views'] as $vkey => $view) {
                         $configs[$key][$skey]['views'][$vkey]['display']    = (isset($view['display']) && $view['display'] == 'on') ? true : false;
-                        $configs[$key][$skey]['views'][$vkey]['image_url']  = Storelly_PB_Util::storelly_get_image_thumbnail($view['image']);
+                        $configs[$key][$skey]['views'][$vkey]['image_url']  = SPBWC_Storelly_PB_Util::spbwc_get_image_thumbnail($view['image']);
                     }
                 }
             }
@@ -1087,7 +1087,7 @@ if (!class_exists('Storelly_PB_Admin_Options')) {
             wp_die();
         }
         public function storelly_manager_fonts() {
-            $subsets                = Storelly_PB_Util::storelly_font_subsets();
+            $subsets                = SPBWC_Storelly_PB_Util::spbwc_font_subsets();
             $current_subset         = 'all';
             $current_cat            = filter_input(INPUT_GET, "cat_id", FILTER_VALIDATE_INT);
             
@@ -1230,7 +1230,7 @@ if (!class_exists('Storelly_PB_Admin_Options')) {
             } else {
                 $pathZip = STORELLY_PB_DATA_DIR . '/download/' . $order_id . '_' . $type_download . '.zip';
                 $urlZip = STORELLY_PB_DATA_URL . '/download/' . $order_id . '_' . $type_download . '.zip';
-                if (Storelly_PB_Util::zip_files($zip_files, $pathZip, $option_name)) {
+                if (SPBWC_Storelly_PB_Util::spbwc_zip_files($spbwc_zip_files, $pathZip, $option_name)) {
                     $response['flag'] = 1;
                     $response['file'] = $urlZip;
                 }

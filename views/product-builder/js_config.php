@@ -2,7 +2,7 @@
 if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly 
 $pcpb_cart_item_key  = (isset($_GET['pcpb_cart_item_key']) &&  sanitize_text_field($_GET['pcpb_cart_item_key']) != '') ? sanitize_text_field($_GET['pcpb_cart_item_key']) : '';
 $oid                = (isset($_GET['oid']) && $_GET['oid'] != '') ? absint(sanitize_text_field($_GET['oid'])) :  0;
-$redirect_url       = (isset($_GET['rd']) && $_GET['rd'] != '') ? Storelly_PB_Util::Storelly_get_redirect_url(sanitize_text_field($_GET['rd'])) :  '';
+$redirect_url       = (isset($_GET['rd']) && $_GET['rd'] != '') ? SPBWC_Storelly_PB_Util::spbwc_get_redirect_url(sanitize_text_field($_GET['rd'])) :  '';
 if ($is_creating_task == 0) {
     $oid = $option_id;
 } else if ($oid == 0) {
@@ -30,7 +30,7 @@ wp_localize_script( 'product-builder', 'NBPBCONFIG', array(
         'oid' => $oid, 
         'redirect_url' => $redirect_url,
         'google_fonts' => wp_json_encode((array) $google_fonts),
-        'pre_builder' => wp_json_encode((array) Storelly_PB_Util::Storelly_get_product_pre_builder($oid, $pcpb_cart_item_key)),
+        'pre_builder' => wp_json_encode((array) SPBWC_Storelly_PB_Util::spbwc_get_product_pre_builder($oid, $pcpb_cart_item_key)),
         'fonts' => wp_json_encode((array) $fonts),
         'font_url' => $font_url,
         'i18n' => array(
@@ -45,7 +45,7 @@ wp_localize_script( 'product-builder', 'NBPBCONFIG', array(
         ),
 ));
 $pid = get_the_ID();
-if (is_singular('product') && Storelly_PB_Util::is_storelly_product_builder($pid)) {
+if (is_singular('product') && SPBWC_Storelly_PB_Util::spbwc_is_product_builder($pid)) {
     wp_enqueue_style('product-builder'); 
     wp_enqueue_script('product-builder');
 }

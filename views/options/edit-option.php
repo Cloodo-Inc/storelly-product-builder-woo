@@ -25,7 +25,7 @@ $link_create_pre_builder = add_query_arg(array(
     'oid'   => sanitize_text_field($_GET['id']),
     'paged' => sanitize_text_field($_GET['paged']),
     'rd'    => 'print_option'
-), Storelly_PB_Util::storellyGetUrlPage('product_builder'));
+), SPBWC_Storelly_PB_Util::spbwc_get_url_page('product_builder'));
 ?>
 <div class="wrap">
     <h2>
@@ -35,7 +35,7 @@ $link_create_pre_builder = add_query_arg(array(
 </div>
 <div class="message">
     <?php if (isset($message['flag'])) {
-        $message = Storelly_PB_Util::storelly_custom_notices($message['flag'], $message['content']);
+        $message = SPBWC_Storelly_PB_Util::spbwc_custom_notices($message['flag'], $message['content']);
         echo $message;
     } ?>
 </div>

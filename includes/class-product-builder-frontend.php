@@ -37,7 +37,7 @@ if (!class_exists('Storelly_Product_Builder_Frontend')) {
             }
         }
         public function template_redirect() {
-            if (Storelly_PB_Util::is_storelly_product_builder_page() && (current_user_can('editor') || current_user_can('administrator'))) {
+            if (SPBWC_Storelly_PB_Util::spbwc_is_product_builder_page() && (current_user_can('editor') || current_user_can('administrator'))) {
                 include(STORELLY_PB_PLUGIN_DIR . 'views/product-builder/index.php');
                 exit();
             }
@@ -173,7 +173,7 @@ if (!class_exists('Storelly_Product_Builder_Frontend')) {
         }
         public function before_product_container() {
             $pid = get_the_ID();
-            if (Storelly_PB_Util::is_storelly_product_builder($pid)) {
+            if (SPBWC_Storelly_PB_Util::spbwc_is_product_builder($pid)) {
                 add_action('storelly_after_default_options', array(&$this, 'product_builder_html'), 1);
                 add_action('wp_footer', array(&$this, 'nbd_modal_product_builder'), 1);
             }
@@ -236,7 +236,7 @@ if (!class_exists('Storelly_Product_Builder_Frontend')) {
         public function nbd_modal_product_builder() {
             $product_id = get_the_ID();
             $option_id = get_transient('storelly_product_builder_' . $product_id);
-            if (Storelly_PB_Util::is_storelly_product_builder($product_id)) {
+            if (SPBWC_Storelly_PB_Util::spbwc_is_product_builder($product_id)) {
                 include(STORELLY_PB_PLUGIN_DIR . 'views/product-builder/wrapper.php');
             }
         }

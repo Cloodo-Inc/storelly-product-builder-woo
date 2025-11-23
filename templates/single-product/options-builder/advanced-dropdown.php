@@ -27,7 +27,7 @@
             <div class="nbo-ad-pseudo-list <?php if ($sublist_position == 'r') echo esc_attr('nbo-ad-right'); ?>">
                 <?php
                 foreach ($field['general']['attributes']["options"] as $key => $attr) :
-                    $image_url = Storelly_PB_Util::storelly_get_image_thumbnail($attr['image']);
+                    $image_url = SPBWC_Storelly_PB_Util::spbwc_get_image_thumbnail($attr['image']);
                     $enable_subattr = isset($attr['enable_subattr']) ? $attr['enable_subattr'] : 0;
                     $attr['sub_attributes'] = isset($attr['sub_attributes']) ? $attr['sub_attributes'] : array();
                     $show_subattr = ($enable_subattr == 'on' && count($attr['sub_attributes']) > 0) ? true : false;
@@ -75,7 +75,7 @@
                                     <div class="nbo-ad-list-item" ng-click="select_adv_subattr('<?php echo esc_attr($field['id']); ?>', '<?php echo esc_attr($key); ?>', '<?php echo esc_attr($skey); ?>')" ng-class="( nbd_fields['<?php echo esc_attr($field['id']); ?>'].value == '<?php echo esc_attr($key); ?>' && nbd_fields['<?php echo esc_attr($field['id']); ?>'].sub_value == '<?php echo esc_attr($skey); ?>' ) ? 'active' : ''" nbo-disabled="!status_fields['<?php echo esc_attr($field['id']); ?>'][<?php echo esc_attr($key); ?>].sub_attributes[<?php echo esc_attr($skey); ?>]" nbo-disabled-type="class">
                                         <?php
                                         if ($sattr['preview_type'] == 'i' && $sattr['image'] != '0') :
-                                            $simage_url = Storelly_PB_Util::storelly_get_image_thumbnail($sattr['image']);
+                                            $simage_url = SPBWC_Storelly_PB_Util::spbwc_get_image_thumbnail($sattr['image']);
                                         ?>
                                             <img src="<?php echo esc_url($simage_url); ?>" class="nbo-ad-item-thumb" />
                                         <?php elseif ($sattr['preview_type'] == 'c') : ?>

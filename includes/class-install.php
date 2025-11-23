@@ -7,7 +7,7 @@ if (!class_exists('Storelly_Install')) {
         }
         public static function create_pages() {
             /* Create product builder page */
-            $storelly_product_builder_page_id = Storelly_PB_Util::storelly_get_page_id('product_builder');
+            $storelly_product_builder_page_id = SPBWC_Storelly_PB_Util::spbwc_get_page_id('product_builder');
             if ($storelly_product_builder_page_id == -1 || !get_post($storelly_product_builder_page_id)) {
                 $post = array(
                     'post_name'         => 'product-builder',

@@ -2,35 +2,35 @@
 if (!defined('ABSPATH')) {
     exit;
 }
-if (!class_exists('Storelly_PB_Util')) {
-    class Storelly_PB_Util
+if (!class_exists('SPBWC_Storelly_PB_Util')) {
+    class SPBWC_Storelly_PB_Util
     {
         public function __construct()
         {
             //TODO
         }
-        public static function storelly_get_page_id($page)
+        public static function spbwc_get_page_id($page)
         {
-            $page = get_option('storelly_' . $page . '_page_id');
+            $page = get_option('spbwc_' . $page . '_page_id');
             return $page ? absint($page) : -1;
         }
-        public static function storellyGetUrlPage($page)
+        public static function spbwc_get_url_page($page)
         {
             switch ($page) {
                 case 'product_builder':
-                    $post = self::storelly_get_page_id('product_builder');
+                    $post = self::spbwc_get_page_id('product_builder');
                     break;
                 default:
-                    $post = self::storelly_get_page_id($page);
+                    $post = self::spbwc_get_page_id($page);
                     break;
             }
             return get_post($post) ? get_page_link($post) : '#';
         }
-        public static function storelly_get_max_input_var()
+        public static function spbwc_get_max_input_var()
         {
             return abs(intval(ini_get('max_input_vars')));
         }
-        public static function storelly_get_max_upload_default()
+        public static function spbwc_get_max_upload_default()
         {
             if (function_exists('wp_max_upload_size')) {
                 return round(wp_max_upload_size() / 1024 / 1024);
@@ -38,7 +38,7 @@ if (!class_exists('Storelly_PB_Util')) {
                 return abs(intval(ini_get('post_max_size')));
             }
         }
-        public static function storelly_get_image_thumbnail($id, $size = 'thumbnail')
+        public static function spbwc_get_image_thumbnail($id, $size = 'thumbnail')
         {
             if (absint($id) != 0) {
                 $image = wp_get_attachment_image_src($id, $size);
@@ -52,7 +52,7 @@ if (!class_exists('Storelly_PB_Util')) {
             }
             return $image_url;
         }
-        public static function storelly_custom_notices($command, $mes = '')
+        public static function spbwc_custom_notices($command, $mes = '')
         {
             switch ($command) {
                 case 'success':
@@ -97,7 +97,7 @@ if (!class_exists('Storelly_PB_Util')) {
             }
             return $notice;
         }
-        public static function storelly_locate_template($template_name, $template_path = '', $default_path = '')
+        public static function spbwc_locate_template($template_name, $template_path = '', $default_path = '')
         {
             // Set variable to search in pc-product-builder folder of theme.
             if (!$template_path) :
@@ -116,33 +116,33 @@ if (!class_exists('Storelly_PB_Util')) {
             if (!$template) :
                 $template = $default_path . $template_name;
             endif;
-            return apply_filters('storelly_locate_template', $template, $template_name, $template_path, $default_path);
+            return apply_filters('spbwc_locate_template', $template, $template_name, $template_path, $default_path);
         }
-        public static function storelly_get_template($template_name, $args = array(), $tempate_path = '', $default_path = '')
+        public static function spbwc_get_template($template_name, $args = array(), $tempate_path = '', $default_path = '')
         {
             if (is_array($args) && isset($args)) :
                 extract($args);
             endif;
-            $template_file = self::storelly_locate_template($template_name, $tempate_path, $default_path);
+            $template_file = self::spbwc_locate_template($template_name, $tempate_path, $default_path);
             if (!file_exists($template_file)) :
                 _doing_it_wrong(__FUNCTION__, sprintf('<code>%s</code> does not exist.', $template_file), '1.3.1');
                 return;
             endif;
             include $template_file;
         }
-        public static function is_storelly_product_builder_page()
+        public static function spbwc_is_product_builder_page()
         {
-            return is_page(self::storelly_get_page_id('product_builder'));
+            return is_page(self::spbwc_get_page_id('product_builder'));
         }
 
-        public static function is_storelly_product_builder($id)
+        public static function spbwc_is_product_builder($id)
         {
-            $id     = self::get_wpml_original_id($id);
+            $id     = self::spbwc_get_wpml_original_id($id);
             $check  = get_post_meta($id, '_storelly_pb_enable', true);
             if ($check) return true;
             return false;
         }
-        public static function get_wpml_original_id($id, $type = 'post', $current_lang = false)
+        public static function spbwc_get_wpml_original_id($id, $type = 'post', $current_lang = false)
         {
             if (class_exists('SitePress')) {
                 global $sitepress;
@@ -156,7 +156,7 @@ if (!class_exists('Storelly_PB_Util')) {
             }
             return $id;
         }
-        public static function storelly_get_redirect_url()
+        public static function spbwc_get_redirect_url()
         {
             $rd                 = wc_clean($_GET['rd']);
             switch ($rd) {
@@ -174,7 +174,7 @@ if (!class_exists('Storelly_PB_Util')) {
             }
             return apply_filters('storelly_redirect_url', $redirect_url);
         }
-        public static function storelly_get_product_pre_builder($option_id, $pcpb_cart_item_key)
+        public static function spbwc_get_product_pre_builder($option_id, $pcpb_cart_item_key)
         {
             $data = array();
             if ($pcpb_cart_item_key != '') {
@@ -182,25 +182,25 @@ if (!class_exists('Storelly_PB_Util')) {
                 if (isset($cart_item['pcpb_meta'])) {
                     $builder_folder = $cart_item['pcpb_meta']['pcpb'];
                     $path           = STORELLY_PB_CUSTOMER_DIR . '/' . $builder_folder;
-                    $data['config'] = self::storelly_get_data_from_json($path . '/config.json');
-                    $data['design'] = self::storelly_get_data_from_json($path . '/design.json');
+                    $data['config'] = self::spbwc_get_data_from_json($path . '/config.json');
+                    $data['design'] = self::spbwc_get_data_from_json($path . '/design.json');
                 }
             } else {
                 global $wpdb;
-                $table_name = $wpdb->prefix . 'storelly_product_builder_options';
+                $table_name = $wpdb->prefix . 'spbwc_product_builder_options';
                 $options = $wpdb->get_results($wpdb->prepare("SELECT builder FROM $table_name WHERE `id` = %d", $option_id), 'ARRAY_A');   
                 if (isset($options[0])) {
                     $builder_folder = $options[0]['builder'];
                     if ($builder_folder) {
                         $path = STORELLY_PB_CUSTOMER_DIR . '/' . $builder_folder;
-                        $data['config'] = self::storelly_get_data_from_json($path . '/config.json');
-                        $data['design'] = self::storelly_get_data_from_json($path . '/design.json');
+                        $data['config'] = self::spbwc_get_data_from_json($path . '/config.json');
+                        $data['design'] = self::spbwc_get_data_from_json($path . '/design.json');
                     }
                 }
             }
             return $data;
         }
-        public static function pritcart_get_image_thumbnail($id, $size = 'thumbnail')
+        public static function spbwc_get_image_thumbnail_pritcart($id, $size = 'thumbnail')
         {
             if (absint($id) != 0) {
                 $image = wp_get_attachment_image_src($id, $size);
@@ -214,12 +214,12 @@ if (!class_exists('Storelly_PB_Util')) {
             }
             return $image_url;
         }
-        public static function storelly_get_data_from_json($path = '')
+        public static function spbwc_get_data_from_json($path = '')
         {
             $content = file_exists($path) ? file_get_contents($path) : '';
             return json_decode($content);
         }
-        public static function is_base64_string($s)
+        public static function spbwc_is_base64_string($s)
         {
             if (($b = base64_decode($s, TRUE)) === FALSE) {
                 return FALSE;
@@ -231,7 +231,7 @@ if (!class_exists('Storelly_PB_Util')) {
                 return FALSE;
             }
         }
-        public static function storelly_read_json_setting($fullname)
+        public static function spbwc_read_json_setting($fullname)
         {
             if (file_exists($fullname)) {
                 $list = json_decode(file_get_contents($fullname));
@@ -242,13 +242,13 @@ if (!class_exists('Storelly_PB_Util')) {
             }
             return $list;
         }
-        public static function storelly_get_list_google_font()
+        public static function spbwc_get_list_google_font()
         {
             $path = STORELLY_PB_PLUGIN_DIR . 'data/listgooglefonts.json';
-            $data = (array) self::storelly_read_json_setting($path);
+            $data = (array) self::spbwc_read_json_setting($path);
             return wp_json_encode($data);
         }
-        public static function storelly_font_subsets()
+        public static function spbwc_font_subsets()
         {
             return array(
                 'all'   =>  array(
@@ -383,7 +383,7 @@ if (!class_exists('Storelly_PB_Util')) {
                 )
             );
         }
-        public static function zip_files($file_names, $archive_file_name, $option_name = array())
+        public static function spbwc_zip_files($file_names, $archive_file_name, $option_name = array())
         {
             if (file_exists($archive_file_name)) {
                 unlink($archive_file_name);

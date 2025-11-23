@@ -32,7 +32,7 @@
                     <?php
                     $link_view_detail = add_query_arg(array(
                         'nbd_item_key'   => $folder_design,
-                    ), Storelly_PB_Util::storellyGetUrlPage('product_builder'));
+                    ), SPBWC_Storelly_PB_Util::spbwc_get_url_page('product_builder'));
                     ?>
                     <a class="nbstorelly-right button button-small button-secondary" href="<?php echo esc_url($link_view_detail); ?>"><?php esc_html_e('View detail', 'pc-product-builder'); ?></a>
                 <?php endif; ?>
