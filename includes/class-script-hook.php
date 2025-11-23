@@ -71,18 +71,18 @@ class Storelly_PB_Script_Hook
     // PC custom add param script
     public function pc_enqueue_script_head($page)
     {
-        wp_register_style('pc-poppins-font-r', 'https://fonts.googleapis.com/css?family=Poppins:400,400i,700,700i', array(), STORELLY_PB_VERSION);
-        wp_register_style('pc-spectrum', STORELLY_PB_CSS_URL . 'spectrum.css', array(), '1.8.0');
-        wp_register_style('pc-app-product-builder', STORELLY_PB_CSS_URL . 'app-product-builder.css', array(), STORELLY_PB_VERSION);
-        wp_register_style('pc-product-builder', STORELLY_PB_CSS_URL . 'views/product-builder.css', array(), STORELLY_PB_VERSION);
+        wp_register_style('pc-poppins-font-r', 'https://fonts.googleapis.com/css?family=Poppins:400,400i,700,700i', array(), SPBWC_PB_VERSION);
+        wp_register_style('pc-spectrum', SPBWC_PB_CSS_URL . 'spectrum.css', array(), '1.8.0');
+        wp_register_style('pc-app-product-builder', SPBWC_PB_CSS_URL . 'app-product-builder.css', array(), SPBWC_PB_VERSION);
+        wp_register_style('pc-product-builder', SPBWC_PB_CSS_URL . 'views/product-builder.css', array(), SPBWC_PB_VERSION);
 
-        wp_register_script('pc-storelly-ext', STORELLY_PB_PLUGIN_URL . 'assets/libs/storelly-ext.js', array(), STORELLY_PB_VERSION, true);
+        wp_register_script('pc-storelly-ext', SPBWC_PB_PLUGIN_URL . 'assets/libs/storelly-ext.js', array(), SPBWC_PB_VERSION, true);
         wp_register_script('wc-accounting',  WC()->plugin_url() . '/assets/js/accounting/accounting.min.js', array(), '0.4.2', true);
-        wp_register_script('pc-angular', STORELLY_PB_PLUGIN_URL . 'assets/libs/angular.min.js', array('jquery', 'wc-accounting'), '1.6.9', true);
-        wp_register_script('pc-fontfaceobserver', STORELLY_PB_PLUGIN_URL . 'assets/libs/fontfaceobserver.js', array(), '2.0.13', true);
-        wp_register_script('pc-fabric', STORELLY_PB_PLUGIN_URL . 'assets/libs/fabric.2.6.0.min.js', array(), '2.6.0', true);
-        wp_register_script('pc-spectrum', STORELLY_PB_JS_URL . 'spectrum.js', array(), STORELLY_PB_VERSION, true);
-        wp_register_script('pc-tiptip', STORELLY_PB_ASSETS_URL . 'js/tiptip.js', array('jquery'), STORELLY_PB_VERSION, true);
+        wp_register_script('pc-angular', SPBWC_PB_PLUGIN_URL . 'assets/libs/angular.min.js', array('jquery', 'wc-accounting'), '1.6.9', true);
+        wp_register_script('pc-fontfaceobserver', SPBWC_PB_PLUGIN_URL . 'assets/libs/fontfaceobserver.js', array(), '2.0.13', true);
+        wp_register_script('pc-fabric', SPBWC_PB_PLUGIN_URL . 'assets/libs/fabric.2.6.0.min.js', array(), '2.6.0', true);
+        wp_register_script('pc-spectrum', SPBWC_PB_JS_URL . 'spectrum.js', array(), SPBWC_PB_VERSION, true);
+        wp_register_script('pc-tiptip', SPBWC_PB_ASSETS_URL . 'js/tiptip.js', array('jquery'), SPBWC_PB_VERSION, true);
 
         if ($page == 'product-builder') {
             $this->pc_enqueue_style(array('pc-poppins-font-r', 'pc-spectrum', 'pc-app-product-builder', 'pc-product-builder'));
@@ -101,10 +101,10 @@ class Storelly_PB_Script_Hook
     public function pc_enqueue_script_footer($page)
     {
         wp_enqueue_script('lodash');
-        wp_register_script('pc-fontfaceobserver', STORELLY_PB_PLUGIN_URL . 'assets/libs/fontfaceobserver.js', array('jquery'), '2.0.13', true);
-        wp_register_script('pc-fabric', STORELLY_PB_PLUGIN_URL . 'assets/libs/fabric.2.6.0.min.js', array('jquery'), '2.6.0', true);
-        wp_register_script('pc-spectrum', STORELLY_PB_JS_URL . 'spectrum.js', array('jQuery'), STORELLY_PB_VERSION, true);
-        wp_register_script('pc-app-product-builder', STORELLY_PB_JS_URL . 'app-product-builder.js', array('jquery'), STORELLY_PB_VERSION, true);
+        wp_register_script('pc-fontfaceobserver', SPBWC_PB_PLUGIN_URL . 'assets/libs/fontfaceobserver.js', array('jquery'), '2.0.13', true);
+        wp_register_script('pc-fabric', SPBWC_PB_PLUGIN_URL . 'assets/libs/fabric.2.6.0.min.js', array('jquery'), '2.6.0', true);
+        wp_register_script('pc-spectrum', SPBWC_PB_JS_URL . 'spectrum.js', array('jQuery'), SPBWC_PB_VERSION, true);
+        wp_register_script('pc-app-product-builder', SPBWC_PB_JS_URL . 'app-product-builder.js', array('jquery'), SPBWC_PB_VERSION, true);
 
         if ($page === 'product-builder') {
             $this->pc_enqueue_script(array('pc-fontfaceobserver'));

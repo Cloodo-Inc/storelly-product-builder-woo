@@ -170,7 +170,7 @@ if (!class_exists('STORELLY_FRONTEND_OPTIONS')) {
                                     foreach ($attr as $s_index => $sattr) {
                                         foreach ($sattr['views'] as $v_index => $view) {
                                             $pb_image_obj = wp_get_attachment_url(absint($view['image']));
-                                            $options['fields'][$key]['general']['pb_config'][$a_index][$s_index]['views'][$v_index]['image_url'] =  $pb_image_obj ? $pb_image_obj : STORELLY_PB_ASSETS_URL . 'images/placeholder.png';
+                                            $options['fields'][$key]['general']['pb_config'][$a_index][$s_index]['views'][$v_index]['image_url'] =  $pb_image_obj ? $pb_image_obj : SPBWC_PB_ASSETS_URL . 'images/placeholder.png';
                                         }
                                     }
                                 }
@@ -192,7 +192,7 @@ if (!class_exists('STORELLY_FRONTEND_OPTIONS')) {
                             foreach ($field['general']['attributes']['options'] as $op_index => $option) {
                                 foreach ($option['bg_image'] as $bg_index => $bg) {
                                     $bg_obj = wp_get_attachment_url(absint($bg));
-                                    $options['fields'][$key]['general']['attributes']['options'][$op_index]['bg_image_url'][$bg_index] = $bg_obj ? $bg_obj : STORELLY_PB_ASSETS_URL . 'images/placeholder.png';
+                                    $options['fields'][$key]['general']['attributes']['options'][$op_index]['bg_image_url'][$bg_index] = $bg_obj ? $bg_obj : SPBWC_PB_ASSETS_URL . 'images/placeholder.png';
                                 }
                             };
                         }
@@ -202,7 +202,7 @@ if (!class_exists('STORELLY_FRONTEND_OPTIONS')) {
                             $view['base'] = isset($view['base']) ? $view['base'] : 0;
                             $options['views'][$vkey]['base'] = $view['base'];
                             $view_bg_obj = wp_get_attachment_url(absint($view['base']));
-                            $options['views'][$vkey]['base_url'] = $view_bg_obj ? $view_bg_obj : STORELLY_PB_ASSETS_URL . 'images/placeholder.png';
+                            $options['views'][$vkey]['base_url'] = $view_bg_obj ? $view_bg_obj : SPBWC_PB_ASSETS_URL . 'images/placeholder.png';
                         }
                     }
                     $product        = wc_get_product($product_id);
@@ -266,7 +266,7 @@ if (!class_exists('STORELLY_FRONTEND_OPTIONS')) {
                         'currency_format'                               =>  esc_attr(str_replace(array('%1$s', '%2$s'), array('%s', '%v'), get_woocommerce_price_format())),
                         'nbstorelly_hide_add_cart_until_form_filled'    =>  'yes'
                     );
-                    wp_register_script('option_builder', STORELLY_PB_JS_URL . 'option-builder.js',('pc-angularjs'), '1.0.0', true);
+                    wp_register_script('option_builder', SPBWC_PB_JS_URL . 'option-builder.js',('pc-angularjs'), '1.0.0', true);
                     wp_localize_script( 'option_builder', 'option_builder_variable', array(
                         'ajaxUrl'               => admin_url( 'admin-ajax.php' ),
                         'appid'                 => $this->appid,
@@ -341,7 +341,7 @@ if (!class_exists('STORELLY_FRONTEND_OPTIONS')) {
                                     foreach ($attr as $s_index => $sattr) {
                                         foreach ($sattr['views'] as $v_index => $view) {
                                             $pb_image_obj = wp_get_attachment_url(absint($view['image']));
-                                            $options['fields'][$key]['general']['pb_config'][$a_index][$s_index]['views'][$v_index]['image_url'] =  $pb_image_obj ? $pb_image_obj : STORELLY_PB_ASSETS_URL . 'images/placeholder.png';
+                                            $options['fields'][$key]['general']['pb_config'][$a_index][$s_index]['views'][$v_index]['image_url'] =  $pb_image_obj ? $pb_image_obj : SPBWC_PB_ASSETS_URL . 'images/placeholder.png';
                                         }
                                     }
                                 }
@@ -363,7 +363,7 @@ if (!class_exists('STORELLY_FRONTEND_OPTIONS')) {
                             foreach ($field['general']['attributes']['options'] as $op_index => $option) {
                                 foreach ($option['bg_image'] as $bg_index => $bg) {
                                     $bg_obj = wp_get_attachment_url(absint($bg));
-                                    $options['fields'][$key]['general']['attributes']['options'][$op_index]['bg_image_url'][$bg_index] = $bg_obj ? $bg_obj : STORELLY_PB_ASSETS_URL . 'images/placeholder.png';
+                                    $options['fields'][$key]['general']['attributes']['options'][$op_index]['bg_image_url'][$bg_index] = $bg_obj ? $bg_obj : SPBWC_PB_ASSETS_URL . 'images/placeholder.png';
                                 }
                             };
                         }
@@ -373,7 +373,7 @@ if (!class_exists('STORELLY_FRONTEND_OPTIONS')) {
                             $view['base'] = isset($view['base']) ? $view['base'] : 0;
                             $options['views'][$vkey]['base'] = $view['base'];
                             $view_bg_obj = wp_get_attachment_url(absint($view['base']));
-                            $options['views'][$vkey]['base_url'] = $view_bg_obj ? $view_bg_obj : STORELLY_PB_ASSETS_URL . 'images/placeholder.png';
+                            $options['views'][$vkey]['base_url'] = $view_bg_obj ? $view_bg_obj : SPBWC_PB_ASSETS_URL . 'images/placeholder.png';
                         }
                     }
                     $product        = wc_get_product($product_id);
@@ -480,7 +480,7 @@ if (!class_exists('STORELLY_FRONTEND_OPTIONS')) {
                 $option_price   = $this->option_processing($options, $original_price, $nbd_field, $quantity, null, $product);
                 if (isset($post_data['prcpb-folder'])) {
                     $cart_item_data['pcpb_meta']['pcpb'] = $post_data['prcpb-folder'];
-                    $path   = STORELLY_PB_CUSTOMER_DIR . '/' . $post_data['prcpb-folder'] . '/preview';
+                    $path   = SPBWC_PB_CUSTOMER_DIR . '/' . $post_data['prcpb-folder'] . '/preview';
                     $images = SPBWC_Storelly_IO::spbwc_get_list_images($path, 1);
                     if (count($images)) {
                         ksort($images);
@@ -513,8 +513,8 @@ if (!class_exists('STORELLY_FRONTEND_OPTIONS')) {
             if ($files['error'][$field_id] == 0) {
                 $ext = pathinfo($file, PATHINFO_EXTENSION);
                 $new_name = strtotime("now") . substr(md5(rand(1111, 9999)), 0, 8) . '.' . $ext;
-                $new_path = STORELLY_PB_UPLOAD_DIR . '/' . $user_folder . '/' . $new_name;
-                $mkpath = wp_mkdir_p(STORELLY_PB_UPLOAD_DIR . '/' . $user_folder);
+                $new_path = SPBWC_PB_UPLOAD_DIR . '/' . $user_folder . '/' . $new_name;
+                $mkpath = wp_mkdir_p(SPBWC_PB_UPLOAD_DIR . '/' . $user_folder);
 
                 if ($mkpath) {
                     add_filter( 'upload_dir',array($this,'custom_upload_directory_no_date' ));
@@ -774,7 +774,7 @@ if (!class_exists('STORELLY_FRONTEND_OPTIONS')) {
                     $quantity       = $cart_item['quantity'];
                     $option_price   = $this->option_processing($options, $original_price, $fields, $quantity, $cart_item_key, $product);
                     if (isset($cart_item['pcpb_meta']['pcpb'])) {
-                        $path   = STORELLY_PB_CUSTOMER_DIR . '/' . $cart_item['pcpb_meta']['pcpb'] . '/preview';
+                        $path   = SPBWC_PB_CUSTOMER_DIR . '/' . $cart_item['pcpb_meta']['pcpb'] . '/preview';
                         $images = SPBWC_Storelly_IO::spbwc_get_list_images($path, 1);
                         if (count($images)) {
                             ksort($images);
@@ -801,7 +801,7 @@ if (!class_exists('STORELLY_FRONTEND_OPTIONS')) {
                             if (strpos($field['val'], 'http') !== false) {
                                 $file_url = $field['val'];
                             } else {
-                                $file_url = SPBWC_Storelly_IO::spbwc_convert_path_to_url(STORELLY_PB_UPLOAD_DIR . '/' . $field['val']);
+                                $file_url = SPBWC_Storelly_IO::spbwc_convert_path_to_url(SPBWC_PB_UPLOAD_DIR . '/' . $field['val']);
                             }
                             $field['value_name'] = '<a href="' . $file_url . '">' . $field['value_name'] . '</a>';
                         }
@@ -878,7 +878,7 @@ if (!class_exists('STORELLY_FRONTEND_OPTIONS')) {
                             if (strpos($field['val'], 'http') !== false) {
                                 $file_url = $field['val'];
                             } else {
-                                $file_url = SPBWC_Storelly_IO::spbwc_convert_path_to_url(STORELLY_PB_UPLOAD_DIR . '/' . $field['val']);
+                                $file_url = SPBWC_Storelly_IO::spbwc_convert_path_to_url(SPBWC_PB_UPLOAD_DIR . '/' . $field['val']);
                             }
                             $field['value_name'] = '<a href="' . $file_url . '">' . $field['value_name'] . '</a>';
                         }

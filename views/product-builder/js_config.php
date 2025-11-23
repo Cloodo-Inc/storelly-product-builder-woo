@@ -14,16 +14,16 @@ if ($is_creating_task == 0) {
 }
 $fonts = array();
 $google_fonts = array();
-if (file_exists(STORELLY_PB_FONT_DIR . '/googlefonts.json')) {
-    $google_fonts = (array)json_decode(file_get_contents(STORELLY_PB_FONT_DIR . '/googlefonts.json'));
+if (file_exists(SPBWC_PB_FONT_DIR . '/googlefonts.json')) {
+    $google_fonts = (array)json_decode(file_get_contents(SPBWC_PB_FONT_DIR . '/googlefonts.json'));
 }
 $fonts      = $google_fonts;
-$font_url   = STORELLY_PB_FONT_URL;
+$font_url   = SPBWC_PB_FONT_URL;
 wp_localize_script( 'product-builder', 'NBPBCONFIG', array(
         'is_mobile' => wp_is_mobile(),
         'is_creating_task' => $is_creating_task,
-        'assets_url' => STORELLY_PB_ASSETS_URL,
-        'plg_url' => STORELLY_PB_PLUGIN_URL,
+        'assets_url' => SPBWC_PB_ASSETS_URL,
+        'plg_url' => SPBWC_PB_PLUGIN_URL,
         'ajax_url' => admin_url('admin-ajax.php'),
         'nonce' => wp_create_nonce('save-design'),
         'pcpb_cart_item_key' => $pcpb_cart_item_key,

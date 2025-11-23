@@ -5977,7 +5977,7 @@ td .nbo-dimension-label {
   background-color: transparent;
   line-height: 100%;
   outline: 0;
-  background-image: url(<?php echo STORELLY_PB_PLUGIN_URL."assets/images/arrow.png";?>);
+  background-image: url(<?php echo SPBWC_PB_PLUGIN_URL."assets/images/arrow.png";?>);
   background-position: right;
   background-repeat: no-repeat;
   position: relative;
@@ -7032,7 +7032,7 @@ input[type="radio"]+label.nbd-xlabel {
   z-index: 2;
   pointer-events: none;
   text-align: center;
-  background: url("<?php echo STORELLY_PB_PLUGIN_URL . " assets/images/preloader-gif.svg"; ?>") 50% 50%;
+  background: url("<?php echo SPBWC_PB_PLUGIN_URL . " assets/images/preloader-gif.svg"; ?>") 50% 50%;
   background-repeat: no-repeat;
 }
 

@@ -50,7 +50,7 @@ $link_create_pre_builder = add_query_arg(array(
                                 <label class="screen-reader-text" id="title-prompt-text" for="title"><?php esc_html_e('Enter title here', 'pc-product-builder'); ?></label>
                                 <input required="required" ng-model="options.title" type="text" name="title" size="30" value="<?php echo esc_attr($options['title']); ?>" id="title" autocomplete="off">
                                 <span style="color: red;" ng-show="nboForm.title.$invalid">* <small><i><?php esc_html_e('required', 'pc-product-builder'); ?></i></small></span>
-                                <input type="hidden" name="options[version]" value="<?php echo esc_attr(STORELLY_PB_VERSION); ?>" />
+                                <input type="hidden" name="options[version]" value="<?php echo esc_attr(SPBWC_PB_VERSION); ?>" />
                             </div>
                         </div>
                     </div>

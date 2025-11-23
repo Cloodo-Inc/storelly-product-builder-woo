@@ -48,7 +48,7 @@ if (!class_exists('SPBWC_Storelly_PB_Util')) {
                     $image_url = $image[0];
                 }
             } else {
-                $image_url = STORELLY_PB_ASSETS_URL . 'images/placeholder.png';
+                $image_url = SPBWC_PB_ASSETS_URL . 'images/placeholder.png';
             }
             return $image_url;
         }
@@ -105,7 +105,7 @@ if (!class_exists('SPBWC_Storelly_PB_Util')) {
             endif;
             // Set default plugin templates path.
             if (!$default_path) :
-                $default_path = STORELLY_PB_PLUGIN_DIR . 'templates/'; // Path to the template folder
+                $default_path = SPBWC_PB_PLUGIN_DIR . 'templates/'; // Path to the template folder
             endif;
             // Search template file in theme folder.
             $template = locate_template(array(
@@ -181,7 +181,7 @@ if (!class_exists('SPBWC_Storelly_PB_Util')) {
                 $cart_item = WC()->cart->get_cart_item($pcpb_cart_item_key);
                 if (isset($cart_item['pcpb_meta'])) {
                     $builder_folder = $cart_item['pcpb_meta']['pcpb'];
-                    $path           = STORELLY_PB_CUSTOMER_DIR . '/' . $builder_folder;
+                    $path           = SPBWC_PB_CUSTOMER_DIR . '/' . $builder_folder;
                     $data['config'] = self::spbwc_get_data_from_json($path . '/config.json');
                     $data['design'] = self::spbwc_get_data_from_json($path . '/design.json');
                 }
@@ -192,7 +192,7 @@ if (!class_exists('SPBWC_Storelly_PB_Util')) {
                 if (isset($options[0])) {
                     $builder_folder = $options[0]['builder'];
                     if ($builder_folder) {
-                        $path = STORELLY_PB_CUSTOMER_DIR . '/' . $builder_folder;
+                        $path = SPBWC_PB_CUSTOMER_DIR . '/' . $builder_folder;
                         $data['config'] = self::spbwc_get_data_from_json($path . '/config.json');
                         $data['design'] = self::spbwc_get_data_from_json($path . '/design.json');
                     }
@@ -210,7 +210,7 @@ if (!class_exists('SPBWC_Storelly_PB_Util')) {
                     $image_url = $image[0];
                 }
             } else {
-                $image_url = STORELLY_PB_ASSETS_URL . 'images/placeholder.png';
+                $image_url = SPBWC_PB_ASSETS_URL . 'images/placeholder.png';
             }
             return $image_url;
         }
@@ -244,7 +244,7 @@ if (!class_exists('SPBWC_Storelly_PB_Util')) {
         }
         public static function spbwc_get_list_google_font()
         {
-            $path = STORELLY_PB_PLUGIN_DIR . 'data/listgooglefonts.json';
+            $path = SPBWC_PB_PLUGIN_DIR . 'data/listgooglefonts.json';
             $data = (array) self::spbwc_read_json_setting($path);
             return wp_json_encode($data);
         }
@@ -388,7 +388,7 @@ if (!class_exists('SPBWC_Storelly_PB_Util')) {
             if (file_exists($archive_file_name)) {
                 unlink($archive_file_name);
             }
-            $pathZip = STORELLY_PB_DATA_DIR . '/download';
+            $pathZip = SPBWC_PB_DATA_DIR . '/download';
             if (!file_exists($pathZip)) {
                 mkdir($pathZip);
             }

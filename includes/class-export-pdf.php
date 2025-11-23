@@ -2,15 +2,16 @@
 if (!defined('ABSPATH')) {
     exit;
 }
-if (!class_exists('Storelly_Export_PDF')) {
-    class Storelly_Export_PDF {
+if (!class_exists('SPBWC_Storelly_Export_PDF')) {
+    class SPBWC_Storelly_Export_PDF {
         public function __construct() {
         }
-        public static function download_google_font($font_name = '') {
+        public static function spbwc_download_google_font($font_name = '') {
+            $font_name = sanitize_text_field($font_name);
             $path_dst = array(
-                'r' =>  STORELLY_PB_FONT_DIR . '/' . $font_name . '.ttf'
+                'r' =>  SPBWC_PB_FONT_DIR . '/' . $font_name . '.ttf'
             );
-            $google_font_path = STORELLY_PB_DATA_CONFIG_DIR . '/google-fonts-ttf.json';
+            $google_font_path = SPBWC_PB_DATA_CONFIG_DIR . '/google-fonts-ttf.json';
             $fonts = json_decode(file_get_contents($google_font_path));
             $items = $fonts->items;
             foreach ($items as $item) {
@@ -25,19 +26,19 @@ if (!class_exists('Storelly_Export_PDF')) {
                     copy($path_src, $path_dst['r']);
                 }
                 if (isset($font->italic)) {
-                    $path_dst['i'] = STORELLY_PB_FONT_DIR . '/' . $font_name . 'i.ttf';
+                    $path_dst['i'] = SPBWC_PB_FONT_DIR . '/' . $font_name . 'i.ttf';
                     if (!file_exists($path_dst['i'])) {
                         copy($font->italic, $path_dst['i']);
                     }
                 }
                 if (isset($font->{"700"})) {
-                    $path_dst['b'] = STORELLY_PB_FONT_DIR . '/' . $font_name . 'b.ttf';
+                    $path_dst['b'] = SPBWC_PB_FONT_DIR . '/' . $font_name . 'b.ttf';
                     if (!file_exists($path_dst['b'])) {
                         copy($font->{"700"}, $path_dst['b']);
                     }
                 }
                 if (isset($font->{"700italic"})) {
-                    $path_dst['bi'] = STORELLY_PB_FONT_DIR . '/' . $font_name . 'bi.ttf';
+                    $path_dst['bi'] = SPBWC_PB_FONT_DIR . '/' . $font_name . 'bi.ttf';
                     if (!file_exists($path_dst['bi'])) {
                         copy($font->{"700italic"}, $path_dst['bi']);
                     }
@@ -46,8 +47,8 @@ if (!class_exists('Storelly_Export_PDF')) {
 
             return $path_dst;
         }
-        public static function cloudExportPdf($folder_design, $include_background = false) {
-            $path           = STORELLY_PB_CUSTOMER_DIR . '/' . $folder_design;
+        public static function spbwc_cloud_export_pdf($folder_design, $include_background = false) {
+            $path           = SPBWC_PB_CUSTOMER_DIR . '/' . $folder_design;
             $folder         = $path . '/customer-pdfs';
             $result         = array();
             $pages          = array();
@@ -65,10 +66,10 @@ if (!class_exists('Storelly_Export_PDF')) {
                     $datas[] = (array)$side;
                 }
             };
-            $unit_ratio     = self::get_unit_ratio($dpi, $unit);
+            $unit_ratio     = self::spbwc_get_unit_ratio($dpi, $unit);
             $used_font_path = $path . '/used_font.json';
             $used_fonts     =  file_exists($used_font_path) ? json_decode(file_get_contents($used_font_path)) : array();
-            $font_css       = self::build_font_css($used_fonts);
+            $font_css       = self::spbwc_build_font_css($used_fonts);
             $requests       = array();
             foreach ($datas as $key => $data) {
                 $page_settings = array(
@@ -102,9 +103,9 @@ if (!class_exists('Storelly_Export_PDF')) {
 
                 $pages[$key]['page_settings'] = $page_settings;
 
-                $svg_path = STORELLY_PB_CUSTOMER_DIR . '/' . $folder_design . '/frame_' . $key . '_svg.svg';
+                $svg_path = SPBWC_PB_CUSTOMER_DIR . '/' . $folder_design . '/frame_' . $key . '_svg.svg';
                 if (file_exists($svg_path)) {
-                    $html_url           = self::build_html_page($folder_design, $key, $svg_path, $page_settings, $font_css);
+                    $html_url           = self::spbwc_build_html_page($folder_design, $key, $svg_path, $page_settings, $font_css);
                     $url_segment        = urlencode($html_url);
                     $settings_segment   = base64_encode(wp_json_encode(array(
                         'width'         => $data['base_width'] * $unit_ratio . 'in',
@@ -117,20 +118,20 @@ if (!class_exists('Storelly_Export_PDF')) {
                     );
                 }
             }
-            $pdfs = self::request_create_pdf($requests, $folder, $folder_design);
+            $pdfs = self::spbwc_request_create_pdf($requests, $folder, $folder_design);
             foreach ($pdfs as $key => $pdf) {
                 $pages[$key]['file'] = $pdf;
             }
             $result = SPBWC_Storelly_IO::spbwc_get_list_files($folder);
             return $result;
         }
-        public static function exportPDF($folder_design, $include_background = false) {
+        public static function spbwc_export_pdf($folder_design, $include_background = false) {
             if (!class_exists('TCPDF')) {
-                require_once(STORELLY_PB_PLUGIN_DIR . 'lib/tcpdf/tcpdf.php');
+                require_once(SPBWC_PB_PLUGIN_DIR . 'lib/tcpdf/tcpdf.php');
             }
-            require_once(STORELLY_PB_PLUGIN_DIR . 'lib/fpdi/autoload.php');
+            require_once(SPBWC_PB_PLUGIN_DIR . 'lib/fpdi/autoload.php');
 
-            $path           = STORELLY_PB_CUSTOMER_DIR . '/' . $folder_design;
+            $path           = SPBWC_PB_CUSTOMER_DIR . '/' . $folder_design;
             $folder         = $path . '/customer-pdfs';
             $output_file    = $folder . '/' . $folder_design . '.pdf';
             $result         = array();
@@ -140,9 +141,9 @@ if (!class_exists('Storelly_Export_PDF')) {
             $storelly_pb_settings = get_option('storelly_pb_settings');
             $enable_cloud_export_pdf = $storelly_pb_settings && isset($storelly_pb_settings['enable_cloud2print_api']) && $storelly_pb_settings['enable_cloud2print_api'] == 'yes' ? true : false;
             if ($enable_cloud_export_pdf) {
-                self::cloudExportPdf($folder_design, $include_background);
-                $output_file    = STORELLY_PB_CUSTOMER_DIR . '/' . $folder_design . '/customer-pdfs' . '/' . $folder_design . '.pdf';
-                $result = SPBWC_Storelly_IO::spbwc_get_list_files_by_type(STORELLY_PB_CUSTOMER_DIR . '/' . $folder_design . '/customer-pdfs', 'pdf', 1);
+                self::spbwc_cloud_export_pdf($folder_design, $include_background);
+                $output_file    = SPBWC_PB_CUSTOMER_DIR . '/' . $folder_design . '/customer-pdfs' . '/' . $folder_design . '.pdf';
+                $result = SPBWC_Storelly_IO::spbwc_get_list_files_by_type(SPBWC_PB_CUSTOMER_DIR . '/' . $folder_design . '/customer-pdfs', 'pdf', 1);
             } else {
                 $config     = file_exists($path . '/config.json') ? json_decode(file_get_contents($path . '/config.json')) : '';
                 $datas = array();
@@ -160,9 +161,9 @@ if (!class_exists('Storelly_Export_PDF')) {
                 foreach ($used_font as $font) {
                     $font_name = $font->name;
                     if ($font->type == 'google') {
-                        $path_font = self::download_google_font($font_name);;
+                        $path_font = self::spbwc_download_google_font($font_name);;
                     }
-                    $true_type = nbd_get_truetype_fonts();
+                    $true_type = spbwc_get_truetype_fonts();
                     if (in_array($font_name, $true_type)) {
                         foreach ($path_font as $pfont) {
                             $fontname = TCPDF_FONTS::addTTFfont($pfont, 'TrueType', '', 32);
@@ -267,7 +268,7 @@ if (!class_exists('Storelly_Export_PDF')) {
                         }
                     }
                     $svg = $path . '/svgpath/frame_' . $key . '_svg.svg';
-                    self::convert_svg_url($path . '/', 'frame_' . $key . '_svg.svg');
+                    self::spbwc_convert_svg_url($path . '/', 'frame_' . $key . '_svg.svg');
                     $pdf->ImageSVG($svg, 0, 0, $bgWidth, $bgHeight, '', '', '', 0, true);
                     $output_file = $folder . '/' . $folder_design . '_' . $key . '.pdf';
                     $pdf->Output($output_file, 'F');
@@ -277,13 +278,13 @@ if (!class_exists('Storelly_Export_PDF')) {
             
             return $result;
         }
-        public static function nbd_get_truetype_fonts(){
+        public static function spbwc_get_truetype_fonts(){
             $true_type = array('Bruum FY', 'CitadelScriptStd', 'DIN Next LT Pro Light', 'DIN Next LT Pro Medium', 'DIN Next LT Pro Regular', 'Gudea', 'Abel', 'Abril Fatface', 'Acme', 'Advent Pro', 'Aguafina Script', 'Aladin', 'Allura', 'Almendra', 'Almendra Display', 'Almendra SC', 'Amiri', 'Antic', 'Antic Didone', 'Anonymous Pro', 'Antic Slab', 'Arbutus', 'Architects Daughter', 'Aref Ruqaa', 'Arizonia', 'Asset', 'Asul', 'Average', 'Average Sans', 'Averia Gruesa Libre', 'Averia Libre', 'Averia Sans Libre', 'Averia Serif Libre', 'Bad Script', 'Balthazar', 'Belgrano', 'Bilbo', 'Bilbo Swash', 'Boogaloo', 'Bowlby One', 'Bree Serif', 'Bubblegum Sans', 'Bubbler One', 'Buenard', 'Butcherman', 'Cagliostro', 'Cambo', 'Cantarell', 'Cardo', 'Caudex', 'Ceviche One', 'Changa One', 'Chango', 'Chau Philomene One', 'Chela One', 'Cherry Swash', 'Chicle', 'Cinzel', 'Cinzel Decorative', 'Coiny', 'Condiment', 'Contrail One', 'Convergence', 'Cookie', 'Corben', 'Covered By Your Grace', 'Creepster', 'Crete Round', 'Croissant One', 'Damion', 'Dawning of a New Day', 'Days One', 'Delius', 'Delius Swash Caps', 'Delius Unicase', 'Della Respira', 'Devonshire', 'Diplomata', 'Diplomata SC', 'Dorsa', 'Dr Sugiyama', 'Economica', 'Enriqueta', 'Erica One', 'Esteban', 'Euphoria Script', 'Ewert', 'Exo', 'Fanwood Text', 'Farsan', 'Faster One', 'Fauna One', 'Fenix', 'Felipa', 'Fjord One', 'Flamenco', 'Fredericka the Great', 'Fredoka One', 'Fresca', 'Fugaz One', 'Gafata', 'Galdeano', 'Geostar', 'Geostar Fill', 'Germania One', 'Glass Antiqua', 'Goblin One', 'Graduate', 'Gravitas One', 'Great Vibes', 'Handlee', 'Harmattan', 'Herr Von Muellerhoff', 'Holtwood One SC', 'IM Fell DW Pica', 'IM Fell DW Pica SC', 'IM Fell Double Pica', 'IM Fell Double Pica SC', 'IM Fell English', 'IM Fell English SC', 'IM Fell French Canon', 'IM Fell French Canon SC', 'IM Fell Great Primer', 'IM Fell Great Primer SC', 'Imprima', 'Inika', 'Italiana', 'Italianno', 'Jockey One', 'omhuria', 'Joti One', 'Jomhuria', 'Julee', 'Just Me Again Down Here', 'Katibeh', 'Kavivanar', 'Keania One', 'Kelly Slab', 'Kite One', 'Knewave', 'Kotta One', 'Kreon', 'Krona One', 'Leckerli One', 'Ledger', 'Lekton', 'Lemon', 'Lilita One', 'Lily Script One', 'Linden Hill', 'Love Ya Like A Sister ', 'Lovers Quarrel', 'Lusitana', 'Lustria', 'Macondo', 'Macondo Swash Caps', 'Magra', 'Marck Script', 'Marko One', 'Marvel', 'Mate', 'Mate SC', 'Medula One', 'Meera Inimai', 'Merienda', 'Merienda One', 'Mina', 'Mirza', 'Miss Fajardose', 'Modern Antiqua', 'Monofett', 'Monoton', 'Monsieur La Doulaise', 'Montaga', 'Montserrat', 'Montserrat Subrayada', 'Mountains of Christmas', 'Mr Bedfort', 'Mr Dafoe', 'Mr De Haviland', 'Mrs Saint Delafield', 'Mrs Sheppards', 'Niconne', 'Nixie One', 'Nobile', 'Norican', 'Nosifer', 'Offside', 'Oldenburg', 'Oleo Script', 'Oleo Script Swash Caps', 'Orbitron', 'Overlock', 'Overlock SC', 'Ovo', 'Paprika', 'Passero One', 'Passion One', 'Pathway Gothic One', 'Piedra', 'Pinyon Script', 'Pirata One', 'Playball', 'Poiret One', 'Poller One', 'Poly', 'Pompiere', 'Poppins', 'Port Lligat Sans', 'Port Lligat Slab', 'Preahvihear', 'Qwigley', 'Rambla', 'Ranga', 'Reem Kufi', 'Rammetto One', 'Ribeye Marrow', 'Righteous', 'Rochester', 'Rosarivo', 'Rouge Script', 'Ruda', 'Rufina', 'Ruge Boogie', 'Ruluko', 'Ruslan Display', 'Russo One', 'Ruthie', 'Sail A', 'Salsa', 'Sanchez', 'Sancreek', 'Sarina', 'Shadows Into Light Two', 'Short Stack', 'Signika Negative', 'Sintony', 'Smokum', 'Snippet', 'Sofia', 'Sonsie One', 'Sorts Mill Goudy', 'Spirax', 'Squada One', 'Strait', 'Sunflower', 'Swanky and Moo Moo', 'Text Me One', 'Tinyhust', 'The Girl Next Door', 'Titan One', 'Trochut', 'Trykker', 'Tulpen One', 'Unica One', 'Unlock', 'Vast Shadow', 'Viga', 'Voltaire', 'Wellfleet', 'Wendy One', 'Zeyada', 'Yellowtail');
             $true_type_setting = nbdesigner_get_option('nbdesigner_truetype_fonts');
             $true_type_setting = array();
             return array_merge($true_type, $true_type_setting);
         }
-        public static function storelly_file_get_contents($url) {
+        public static function spbwc_file_get_contents($url) {
             $response = wp_remote_get($url);
             if (is_array($response) && !is_wp_error($response)) {
                 $result   = trim($response['body']);
@@ -299,7 +300,7 @@ if (!class_exists('Storelly_Export_PDF')) {
             }
             return $result;
         }
-        public static function convert_svg_url($path, $file) {
+        public static function spbwc_convert_svg_url($path, $file) {
             $svg_path = $path . '/svgpath';
             if (!file_exists($svg_path)) wp_mkdir_p($svg_path);
             $new_svg_path = $svg_path . '/' . $file;
@@ -320,7 +321,7 @@ if (!class_exists('Storelly_Export_PDF')) {
 
                 $path_image     = SPBWC_Storelly_IO::spbwc_convert_url_to_path($img_src);
 
-                $data   = self::storelly_file_get_contents($path_image);
+                $data   = self::spbwc_file_get_contents($path_image);
                 $base64 = 'data:image/' . $type . ';base64,' . base64_encode($data);
                 $tagName->setAttribute('xlink:href', $base64);
             }
@@ -376,7 +377,7 @@ if (!class_exists('Storelly_Export_PDF')) {
             $new_svg = $xdoc->saveXML();
             file_put_contents($new_svg_path, $new_svg);
         }
-        public static function get_unit_ratio($dpi, $unit) {
+        public static function spbwc_get_unit_ratio($dpi, $unit) {
             switch ($unit) {
                 case 'mm':
                     $unit_ratio = 1 / 25.4;
@@ -396,7 +397,7 @@ if (!class_exists('Storelly_Export_PDF')) {
             }
             return $unit_ratio;
         }
-        public static function build_font_css($fonts) {
+        public static function spbwc_build_font_css($fonts) {
             $google_fonts = array();
         
             foreach ($fonts as $font) {
@@ -411,25 +412,25 @@ if (!class_exists('Storelly_Export_PDF')) {
             }
         }
         
-        public static function build_html_page($folder_design, $key, $svg_path, $page_settings, $font_css) {
-            $pdf_temp_path = STORELLY_PB_CUSTOMER_DIR . '/' . $folder_design . '/pdf-templates';
+        public static function spbwc_build_html_page($folder_design, $key, $svg_path, $page_settings, $font_css) {
+            $pdf_temp_path = SPBWC_PB_CUSTOMER_DIR . '/' . $folder_design . '/pdf-templates';
             if (!file_exists($pdf_temp_path)) {
                 wp_mkdir_p($pdf_temp_path);
             }
 
             $html_path  =  $pdf_temp_path . '/' . $key . '.html';
-            $html_url   = STORELLY_PB_CUSTOMER_URL . '/' . $folder_design . '/pdf-templates/' . $key . '.html';
+            $html_url   = SPBWC_PB_CUSTOMER_URL . '/' . $folder_design . '/pdf-templates/' . $key . '.html';
             $svg_string = file_get_contents($svg_path);
             $svg_string = preg_replace("/<(?:\?xml|!DOCTYPE).*?>/", "", $svg_string);
 
             ob_start();
-            include STORELLY_PB_PLUGIN_DIR . 'views/pdf-template.php';
+            include SPBWC_PB_PLUGIN_DIR . 'views/pdf-template.php';
             $template    = ob_get_clean();
 
             file_put_contents($html_path, $template);
             return $html_url;
         }
-        public static function request_create_pdf($requests, $folder, $folder_design) {
+        public static function spbwc_request_create_pdf($requests, $folder, $folder_design) {
             $result     = array();
             $multiCurl  = array();
             foreach ($requests as $i => $request) {
@@ -442,7 +443,7 @@ if (!class_exists('Storelly_Export_PDF')) {
             foreach ($multiCurl as $k => $res) {
                 
                 $output_file    = $folder . '/' . $folder_design . '_' . $requests[$k]['index'] . '.pdf';
-                $download       = self::download_remote_file($res, $output_file);
+                $download       = self::spbwc_download_remote_file($res, $output_file);
                 if ($download) {
                     $result[$requests[$k]['index']] = $output_file;
                 }
@@ -450,7 +451,7 @@ if (!class_exists('Storelly_Export_PDF')) {
 
             return $result;
         }
-        public static function download_remote_file($url, $path) {
+        public static function spbwc_download_remote_file($url, $path) {
             $data = wp_remote_get($url, array(
                 'timeout' => 20,
                 'User-Agent' => 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.8; rv:20.0) Gecko/20100101 Firefox/20.0'

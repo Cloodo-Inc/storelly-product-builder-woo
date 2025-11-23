@@ -4,7 +4,7 @@
     <?php if (is_array($order_items)) : ?>
         <?php
         $count_img_design = 0;
-        $src_img = STORELLY_PB_PLUGIN_URL . 'assets/images/loading.gif';
+        $src_img = SPBWC_PB_PLUGIN_URL . 'assets/images/loading.gif';
         ?>
         <?php foreach ($order_items as $order_item_id => $order_item) :
             $folder_design = wc_get_order_item_meta($order_item_id, '_pcpb_folder', true);
@@ -17,7 +17,7 @@
                 </div>
                 <hr />
                 <?php
-                $list_images = SPBWC_Storelly_IO::spbwc_get_list_images(STORELLY_PB_CUSTOMER_DIR . '/' . $folder_design . '/preview', 1);
+                $list_images = SPBWC_Storelly_IO::spbwc_get_list_images(SPBWC_PB_CUSTOMER_DIR . '/' . $folder_design . '/preview', 1);
                 asort($list_images);
                 $link_view_detail = '';
                 if (count($list_images) > 0) : ?>

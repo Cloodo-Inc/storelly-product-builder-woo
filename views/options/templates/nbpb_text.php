@@ -39,8 +39,8 @@
     <div class="pcpb-field-info-2">
         <?php
         $custom_fonts = array();
-        if (file_exists(STORELLY_PB_ASSETS_DIR . '/fonts.json')) {
-            $custom_fonts = (array)json_decode(file_get_contents(STORELLY_PB_ASSETS_DIR . '/fonts.json'));
+        if (file_exists(SPBWC_PB_ASSETS_DIR . '/fonts.json')) {
+            $custom_fonts = (array)json_decode(file_get_contents(SPBWC_PB_ASSETS_DIR . '/fonts.json'));
         }
         ?>
         <select nbd-select2 name="options[fields][{{fieldIndex}}][general][nbpb_text_configs][custom_fonts][]" ng-model="field.general.nbpb_text_configs.custom_fonts" multiple="multiple">
@@ -65,8 +65,8 @@
     <div class="pcpb-field-info-2">
         <?php
         $google_fonts = array();
-        if (file_exists(STORELLY_PB_DATA_CONFIG_DIR . '/googlefonts.json')) {
-            $google_fonts = (array)json_decode(file_get_contents(STORELLY_PB_DATA_CONFIG_DIR . '/googlefonts.json'));
+        if (file_exists(SPBWC_PB_DATA_CONFIG_DIR . '/googlefonts.json')) {
+            $google_fonts = (array)json_decode(file_get_contents(SPBWC_PB_DATA_CONFIG_DIR . '/googlefonts.json'));
         }
         ?>
         <select nbd-select2 name="options[fields][{{fieldIndex}}][general][nbpb_text_configs][google_fonts][]" ng-model="field.general.nbpb_text_configs.google_fonts" multiple="multiple">

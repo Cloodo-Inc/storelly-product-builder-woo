@@ -19,7 +19,7 @@
                     $filename = '';
                     $uploaded = 0;
                     if( isset($form_values[$field['id']]) ){
-                        $file_url = STORELLY_PB_UPLOAD_URL . '/' . $form_values[$field['id']];
+                        $file_url = SPBWC_PB_UPLOAD_URL . '/' . $form_values[$field['id']];
                         $filename = explode('/', $form_values[$field['id']])[1];
                         $uploaded = 1;
                     }

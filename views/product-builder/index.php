@@ -14,7 +14,7 @@
 
 <body>
     <?php
-    include(STORELLY_PB_PLUGIN_DIR . 'views/product-builder/wrapper.php');
+    include(SPBWC_PB_PLUGIN_DIR . 'views/product-builder/wrapper.php');
     function storelly_get_product_builder($id) {
         global $wpdb;
         $table_name = $wpdb->prefix . 'storelly_product_builder_options';
@@ -87,7 +87,7 @@
                                 foreach ($attr as $s_index => $sattr) {
                                     foreach ($sattr['views'] as $v_index => $view) {
                                         $pb_image_obj = wp_get_attachment_url(absint($view['image']));
-                                        $options['fields'][$key]['general']['pb_config'][$a_index][$s_index]['views'][$v_index]['image_url'] =  $pb_image_obj ? $pb_image_obj : STORELLY_PB_ASSETS_URL . 'images/placeholder.png';
+                                        $options['fields'][$key]['general']['pb_config'][$a_index][$s_index]['views'][$v_index]['image_url'] =  $pb_image_obj ? $pb_image_obj : SPBWC_PB_ASSETS_URL . 'images/placeholder.png';
                                     }
                                 }
                             }
@@ -109,7 +109,7 @@
                         foreach ($field['general']['attributes']['options'] as $op_index => $option) {
                             foreach ($option['bg_image'] as $bg_index => $bg) {
                                 $bg_obj = wp_get_attachment_url(absint($bg));
-                                $options['fields'][$key]['general']['attributes']['options'][$op_index]['bg_image_url'][$bg_index] = $bg_obj ? $bg_obj : STORELLY_PB_ASSETS_URL . 'images/placeholder.png';
+                                $options['fields'][$key]['general']['attributes']['options'][$op_index]['bg_image_url'][$bg_index] = $bg_obj ? $bg_obj : SPBWC_PB_ASSETS_URL . 'images/placeholder.png';
                             }
                         };
                     }
@@ -119,7 +119,7 @@
                         $view['base'] = isset($view['base']) ? $view['base'] : 0;
                         $options['views'][$vkey]['base'] = $view['base'];
                         $view_bg_obj = wp_get_attachment_url(absint($view['base']));
-                        $options['views'][$vkey]['base_url'] = $view_bg_obj ? $view_bg_obj : STORELLY_PB_ASSETS_URL . 'images/placeholder.png';
+                        $options['views'][$vkey]['base_url'] = $view_bg_obj ? $view_bg_obj : SPBWC_PB_ASSETS_URL . 'images/placeholder.png';
                     }
                 }
                 $type           = 'simple';

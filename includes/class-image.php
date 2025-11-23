@@ -2,8 +2,8 @@
 if (!defined('ABSPATH')) {
     exit;
 }
-if (!class_exists('STORELLY_IMAGE')) {
-    class STORELLY_IMAGE {
+if (!class_exists('SPBWC_Storelly_Image')) {
+    class SPBWC_Storelly_Image {
         public static function resize_imagepng($file, $w, $h, $path = '') {
             list($width, $height)   = getimagesize($file);
             if ($path != '') $h    = round($w / $width * $height);

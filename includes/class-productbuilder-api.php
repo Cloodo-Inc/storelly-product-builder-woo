@@ -64,7 +64,7 @@ if (!class_exists('Storelly_Product_Builder_API')) {
                     )
                 );
                 
-                $resp = STORELLY_HTTP::postDataWithoutAuth(STORELLY_API_URL . '/api/v1/register', $datas);
+                $resp = STORELLY_HTTP::spbwc_post_data_without_auth(SPBWC_API_URL . '/api/v1/register', $datas);
                 if (isset($resp) && is_array($resp)) {
                     if ($resp['success'] == 1) {
                         if (isset($resp['username'])) {
@@ -154,8 +154,8 @@ if (!class_exists('Storelly_Product_Builder_API')) {
             $cFile = [];
             foreach ($order->get_items() as $item_id => $item) {
                 $folder_design = wc_get_order_item_meta($item_id, '_pcpb_folder', true);
-                Storelly_Export_PDF::exportPDF($folder_design);
-                $path_pdf = STORELLY_PB_CUSTOMER_DIR . '/' . $folder_design . '/customer-pdfs';
+                SPBWC_Storelly_Export_PDF::spbwc_export_pdf($folder_design);
+                $path_pdf = SPBWC_PB_CUSTOMER_DIR . '/' . $folder_design . '/customer-pdfs';
                 $files = SPBWC_Storelly_IO::spbwc_get_list_files_by_type($path_pdf, 'pdf', 1);
         
                 foreach ($files as $file) {
@@ -199,7 +199,7 @@ if (!class_exists('Storelly_Product_Builder_API')) {
                 ],
                 "price_group" => 0
             );
-            $resp = STORELLY_HTTP::postData(STORELLY_API_URL . '/api/v1/update-orders',$body);
+            $resp = STORELLY_HTTP::spbwc_post_data(SPBWC_API_URL . '/api/v1/update-orders',$body);
         
             $body = array(
                 "is_quotation" => 0,
@@ -222,7 +222,7 @@ if (!class_exists('Storelly_Product_Builder_API')) {
                 ],
                 "price_group" => 0
             );
-            $resp = STORELLY_HTTP::postData(STORELLY_API_URL . '/api/v1/update-orders',$body); 
+            $resp = STORELLY_HTTP::spbwc_post_data(SPBWC_API_URL . '/api/v1/update-orders',$body); 
         }
         public function plugin_activation(){
 
@@ -236,7 +236,7 @@ if (!class_exists('Storelly_Product_Builder_API')) {
         
         public function storelly_img_design_order_items($item_id, $item, $order, $plain_text){
             $folder_design = wc_get_order_item_meta($item_id, '_pcpb_folder', true);
-            $path_preview = STORELLY_PB_CUSTOMER_DIR . '/' . $folder_design . '/preview';
+            $path_preview = SPBWC_PB_CUSTOMER_DIR . '/' . $folder_design . '/preview';
             $files = SPBWC_Storelly_IO::spbwc_get_list_files_by_type($path_preview, 'png', 1);
             foreach ($files as $img){
                 ?>
