@@ -25,7 +25,7 @@ wp_localize_script( 'product-builder', 'NBPBCONFIG', array(
         'assets_url' => SPBWC_PB_ASSETS_URL,
         'plg_url' => SPBWC_PB_PLUGIN_URL,
         'ajax_url' => admin_url('admin-ajax.php'),
-        'nonce' => wp_create_nonce('save-design'),
+        'nonce' => wp_create_nonce('spbwc_save_design_action'),
         'pcpb_cart_item_key' => $pcpb_cart_item_key,
         'oid' => $oid, 
         'redirect_url' => $redirect_url,

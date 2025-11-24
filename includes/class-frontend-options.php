@@ -61,7 +61,7 @@ if (!class_exists('STORELLY_FRONTEND_OPTIONS')) {
             // on add to cart set the price when needed, and do it first, before any other plugins
             add_filter('woocommerce_add_cart_item', array($this, 'set_product_prices'), 1, 1);
 
-            add_action('wp_enqueue_scripts', array($this , 'frontend_enqueue_scripts'));
+            add_action('wp_enqueue_scripts', array($this , 'spbwc_frontend_enqueue_scripts'));
             
         }
         public static function storelly_allow_uploads($mimes) {
@@ -72,17 +72,17 @@ if (!class_exists('STORELLY_FRONTEND_OPTIONS')) {
         
         public static function get_option($id) {
             global $wpdb;
-            $table_name = $wpdb->prefix . 'storelly_product_builder_options';
+            $table_name = $wpdb->prefix . 'spbwc_product_builder_options';
             $options = $wpdb->get_results($wpdb->prepare("SELECT * FROM $table_name WHERE `id` = %d", $id), 'ARRAY_A');  
             return count($options[0]) ? $options[0] : false;
         }
         public static function get_product_option($product_id) {
             $enable = get_post_meta($product_id, '_storelly_pb_enable', true);
             if (!$enable) return false;
-            $option_id = get_transient('storelly_product_builder_' . $product_id);
+            $option_id = get_transient('spbwc_product_builder_' . $product_id);
             if (false === $option_id) {
                 global $wpdb;
-                $table_name = $wpdb->prefix . 'storelly_product_builder_options';
+                $table_name = $wpdb->prefix . 'spbwc_product_builder_options';
                 $options = $wpdb->get_results($wpdb->prepare("SELECT id, product_ids FROM $table_name WHERE published = 1", $product_id), 'ARRAY_A');   
                 if ($options) {
                     $_options = array();
@@ -99,7 +99,7 @@ if (!class_exists('STORELLY_FRONTEND_OPTIONS')) {
                     $_options = array_reverse($_options);
                     $option_id = isset($_options[0]) && isset($_options[0]['id']) ? $_options[0]['id'] : '';
                     if ($option_id) {
-                        set_transient('storelly_product_builder_' . $product_id, $option_id);
+                        set_transient('spbwc_product_builder_' . $product_id, $option_id);
                     }
                 }
             }
@@ -116,7 +116,7 @@ if (!class_exists('STORELLY_FRONTEND_OPTIONS')) {
             }
             return $valid_fields;
         }
-        public function frontend_enqueue_scripts(){
+        public function spbwc_frontend_enqueue_scripts(){
             $product_id = get_the_ID();
             $option_id = $this->get_product_option($product_id);
              if ($option_id) {

@@ -1,26 +1,26 @@
 <?php
 if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly 
-if (!class_exists('Storelly_Product_Builder_API')) {
-    class Storelly_Product_Builder_API{
+if (!class_exists('SPBWC_Storelly_Product_Builder_API')) {
+    class SPBWC_Storelly_Product_Builder_API{
 
         public function __construct()
         {
         } 
         
-        public function init()
+        public function spbwc_init()
         {
             //  bat su kien active plguin     
-            add_action('init',  array($this, 'create_user_storelly'));
+            add_action('init',  array($this, 'spbwc_create_user_storelly'));
 
-            add_action('activated_plugin', array($this, 'storelly_activation_redirect'), 10, 1);
+            add_action('activated_plugin', array($this, 'spbwc_activation_redirect'), 10, 1);
             
             // lấy thông tin order trong woocommerce và đồng bộ qua curl 
-            add_action('woocommerce_checkout_order_processed', array($this, 'storelly_order_processed'), 10, 1);
+            add_action('woocommerce_checkout_order_processed', array($this, 'spbwc_order_processed'), 10, 1);
 
-            add_action('woocommerce_store_api_checkout_order_processed', array($this, 'notify_on_new_order'), 10, 1); 
+            add_action('woocommerce_store_api_checkout_order_processed', array($this, 'spbwc_notify_on_new_order'), 10, 1); 
 
             // get img preview 
-            add_action('woocommerce_order_item_meta_end', array($this, 'storelly_img_design_order_items'), 10, 4); 
+            add_action('woocommerce_order_item_meta_end', array($this, 'spbwc_img_design_order_items'), 10, 4); 
             
        
         }
@@ -35,59 +35,60 @@ if (!class_exists('Storelly_Product_Builder_API')) {
             return self::$instance;
         }
 
-        public static function create_user_storelly(){
-            $option = get_option('storelly_connect_api_keys');
+        public static function spbwc_create_user_storelly(){
+            $option = get_option('spbwc_connect_api_keys');
             if (empty($option['username'])) {
                 $current_user = wp_get_current_user(); 
-                $user_name = $current_user->user_login . '_' . time();
+                $user_name = sanitize_user($current_user->user_login) . '_' . time();
 
                 $datas = array(
-                    "name" => $current_user->display_name,
+                    "name" => sanitize_text_field($current_user->display_name),
                     "currency_id" => 1,
-                    "country" => get_user_meta($current_user->ID, 'billing_country', true) ? get_user_meta($current_user->ID, 'billing_country', true) : "country",
-                    "state" => get_user_meta($current_user->ID, 'billing_state', true) ? get_user_meta($current_user->ID, 'billing_state', true) : "state",
-                    "city" => get_user_meta($current_user->ID, 'billing_city', true) ? get_user_meta($current_user->ID, 'billing_city', true) : "city", 
-                    "zip_code" => get_user_meta($current_user->ID, 'billing_postcode', true) ? get_user_meta($current_user->ID, 'billing_postcode', true) : '100000',
-                    "landmark" => get_user_meta($current_user->ID, 'billing_address_1', true) ? get_user_meta($current_user->ID, 'billing_address_1', true) : 'address',
-                    "time_zone" => "Asia/Ho_Chi_Minh",
-                    "surname" => get_user_meta($current_user->ID, 'billing_last_name', true) ? get_user_meta($current_user->ID, 'billing_last_name', true) : 'lastname',
-                    "email" => $current_user->user_email,
-                    "first_name" => get_user_meta($current_user->ID, 'billing_first_name', true) ? get_user_meta($current_user->ID, 'billing_first_name', true) : 'firstname',
+                    "country" => get_user_meta($current_user->ID, 'billing_country', true) ? sanitize_text_field(get_user_meta($current_user->ID, 'billing_country', true)) : "country",
+                    "state" => get_user_meta($current_user->ID, 'billing_state', true) ? sanitize_text_field(get_user_meta($current_user->ID, 'billing_state', true)) : "state",
+                    "city" => get_user_meta($current_user->ID, 'billing_city', true) ? sanitize_text_field(get_user_meta($current_user->ID, 'billing_city', true)) : "city", 
+                    "zip_code" => get_user_meta($current_user->ID, 'billing_postcode', true) ? sanitize_text_field(get_user_meta($current_user->ID, 'billing_postcode', true)) : '100000',
+                    "landmark" => get_user_meta($current_user->ID, 'billing_address_1', true) ? sanitize_text_field(get_user_meta($current_user->ID, 'billing_address_1', true)) : 'address',
+                    "time_zone" => "Asia/Ho_Chi_Minh", // Giá trị cố định
+                    "surname" => get_user_meta($current_user->ID, 'billing_last_name', true) ? sanitize_text_field(get_user_meta($current_user->ID, 'billing_last_name', true)) : 'lastname',
+                    "email" => sanitize_email($current_user->user_email), // Sử dụng sanitize_email
+                    "first_name" => get_user_meta($current_user->ID, 'billing_first_name', true) ? sanitize_text_field(get_user_meta($current_user->ID, 'billing_first_name', true)) : 'firstname',
                     "username" => $user_name,
                     "password" => $user_name,
-                    "fy_start_month" => date('n'),
-                    "accounting_method" => "phuong_phap_1",
+                    "fy_start_month" => date('n'), // Giá trị cố định
+                    "accounting_method" => "phuong_phap_1", // Giá trị cố định
                     "woocommerce_api_settings" => array(
-                        "woocommerce_app_url" => home_url(),
-                        "woocommerce_consumer_key" => $option['consumer_key'],
-                        "woocommerce_consumer_secret" => $option['consumer_secret']
+                        "woocommerce_app_url" => esc_url(home_url()), // Escaping URL
+                        "woocommerce_consumer_key" => isset($option['consumer_key']) ? sanitize_text_field($option['consumer_key']) : '',
+                        "woocommerce_consumer_secret" => isset($option['consumer_secret']) ? sanitize_text_field($option['consumer_secret']) : ''
                     )
                 );
                 
-                $resp = STORELLY_HTTP::spbwc_post_data_without_auth(SPBWC_API_URL . '/api/v1/register', $datas);
+                $api_url = SPBWC_API_URL . '/api/v1/register';
+                $resp = SPBWC_Storelly_HTTP::spbwc_post_data_without_auth($api_url, $datas);
                 if (isset($resp) && is_array($resp)) {
                     if ($resp['success'] == 1) {
                         if (isset($resp['username'])) {
-                            $option['username'] = $resp['username'];
+                            $option['username'] = sanitize_text_field($resp['username']);
                         }
                         if (isset($resp['unauth_token'])) {
-                            $option['unauth_token'] = $resp['unauth_token'];
+                            $option['unauth_token'] = sanitize_text_field($resp['unauth_token']);
                         }
-                        update_option('storelly_connect_api_keys', $option);
+                        update_option('spbwc_connect_api_keys', $option);
                     } else {
                         if (isset($resp['msg'])) {
-                            $option['log'] = $resp['msg'];
+                            $option['log'] = sanitize_text_field($resp['msg']);
                         }
-                        update_option('storelly_connect_api_keys', $option);
+                        update_option('spbwc_connect_api_keys', $option);
                     }
                 } else {
-                    update_option('storelly_connect_api_keys', $option);
+                    update_option('spbwc_connect_api_keys', $option);
                 }
             }
         }
-        public static function storelly_generate_key(){
+        public static function spbwc_generate_key(){
             
-            $response = get_option('storelly_connect_api_keys');
+            $response = get_option('spbwc_connect_api_keys');
             if ($response) {
             } else {
                 $response = array();
@@ -103,7 +104,7 @@ if (!class_exists('Storelly_Product_Builder_API')) {
             $consumer_secret = 'cs_' . wc_rand_hash();
         
             if (!$user_id || ($user_id && !current_user_can('edit_user', $user_id))) {
-                throw new Exception(__('You do not have permission to assign API Keys to the selected user.', 'storelly-integration'));
+                   throw new Exception(esc_html__('You do not have permission to assign API Keys to the selected user.', 'spbwc-product-builder')); // storelly-integration -> spbwc-product-builder
             }
         
             $data = array(
@@ -140,16 +141,16 @@ if (!class_exists('Storelly_Product_Builder_API')) {
             $response['consumer_key']    = $consumer_key;
             $response['consumer_secret'] = $consumer_secret;
         
-            update_option('storelly_connect_api_keys', $response);
-            self::create_user_storelly();  
+            update_option('spbwc_connect_api_keys', $response);
+            self::spbwc_create_user_storelly();  
         }
 
-        public function storelly_order_processed($order_id){
+        public function spbwc_order_processed($order_id){
             $order = wc_get_order($order_id);
-            $this->notify_on_new_order($order);
+            $this->spbwc_notify_on_new_order($order);
         } 
         
-        public function notify_on_new_order($order){
+        public function spbwc_notify_on_new_order($order){
             $products = array();
             $cFile = [];
             foreach ($order->get_items() as $item_id => $item) {
@@ -178,7 +179,6 @@ if (!class_exists('Storelly_Product_Builder_API')) {
                 ];
             }
 
-        
             $body = array(
                 "is_quotation" => 0,
                 "status" => "final",
@@ -199,7 +199,7 @@ if (!class_exists('Storelly_Product_Builder_API')) {
                 ],
                 "price_group" => 0
             );
-            $resp = STORELLY_HTTP::spbwc_post_data(SPBWC_API_URL . '/api/v1/update-orders',$body);
+            $resp = SPBWC_Storelly_HTTP::spbwc_post_data(SPBWC_API_URL . '/api/v1/update-orders',$body);
         
             $body = array(
                 "is_quotation" => 0,
@@ -222,19 +222,18 @@ if (!class_exists('Storelly_Product_Builder_API')) {
                 ],
                 "price_group" => 0
             );
-            $resp = STORELLY_HTTP::spbwc_post_data(SPBWC_API_URL . '/api/v1/update-orders',$body); 
+            $resp = SPBWC_Storelly_HTTP::spbwc_post_data(SPBWC_API_URL . '/api/v1/update-orders',$body); 
         }
-        public function plugin_activation(){
-
+        public function spbwc_plugin_activation(){ 
         }
         
-        public function storelly_activation_redirect($plugin){
+        public function spbwc_activation_redirect($plugin){
             if ($plugin == plugin_basename(__FILE__)) {
-                exit(wp_redirect(admin_url('admin.php?page=pc-product-builder-options/settings')));
+                exit(wp_redirect(admin_url('admin.php?page=spbwc-product-builder-options/settings')));
             }
         }
         
-        public function storelly_img_design_order_items($item_id, $item, $order, $plain_text){
+        public function spbwc_img_design_order_items($item_id, $item, $order, $plain_text){
             $folder_design = wc_get_order_item_meta($item_id, '_pcpb_folder', true);
             $path_preview = SPBWC_PB_CUSTOMER_DIR . '/' . $folder_design . '/preview';
             $files = SPBWC_Storelly_IO::spbwc_get_list_files_by_type($path_preview, 'png', 1);
@@ -248,5 +247,5 @@ if (!class_exists('Storelly_Product_Builder_API')) {
         
     }
 }
-$stll_product_builder_API = Storelly_Product_Builder_API::instance();
-$stll_product_builder_API->init();
+$spbwc_product_builder_api = SPBWC_Storelly_Product_Builder_API::instance();
+$spbwc_product_builder_api->spbwc_init();

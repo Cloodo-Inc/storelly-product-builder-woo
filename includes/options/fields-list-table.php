@@ -44,13 +44,13 @@ class Storelly_Options_List_Table extends WP_List_Table {
     }
     public static function record_count() {
         global $wpdb;
-        $table_name = $wpdb->prefix . 'storelly_product_builder_options';
+        $table_name = $wpdb->prefix . 'spbwc_product_builder_options';
         $result = $wpdb->get_var($wpdb->prepare("SELECT COUNT(*) FROM $table_name"));
         return $result;
     }
     public function get_options($per_page = 10, $page_number = 1) {
         global $wpdb;
-        $table_name = $wpdb->prefix . 'storelly_product_builder_options';
+        $table_name = $wpdb->prefix . 'spbwc_product_builder_options';
         $number_page = ($page_number - 1) * $per_page;
         $result = $wpdb->get_results($wpdb->prepare("SELECT * FROM $table_name ORDER BY modified DESC LIMIT %d OFFSET %d", $per_page, $number_page), 'ARRAY_A');
         return $result;
@@ -62,7 +62,7 @@ class Storelly_Options_List_Table extends WP_List_Table {
                 die('Go get a life script kiddies');
             }
             $this->delete_option(absint($_GET['id']));
-            wp_redirect(esc_url_raw(add_query_arg(array('paged' => $this->get_pagenum()), admin_url('admin.php?page=pc-product-builder-options'))));
+            wp_redirect(esc_url_raw(add_query_arg(array('paged' => $this->get_pagenum()), admin_url('admin.php?page=spbwc-product-builder-options'))));
             exit;
         }
         if ('copy' === $this->current_action()) {
@@ -71,7 +71,7 @@ class Storelly_Options_List_Table extends WP_List_Table {
                 die('Go get a life script kiddies');
             }
             $this->copy_options(absint($_GET['id']));
-            wp_redirect(esc_url_raw(admin_url('admin.php?page=pc-product-builder-options')));
+            wp_redirect(esc_url_raw(admin_url('admin.php?page=spbwc-product-builder-options')));
             exit;
         }
         if ((isset($_POST['action']) && sanitize_text_field($_POST['action'] == 'bulk-publish')) || (isset($_POST['action2']) && sanitize_text_field($_POST['action2'] == 'bulk-publish'))) {
@@ -107,27 +107,27 @@ class Storelly_Options_List_Table extends WP_List_Table {
     }
     public function delete_option($id) {
         global $wpdb;
-        $table_name = $wpdb->prefix . 'storelly_product_builder_options';
+        $table_name = $wpdb->prefix . 'spbwc_product_builder_options';
         $result = $wpdb->delete($table_name, array('id' => $id));
         if ($result) $this->clear_transients();
     }
     public function unpublish_option($id) {
         global $wpdb;
-        $result = $wpdb->update($wpdb->prefix . 'storelly_product_builder_options', array(
+        $result = $wpdb->update($wpdb->prefix . 'spbwc_product_builder_options', array(
             'published' => 0
         ), array('id' => esc_sql($id)));
         if ($result) $this->clear_transients();
     }
     public function publish_option($id) {
         global $wpdb;
-        $result = $wpdb->update($wpdb->prefix . 'storelly_product_builder_options', array(
+        $result = $wpdb->update($wpdb->prefix . 'spbwc_product_builder_options', array(
             'published' => 1
         ), array('id' => esc_sql($id)));
         if ($result) $this->clear_transients();
     }
     public function copy_options($id) {
         global $wpdb;   
-        $table_name = $wpdb->prefix . 'storelly_product_builder_options';
+        $table_name = $wpdb->prefix . 'spbwc_product_builder_options';
         $result = $wpdb->get_results($wpdb->prepare("SELECT * FROM $table_name WHERE `id` = %d", $id), 'ARRAY_A');
         if (count($result)) {
             $res            = $result[0];
@@ -141,7 +141,7 @@ class Storelly_Options_List_Table extends WP_List_Table {
                 'created'       => $modified_date->format('Y-m-d H:i:s'),
                 'created_by'    => wp_get_current_user()->ID
             ); 
-            $in_res = $wpdb->insert("{$wpdb->prefix}storelly_product_builder_options", $arr);
+            $in_res = $wpdb->insert("{$wpdb->prefix}spbwc_product_builder_options", $arr);
             if ($in_res) {
                 $this->clear_transients();
                 return $in_res;

@@ -64,7 +64,7 @@ if (!class_exists('SPBWC_Storelly_Product_Builder_Backend')) {
             SPBWC_Storelly_Install::spbwc_create_pages();
             SPBWC_Storelly_Install::spbwc_create_tables();
             SPBWC_Storelly_Install::spbwc_init_files_and_folders();
-            update_option('storelly_version_plugin', SPBWC_PB_VERSION);
+            update_option('spbwc_version_plugin', SPBWC_PB_VERSION);
         }
     }
 }

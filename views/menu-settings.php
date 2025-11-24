@@ -2,7 +2,7 @@
 if (!defined('ABSPATH')) exit; // Exit if accessed directly  
 ?>
 <?php
-$api_key = maybe_unserialize(get_option('storelly_connect_api_keys'));
+$api_key = maybe_unserialize(get_option('spbwc_connect_api_keys'));
 
 $sid = isset($api_key['consumer_key']) ? $api_key['consumer_key'] : '';
 $secret = isset($api_key['consumer_secret']) ? $api_key['consumer_secret'] : '';

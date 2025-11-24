@@ -166,7 +166,7 @@ if (!class_exists('SPBWC_Storelly_PB_Util')) {
                         'id'        => isset($_GET['oid']) ? absint($_GET['oid']) : '',
                         'paged'     => isset($_GET['paged']) ? absint($_GET['paged']) : '',
                     );
-                    $redirect_url       = add_query_arg($get, admin_url('admin.php?page=pc-product-builder-options'));
+                    $redirect_url       = add_query_arg($get, admin_url('admin.php?page=spbwc-product-builder-options'));
                     break;
                 default:
                     $redirect_url       = $rd;

@@ -1,16 +1,16 @@
 <?php
 if (!defined('ABSPATH')) exit;
 
-if (!class_exists('STORELLY_HTTP')) {
+if (!class_exists('SPBWC_Storelly_HTTP')) {
 
-    class STORELLY_HTTP {
+    class SPBWC_Storelly_HTTP {
         public static $api_url = SPBWC_API_URL . '/api/v1';
 
         public function __construct() {
         }
 
         public static function spbwc_get_basic_auth() {
-            $api_settings = get_option('storelly_connect_api_keys');
+            $api_settings = get_option('spbwc_connect_api_keys');
 
             $unauth_token = isset($storelly_account['unauth_token']) ? $storelly_account['unauth_token'] : '';
 

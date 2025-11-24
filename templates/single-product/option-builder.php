@@ -1,5 +1,5 @@
 <?php
-do_action('storelly_head', 'single-product');
+do_action('spbwc_head', 'single-product');
 if (!defined('ABSPATH')) exit;
 $in_quick_view      = false;
 $is_wqv             = false;
@@ -92,7 +92,7 @@ $currentDir = realpath(dirname(__FILE__));
                 $show_quantity_option   = false;
 
                 $popup_fields   = array();
-                if ($has_nbpb) do_action('storelly_after_default_options');
+                if ($has_nbpb) do_action('spbwc_after_default_options');
                 ?>
                 <div ng-if="fields.length" class="nbo-clear-option-wrap">
                     <?php if ($num_visible_field > 0) : ?>

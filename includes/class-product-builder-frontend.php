@@ -2,8 +2,8 @@
 if (!defined('ABSPATH')) {
     exit;
 }
-if (!class_exists('Storelly_Product_Builder_Frontend')) {
-    class Storelly_Product_Builder_Frontend {
+if (!class_exists('SPBWC_Storelly_Product_Builder_Frontend')) {
+    class SPBWC_Storelly_Product_Builder_Frontend {
         protected static $instance;
         protected $isDesign = false;
         protected $path = '';
@@ -16,18 +16,18 @@ if (!class_exists('Storelly_Product_Builder_Frontend')) {
             }
             return self::$instance;
         }
-        public function init() {
-            $this->frontend_enqueue_scripts();
-            add_action('woocommerce_before_single_product', array(&$this, 'before_product_container'), 1);
+        public function spbwc_init() {
+            $this->spbwc_frontend_enqueue_scripts();
+            add_action('woocommerce_before_single_product', array(&$this, 'spbwc_before_product_container'), 1);
             if (is_admin()) {
-                $this->ajax();
+                $this->spbwc_ajax();
             }
-            add_action('template_redirect', array($this, 'template_redirect'));
+            add_action('spbwc_template_redirect', array($this, 'spbwc_template_redirect'));
         }
-        public function ajax() {
+        public function spbwc_ajax() {
             $ajax_events = array(
-                'storelly_save_product_builder_design'   => true,
-                'storelly_customer_upload'             => true,
+                'spbwc_save_product_builder_design'   => true,
+                'spbwc_customer_upload'             => true,
             );
             foreach ($ajax_events as $ajax_event => $nopriv) {
                 add_action('wp_ajax_' . $ajax_event, array($this, $ajax_event));
@@ -36,13 +36,13 @@ if (!class_exists('Storelly_Product_Builder_Frontend')) {
                 }
             }
         }
-        public function template_redirect() {
+        public function spbwc_template_redirect() {
             if (SPBWC_Storelly_PB_Util::spbwc_is_product_builder_page() && (current_user_can('editor') || current_user_can('administrator'))) {
                 include(SPBWC_PB_PLUGIN_DIR . 'views/product-builder/index.php');
                 exit();
             }
         }
-        public function storelly_customer_upload() {
+        public function spbwc_customer_upload() {
             if (!isset($_FILES['file'])) {
                 echo wp_json_encode(['flag' => 0, 'mes' => 'No file uploaded']);
                 wp_die();
@@ -65,23 +65,26 @@ if (!class_exists('Storelly_Product_Builder_Frontend')) {
                 wp_die();
             }
         }
-        public function storelly_save_product_builder_design() {
-            if (!wp_verify_nonce(sanitize_text_field($_POST['nonce']), 'save-design') && SPBWC_ENABLE_NONCE) {
-                die('Security error');
+        public function spbwc_save_product_builder_design() {
+            if ( ! current_user_can( 'edit_posts' ) ) { 
+                die( esc_html__( 'You do not have permission to save design.', 'spbwc-product-builder' ) );
+            }
+            if ( ! isset( $_POST['nonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['nonce'] ) ), 'spbwc_save_design_action' ) && SPBWC_ENABLE_NONCE) { 
+                  die( esc_html__( 'Security error.', 'spbwc-product-builder' ) );
             }
             $result = array(
                 'flag'  =>  'failure',
                 'link'  =>  '',
                 'folder' => ''
             );
-            do_action('storelly_before_save_product_builder_design');
-            $pcpb_item_pb_key = (isset($_POST['pcpb_item_pb_key']) && sanitize_text_field($_POST['pcpb_item_pb_key'] != '')) ? wc_clean($_POST['pcpb_item_pb_key']) : substr(md5(uniqid()), 0, 5) . rand(1, 100) . time();
-            $is_creating_task = (isset($_POST['is_creating_task']) && sanitize_text_field($_POST['is_creating_task'] != '')) ? wc_clean($_POST['is_creating_task']) :  '0';
-            $oid = (isset($_POST['oid']) && absint($_POST['oid'] != '')) ? absint($_POST['oid']) :  0;
+            do_action('spbwc_before_save_product_builder_design');
+            $pcpb_item_pb_key = isset($_POST['pcpb_item_pb_key']) ? sanitize_text_field(wp_unslash($_POST['pcpb_item_pb_key'])) : substr(md5(uniqid()), 0, 5) . rand(1, 100) . time();
+            $is_creating_task = isset($_POST['is_creating_task']) ? sanitize_text_field(wp_unslash($_POST['is_creating_task'])) : '0';
+            $oid = isset($_POST['oid']) ? absint(wp_unslash($_POST['oid'])) : 0;
             $path = SPBWC_PB_CUSTOMER_DIR . '/' . $pcpb_item_pb_key;
-            $save_status = $this->store_product_builder_design_data($pcpb_item_pb_key, map_deep( $_FILES, 'sanitize_text_field' ));
+            $save_status = $this->spbwc_store_product_builder_design_data($pcpb_item_pb_key, map_deep( $_FILES, 'sanitize_text_field' ));
             if (false != $save_status) {
-                $result['image'] = $this->create_preview($path);
+                $result['image'] = $this->spbwc_create_preview($path);
                 asort($result['image']);
                 $result['flag'] = 'success';
                 $result['folder'] = $pcpb_item_pb_key;
@@ -90,14 +93,14 @@ if (!class_exists('Storelly_Product_Builder_Frontend')) {
                     $arr = array(
                         'builder'   =>  $pcpb_item_pb_key
                     );
-                    $result_update = $wpdb->update("{$wpdb->prefix}storelly_product_builder_options", $arr, array('id' => $oid));
+                    $result_update = $wpdb->update("{$wpdb->prefix}spbwc_product_builder_options", $arr, array('id' => $oid));
                 }
             }
-            do_action('storelly_after_save_product_builder_design', $result);
+            do_action('spbwc_after_save_product_builder_design', $result);
             echo wp_json_encode($result);
             wp_die();
         }
-        private function create_preview($path) {
+        private function spbwc_create_preview($path) {
             $config = json_decode(file_get_contents($path . '/config.json'));
             $images = array();
             if (wp_mkdir_p($path . '/preview')) {
@@ -129,7 +132,7 @@ if (!class_exists('Storelly_Product_Builder_Frontend')) {
             };
             return $images;
         }
-        private function store_product_builder_design_data($pcpb_item_pb_key, $data) {
+        private function spbwc_store_product_builder_design_data($pcpb_item_pb_key, $data) {
             if ( ! function_exists( 'wp_handle_upload' ) ) {
                 require_once( ABSPATH . 'wp-admin/includes/file.php' );
             }
@@ -171,15 +174,15 @@ if (!class_exists('Storelly_Product_Builder_Frontend')) {
             }
             return true;
         }
-        public function before_product_container() {
+        public function spbwc_before_product_container() {
             $pid = get_the_ID();
             if (SPBWC_Storelly_PB_Util::spbwc_is_product_builder($pid)) {
-                add_action('storelly_after_default_options', array(&$this, 'product_builder_html'), 1);
-                add_action('wp_footer', array(&$this, 'nbd_modal_product_builder'), 1);
+                add_action('spbwc_after_default_options', array(&$this, 'spbwc_product_builder_html'), 1);
+                add_action('wp_footer', array(&$this, 'spbwc_modal_product_builder'), 1);
             }
         }
         
-        public function frontend_enqueue_scripts() {
+        public function spbwc_frontend_enqueue_scripts() {
             add_action('wp_enqueue_scripts', function () {
                 $js_libs = array(
                     'fontfaceobserver' => array(
@@ -230,17 +233,17 @@ if (!class_exists('Storelly_Product_Builder_Frontend')) {
                 }
             });
         }
-        public function product_builder_html() {
+        public function spbwc_product_builder_html() {
             include(SPBWC_PB_PLUGIN_DIR . 'views/product-builder/customize-btn.php');
         }
-        public function nbd_modal_product_builder() {
+        public function spbwc_modal_product_builder() {
             $product_id = get_the_ID();
-            $option_id = get_transient('storelly_product_builder_' . $product_id);
+            $option_id = get_transient('spbwc_product_builder_' . $product_id);
             if (SPBWC_Storelly_PB_Util::spbwc_is_product_builder($product_id)) {
                 include(SPBWC_PB_PLUGIN_DIR . 'views/product-builder/wrapper.php');
             }
         }
     }
 }
-$nbd_product_builder = Storelly_Product_Builder_Frontend::instance();
-$nbd_product_builder->init();
+$spbwc_product_builder_frontend = SPBWC_Storelly_Product_Builder_Frontend::instance();
+$spbwc_product_builder_frontend->spbwc_init();

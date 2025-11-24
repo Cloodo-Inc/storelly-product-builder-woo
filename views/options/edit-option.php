@@ -2,11 +2,11 @@
 <?php
 $link = add_query_arg(array(
     'paged'    => sanitize_text_field($_GET['paged'])
-), admin_url('admin.php?page=pc-product-builder-options'));
+), admin_url('admin.php?page=spbwc-product-builder-options'));
 $link_update = add_query_arg(array(
     'action'    => 'update',
     'id'        => $options['id'],
-), admin_url('admin.php?page=pc-product-builder-options'));
+), admin_url('admin.php?page=spbwc-product-builder-options'));
 $link_unpublish = add_query_arg(array(
     'id'        => sanitize_text_field($_GET['id']),
     'action'    => 'unpublish'
@@ -17,7 +17,7 @@ $link_create_option = add_query_arg(
         'paged'     => 1,
         'id'        => 0
     ),
-    admin_url('admin.php?page=pc-product-builder-options')
+    admin_url('admin.php?page=spbwc-product-builder-options')
 );
 wp_enqueue_media();
 

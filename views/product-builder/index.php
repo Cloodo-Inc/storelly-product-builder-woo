@@ -4,7 +4,7 @@
 
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <?php do_action('storelly_head', 'product-builder'); ?>
+    <?php do_action('spbwc_head', 'product-builder'); ?>
     <?php
     $is_nbpb_creating_task = true;
     $is_creating_task = 1;
@@ -17,7 +17,7 @@
     include(SPBWC_PB_PLUGIN_DIR . 'views/product-builder/wrapper.php');
     function storelly_get_product_builder($id) {
         global $wpdb;
-        $table_name = $wpdb->prefix . 'storelly_product_builder_options';
+        $table_name = $wpdb->prefix . 'spbwc_product_builder_options';
         $result = $wpdb->get_results($wpdb->prepare("SELECT * FROM $table_name WHERE `id` = %d", $id), 'ARRAY_A'); 
         return count($result[0]) ? $result[0] : false;
     }
@@ -222,7 +222,7 @@
                 
     storelly_show_option_fields();
     ?>
-    <?php do_action('storelly_footer', 'product-builder'); ?>
+    <?php do_action('spbwc_footer', 'product-builder'); ?>
 </body>
 
 </html>

@@ -762,7 +762,7 @@ nbdpbApp.controller("nbpbCtrl", [
           type: "application/json",
         }
       );
-      var action = "storelly_save_product_builder_design";
+      var action = "spbwc_save_product_builder_design";
       NBDDataFactory.get(action, dataObj, function (data) {
         data = JSON.parse(data);
         if (data.flag == "success") {
@@ -1253,7 +1253,7 @@ nbdpbApp.controller("nbpbCtrl", [
         reader.readAsText(file);
       } else {
         NBDDataFactory.get(
-           "storelly_customer_upload",
+           "spbwc_customer_upload",
           { file: file },
           function (data) {
             var data = JSON.parse(data);
