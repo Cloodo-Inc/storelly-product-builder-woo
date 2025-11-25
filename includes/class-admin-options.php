@@ -220,8 +220,8 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
 
             wp_register_style('storelly_options', SPBWC_PB_CSS_URL . 'admin-options.css', array('wp-color-picker', 'wp-jquery-ui-dialog'), SPBWC_PB_VERSION);
             wp_register_style('spbwc-general', SPBWC_PB_CSS_URL . 'storelly-general.css', array('dashicons'), SPBWC_PB_VERSION);
-            wp_register_style('pc-sweetalert', SPBWC_PB_CSS_URL . 'sweetalert.css', array(), '5.6.10');
-            wp_register_style('manager-fonts', SPBWC_PB_CSS_URL . 'manager-fonts.css', array('pc-sweetalert'), SPBWC_PB_VERSION);
+            wp_register_style('spbwc-sweetalert-css', SPBWC_PB_CSS_URL . 'sweetalert.css', array(), '5.6.10');
+            wp_register_style('spbwc-manager-fonts', SPBWC_PB_CSS_URL . 'manager-fonts.css', array('spbwc-sweetalert-css'), SPBWC_PB_VERSION);
 
             // style menu setting
             wp_enqueue_style('menu-setting',  SPBWC_PB_CSS_URL . '/menu-setting.css', array(), '1.0', 'all');
@@ -233,38 +233,41 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
             wp_enqueue_script('spbwc-general');
 
             if ($hook == 'toplevel_page_spbwc-product-builder-options') {
-                wp_register_script('storelly_options', SPBWC_PB_JS_URL . 'admin-options.js', array('jquery', 'wpdialogs', 'jquery-ui-resizable', 'jquery-ui-draggable', 'jquery-ui-droppable', 'jquery-ui-sortable', 'jquery-ui-datepicker', 'jquery-ui-autocomplete', 'wp-color-picker', 'spbwc-angular', 'wc-enhanced-select', 'spbwc-snap-svg', 'spbwc-tiptip'), SPBWC_PB_VERSION);
-                wp_localize_script('storelly_options', 'storelly_options', array(
+                wp_register_script('spbwc-options-script', SPBWC_PB_JS_URL . 'admin-options.js', array('jquery', 'wpdialogs', 'jquery-ui-resizable', 'jquery-ui-draggable', 'jquery-ui-droppable', 'jquery-ui-sortable', 'jquery-ui-datepicker', 'jquery-ui-autocomplete', 'wp-color-picker', 'spbwc-angular', 'wc-enhanced-select', 'spbwc-snap-svg', 'spbwc-tiptip'), SPBWC_PB_VERSION);
+                wp_localize_script('spbwc-options-script', 'storelly_options', array(
                     'search_products_nonce'     => wp_create_nonce("search-products"),
                     'calendar_image'            => SPBWC_PB_PLUGIN_URL . 'assets/images/calendar.png',
                     'storelly_options_lang'    => $this->storelly_option_i18n(),
                 ));
-                wp_enqueue_style('storelly_options');
-                wp_enqueue_script('storelly_options');
+               wp_enqueue_style('spbwc-options-style');
+               wp_enqueue_script('spbwc-options-script');
             }
             if ($hook == 'product-builder-options_page_spbwc-product-builder-options/manager-fonts') {
-                wp_register_script('manager-fonts', SPBWC_PB_JS_URL . 'manager-fonts.js', array('spbwc-fontfaceobserver', 'spbwc-sweetalert-js', 'spbwc-angular'), SPBWC_PB_VERSION, true);
-                wp_localize_script('manager-fonts', 'storelly_pb_fonts', array(
+                wp_register_script('spbwc-manager-fonts-script', SPBWC_PB_JS_URL . 'manager-fonts.js', array('spbwc-fontfaceobserver', 'spbwc-sweetalert-js', 'spbwc-angular'), SPBWC_PB_VERSION, true);
+                wp_localize_script('spbwc-manager-fonts-script', 'storelly_pb_fonts', array(
                     'url'       => admin_url('admin-ajax.php'),
-                    'nonce'     => wp_create_nonce('storelly_update_fonts'),
+                    'nonce'     => wp_create_nonce('spbwc_update_fonts'),
                     'complete'  => esc_html__('Complete!', 'pc-product-builder'),
                 ));
-                wp_enqueue_script('manager-fonts');
-                wp_enqueue_style('manager-fonts');
+                wp_enqueue_script('spbwc-manager-fonts-script');
+                wp_enqueue_style('spbwc-manager-fonts');
             }
         }
         public function spbwc_product_builder_options() {
-            if (isset($_GET['action']) && sanitize_text_field($_GET['action'] != 'copy')) {
+           if (isset($_GET['action']) && sanitize_text_field(wp_unslash($_GET['action']) != 'copy')) {
                 $paged      = get_query_var('paged', 1);
-                $ID = intval($_REQUEST['id']);
+                $ID = absint(wp_unslash($_REQUEST['id']));
                 $message    = array('content'  => ''); 
                 if (sanitize_text_field($_GET['action']) == 'unpublish') { 
-                    $this->unpublish_option($ID);
+                    $this->spbwc_unpublish_option($ID);
                     wp_redirect(esc_url_raw(add_query_arg(array('paged' => $paged), admin_url('admin.php?page=spbwc-product-builder-options'))));
                 } else {
-                    $id = (isset($ID) && absint($ID) > 0) ? absint($ID) : 0;
+                    $id = ($ID > 0) ? $ID : 0;
                     if (isset($_POST['save']) || isset($_POST['options'])) {
-                        $result = $this->save_option();
+                        if ( ! isset( $_POST['_wpnonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash($_POST['_wpnonce']) ), 'spbwc_save_option_action' ) ) {
+                             wp_die( esc_html__( 'Security check failed.', 'spbwc-product-builder' ) );
+                        }
+                        $result = $this->spbwc_save_option();
                         if ($result['status']) {
                             $message = array(
                                 'flag'      => 'success',
@@ -285,21 +288,21 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
                             );
                         }
                     }
-                    $_options = ($id > 0) ? (array) $this->get_option($id) : false;
+                    $_options = ($id > 0) ? (array) $this->spbwc_get_option($id) : false;
                     if ($_options) {
                         $raw_options = unserialize($_options['fields']);
                         if (!isset($raw_options["fields"])) {
                             $raw_options["fields"] = array();
                         }
-                        $options                    = $this->build_options($raw_options);
+                        $options                    = $this->spbwc_build_options($raw_options);
                         $options['id']              = $_options['id'];
                         $options['title']           = $_options['title'];
                         $options['published']       = $_options['published'];
                         $options['created']         = $_options['created'];
                         $options['modified']        = $_options['modified'];
-                        $options['product_ids']     = isset($_options['product_ids']) ? (!is_null(unserialize($_options['product_ids'])) ? unserialize($_options['product_ids']) : array()) : array();
+                        $options['product_ids']     = isset($_options['product_ids']) ? (is_array(maybe_unserialize($_options['product_ids'])) ? maybe_unserialize($_options['product_ids']) : array()) : array();
                     } else {
-                        $options = $this->build_options();
+                        $options = $this->spbwc_build_options();
                         $options['id']              = 0;
                         $options['title']           = '';
                         $options['product_ids']     = array();
@@ -307,58 +310,58 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
                         $options['created']         = '';
                         $options['modified']        = '';
                     }
-                    $default_field = $this->default_config_field();
-                    $max_input_vars = SPBWC_Storelly_PB_Util::spbwc_get_max_input_var();
-                    $product_id = (isset($_GET['product_id']) && absint($_GET['product_id']) > 0) ? absint($_GET['product_id']) : 0;
+                    $default_field = $this->spbwc_default_config_field();
+                    $product_id = (isset($_GET['product_id']) && absint(wp_unslash($_GET['product_id'])) > 0) ? absint(wp_unslash($_GET['product_id'])) : 0;
                     if ($product_id) {
                         if (!$_options) {
                             $options['product_ids'] = array(0 => $product_id);
                         }
                     }
-                    wp_register_script('storelly_option_field_script', SPBWC_PB_JS_URL . 'admin-options.js');
-                    wp_localize_script('storelly_option_field_script', 'storelly_option_variable', array(
+                    wp_register_script('spbwc_option_field_script', SPBWC_PB_JS_URL . 'admin-options.js');
+                    wp_localize_script('spbwc_option_field_script', 'storelly_option_variable', array(
                         'STORELLY_OPTIONS' =>  $options,
                         'STORELLY_OPTION_FIELD' => $default_field,
                         'ajax_url' => esc_url(admin_url('admin-ajax.php')),
                         'nbnonce' => esc_attr(wp_create_nonce('spbwc_save_design_action')),
-                        'max_input_vars' => (int) $max_input_vars
+                        'max_input_vars' => (int) SPBWC_Storelly_PB_Util::spbwc_get_max_input_var()
                     ));
-                    wp_enqueue_script("storelly_option_field_script");
+                    wp_enqueue_script("spbwc_option_field_script");
                     include_once(SPBWC_PB_PLUGIN_DIR . 'views/options/edit-option.php');
                 }
             } else {
                 require_once SPBWC_PB_PLUGIN_DIR . 'includes/options/fields-list-table.php';
-                $nbd_options = new Storelly_Options_List_Table();
+                $spbwc_options = new SPBWC_Storelly_Options_List_Table();
                 include_once(SPBWC_PB_PLUGIN_DIR . 'views/options/options-list-table.php');
             }
         }
-        function get_extension_filename() {
-        }
-        public function unpublish_option($id) {
+        public function spbwc_unpublish_option($id) { 
             global $wpdb;
-            $result = $wpdb->update($wpdb->prefix . 'spbwc-product-builder-options', array(
-                'published' => 0
-            ), array('id' => esc_sql($id)));
-            if ($result) $this->clear_transients();
+            $result = $wpdb->update($wpdb->prefix . 'spbwc_product_builder_options', array(
+               'published' => 0
+            ), array('id' => absint($id))); 
+            if ($result) $this->spbwc_clear_transients();
         }
-        private function clear_transients() {
-        }
-        public function get_option($id) {
+        public function spbwc_get_option($id) { 
             global $wpdb;
             $table_name = $wpdb->prefix . 'spbwc_product_builder_options';
-            $result = $wpdb->get_results($wpdb->prepare("SELECT * FROM $table_name WHERE `id` = %d", $id), 'ARRAY_A');
-            return count($result[0]) ? $result[0] : false;          
+            $result = $wpdb->get_results($wpdb->prepare("SELECT * FROM $table_name WHERE `id` = %d", absint($id)), 'ARRAY_A');
+            return count($result) ? $result[0] : false; 
         }
-        public function save_option() {
-            $id             = absint($_REQUEST['id']);
+        public function spbwc_save_option() {
+            if ( ! current_user_can( 'spbwc_manage_product_builder' ) ) {
+                 return array( 'status' => false, 'id' => 0 );
+            }
+            $id             = absint(wp_unslash($_REQUEST['id']));
             $modified_date  = new DateTime();
+            $title = isset($_POST['title']) ? sanitize_text_field(wp_unslash($_POST['title'])) : '';
+            $product_ids = isset($_POST['product_ids']) ? array_map('absint', (array) wp_unslash($_POST['product_ids'])) : array();
             $arr            = array(
-                'title'         => wc_clean($_POST['title']),
-                'published'     => 1,
-                'product_ids'   => isset($_POST['product_ids']) ? serialize($_POST['product_ids']) : serialize(array()),
-                'modified'      => $modified_date->format('Y-m-d H:i:s')
+                'title'       => $title,
+                'published'   => 1,
+                'product_ids' => serialize($product_ids),
+                'modified'    => $modified_date->format('Y-m-d H:i:s')
             );
-            $post_options = storelly_sanitize_recursive(wp_unslash($_POST['options']));
+            $post_options = spbwc_sanitize_recursive(wp_unslash($_POST['options']));
             if (isset($post_options['jsonFields'])) {
                 $post_options['fields'] = json_decode(stripslashes($post_options['jsonFields']), true); 
                 unset($post_options['jsonFields']);
@@ -377,19 +380,19 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
                 $result             = $wpdb->insert("{$wpdb->prefix}spbwc_product_builder_options", $arr);
                 $id                 = $result ?  $wpdb->insert_id : 0;
             }
-            $this->clear_transients();
+            $this->spbwc_clear_transients();
             do_action('storelly_save_print_option', $arr);
             return array(
                 'status'    => $result,
                 'id'        => $id
             );
         }
-        public function build_options($options = null) {
+        public function spbwc_build_options($options = null) {
             if (is_null($options)) {
                 $options = array(
                     'version'                   => SPBWC_PB_NUMBER_VERSION,
                     'fields'                    => array(
-                        0   =>  $this->default_field()
+                        0   =>  $this->spbwc_clear_transients()
                     ),
                     'design_output'  => array(
                         'dpi'                   => 300,
@@ -397,9 +400,9 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
                     )
                 );
             }
-            $options['fields'] = $this->recursive_stripslashes($options['fields']);
+            $options['fields'] = $this->spbwc_recursive_stripslashes($options['fields']);
             foreach ($options['fields'] as $f_key => $field) {
-                $field = array_replace_recursive($this->default_field(), $field);
+                $field = array_replace_recursive($this->spbwc_clear_transients(), $field);
                 foreach ($field as $tab =>  $data) {
                     if ($tab != 'id' && $tab != 'nbpb_type' && $tab != 'nbd_template') {
                         foreach ($data as $key => $f) {
@@ -426,7 +429,7 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
             }
             return $options;
         }
-        public function build_config_conditional_depend($value = null) {
+        public function spbwc_build_config_conditional_depend($value = null) {
             if (is_null($value) || count($value) == 0) $value = array(
                 0   =>  array(
                     'id'        => '',
@@ -436,8 +439,8 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
             );
             return $value;
         }
-        public function default_config_field() {
-            $field = $this->default_field();
+        public function spbwc_default_config_field() {
+            $field = $this->spbwc_clear_transients();
             foreach ($field as $tab =>  $data) {
                 if ($tab != 'id' && $tab != 'nbpb_type' && $tab != 'nbd_template') {
                     foreach ($data as $key => $f) {
@@ -450,18 +453,18 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
             }
             return $field;
         }
-        public function recursive_stripslashes($fields) {
+        public function spbwc_recursive_stripslashes($fields) {
             $valid_fields = array();
             foreach ($fields as $key => $field) {
                 if (is_array($field)) {
-                    $valid_fields[$key] = $this->recursive_stripslashes($field);
+                    $valid_fields[$key] = $this->spbwc_recursive_stripslashes($field);
                 } else if (!is_null($field)) {
                     $valid_fields[$key] = stripslashes($field);
                 }
             }
             return $valid_fields;
         }
-        public function default_field() {
+        public function spbwc_clear_transients() {
             return array(
                 'id'            => 'f' . round(microtime(true) * 1000),
                 'general'       => array(
@@ -935,7 +938,7 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
                 'value'         => $value
             );
         }
-        function storelly_option_i18n() {
+        function spbwc_storelly_option_i18n() {
             return array(
                 'nbpb_com'              => esc_html__('Component', 'pc-product-builder'),
                 'nbpb_text'             => esc_html__('Text', 'pc-product-builder'),
@@ -947,10 +950,10 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
         public function spbwc_add_meta_boxes() {
             add_meta_box('storelly_product_builder', __('Storelly product builder', 'pc-product-builder'), array($this, 'meta_box'), 'product', 'normal', 'high');
         }
-        public function meta_box() {
+        public function spbwc_meta_box() {
             $post_id            = get_the_ID();
             $nbdpb_enable       = get_post_meta($post_id, '_storelly_pb_enable', true);
-            $option_id          = $this->get_product_option($post_id);
+            $option_id          = $this->spbwc_get_product_option($post_id);
             $option_id          = $option_id ? $option_id : 0;
             $link_edit_option   = add_query_arg(
                 array(
@@ -963,7 +966,7 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
             );
             include_once(SPBWC_PB_PLUGIN_DIR . 'views/options/meta-box.php');
         }
-        public function get_product_option($product_id) {
+        public function spbwc_get_product_option($product_id) {
             $enable = get_post_meta($product_id, '_storelly_pb_enable', true);
             if (!$enable) return false;
             $option_id = get_transient('spbwc_product_builder_' . $product_id);
@@ -1050,7 +1053,7 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
                 'mes'   =>  esc_html__('You do not have permission to add font!', 'pc-product-builder'),
                 'flag'  => 0
             );
-            if (!wp_verify_nonce(sanitize_text_field($_POST['nonce']), 'storelly_update_fonts')) {
+            if (!wp_verify_nonce(sanitize_text_field($_POST['nonce']), 'spbwc_update_fonts')) {
                 die('Security error');
             }
             $gg_fonts = array();
@@ -1139,7 +1142,7 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
             }
             include_once(SPBWC_PB_PLUGIN_DIR . 'views/menu-settings.php');
         }
-        public function convert_svg_embed($path) {
+        public function spbwc_convert_svg_embed($path) {
             $svgs       = SPBWC_Storelly_IO::spbwc_get_list_files_by_type($path, 'svg', 1);
             $svg_path   = $path . '/svg';
             if (!file_exists($svg_path)) wp_mkdir_p($svg_path);
@@ -1196,7 +1199,7 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
                         if ($type_download == 'svg') {
                             $svg_path = $path . '/svg';
                             if (!file_exists($svg_path)) {
-                                $this->convert_svg_embed($path);
+                                $this->spbwc_convert_svg_embed($path);
                             }
                             $item_files = SPBWC_Storelly_IO::spbwc_get_list_files_by_type($svg_path, 'svg', 1);
                         } else if ($type_download == 'png') {

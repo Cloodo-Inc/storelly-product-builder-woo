@@ -115,4 +115,4 @@ if (!class_exists('SPBWC_SPBWC_Storelly_PB_Script_Hook')) {
     }
 }
 $spbwc_script_hook = SPBWC_Storelly_PB_Script_Hook::instance();
-$spbwc_script_hook->init();
+$spbwc_script_hook->spbwc_init();

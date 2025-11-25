@@ -2,7 +2,7 @@
 if (!class_exists('WP_List_Table')) {
     require_once(ABSPATH . 'wp-admin/includes/class-wp-list-table.php');
 }
-class Storelly_Options_List_Table extends WP_List_Table {
+class SPBWC_Storelly_Options_List_Table extends WP_List_Table {
 
     public function __construct() {
         parent::__construct(array(
@@ -20,12 +20,12 @@ class Storelly_Options_List_Table extends WP_List_Table {
         $this->process_bulk_action();
         $per_page       = $this->get_items_per_page('options_per_page', 10);
         $current_page   = $this->get_pagenum();
-        $total_items    = self::record_count();
+        $total_items    = self::spbwc_record_count();
         $this->set_pagination_args(array(
             'total_items'   => $total_items,
             'per_page'      => $per_page
         ));
-        $this->items = self::get_options($per_page, $current_page);
+        $this->items = self::spbwc_get_options($per_page, $current_page);
     }
     public function get_columns() {
         $columns = array(
@@ -42,13 +42,13 @@ class Storelly_Options_List_Table extends WP_List_Table {
         );
         return $sortable_columns;
     }
-    public static function record_count() {
+    public static function spbwc_record_count() {
         global $wpdb;
         $table_name = $wpdb->prefix . 'spbwc_product_builder_options';
         $result = $wpdb->get_var($wpdb->prepare("SELECT COUNT(*) FROM $table_name"));
         return $result;
     }
-    public function get_options($per_page = 10, $page_number = 1) {
+    public function spbwc_get_options($per_page = 10, $page_number = 1) {
         global $wpdb;
         $table_name = $wpdb->prefix . 'spbwc_product_builder_options';
         $number_page = ($page_number - 1) * $per_page;
@@ -56,100 +56,104 @@ class Storelly_Options_List_Table extends WP_List_Table {
         return $result;
     } 
     public function process_bulk_action() {
-        if ('delete' === $this->current_action()) {
-            $nonce = sanitize_text_field($_REQUEST['_wpnonce']);
-            if (!wp_verify_nonce($nonce, 'nbd_options_nonce')) {
-                die('Go get a life script kiddies');
-            }
-            $this->delete_option(absint($_GET['id']));
-            wp_redirect(esc_url_raw(add_query_arg(array('paged' => $this->get_pagenum()), admin_url('admin.php?page=spbwc-product-builder-options'))));
-            exit;
+        if (!current_user_can('manage_options')) {
+                  return;
         }
-        if ('copy' === $this->current_action()) {
-            $nonce = sanitize_text_field($_REQUEST['_wpnonce']);
-            if (!wp_verify_nonce($nonce, 'nbd_options_nonce')) {
-                die('Go get a life script kiddies');
+        $current_action = $this->current_action();
+        $nonce = isset($_REQUEST['_wpnonce']) ? sanitize_text_field(wp_unslash($_REQUEST['_wpnonce'])) : '';
+        
+        $is_bulk_action = in_array($current_action, array('bulk-publish', 'bulk-unpublish', 'bulk-delete'));
+        if ($current_action === 'delete' || $current_action === 'copy') {
+            if (!wp_verify_nonce($nonce, 'spbwc_options_nonce')) { 
+                        wp_die(esc_html__('Security error.', 'pc-product-builder'));
             }
-            $this->copy_options(absint($_GET['id']));
-            wp_redirect(esc_url_raw(admin_url('admin.php?page=spbwc-product-builder-options')));
-            exit;
+        } else if ($is_bulk_action) {
+            if (!wp_verify_nonce($nonce, 'bulk-' . $this->get_plural())) {
+                wp_die(esc_html__('Security error.', 'pc-product-builder'));
+            }
         }
-        if ((isset($_POST['action']) && sanitize_text_field($_POST['action'] == 'bulk-publish')) || (isset($_POST['action2']) && sanitize_text_field($_POST['action2'] == 'bulk-publish'))) {
-            if (isset($_POST['bulk-delete'])) {
-                $bulk_ids = sanitize_text_field($_POST['bulk-delete']);
-                foreach ($bulk_ids as $id) {
-                    $id = sanitize_text_field($id);
-                    $this->publish_option($id);
-                }
-            }
-            wp_redirect(esc_url_raw(add_query_arg('', '')));
+        if ('delete' === $current_action) {
+                  $this->spbwc_delete_option(absint($_GET['id'])); 
+                  wp_redirect(esc_url_raw(add_query_arg(array('paged' => $this->get_pagenum()), admin_url('admin.php?page=spbwc-product-builder-options'))));
+                  exit;
         }
-        if ((isset($_POST['action']) && sanitize_text_field($_POST['action'] == 'bulk-unpublish')) || (isset($_POST['action2']) && sanitize_text_field($_POST['action2'] == 'bulk-unpublish'))) {
-            if (isset($_POST['bulk-delete'])) {
-                $bulk_ids = sanitize_text_field($_POST['bulk-delete']);
-                foreach ($bulk_ids as $id) {
-                    $id = sanitize_text_field($id);
-                    $this->unpublish_option($id);
-                }
-            }
-            wp_redirect(esc_url_raw(add_query_arg('', '')));
+        if ('copy' === $current_action) {
+                  $this->spbwc_copy_options(absint($_GET['id'])); 
+                  wp_redirect(esc_url_raw(admin_url('admin.php?page=spbwc-product-builder-options')));
+                  exit;
         }
-        if ((isset($_POST['action']) && sanitize_text_field($_POST['action'] == 'bulk-delete')) || (isset($_POST['action2']) && sanitize_text_field($_POST['action2'] == 'bulk-delete'))) {
-            if (isset($_POST['bulk-delete'])) {
-                $bulk_ids = storelly_sanitize_recursive($_POST['bulk-delete']);
-                foreach ($bulk_ids as $id) {
-                    $id = sanitize_text_field($id);
-                    $this->delete_option($id);
-                }
+        if ($is_bulk_action) {
+          if (isset($_POST['bulk-delete'])) {
+           $bulk_ids = array_map('absint', (array) wp_unslash($_POST['bulk-delete'])); 
+           foreach ($bulk_ids as $id) {
+            if ($current_action == 'bulk-publish') {
+                    $this->spbwc_publish_option($id); 
+            } elseif ($current_action == 'bulk-unpublish') {
+                    $this->spbwc_unpublish_option($id); 
+            } elseif ($current_action == 'bulk-delete') {
+                    $this->spbwc_delete_option($id); 
             }
-            wp_redirect(esc_url_raw(add_query_arg('', '')));
+           }
+          }
+          wp_redirect(esc_url_raw(add_query_arg('', '')));
+          exit;
         }
     }
-    public function delete_option($id) {
-        global $wpdb;
-        $table_name = $wpdb->prefix . 'spbwc_product_builder_options';
-        $result = $wpdb->delete($table_name, array('id' => $id));
-        if ($result) $this->clear_transients();
+   public function spbwc_delete_option($id) { // Added prefix
+         global $wpdb;
+    if ( ! current_user_can( 'manage_options' ) ) return; 
+         $table_name = $wpdb->prefix . 'spbwc_product_builder_options';
+         $result = $wpdb->delete($table_name, array('id' => absint($id)), array('%d'));
+         if ($result) $this->spbwc_clear_transients();
     }
-    public function unpublish_option($id) {
+    public function spbwc_unpublish_option($id) { // Added prefix
         global $wpdb;
+        if ( ! current_user_can( 'manage_options' ) ) return; 
         $result = $wpdb->update($wpdb->prefix . 'spbwc_product_builder_options', array(
-            'published' => 0
-        ), array('id' => esc_sql($id)));
-        if ($result) $this->clear_transients();
+        'published' => 0
+        ), array('id' => absint($id)), array('%d'), array('%d'));
+        if ($result) $this->spbwc_clear_transients();
     }
-    public function publish_option($id) {
+    public function spbwc_publish_option($id) { // Added prefix
         global $wpdb;
+        if ( ! current_user_can( 'manage_options' ) ) return;
         $result = $wpdb->update($wpdb->prefix . 'spbwc_product_builder_options', array(
-            'published' => 1
-        ), array('id' => esc_sql($id)));
-        if ($result) $this->clear_transients();
+           'published' => 1
+        ), array('id' => absint($id)), array('%d'), array('%d'));
+        if ($result) $this->spbwc_clear_transients();
     }
-    public function copy_options($id) {
-        global $wpdb;   
+    public function spbwc_copy_options($id) { // Added prefix
+        global $wpdb; 
+        // FIX: Thay thế custom capability bằng 'manage_options'
+        if ( ! current_user_can( 'manage_options' ) ) return false;
         $table_name = $wpdb->prefix . 'spbwc_product_builder_options';
-        $result = $wpdb->get_results($wpdb->prepare("SELECT * FROM $table_name WHERE `id` = %d", $id), 'ARRAY_A');
+        $result = $wpdb->get_results($wpdb->prepare("SELECT * FROM {$table_name} WHERE `id` = %d", absint($id)), 'ARRAY_A');
+        
         if (count($result)) {
             $res            = $result[0];
             $modified_date  = new DateTime();
+            $current_user_id = get_current_user_id();
+            
             $arr            = array(
-                'title'         => $res['title'],
+                'title'         => $res['title'] . ' (' . esc_html__('Copy', 'pc-product-builder') . ')',
                 'product_ids'   => $res['product_ids'],
+                'published'     => 0,
                 'modified'      => $modified_date->format('Y-m-d H:i:s'),
+                'modified_by'   => $current_user_id,
                 'fields'        => $res['fields'],
                 'builder'       => $res['builder'],
                 'created'       => $modified_date->format('Y-m-d H:i:s'),
-                'created_by'    => wp_get_current_user()->ID
+                'created_by'    => $current_user_id
             ); 
-            $in_res = $wpdb->insert("{$wpdb->prefix}spbwc_product_builder_options", $arr);
+            $in_res = $wpdb->insert("{$wpdb->prefix}spbwc_product_builder_options", $arr, array('%s', '%s', '%d', '%s', '%d', '%s', '%s', '%d'));
             if ($in_res) {
-                $this->clear_transients();
+                $this->spbwc_clear_transients();
                 return $in_res;
             }
         }
         return false;
     }
-    private function clear_transients() {
+    private function spbwc_clear_transients() {
         global $wpdb;
         $sql = "DELETE FROM $wpdb->options WHERE option_name LIKE '_transient_nbo_product_%' OR option_name LIKE '_transient_timeout_nbo_product_%'";
         $wpdb->query($sql);

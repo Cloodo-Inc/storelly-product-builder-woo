@@ -77,10 +77,10 @@ add_action( 'before_woocommerce_init', function() {
 } );
 
 // Before convert array to string, after sanitize_text_field to text
-function storelly_sanitize_recursive($data) {
+function spbwc_sanitize_recursive($data) {
     if (is_array($data)) {
         foreach ($data as $key => $value) {
-            $data[$key] = storelly_sanitize_recursive($value);
+            $data[$key] = spbwc_sanitize_recursive($value);
         }
     } elseif (is_string($data)) {
         $data = sanitize_text_field($data);
