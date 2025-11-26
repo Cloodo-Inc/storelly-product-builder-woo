@@ -13,7 +13,7 @@ $link_unpublish = add_query_arg(array(
 ), $link);
 $link_create_option = add_query_arg(
     array(
-        'action'    => 'edit',
+        'action'    => 'create',
         'paged'     => 1,
         'id'        => 0
     ),
@@ -29,7 +29,14 @@ $link_create_pre_builder = add_query_arg(array(
 ?>
 <div class="wrap">
     <h2>
-        <?php esc_html_e('Edit Options', 'pc-product-builder'); ?>
+        <?php 
+        $current_id = isset($options['id']) ? $options['id'] : 0; 
+        if ($current_id == 0) {
+            esc_html_e('Create New Option', 'pc-product-builder'); 
+        } else {
+            esc_html_e('Edit Options', 'pc-product-builder');      
+        }
+        ?>
         <a class="nbd-page-title-action" href="<?php echo esc_url($link_create_option); ?>"><?php esc_html_e('Add new', 'pc-product-builder'); ?></a>
     </h2>
 </div>
@@ -42,6 +49,7 @@ $link_create_pre_builder = add_query_arg(array(
 <div class="wrap" ng-app="optionApp" ng-cloak>
     <div ng-controller="optionCtrl">
         <form name="nboForm" action="" method="post" id="post">
+            <?php wp_nonce_field( 'spbwc_save_option_action', '_wpnonce' ) ?>
             <div id="poststuff">
                 <div id="post-body" class="metabox-holder columns-2">
                     <div id="post-body-content">

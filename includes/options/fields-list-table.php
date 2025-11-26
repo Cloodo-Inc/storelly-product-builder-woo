@@ -11,13 +11,13 @@ class SPBWC_Storelly_Options_List_Table extends WP_List_Table {
             'ajax'      => false
         ));
     }
-    public function prepare_items() {
+    public function spbwc_prepare_items() {
         $columns    = $this->get_columns();
         $hidden     = array();
-        $sortable   = $this->get_sortable_columns();
+        $sortable   = $this->spbwc_get_sortable_columns();
         $this->_column_headers = array($columns, $hidden, $sortable);
         /** Process bulk action */
-        $this->process_bulk_action();
+        $this->spbwc_process_bulk_action();
         $per_page       = $this->get_items_per_page('options_per_page', 10);
         $current_page   = $this->get_pagenum();
         $total_items    = self::spbwc_record_count();
@@ -36,7 +36,7 @@ class SPBWC_Storelly_Options_List_Table extends WP_List_Table {
         );
         return $columns;
     }
-    public function get_sortable_columns() {
+    public function spbwc_get_sortable_columns() {
         $sortable_columns = array(
             'priority' => array('priority', true)
         );
@@ -44,22 +44,22 @@ class SPBWC_Storelly_Options_List_Table extends WP_List_Table {
     }
     public static function spbwc_record_count() {
         global $wpdb;
-        $table_name = $wpdb->prefix . 'spbwc_product_builder_options';
+        $table_name = $wpdb->prefix . 'storelly_product_builder_options';
         $result = $wpdb->get_var($wpdb->prepare("SELECT COUNT(*) FROM $table_name"));
         return $result;
     }
     public function spbwc_get_options($per_page = 10, $page_number = 1) {
         global $wpdb;
-        $table_name = $wpdb->prefix . 'spbwc_product_builder_options';
+        $table_name = $wpdb->prefix . 'storelly_product_builder_options';
         $number_page = ($page_number - 1) * $per_page;
         $result = $wpdb->get_results($wpdb->prepare("SELECT * FROM $table_name ORDER BY modified DESC LIMIT %d OFFSET %d", $per_page, $number_page), 'ARRAY_A');
         return $result;
     } 
-    public function process_bulk_action() {
+    public function spbwc_process_bulk_action() {
         if (!current_user_can('manage_options')) {
                   return;
         }
-        $current_action = $this->current_action();
+        $current_action = $this->spbwc_current_action();
         $nonce = isset($_REQUEST['_wpnonce']) ? sanitize_text_field(wp_unslash($_REQUEST['_wpnonce'])) : '';
         
         $is_bulk_action = in_array($current_action, array('bulk-publish', 'bulk-unpublish', 'bulk-delete'));
@@ -102,14 +102,14 @@ class SPBWC_Storelly_Options_List_Table extends WP_List_Table {
    public function spbwc_delete_option($id) { // Added prefix
          global $wpdb;
     if ( ! current_user_can( 'manage_options' ) ) return; 
-         $table_name = $wpdb->prefix . 'spbwc_product_builder_options';
+         $table_name = $wpdb->prefix . 'storelly_product_builder_options';
          $result = $wpdb->delete($table_name, array('id' => absint($id)), array('%d'));
          if ($result) $this->spbwc_clear_transients();
     }
     public function spbwc_unpublish_option($id) { // Added prefix
         global $wpdb;
         if ( ! current_user_can( 'manage_options' ) ) return; 
-        $result = $wpdb->update($wpdb->prefix . 'spbwc_product_builder_options', array(
+        $result = $wpdb->update($wpdb->prefix . 'storelly_product_builder_options', array(
         'published' => 0
         ), array('id' => absint($id)), array('%d'), array('%d'));
         if ($result) $this->spbwc_clear_transients();
@@ -117,16 +117,15 @@ class SPBWC_Storelly_Options_List_Table extends WP_List_Table {
     public function spbwc_publish_option($id) { // Added prefix
         global $wpdb;
         if ( ! current_user_can( 'manage_options' ) ) return;
-        $result = $wpdb->update($wpdb->prefix . 'spbwc_product_builder_options', array(
+        $result = $wpdb->update($wpdb->prefix . 'storelly_product_builder_options', array(
            'published' => 1
         ), array('id' => absint($id)), array('%d'), array('%d'));
         if ($result) $this->spbwc_clear_transients();
     }
     public function spbwc_copy_options($id) { // Added prefix
         global $wpdb; 
-        // FIX: Thay thế custom capability bằng 'manage_options'
         if ( ! current_user_can( 'manage_options' ) ) return false;
-        $table_name = $wpdb->prefix . 'spbwc_product_builder_options';
+        $table_name = $wpdb->prefix . 'storelly_product_builder_options';
         $result = $wpdb->get_results($wpdb->prepare("SELECT * FROM {$table_name} WHERE `id` = %d", absint($id)), 'ARRAY_A');
         
         if (count($result)) {
@@ -145,7 +144,7 @@ class SPBWC_Storelly_Options_List_Table extends WP_List_Table {
                 'created'       => $modified_date->format('Y-m-d H:i:s'),
                 'created_by'    => $current_user_id
             ); 
-            $in_res = $wpdb->insert("{$wpdb->prefix}spbwc_product_builder_options", $arr, array('%s', '%s', '%d', '%s', '%d', '%s', '%s', '%d'));
+            $in_res = $wpdb->insert("{$wpdb->prefix}storelly_product_builder_options", $arr, array('%s', '%s', '%d', '%s', '%d', '%s', '%s', '%d'));
             if ($in_res) {
                 $this->spbwc_clear_transients();
                 return $in_res;
@@ -177,7 +176,7 @@ class SPBWC_Storelly_Options_List_Table extends WP_List_Table {
             'edit' => sprintf('<a href="?page=%s&action=%s&id=%s&paged=%s&_wpnonce=%s">' . esc_html__('Edit', 'pc-product-builder') . '</a>', esc_attr($page), 'edit', absint($item['id']), $this->get_pagenum(), $_nonce),
             'copy' => sprintf('<a href="?page=%s&action=%s&id=%s&paged=%s&_wpnonce=%s">' . esc_html__('Copy', 'pc-product-builder') . '</a>', esc_attr($page), 'copy', absint($item['id']), $this->get_pagenum(), $_nonce)
         );
-        return $title . $this->row_actions($actions);
+        return $title . $this->spbwc_row_actions($actions);
     }
     function column_published($item) {
         return $item['published'] == 1 ? esc_html__('Publish', 'pc-product-builder') : esc_html__('Unpublish', 'pc-product-builder');
