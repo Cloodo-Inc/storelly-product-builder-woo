@@ -71,9 +71,9 @@ if (!class_exists('STORELLY_FRONTEND_OPTIONS')) {
         }
         
         public static function get_option($id) {
-            global $wpdb;
-            $table_name = $wpdb->prefix . 'storelly_product_builder_options';
-            $options = $wpdb->get_results($wpdb->prepare("SELECT * FROM $table_name WHERE `id` = %d", $id), 'ARRAY_A');  
+            global $spbwc_wpdb;
+            $table_name = $spbwc_wpdb->prefix . 'storelly_product_builder_options';
+            $options = $spbwc_wpdb->get_results($spbwc_wpdb->prepare("SELECT * FROM $table_name WHERE `id` = %d", $id), 'ARRAY_A');  
             return count($options[0]) ? $options[0] : false;
         }
         public static function get_product_option($product_id) {
@@ -81,9 +81,9 @@ if (!class_exists('STORELLY_FRONTEND_OPTIONS')) {
             if (!$enable) return false;
             $option_id = get_transient('spbwc_product_builder_' . $product_id);
             if (false === $option_id) {
-                global $wpdb;
-                $table_name = $wpdb->prefix . 'storelly_product_builder_options';
-                $options = $wpdb->get_results($wpdb->prepare("SELECT id, product_ids FROM $table_name WHERE published = 1", $product_id), 'ARRAY_A');   
+                global $spbwc_wpdb;
+                $table_name = $spbwc_wpdb->prefix . 'storelly_product_builder_options';
+                $options = $spbwc_wpdb->get_results($spbwc_wpdb->prepare("SELECT id, product_ids FROM $table_name WHERE published = 1", $product_id), 'ARRAY_A');   
                 if ($options) {
                     $_options = array();
                     foreach ($options as $option) {

@@ -186,9 +186,9 @@ if (!class_exists('SPBWC_Storelly_PB_Util')) {
                     $data['design'] = self::spbwc_get_data_from_json($path . '/design.json');
                 }
             } else {
-                global $wpdb;
-                $table_name = $wpdb->prefix . 'storelly_product_builder_options';
-                $options = $wpdb->get_results($wpdb->prepare("SELECT builder FROM $table_name WHERE `id` = %d", $option_id), 'ARRAY_A');   
+                global $spbwc_wpdb;
+                $table_name = $spbwc_wpdb->prefix . 'storelly_product_builder_options';
+                $options = $spbwc_wpdb->get_results($spbwc_wpdb->prepare("SELECT builder FROM $table_name WHERE `id` = %d", $option_id), 'ARRAY_A');   
                 if (isset($options[0])) {
                     $builder_folder = $options[0]['builder'];
                     if ($builder_folder) {

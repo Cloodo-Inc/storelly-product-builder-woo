@@ -16,9 +16,9 @@
     <?php
     include(SPBWC_PB_PLUGIN_DIR . 'views/product-builder/wrapper.php');
     function storelly_get_product_builder($id) {
-        global $wpdb;
-        $table_name = $wpdb->prefix . 'storelly_product_builder_options';
-        $result = $wpdb->get_results($wpdb->prepare("SELECT * FROM $table_name WHERE `id` = %d", $id), 'ARRAY_A'); 
+        global $spbwc_wpdb;
+        $table_name = $spbwc_wpdb->prefix . 'storelly_product_builder_options';
+        $result = $spbwc_wpdb->get_results($spbwc_wpdb->prepare("SELECT * FROM $table_name WHERE `id` = %d", $id), 'ARRAY_A'); 
         return count($result[0]) ? $result[0] : false;
     }
     function storelly_recursive_stripslashes($fields) {
@@ -213,12 +213,12 @@
   
         wp_add_inline_style('normalize-css', $custom_css);
     }
-    function custom_pdf_enqueue_assets() {
+    function spbwc_custom_pdf_enqueue_assets() {
         enqueue_pdf_styles(); 
         enqueue_google_fonts(); 
         add_inline_pdf_styles();
     }
-    add_action('wp_enqueue_scripts', 'custom_pdf_enqueue_assets');
+    add_action('wp_enqueue_scripts', 'spbwc_custom_pdf_enqueue_assets');
                 
     storelly_show_option_fields();
     ?>

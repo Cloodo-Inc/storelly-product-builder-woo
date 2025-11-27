@@ -138,7 +138,7 @@ if (!class_exists('SPBWC_Storelly_Export_PDF')) {
             if (!file_exists($folder)) {
                 wp_mkdir_p($folder);
             }
-            $storelly_pb_settings = get_option('storelly_pb_settings');
+            $storelly_pb_settings = get_option('spbwc_pb_settings');
             $enable_cloud_export_pdf = $storelly_pb_settings && isset($storelly_pb_settings['enable_cloud2print_api']) && $storelly_pb_settings['enable_cloud2print_api'] == 'yes' ? true : false;
             if ($enable_cloud_export_pdf) {
                 self::spbwc_cloud_export_pdf($folder_design, $include_background);
@@ -219,7 +219,7 @@ if (!class_exists('SPBWC_Storelly_Export_PDF')) {
                 $pdf = new \setasign\Fpdi\TcpdfFpdi($orientation, 'mm', $pdf_format, true, 'UTF-8', false);
 
                 $pdf->SetMargins(0, 0, 0, true);
-                $pdf->SetCreator(get_site_url());
+                $pdf->SetCreator(get_site_url());           
                 $pdf->SetTitle(get_bloginfo('name'));
                 $pdf->setPrintHeader(false);
                 $pdf->setPrintFooter(false);

@@ -89,11 +89,11 @@ if (!class_exists('SPBWC_Storelly_Product_Builder_Frontend')) {
                 $result['flag'] = 'success';
                 $result['folder'] = $pcpb_item_pb_key;
                 if ($is_creating_task == '1' && $oid != 0) {
-                    global $wpdb;
+                    global $spbwc_wpdb;
                     $arr = array(
                         'builder'   =>  $pcpb_item_pb_key
                     );
-                    $result_update = $wpdb->update("{$wpdb->prefix}storelly_product_builder_options", $arr, array('id' => $oid));
+                    $result_update = $spbwc_wpdb->update("{$spbwc_wpdb->prefix}storelly_product_builder_options", $arr, array('id' => $oid));
                 }
             }
             do_action('spbwc_after_save_product_builder_design', $result);
