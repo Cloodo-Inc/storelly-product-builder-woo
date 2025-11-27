@@ -41,7 +41,7 @@ define('SPBWC_PB_ASSETS_DIR',               SPBWC_PB_PLUGIN_DIR . 'assets/');
 define('SPBWC_PB_JS_URL',                   SPBWC_PB_PLUGIN_URL . 'assets/js/');
 define('SPBWC_PB_CSS_URL',                  SPBWC_PB_PLUGIN_URL . 'assets/css/');
 define('SPBWC_ENABLE_NONCE',                TRUE);
-define('SPBWC_API_URL',                      'https://dashboard.storelly.com/public');
+define('SPBWC_API_URL',                     'https://dashboard.storelly.com/public');
 
 
 // check if woocommerce works
