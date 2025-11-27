@@ -480,13 +480,13 @@ msgstr ""
 msgid "None"
 msgstr ""
 
-#: product-builder.php:51
+#: spbwc-product-builder.php:51
 msgid ""
 "WooCommerce is not active. Please activate "
 "WooCommerce before using"
 msgstr ""
 
-#: product-builder.php:52
+#: spbwc-product-builder.php:52
 msgid "Product Builder Integration"
 msgstr ""
 
