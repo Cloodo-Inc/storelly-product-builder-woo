@@ -127,9 +127,9 @@ if (!class_exists('SPBWC_Storelly_Export_PDF')) {
         }
         public static function spbwc_export_pdf($folder_design, $include_background = false) {
             if (!class_exists('TCPDF')) {
-                require_once(SPBWC_PB_PLUGIN_DIR . 'lib/tcpdf/tcpdf.php');
+                require_once(SPBWC_PB_PLUGIN_DIR . 'build/tcpdf/tcpdf.php');
             }
-            require_once(SPBWC_PB_PLUGIN_DIR . 'lib/fpdi/autoload.php');
+            require_once(SPBWC_PB_PLUGIN_DIR . 'build/fpdi/autoload.php');
 
             $path           = SPBWC_PB_CUSTOMER_DIR . '/' . $folder_design;
             $folder         = $path . '/customer-pdfs';
