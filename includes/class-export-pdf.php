@@ -216,7 +216,7 @@ if (!class_exists('SPBWC_Storelly_Export_PDF')) {
                     $orientation = "P";
                 }
 
-                $pdf = new \setasign\Fpdi\TcpdfFpdi($orientation, 'mm', $pdf_format, true, 'UTF-8', false);
+                $pdf = new \SPBWC\setasign\Fpdi\TcpdfFpdi($orientation, 'mm', $pdf_format, true, 'UTF-8', false);
 
                 $pdf->SetMargins(0, 0, 0, true);
                 $pdf->SetCreator(get_site_url());           
@@ -237,7 +237,7 @@ if (!class_exists('SPBWC_Storelly_Export_PDF')) {
                         $orientation = "P";
                     }
 
-                    $pdf = new \setasign\Fpdi\TcpdfFpdi($orientation, 'mm', $pdf_format, true, 'UTF-8', false);
+                    $pdf = new \SPBWC\setasign\Fpdi\TcpdfFpdi($orientation, 'mm', $pdf_format, true, 'UTF-8', false);
 
                     $pdf->SetMargins(0, 0, 0, true);
                     $pdf->SetCreator(get_site_url());

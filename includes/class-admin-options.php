@@ -204,15 +204,15 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
             }
         }
         public function spbwc_create_options_table() {
-            global $spbwc_wpdb;
+            global $wpdb;
             $collate = '';
-            if ($spbwc_wpdb->has_cap('collation')) {
-                $collate = $spbwc_wpdb->get_charset_collate();
+            if ($wpdb->has_cap('collation')) {
+                $collate = $wpdb->get_charset_collate();
             }
             require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
             if (SPBWC_PB_VERSION != get_option("spbwc_version_plugin")) {
                 $tables =  "
-                    CREATE TABLE {$spbwc_wpdb->prefix}storelly_product_builder_options ( 
+                    CREATE TABLE {$wpdb->prefix}storelly_product_builder_options ( 
                     id bigint(20) unsigned NOT NULL auto_increment,
                     title text NOT NULL,
                     published  TINYINT(1) NOT NULL default 1,
@@ -381,16 +381,16 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
             }
         }
         public function spbwc_unpublish_option($id) { 
-            global $spbwc_wpdb;
-            $result = $spbwc_wpdb->update($spbwc_wpdb->prefix . 'pc-product_builder_options', array(
+            global $wpdb;
+            $result = $wpdb->update($wpdb->prefix . 'pc-product_builder_options', array(
                'published' => 0
             ), array('id' => absint($id))); 
             if ($result) $this->spbwc_clear_transients();
         }
         public function spbwc_get_option($id) { 
-            global $spbwc_wpdb;
-            $table_name = $spbwc_wpdb->prefix . 'storelly_product_builder_options';
-            $result = $spbwc_wpdb->get_results($spbwc_wpdb->prepare("SELECT * FROM $table_name WHERE `id` = %d", absint($id)), 'ARRAY_A');
+            global $wpdb;
+            $table_name = $wpdb->prefix . 'storelly_product_builder_options';
+            $result = $wpdb->get_results($wpdb->prepare("SELECT * FROM $table_name WHERE `id` = %d", absint($id)), 'ARRAY_A');
             return count($result) ? $result[0] : false; 
         }
         public function spbwc_save_option() {
@@ -414,17 +414,17 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
             }
 
             $arr['fields'] = serialize($post_options);
-            global $spbwc_wpdb;
+            global $wpdb;
             $date = new DateTime();
             if ($id > 0) {
                 $arr['modified']    = $date->format('Y-m-d H:i:s');
                 $arr['modified_by'] = wp_get_current_user()->ID;
-                $result             = $spbwc_wpdb->update("{$spbwc_wpdb->prefix}storelly_product_builder_options", $arr, array('id' => $id));
+                $result             = $wpdb->update("{$wpdb->prefix}storelly_product_builder_options", $arr, array('id' => $id));
             } else {
                 $arr['created']     = $date->format('Y-m-d H:i:s');
                 $arr['created_by']  = wp_get_current_user()->ID;
-                $result             = $spbwc_wpdb->insert("{$spbwc_wpdb->prefix}storelly_product_builder_options", $arr);
-                $id                 = $result ?  $spbwc_wpdb->insert_id : 0;
+                $result             = $wpdb->insert("{$wpdb->prefix}storelly_product_builder_options", $arr);
+                $id                 = $result ?  $wpdb->insert_id : 0;
             }
             $this->spbwc_clear_transients();
             do_action('storelly_save_print_option', $arr);
@@ -1017,10 +1017,10 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
             if (!$enable) return false;
             $option_id = get_transient('spbwc_product_builder_' . $product_id);
             if (false === $option_id) {
-                global $spbwc_wpdb;
+                global $wpdb;
 
-                $table_name = $spbwc_wpdb->prefix . 'storelly_roduct_builder_options';
-                $options = $spbwc_wpdb->get_results($spbwc_wpdb->prepare("SELECT id, product_ids FROM $table_name WHERE published = 1"), 'ARRAY_A');  
+                $table_name = $wpdb->prefix . 'storelly_roduct_builder_options';
+                $options = $wpdb->get_results($wpdb->prepare("SELECT id, product_ids FROM $table_name WHERE published = 1"), 'ARRAY_A');  
                 if ($options) {
                     $_options = array();
                     foreach ($options as $option) {
@@ -1260,10 +1260,10 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
                     }
                     if (count($item_files)) {
                         foreach ($item_files as $item_file) {
-                            global $spbwc_wpdb;
-                            $order_item_name = $spbwc_wpdb->get_var(
-                                $spbwc_wpdb->prepare(
-                                    "SELECT order_item_name FROM {$spbwc_wpdb->prefix}woocommerce_order_items WHERE order_item_id = %d LIMIT 1;",
+                            global $wpdb;
+                            $order_item_name = $wpdb->get_var(
+                                $wpdb->prepare(
+                                    "SELECT order_item_name FROM {$wpdb->prefix}woocommerce_order_items WHERE order_item_id = %d LIMIT 1;",
                                     $item_id
                                 )
                             );

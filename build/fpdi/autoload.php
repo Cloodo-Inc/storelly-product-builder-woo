@@ -2,20 +2,17 @@
 
 namespace SPBWC;
 
-/**
- * This file is part of FPDI
- *
- * @package   setasign\Fpdi
- * @copyright Copyright (c) 2017 Setasign - Jan Slabon (https://www.setasign.com)
- * @license   http://opensource.org/licenses/mit-license The MIT License
- * @version   2.0.0
- */
 \spl_autoload_register(function ($class) {
-    if (\strpos($class, 'setasign\\Fpdi\\') === 0) {
-        $filename = \str_replace('\\', \DIRECTORY_SEPARATOR, \substr($class, 14)) . '.php';
-        $fullpath = __DIR__ . \DIRECTORY_SEPARATOR . $filename;
-        if (\file_exists($fullpath)) {
-            /** @noinspection PhpIncludeInspection */
+    // chỉ load các class thuộc namespace SPBWC\setasign\Fpdi
+    $prefix = 'SPBWC\\setasign\\Fpdi\\';
+    $prefixLen = strlen($prefix);
+
+    if (strncmp($class, $prefix, $prefixLen) === 0) {
+        $relativeClass = substr($class, $prefixLen);
+        $filename = str_replace('\\', DIRECTORY_SEPARATOR, $relativeClass) . '.php';
+        $fullpath = __DIR__ . DIRECTORY_SEPARATOR . $filename;
+
+        if (file_exists($fullpath)) {
             require_once $fullpath;
         }
     }

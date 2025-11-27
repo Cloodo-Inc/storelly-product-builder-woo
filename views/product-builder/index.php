@@ -16,9 +16,9 @@
     <?php
     include(SPBWC_PB_PLUGIN_DIR . 'views/product-builder/wrapper.php');
     function storelly_get_product_builder($id) {
-        global $spbwc_wpdb;
-        $table_name = $spbwc_wpdb->prefix . 'storelly_product_builder_options';
-        $result = $spbwc_wpdb->get_results($spbwc_wpdb->prepare("SELECT * FROM $table_name WHERE `id` = %d", $id), 'ARRAY_A'); 
+        global $wpdb;
+        $table_name = $wpdb->prefix . 'storelly_product_builder_options';
+        $result = $wpdb->get_results($wpdb->prepare("SELECT * FROM $table_name WHERE `id` = %d", $id), 'ARRAY_A'); 
         return count($result[0]) ? $result[0] : false;
     }
     function storelly_recursive_stripslashes($fields) {

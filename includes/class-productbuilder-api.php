@@ -95,7 +95,7 @@ if (!class_exists('SPBWC_Storelly_Product_Builder_API')) {
             }
             if(!empty($response)) return;
         
-            global $spbwc_wpdb;
+            global $wpdb;
             $description = __('Storelly', 'spbwc-product-builder');
             $permissions = 'read_write';
             $user_id     = get_current_user_id();
@@ -117,16 +117,16 @@ if (!class_exists('SPBWC_Storelly_Product_Builder_API')) {
             );
         
             // Delete all previously generated keys
-            $spbwc_wpdb->delete(
-                $spbwc_wpdb->prefix . 'woocommerce_api_keys',
+            $wpdb->delete(
+                $wpdb->prefix . 'woocommerce_api_keys',
                 array(
                     'user_id'         => $user_id,
                     'description'     => $description,
                 )
             );
         
-            $spbwc_wpdb->insert(
-                $spbwc_wpdb->prefix . 'woocommerce_api_keys',
+            $wpdb->insert(
+                $wpdb->prefix . 'woocommerce_api_keys',
                 $data,
                 array(
                     '%d',

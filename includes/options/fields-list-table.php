@@ -43,16 +43,16 @@ class SPBWC_Storelly_Options_List_Table extends WP_List_Table {
         return $sortable_columns;
     }
     public static function spbwc_record_count() {
-        global $spbwc_wpdb;
-        $table_name = $spbwc_wpdb->prefix . 'storelly_product_builder_options';
-        $result = $spbwc_wpdb->get_var($spbwc_wpdb->prepare("SELECT COUNT(*) FROM $table_name"));
+        global $wpdb;
+        $table_name = $wpdb->prefix . 'storelly_product_builder_options';
+        $result = $wpdb->get_var($wpdb->prepare("SELECT COUNT(*) FROM $table_name"));
         return $result;
     }
     public function spbwc_get_options($per_page = 10, $page_number = 1) {
-        global $spbwc_wpdb;
-        $table_name = $spbwc_wpdb->prefix . 'storelly_product_builder_options';
+        global $wpdb;
+        $table_name = $wpdb->prefix . 'storelly_product_builder_options';
         $number_page = ($page_number - 1) * $per_page;
-        $result = $spbwc_wpdb->get_results($spbwc_wpdb->prepare("SELECT * FROM $table_name ORDER BY modified DESC LIMIT %d OFFSET %d", $per_page, $number_page), 'ARRAY_A');
+        $result = $wpdb->get_results($wpdb->prepare("SELECT * FROM $table_name ORDER BY modified DESC LIMIT %d OFFSET %d", $per_page, $number_page), 'ARRAY_A');
         return $result;
     } 
     public function spbwc_process_bulk_action() {
@@ -100,33 +100,33 @@ class SPBWC_Storelly_Options_List_Table extends WP_List_Table {
         }
     }
    public function spbwc_delete_option($id) { // Added prefix
-         global $spbwc_wpdb;
+         global $wpdb;
     if ( ! current_user_can( 'manage_options' ) ) return; 
-         $table_name = $spbwc_wpdb->prefix . 'storelly_product_builder_options';
-         $result = $spbwc_wpdb->delete($table_name, array('id' => absint($id)), array('%d'));
+         $table_name = $wpdb->prefix . 'storelly_product_builder_options';
+         $result = $wpdb->delete($table_name, array('id' => absint($id)), array('%d'));
          if ($result) $this->spbwc_clear_transients();
     }
     public function spbwc_unpublish_option($id) { // Added prefix
-        global $spbwc_wpdb;
+        global $wpdb;
         if ( ! current_user_can( 'manage_options' ) ) return; 
-        $result = $spbwc_wpdb->update($spbwc_wpdb->prefix . 'storelly_product_builder_options', array(
+        $result = $wpdb->update($wpdb->prefix . 'storelly_product_builder_options', array(
         'published' => 0
         ), array('id' => absint($id)), array('%d'), array('%d'));
         if ($result) $this->spbwc_clear_transients();
     }
     public function spbwc_publish_option($id) { // Added prefix
-        global $spbwc_wpdb;
+        global $wpdb;
         if ( ! current_user_can( 'manage_options' ) ) return;
-        $result = $spbwc_wpdb->update($spbwc_wpdb->prefix . 'storelly_product_builder_options', array(
+        $result = $wpdb->update($wpdb->prefix . 'storelly_product_builder_options', array(
            'published' => 1
         ), array('id' => absint($id)), array('%d'), array('%d'));
         if ($result) $this->spbwc_clear_transients();
     }
     public function spbwc_copy_options($id) { // Added prefix
-        global $spbwc_wpdb; 
+        global $wpdb; 
         if ( ! current_user_can( 'manage_options' ) ) return false;
-        $table_name = $spbwc_wpdb->prefix . 'storelly_product_builder_options';
-        $result = $spbwc_wpdb->get_results($spbwc_wpdb->prepare("SELECT * FROM {$table_name} WHERE `id` = %d", absint($id)), 'ARRAY_A');
+        $table_name = $wpdb->prefix . 'storelly_product_builder_options';
+        $result = $wpdb->get_results($wpdb->prepare("SELECT * FROM {$table_name} WHERE `id` = %d", absint($id)), 'ARRAY_A');
         
         if (count($result)) {
             $res            = $result[0];
@@ -144,7 +144,7 @@ class SPBWC_Storelly_Options_List_Table extends WP_List_Table {
                 'created'       => $modified_date->format('Y-m-d H:i:s'),
                 'created_by'    => $current_user_id
             ); 
-            $in_res = $spbwc_wpdb->insert("{$spbwc_wpdb->prefix}storelly_product_builder_options", $arr, array('%s', '%s', '%d', '%s', '%d', '%s', '%s', '%d'));
+            $in_res = $wpdb->insert("{$wpdb->prefix}storelly_product_builder_options", $arr, array('%s', '%s', '%d', '%s', '%d', '%s', '%s', '%d'));
             if ($in_res) {
                 $this->spbwc_clear_transients();
                 return $in_res;
@@ -153,9 +153,9 @@ class SPBWC_Storelly_Options_List_Table extends WP_List_Table {
         return false;
     }
     private function spbwc_clear_transients() {
-        global $spbwc_wpdb;
-        $sql = "DELETE FROM $spbwc_wpdb->options WHERE option_name LIKE '_transient_nbo_product_%' OR option_name LIKE '_transient_timeout_nbo_product_%'";
-        $spbwc_wpdb->query($sql);
+        global $wpdb;
+        $sql = "DELETE FROM $wpdb->options WHERE option_name LIKE '_transient_nbo_product_%' OR option_name LIKE '_transient_timeout_nbo_product_%'";
+        $wpdb->query($sql);
     }
     public function get_bulk_actions() {
         $actions = array(
