@@ -6,8 +6,8 @@ class SPBWC_Storelly_Options_List_Table extends WP_List_Table {
 
     public function __construct() {
         parent::__construct(array(
-            'singular'  => esc_html__('Printing option', 'pc-product-builder'),
-            'plural'    => esc_html__('Printing options', 'pc-product-builder'),
+            'singular'  => esc_html__('Printing option', 'spbwc-product-builder'),
+            'plural'    => esc_html__('Printing options', 'spbwc-product-builder'),
             'ajax'      => false
         ));
     }
@@ -30,9 +30,9 @@ class SPBWC_Storelly_Options_List_Table extends WP_List_Table {
     public function get_columns() {
         $columns = array(
             'cb'            => '<input type="checkbox" />',
-            'title'         => esc_html__('Title', 'pc-product-builder'),
-            'product_ids'   => esc_html__('Products', 'pc-product-builder'),
-            'date'          => esc_html__('Date', 'pc-product-builder')
+            'title'         => esc_html__('Title', 'spbwc-product-builder'),
+            'product_ids'   => esc_html__('Products', 'spbwc-product-builder'),
+            'date'          => esc_html__('Date', 'spbwc-product-builder')
         );
         return $columns;
     }
@@ -65,11 +65,11 @@ class SPBWC_Storelly_Options_List_Table extends WP_List_Table {
         $is_bulk_action = in_array($current_action, array('bulk-publish', 'bulk-unpublish', 'bulk-delete'));
         if ($current_action === 'delete' || $current_action === 'copy') {
             if (!wp_verify_nonce($nonce, 'spbwc_options_nonce')) { 
-                        wp_die(esc_html__('Security error.', 'pc-product-builder'));
+                        wp_die(esc_html__('Security error.', 'spbwc-product-builder'));
             }
         } else if ($is_bulk_action) {
             if (!wp_verify_nonce($nonce, 'bulk-' . $this->get_plural())) {
-                wp_die(esc_html__('Security error.', 'pc-product-builder'));
+                wp_die(esc_html__('Security error.', 'spbwc-product-builder'));
             }
         }
         if ('delete' === $current_action) {
@@ -134,7 +134,7 @@ class SPBWC_Storelly_Options_List_Table extends WP_List_Table {
             $current_user_id = get_current_user_id();
             
             $arr            = array(
-                'title'         => $res['title'] . ' (' . esc_html__('Copy', 'pc-product-builder') . ')',
+                'title'         => $res['title'] . ' (' . esc_html__('Copy', 'spbwc-product-builder') . ')',
                 'product_ids'   => $res['product_ids'],
                 'published'     => 0,
                 'modified'      => $modified_date->format('Y-m-d H:i:s'),
@@ -159,33 +159,33 @@ class SPBWC_Storelly_Options_List_Table extends WP_List_Table {
     }
     public function get_bulk_actions() {
         $actions = array(
-            'bulk-delete'       => esc_html__('Delete', 'pc-product-builder'),
-            'bulk-publish'      => esc_html__('Publish', 'pc-product-builder'),
-            'bulk-unpublish'    => esc_html__('Unpublish', 'pc-product-builder'),
+            'bulk-delete'       => esc_html__('Delete', 'spbwc-product-builder'),
+            'bulk-publish'      => esc_html__('Publish', 'spbwc-product-builder'),
+            'bulk-unpublish'    => esc_html__('Unpublish', 'spbwc-product-builder'),
         );
         return $actions;
     }
     public function no_items() {
-        esc_html_e('No options avaliable.', 'pc-product-builder');
+        esc_html_e('No options avaliable.', 'spbwc-product-builder');
     }
     function column_title($item) {
         $title      = $item['title'];
         $_nonce     = wp_create_nonce('nbd_options_nonce');
         $page       = sanitize_text_field( $_REQUEST['page'] );
         $actions    = array(
-            'edit' => sprintf('<a href="?page=%s&action=%s&id=%s&paged=%s&_wpnonce=%s">' . esc_html__('Edit', 'pc-product-builder') . '</a>', esc_attr($page), 'edit', absint($item['id']), $this->get_pagenum(), $_nonce),
-            'copy' => sprintf('<a href="?page=%s&action=%s&id=%s&paged=%s&_wpnonce=%s">' . esc_html__('Copy', 'pc-product-builder') . '</a>', esc_attr($page), 'copy', absint($item['id']), $this->get_pagenum(), $_nonce)
+            'edit' => sprintf('<a href="?page=%s&action=%s&id=%s&paged=%s&_wpnonce=%s">' . esc_html__('Edit', 'spbwc-product-builder') . '</a>', esc_attr($page), 'edit', absint($item['id']), $this->get_pagenum(), $_nonce),
+            'copy' => sprintf('<a href="?page=%s&action=%s&id=%s&paged=%s&_wpnonce=%s">' . esc_html__('Copy', 'spbwc-product-builder') . '</a>', esc_attr($page), 'copy', absint($item['id']), $this->get_pagenum(), $_nonce)
         );
         return $title . $this->spbwc_row_actions($actions);
     }
     function column_published($item) {
-        return $item['published'] == 1 ? esc_html__('Publish', 'pc-product-builder') : esc_html__('Unpublish', 'pc-product-builder');
+        return $item['published'] == 1 ? esc_html__('Publish', 'spbwc-product-builder') : esc_html__('Unpublish', 'spbwc-product-builder');
     }
     function column_date($item) {
         return (!empty($item['modified']) && $item['modified'] != '0000-00-00 00:00:00') ? $item['modified'] : $item['created'];
     }
     function column_product_ids($item) {
-        $return = esc_html__('None', 'pc-product-builder');
+        $return = esc_html__('None', 'spbwc-product-builder');
         if (!$item['product_ids']) return $return;
         $products = unserialize($item['product_ids']);
             if (count($products)) {

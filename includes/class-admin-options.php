@@ -52,7 +52,7 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
         public function spbwc_add_display_post_states( $post_states, $post ){
             
             if (SPBWC_Storelly_PB_Util::spbwc_get_page_id('product_builder') === $post->ID ) {
-                $post_states['spbwc_product_builder_page'] = esc_html__( 'Storelly Product builder Page', 'pc-product-builder' );
+                $post_states['spbwc_product_builder_page'] = esc_html__( 'Storelly Product builder Page', 'spbwc-product-builder' );
             }
             return $post_states;
         }
@@ -74,7 +74,7 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
 
             add_meta_box(
                 'spbwc_product_builder_design',
-                esc_html__( 'Product builder designs', 'pc-product-builder' ),
+                esc_html__( 'Product builder designs', 'spbwc-product-builder' ),
                 array( $this, 'spbwc_product_builder_design' ),
                 $screen,
                 'side',
@@ -182,24 +182,24 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
                 );
                 add_submenu_page(
                     'spbwc-product-builder-options',
-                    esc_html__('Builder options', 'pc-product-builder'),
-                    esc_html__('Builder options', 'pc-product-builder'),
+                    esc_html__('Builder options', 'spbwc-product-builder'),
+                    esc_html__('Builder options', 'spbwc-product-builder'),
                     'manage_options',
                     'spbwc-product-builder-options',
                     array($this, 'spbwc_product_builder_options')
                 );
                 add_submenu_page(
                     'spbwc-product-builder-options',
-                    esc_html__('Fonts', 'pc-product-builder'),
-                    esc_html__('Fonts', 'pc-product-builder'),
+                    esc_html__('Fonts', 'spbwc-product-builder'),
+                    esc_html__('Fonts', 'spbwc-product-builder'),
                     'manage_options',
                     'spbwc-product-builder-options/manager-fonts',
                     array($this, 'spbwc_manager_fonts')
                 );
                 add_submenu_page(
                     'spbwc-product-builder-options',
-                    esc_html__('Settings', 'pc-product-builder'),
-                    esc_html__('Settings', 'pc-product-builder'),
+                    esc_html__('Settings', 'spbwc-product-builder'),
+                    esc_html__('Settings', 'spbwc-product-builder'),
                     'manage_options',
                     'spbwc-product-builder-options/settings',
                     array($this, 'spbwc_settings')
@@ -269,7 +269,7 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
                 wp_localize_script('spbwc-manager-fonts-script', 'storelly_pb_fonts', array(
                     'url'       => admin_url('admin-ajax.php'),
                     'nonce'     => wp_create_nonce('spbwc_update_fonts'),
-                    'complete'  => esc_html__('Complete!', 'pc-product-builder'),
+                    'complete'  => esc_html__('Complete!', 'spbwc-product-builder'),
                 ));
                 wp_enqueue_script('spbwc-manager-fonts-script');
                 wp_enqueue_style('spbwc-manager-fonts');
@@ -286,7 +286,7 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
                 if (isset($_GET['message']) && sanitize_text_field(wp_unslash($_GET['message'])) == 'created') {
                     $message = array(
                         'flag'      => 'success',
-                        'content'   => esc_html__('Option created successfully.', 'pc-product-builder')
+                        'content'   => esc_html__('Option created successfully.', 'spbwc-product-builder')
                     );
                 }
                 
@@ -323,7 +323,7 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
                             } else {
                                 $message = array(
                                     'flag'      => 'success',
-                                    'content'   => esc_html__('Option updated.', 'pc-product-builder')
+                                    'content'   => esc_html__('Option updated.', 'spbwc-product-builder')
                                 );
                             }
                         } else {
@@ -539,18 +539,18 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
             );
         }
         public function build_config_general_title($value = null) {
-            if (is_null($value)) $value = __('Option name', 'pc-product-builder');
+            if (is_null($value)) $value = __('Option name', 'spbwc-product-builder');
             return array(
-                'title'         => __('Option name', 'pc-product-builder'),
+                'title'         => __('Option name', 'spbwc-product-builder'),
                 'description'   =>  '',
                 'value'         => $value,
                 'type'          => 'text'
             );
         }
         public function build_config_general_description($value = null) {
-            if (is_null($value)) $value = __('Option description', 'pc-product-builder');
+            if (is_null($value)) $value = __('Option description', 'spbwc-product-builder');
             return array(
-                'title'         => __('Description', 'pc-product-builder'),
+                'title'         => __('Description', 'spbwc-product-builder'),
                 'description'   => '',
                 'value'         => $value,
                 'type'          => 'textarea'
@@ -559,18 +559,18 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
         public function build_config_general_data_type($value = null) {
             if (is_null($value)) $value = 'm';
             return array(
-                'title'         => esc_html__('Data type', 'pc-product-builder'),
+                'title'         => esc_html__('Data type', 'spbwc-product-builder'),
                 'description'   => '',
                 'value'         => $value,
                 'type'          => 'dropdown',
                 'options'       => array(
                     array(
                         'key'       => 'i',
-                        'text'      => esc_html__('Custom input', 'pc-product-builder')
+                        'text'      => esc_html__('Custom input', 'spbwc-product-builder')
                     ),
                     array(
                         'key'       => 'm',
-                        'text'      => esc_html__('Multiple options', 'pc-product-builder')
+                        'text'      => esc_html__('Multiple options', 'spbwc-product-builder')
                     )
                 )
             );
@@ -578,7 +578,7 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
         public function build_config_general_input_type($value = null) {
             if (is_null($value)) $value = 't';
             return array(
-                'title'         => esc_html__('Input type', 'pc-product-builder'),
+                'title'         => esc_html__('Input type', 'spbwc-product-builder'),
                 'description'   =>  '',
                 'value'         => $value,
                 'type'          => 'dropdown',
@@ -592,15 +592,15 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
                 'options'       => array(
                     array(
                         'key'       => 't',
-                        'text'      => esc_html__('Text', 'pc-product-builder')
+                        'text'      => esc_html__('Text', 'spbwc-product-builder')
                     ),
                     array(
                         'key'       => 'u',
-                        'text'      => esc_html__('Upload', 'pc-product-builder')
+                        'text'      => esc_html__('Upload', 'spbwc-product-builder')
                     ),
                     array(
                         'key'       => 'a',
-                        'text'      => esc_html__('Textarea', 'pc-product-builder')
+                        'text'      => esc_html__('Textarea', 'spbwc-product-builder')
                     )
                 )
             );
@@ -616,7 +616,7 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
             }
             if (!isset($value['default'])) $value['default'] = $value['min'];
             return array(
-                'title'         => esc_html__('Input option', 'pc-product-builder'),
+                'title'         => esc_html__('Input option', 'spbwc-product-builder'),
                 'description'   => '',
                 'value'         => $value,
                 'type'          => 'table',
@@ -652,7 +652,7 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
                 );
             }
             return array(
-                'title'         => esc_html__('Text input option', 'pc-product-builder'),
+                'title'         => esc_html__('Text input option', 'spbwc-product-builder'),
                 'description'   =>  '',
                 'value'         => $value,
                 'type'          => 'table',
@@ -673,18 +673,18 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
         public function build_config_general_enabled($value = null) {
             if (is_null($value)) $value = 'y';
             return array(
-                'title'         => __('Enabled', 'pc-product-builder'),
-                'description'   => __('Choose whether the option is enabled or not.', 'pc-product-builder'),
+                'title'         => __('Enabled', 'spbwc-product-builder'),
+                'description'   => __('Choose whether the option is enabled or not.', 'spbwc-product-builder'),
                 'value'         => $value,
                 'type'          => 'dropdown',
                 'options'       => array(
                     array(
                         'key'       => 'y',
-                        'text'      => __('Yes', 'pc-product-builder')
+                        'text'      => __('Yes', 'spbwc-product-builder')
                     ),
                     array(
                         'key'       => 'n',
-                        'text'      => __('No', 'pc-product-builder')
+                        'text'      => __('No', 'spbwc-product-builder')
                     )
                 )
             );
@@ -692,18 +692,18 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
         public function build_config_general_published($value = null) {
             if (is_null($value)) $value = 'y';
             return array(
-                'title'         => __('Published', 'pc-product-builder'),
-                'description'   => __('Show in summary options or not.', 'pc-product-builder'),
+                'title'         => __('Published', 'spbwc-product-builder'),
+                'description'   => __('Show in summary options or not.', 'spbwc-product-builder'),
                 'value'         => $value,
                 'type'          => 'dropdown',
                 'options' =>    array(
                     array(
                         'key'       => 'y',
-                        'text'      => __('Yes', 'pc-product-builder')
+                        'text'      => __('Yes', 'spbwc-product-builder')
                     ),
                     array(
                         'key'       => 'n',
-                        'text'      => __('No', 'pc-product-builder')
+                        'text'      => __('No', 'spbwc-product-builder')
                     )
                 )
             );
@@ -711,18 +711,18 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
         public function build_config_general_required($value = null) {
             if (is_null($value)) $value = 'n';
             return array(
-                'title'         => __('Required', 'pc-product-builder'),
-                'description'   => __('Choose whether the option is required or not.', 'pc-product-builder'),
+                'title'         => __('Required', 'spbwc-product-builder'),
+                'description'   => __('Choose whether the option is required or not.', 'spbwc-product-builder'),
                 'value'         => $value,
                 'type'          => 'dropdown',
                 'options'       => array(
                     array(
                         'key'       => 'y',
-                        'text'      => __('Yes', 'pc-product-builder')
+                        'text'      => __('Yes', 'spbwc-product-builder')
                     ),
                     array(
                         'key'       => 'n',
-                        'text'      => __('No', 'pc-product-builder')
+                        'text'      => __('No', 'spbwc-product-builder')
                     )
                 ),
                 'depend'        => array(
@@ -743,7 +743,7 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
                 );
             }
             return array(
-                'title'         => esc_html__('Upload file option', 'pc-product-builder'),
+                'title'         => esc_html__('Upload file option', 'spbwc-product-builder'),
                 'description'   =>  '',
                 'value'         => $value,
                 'type'          => 'table',
@@ -764,26 +764,26 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
         public function build_config_general_price_type($value = null) {
             if (is_null($value)) $value = 'f';
             return array(
-                'title'         => esc_html__('Price type', 'pc-product-builder'),
-                'description'   => esc_html__('Here you can choose how the price is calculated. Depending on the field there various types you can choose.', 'pc-product-builder'),
+                'title'         => esc_html__('Price type', 'spbwc-product-builder'),
+                'description'   => esc_html__('Here you can choose how the price is calculated. Depending on the field there various types you can choose.', 'spbwc-product-builder'),
                 'value'         => $value,
                 'type'          => 'dropdown',
                 'options'       => array(
                     array(
                         'key'       => 'f',
-                        'text'      => esc_html__('Fixed amount', 'pc-product-builder')
+                        'text'      => esc_html__('Fixed amount', 'spbwc-product-builder')
                     ),
                     array(
                         'key'       => 'p',
-                        'text'      => esc_html__('Percent of the original price', 'pc-product-builder')
+                        'text'      => esc_html__('Percent of the original price', 'spbwc-product-builder')
                     ),
                     array(
                         'key'       => 'p+',
-                        'text'      => esc_html__('Percent of the original price + options', 'pc-product-builder')
+                        'text'      => esc_html__('Percent of the original price + options', 'spbwc-product-builder')
                     ),
                     array(
                         'key'       => 'c',
-                        'text'      => esc_html__('Current value * price', 'pc-product-builder'),
+                        'text'      => esc_html__('Current value * price', 'spbwc-product-builder'),
                         'depend'    => array(
                             array(
                                 'field'     => 'data_type',
@@ -809,7 +809,7 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
                     ),
                     array(
                         'key'       => 'cp',
-                        'text'      => esc_html__('Price per char', 'pc-product-builder'),
+                        'text'      => esc_html__('Price per char', 'spbwc-product-builder'),
                         'depend'    => array(
                             array(
                                 'field'     => 'data_type',
@@ -829,8 +829,8 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
         public function build_config_general_price($value = null) {
             if (is_null($value)) $value = '';
             return array(
-                'title'         => esc_html__('Additional Price', 'pc-product-builder'),
-                'description'   => esc_html__('Enter the price for this field or leave it blank for no price.', 'pc-product-builder'),
+                'title'         => esc_html__('Additional Price', 'spbwc-product-builder'),
+                'description'   => esc_html__('Enter the price for this field or leave it blank for no price.', 'spbwc-product-builder'),
                 'value'         => $value,
                 'depend'        => array(
                     array(
@@ -851,7 +851,7 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
             if (is_null($attributes)) {
                 $options = array(
                     0 => array(
-                        'name'                  => __('Attribute name', 'pc-product-builder'),
+                        'name'                  => __('Attribute name', 'spbwc-product-builder'),
                         'des'                   => '',
                         'price'                 => array(),
                         'selected'              => 0,
@@ -889,8 +889,8 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
             $show_as_pt         = isset($attributes['show_as_pt']) ? $attributes['show_as_pt'] : 'n';
             $number_of_sides    = isset($attributes['number_of_sides']) ? $attributes['number_of_sides'] : 2;
             return array(
-                'title'           => __('Attributes', 'pc-product-builder'),
-                'description'     => __('Attributes let you define extra product data, such as size or color.','pc-product-builder'),
+                'title'           => __('Attributes', 'spbwc-product-builder'),
+                'description'     => __('Attributes let you define extra product data, such as size or color.','spbwc-product-builder'),
                 'type'            => 'attributes',
                 'same_size'       => $same_size,
                 'bg_type'         => $bg_type,
@@ -927,34 +927,34 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
         public function build_config_appearance_display_type($value = null) {
             if (is_null($value)) $value = 'd';
             return array(
-                'title'         => __('Display type', 'pc-product-builder'),
+                'title'         => __('Display type', 'spbwc-product-builder'),
                 'description'   => '',
                 'value'         => $value,
                 'type'          => 'dropdown',
                 'options'       => array(
                     array(
                         'key'   => 'd',
-                        'text'  => __('Dropdown', 'pc-product-builder')
+                        'text'  => __('Dropdown', 'spbwc-product-builder')
                     ),
                     array(
                         'key'   => 'r',
-                        'text'  => __('Radio button', 'pc-product-builder')
+                        'text'  => __('Radio button', 'spbwc-product-builder')
                     ),
                     array(
                         'key'   => 's',
-                        'text'  => __('Swatch', 'pc-product-builder')
+                        'text'  => __('Swatch', 'spbwc-product-builder')
                     ),
                     array(
                         'key'   => 'l',
-                        'text'  => __('Label', 'pc-product-builder')
+                        'text'  => __('Label', 'spbwc-product-builder')
                     ),
                     array(
                         'key'   => 'ad',
-                        'text'  => __('Advanced Dropdown', 'pc-product-builder')
+                        'text'  => __('Advanced Dropdown', 'spbwc-product-builder')
                     ),
                     array(
                         'key'   => 'xl',
-                        'text'  => __('Large label', 'pc-product-builder')
+                        'text'  => __('Large label', 'spbwc-product-builder')
                     )
                 )
             );
@@ -962,18 +962,18 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
         public function build_config_appearance_change_image_product($value = null) {
             if (is_null($value)) $value = 'n';
             return array(
-                'title'         => __('Changes product image', 'pc-product-builder'),
-                'description'   => __('Choose whether to change the product image.', 'pc-product-builder'),
+                'title'         => __('Changes product image', 'spbwc-product-builder'),
+                'description'   => __('Choose whether to change the product image.', 'spbwc-product-builder'),
                 'type'          => 'dropdown',
                 'value'         => $value,
                 'options'       => array(
                     array(
                         'key'   => 'y',
-                        'text'  => __('Yes', 'pc-product-builder')
+                        'text'  => __('Yes', 'spbwc-product-builder')
                     ),
                     array(
                         'key'   => 'n',
-                        'text'  => __('No', 'pc-product-builder')
+                        'text'  => __('No', 'spbwc-product-builder')
                     )
                 )
             );
@@ -981,7 +981,7 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
         public function build_config_appearance_css_class($value = null) {
             if (is_null($value)) $value = '';
             return array(
-                'title'         => __('CSS Class', 'pc-product-builder'),
+                'title'         => __('CSS Class', 'spbwc-product-builder'),
                 'description'   => '',
                 'type'          => 'text',
                 'value'         => $value
@@ -989,15 +989,15 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
         }
         function spbwc_storelly_option_i18n() {
             return array(
-                'nbpb_com'              => esc_html__('Component', 'pc-product-builder'),
-                'nbpb_text'             => esc_html__('Text', 'pc-product-builder'),
-                'nbpb_image'            => esc_html__('Image', 'pc-product-builder'),
-                'attribute_name'        => esc_html__('Attribute name', 'pc-product-builder'),
-                'sub_attribute_name'    => esc_html__('Sub attribute name', 'pc-product-builder'),
+                'nbpb_com'              => esc_html__('Component', 'spbwc-product-builder'),
+                'nbpb_text'             => esc_html__('Text', 'spbwc-product-builder'),
+                'nbpb_image'            => esc_html__('Image', 'spbwc-product-builder'),
+                'attribute_name'        => esc_html__('Attribute name', 'spbwc-product-builder'),
+                'sub_attribute_name'    => esc_html__('Sub attribute name', 'spbwc-product-builder'),
             );
         }
         public function spbwc_add_meta_boxes() {
-            add_meta_box('storelly_product_builder', __('Storelly product builder', 'pc-product-builder'), array($this, 'meta_box'), 'product', 'normal', 'high');
+            add_meta_box('storelly_product_builder', __('Storelly product builder', 'spbwc-product-builder'), array($this, 'meta_box'), 'product', 'normal', 'high');
         }
         public function spbwc_meta_box() {
             $post_id            = get_the_ID();
@@ -1099,7 +1099,7 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
         }
         public function spbwc_add_google_font() {
             $data = array(
-                'mes'   =>  esc_html__('You do not have permission to add font!', 'pc-product-builder'),
+                'mes'   =>  esc_html__('You do not have permission to add font!', 'spbwc-product-builder'),
                 'flag'  => 0
             );
             if (!wp_verify_nonce(sanitize_text_field($_POST['nonce']), 'spbwc_update_fonts')) {
@@ -1147,7 +1147,7 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
             }
             $path_font      = SPBWC_PB_FONT_DIR . '/googlefonts.json';
             file_put_contents($path_font, wp_json_encode($gg_fonts));
-            $data['mes']    = esc_html__('The google fonts have been added successfully!', 'pc-product-builder');
+            $data['mes']    = esc_html__('The google fonts have been added successfully!', 'spbwc-product-builder');
             $data['flag']   = 1;
             echo wp_json_encode($data);
             wp_die();
@@ -1184,7 +1184,7 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
 
             if (isset($_POST['_action_storelly_settings']) && sanitize_text_field($_POST['_action_storelly_settings'] === 'submit')) {
                 $storelly_enable_cloud2print_api      = isset($_POST['storelly_enable_cloud2print_api']) ? sanitize_text_field($_POST['storelly_enable_cloud2print_api']) : 'no';
-                $message        = esc_html__('Your settings have been saved.', 'pc-product-builder');
+                $message        = esc_html__('Your settings have been saved.', 'spbwc-product-builder');
                 $status         = 'updated';
                 $storelly_pb_settings['enable_cloud2print_api'] = $storelly_enable_cloud2print_api;
                 update_option('storelly_pb_settings', $storelly_pb_settings);

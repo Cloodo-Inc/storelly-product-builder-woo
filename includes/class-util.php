@@ -57,38 +57,38 @@ if (!class_exists('SPBWC_Storelly_PB_Util')) {
             switch ($command) {
                 case 'success':
                     if (!$mes)
-                        $mes = esc_html__('Your settings have been saved.', 'pc-product-builder');
+                        $mes = esc_html__('Your settings have been saved.', 'spbwc-product-builder');
                     $notice = '<div class="updated notice notice-success is-dismissible">
                                 <p>' . $mes . '</p>
                                 <button type="button" class="notice-dismiss">
-                                    <span class="screen-reader-text">' . esc_html__('Dismiss this notice.', 'pc-product-builder') . '</span>
+                                    <span class="screen-reader-text">' . esc_html__('Dismiss this notice.', 'spbwc-product-builder') . '</span>
                                 </button>
                             </div>';
                     break;
                 case 'error':
                     if (!$mes)
-                        $mes = esc_html__('Irks! An error has occurred.', 'pc-product-builder');
+                        $mes = esc_html__('Irks! An error has occurred.', 'spbwc-product-builder');
                     $notice = '<div class="notice notice-error is-dismissible">
                                 <p>' . $mes . '</p>
                                 <button type="button" class="notice-dismiss">
-                                    <span class="screen-reader-text">' . esc_html__('Dismiss this notice.', 'pc-product-builder') . '</span>
+                                    <span class="screen-reader-text">' . esc_html__('Dismiss this notice.', 'spbwc-product-builder') . '</span>
                                 </button>
                             </div>';
                     break;
                 case 'notices':
                     if (!$mes)
-                        $mes = esc_html__('Irks! An error has occurred.', 'pc-product-builder');
+                        $mes = esc_html__('Irks! An error has occurred.', 'spbwc-product-builder');
                     $notice = '<div class="notice notice-warning">
                                 <p>' . $mes . '</p>
                             </div>';
                     break;
                 case 'warning':
                     if (!$mes)
-                        $mes = esc_html__('Warning.', 'pc-product-builder');
+                        $mes = esc_html__('Warning.', 'spbwc-product-builder');
                     $notice = '<div class="notice notice-warning is-dismissible">
                                 <p>' . $mes . '</p>
                                 <button type="button" class="notice-dismiss">
-                                    <span class="screen-reader-text">' . esc_html__('Dismiss this notice.', 'pc-product-builder') . '</span>
+                                    <span class="screen-reader-text">' . esc_html__('Dismiss this notice.', 'spbwc-product-builder') . '</span>
                                 </button>
                             </div>';
                     break;

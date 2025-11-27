@@ -12,7 +12,7 @@ $stt_no_cloud2print_api = isset($storelly_pb_settings['enable_cloud2print_api'])
 ?>
 
 <div class="storelly-box">
-    <h3 class="storelly-settings"><?php esc_html_e('Storelly settings', 'pc-product-builder'); ?></h3>
+    <h3 class="storelly-settings"><?php esc_html_e('Storelly settings', 'spbwc-product-builder'); ?></h3>
     <hr>
     <?php
     if ($message && $status) {
@@ -25,52 +25,52 @@ $stt_no_cloud2print_api = isset($storelly_pb_settings['enable_cloud2print_api'])
                 <tbody>
                     <tr valign="top">
                         <th class="titledesc">
-                            <label><?php esc_html_e('Enable Storelly cloud api to create PDF', 'pc-product-builder'); ?><span class="storelly-help-tip"></span></label>
+                            <label><?php esc_html_e('Enable Storelly cloud api to create PDF', 'spbwc-product-builder'); ?><span class="storelly-help-tip"></span></label>
                         </th>
                         <td>
                             <p class="row">
-                                <input type="radio" name="storelly_enable_cloud2print_api" value="yes" <?php echo esc_attr($stt_yes_cloud2print_api); ?> /><?php esc_html_e('Yes', 'pc-product-builder'); ?>
+                                <input type="radio" name="storelly_enable_cloud2print_api" value="yes" <?php echo esc_attr($stt_yes_cloud2print_api); ?> /><?php esc_html_e('Yes', 'spbwc-product-builder'); ?>
                             </p>
                             <p class="row">
-                                <input type="radio" name="storelly_enable_cloud2print_api" value="no" <?php echo esc_attr($stt_no_cloud2print_api);  ?> /><?php esc_html_e('No', 'pc-product-builder'); ?>
+                                <input type="radio" name="storelly_enable_cloud2print_api" value="no" <?php echo esc_attr($stt_no_cloud2print_api);  ?> /><?php esc_html_e('No', 'spbwc-product-builder'); ?>
                             </p>
                         </td>
                     </tr>
                 </tbody>
             </table>
             <div class="box-key">
-                <h4><?php esc_html_e('Manually enter an API Key', 'pc-product-builder'); ?></h4>
+                <h4><?php esc_html_e('Manually enter an API Key', 'spbwc-product-builder'); ?></h4>
                 <hr />
                 <div class="grup-box">
                     <div class="desc-key">
-                        <p><?php esc_html_e('Sid : ', 'pc-product-builder'); ?></p>
+                        <p><?php esc_html_e('Sid : ', 'spbwc-product-builder'); ?></p>
                     </div>
                     <div class="code-key">
                         <input placeholder="Code SID" value="<?php echo esc_attr($sid); ?>" />
-                        <p><?php esc_html_e('Enter your storelly sid API Key', 'pc-product-builder'); ?></p>
+                        <p><?php esc_html_e('Enter your storelly sid API Key', 'spbwc-product-builder'); ?></p>
                     </div>
                 </div>
                 <div class="grup-box">
                     <div class="desc-key">
-                        <p><?php esc_html_e('Secret :', 'pc-product-builder'); ?></p>
+                        <p><?php esc_html_e('Secret :', 'spbwc-product-builder'); ?></p>
                     </div>
                     <div class="code-key">
                         <input placeholder="Code secret API" value="<?php  echo esc_attr($secret); ?>" />
-                        <p><?php esc_html_e('Enter your storelly secret API Key', 'pc-product-builder'); ?></p>
+                        <p><?php esc_html_e('Enter your storelly secret API Key', 'spbwc-product-builder'); ?></p>
                     </div>
                 </div>
                 <div class="grup-box">
                     <div class="desc-key">
-                        <p><?php esc_html_e('Unauth token :', 'pc-product-builder'); ?></p>
+                        <p><?php esc_html_e('Unauth token :', 'spbwc-product-builder'); ?></p>
                     </div>
                     <div class="code-key">
                         <input placeholder="" value="<?php echo esc_attr($api_key['unauth_token']); ?>" disabled />
-                        <p><?php esc_html_e('Unauth token off store Storelly (Automatically generated when you enter calid sid end secret)', 'pc-product-builder'); ?></p>
+                        <p><?php esc_html_e('Unauth token off store Storelly (Automatically generated when you enter calid sid end secret)', 'spbwc-product-builder'); ?></p>
                     </div>
                 </div>
                 <div class="grup-box">
                     <div class="desc-key">
-                        <p><?php esc_html_e('User name', 'pc-product-builder'); ?> :</p>
+                        <p><?php esc_html_e('User name', 'spbwc-product-builder'); ?> :</p>
                     </div>
                     <div class="code-key">
                         <input placeholder="" value="<?php echo esc_attr($api_key['username']); ?>" />
@@ -78,29 +78,29 @@ $stt_no_cloud2print_api = isset($storelly_pb_settings['enable_cloud2print_api'])
                 </div>
                 <div class="grup-box">
                     <div class="desc-key">
-                        <p><?php esc_html_e('Password', 'pc-product-builder'); ?> :</p>
+                        <p><?php esc_html_e('Password', 'spbwc-product-builder'); ?> :</p>
                     </div>
                     <div class="code-key">
                         <input placeholder="" value="<?php echo esc_attr($api_key['username']); ?>" />
-                        <p class="desc_sync "><?php esc_html_e('Please log in with the above account and password', 'pc-product-builder'); ?></p>
+                        <p class="desc_sync "><?php esc_html_e('Please log in with the above account and password', 'spbwc-product-builder'); ?></p>
                     </div> 
                 </div>
                 
                 <?php if ($api_key['username']) : ?> 
                     <div class="grup-box">
                         <div class="desc-key">
-                            <p><?php esc_html_e('Check connection to Storelly Dashboard :', 'pc-product-builder'); ?></p>
+                            <p><?php esc_html_e('Check connection to Storelly Dashboard :', 'spbwc-product-builder'); ?></p>
                         </div>
                         <div class="code-key">
-                            <a href="https://dashboard.storelly.com/login?redirect=woocomerce"><?php esc_html_e('Click To Login', 'pc-product-builder'); ?></a>
-                            <a href="<?php echo esc_url($url_new_product)?>"><?php esc_html_e('Create your first product', 'pc-product-builder'); ?></a>
-                            <p class="desc_sync "><?php esc_html_e('Login to sync products', 'pc-product-builder'); ?></p>
+                            <a href="https://dashboard.storelly.com/login?redirect=woocomerce"><?php esc_html_e('Click To Login', 'spbwc-product-builder'); ?></a>
+                            <a href="<?php echo esc_url($url_new_product)?>"><?php esc_html_e('Create your first product', 'spbwc-product-builder'); ?></a>
+                            <p class="desc_sync "><?php esc_html_e('Login to sync products', 'spbwc-product-builder'); ?></p>
                         </div>
                     </div>
                 <?php endif; ?>
                 <div class="grup-box">
                     <div class="desc-key">
-                        <p><?php esc_html_e('Log', 'pc-product-builder'); ?> :</p>
+                        <p><?php esc_html_e('Log', 'spbwc-product-builder'); ?> :</p>
                     </div>
                     <div class="code-key">
                     <p><?php  if (isset($api_key['log'])) { 
@@ -114,7 +114,7 @@ $stt_no_cloud2print_api = isset($storelly_pb_settings['enable_cloud2print_api'])
         </div>
 
         <div class="submit">
-            <button name="save" class="button-primary" type="submit" value="Save changes"><?php esc_html_e('Save changes', 'pc-product-builder'); ?></button>
+            <button name="save" class="button-primary" type="submit" value="Save changes"><?php esc_html_e('Save changes', 'spbwc-product-builder'); ?></button>
             <input type="hidden" name="_action_storelly_settings" value="submit">
         </div>
     </form>

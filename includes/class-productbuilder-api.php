@@ -49,14 +49,14 @@ if (!class_exists('SPBWC_Storelly_Product_Builder_API')) {
                     "city" => get_user_meta($current_user->ID, 'billing_city', true) ? sanitize_text_field(get_user_meta($current_user->ID, 'billing_city', true)) : "city", 
                     "zip_code" => get_user_meta($current_user->ID, 'billing_postcode', true) ? sanitize_text_field(get_user_meta($current_user->ID, 'billing_postcode', true)) : '100000',
                     "landmark" => get_user_meta($current_user->ID, 'billing_address_1', true) ? sanitize_text_field(get_user_meta($current_user->ID, 'billing_address_1', true)) : 'address',
-                    "time_zone" => "Asia/Ho_Chi_Minh", // Giá trị cố định
+                    "time_zone" => "Asia/Ho_Chi_Minh", 
                     "surname" => get_user_meta($current_user->ID, 'billing_last_name', true) ? sanitize_text_field(get_user_meta($current_user->ID, 'billing_last_name', true)) : 'lastname',
                     "email" => sanitize_email($current_user->user_email), // Sử dụng sanitize_email
                     "first_name" => get_user_meta($current_user->ID, 'billing_first_name', true) ? sanitize_text_field(get_user_meta($current_user->ID, 'billing_first_name', true)) : 'firstname',
                     "username" => $user_name,
                     "password" => $user_name,
-                    "fy_start_month" => date('n'), // Giá trị cố định
-                    "accounting_method" => "phuong_phap_1", // Giá trị cố định
+                    "fy_start_month" => date('n'),
+                    "accounting_method" => "phuong_phap_1", 
                     "woocommerce_api_settings" => array(
                         "woocommerce_app_url" => esc_url(home_url()), // Escaping URL
                         "woocommerce_consumer_key" => isset($option['consumer_key']) ? sanitize_text_field($option['consumer_key']) : '',
@@ -96,7 +96,7 @@ if (!class_exists('SPBWC_Storelly_Product_Builder_API')) {
             if(!empty($response)) return;
         
             global $wpdb;
-            $description = __('Storelly', 'pc-product-builder');
+            $description = __('Storelly', 'spbwc-product-builder');
             $permissions = 'read_write';
             $user_id     = get_current_user_id();
             $response      = array();

@@ -1,0 +1,1246 @@
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: spbwc-product-builder "
+"v1.0.0\n"
+"Report-Msgid-Bugs-To: Translator Name "
+"<storelly@gmail.com>\n"
+"POT-Creation-Date: 2025-11-27 10:23+0700\n"
+"PO-Revision-Date: \n"
+"Last-Translator: Your Name "
+"<storelly@gmail.com>\n"
+"Language-Team: Your Team "
+"<storelly@gmail.com>\n"
+"Language: en_US\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Textdomain-Support: yesX-Generator: "
+"Poedit 1.6.4\n"
+"X-Poedit-SourceCharset: UTF-8\n"
+"X-Poedit-KeywordsList: "
+"__;_e;esc_html_e;esc_html_x:1,2c;esc_html__;esc_attr_e;esc_attr_x:1,2c;esc_attr__;_ex:1,2c;_nx:4c,1,2;_nx_noop:4c,1,2;_x:1,2c;_n:1,2;_n_noop:1,2;__ngettext:1,2;__ngettext_noop:1,2;_c,_nc:4c,1,2\n"
+"X-Poedit-Basepath: ..\n"
+"X-Generator: Poedit 3.8\n"
+"X-Poedit-SearchPath-0: .\n"
+
+#: includes/class-admin-options.php:55
+msgid "Storelly Product builder Page"
+msgstr ""
+
+#: includes/class-admin-options.php:77
+msgid "Product builder designs"
+msgstr ""
+
+#: includes/class-admin-options.php:114
+#: includes/class-admin-options.php:141
+msgid "You do not have permission."
+msgstr ""
+
+#: includes/class-admin-options.php:118
+#: includes/class-admin-options.php:145
+#: includes/class-product-builder-frontend.php:73
+#: includes/options/fields-list-table.php:68
+#: includes/options/fields-list-table.php:72
+msgid "Security error."
+msgstr ""
+
+#: includes/class-admin-options.php:185
+#: includes/class-admin-options.php:186
+msgid "Builder options"
+msgstr ""
+
+#: includes/class-admin-options.php:193
+#: includes/class-admin-options.php:194
+msgid "Fonts"
+msgstr ""
+
+#: includes/class-admin-options.php:201
+#: includes/class-admin-options.php:202
+msgid "Settings"
+msgstr ""
+
+#: includes/class-admin-options.php:272
+msgid "Complete!"
+msgstr ""
+
+#: includes/class-admin-options.php:289
+msgid "Option created successfully."
+msgstr ""
+
+#: includes/class-admin-options.php:306
+msgid "Security check failed."
+msgstr ""
+
+#: includes/class-admin-options.php:326
+msgid "Option updated."
+msgstr ""
+
+#: includes/class-admin-options.php:542
+#: includes/class-admin-options.php:544
+#: views/options/templates/field-body/title.php:6
+msgid "Option name"
+msgstr ""
+
+#: includes/class-admin-options.php:551
+msgid "Option description"
+msgstr ""
+
+#: includes/class-admin-options.php:553
+#: views/options/templates/field-body/attributes.php:45
+#: views/options/templates/field-body/attributes.php:47
+#: views/options/templates/field-body/attributes.php:105
+#: views/options/templates/field-body/attributes.php:107
+#: views/options/templates/field-body/description.php:6
+msgid "Description"
+msgstr ""
+
+#: includes/class-admin-options.php:562
+#: views/options/templates/field-body/data_type.php:6
+msgid "Data type"
+msgstr ""
+
+#: includes/class-admin-options.php:569
+msgid "Custom input"
+msgstr ""
+
+#: includes/class-admin-options.php:573
+msgid "Multiple options"
+msgstr ""
+
+#: includes/class-admin-options.php:581
+#: views/options/templates/field-body/input_type.php:6
+msgid "Input type"
+msgstr ""
+
+#: includes/class-admin-options.php:595
+#: includes/class-admin-options.php:993
+#: views/options/edit-option.php:150
+msgid "Text"
+msgstr ""
+
+#: includes/class-admin-options.php:599
+msgid "Upload"
+msgstr ""
+
+#: includes/class-admin-options.php:603
+msgid "Textarea"
+msgstr ""
+
+#: includes/class-admin-options.php:619
+#: views/options/templates/field-body/input_option.php:6
+msgid "Input option"
+msgstr ""
+
+#: includes/class-admin-options.php:655
+msgid "Text input option"
+msgstr ""
+
+#: includes/class-admin-options.php:676
+#: views/options/templates/field-body/enabled.php:6
+msgid "Enabled"
+msgstr ""
+
+#: includes/class-admin-options.php:677
+#: views/options/templates/field-body/enabled.php:6
+msgid ""
+"Choose whether the option is enabled or not."
+msgstr ""
+
+#: includes/class-admin-options.php:683
+#: includes/class-admin-options.php:702
+#: includes/class-admin-options.php:721
+#: includes/class-admin-options.php:972
+#: views/menu-settings.php:32
+#: views/options/templates/nbpb_text.php:18
+#: views/options/templates/nbpb_text.php:29
+#: views/options/templates/nbpb_text.php:85
+#: views/options/templates/nbpb_text.php:96
+msgid "Yes"
+msgstr ""
+
+#: includes/class-admin-options.php:687
+#: includes/class-admin-options.php:706
+#: includes/class-admin-options.php:725
+#: includes/class-admin-options.php:976
+#: views/menu-settings.php:35
+#: views/options/templates/nbpb_text.php:19
+#: views/options/templates/nbpb_text.php:30
+#: views/options/templates/nbpb_text.php:86
+#: views/options/templates/nbpb_text.php:97
+msgid "No"
+msgstr ""
+
+#: includes/class-admin-options.php:695
+#: views/options/templates/field-body/published.php:6
+msgid "Published"
+msgstr ""
+
+#: includes/class-admin-options.php:696
+msgid "Show in summary options or not."
+msgstr ""
+
+#: includes/class-admin-options.php:714
+#: views/options/templates/field-body/required.php:6
+msgid "Required"
+msgstr ""
+
+#: includes/class-admin-options.php:715
+#: views/options/templates/field-body/required.php:6
+msgid ""
+"Choose whether the option is required or "
+"not."
+msgstr ""
+
+#: includes/class-admin-options.php:746
+#: views/options/templates/field-body/upload_option.php:6
+msgid "Upload file option"
+msgstr ""
+
+#: includes/class-admin-options.php:767
+#: views/options/templates/field-body/price_type.php:6
+msgid "Price type"
+msgstr ""
+
+#: includes/class-admin-options.php:768
+#: views/options/templates/field-body/price_type.php:6
+msgid ""
+"Here you can choose how the price is "
+"calculated. Depending on the field there "
+"various types you can choose."
+msgstr ""
+
+#: includes/class-admin-options.php:774
+msgid "Fixed amount"
+msgstr ""
+
+#: includes/class-admin-options.php:778
+msgid "Percent of the original price"
+msgstr ""
+
+#: includes/class-admin-options.php:782
+msgid ""
+"Percent of the original price + options"
+msgstr ""
+
+#: includes/class-admin-options.php:786
+msgid "Current value * price"
+msgstr ""
+
+#: includes/class-admin-options.php:812
+msgid "Price per char"
+msgstr ""
+
+#: includes/class-admin-options.php:832
+#: views/options/templates/field-body/attributes.php:52
+#: views/options/templates/field-body/attributes.php:111
+#: views/options/templates/field-body/price.php:6
+msgid "Additional Price"
+msgstr ""
+
+#: includes/class-admin-options.php:833
+#: views/options/templates/field-body/price.php:6
+msgid ""
+"Enter the price for this field or leave it "
+"blank for no price."
+msgstr ""
+
+#: includes/class-admin-options.php:854
+#: includes/class-admin-options.php:995
+msgid "Attribute name"
+msgstr ""
+
+#: includes/class-admin-options.php:892
+#: views/options/templates/field-body/attributes.php:6
+msgid "Attributes"
+msgstr ""
+
+#: includes/class-admin-options.php:893
+#: views/options/templates/field-body/attributes.php:6
+msgid ""
+"Attributes let you define extra product "
+"data, such as size or color."
+msgstr ""
+
+#: includes/class-admin-options.php:930
+msgid "Display type"
+msgstr ""
+
+#: includes/class-admin-options.php:937
+#: views/options/templates/field-body/attributes.php:71
+msgid "Dropdown"
+msgstr ""
+
+#: includes/class-admin-options.php:941
+#: views/options/templates/field-body/attributes.php:72
+msgid "Radio button"
+msgstr ""
+
+#: includes/class-admin-options.php:945
+#: views/options/templates/field-body/attributes.php:73
+msgid "Swatch"
+msgstr ""
+
+#: includes/class-admin-options.php:949
+#: views/options/templates/field-body/attributes.php:74
+msgid "Label"
+msgstr ""
+
+#: includes/class-admin-options.php:953
+msgid "Advanced Dropdown"
+msgstr ""
+
+#: includes/class-admin-options.php:957
+msgid "Large label"
+msgstr ""
+
+#: includes/class-admin-options.php:965
+msgid "Changes product image"
+msgstr ""
+
+#: includes/class-admin-options.php:966
+msgid ""
+"Choose whether to change the product image."
+msgstr ""
+
+#: includes/class-admin-options.php:984
+msgid "CSS Class"
+msgstr ""
+
+#: includes/class-admin-options.php:992
+#: views/options/edit-option.php:149
+msgid "Component"
+msgstr ""
+
+#: includes/class-admin-options.php:994
+#: views/options/edit-option.php:151
+#: views/options/templates/field-body/attributes.php:15
+#: views/options/templates/field-body/attributes.php:85
+#: views/options/templates/nbpb_com.php:83
+msgid "Image"
+msgstr ""
+
+#: includes/class-admin-options.php:996
+msgid "Sub attribute name"
+msgstr ""
+
+#: includes/class-admin-options.php:1000
+msgid "Storelly product builder"
+msgstr ""
+
+#: includes/class-admin-options.php:1102
+msgid ""
+"You do not have permission to add font!"
+msgstr ""
+
+#: includes/class-admin-options.php:1150
+msgid ""
+"The google fonts have been added "
+"successfully!"
+msgstr ""
+
+#: includes/class-admin-options.php:1187
+#: includes/class-util.php:60
+msgid "Your settings have been saved."
+msgstr ""
+
+#: includes/class-frontend-options.php:281
+msgid "Sorry, file is too big, max size: "
+msgstr ""
+
+#: includes/class-frontend-options.php:282
+msgid "Sorry, file is too small, min size: "
+msgstr ""
+
+#: includes/class-frontend-options.php:283
+msgid ""
+"Sorry, this file type is not permitted for "
+"security reasons. Only accept: "
+msgstr ""
+
+#: includes/class-frontend-options.php:697
+msgid "Update cart"
+msgstr ""
+
+#: includes/class-frontend-options.php:810
+#: includes/class-frontend-options.php:887
+#: templates/single-product/option-builder.php:131
+msgid "( cart fee )"
+msgstr ""
+
+#: includes/class-frontend-options.php:813
+#: includes/class-frontend-options.php:890
+#: templates/single-product/option-builder.php:132
+msgid "( for all items )"
+msgstr ""
+
+#: includes/class-frontend-options.php:820
+#: includes/class-frontend-options.php:901
+msgid "Quantity Discount"
+msgstr ""
+
+#: includes/class-frontend-options.php:972
+msgid "Edit options"
+msgstr ""
+
+#: includes/class-install.php:15
+msgid "Product Builder"
+msgstr ""
+
+#: includes/class-product-builder-frontend.php:70
+msgid ""
+"You do not have permission to save design."
+msgstr ""
+
+#: includes/class-productbuilder-api.php:99
+msgid "Storelly"
+msgstr ""
+
+#: includes/class-productbuilder-api.php:107
+msgid ""
+"You do not have permission to assign API "
+"Keys to the selected user."
+msgstr ""
+
+#: includes/class-util.php:64
+#: includes/class-util.php:74
+#: includes/class-util.php:91
+msgid "Dismiss this notice."
+msgstr ""
+
+#: includes/class-util.php:70
+#: includes/class-util.php:80
+msgid "Irks! An error has occurred."
+msgstr ""
+
+#: includes/class-util.php:87
+msgid "Warning."
+msgstr ""
+
+#: includes/options/fields-list-table.php:9
+msgid "Printing option"
+msgstr ""
+
+#: includes/options/fields-list-table.php:10
+msgid "Printing options"
+msgstr ""
+
+#: includes/options/fields-list-table.php:33
+#: views/options/templates/field-body/attributes.php:39
+#: views/options/templates/field-body/attributes.php:99
+msgid "Title"
+msgstr ""
+
+#: includes/options/fields-list-table.php:34
+msgid "Products"
+msgstr ""
+
+#: includes/options/fields-list-table.php:35
+msgid "Date"
+msgstr ""
+
+#: includes/options/fields-list-table.php:137
+#: includes/options/fields-list-table.php:177
+#: views/options/field.php:21
+msgid "Copy"
+msgstr ""
+
+#: includes/options/fields-list-table.php:162
+#: views/options/field.php:20
+#: views/options/templates/field-body/attributes.php:124
+#: views/options/templates/field-body/attributes.php:141
+#: views/options/templates/nbpb_text.php:124
+#: views/product-builder/wrapper.php:171
+#: views/product-builder/wrapper.php:194
+msgid "Delete"
+msgstr ""
+
+#: includes/options/fields-list-table.php:163
+#: includes/options/fields-list-table.php:182
+#: views/options/edit-option.php:67
+#: views/options/edit-option.php:94
+msgid "Publish"
+msgstr ""
+
+#: includes/options/fields-list-table.php:164
+#: includes/options/fields-list-table.php:182
+msgid "Unpublish"
+msgstr ""
+
+#: includes/options/fields-list-table.php:169
+msgid "No options avaliable."
+msgstr ""
+
+#: includes/options/fields-list-table.php:176
+msgid "Edit"
+msgstr ""
+
+#: includes/options/fields-list-table.php:188
+msgid "None"
+msgstr ""
+
+#: product-builder.php:51
+msgid ""
+"WooCommerce is not active. Please activate "
+"WooCommerce before using"
+msgstr ""
+
+#: product-builder.php:52
+msgid "Product Builder Integration"
+msgstr ""
+
+#: templates/single-product/option-builder.php:99
+msgid "Clear selection"
+msgstr ""
+
+#: templates/single-product/option-builder.php:103
+msgid ""
+"Please check invalid fields and quantity "
+"input or choose a different combination!"
+msgstr ""
+
+#: templates/single-product/option-builder.php:108
+msgid "Summary options"
+msgstr ""
+
+#: templates/single-product/option-builder.php:139
+msgid "Options price"
+msgstr ""
+
+#: templates/single-product/option-builder.php:140
+#: templates/single-product/option-builder.php:146
+msgid "1 item"
+msgstr ""
+
+#: templates/single-product/option-builder.php:143
+msgid "Final price"
+msgstr ""
+
+#: templates/single-product/option-builder.php:151
+msgid "Cart item fee"
+msgstr ""
+
+#: templates/single-product/option-builder.php:152
+msgid "all items"
+msgstr ""
+
+#: templates/single-product/option-builder.php:155
+msgid "Subtotal price"
+msgstr ""
+
+#: templates/single-product/option-builder.php:156
+msgid "items"
+msgstr ""
+
+#: templates/single-product/options-builder/advanced-dropdown.php:47
+#: templates/single-product/options-builder/advanced-dropdown.php:89
+#: templates/single-product/options-builder/xlabel.php:34
+msgid "Recommended"
+msgstr ""
+
+#: templates/single-product/options-builder/advanced-dropdown.php:102
+#: templates/single-product/options-builder/dropdown.php:26
+#: templates/single-product/options-builder/label.php:30
+#: templates/single-product/options-builder/radio.php:28
+#: templates/single-product/options-builder/xlabel.php:49
+msgid "is not available"
+msgstr ""
+
+#: templates/single-product/options-builder/input.php:27
+#, php-format
+msgid "%s"
+msgstr ""
+
+#: templates/single-product/options-builder/input.php:44
+msgid "Min size: "
+msgstr ""
+
+#: templates/single-product/options-builder/input.php:47
+msgid "Max size: "
+msgstr ""
+
+#: templates/single-product/options-builder/swatch.php:43
+msgid "is not available."
+msgstr ""
+
+#: views/box-order-metadata.php:14
+msgid "Product:"
+msgstr ""
+
+#: views/box-order-metadata.php:37
+msgid "View detail"
+msgstr ""
+
+#: views/box-order-metadata.php:43
+msgid "Check all"
+msgstr ""
+
+#: views/box-order-metadata.php:49
+msgid "png"
+msgstr ""
+
+#: views/box-order-metadata.php:50
+msgid "png preview"
+msgstr ""
+
+#: views/box-order-metadata.php:51
+msgid "svg"
+msgstr ""
+
+#: views/box-order-metadata.php:52
+msgid "pdf"
+msgstr ""
+
+#: views/box-order-metadata.php:53
+msgid "pdf preview"
+msgstr ""
+
+#: views/box-order-metadata.php:60
+msgid "Download"
+msgstr ""
+
+#: views/box-order-metadata.php:64
+msgid "No design in this order"
+msgstr ""
+
+#: views/manager-fonts.php:3
+msgid "Google Fonts"
+msgstr ""
+
+#: views/manager-fonts.php:17
+msgid "All Categories"
+msgstr ""
+
+#: views/manager-fonts.php:25
+msgid "All subsets"
+msgstr ""
+
+#: views/manager-fonts.php:32
+#: views/options/edit-option.php:94
+msgid "Update"
+msgstr ""
+
+#: views/manager-fonts.php:36
+msgid "Total"
+msgstr ""
+
+#: views/manager-fonts.php:36
+msgid "fonts"
+msgstr ""
+
+#: views/manager-fonts.php:37
+msgid "Select All"
+msgstr ""
+
+#: views/manager-fonts.php:38
+msgid "Unselect All"
+msgstr ""
+
+#: views/manager-fonts.php:40
+#: views/manager-fonts.php:46
+msgid "Display "
+msgstr ""
+
+#: views/manager-fonts.php:42
+msgid "All"
+msgstr ""
+
+#: views/manager-fonts.php:43
+msgid "Selected"
+msgstr ""
+
+#: views/manager-fonts.php:44
+msgid "Unselected"
+msgstr ""
+
+#: views/manager-fonts.php:56
+msgid ""
+"Click check mark to select/unselect font"
+msgstr ""
+
+#: views/manager-fonts.php:57
+msgid ""
+"Please remove unused fonts to make the "
+"design editor loads faster"
+msgstr ""
+
+#: views/manager-fonts.php:64
+msgid "Unselect"
+msgstr ""
+
+#: views/manager-fonts.php:64
+msgid "Select"
+msgstr ""
+
+#: views/menu-settings.php:15
+msgid "Storelly settings"
+msgstr ""
+
+#: views/menu-settings.php:28
+msgid ""
+"Enable Storelly cloud api to create PDF"
+msgstr ""
+
+#: views/menu-settings.php:42
+msgid "Manually enter an API Key"
+msgstr ""
+
+#: views/menu-settings.php:46
+msgid "Sid : "
+msgstr ""
+
+#: views/menu-settings.php:50
+msgid "Enter your storelly sid API Key"
+msgstr ""
+
+#: views/menu-settings.php:55
+msgid "Secret :"
+msgstr ""
+
+#: views/menu-settings.php:59
+msgid "Enter your storelly secret API Key"
+msgstr ""
+
+#: views/menu-settings.php:64
+msgid "Unauth token :"
+msgstr ""
+
+#: views/menu-settings.php:68
+msgid ""
+"Unauth token off store Storelly "
+"(Automatically generated when you enter "
+"calid sid end secret)"
+msgstr ""
+
+#: views/menu-settings.php:73
+msgid "User name"
+msgstr ""
+
+#: views/menu-settings.php:81
+msgid "Password"
+msgstr ""
+
+#: views/menu-settings.php:85
+msgid ""
+"Please log in with the above account and "
+"password"
+msgstr ""
+
+#: views/menu-settings.php:92
+msgid ""
+"Check connection to Storelly Dashboard :"
+msgstr ""
+
+#: views/menu-settings.php:95
+msgid "Click To Login"
+msgstr ""
+
+#: views/menu-settings.php:96
+msgid "Create your first product"
+msgstr ""
+
+#: views/menu-settings.php:97
+msgid "Login to sync products"
+msgstr ""
+
+#: views/menu-settings.php:103
+msgid "Log"
+msgstr ""
+
+#: views/menu-settings.php:117
+msgid "Save changes"
+msgstr ""
+
+#: views/options/edit-option.php:35
+msgid "Create New Option"
+msgstr ""
+
+#: views/options/edit-option.php:37
+msgid "Edit Options"
+msgstr ""
+
+#: views/options/edit-option.php:40
+#: views/options/options-list-table.php:15
+msgid "Add new"
+msgstr ""
+
+#: views/options/edit-option.php:58
+msgid "Enter title here"
+msgstr ""
+
+#: views/options/edit-option.php:60
+msgid "required"
+msgstr ""
+
+#: views/options/edit-option.php:73
+msgid "Status:"
+msgstr ""
+
+#: views/options/edit-option.php:77
+msgid "Published on:"
+msgstr ""
+
+#: views/options/edit-option.php:81
+msgid "Modified on:"
+msgstr ""
+
+#: views/options/edit-option.php:90
+msgid "Move to Trash"
+msgstr ""
+
+#: views/options/edit-option.php:102
+msgid "Apply for"
+msgstr ""
+
+#: views/options/edit-option.php:104
+msgid ""
+"Select the Products to apply the options"
+msgstr ""
+
+#: views/options/edit-option.php:105
+msgid "Search for a product&hellip;"
+msgstr ""
+
+#: views/options/edit-option.php:118
+msgid "Notice"
+msgstr ""
+
+#: views/options/edit-option.php:120
+msgid "PHP max input vars:"
+msgstr ""
+
+#: views/options/edit-option.php:121
+msgid "Current input vars:"
+msgstr ""
+
+#: views/options/edit-option.php:122
+msgid ""
+"Please increase \"PHP max input vars\"!"
+msgstr ""
+
+#: views/options/edit-option.php:130
+msgid "Import"
+msgstr ""
+
+#: views/options/edit-option.php:131
+msgid "Export"
+msgstr ""
+
+#: views/options/edit-option.php:136
+msgid "Production builder fields"
+msgstr ""
+
+#: views/options/edit-option.php:139
+#: views/options/edit-option.php:142
+msgid "Default field"
+msgstr ""
+
+#: views/options/edit-option.php:141
+msgid "Add fields"
+msgstr ""
+
+#: views/options/edit-option.php:147
+msgid "Product builder fields"
+msgstr ""
+
+#: views/options/edit-option.php:157
+msgid "Production builder options"
+msgstr ""
+
+#: views/options/edit-option.php:171
+msgid "Output design file ( PDF )."
+msgstr ""
+
+#: views/options/edit-option.php:179
+msgid "Output resolution - DPI"
+msgstr ""
+
+#: views/options/edit-option.php:193
+msgid "Dimensions unit"
+msgstr ""
+
+#: views/options/edit-option.php:223
+msgid "Processing"
+msgstr ""
+
+#: views/options/field.php:4
+msgid "Double click to expand option"
+msgstr ""
+
+#: views/options/field.php:6
+msgid "General"
+msgstr ""
+
+#: views/options/field.php:7
+msgid "Appearance"
+msgstr ""
+
+#: views/options/field.php:8
+msgid "Product builder"
+msgstr ""
+
+#: views/options/field.php:17
+#: views/options/templates/field-body/attributes.php:121
+#: views/options/templates/field-body/attributes.php:138
+msgid "Up"
+msgstr ""
+
+#: views/options/field.php:18
+#: views/options/templates/field-body/attributes.php:122
+#: views/options/templates/field-body/attributes.php:139
+msgid "Down"
+msgstr ""
+
+#: views/options/field.php:22
+msgid "Expand"
+msgstr ""
+
+#: views/options/field.php:30
+msgid "Clear All Fields"
+msgstr ""
+
+#: views/options/field.php:31
+msgid "Add Field"
+msgstr ""
+
+#: views/options/meta-box.php:11
+msgid "Enable Product builder"
+msgstr ""
+
+#: views/options/meta-box.php:21
+msgid "Edit option"
+msgstr ""
+
+#: views/options/meta-box.php:23
+msgid "Create option"
+msgstr ""
+
+#: views/options/options-list-table.php:14
+msgid "Product Builder Options"
+msgstr ""
+
+#: views/options/options-list-table.php:16
+msgid ""
+"There are no products that have integrated "
+"product builder yet. Please"
+msgstr ""
+
+#: views/options/options-list-table.php:16
+msgid "click here"
+msgstr ""
+
+#: views/options/options-list-table.php:16
+msgid ""
+" to create a product and integrate product "
+"builder"
+msgstr ""
+
+#: views/options/preview.php:5
+msgid "Create Pre builder"
+msgstr ""
+
+#: views/options/templates/field-body/attributes.php:12
+#: views/options/templates/field-body/attributes.php:82
+msgid "Swatch type"
+msgstr ""
+
+#: views/options/templates/field-body/attributes.php:16
+#: views/options/templates/field-body/attributes.php:86
+#: views/options/templates/nbpb_text.php:111
+#: views/product-builder/wrapper.php:160
+msgid "Color"
+msgstr ""
+
+#: views/options/templates/field-body/attributes.php:22
+#: views/options/templates/field-body/attributes.php:34
+#: views/options/templates/field-body/attributes.php:92
+msgid "Click to change image"
+msgstr ""
+
+#: views/options/templates/field-body/attributes.php:30
+msgid "Product image"
+msgstr ""
+
+#: views/options/templates/field-body/attributes.php:42
+#: views/options/templates/field-body/attributes.php:102
+#: views/options/templates/field-body/input_option.php:15
+msgid "Default"
+msgstr ""
+
+#: views/options/templates/field-body/attributes.php:50
+#: views/options/templates/field-body/attributes.php:109
+msgid "Price"
+msgstr ""
+
+#: views/options/templates/field-body/attributes.php:60
+msgid "Enable sub attributes"
+msgstr ""
+
+#: views/options/templates/field-body/attributes.php:66
+msgid "Sub attributes type"
+msgstr ""
+
+#: views/options/templates/field-body/attributes.php:125
+#: views/options/templates/field-body/attributes.php:142
+msgid "Expend"
+msgstr ""
+
+#: views/options/templates/field-body/attributes.php:131
+msgid "Add sub attribute"
+msgstr ""
+
+#: views/options/templates/field-body/attributes.php:149
+msgid "Add attribute"
+msgstr ""
+
+#: views/options/templates/field-body/input_option.php:12
+msgid "Min"
+msgstr ""
+
+#: views/options/templates/field-body/input_option.php:13
+msgid "Max"
+msgstr ""
+
+#: views/options/templates/field-body/input_option.php:14
+msgid "Step"
+msgstr ""
+
+#: views/options/templates/field-body/published.php:6
+msgid ""
+"Choose whether the option show in summary "
+"options or not."
+msgstr ""
+
+#: views/options/templates/field-body/text_option.php:6
+msgid "Text option"
+msgstr ""
+
+#: views/options/templates/field-body/text_option.php:12
+msgid "Min length"
+msgstr ""
+
+#: views/options/templates/field-body/text_option.php:13
+msgid "Max length"
+msgstr ""
+
+#: views/options/templates/field-body/upload_option.php:12
+#: views/product-builder/wrapper.php:188
+msgid "Min size"
+msgstr ""
+
+#: views/options/templates/field-body/upload_option.php:13
+#: views/product-builder/wrapper.php:189
+msgid "Max size"
+msgstr ""
+
+#: views/options/templates/field-body/upload_option.php:14
+msgid "Allow type"
+msgstr ""
+
+#: views/options/templates/nbpb_com.php:6
+msgid "Views"
+msgstr ""
+
+#: views/options/templates/nbpb_com.php:6
+msgid ""
+"Add product view/side, example: Front, "
+"Back, Top, Inside... and use them for all "
+"product components."
+msgstr ""
+
+#: views/options/templates/nbpb_com.php:13
+msgid "View name"
+msgstr ""
+
+#: views/options/templates/nbpb_com.php:14
+msgid "View base"
+msgstr ""
+
+#: views/options/templates/nbpb_com.php:15
+#: views/options/templates/nbpb_text.php:112
+msgid "Action"
+msgstr ""
+
+#: views/options/templates/nbpb_com.php:28
+msgid "Delete View"
+msgstr ""
+
+#: views/options/templates/nbpb_com.php:34
+msgid "Add View"
+msgstr ""
+
+#: views/options/templates/nbpb_com.php:43
+msgid "Component icon"
+msgstr ""
+
+#: views/options/templates/nbpb_com.php:56
+msgid "Component configurations"
+msgstr ""
+
+#: views/options/templates/nbpb_com.php:57
+msgid ""
+"All images in the same view must have the "
+"same size."
+msgstr ""
+
+#: views/options/templates/nbpb_com.php:65
+msgid "Attribute"
+msgstr ""
+
+#: views/options/templates/nbpb_com.php:66
+msgid "Sub attribute"
+msgstr ""
+
+#: views/options/templates/nbpb_com.php:67
+msgid "View"
+msgstr ""
+
+#: views/options/templates/nbpb_com.php:79
+#: views/options/templates/nbpb_image.php:6
+#: views/options/templates/nbpb_text.php:141
+msgid "Show in view"
+msgstr ""
+
+#: views/options/templates/nbpb_text.php:6
+msgid "Default text"
+msgstr ""
+
+#: views/options/templates/nbpb_text.php:14
+msgid "Allow change font family"
+msgstr ""
+
+#: views/options/templates/nbpb_text.php:25
+msgid "Allow all fonts"
+msgstr ""
+
+#: views/options/templates/nbpb_text.php:32
+msgid "Manage fonts"
+msgstr ""
+
+#: views/options/templates/nbpb_text.php:32
+msgid "here"
+msgstr ""
+
+#: views/options/templates/nbpb_text.php:37
+msgid "Custom fonts"
+msgstr ""
+
+#: views/options/templates/nbpb_text.php:63
+msgid "Google fonts"
+msgstr ""
+
+#: views/options/templates/nbpb_text.php:81
+msgid "Allow change color"
+msgstr ""
+
+#: views/options/templates/nbpb_text.php:92
+msgid "Allow all colors"
+msgstr ""
+
+#: views/options/templates/nbpb_text.php:103
+msgid "Colors"
+msgstr ""
+
+#: views/options/templates/nbpb_text.php:110
+msgid "Color name"
+msgstr ""
+
+#: views/options/templates/nbpb_text.php:131
+msgid "Add color"
+msgstr ""
+
+#: views/pdf-template.php:10
+msgid "NBStorelly"
+msgstr ""
+
+#: views/product-builder/customize-btn.php:2
+msgid "Customize"
+msgstr ""
+
+#: views/product-builder/js_config.php:37
+msgid "Only support image!"
+msgstr ""
+
+#: views/product-builder/js_config.php:38
+msgid "Max file size"
+msgstr ""
+
+#: views/product-builder/js_config.php:39
+msgid "Min file size"
+msgstr ""
+
+#: views/product-builder/js_config.php:40
+msgid ""
+"Are you sure you want to delete this image?"
+msgstr ""
+
+#: views/product-builder/js_config.php:41
+msgid ""
+"Are you sure you want to delete this text?"
+msgstr ""
+
+#: views/product-builder/js_config.php:42
+msgid "Oops! Design has not been saved!"
+msgstr ""
+
+#: views/product-builder/js_config.php:43
+msgid "Choose"
+msgstr ""
+
+#: views/product-builder/js_config.php:44
+msgid "Cancel"
+msgstr ""
+
+#: views/product-builder/wrapper.php:70
+msgid "Bring Forward"
+msgstr ""
+
+#: views/product-builder/wrapper.php:71
+msgid "Send To Backward"
+msgstr ""
+
+#: views/product-builder/wrapper.php:72
+#: views/product-builder/wrapper.php:79
+msgid "Zoom"
+msgstr ""
+
+#: views/product-builder/wrapper.php:80
+msgid "Zoom out"
+msgstr ""
+
+#: views/product-builder/wrapper.php:81
+msgid "Zoom in"
+msgstr ""
+
+#: views/product-builder/wrapper.php:84
+msgid "Rotate"
+msgstr ""
+
+#: views/product-builder/wrapper.php:91
+msgid "Angle"
+msgstr ""
+
+#: views/product-builder/wrapper.php:96
+msgid "Clear all layer"
+msgstr ""
+
+#: views/product-builder/wrapper.php:115
+msgid "Done"
+msgstr ""
+
+#: views/product-builder/wrapper.php:138
+msgid "Content"
+msgstr ""
+
+#: views/product-builder/wrapper.php:144
+msgid "Font family"
+msgstr ""
+
+#: views/product-builder/wrapper.php:186
+msgid "Click or drop file here"
+msgstr ""
+
+#: views/product-builder/wrapper.php:187
+msgid "Allow extensions"
+msgstr ""

@@ -12,7 +12,7 @@ if (!class_exists('SPBWC_Storelly_Install')) {
                 $post = array(
                     'post_name'         => 'product-builder',
                     'post_status'       => 'publish',
-                    'post_title'        => esc_html__('Product Builder', 'pc-product-builder'),
+                    'post_title'        => esc_html__('Product Builder', 'spbwc-product-builder'),
                     'post_type'         => 'page',
                     'post_author'       => 1,
                     'post_content'      => '',

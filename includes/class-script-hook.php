@@ -84,7 +84,7 @@ if (!class_exists('SPBWC_SPBWC_Storelly_PB_Script_Hook')) {
             wp_register_script('spbwc-tiptip', SPBWC_PB_ASSETS_URL . 'js/tiptip.js', array('jquery'), SPBWC_PB_VERSION, true);
 
             if ($page == 'product-builder') {
-                $this->spbwc_enqueue_style(array('spbwc-poppins-font-r', 'spbwc-spectrum-css', 'spbwc-app-product-builder', 'pc-product-builder'));
+                $this->spbwc_enqueue_style(array('spbwc-poppins-font-r', 'spbwc-spectrum-css', 'spbwc-app-product-builder', 'spbwc-product-builder'));
                 $this->spbwc_enqueue_script(array('spbwc-storelly-ext', 'spbwc-angular', 'wc-accounting'));
             }
             if ($page == 'single-product') {

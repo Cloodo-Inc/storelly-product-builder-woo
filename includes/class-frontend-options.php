@@ -278,9 +278,9 @@ if (!class_exists('STORELLY_FRONTEND_OPTIONS')) {
                         'variations'            => wp_json_encode((array) $variations),
                         'form_values'           => $form_values,
                         'is_sold_individually'  => $product->is_sold_individually(),
-                        'file_too_big'          => __('Sorry, file is too big, max size: ', 'pc-product-builder'),
-                        'file_too_small'        => __('Sorry, file is too small, min size: ', 'pc-product-builder'),
-                        'file_type'             => __('Sorry, this file type is not permitted for security reasons. Only accept: ', 'pc-product-builder'),
+                        'file_too_big'          => __('Sorry, file is too big, max size: ', 'spbwc-product-builder'),
+                        'file_too_small'        => __('Sorry, file is too small, min size: ', 'spbwc-product-builder'),
+                        'file_type'             => __('Sorry, this file type is not permitted for security reasons. Only accept: ', 'spbwc-product-builder'),
                     ));
                     wp_enqueue_script('option_builder');
                 }
@@ -694,7 +694,7 @@ if (!class_exists('STORELLY_FRONTEND_OPTIONS')) {
         }
         public function add_to_cart_text($var) {
             if ($this->is_edit_mode) {
-                return esc_attr__('Update cart', 'pc-product-builder');
+                return esc_attr__('Update cart', 'spbwc-product-builder');
             }
             return $var;
         }
@@ -807,17 +807,17 @@ if (!class_exists('STORELLY_FRONTEND_OPTIONS')) {
                         }
                         $post_fix = '';
                         if (isset($field['ind_qty'])) {
-                            $post_fix = '<small>' . esc_html__('( cart fee )', 'pc-product-builder') . '</small>';
+                            $post_fix = '<small>' . esc_html__('( cart fee )', 'spbwc-product-builder') . '</small>';
                         }
                         if (isset($field['fixed_amount'])) {
-                            $post_fix = '<small>' . esc_html__('( for all items )', 'pc-product-builder') . '</small>';
+                            $post_fix = '<small>' . esc_html__('( for all items )', 'spbwc-product-builder') . '</small>';
                         }
                         $display_price = $price . $post_fix;
                         $item->add_meta_data($field['name'], $field['value_name'] . '&nbsp;&nbsp;' . $display_price);
                     }
                 }
                 if (floatval($values['pcpb_meta']['option_price']['discount_price']) > 0) {
-                    $item->add_meta_data(esc_html__('Quantity Discount', 'pc-product-builder'), '-' . wc_price($values['pcpb_meta']['option_price']['discount_price'], array('decimals' => $num_decimals)));
+                    $item->add_meta_data(esc_html__('Quantity Discount', 'spbwc-product-builder'), '-' . wc_price($values['pcpb_meta']['option_price']['discount_price'], array('decimals' => $num_decimals)));
                 }
                 $item->add_meta_data('_pcpb_option_price', $values['pcpb_meta']['option_price']);
                 $item->add_meta_data('_pcpb_field', $values['pcpb_meta']['field']);
@@ -884,10 +884,10 @@ if (!class_exists('STORELLY_FRONTEND_OPTIONS')) {
                         }
                         $post_fix = '';
                         if (isset($field['ind_qty'])) {
-                            $post_fix = '<small>' . esc_html__('( cart fee )', 'pc-product-builder') . '</small>';
+                            $post_fix = '<small>' . esc_html__('( cart fee )', 'spbwc-product-builder') . '</small>';
                         }
                         if (isset($field['fixed_amount'])) {
-                            $post_fix = '<small>' . esc_html__('( for all items )', 'pc-product-builder') . '</small>';
+                            $post_fix = '<small>' . esc_html__('( for all items )', 'spbwc-product-builder') . '</small>';
                         }
                         $item_data[] = array(
                             'name'      => $field['name'],
@@ -898,7 +898,7 @@ if (!class_exists('STORELLY_FRONTEND_OPTIONS')) {
                 }
                 if (floatval($cart_item['pcpb_meta']['option_price']['discount_price']) > 0) {
                     $item_data[] = array(
-                        'name'      => esc_html__('Quantity Discount', 'pc-product-builder'),
+                        'name'      => esc_html__('Quantity Discount', 'spbwc-product-builder'),
                         'display'   => '-' . wc_price($cart_item['pcpb_meta']['option_price']['discount_price'], array('decimals' => $num_decimals)),
                         'hidden'    => false
                     );
@@ -969,7 +969,7 @@ if (!class_exists('STORELLY_FRONTEND_OPTIONS')) {
             );
             $link = wp_nonce_url($link, 'nbo-edit');
             $show_edit_link = apply_filters('storelly_show_edit_option_link_in_cart', true, $cart_item);
-            if ($show_edit_link) $title .= '<br /><a class="nbo-edit-option-cart" href="' . $link . '" class="nbo-cart-edit-options">' . esc_html__('Edit options', 'pc-product-builder') . '</a><br />';
+            if ($show_edit_link) $title .= '<br /><a class="nbo-edit-option-cart" href="' . $link . '" class="nbo-cart-edit-options">' . esc_html__('Edit options', 'spbwc-product-builder') . '</a><br />';
             return apply_filters('storelly_cart_item_name', $title, $cart_item, $cart_item_key);
         }
         public function get_cart_item_from_session($cart_item, $values) {

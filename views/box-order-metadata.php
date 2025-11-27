@@ -11,7 +11,7 @@
             if ($folder_design) : ?>
                 <div class="storelly_order_product_name">
                     <b>
-                        <?php esc_html_e('Product:', 'pc-product-builder'); ?>
+                        <?php esc_html_e('Product:', 'spbwc-product-builder'); ?>
                     </b>
                     <?php echo esc_html($order_item->get_name()); ?>
                 </div>
@@ -34,34 +34,34 @@
                         'nbd_item_key'   => $folder_design,
                     ), SPBWC_Storelly_PB_Util::spbwc_get_url_page('product_builder'));
                     ?>
-                    <a class="nbstorelly-right button button-small button-secondary" href="<?php echo esc_url($link_view_detail); ?>"><?php esc_html_e('View detail', 'pc-product-builder'); ?></a>
+                    <a class="nbstorelly-right button button-small button-secondary" href="<?php echo esc_url($link_view_detail); ?>"><?php esc_html_e('View detail', 'spbwc-product-builder'); ?></a>
                 <?php endif; ?>
             <?php endif; ?>
         <?php endforeach; ?>
         <?php if ($count_img_design > 0) : ?>
             <div><input type="checkbox" class="" id="storelly_order_design_check_all" />
-                <label for="storelly_order_design_check_all"><small><?php esc_html_e('Check all', 'pc-product-builder'); ?></small></label>
+                <label for="storelly_order_design_check_all"><small><?php esc_html_e('Check all', 'spbwc-product-builder'); ?></small></label>
             </div>
             <hr />
             <div>
                 <div style="padding-bottom: 4px">
                     <select name="storelly_design_type_download" style="width: 100%">
-                        <option value="png"><?php esc_html_e('png', 'pc-product-builder'); ?></option>
-                        <option value="png-preview"><?php esc_html_e('png preview', 'pc-product-builder'); ?></option>
-                        <option value="svg"><?php esc_html_e('svg', 'pc-product-builder'); ?></option>
-                        <option value="pdf"><?php esc_html_e('pdf', 'pc-product-builder'); ?></option>
-                        <option value="pdf-preview"><?php esc_html_e('pdf preview', 'pc-product-builder'); ?></option>
+                        <option value="png"><?php esc_html_e('png', 'spbwc-product-builder'); ?></option>
+                        <option value="png-preview"><?php esc_html_e('png preview', 'spbwc-product-builder'); ?></option>
+                        <option value="svg"><?php esc_html_e('svg', 'spbwc-product-builder'); ?></option>
+                        <option value="pdf"><?php esc_html_e('pdf', 'spbwc-product-builder'); ?></option>
+                        <option value="pdf-preview"><?php esc_html_e('pdf preview', 'spbwc-product-builder'); ?></option>
                     </select>
                 </div>
                 <div style="padding-bottom: 4px;">
                     <img src="<?php echo esc_url($src_img); ?>" class="storelly_loaded" id="storelly_order_submit_loading" />
                 </div>
                 <div style="padding-bottom: 4px">
-                    <a href="#" class="button button-primary" id="storelly_download_design_by_type"><?php esc_html_e('Download', 'pc-product-builder'); ?></a>
+                    <a href="#" class="button button-primary" id="storelly_download_design_by_type"><?php esc_html_e('Download', 'spbwc-product-builder'); ?></a>
                 </div>
             </div>
         <?php else : ?>
-            <p><?php esc_html_e('No design in this order', 'pc-product-builder'); ?></p>
+            <p><?php esc_html_e('No design in this order', 'spbwc-product-builder'); ?></p>
         <?php endif; ?>
     <?php endif; ?>
 </div>
