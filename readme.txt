@@ -10,7 +10,7 @@ Requires PHP: 7.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-Storelly Product Builder for WooCommerce allows customers to configure and personalize products directly on your website. Ideal for stores offering customizable or made-to-order items.
+Storelly Product Builder allows customers to configure and personalize products. Ideal for customizable or made-to-order items.
 
 == Description ==
 
