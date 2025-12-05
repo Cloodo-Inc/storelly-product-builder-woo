@@ -3,7 +3,7 @@
 <?php echo '<script type="text/ng-template" id="field_body_price_type">'; ?>
 <div class="pcpb-field-info" ng-show="check_depend(field.general, field.general.price_type)">
     <div class="pcpb-field-info-1">
-        <div><label><b><?php esc_html_e('Price type', 'spbwc-product-builder'); ?></b> <nbd-tip data-tip="<?php esc_html_e('Here you can choose how the price is calculated. Depending on the field there various types you can choose.', 'spbwc-product-builder'); ?>"></nbd-tip></label></div>
+        <div><label><b><?php esc_html_e('Price type', 'storelly-product-builder-for-woocommerce'); ?></b> <nbd-tip data-tip="<?php esc_html_e('Here you can choose how the price is calculated. Depending on the field there various types you can choose.', 'storelly-product-builder-for-woocommerce'); ?>"></nbd-tip></label></div>
     </div>
     <div class="pcpb-field-info-2">
         <div>

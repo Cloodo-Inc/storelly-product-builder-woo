@@ -55,7 +55,7 @@ if (!class_exists('SPBWC_Storelly_Product_Builder_API')) {
                     "first_name" => get_user_meta($current_user->ID, 'billing_first_name', true) ? sanitize_text_field(get_user_meta($current_user->ID, 'billing_first_name', true)) : 'firstname',
                     "username" => $user_name,
                     "password" => $user_name,
-                    "fy_start_month" => date('n'),
+                    "fy_start_month" => gmdate('n'),
                     "accounting_method" => "phuong_phap_1", 
                     "woocommerce_api_settings" => array(
                         "woocommerce_app_url" => esc_url(home_url()), // Escaping URL
@@ -96,7 +96,7 @@ if (!class_exists('SPBWC_Storelly_Product_Builder_API')) {
             if(!empty($response)) return;
         
             global $wpdb;
-            $description = __('Storelly', 'spbwc-product-builder');
+            $description = __('Storelly', 'storelly-product-builder-for-woocommerce');
             $permissions = 'read_write';
             $user_id     = get_current_user_id();
             $response      = array();
@@ -104,7 +104,7 @@ if (!class_exists('SPBWC_Storelly_Product_Builder_API')) {
             $consumer_secret = 'cs_' . wc_rand_hash();
         
             if (!$user_id || ($user_id && !current_user_can('edit_user', $user_id))) {
-                   throw new Exception(esc_html__('You do not have permission to assign API Keys to the selected user.', 'spbwc-product-builder')); // storelly-integration -> spbwc-product-builder
+                   throw new Exception(esc_html__('You do not have permission to assign API Keys to the selected user.', 'storelly-product-builder-for-woocommerce')); // storelly-integration -> storelly-product-builder-for-woocommerce
             }
         
             $data = array(
@@ -229,7 +229,8 @@ if (!class_exists('SPBWC_Storelly_Product_Builder_API')) {
         
         public function spbwc_activation_redirect($plugin){
             if ($plugin == plugin_basename(__FILE__)) {
-                exit(wp_redirect(admin_url('admin.php?page=spbwc-product-builder-options/settings')));
+                wp_safe_redirect(admin_url('admin.php?page=storelly-product-builder-for-woocommerce-options/settings'));
+                exit;
             }
         }
         

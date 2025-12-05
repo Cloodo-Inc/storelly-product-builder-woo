@@ -36,6 +36,7 @@ jQuery(document).ready(function ($) {
           order_id: order_id,
           item_ids: item_ids,
           type_download: designType,
+          nonce: storelly_admin.nonce,
         },
       })
       .done(function (data) {

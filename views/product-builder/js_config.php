@@ -34,14 +34,14 @@ wp_localize_script( 'product-builder', 'NBPBCONFIG', array(
         'fonts' => wp_json_encode((array) $fonts),
         'font_url' => $font_url,
         'i18n' => array(
-            'only_support_image' => esc_html__('Only support image!', 'spbwc-product-builder'),
-            'max_file_size' => esc_html__('Max file size', 'spbwc-product-builder'),
-            'min_file_size' => esc_html__('Min file size', 'spbwc-product-builder'),
-            'confirm_delete_image' => esc_html__('Are you sure you want to delete this image?', 'spbwc-product-builder'),
-            'confirm_delete_text' => esc_html__('Are you sure you want to delete this text?', 'spbwc-product-builder'),
-            'can_not_save_design' => esc_html__('Oops! Design has not been saved!', 'spbwc-product-builder'),
-            'choose' => esc_html__('Choose', 'spbwc-product-builder'),
-            'cancel' => esc_html__('Cancel', 'spbwc-product-builder'),
+            'only_support_image' => esc_html__('Only support image!', 'storelly-product-builder-for-woocommerce'),
+            'max_file_size' => esc_html__('Max file size', 'storelly-product-builder-for-woocommerce'),
+            'min_file_size' => esc_html__('Min file size', 'storelly-product-builder-for-woocommerce'),
+            'confirm_delete_image' => esc_html__('Are you sure you want to delete this image?', 'storelly-product-builder-for-woocommerce'),
+            'confirm_delete_text' => esc_html__('Are you sure you want to delete this text?', 'storelly-product-builder-for-woocommerce'),
+            'can_not_save_design' => esc_html__('Oops! Design has not been saved!', 'storelly-product-builder-for-woocommerce'),
+            'choose' => esc_html__('Choose', 'storelly-product-builder-for-woocommerce'),
+            'cancel' => esc_html__('Cancel', 'storelly-product-builder-for-woocommerce'),
         ),
 ));
 $pid = get_the_ID();

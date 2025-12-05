@@ -3,7 +3,7 @@ Contributors: storelly
 Donate link: https://storelly.com/
 Tags: product builder, product customize, product customizer, woocommerce custom product
 Requires at least: 4.7
-Tested up to: 6.8
+Tested up to: 6.9
 Stable tag: 1.0.0
 Version: 1.0.0
 Requires PHP: 7.0

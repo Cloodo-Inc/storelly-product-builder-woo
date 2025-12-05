@@ -12,9 +12,9 @@ if (!class_exists('SPBWC_Storelly_IO')) {
                 foreach ($files as $file) {
                     self::spbwc_delete_folder(realpath($path) . '/' . $file);
                 }
-                return rmdir($path);
+                return rmdir($path); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_rmdir -- Direct filesystem operation needed for recursive directory deletion.
             } else if (is_file($path) === true) {
-                return unlink($path);
+                return wp_delete_file($path);
             }
             return false;
         }

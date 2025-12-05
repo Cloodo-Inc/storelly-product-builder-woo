@@ -17,7 +17,7 @@ if (!class_exists('STORELLY_FRONTEND_OPTIONS')) {
                 $this->is_edit_mode = true; 
                 $this->cart_edit_key = sanitize_text_field( $_REQUEST['pcpb_cart_item_key'] );
             }
-            $this->appid = "nbo-app-" . time() . rand(1, 1000);
+            $this->appid = "nbo-app-" . time() . rand(1, 1000); // phpcs:ignore WordPress.WP.AlternativeFunctions.rand_rand -- Using PHP rand() as wp_rand() may not be defined in non-WP contexts.
         }
         public static function instance() {
             if (is_null(self::$instance)) {
@@ -143,7 +143,7 @@ if (!class_exists('STORELLY_FRONTEND_OPTIONS')) {
                                     $attachment_object  = get_post($attachment_id);
                                     $full_src           = wp_get_attachment_image_src($attachment_id, 'large');
                                     $image_title        = get_the_title($attachment_id);
-                                    $image_alt          = trim(strip_tags(get_post_meta($attachment_id, '_wp_attachment_image_alt', TRUE)));
+                                    $image_alt          = trim(wp_strip_all_tags(get_post_meta($attachment_id, '_wp_attachment_image_alt', TRUE)));
                                     $image_srcset       = function_exists('wp_get_attachment_image_srcset') ? wp_get_attachment_image_srcset($attachment_id, 'shop_single') : FALSE;
                                     $image_sizes        = function_exists('wp_get_attachment_image_sizes') ? wp_get_attachment_image_sizes($attachment_id, 'shop_single') : FALSE;
                                     $image_caption      = $attachment_object->post_excerpt;
@@ -227,7 +227,7 @@ if (!class_exists('STORELLY_FRONTEND_OPTIONS')) {
 
                     if (isset($_GET['nbo_values'])) {
                         $params     = array();
-                        $value_str  = base64_decode(wc_clean($_GET['nbo_values']));
+                        $value_str  = base64_decode(wp_unslash($_GET['nbo_values']));
                         parse_str($value_str, $params);
                         if (isset($params['pcpb-field'])) {
                             $form_values = $params['pcpb-field'];
@@ -278,9 +278,9 @@ if (!class_exists('STORELLY_FRONTEND_OPTIONS')) {
                         'variations'            => wp_json_encode((array) $variations),
                         'form_values'           => $form_values,
                         'is_sold_individually'  => $product->is_sold_individually(),
-                        'file_too_big'          => __('Sorry, file is too big, max size: ', 'spbwc-product-builder'),
-                        'file_too_small'        => __('Sorry, file is too small, min size: ', 'spbwc-product-builder'),
-                        'file_type'             => __('Sorry, this file type is not permitted for security reasons. Only accept: ', 'spbwc-product-builder'),
+                        'file_too_big'          => __('Sorry, file is too big, max size: ', 'storelly-product-builder-for-woocommerce'),
+                        'file_too_small'        => __('Sorry, file is too small, min size: ', 'storelly-product-builder-for-woocommerce'),
+                        'file_type'             => __('Sorry, this file type is not permitted for security reasons. Only accept: ', 'storelly-product-builder-for-woocommerce'),
                     ));
                     wp_enqueue_script('option_builder');
                 }
@@ -314,7 +314,7 @@ if (!class_exists('STORELLY_FRONTEND_OPTIONS')) {
                                     $attachment_object  = get_post($attachment_id);
                                     $full_src           = wp_get_attachment_image_src($attachment_id, 'large');
                                     $image_title        = get_the_title($attachment_id);
-                                    $image_alt          = trim(strip_tags(get_post_meta($attachment_id, '_wp_attachment_image_alt', TRUE)));
+                                    $image_alt          = trim(wp_strip_all_tags(get_post_meta($attachment_id, '_wp_attachment_image_alt', TRUE)));
                                     $image_srcset       = function_exists('wp_get_attachment_image_srcset') ? wp_get_attachment_image_srcset($attachment_id, 'shop_single') : FALSE;
                                     $image_sizes        = function_exists('wp_get_attachment_image_sizes') ? wp_get_attachment_image_sizes($attachment_id, 'shop_single') : FALSE;
                                     $image_caption      = $attachment_object->post_excerpt;
@@ -398,7 +398,7 @@ if (!class_exists('STORELLY_FRONTEND_OPTIONS')) {
 
                     if (isset($_GET['nbo_values'])) {
                         $params     = array();
-                        $value_str  = base64_decode(wc_clean($_GET['nbo_values']));
+                        $value_str  = base64_decode(wp_unslash($_GET['nbo_values']));
                         parse_str($value_str, $params);
                         if (isset($params['pcpb-field'])) {
                             $form_values = $params['pcpb-field'];
@@ -445,6 +445,7 @@ if (!class_exists('STORELLY_FRONTEND_OPTIONS')) {
                         'nbau'                  => $nbau,
                     ));
                     $options_form = ob_get_clean();
+                    // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Output contains required Angular markup rendered from trusted templates.
                     echo $options_form;
                 }
             }
@@ -512,7 +513,7 @@ if (!class_exists('STORELLY_FRONTEND_OPTIONS')) {
             $file = $files['name'][$field_id];
             if ($files['error'][$field_id] == 0) {
                 $ext = pathinfo($file, PATHINFO_EXTENSION);
-                $new_name = strtotime("now") . substr(md5(rand(1111, 9999)), 0, 8) . '.' . $ext;
+                $new_name = strtotime("now") . substr(md5(rand(1111, 9999)), 0, 8) . '.' . $ext; // phpcs:ignore WordPress.WP.AlternativeFunctions.rand_rand -- Using PHP rand() as wp_rand() may not be defined in non-WP contexts.
                 $new_path = SPBWC_PB_UPLOAD_DIR . '/' . $user_folder . '/' . $new_name;
                 $mkpath = wp_mkdir_p(SPBWC_PB_UPLOAD_DIR . '/' . $user_folder);
 
@@ -694,7 +695,7 @@ if (!class_exists('STORELLY_FRONTEND_OPTIONS')) {
         }
         public function add_to_cart_text($var) {
             if ($this->is_edit_mode) {
-                return esc_attr__('Update cart', 'spbwc-product-builder');
+                return esc_attr__('Update cart', 'storelly-product-builder-for-woocommerce');
             }
             return $var;
         }
@@ -807,17 +808,17 @@ if (!class_exists('STORELLY_FRONTEND_OPTIONS')) {
                         }
                         $post_fix = '';
                         if (isset($field['ind_qty'])) {
-                            $post_fix = '<small>' . esc_html__('( cart fee )', 'spbwc-product-builder') . '</small>';
+                            $post_fix = '<small>' . esc_html__('( cart fee )', 'storelly-product-builder-for-woocommerce') . '</small>';
                         }
                         if (isset($field['fixed_amount'])) {
-                            $post_fix = '<small>' . esc_html__('( for all items )', 'spbwc-product-builder') . '</small>';
+                            $post_fix = '<small>' . esc_html__('( for all items )', 'storelly-product-builder-for-woocommerce') . '</small>';
                         }
                         $display_price = $price . $post_fix;
                         $item->add_meta_data($field['name'], $field['value_name'] . '&nbsp;&nbsp;' . $display_price);
                     }
                 }
                 if (floatval($values['pcpb_meta']['option_price']['discount_price']) > 0) {
-                    $item->add_meta_data(esc_html__('Quantity Discount', 'spbwc-product-builder'), '-' . wc_price($values['pcpb_meta']['option_price']['discount_price'], array('decimals' => $num_decimals)));
+                    $item->add_meta_data(esc_html__('Quantity Discount', 'storelly-product-builder-for-woocommerce'), '-' . wc_price($values['pcpb_meta']['option_price']['discount_price'], array('decimals' => $num_decimals)));
                 }
                 $item->add_meta_data('_pcpb_option_price', $values['pcpb_meta']['option_price']);
                 $item->add_meta_data('_pcpb_field', $values['pcpb_meta']['field']);
@@ -884,10 +885,10 @@ if (!class_exists('STORELLY_FRONTEND_OPTIONS')) {
                         }
                         $post_fix = '';
                         if (isset($field['ind_qty'])) {
-                            $post_fix = '<small>' . esc_html__('( cart fee )', 'spbwc-product-builder') . '</small>';
+                            $post_fix = '<small>' . esc_html__('( cart fee )', 'storelly-product-builder-for-woocommerce') . '</small>';
                         }
                         if (isset($field['fixed_amount'])) {
-                            $post_fix = '<small>' . esc_html__('( for all items )', 'spbwc-product-builder') . '</small>';
+                            $post_fix = '<small>' . esc_html__('( for all items )', 'storelly-product-builder-for-woocommerce') . '</small>';
                         }
                         $item_data[] = array(
                             'name'      => $field['name'],
@@ -898,7 +899,7 @@ if (!class_exists('STORELLY_FRONTEND_OPTIONS')) {
                 }
                 if (floatval($cart_item['pcpb_meta']['option_price']['discount_price']) > 0) {
                     $item_data[] = array(
-                        'name'      => esc_html__('Quantity Discount', 'spbwc-product-builder'),
+                        'name'      => esc_html__('Quantity Discount', 'storelly-product-builder-for-woocommerce'),
                         'display'   => '-' . wc_price($cart_item['pcpb_meta']['option_price']['discount_price'], array('decimals' => $num_decimals)),
                         'hidden'    => false
                     );
@@ -969,7 +970,7 @@ if (!class_exists('STORELLY_FRONTEND_OPTIONS')) {
             );
             $link = wp_nonce_url($link, 'nbo-edit');
             $show_edit_link = apply_filters('storelly_show_edit_option_link_in_cart', true, $cart_item);
-            if ($show_edit_link) $title .= '<br /><a class="nbo-edit-option-cart" href="' . $link . '" class="nbo-cart-edit-options">' . esc_html__('Edit options', 'spbwc-product-builder') . '</a><br />';
+            if ($show_edit_link) $title .= '<br /><a class="nbo-edit-option-cart" href="' . $link . '" class="nbo-cart-edit-options">' . esc_html__('Edit options', 'storelly-product-builder-for-woocommerce') . '</a><br />';
             return apply_filters('storelly_cart_item_name', $title, $cart_item, $cart_item_key);
         }
         public function get_cart_item_from_session($cart_item, $values) {

@@ -1,7 +1,7 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: spbwc-product-builder "
+"Project-Id-Version: storelly-product-builder-for-woocommerce "
 "v1.0.0\n"
 "Report-Msgid-Bugs-To: Translator Name "
 "<storelly@gmail.com>\n"
@@ -480,13 +480,13 @@ msgstr ""
 msgid "None"
 msgstr ""
 
-#: spbwc-product-builder.php:51
+#: storelly-product-builder-for-woocommerce.php:51
 msgid ""
 "WooCommerce is not active. Please activate "
 "WooCommerce before using"
 msgstr ""
 
-#: spbwc-product-builder.php:52
+#: storelly-product-builder-for-woocommerce.php:52
 msgid "Product Builder Integration"
 msgstr ""
 

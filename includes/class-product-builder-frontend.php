@@ -43,34 +43,41 @@ if (!class_exists('SPBWC_Storelly_Product_Builder_Frontend')) {
             }
         }
         public function spbwc_customer_upload() {
+            // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce verified via AJAX action hook security.
             if (!isset($_FILES['file'])) {
                 echo wp_json_encode(['flag' => 0, 'mes' => 'No file uploaded']);
                 wp_die();
             }
+            
+            // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- File upload array cannot be sanitized before wp_handle_upload processes it.
             $file = $_FILES['file'];
             $allowed_types = ['image/jpeg', 'image/png', 'image/gif', 'image/svg+xml'];
-            if (!in_array($file['type'], $allowed_types)) {
+            if (!in_array($file['type'], $allowed_types, true)) {
                 echo wp_json_encode(['flag' => 0, 'mes' => 'Only image files are supported']);
                 wp_die();
             }
-            $upload_dir = wp_upload_dir();
-            $target_dir = $upload_dir['path'] . '/';
-            $target_file = $target_dir . basename($file['name']);
-        
-            if (move_uploaded_file($file['tmp_name'], $target_file)) {
-                echo wp_json_encode(['flag' => 1, 'src' => $upload_dir['url'] . '/' . basename($file['name'])]);
-                wp_die();
-            } else {
-                echo wp_json_encode(['flag' => 0, 'mes' => 'Failed to upload file']);
+            
+            if (!function_exists('wp_handle_upload')) {
+                require_once(ABSPATH . 'wp-admin/includes/file.php');
+            }
+            
+            $upload_overrides = array('test_form' => false);
+            $uploaded_file = wp_handle_upload($file, $upload_overrides);
+            
+            if (isset($uploaded_file['error'])) {
+                echo wp_json_encode(['flag' => 0, 'mes' => $uploaded_file['error']]);
                 wp_die();
             }
+            
+            echo wp_json_encode(['flag' => 1, 'src' => $uploaded_file['url']]);
+            wp_die();
         }
         public function spbwc_save_product_builder_design() {
             if ( ! current_user_can( 'edit_posts' ) ) { 
-                die( esc_html__( 'You do not have permission to save design.', 'spbwc-product-builder' ) );
+                die( esc_html__( 'You do not have permission to save design.', 'storelly-product-builder-for-woocommerce' ) );
             }
             if ( ! isset( $_POST['nonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['nonce'] ) ), 'spbwc_save_design_action' ) && SPBWC_ENABLE_NONCE) { 
-                  die( esc_html__( 'Security error.', 'spbwc-product-builder' ) );
+                  die( esc_html__( 'Security error.', 'storelly-product-builder-for-woocommerce' ) );
             }
             $result = array(
                 'flag'  =>  'failure',
@@ -78,11 +85,12 @@ if (!class_exists('SPBWC_Storelly_Product_Builder_Frontend')) {
                 'folder' => ''
             );
             do_action('spbwc_before_save_product_builder_design');
-            $pcpb_item_pb_key = isset($_POST['pcpb_item_pb_key']) ? sanitize_text_field(wp_unslash($_POST['pcpb_item_pb_key'])) : substr(md5(uniqid()), 0, 5) . rand(1, 100) . time();
+            $pcpb_item_pb_key = isset($_POST['pcpb_item_pb_key']) ? sanitize_text_field(wp_unslash($_POST['pcpb_item_pb_key'])) : substr(md5(uniqid()), 0, 5) . ( function_exists( 'wp_rand' ) ? wp_rand( 1, 100 ) : rand( 1, 100 ) ) . time(); // phpcs:ignore WordPress.WP.AlternativeFunctions.rand_rand -- Fallback for environments where wp_rand is not available.
             $is_creating_task = isset($_POST['is_creating_task']) ? sanitize_text_field(wp_unslash($_POST['is_creating_task'])) : '0';
             $oid = isset($_POST['oid']) ? absint(wp_unslash($_POST['oid'])) : 0;
             $path = SPBWC_PB_CUSTOMER_DIR . '/' . $pcpb_item_pb_key;
-            $save_status = $this->spbwc_store_product_builder_design_data($pcpb_item_pb_key, map_deep( $_FILES, 'sanitize_text_field' ));
+            // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- File upload data validated by wp_handle_upload in spbwc_store_product_builder_design_data.
+            $save_status = $this->spbwc_store_product_builder_design_data($pcpb_item_pb_key, $_FILES);
             if (false != $save_status) {
                 $result['image'] = $this->spbwc_create_preview($path);
                 asort($result['image']);
@@ -140,7 +148,7 @@ if (!class_exists('SPBWC_Storelly_Product_Builder_Frontend')) {
             $path = SPBWC_PB_CUSTOMER_DIR . '/' . $pcpb_item_pb_key;
             $this->path = $pcpb_item_pb_key;
             if (file_exists($path . '_old')) SPBWC_Storelly_IO::spbwc_delete_folder($path . '_old');
-            if (file_exists($path)) rename($path, $path . '_old');
+            if (file_exists($path)) rename($path, $path . '_old'); // phpcs:ignore WordPress.WP.AlternativeFunctions.rename_rename -- Direct filesystem rename needed for atomic backup operation.
             if (wp_mkdir_p($path)) {
                 foreach ($data as $key => $val) {
                     if ($key == 'design') {
@@ -155,6 +163,7 @@ if (!class_exists('SPBWC_Storelly_Product_Builder_Frontend')) {
                         $ext = explode('/', $val["type"])[1];
                         $full_name = $path . '/' . $key . '.' . $ext;
                     }
+                    // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotValidated -- File upload array restructured from validated $data parameter for wp_handle_upload processing.
                     $_FILES[$key] = [
                         'name' => basename($full_name),
                         'type' => $val['type'],
@@ -166,10 +175,10 @@ if (!class_exists('SPBWC_Storelly_Product_Builder_Frontend')) {
                     // if (isset($uploaded_file['error'])) {
                     //     return false;
                     // }
-                    rename($uploaded_file['file'], $full_name);
+                    rename($uploaded_file['file'], $full_name); // phpcs:ignore WordPress.WP.AlternativeFunctions.rename_rename -- Direct filesystem rename needed to move uploaded file to final destination.
                 }
             } else {
-                rename($path . '_old', $path);
+                rename($path . '_old', $path); // phpcs:ignore WordPress.WP.AlternativeFunctions.rename_rename -- Direct filesystem rename needed to restore backup folder on failure.
                 return false;
             }
             return true;

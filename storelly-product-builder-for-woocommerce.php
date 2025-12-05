@@ -16,7 +16,7 @@ Author:                 Storelly Team
 Author URI:             https://storelly.com
 License:                GPL v2 or later
 License URI:            https://www.gnu.org/licenses/gpl-2.0.html 
-Text Domain:            spbwc-product-builder
+Text Domain:            storelly-product-builder-for-woocommerce
 */
 
 $upload_dir = wp_upload_dir();
@@ -48,9 +48,11 @@ define('SPBWC_API_URL',                     'https://dashboard.storelly.com/publ
 register_activation_hook(__FILE__, 'storelly_plugin_activation');
 function storelly_plugin_activation() {
     if (!is_plugin_active('woocommerce/woocommerce.php')) {
-        $message = '<div class="error"><p>' . esc_html__('WooCommerce is not active. Please activate WooCommerce before using', 'spbwc-product-builder') . ' <b>
-        ' . esc_html__('Product Builder Integration', 'spbwc-product-builder') . '</b></p></div>';
-        wp_die($message);
+        $message  = '<div class="error"><p>';
+        $message .= esc_html__('WooCommerce is not active. Please activate WooCommerce before using', 'storelly-product-builder-for-woocommerce');
+        $message .= ' <b>' . esc_html__('Product Builder Integration', 'storelly-product-builder-for-woocommerce') . '</b>';
+        $message .= '</p></div>';
+        wp_die(wp_kses_post($message));
     }
     SPBWC_Storelly_Product_Builder_Backend::spbwc_plugin_activation();
 }

@@ -12,12 +12,12 @@ if (!class_exists('SPBWC_Storelly_Install')) {
                 $post = array(
                     'post_name'         => 'product-builder',
                     'post_status'       => 'publish',
-                    'post_title'        => esc_html__('Product Builder', 'spbwc-product-builder'),
+                    'post_title'        => esc_html__('Product Builder', 'storelly-product-builder-for-woocommerce'),
                     'post_type'         => 'page',
-                    'post_author'       => 1,
-                    'post_content'      => '',
-                    'comment_status'    => 'closed',
-                    'post_date'         => date('Y-m-d H:i:s')
+                'post_author'       => 1,
+                'post_content'      => '',
+                'comment_status'    => 'closed',
+                'post_date'         => current_time('mysql')
                 );
                 $spbwc_product_builder_page_id = wp_insert_post($post, false);
                 update_option('spbwc_product_builder_page_id', $spbwc_product_builder_page_id);

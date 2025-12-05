@@ -73,7 +73,7 @@ if (!class_exists('SPBWC_SPBWC_Storelly_PB_Script_Hook')) {
             wp_register_style('spbwc-poppins-font-r', 'https://fonts.googleapis.com/css?family=Poppins:400,400i,700,700i', array(), SPBWC_PB_VERSION);
             wp_register_style('spbwc-spectrum-css', SPBWC_PB_CSS_URL . 'spectrum.css', array(), '1.8.0');
             wp_register_style('spbwc-app-product-builder', SPBWC_PB_CSS_URL . 'app-product-builder.css', array(), SPBWC_PB_VERSION);
-            wp_register_style('spbwc-product-builder-view', SPBWC_PB_CSS_URL . 'views/product-builder.css', array(), SPBWC_PB_VERSION);
+            wp_register_style('storelly-product-builder-for-woocommerce-view', SPBWC_PB_CSS_URL . 'views/product-builder.css', array(), SPBWC_PB_VERSION);
 
             wp_register_script('spbwc-storelly-ext', SPBWC_PB_PLUGIN_URL . 'assets/libs/storelly-ext.js', array(), SPBWC_PB_VERSION, true);
             wp_register_script('wc-accounting',  WC()->plugin_url() . '/assets/js/accounting/accounting.min.js', array(), '0.4.2', true);
@@ -84,7 +84,7 @@ if (!class_exists('SPBWC_SPBWC_Storelly_PB_Script_Hook')) {
             wp_register_script('spbwc-tiptip', SPBWC_PB_ASSETS_URL . 'js/tiptip.js', array('jquery'), SPBWC_PB_VERSION, true);
 
             if ($page == 'product-builder') {
-                $this->spbwc_enqueue_style(array('spbwc-poppins-font-r', 'spbwc-spectrum-css', 'spbwc-app-product-builder', 'spbwc-product-builder'));
+                $this->spbwc_enqueue_style(array('spbwc-poppins-font-r', 'spbwc-spectrum-css', 'spbwc-app-product-builder', 'storelly-product-builder-for-woocommerce'));
                 $this->spbwc_enqueue_script(array('spbwc-storelly-ext', 'spbwc-angular', 'wc-accounting'));
             }
             if ($page == 'single-product') {

@@ -18,7 +18,8 @@
     function storelly_get_product_builder($id) {
         global $wpdb;
         $table_name = $wpdb->prefix . 'storelly_product_builder_options';
-        $result = $wpdb->get_results($wpdb->prepare("SELECT * FROM $table_name WHERE `id` = %d", $id), 'ARRAY_A'); 
+        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table name uses $wpdb->prefix and is trusted.
+        $result = $wpdb->get_results($wpdb->prepare("SELECT * FROM {$table_name} WHERE `id` = %d", $id), 'ARRAY_A'); 
         return count($result[0]) ? $result[0] : false;
     }
     function storelly_recursive_stripslashes($fields) {
@@ -34,7 +35,8 @@
     }
     function storelly_show_option_fields() {
         $product_id = 0;
-        $option_id = sanitize_text_field($_GET['oid']);
+        // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Readonly admin preview page.
+        $option_id = isset( $_GET['oid'] ) ? sanitize_text_field( wp_unslash( $_GET['oid'] ) ) : '';
         if ($option_id) {
             $_options = storelly_get_product_builder($option_id);
             if ($_options) {
@@ -59,7 +61,7 @@
                                 $attachment_object  = get_post($attachment_id);
                                 $full_src           = wp_get_attachment_image_src($attachment_id, 'large');
                                 $image_title        = get_the_title($attachment_id);
-                                $image_alt          = trim(strip_tags(get_post_meta($attachment_id, '_wp_attachment_image_alt', TRUE)));
+                                $image_alt          = trim( wp_strip_all_tags( get_post_meta($attachment_id, '_wp_attachment_image_alt', TRUE ) ) );
                                 $image_srcset       = function_exists('wp_get_attachment_image_srcset') ? wp_get_attachment_image_srcset($attachment_id, 'shop_single') : FALSE;
                                 $image_sizes        = function_exists('wp_get_attachment_image_sizes') ? wp_get_attachment_image_sizes($attachment_id, 'shop_single') : FALSE;
                                 $image_caption      = $attachment_object->post_excerpt;
@@ -149,6 +151,7 @@
                     'hide_zero_price'       => 'no'
                 ));
                 $options_form = ob_get_clean();
+                // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Contains Angular markup and trusted template HTML required for front-end builder rendering.
                 echo ($options_form);
             }
         }

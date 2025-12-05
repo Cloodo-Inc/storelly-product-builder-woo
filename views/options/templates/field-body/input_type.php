@@ -3,7 +3,7 @@
 <?php echo '<script type="text/ng-template" id="field_body_input_type">'; ?>
 <div class="pcpb-field-info" ng-show="check_depend(field.general, field.general.input_type)">
     <div class="pcpb-field-info-1">
-        <div><label><b><?php esc_html_e('Input type', 'spbwc-product-builder'); ?></b></label></div>
+        <div><label><b><?php esc_html_e('Input type', 'storelly-product-builder-for-woocommerce'); ?></b></label></div>
     </div>
     <div class="pcpb-field-info-2">
         <div>

@@ -52,7 +52,7 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
         public function spbwc_add_display_post_states( $post_states, $post ){
             
             if (SPBWC_Storelly_PB_Util::spbwc_get_page_id('product_builder') === $post->ID ) {
-                $post_states['spbwc_product_builder_page'] = esc_html__( 'Storelly Product builder Page', 'spbwc-product-builder' );
+                $post_states['spbwc_product_builder_page'] = esc_html__( 'Storelly Product builder Page', 'storelly-product-builder-for-woocommerce' );
             }
             return $post_states;
         }
@@ -74,7 +74,7 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
 
             add_meta_box(
                 'spbwc_product_builder_design',
-                esc_html__( 'Product builder designs', 'spbwc-product-builder' ),
+                esc_html__( 'Product builder designs', 'storelly-product-builder-for-woocommerce' ),
                 array( $this, 'spbwc_product_builder_design' ),
                 $screen,
                 'side',
@@ -83,7 +83,8 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
         }
        public function spbwc_product_builder_design($post = null) {
             // Lấy order id (WC new Orders screen passes id via URL)
-            $order_id = absint( $_GET['id'] ?? 0 );
+            // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Admin read-only context.
+            $order_id = absint( isset( $_GET['id'] ) ? wp_unslash( $_GET['id'] ) : 0 );
 
             // Nếu bạn vẫn ở context cũ (meta box truyền $post), fallback:
             if ( ! $order_id && is_object( $post ) && property_exists( $post, 'ID' ) ) {
@@ -111,21 +112,23 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
         }
         public function spbwc_get_media_full_size_url() {
             if (!current_user_can('upload_files')) {
-                wp_send_json_error(array('mes' => esc_html__('You do not have permission.', 'spbwc-product-builder')));
+                wp_send_json_error(array('mes' => esc_html__('You do not have permission.', 'storelly-product-builder-for-woocommerce')));
             }
-            if (!wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['nonce'])), 'spbwc_save_design_action') && SPBWC_ENABLE_NONCE) {
-                wp_die(esc_html__('Security error.', 'spbwc-product-builder'));
+            $nonce = isset( $_POST['nonce'] ) ? sanitize_text_field( wp_unslash( $_POST['nonce'] ) ) : '';
+            if ( ( ! $nonce || ( ! wp_verify_nonce( $nonce, 'spbwc_save_design_action' ) && SPBWC_ENABLE_NONCE ) ) ) {
+                wp_die(esc_html__('Security error.', 'storelly-product-builder-for-woocommerce'));
             }
             $result = array(
                 'flag'      => 1,
                 'images'    => array()
             );
-            $raw_images = isset($_POST['images']) ? wp_unslash($_POST['images']) : '';
-            if (is_array($images)) {
-                foreach ($images as $key => $image_id) {
-                    $image_id = absint($image_id);
-                    if ($image_id) {
-                        $result['images'][$key] = esc_url(wp_get_attachment_url($image_id));
+            $raw_images = isset($_POST['images']) ? wp_unslash($_POST['images']) : array();
+            $images     = is_array( $raw_images ) ? array_map( 'absint', $raw_images ) : array();
+            if ( ! empty( $images ) ) {
+                foreach ( $images as $key => $image_id ) {
+                    $image_id = absint( $image_id );
+                    if ( $image_id ) {
+                        $result['images'][ $key ] = esc_url( wp_get_attachment_url( $image_id ) );
                     }
                 }
             } else {
@@ -136,10 +139,11 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
         }
         public function spbwc_download_option_image() { 
             if (!current_user_can('upload_files')) {
-                wp_send_json_error(array('mes' => esc_html__('You do not have permission.', 'spbwc-product-builder')));
+                wp_send_json_error(array('mes' => esc_html__('You do not have permission.', 'storelly-product-builder-for-woocommerce')));
             }
-            if (!wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['nonce'])), 'spbwc_save_design_action') && SPBWC_ENABLE_NONCE) {
-                wp_die(esc_html__('Security error.', 'spbwc-product-builder'));
+            $nonce = isset( $_POST['nonce'] ) ? sanitize_text_field( wp_unslash( $_POST['nonce'] ) ) : '';
+            if ( ( ! $nonce || ( ! wp_verify_nonce( $nonce, 'spbwc_save_design_action' ) && SPBWC_ENABLE_NONCE ) ) ) {
+                wp_die(esc_html__('Security error.', 'storelly-product-builder-for-woocommerce'));
             }
             $result = array(
                 'flag'      => 1,
@@ -173,32 +177,32 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
                     'PC Product Builder',
                     'Product Builder Options',
                     'spbwc_manage_product_builder',
-                    'spbwc-product-builder-options',
+                    'storelly-product-builder-for-woocommerce-options',
                     array($this, 'spbwc_product_builder_options'),
                     SPBWC_PB_PLUGIN_URL . '/assets/images/logo.svg'
                 );
                 add_submenu_page(
-                    'spbwc-product-builder-options',
-                    esc_html__('Builder options', 'spbwc-product-builder'),
-                    esc_html__('Builder options', 'spbwc-product-builder'),
+                    'storelly-product-builder-for-woocommerce-options',
+                    esc_html__('Builder options', 'storelly-product-builder-for-woocommerce'),
+                    esc_html__('Builder options', 'storelly-product-builder-for-woocommerce'),
                     'manage_options',
-                    'spbwc-product-builder-options',
+                    'storelly-product-builder-for-woocommerce-options',
                     array($this, 'spbwc_product_builder_options')
                 );
                 add_submenu_page(
-                    'spbwc-product-builder-options',
-                    esc_html__('Fonts', 'spbwc-product-builder'),
-                    esc_html__('Fonts', 'spbwc-product-builder'),
+                    'storelly-product-builder-for-woocommerce-options',
+                    esc_html__('Fonts', 'storelly-product-builder-for-woocommerce'),
+                    esc_html__('Fonts', 'storelly-product-builder-for-woocommerce'),
                     'manage_options',
-                    'spbwc-product-builder-options/manager-fonts',
+                    'storelly-product-builder-for-woocommerce-options/manager-fonts',
                     array($this, 'spbwc_manager_fonts')
                 );
                 add_submenu_page(
-                    'spbwc-product-builder-options',
-                    esc_html__('Settings', 'spbwc-product-builder'),
-                    esc_html__('Settings', 'spbwc-product-builder'),
+                    'storelly-product-builder-for-woocommerce-options',
+                    esc_html__('Settings', 'storelly-product-builder-for-woocommerce'),
+                    esc_html__('Settings', 'storelly-product-builder-for-woocommerce'),
                     'manage_options',
-                    'spbwc-product-builder-options/settings',
+                    'storelly-product-builder-for-woocommerce-options/settings',
                     array($this, 'spbwc_settings')
                 );
             }
@@ -247,11 +251,12 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
 
             wp_localize_script('spbwc-general-js', 'storelly_admin', array(
                 'url'       => admin_url('admin-ajax.php'),
+                'nonce'     => wp_create_nonce( 'spbwc_download_order_designs' ),
             ));
             wp_enqueue_style('spbwc-general-css');
             wp_enqueue_script('spbwc-general-js');
 
-            if ($hook == 'toplevel_page_spbwc-product-builder-options') {
+            if ($hook == 'toplevel_page_storelly-product-builder-for-woocommerce-options') {
                 wp_register_script('spbwc-options-script', SPBWC_PB_JS_URL . 'admin-options.js', array('jquery', 'wpdialogs', 'jquery-ui-resizable', 'jquery-ui-draggable', 'jquery-ui-droppable', 'jquery-ui-sortable', 'jquery-ui-datepicker', 'jquery-ui-autocomplete', 'wp-color-picker', 'spbwc-angular', 'wc-enhanced-select', 'spbwc-snap-svg', 'spbwc-tiptip'), SPBWC_PB_VERSION);
                 wp_localize_script('spbwc-options-script', 'storelly_options', array(
                     'search_products_nonce'     => wp_create_nonce("search-products"),
@@ -261,12 +266,12 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
                wp_enqueue_style('spbwc-options-style');
                wp_enqueue_script('spbwc-options-script');
             }
-            if ($hook == 'product-builder-options_page_spbwc-product-builder-options/manager-fonts') {
+            if ($hook == 'product-builder-options_page_storelly-product-builder-for-woocommerce-options/manager-fonts') {
                 wp_register_script('spbwc-manager-fonts-script', SPBWC_PB_JS_URL . 'manager-fonts.js', array('spbwc-fontfaceobserver', 'spbwc-sweetalert-js', 'spbwc-angular'), SPBWC_PB_VERSION, true);
                 wp_localize_script('spbwc-manager-fonts-script', 'storelly_pb_fonts', array(
                     'url'       => admin_url('admin-ajax.php'),
                     'nonce'     => wp_create_nonce('spbwc_update_fonts'),
-                    'complete'  => esc_html__('Complete!', 'spbwc-product-builder'),
+                    'complete'  => esc_html__('Complete!', 'storelly-product-builder-for-woocommerce'),
                 ));
                 wp_enqueue_script('spbwc-manager-fonts-script');
                 wp_enqueue_style('spbwc-manager-fonts');
@@ -276,20 +281,20 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
             if (isset($_GET['action']) && sanitize_text_field(wp_unslash($_GET['action'])) != 'copy') {
                 
                 $paged      = get_query_var('paged', 1);
-                $ID = absint(wp_unslash($_REQUEST['id']));
+                $ID = isset( $_REQUEST['id'] ) ? absint(wp_unslash($_REQUEST['id'])) : 0;
                 $message    = array('content' => ''); 
                 $current_action = sanitize_text_field(wp_unslash($_GET['action']));
                 
                 if (isset($_GET['message']) && sanitize_text_field(wp_unslash($_GET['message'])) == 'created') {
                     $message = array(
                         'flag'      => 'success',
-                        'content'   => esc_html__('Option created successfully.', 'spbwc-product-builder')
+                        'content'   => esc_html__('Option created successfully.', 'storelly-product-builder-for-woocommerce')
                     );
                 }
                 
                 if ($current_action == 'unpublish') { 
                     $this->spbwc_unpublish_option($ID);
-                    wp_redirect(esc_url_raw(add_query_arg(array('paged' => $paged), admin_url('admin.php?page=spbwc-product-builder-options'))));
+                    wp_safe_redirect(esc_url_raw(add_query_arg(array('paged' => $paged), admin_url('admin.php?page=storelly-product-builder-for-woocommerce-options'))));
                     exit;
                 } 
                 
@@ -297,10 +302,10 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
                     
                     $id = ($current_action == 'edit' && $ID > 0) ? $ID : 0;
                     
-                    if (isset($_POST['save']) || isset($_POST['options'])) {
+                    if (isset($_POST['save']) || isset($_POST['options'])) { // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce checked immediately below.
                         // Kiểm tra Nonce (Bảo mật)
-                        if ( ! isset( $_POST['_wpnonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash($_POST['_wpnonce']) ), 'spbwc_save_option_action' ) ) {
-                            wp_die( esc_html__( 'Security check failed.', 'spbwc-product-builder' ) );
+            if ( ! isset( $_POST['_wpnonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash($_POST['_wpnonce']) ), 'spbwc_save_option_action' ) ) {
+                            wp_die( esc_html__( 'Security check failed.', 'storelly-product-builder-for-woocommerce' ) );
                         }
                         
                         $result = $this->spbwc_save_option();
@@ -310,17 +315,17 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
                             if ($id == 0) {
                                 $id = $result['id'];
                                 
-                                wp_redirect(esc_url_raw(add_query_arg(array(
+                                wp_safe_redirect(esc_url_raw(add_query_arg(array(
                                     'paged'     => 1,
                                     'action'    => 'edit', // Chuyển sang action edit sau khi tạo
                                     'id'        => $id,
                                     'message'   => 'created' // Truyền thông báo
-                                ), admin_url('admin.php?page=spbwc-product-builder-options'))));
+                                ), admin_url('admin.php?page=storelly-product-builder-for-woocommerce-options'))));
                                 exit;
                             } else {
                                 $message = array(
                                     'flag'      => 'success',
-                                    'content'   => esc_html__('Option updated.', 'spbwc-product-builder')
+                                    'content'   => esc_html__('Option updated.', 'storelly-product-builder-for-woocommerce')
                                 );
                             }
                         } else {
@@ -390,24 +395,26 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
         public function spbwc_get_option($id) { 
             global $wpdb;
             $table_name = $wpdb->prefix . 'storelly_product_builder_options';
-            $result = $wpdb->get_results($wpdb->prepare("SELECT * FROM $table_name WHERE `id` = %d", absint($id)), 'ARRAY_A');
+            // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table name uses $wpdb->prefix and is trusted.
+            $result = $wpdb->get_results($wpdb->prepare("SELECT * FROM {$table_name} WHERE `id` = %d", absint($id)), 'ARRAY_A');
             return count($result) ? $result[0] : false; 
         }
         public function spbwc_save_option() {
             if ( ! current_user_can( 'spbwc_manage_product_builder' ) ) {
                  return array( 'status' => false, 'id' => 0 );
             }
-            $id             = absint(wp_unslash($_REQUEST['id']));
+            $id             = isset( $_REQUEST['id'] ) ? absint(wp_unslash($_REQUEST['id'])) : 0;
             $modified_date  = new DateTime();
-            $title = isset($_POST['title']) ? sanitize_text_field(wp_unslash($_POST['title'])) : '';
-            $product_ids = isset($_POST['product_ids']) ? array_map('absint', (array) wp_unslash($_POST['product_ids'])) : array();
+            $title = isset($_POST['title']) ? sanitize_text_field(wp_unslash($_POST['title'])) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce verified in spbwc_product_builder_options.
+            $product_ids = isset($_POST['product_ids']) ? array_map('absint', (array) wp_unslash($_POST['product_ids'])) : array(); // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce verified in spbwc_product_builder_options.
             $arr            = array(
                 'title'       => $title,
                 'published'   => 1,
                 'product_ids' => serialize($product_ids),
                 'modified'    => $modified_date->format('Y-m-d H:i:s')
             );
-            $post_options = spbwc_sanitize_recursive(wp_unslash($_POST['options']));
+            $post_options_raw = isset( $_POST['options'] ) ? wp_unslash( $_POST['options'] ) : array(); // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce verified in spbwc_product_builder_options.
+            $post_options = spbwc_sanitize_recursive( $post_options_raw );
             if (isset($post_options['jsonFields'])) {
                 $post_options['fields'] = json_decode(stripslashes($post_options['jsonFields']), true); 
                 unset($post_options['jsonFields']);
@@ -536,18 +543,18 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
             );
         }
         public function build_config_general_title($value = null) {
-            if (is_null($value)) $value = __('Option name', 'spbwc-product-builder');
+            if (is_null($value)) $value = __('Option name', 'storelly-product-builder-for-woocommerce');
             return array(
-                'title'         => __('Option name', 'spbwc-product-builder'),
+                'title'         => __('Option name', 'storelly-product-builder-for-woocommerce'),
                 'description'   =>  '',
                 'value'         => $value,
                 'type'          => 'text'
             );
         }
         public function build_config_general_description($value = null) {
-            if (is_null($value)) $value = __('Option description', 'spbwc-product-builder');
+            if (is_null($value)) $value = __('Option description', 'storelly-product-builder-for-woocommerce');
             return array(
-                'title'         => __('Description', 'spbwc-product-builder'),
+                'title'         => __('Description', 'storelly-product-builder-for-woocommerce'),
                 'description'   => '',
                 'value'         => $value,
                 'type'          => 'textarea'
@@ -556,18 +563,18 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
         public function build_config_general_data_type($value = null) {
             if (is_null($value)) $value = 'm';
             return array(
-                'title'         => esc_html__('Data type', 'spbwc-product-builder'),
+                'title'         => esc_html__('Data type', 'storelly-product-builder-for-woocommerce'),
                 'description'   => '',
                 'value'         => $value,
                 'type'          => 'dropdown',
                 'options'       => array(
                     array(
                         'key'       => 'i',
-                        'text'      => esc_html__('Custom input', 'spbwc-product-builder')
+                        'text'      => esc_html__('Custom input', 'storelly-product-builder-for-woocommerce')
                     ),
                     array(
                         'key'       => 'm',
-                        'text'      => esc_html__('Multiple options', 'spbwc-product-builder')
+                        'text'      => esc_html__('Multiple options', 'storelly-product-builder-for-woocommerce')
                     )
                 )
             );
@@ -575,7 +582,7 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
         public function build_config_general_input_type($value = null) {
             if (is_null($value)) $value = 't';
             return array(
-                'title'         => esc_html__('Input type', 'spbwc-product-builder'),
+                'title'         => esc_html__('Input type', 'storelly-product-builder-for-woocommerce'),
                 'description'   =>  '',
                 'value'         => $value,
                 'type'          => 'dropdown',
@@ -589,15 +596,15 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
                 'options'       => array(
                     array(
                         'key'       => 't',
-                        'text'      => esc_html__('Text', 'spbwc-product-builder')
+                        'text'      => esc_html__('Text', 'storelly-product-builder-for-woocommerce')
                     ),
                     array(
                         'key'       => 'u',
-                        'text'      => esc_html__('Upload', 'spbwc-product-builder')
+                        'text'      => esc_html__('Upload', 'storelly-product-builder-for-woocommerce')
                     ),
                     array(
                         'key'       => 'a',
-                        'text'      => esc_html__('Textarea', 'spbwc-product-builder')
+                        'text'      => esc_html__('Textarea', 'storelly-product-builder-for-woocommerce')
                     )
                 )
             );
@@ -613,7 +620,7 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
             }
             if (!isset($value['default'])) $value['default'] = $value['min'];
             return array(
-                'title'         => esc_html__('Input option', 'spbwc-product-builder'),
+                'title'         => esc_html__('Input option', 'storelly-product-builder-for-woocommerce'),
                 'description'   => '',
                 'value'         => $value,
                 'type'          => 'table',
@@ -649,7 +656,7 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
                 );
             }
             return array(
-                'title'         => esc_html__('Text input option', 'spbwc-product-builder'),
+                'title'         => esc_html__('Text input option', 'storelly-product-builder-for-woocommerce'),
                 'description'   =>  '',
                 'value'         => $value,
                 'type'          => 'table',
@@ -670,18 +677,18 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
         public function build_config_general_enabled($value = null) {
             if (is_null($value)) $value = 'y';
             return array(
-                'title'         => __('Enabled', 'spbwc-product-builder'),
-                'description'   => __('Choose whether the option is enabled or not.', 'spbwc-product-builder'),
+                'title'         => __('Enabled', 'storelly-product-builder-for-woocommerce'),
+                'description'   => __('Choose whether the option is enabled or not.', 'storelly-product-builder-for-woocommerce'),
                 'value'         => $value,
                 'type'          => 'dropdown',
                 'options'       => array(
                     array(
                         'key'       => 'y',
-                        'text'      => __('Yes', 'spbwc-product-builder')
+                        'text'      => __('Yes', 'storelly-product-builder-for-woocommerce')
                     ),
                     array(
                         'key'       => 'n',
-                        'text'      => __('No', 'spbwc-product-builder')
+                        'text'      => __('No', 'storelly-product-builder-for-woocommerce')
                     )
                 )
             );
@@ -689,18 +696,18 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
         public function build_config_general_published($value = null) {
             if (is_null($value)) $value = 'y';
             return array(
-                'title'         => __('Published', 'spbwc-product-builder'),
-                'description'   => __('Show in summary options or not.', 'spbwc-product-builder'),
+                'title'         => __('Published', 'storelly-product-builder-for-woocommerce'),
+                'description'   => __('Show in summary options or not.', 'storelly-product-builder-for-woocommerce'),
                 'value'         => $value,
                 'type'          => 'dropdown',
                 'options' =>    array(
                     array(
                         'key'       => 'y',
-                        'text'      => __('Yes', 'spbwc-product-builder')
+                        'text'      => __('Yes', 'storelly-product-builder-for-woocommerce')
                     ),
                     array(
                         'key'       => 'n',
-                        'text'      => __('No', 'spbwc-product-builder')
+                        'text'      => __('No', 'storelly-product-builder-for-woocommerce')
                     )
                 )
             );
@@ -708,18 +715,18 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
         public function build_config_general_required($value = null) {
             if (is_null($value)) $value = 'n';
             return array(
-                'title'         => __('Required', 'spbwc-product-builder'),
-                'description'   => __('Choose whether the option is required or not.', 'spbwc-product-builder'),
+                'title'         => __('Required', 'storelly-product-builder-for-woocommerce'),
+                'description'   => __('Choose whether the option is required or not.', 'storelly-product-builder-for-woocommerce'),
                 'value'         => $value,
                 'type'          => 'dropdown',
                 'options'       => array(
                     array(
                         'key'       => 'y',
-                        'text'      => __('Yes', 'spbwc-product-builder')
+                        'text'      => __('Yes', 'storelly-product-builder-for-woocommerce')
                     ),
                     array(
                         'key'       => 'n',
-                        'text'      => __('No', 'spbwc-product-builder')
+                        'text'      => __('No', 'storelly-product-builder-for-woocommerce')
                     )
                 ),
                 'depend'        => array(
@@ -740,7 +747,7 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
                 );
             }
             return array(
-                'title'         => esc_html__('Upload file option', 'spbwc-product-builder'),
+                'title'         => esc_html__('Upload file option', 'storelly-product-builder-for-woocommerce'),
                 'description'   =>  '',
                 'value'         => $value,
                 'type'          => 'table',
@@ -761,26 +768,26 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
         public function build_config_general_price_type($value = null) {
             if (is_null($value)) $value = 'f';
             return array(
-                'title'         => esc_html__('Price type', 'spbwc-product-builder'),
-                'description'   => esc_html__('Here you can choose how the price is calculated. Depending on the field there various types you can choose.', 'spbwc-product-builder'),
+                'title'         => esc_html__('Price type', 'storelly-product-builder-for-woocommerce'),
+                'description'   => esc_html__('Here you can choose how the price is calculated. Depending on the field there various types you can choose.', 'storelly-product-builder-for-woocommerce'),
                 'value'         => $value,
                 'type'          => 'dropdown',
                 'options'       => array(
                     array(
                         'key'       => 'f',
-                        'text'      => esc_html__('Fixed amount', 'spbwc-product-builder')
+                        'text'      => esc_html__('Fixed amount', 'storelly-product-builder-for-woocommerce')
                     ),
                     array(
                         'key'       => 'p',
-                        'text'      => esc_html__('Percent of the original price', 'spbwc-product-builder')
+                        'text'      => esc_html__('Percent of the original price', 'storelly-product-builder-for-woocommerce')
                     ),
                     array(
                         'key'       => 'p+',
-                        'text'      => esc_html__('Percent of the original price + options', 'spbwc-product-builder')
+                        'text'      => esc_html__('Percent of the original price + options', 'storelly-product-builder-for-woocommerce')
                     ),
                     array(
                         'key'       => 'c',
-                        'text'      => esc_html__('Current value * price', 'spbwc-product-builder'),
+                        'text'      => esc_html__('Current value * price', 'storelly-product-builder-for-woocommerce'),
                         'depend'    => array(
                             array(
                                 'field'     => 'data_type',
@@ -806,7 +813,7 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
                     ),
                     array(
                         'key'       => 'cp',
-                        'text'      => esc_html__('Price per char', 'spbwc-product-builder'),
+                        'text'      => esc_html__('Price per char', 'storelly-product-builder-for-woocommerce'),
                         'depend'    => array(
                             array(
                                 'field'     => 'data_type',
@@ -826,8 +833,8 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
         public function build_config_general_price($value = null) {
             if (is_null($value)) $value = '';
             return array(
-                'title'         => esc_html__('Additional Price', 'spbwc-product-builder'),
-                'description'   => esc_html__('Enter the price for this field or leave it blank for no price.', 'spbwc-product-builder'),
+                'title'         => esc_html__('Additional Price', 'storelly-product-builder-for-woocommerce'),
+                'description'   => esc_html__('Enter the price for this field or leave it blank for no price.', 'storelly-product-builder-for-woocommerce'),
                 'value'         => $value,
                 'depend'        => array(
                     array(
@@ -848,7 +855,7 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
             if (is_null($attributes)) {
                 $options = array(
                     0 => array(
-                        'name'                  => __('Attribute name', 'spbwc-product-builder'),
+                        'name'                  => __('Attribute name', 'storelly-product-builder-for-woocommerce'),
                         'des'                   => '',
                         'price'                 => array(),
                         'selected'              => 0,
@@ -886,8 +893,8 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
             $show_as_pt         = isset($attributes['show_as_pt']) ? $attributes['show_as_pt'] : 'n';
             $number_of_sides    = isset($attributes['number_of_sides']) ? $attributes['number_of_sides'] : 2;
             return array(
-                'title'           => __('Attributes', 'spbwc-product-builder'),
-                'description'     => __('Attributes let you define extra product data, such as size or color.','spbwc-product-builder'),
+                'title'           => __('Attributes', 'storelly-product-builder-for-woocommerce'),
+                'description'     => __('Attributes let you define extra product data, such as size or color.','storelly-product-builder-for-woocommerce'),
                 'type'            => 'attributes',
                 'same_size'       => $same_size,
                 'bg_type'         => $bg_type,
@@ -924,34 +931,34 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
         public function build_config_appearance_display_type($value = null) {
             if (is_null($value)) $value = 'd';
             return array(
-                'title'         => __('Display type', 'spbwc-product-builder'),
+                'title'         => __('Display type', 'storelly-product-builder-for-woocommerce'),
                 'description'   => '',
                 'value'         => $value,
                 'type'          => 'dropdown',
                 'options'       => array(
                     array(
                         'key'   => 'd',
-                        'text'  => __('Dropdown', 'spbwc-product-builder')
+                        'text'  => __('Dropdown', 'storelly-product-builder-for-woocommerce')
                     ),
                     array(
                         'key'   => 'r',
-                        'text'  => __('Radio button', 'spbwc-product-builder')
+                        'text'  => __('Radio button', 'storelly-product-builder-for-woocommerce')
                     ),
                     array(
                         'key'   => 's',
-                        'text'  => __('Swatch', 'spbwc-product-builder')
+                        'text'  => __('Swatch', 'storelly-product-builder-for-woocommerce')
                     ),
                     array(
                         'key'   => 'l',
-                        'text'  => __('Label', 'spbwc-product-builder')
+                        'text'  => __('Label', 'storelly-product-builder-for-woocommerce')
                     ),
                     array(
                         'key'   => 'ad',
-                        'text'  => __('Advanced Dropdown', 'spbwc-product-builder')
+                        'text'  => __('Advanced Dropdown', 'storelly-product-builder-for-woocommerce')
                     ),
                     array(
                         'key'   => 'xl',
-                        'text'  => __('Large label', 'spbwc-product-builder')
+                        'text'  => __('Large label', 'storelly-product-builder-for-woocommerce')
                     )
                 )
             );
@@ -959,18 +966,18 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
         public function build_config_appearance_change_image_product($value = null) {
             if (is_null($value)) $value = 'n';
             return array(
-                'title'         => __('Changes product image', 'spbwc-product-builder'),
-                'description'   => __('Choose whether to change the product image.', 'spbwc-product-builder'),
+                'title'         => __('Changes product image', 'storelly-product-builder-for-woocommerce'),
+                'description'   => __('Choose whether to change the product image.', 'storelly-product-builder-for-woocommerce'),
                 'type'          => 'dropdown',
                 'value'         => $value,
                 'options'       => array(
                     array(
                         'key'   => 'y',
-                        'text'  => __('Yes', 'spbwc-product-builder')
+                        'text'  => __('Yes', 'storelly-product-builder-for-woocommerce')
                     ),
                     array(
                         'key'   => 'n',
-                        'text'  => __('No', 'spbwc-product-builder')
+                        'text'  => __('No', 'storelly-product-builder-for-woocommerce')
                     )
                 )
             );
@@ -978,7 +985,7 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
         public function build_config_appearance_css_class($value = null) {
             if (is_null($value)) $value = '';
             return array(
-                'title'         => __('CSS Class', 'spbwc-product-builder'),
+                'title'         => __('CSS Class', 'storelly-product-builder-for-woocommerce'),
                 'description'   => '',
                 'type'          => 'text',
                 'value'         => $value
@@ -986,15 +993,15 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
         }
         function spbwc_storelly_option_i18n() {
             return array(
-                'nbpb_com'              => esc_html__('Component', 'spbwc-product-builder'),
-                'nbpb_text'             => esc_html__('Text', 'spbwc-product-builder'),
-                'nbpb_image'            => esc_html__('Image', 'spbwc-product-builder'),
-                'attribute_name'        => esc_html__('Attribute name', 'spbwc-product-builder'),
-                'sub_attribute_name'    => esc_html__('Sub attribute name', 'spbwc-product-builder'),
+                'nbpb_com'              => esc_html__('Component', 'storelly-product-builder-for-woocommerce'),
+                'nbpb_text'             => esc_html__('Text', 'storelly-product-builder-for-woocommerce'),
+                'nbpb_image'            => esc_html__('Image', 'storelly-product-builder-for-woocommerce'),
+                'attribute_name'        => esc_html__('Attribute name', 'storelly-product-builder-for-woocommerce'),
+                'sub_attribute_name'    => esc_html__('Sub attribute name', 'storelly-product-builder-for-woocommerce'),
             );
         }
         public function spbwc_add_meta_boxes() {
-            add_meta_box('storelly_product_builder', __('Storelly product builder', 'spbwc-product-builder'), array($this, 'meta_box'), 'product', 'normal', 'high');
+            add_meta_box('storelly_product_builder', __('Storelly product builder', 'storelly-product-builder-for-woocommerce'), array($this, 'meta_box'), 'product', 'normal', 'high');
         }
         public function spbwc_meta_box() {
             $post_id            = get_the_ID();
@@ -1008,7 +1015,7 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
                     'paged'         => 1,
                     'id'            => $option_id
                 ),
-                admin_url('admin.php?page=spbwc-product-builder-options')
+                admin_url('admin.php?page=storelly-product-builder-for-woocommerce-options')
             );
             include_once(SPBWC_PB_PLUGIN_DIR . 'views/options/meta-box.php');
         }
@@ -1020,7 +1027,8 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
                 global $wpdb;
 
                 $table_name = $wpdb->prefix . 'storelly_roduct_builder_options';
-                $options = $wpdb->get_results($wpdb->prepare("SELECT id, product_ids FROM $table_name WHERE published = 1"), 'ARRAY_A');  
+                $table_name = $wpdb->prefix . 'storelly_product_builder_options';
+                $options = $wpdb->get_results($wpdb->prepare("SELECT id, product_ids FROM {$table_name} WHERE published = %d", 1), 'ARRAY_A');  
                 if ($options) {
                     $_options = array();
                     foreach ($options as $option) {
@@ -1046,7 +1054,7 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
         }
         public function spbwc_save_product_option($post_id) {
             if (
-                !isset($_POST['pc_box_nonce']) || !wp_verify_nonce(sanitize_text_field($_POST['pc_box_nonce']), 'pc_box')
+                !isset($_POST['pc_box_nonce']) || !wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['pc_box_nonce'])), 'pc_box')
                 || !(current_user_can('administrator') || current_user_can('shop_manager'))
             ) {
                 return $post_id;
@@ -1054,7 +1062,8 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
             if (defined('DOING_AUTOSAVE') && DOING_AUTOSAVE) {
                 return $post_id;
             }
-            if ('page' == sanitize_text_field($_POST['post_type'])) {
+            $post_type = isset( $_POST['post_type'] ) ? sanitize_text_field( wp_unslash( $_POST['post_type'] ) ) : '';
+            if ('page' == $post_type) {
                 if (!current_user_can('edit_page', $post_id)) {
                     return $post_id;
                 }
@@ -1064,7 +1073,7 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
                 }
             }
             if (isset($_POST['_storelly_pb_enable'])) {
-                $enable = wc_clean($_POST['_storelly_pb_enable']);
+                $enable = wc_clean( wp_unslash( $_POST['_storelly_pb_enable'] ) );
                 update_post_meta($post_id, '_storelly_pb_enable', $enable);
             }
         }
@@ -1096,10 +1105,10 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
         }
         public function spbwc_add_google_font() {
             $data = array(
-                'mes'   =>  esc_html__('You do not have permission to add font!', 'spbwc-product-builder'),
+                'mes'   =>  esc_html__('You do not have permission to add font!', 'storelly-product-builder-for-woocommerce'),
                 'flag'  => 0
             );
-            if (!wp_verify_nonce(sanitize_text_field($_POST['nonce']), 'spbwc_update_fonts')) {
+            if ( ! isset( $_POST['nonce'] ) || !wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['nonce'])), 'spbwc_update_fonts')) {
                 die('Security error');
             }
             $gg_fonts = array();
@@ -1107,7 +1116,8 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
                 die('Empty data');
             } else {
                 $all_fonts  = json_decode(file_get_contents(SPBWC_PB_PLUGIN_DIR . '/data/google-fonts-ttf.json'))->items;
-                $fonts      = json_decode(stripslashes($_POST['fonts']));
+                $fonts_raw  = wp_unslash( $_POST['fonts'] );
+                $fonts      = json_decode($fonts_raw);
                 foreach ($fonts as $key => $font) {
                     $subset = 'all';
                     $file = array('r' => 1);
@@ -1144,7 +1154,7 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
             }
             $path_font      = SPBWC_PB_FONT_DIR . '/googlefonts.json';
             file_put_contents($path_font, wp_json_encode($gg_fonts));
-            $data['mes']    = esc_html__('The google fonts have been added successfully!', 'spbwc-product-builder');
+            $data['mes']    = esc_html__('The google fonts have been added successfully!', 'storelly-product-builder-for-woocommerce');
             $data['flag']   = 1;
             echo wp_json_encode($data);
             wp_die();
@@ -1179,9 +1189,13 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
             $message = '';
             $status = '';
 
-            if (isset($_POST['_action_storelly_settings']) && sanitize_text_field($_POST['_action_storelly_settings'] === 'submit')) {
-                $storelly_enable_cloud2print_api      = isset($_POST['storelly_enable_cloud2print_api']) ? sanitize_text_field($_POST['storelly_enable_cloud2print_api']) : 'no';
-                $message        = esc_html__('Your settings have been saved.', 'spbwc-product-builder');
+            if ( isset( $_POST['_action_storelly_settings'] ) && 'submit' === sanitize_text_field( wp_unslash( $_POST['_action_storelly_settings'] ) ) ) {
+                $settings_nonce = isset( $_POST['spbwc_settings_nonce'] ) ? sanitize_text_field( wp_unslash( $_POST['spbwc_settings_nonce'] ) ) : '';
+                if ( ! $settings_nonce || ! wp_verify_nonce( $settings_nonce, 'spbwc_settings_action' ) ) {
+                    wp_die( esc_html__( 'Security error.', 'storelly-product-builder-for-woocommerce' ) );
+                }
+                $storelly_enable_cloud2print_api      = isset($_POST['storelly_enable_cloud2print_api']) ? sanitize_text_field( wp_unslash( $_POST['storelly_enable_cloud2print_api'] ) ) : 'no';
+                $message        = esc_html__('Your settings have been saved.', 'storelly-product-builder-for-woocommerce');
                 $status         = 'updated';
                 $storelly_pb_settings['enable_cloud2print_api'] = $storelly_enable_cloud2print_api;
                 update_option('spbwc_pb_settings', $storelly_pb_settings);
@@ -1230,9 +1244,17 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
             }
         }
         public function spbwc_download_order_designs() {
-            $item_ids      = is_array($_POST['item_ids']) ? wc_clean($_POST['item_ids']) : array();
-            $order_id      = isset($_POST['order_id']) ? sanitize_text_field($_POST['order_id']) : '';
-            $type_download = isset($_POST['type_download']) ? sanitize_text_field($_POST['type_download']) : '';
+            if ( ! current_user_can( 'upload_files' ) ) {
+                wp_send_json_error( array( 'mes' => esc_html__( 'You do not have permission.', 'storelly-product-builder-for-woocommerce' ) ) );
+            }
+            $download_nonce = isset( $_POST['nonce'] ) ? sanitize_text_field( wp_unslash( $_POST['nonce'] ) ) : '';
+            if ( ! $download_nonce || ! wp_verify_nonce( $download_nonce, 'spbwc_download_order_designs' ) ) {
+                wp_send_json_error( array( 'mes' => esc_html__( 'Security error.', 'storelly-product-builder-for-woocommerce' ) ) );
+            }
+            $item_ids_raw = isset( $_POST['item_ids'] ) ? wp_unslash( $_POST['item_ids'] ) : array();
+            $item_ids      = is_array($item_ids_raw) ? array_map( 'absint', $item_ids_raw ) : array();
+            $order_id      = isset($_POST['order_id']) ? absint( wp_unslash( $_POST['order_id'] ) ) : 0;
+            $type_download = isset($_POST['type_download']) ? sanitize_text_field( wp_unslash( $_POST['type_download'] ) ) : '';
             $files = array();
             $option_name = array();
             if (is_array($item_ids) && count($item_ids) > 0) {

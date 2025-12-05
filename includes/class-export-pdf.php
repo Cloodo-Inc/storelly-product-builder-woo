@@ -250,23 +250,44 @@ if (!class_exists('SPBWC_Storelly_Export_PDF')) {
         /**
          * Download remote file and save to local path
          *
-         * @param mixed $url URL or response object
-         * @param string $path Local file path
-         * @return bool True on success, false on failure
+         * @param string $url  Remote URL.
+         * @param string $path Local file path.
+         * @return bool True on success, false on failure.
          */
         public static function spbwc_download_remote_file($url, $path) {
-            $data = wp_remote_get($url, array(
-                'timeout' => 20,
-                'User-Agent' => 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.8; rv:20.0) Gecko/20100101 Firefox/20.0'
-            ));
+            $response = wp_remote_get(
+                $url,
+                array(
+                    'timeout'    => 20,
+                    'user-agent' => 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.8; rv:20.0) Gecko/20100101 Firefox/20.0',
+                )
+            );
 
-            if ($data) {
-                $file = fopen($path, "w+");
-                fputs($file, $data);
-                fclose($file);
-                return true;
+            if ( is_wp_error( $response ) ) {
+                return false;
             }
-            return false;
+
+            $body = wp_remote_retrieve_body( $response );
+
+            if ( '' === $body ) {
+                return false;
+            }
+
+            if ( ! function_exists( 'WP_Filesystem' ) ) {
+                require_once ABSPATH . 'wp-admin/includes/file.php';
+            }
+
+            global $wp_filesystem;
+
+            if ( ! $wp_filesystem ) {
+                WP_Filesystem();
+            }
+
+            if ( ! $wp_filesystem ) {
+                return false;
+            }
+
+            return (bool) $wp_filesystem->put_contents( $path, $body, FS_CHMOD_FILE );
         }
     }
 }
