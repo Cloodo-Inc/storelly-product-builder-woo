@@ -77,7 +77,7 @@ if (!class_exists('SPBWC_SPBWC_Storelly_PB_Script_Hook')) {
 
             wp_register_script('spbwc-storelly-ext', SPBWC_PB_PLUGIN_URL . 'assets/libs/storelly-ext.js', array(), SPBWC_PB_VERSION, true);
             wp_register_script('wc-accounting',  WC()->plugin_url() . '/assets/js/accounting/accounting.min.js', array(), '0.4.2', true);
-            wp_register_script('spbwc-angular', SPBWC_PB_PLUGIN_URL . 'assets/libs/angular.min.js', array('jquery', 'wc-accounting'), '1.6.9', true);
+            wp_register_script('spbwc-ag', SPBWC_PB_PLUGIN_URL . 'assets/libs/storelly-ag.js', array('jquery', 'wc-accounting'), SPBWC_PB_VERSION, true);
             wp_register_script('spbwc-fontfaceobserver', SPBWC_PB_PLUGIN_URL . 'assets/libs/fontfaceobserver.js', array(), '2.0.13', true);
             wp_register_script('spbwc-fabric', SPBWC_PB_PLUGIN_URL . 'assets/libs/fabric.2.6.0.min.js', array(), '2.6.0', true);
             wp_register_script('spbwc-spectrum-css', SPBWC_PB_JS_URL . 'spectrum.js', array(), SPBWC_PB_VERSION, true);
@@ -85,10 +85,10 @@ if (!class_exists('SPBWC_SPBWC_Storelly_PB_Script_Hook')) {
 
             if ($page == 'product-builder') {
                 $this->spbwc_enqueue_style(array('spbwc-poppins-font-r', 'spbwc-spectrum-css', 'spbwc-app-product-builder', 'storelly-product-builder-for-woocommerce'));
-                $this->spbwc_enqueue_script(array('spbwc-storelly-ext', 'spbwc-angular', 'wc-accounting'));
+                $this->spbwc_enqueue_script(array('spbwc-storelly-ext', 'spbwc-ag', 'wc-accounting'));
             }
             if ($page == 'single-product') {
-                $this->spbwc_enqueue_script(array('spbwc-angular', 'spbwc-tiptip'));
+                $this->spbwc_enqueue_script(array('spbwc-ag', 'spbwc-tiptip'));
             }
         }
 

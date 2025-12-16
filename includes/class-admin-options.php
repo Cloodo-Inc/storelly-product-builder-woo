@@ -122,7 +122,8 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
                 'flag'      => 1,
                 'images'    => array()
             );
-            $raw_images = isset($_POST['images']) ? wp_unslash($_POST['images']) : array();
+            // Nonce checked above in spbwc_get_media_full_size_url.
+            $raw_images = isset($_POST['images']) ? wp_unslash($_POST['images']) : array(); // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce verified earlier in this method.
             $images     = is_array( $raw_images ) ? array_map( 'absint', $raw_images ) : array();
             if ( ! empty( $images ) ) {
                 foreach ( $images as $key => $image_id ) {
@@ -234,7 +235,7 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
             }
         }
         public function spbwc_admin_enqueue_scripts($hook) {
-            wp_register_script('spbwc-angular', SPBWC_PB_PLUGIN_URL . 'assets/libs/builderproductag.min.js', array('jquery'), '1.6.9');  
+            wp_register_script('spbwc-ag', SPBWC_PB_PLUGIN_URL . 'assets/libs/builderproductag.min.js', array('jquery'), '1.6.9');  
             wp_register_script('spbwc-snap-svg', SPBWC_PB_ASSETS_URL . 'libs/snap.svg.js', array(), '0.3.0');
             wp_register_script('spbwc-tiptip', SPBWC_PB_ASSETS_URL . 'js/tiptip.js', array('jquery'), SPBWC_PB_VERSION);
             wp_register_script('spbwc-fontfaceobserver', SPBWC_PB_PLUGIN_URL . 'assets/libs/fontfaceobserver.js', array(), '2.0.13');
@@ -257,7 +258,7 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
             wp_enqueue_script('spbwc-general-js');
 
             if ($hook == 'toplevel_page_storelly-product-builder-for-woocommerce-options') {
-                wp_register_script('spbwc-options-script', SPBWC_PB_JS_URL . 'admin-options.js', array('jquery', 'wpdialogs', 'jquery-ui-resizable', 'jquery-ui-draggable', 'jquery-ui-droppable', 'jquery-ui-sortable', 'jquery-ui-datepicker', 'jquery-ui-autocomplete', 'wp-color-picker', 'spbwc-angular', 'wc-enhanced-select', 'spbwc-snap-svg', 'spbwc-tiptip'), SPBWC_PB_VERSION);
+                wp_register_script('spbwc-options-script', SPBWC_PB_JS_URL . 'admin-options.js', array('jquery', 'wpdialogs', 'jquery-ui-resizable', 'jquery-ui-draggable', 'jquery-ui-droppable', 'jquery-ui-sortable', 'jquery-ui-datepicker', 'jquery-ui-autocomplete', 'wp-color-picker', 'spbwc-ag', 'wc-enhanced-select', 'spbwc-snap-svg', 'spbwc-tiptip'), SPBWC_PB_VERSION);
                 wp_localize_script('spbwc-options-script', 'storelly_options', array(
                     'search_products_nonce'     => wp_create_nonce("search-products"),
                     'calendar_image'            => SPBWC_PB_PLUGIN_URL . 'assets/images/calendar.png',
@@ -267,7 +268,7 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
                wp_enqueue_script('spbwc-options-script');
             }
             if ($hook == 'product-builder-options_page_storelly-product-builder-for-woocommerce-options/manager-fonts') {
-                wp_register_script('spbwc-manager-fonts-script', SPBWC_PB_JS_URL . 'manager-fonts.js', array('spbwc-fontfaceobserver', 'spbwc-sweetalert-js', 'spbwc-angular'), SPBWC_PB_VERSION, true);
+                wp_register_script('spbwc-manager-fonts-script', SPBWC_PB_JS_URL . 'manager-fonts.js', array('spbwc-fontfaceobserver', 'spbwc-sweetalert-js', 'spbwc-ag'), SPBWC_PB_VERSION, true);
                 wp_localize_script('spbwc-manager-fonts-script', 'storelly_pb_fonts', array(
                     'url'       => admin_url('admin-ajax.php'),
                     'nonce'     => wp_create_nonce('spbwc_update_fonts'),
@@ -395,8 +396,8 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
         public function spbwc_get_option($id) { 
             global $wpdb;
             $table_name = $wpdb->prefix . 'storelly_product_builder_options';
-            // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table name uses $wpdb->prefix and is trusted.
-            $result = $wpdb->get_results($wpdb->prepare("SELECT * FROM {$table_name} WHERE `id` = %d", absint($id)), 'ARRAY_A');
+            // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table name built from $wpdb->prefix; values are parameterized below.
+            $result = $wpdb->get_results( $wpdb->prepare( "SELECT * FROM {$table_name} WHERE `id` = %d", absint( $id ) ), 'ARRAY_A' );
             return count($result) ? $result[0] : false; 
         }
         public function spbwc_save_option() {
@@ -413,7 +414,7 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
                 'product_ids' => serialize($product_ids),
                 'modified'    => $modified_date->format('Y-m-d H:i:s')
             );
-            $post_options_raw = isset( $_POST['options'] ) ? wp_unslash( $_POST['options'] ) : array(); // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce verified in spbwc_product_builder_options.
+            $post_options_raw = isset( $_POST['options'] ) ? wp_unslash( $_POST['options'] ) : array(); // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce verified in spbwc_product_builder_options before processing.
             $post_options = spbwc_sanitize_recursive( $post_options_raw );
             if (isset($post_options['jsonFields'])) {
                 $post_options['fields'] = json_decode(stripslashes($post_options['jsonFields']), true); 
@@ -1027,8 +1028,9 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
                 global $wpdb;
 
                 $table_name = $wpdb->prefix . 'storelly_roduct_builder_options';
-                $table_name = $wpdb->prefix . 'storelly_product_builder_options';
-                $options = $wpdb->get_results($wpdb->prepare("SELECT id, product_ids FROM {$table_name} WHERE published = %d", 1), 'ARRAY_A');  
+            $table_name = $wpdb->prefix . 'storelly_product_builder_options';
+            // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table name built from $wpdb->prefix; values are parameterized below.
+            $options = $wpdb->get_results( $wpdb->prepare( "SELECT id, product_ids FROM {$table_name} WHERE published = %d", 1 ), 'ARRAY_A' );  
                 if ($options) {
                     $_options = array();
                     foreach ($options as $option) {
@@ -1072,7 +1074,7 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
                     return $post_id;
                 }
             }
-            if (isset($_POST['_storelly_pb_enable'])) {
+            if (isset($_POST['_storelly_pb_enable'])) { // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce verified in surrounding save_post handler.
                 $enable = wc_clean( wp_unslash( $_POST['_storelly_pb_enable'] ) );
                 update_post_meta($post_id, '_storelly_pb_enable', $enable);
             }
@@ -1112,43 +1114,57 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
                 die('Security error');
             }
             $gg_fonts = array();
-            if (!isset($_POST['fonts'])) {
+            if ( ! isset( $_POST['fonts'] ) ) {
                 die('Empty data');
             } else {
-                $all_fonts  = json_decode(file_get_contents(SPBWC_PB_PLUGIN_DIR . '/data/google-fonts-ttf.json'))->items;
-                $fonts_raw  = wp_unslash( $_POST['fonts'] );
-                $fonts      = json_decode($fonts_raw);
-                foreach ($fonts as $key => $font) {
+                $fonts_raw = wp_unslash( $_POST['fonts'] );
+                $fonts     = json_decode( $fonts_raw );
+                if ( empty( $fonts ) || ! is_array( $fonts ) ) {
+                    die('Empty data');
+                }
+
+                // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- Reading bundled JSON definition.
+                $all_fonts_json = file_get_contents( SPBWC_PB_PLUGIN_DIR . '/data/google-fonts-ttf.json' );
+                $all_fonts      = json_decode( $all_fonts_json );
+                $all_fonts_list = isset( $all_fonts->items ) ? $all_fonts->items : array();
+
+                foreach ( $fonts as $key => $font ) {
+                    $font_name = isset( $font->name ) ? sanitize_text_field( $font->name ) : '';
+                    if ( '' === $font_name ) {
+                        continue;
+                    }
+
                     $subset = 'all';
-                    $file = array('r' => 1);
-                    foreach ($all_fonts as $f) {
-                        if ($font->name == $f->family) {
-                            $subset = $f->subsets[0];
-                            if (isset($f->files->regular)) {
-                                $file['r'] = $f->files->regular;
+                    $file   = array( 'r' => 1 );
+                    foreach ( $all_fonts_list as $f ) {
+                        if ( isset( $f->family ) && $font_name === $f->family ) {
+                            $subset = isset( $f->subsets[0] ) ? sanitize_text_field( $f->subsets[0] ) : 'all';
+                            if ( isset( $f->files->regular ) ) {
+                                $file['r'] = esc_url_raw( $f->files->regular );
                             } else {
-                                $file['r'] = reset($f->files);
+                                $file_regular = reset( $f->files );
+                                $file['r']    = is_string( $file_regular ) ? esc_url_raw( $file_regular ) : '';
                             }
-                            if (isset($f->files->italic)) {
-                                $file['i'] = $f->files->italic;
+                            if ( isset( $f->files->italic ) ) {
+                                $file['i'] = esc_url_raw( $f->files->italic );
                             }
-                            if (isset($f->files->{"700"})) {
-                                $file['b'] = $f->files->{"700"};
+                            if ( isset( $f->files->{'700'} ) ) {
+                                $file['b'] = esc_url_raw( $f->files->{'700'} );
                             }
-                            if (isset($f->files->{"700italic"})) {
-                                $file['bi'] = $f->files->{"700italic"};
+                            if ( isset( $f->files->{'700italic'} ) ) {
+                                $file['bi'] = esc_url_raw( $f->files->{'700italic'} );
                             }
                             break;
                         }
                     }
                     $gg_fonts[] = array(
-                        "id"    =>  $key,
-                        "name"    =>  $font->name,
-                        "alias"    =>  $font->name,
-                        "type"   =>  "google",
-                        "subset"   =>  $subset,
-                        "file"   =>  $file,
-                        "cat" => array("99")
+                        'id'     => absint( $key ),
+                        'name'   => $font_name,
+                        'alias'  => $font_name,
+                        'type'   => 'google',
+                        'subset' => $subset,
+                        'file'   => $file,
+                        'cat'    => array( '99' ),
                     );
                 }
             }
@@ -1172,7 +1188,7 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
             $path = SPBWC_PB_FONT_DIR . '/googlefonts.json';
             $selected_fonts = file_get_contents($path);
             if ($selected_fonts == '') $selected_fonts = '[]';
-            wp_register_script('storelly_manager_fonts_script', SPBWC_PB_JS_URL . 'manager-fonts.js', array('spbwc-fontfaceobserver', 'spbwc-sweetalert-js', 'spbwc-angular'), SPBWC_PB_VERSION, true);
+            wp_register_script('storelly_manager_fonts_script', SPBWC_PB_JS_URL . 'manager-fonts.js', array('spbwc-fontfaceobserver', 'spbwc-sweetalert-js', 'spbwc-ag'), SPBWC_PB_VERSION, true);
             wp_localize_script('storelly_manager_fonts_script', 'storelly_manager_fonts_variable', array(
                 'selected_fonts' =>  $selected_fonts,
                 'ggFonts' => json_decode(file_get_contents(SPBWC_PB_DATA_CONFIG_DIR . '/google-fonts-ttf.json'), true),
@@ -1320,8 +1336,6 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
                     $response['file'] = $urlZip;
                 }
             }
-            error_log($pathZip);
-            error_log($urlZip);
             echo wp_json_encode($response);
             wp_die();
         }

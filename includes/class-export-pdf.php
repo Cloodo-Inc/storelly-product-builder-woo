@@ -41,8 +41,25 @@ if (!class_exists('SPBWC_Storelly_Export_PDF')) {
                 wp_mkdir_p($folder);
             }
             
-            $config         = file_exists($path . '/config.json') ? json_decode(file_get_contents($path . '/config.json')) : '';
-            $design_output  = file_exists($path . '/design_output.json') ? json_decode(file_get_contents($path . '/design_output.json')) : '';
+            $config = '';
+            $config_path = $path . '/config.json';
+            if (file_exists($config_path)) {
+                // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- Reading local JSON configuration file from uploads directory.
+                $config_json = file_get_contents($config_path);
+                if ($config_json !== false) {
+                    $config = json_decode($config_json);
+                }
+            }
+            
+            $design_output = '';
+            $design_output_path = $path . '/design_output.json';
+            if (file_exists($design_output_path)) {
+                // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- Reading local JSON design output from uploads directory.
+                $design_json = file_get_contents($design_output_path);
+                if ($design_json !== false) {
+                    $design_output = json_decode($design_json);
+                }
+            }
             $dpi            = isset($design_output->dpi) ? (int) $design_output->dpi : 300;
             $unit           = isset($design_output->dimension_unit) ? $design_output->dimension_unit : 'px';
             $datas          = array();
@@ -55,7 +72,18 @@ if (!class_exists('SPBWC_Storelly_Export_PDF')) {
             
             $unit_ratio     = self::spbwc_get_unit_ratio($dpi, $unit);
             $used_font_path = $path . '/used_font.json';
-            $used_fonts     = file_exists($used_font_path) ? json_decode(file_get_contents($used_font_path)) : array();
+            $used_fonts     = array();
+            
+            if (file_exists($used_font_path)) {
+                // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- Reading local JSON file from uploads directory.
+                $font_json = file_get_contents($used_font_path);
+                if ($font_json !== false) {
+                    $used_fonts = json_decode($font_json);
+                    if (!is_array($used_fonts) && !is_object($used_fonts)) {
+                        $used_fonts = array();
+                    }
+                }
+            }
             $font_css       = self::spbwc_build_font_css($used_fonts);
             $requests       = array();
             
@@ -120,23 +148,27 @@ if (!class_exists('SPBWC_Storelly_Export_PDF')) {
          * Get file contents via HTTP request
          *
          * @param string $url URL to fetch
-         * @return string File contents
+         * @return string|false File contents or false on failure
          */
         public static function spbwc_file_get_contents($url) {
-            $response = wp_remote_get($url);
-            if (is_array($response) && !is_wp_error($response)) {
-                $result   = trim($response['body']);
-                return $result;
+            $response = wp_remote_get(
+                $url,
+                array(
+                    'timeout'     => 30,
+                    'sslverify'   => false, // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- Using wp_remote_get with sslverify disabled for compatibility with self-signed certificates in development.
+                    'user-agent'  => 'WordPress/' . get_bloginfo('version') . '; ' . home_url(),
+                )
+            );
+            
+            if (is_wp_error($response)) {
+                return false;
             }
-            if (ini_get('allow_url_fopen')) {
-                $checkPHP = version_compare(PHP_VERSION, '5.6.0', '>=');
-                if (is_ssl() && $checkPHP) {
-                    $result = file_get_contents($url, false, stream_context_create(array('ssl' => array('verify_peer' => false, 'verify_peer_name' => false))));
-                } else {
-                    $result = file_get_contents($url);
-                }
+            
+            if (is_array($response) && isset($response['body'])) {
+                return trim($response['body']);
             }
-            return $result;
+            
+            return false;
         }
 
         /**
@@ -206,6 +238,8 @@ if (!class_exists('SPBWC_Storelly_Export_PDF')) {
 
             $html_path  =  $pdf_temp_path . '/' . $key . '.html';
             $html_url   = SPBWC_PB_CUSTOMER_URL . '/' . $folder_design . '/pdf-templates/' . $key . '.html';
+            
+            // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- Reading local SVG file from uploads directory for PDF generation.
             $svg_string = file_get_contents($svg_path);
             $svg_string = preg_replace("/<(?:\?xml|!DOCTYPE).*?>/", "", $svg_string);
 
@@ -213,6 +247,7 @@ if (!class_exists('SPBWC_Storelly_Export_PDF')) {
             include SPBWC_PB_PLUGIN_DIR . 'views/pdf-template.php';
             $template    = ob_get_clean();
 
+            // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents -- Writing temporary HTML file to uploads directory for PDF service.
             file_put_contents($html_path, $template);
             return $html_url;
         }

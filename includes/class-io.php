@@ -75,20 +75,37 @@ if (!class_exists('SPBWC_Storelly_IO')) {
                     return $basedir . $arr_url[1] . '/' . $upload . $arr_url[2];
                 }
             } else {
-                $path = str_replace(
-                    site_url(),
-                    wp_normalize_path(untrailingslashit(ABSPATH)),
-                    wp_normalize_path($url)
-                );
+                // Fallback: try converting from content URL to content directory.
+                $content_url = content_url();
+                $content_dir = wp_normalize_path(WP_CONTENT_DIR);
+                
+                if (strpos($url, $content_url) !== false) {
+                    $path = str_replace($content_url, $content_dir, $url);
+                } else {
+                    // Last resort: calculate from site URL using WordPress root derived from content directory.
+                    $site_url = site_url();
+                    $site_path = dirname(wp_normalize_path(WP_CONTENT_DIR));
+                    $path = str_replace($site_url, $site_path, wp_normalize_path($url));
+                }
                 return $path;
             }
         }
         public static function spbwc_convert_path_to_url($path = '') {
-            $url = str_replace(
-                wp_normalize_path(untrailingslashit(ABSPATH)),
-                site_url(),
-                wp_normalize_path($path)
-            );
+            $normalized_path = wp_normalize_path($path);
+            
+            // Try converting from content directory first.
+            $content_dir = wp_normalize_path(WP_CONTENT_DIR);
+            $content_url = content_url();
+            
+            if (strpos($normalized_path, $content_dir) !== false) {
+                $url = str_replace($content_dir, $content_url, $normalized_path);
+            } else {
+                // Fallback to site root conversion using WordPress root derived from content directory.
+                $site_path = dirname(wp_normalize_path(WP_CONTENT_DIR));
+                $site_url = site_url();
+                $url = str_replace($site_path, $site_url, $normalized_path);
+            }
+            
             return esc_url_raw($url);
         }
         public static function spbwc_get_list_files_by_type($path, $type, $level = 100) {

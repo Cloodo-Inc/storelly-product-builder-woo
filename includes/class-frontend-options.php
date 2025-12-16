@@ -13,9 +13,14 @@ if (!class_exists('STORELLY_FRONTEND_OPTIONS')) {
         /** Edit option in cart helper **/
         public function __construct() {
 
-            if (isset($_REQUEST['pcpb_cart_item_key']) && sanitize_text_field($_REQUEST['pcpb_cart_item_key']) != '') {
-                $this->is_edit_mode = true; 
-                $this->cart_edit_key = sanitize_text_field( $_REQUEST['pcpb_cart_item_key'] );
+            if (isset($_REQUEST['pcpb_cart_item_key'])) {
+                // Value comes from WooCommerce cart edit flow; no nonce available in core flow.
+                $cart_key_raw = wp_unslash( $_REQUEST['pcpb_cart_item_key'] ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- WooCommerce edit-cart flow does not provide a nonce.
+                $cart_key     = sanitize_text_field( $cart_key_raw );
+                if ('' !== $cart_key) {
+                    $this->is_edit_mode  = true;
+                    $this->cart_edit_key = $cart_key;
+                }
             }
             $this->appid = "nbo-app-" . time() . rand(1, 1000); // phpcs:ignore WordPress.WP.AlternativeFunctions.rand_rand -- Using PHP rand() as wp_rand() may not be defined in non-WP contexts.
         }
@@ -73,7 +78,8 @@ if (!class_exists('STORELLY_FRONTEND_OPTIONS')) {
         public static function get_option($id) {
             global $wpdb;
             $table_name = $wpdb->prefix . 'storelly_product_builder_options';
-            $options = $wpdb->get_results($wpdb->prepare("SELECT * FROM $table_name WHERE `id` = %d", $id), 'ARRAY_A');  
+            // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table name built from $wpdb->prefix; value parameterized.
+            $options = $wpdb->get_results( $wpdb->prepare( "SELECT * FROM $table_name WHERE `id` = %d", absint( $id ) ), 'ARRAY_A' );  
             return count($options[0]) ? $options[0] : false;
         }
         public static function get_product_option($product_id) {
@@ -83,7 +89,8 @@ if (!class_exists('STORELLY_FRONTEND_OPTIONS')) {
             if (false === $option_id) {
                 global $wpdb;
                 $table_name = $wpdb->prefix . 'storelly_product_builder_options';
-                $options = $wpdb->get_results($wpdb->prepare("SELECT id, product_ids FROM $table_name WHERE published = 1", $product_id), 'ARRAY_A');   
+                // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table name built from $wpdb->prefix; value parameterized.
+                $options = $wpdb->get_results( $wpdb->prepare( "SELECT id, product_ids FROM $table_name WHERE published = %d", 1 ), 'ARRAY_A' );   
                 if ($options) {
                     $_options = array();
                     foreach ($options as $option) {
@@ -216,9 +223,9 @@ if (!class_exists('STORELLY_FRONTEND_OPTIONS')) {
                     $nbdpb_enable   = get_post_meta($product_id, '_storelly_pb_enable', true);
 
                     if (isset($_POST['pcpb-field'])) {
-                        $form_values = sanitize_text_field($_POST['pcpb-field']);
+                        $form_values = sanitize_text_field( wp_unslash( $_POST['pcpb-field'] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Missing -- WooCommerce add-to-cart form does not include a custom nonce.
                     } else if (isset($_GET['pcpb_cart_item_key']) && sanitize_text_field($_GET['pcpb_cart_item_key']) != '') {
-                        $cart_item_key  = sanitize_text_field($_GET['pcpb_cart_item_key']);
+                        $cart_item_key  = sanitize_text_field( wp_unslash( $_GET['pcpb_cart_item_key'] ) );
                         $cart_item      = WC()->cart->get_cart_item($cart_item_key);
                         if (isset($cart_item['pcpb_meta'])) {
                             $form_values = $cart_item['pcpb_meta']['field'];
@@ -227,7 +234,7 @@ if (!class_exists('STORELLY_FRONTEND_OPTIONS')) {
 
                     if (isset($_GET['nbo_values'])) {
                         $params     = array();
-                        $value_str  = base64_decode(wp_unslash($_GET['nbo_values']));
+                        $value_str  = base64_decode( wp_unslash( $_GET['nbo_values'] ) );
                         parse_str($value_str, $params);
                         if (isset($params['pcpb-field'])) {
                             $form_values = $params['pcpb-field'];
