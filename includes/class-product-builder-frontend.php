@@ -97,7 +97,7 @@ if (!class_exists('SPBWC_Storelly_Product_Builder_Frontend')) {
                 $result['flag'] = 'success';
                 $result['folder'] = $pcpb_item_pb_key;
                 if ($is_creating_task == '1' && $oid != 0) {
-                    global $wpdb;
+                    global $wpdb; // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Global variable $wpdb.
                     $arr = array(
                         'builder'   =>  $pcpb_item_pb_key
                     );

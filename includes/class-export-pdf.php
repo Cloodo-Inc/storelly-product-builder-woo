@@ -262,20 +262,12 @@ if (!class_exists('SPBWC_Storelly_Export_PDF')) {
          */
         public static function spbwc_request_create_pdf($requests, $folder, $folder_design) {
             $result     = array();
-            $multiCurl  = array();
-            foreach ($requests as $i => $request) {
-                $multiCurl[$i] = wp_remote_get($request['url'], array(
-                    'timeout' => 30,
-                    'User-Agent' => 'Mozilla/4.0 (compatible;)'
-                ));
-            }
-
-            foreach ($multiCurl as $k => $res) {
-                
-                $output_file    = $folder . '/' . $folder_design . '_' . $requests[$k]['index'] . '.pdf';
-                $download       = self::spbwc_download_remote_file($res, $output_file);
+            
+            foreach ($requests as $k => $request) {
+                $output_file    = $folder . '/' . $folder_design . '_' . $request['index'] . '.pdf';
+                $download       = self::spbwc_download_remote_file($request['url'], $output_file);
                 if ($download) {
-                    $result[$requests[$k]['index']] = $output_file;
+                    $result[$request['index']] = $output_file;
                 }
             }
 

@@ -43,14 +43,14 @@ class SPBWC_Storelly_Options_List_Table extends WP_List_Table {
         return $sortable_columns;
     }
     public static function spbwc_record_count() {
-        global $wpdb;
+        global $wpdb; // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Global variable $wpdb.
         $table_name = $wpdb->prefix . 'storelly_product_builder_options';
         // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table name uses $wpdb->prefix and is trusted.
         $result = $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$table_name} WHERE 1 = %d", 1 ) );
         return $result;
     }
     public function spbwc_get_options($per_page = 10, $page_number = 1) {
-        global $wpdb;
+        global $wpdb; // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Global variable $wpdb.
         $table_name = $wpdb->prefix . 'storelly_product_builder_options';
         $number_page = ($page_number - 1) * $per_page;
         // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table name uses $wpdb->prefix and is trusted.
@@ -108,14 +108,14 @@ class SPBWC_Storelly_Options_List_Table extends WP_List_Table {
         }
     }
    public function spbwc_delete_option($id) { // Added prefix
-         global $wpdb;
+         global $wpdb; // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Global variable $wpdb.
     if ( ! current_user_can( 'manage_options' ) ) return; 
          $table_name = $wpdb->prefix . 'storelly_product_builder_options';
          $result = $wpdb->delete($table_name, array('id' => absint($id)), array('%d'));
          if ($result) $this->spbwc_clear_transients();
     }
     public function spbwc_unpublish_option($id) { // Added prefix
-        global $wpdb;
+        global $wpdb; // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Global variable $wpdb.
         if ( ! current_user_can( 'manage_options' ) ) return; 
         $result = $wpdb->update($wpdb->prefix . 'storelly_product_builder_options', array(
         'published' => 0
@@ -123,7 +123,7 @@ class SPBWC_Storelly_Options_List_Table extends WP_List_Table {
         if ($result) $this->spbwc_clear_transients();
     }
     public function spbwc_publish_option($id) { // Added prefix
-        global $wpdb;
+        global $wpdb; // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Global variable $wpdb.
         if ( ! current_user_can( 'manage_options' ) ) return;
         $result = $wpdb->update($wpdb->prefix . 'storelly_product_builder_options', array(
            'published' => 1
@@ -131,7 +131,7 @@ class SPBWC_Storelly_Options_List_Table extends WP_List_Table {
         if ($result) $this->spbwc_clear_transients();
     }
     public function spbwc_copy_options($id) { // Added prefix
-        global $wpdb; 
+        global $wpdb; // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Global variable $wpdb. 
         if ( ! current_user_can( 'manage_options' ) ) return false;
         $table_name = $wpdb->prefix . 'storelly_product_builder_options';
         $result = $wpdb->get_results($wpdb->prepare("SELECT * FROM {$table_name} WHERE `id` = %d", absint($id)), 'ARRAY_A');
@@ -161,7 +161,7 @@ class SPBWC_Storelly_Options_List_Table extends WP_List_Table {
         return false;
     }
     private function spbwc_clear_transients() {
-        global $wpdb;
+        global $wpdb; // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Global variable $wpdb.
         // Delete plugin transients safely.
         $wpdb->query(
             $wpdb->prepare(

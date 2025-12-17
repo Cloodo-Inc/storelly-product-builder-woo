@@ -1,4 +1,7 @@
-<?php if (!defined('ABSPATH')) exit; ?>
+<?php 
+if (!defined('ABSPATH')) exit; 
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Template variables used in local scope.
+?>
 <div class="pcpb-field-header">
     <label for='pcpb-field-<?php echo esc_attr($field['id']); ?>'>
         <?php echo esc_html($field['general']['title']); ?>

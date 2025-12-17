@@ -20,15 +20,15 @@ License URI:            https://www.gnu.org/licenses/gpl-2.0.html
 Text Domain:            storelly-product-builder-for-woocommerce
 */
 
-$upload_dir = wp_upload_dir();
-$basedir    = $upload_dir['basedir'];
-$baseurl    = $upload_dir['baseurl'];
+$spbwc_upload_dir = wp_upload_dir();
+$spbwc_basedir    = $spbwc_upload_dir['basedir'];
+$spbwc_baseurl    = $spbwc_upload_dir['baseurl'];
 define('SPBWC_PB_VERSION',                  '1.0.0');
 define('SPBWC_PB_NUMBER_VERSION',           100);
 define('SPBWC_PB_PLUGIN_URL',               plugin_dir_url(__FILE__));
 define('SPBWC_PB_PLUGIN_DIR',               plugin_dir_path(__FILE__));
-define('SPBWC_PB_DATA_DIR',                 $basedir . '/storelly-product-builder');
-define('SPBWC_PB_DATA_URL',                 $baseurl . '/storelly-product-builder');
+define('SPBWC_PB_DATA_DIR',                 $spbwc_basedir . '/storelly-product-builder');
+define('SPBWC_PB_DATA_URL',                 $spbwc_baseurl . '/storelly-product-builder');
 define('SPBWC_PB_DATA_CONFIG_URL',          SPBWC_PB_PLUGIN_URL . 'data/');
 define('SPBWC_PB_DATA_CONFIG_DIR',          SPBWC_PB_PLUGIN_DIR . 'data/');
 define('SPBWC_PB_FONT_URL',                 SPBWC_PB_DATA_URL . '/fonts');

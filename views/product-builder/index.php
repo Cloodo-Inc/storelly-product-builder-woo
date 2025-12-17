@@ -16,7 +16,7 @@
     <?php
     include(SPBWC_PB_PLUGIN_DIR . 'views/product-builder/wrapper.php');
     function storelly_get_product_builder($id) {
-        global $wpdb;
+        global $wpdb; // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Global variable $wpdb.
         $table_name = $wpdb->prefix . 'storelly_product_builder_options';
         // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table name uses $wpdb->prefix and is trusted.
         $result = $wpdb->get_results($wpdb->prepare("SELECT * FROM {$table_name} WHERE `id` = %d", $id), 'ARRAY_A'); 
@@ -177,7 +177,7 @@
         );
     }
     function add_inline_pdf_styles() {
-        global $page_settings; 
+        global $page_settings; // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Global variable $page_settings. 
         if (empty($page_settings)) return;
     
      

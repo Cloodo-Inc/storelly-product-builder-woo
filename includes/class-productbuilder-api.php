@@ -95,7 +95,7 @@ if (!class_exists('SPBWC_Storelly_Product_Builder_API')) {
             }
             if(!empty($response)) return;
         
-            global $wpdb;
+            global $wpdb; // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Global variable $wpdb.
             $description = __('Storelly', 'storelly-product-builder-for-woocommerce');
             $permissions = 'read_write';
             $user_id     = get_current_user_id();

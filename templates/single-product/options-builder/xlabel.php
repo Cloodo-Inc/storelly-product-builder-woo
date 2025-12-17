@@ -1,4 +1,7 @@
-<?php if (!defined('ABSPATH')) exit; ?>
+<?php 
+if (!defined('ABSPATH')) exit; 
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Template variables used in local scope.
+?>
 <div nbo-adv-dropdown class="nbd-option-field pcpb-field-xlabel-wrap <?php echo esc_attr( $class ); ?>" data-id="<?php echo esc_attr( $field['id'] ); ?>" ng-if="nbd_fields['<?php echo esc_attr( $field['id'] ); ?>'].enable">
     <?php include( $currentDir .'/options-builder/field-header.php' ); ?>
     <div class="pcpb-field-content">

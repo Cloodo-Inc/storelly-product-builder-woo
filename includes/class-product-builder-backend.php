@@ -46,7 +46,7 @@ if (!class_exists('SPBWC_Storelly_Product_Builder_Backend')) {
         }
         public static function spbwc_plugin_activation($network_wide = '') {
             if (is_multisite() && $network_wide) {
-                global $wpdb;
+                global $wpdb; // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Global variable $wpdb.
                 foreach ($wpdb->get_col("SELECT blog_id FROM $wpdb->blogs") as $blog_id) {
                     switch_to_blog($blog_id);
                     self::spbwc__plugin_activation();

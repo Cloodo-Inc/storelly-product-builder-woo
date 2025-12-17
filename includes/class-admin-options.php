@@ -123,7 +123,7 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
                 'images'    => array()
             );
             // Nonce checked above in spbwc_get_media_full_size_url.
-            $raw_images = isset($_POST['images']) ? wp_unslash($_POST['images']) : array(); // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce verified earlier in this method.
+            $raw_images = isset($_POST['images']) ? wp_unslash($_POST['images']) : array(); // phpcs:ignore WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Nonce verified above. Input sanitized via array_map('absint') immediately after.
             $images     = is_array( $raw_images ) ? array_map( 'absint', $raw_images ) : array();
             if ( ! empty( $images ) ) {
                 foreach ( $images as $key => $image_id ) {
@@ -209,7 +209,7 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
             }
         }
         public function spbwc_create_options_table() {
-            global $wpdb;
+            global $wpdb; // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Global variable $wpdb.
             $collate = '';
             if ($wpdb->has_cap('collation')) {
                 $collate = $wpdb->get_charset_collate();
@@ -309,7 +309,7 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
                             wp_die( esc_html__( 'Security check failed.', 'storelly-product-builder-for-woocommerce' ) );
                         }
                         
-                        $result = $this->spbwc_save_option();
+                        $result = $this->spbwc_save_option( $id );
                         
                         if ($result['status']) {
                             
@@ -387,24 +387,23 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
             }
         }
         public function spbwc_unpublish_option($id) { 
-            global $wpdb;
+            global $wpdb; // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Global variable $wpdb.
             $result = $wpdb->update($wpdb->prefix . 'pc-product_builder_options', array(
                'published' => 0
             ), array('id' => absint($id))); 
             if ($result) $this->spbwc_clear_transients();
         }
         public function spbwc_get_option($id) { 
-            global $wpdb;
+            global $wpdb; // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Global variable $wpdb.
             $table_name = $wpdb->prefix . 'storelly_product_builder_options';
             // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table name built from $wpdb->prefix; values are parameterized below.
             $result = $wpdb->get_results( $wpdb->prepare( "SELECT * FROM {$table_name} WHERE `id` = %d", absint( $id ) ), 'ARRAY_A' );
             return count($result) ? $result[0] : false; 
         }
-        public function spbwc_save_option() {
+        public function spbwc_save_option( $id = 0 ) {
             if ( ! current_user_can( 'spbwc_manage_product_builder' ) ) {
                  return array( 'status' => false, 'id' => 0 );
             }
-            $id             = isset( $_REQUEST['id'] ) ? absint(wp_unslash($_REQUEST['id'])) : 0;
             $modified_date  = new DateTime();
             $title = isset($_POST['title']) ? sanitize_text_field(wp_unslash($_POST['title'])) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce verified in spbwc_product_builder_options.
             $product_ids = isset($_POST['product_ids']) ? array_map('absint', (array) wp_unslash($_POST['product_ids'])) : array(); // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce verified in spbwc_product_builder_options.
@@ -414,7 +413,7 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
                 'product_ids' => serialize($product_ids),
                 'modified'    => $modified_date->format('Y-m-d H:i:s')
             );
-            $post_options_raw = isset( $_POST['options'] ) ? wp_unslash( $_POST['options'] ) : array(); // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce verified in spbwc_product_builder_options before processing.
+            $post_options_raw = isset( $_POST['options'] ) ? wp_unslash( $_POST['options'] ) : array(); // phpcs:ignore WordPress.Security.NonceVerification.Missing,WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Nonce verified in spbwc_product_builder_options and data sanitized recursively via spbwc_sanitize_recursive.
             $post_options = spbwc_sanitize_recursive( $post_options_raw );
             if (isset($post_options['jsonFields'])) {
                 $post_options['fields'] = json_decode(stripslashes($post_options['jsonFields']), true); 
@@ -422,7 +421,7 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
             }
 
             $arr['fields'] = serialize($post_options);
-            global $wpdb;
+            global $wpdb; // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Global variable $wpdb.
             $date = new DateTime();
             if ($id > 0) {
                 $arr['modified']    = $date->format('Y-m-d H:i:s');
@@ -1075,7 +1074,7 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
                 }
             }
             if (isset($_POST['_storelly_pb_enable'])) { // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce verified in surrounding save_post handler.
-                $enable = wc_clean( wp_unslash( $_POST['_storelly_pb_enable'] ) );
+                $enable = sanitize_text_field( wp_unslash( $_POST['_storelly_pb_enable'] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce verified in surrounding save_post handler.
                 update_post_meta($post_id, '_storelly_pb_enable', $enable);
             }
         }
@@ -1117,7 +1116,7 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
             if ( ! isset( $_POST['fonts'] ) ) {
                 die('Empty data');
             } else {
-                $fonts_raw = wp_unslash( $_POST['fonts'] );
+                $fonts_raw = wp_unslash( $_POST['fonts'] ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- JSON string decoded and individual font properties sanitized below.
                 $fonts     = json_decode( $fonts_raw );
                 if ( empty( $fonts ) || ! is_array( $fonts ) ) {
                     die('Empty data');
@@ -1267,7 +1266,7 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
             if ( ! $download_nonce || ! wp_verify_nonce( $download_nonce, 'spbwc_download_order_designs' ) ) {
                 wp_send_json_error( array( 'mes' => esc_html__( 'Security error.', 'storelly-product-builder-for-woocommerce' ) ) );
             }
-            $item_ids_raw = isset( $_POST['item_ids'] ) ? wp_unslash( $_POST['item_ids'] ) : array();
+            $item_ids_raw = isset( $_POST['item_ids'] ) ? wp_unslash( $_POST['item_ids'] ) : array(); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- IDs cast to integers via absint before use.
             $item_ids      = is_array($item_ids_raw) ? array_map( 'absint', $item_ids_raw ) : array();
             $order_id      = isset($_POST['order_id']) ? absint( wp_unslash( $_POST['order_id'] ) ) : 0;
             $type_download = isset($_POST['type_download']) ? sanitize_text_field( wp_unslash( $_POST['type_download'] ) ) : '';

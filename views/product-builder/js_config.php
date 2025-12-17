@@ -1,12 +1,19 @@
 <?php
 if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly 
-$pcpb_cart_item_key  = (isset($_GET['pcpb_cart_item_key']) &&  sanitize_text_field($_GET['pcpb_cart_item_key']) != '') ? sanitize_text_field($_GET['pcpb_cart_item_key']) : '';
-$oid                = (isset($_GET['oid']) && $_GET['oid'] != '') ? absint(sanitize_text_field($_GET['oid'])) :  0;
-$redirect_url       = (isset($_GET['rd']) && $_GET['rd'] != '') ? SPBWC_Storelly_PB_Util::spbwc_get_redirect_url(sanitize_text_field($_GET['rd'])) :  '';
+
+// Read-only query args coming from WooCommerce edit/cart flows; no custom nonce is available.
+$pcpb_cart_item_key_raw = isset( $_GET['pcpb_cart_item_key'] ) ? wp_unslash( $_GET['pcpb_cart_item_key'] ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only query arg for builder configuration.
+$pcpb_cart_item_key     = '' !== $pcpb_cart_item_key_raw ? sanitize_text_field( $pcpb_cart_item_key_raw ) : '';
+
+$oid_raw = isset( $_GET['oid'] ) ? wp_unslash( $_GET['oid'] ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only query arg for builder configuration.
+$oid     = '' !== $oid_raw ? absint( sanitize_text_field( $oid_raw ) ) : 0;
+
+$rd_raw      = isset( $_GET['rd'] ) ? wp_unslash( $_GET['rd'] ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only redirect key used to compute safe redirect URL.
+$redirect_url = '' !== $rd_raw ? SPBWC_Storelly_PB_Util::spbwc_get_redirect_url( sanitize_text_field( $rd_raw ) ) : '';
 if ($is_creating_task == 0) {
     $oid = $option_id;
 } else if ($oid == 0) {
-    global $wp_query;
+    global $wp_query; // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Global variable $wp_query.
     $wp_query->set_404();
     status_header(404);
     get_template_part(404);

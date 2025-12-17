@@ -154,7 +154,7 @@ if (!class_exists('SPBWC_Storelly_PB_Util')) {
         public static function spbwc_get_wpml_original_id($id, $type = 'post', $current_lang = false)
         {
             if (class_exists('SitePress')) {
-                global $sitepress;
+                global $sitepress; // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Global variable $sitepress from WPML.
                 $langcode = $sitepress->get_default_language();
                 if ($current_lang) {
                     $langcode = $sitepress->get_current_language();
@@ -198,7 +198,7 @@ if (!class_exists('SPBWC_Storelly_PB_Util')) {
                     $data['design'] = self::spbwc_get_data_from_json($path . '/design.json');
                 }
             } else {
-                global $wpdb;
+                global $wpdb; // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Global variable $wpdb.
                 $table_name = $wpdb->prefix . 'storelly_product_builder_options';
                 // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table name uses $wpdb->prefix and is trusted.
                 $options = $wpdb->get_results($wpdb->prepare("SELECT builder FROM {$table_name} WHERE `id` = %d", $option_id), 'ARRAY_A');

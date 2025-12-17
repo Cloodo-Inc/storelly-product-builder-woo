@@ -23,7 +23,7 @@ if (!class_exists('SPBWC_SPBWC_Storelly_PB_Script_Hook')) {
 
         public function spbwc_print_styles($handles = false)
         {
-            global $wp_styles;
+            global $wp_styles; // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Global variable $wp_styles.
 
             _wp_scripts_maybe_doing_it_wrong(__FUNCTION__);
 
@@ -38,7 +38,7 @@ if (!class_exists('SPBWC_SPBWC_Storelly_PB_Script_Hook')) {
 
         public function spbwc_print_scripts($handles = false)
         {
-            global $wp_scripts;
+            global $wp_scripts; // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Global variable $wp_scripts.
 
             _wp_scripts_maybe_doing_it_wrong(__FUNCTION__);
 

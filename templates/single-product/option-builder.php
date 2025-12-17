@@ -1,6 +1,7 @@
 <?php
 do_action('spbwc_head', 'single-product');
 if (!defined('ABSPATH')) exit;
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Template variables are used within the local scope of the template.
 $in_quick_view      = false;
 $is_wqv             = false;
 $display_type       = '1';
@@ -18,8 +19,9 @@ $nbds_frontend = array(
 
 $prefix             = '';
 $style_class        = 'nbo-style-1';
+// phpcs:enable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound
 
-$currentDir = realpath(dirname(__FILE__));
+$currentDir = realpath(dirname(__FILE__)); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Template variable.
 
 ?>
 <div class="nbo-wrapper <?php if ($is_wqv) echo esc_attr('nbd-option-in-wqv'); ?> <?php echo esc_attr('wrapper-type-' . $display_type); ?>">
@@ -27,6 +29,7 @@ $currentDir = realpath(dirname(__FILE__));
         <div ng-controller="optionCtrl" ng-form="nboForm" id="nbo-ctrl-<?php echo esc_attr($appid); ?>" ng-cloak>
             <div class="nbo-fields-wrapper">
                 <?php
+                // phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Template variables used in loop.
                 $html_field         = '';
                 $has_nbpb           = false;
                 $artwork_action     = '';
@@ -92,6 +95,7 @@ $currentDir = realpath(dirname(__FILE__));
                 $show_quantity_option   = false;
 
                 $popup_fields   = array();
+                // phpcs:enable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound
                 if ($has_nbpb) do_action('spbwc_after_default_options');
                 ?>
                 <div ng-if="fields.length" class="nbo-clear-option-wrap">

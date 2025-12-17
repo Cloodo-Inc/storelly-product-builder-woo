@@ -1,14 +1,14 @@
 <?php if (!defined('ABSPATH')) exit; ?>
 <?php
 $link = add_query_arg(array(
-    'paged'    => sanitize_text_field($_GET['paged'])
+    'paged'    => isset($_GET['paged']) ? sanitize_text_field( wp_unslash( $_GET['paged'] ) ) : 1 // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only admin query arg used to build navigation link.
 ), admin_url('admin.php?page=storelly-product-builder-for-woocommerce-options'));
 $link_update = add_query_arg(array(
     'action'    => 'update',
     'id'        => $options['id'],
 ), admin_url('admin.php?page=storelly-product-builder-for-woocommerce-options'));
 $link_unpublish = add_query_arg(array(
-    'id'        => sanitize_text_field($_GET['id']),
+    'id'        => isset($_GET['id']) ? sanitize_text_field( wp_unslash( $_GET['id'] ) ) : 0, // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only admin query arg used to build action link.
     'action'    => 'unpublish'
 ), $link);
 $link_create_option = add_query_arg(
@@ -22,8 +22,8 @@ $link_create_option = add_query_arg(
 wp_enqueue_media();
 
 $link_create_pre_builder = add_query_arg(array(
-    'oid'   => sanitize_text_field($_GET['id']),
-    'paged' => sanitize_text_field($_GET['paged']),
+    'oid'   => isset($_GET['id']) ? sanitize_text_field( wp_unslash( $_GET['id'] ) ) : 0, // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only admin query arg used to build action link.
+    'paged' => isset($_GET['paged']) ? sanitize_text_field( wp_unslash( $_GET['paged'] ) ) : 1, // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only admin query arg used to build action link.
     'rd'    => 'print_option'
 ), SPBWC_Storelly_PB_Util::spbwc_get_url_page('product_builder'));
 ?>
