@@ -1,5 +1,6 @@
 <?php
 if (!defined('ABSPATH')) exit;
+// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Template variable.
 $link_create_option = add_query_arg(
     array(
         'action'    => 'edit',

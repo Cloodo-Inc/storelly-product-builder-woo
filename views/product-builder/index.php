@@ -6,7 +6,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <?php do_action('spbwc_head', 'product-builder'); ?>
     <?php
+    // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Template variable.
     $is_nbpb_creating_task = true;
+    // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Template variable.
     $is_creating_task = 1;
     include 'js_config.php';
     ?>
@@ -156,27 +158,27 @@
             }
         }
     }
-    function enqueue_pdf_styles() {
+    function spbwc_enqueue_pdf_styles() {
       
         wp_register_style(
             'normalize-css',
             get_home_url() . '/assets/css/views/normalize.css',
             array(), 
-            null 
+            '1.0.0' 
         );
     
         wp_enqueue_style('normalize-css');
     }
-    function enqueue_google_fonts() {
+    function spbwc_enqueue_google_fonts() {
         
         wp_enqueue_style(
             'google-fonts', 
             'https://fonts.googleapis.com/css?family=Roboto:400,400i,700,700i', 
             array(),
-            null 
+            '1.0.0' 
         );
     }
-    function add_inline_pdf_styles() {
+    function spbwc_add_inline_pdf_styles() {
         global $page_settings; // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Global variable $page_settings. 
         if (empty($page_settings)) return;
     
@@ -217,9 +219,9 @@
         wp_add_inline_style('normalize-css', $custom_css);
     }
     function spbwc_custom_pdf_enqueue_assets() {
-        enqueue_pdf_styles(); 
-        enqueue_google_fonts(); 
-        add_inline_pdf_styles();
+        spbwc_enqueue_pdf_styles(); 
+        spbwc_enqueue_google_fonts(); 
+        spbwc_add_inline_pdf_styles();
     }
     add_action('wp_enqueue_scripts', 'spbwc_custom_pdf_enqueue_assets');
                 

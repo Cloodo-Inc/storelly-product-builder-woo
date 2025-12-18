@@ -181,7 +181,8 @@ if (!class_exists('SPBWC_Storelly_PB_Util')) {
                     $redirect_url = add_query_arg($get, admin_url('admin.php?page=storelly-product-builder-for-woocommerce-options'));
                     break;
                 default:
-                    $redirect_url = $rd;
+                    // Sanitize redirect URL to prevent injection attacks
+                    $redirect_url = esc_url_raw( $rd );
                     break;
             }
             return apply_filters('storelly_redirect_url', $redirect_url);

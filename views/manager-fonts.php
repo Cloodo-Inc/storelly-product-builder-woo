@@ -24,6 +24,7 @@
                 <select ng-model="filterFont.subset" ng-change="resetCurentPage()">
                     <option value=""><?php esc_html_e('All subsets', 'storelly-product-builder-for-woocommerce'); ?></option>
                     <?php
+                    // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Template variable.
                     foreach ($subsets as $key => $subset) :
                     ?>
                         <option value="<?php echo esc_attr($key); ?>" <?php selected($key, $current_subset); ?>><?php echo esc_html($subset['name']); ?></option>

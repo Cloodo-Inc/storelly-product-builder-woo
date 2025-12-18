@@ -15,6 +15,7 @@ if (!class_exists('STORELLY_FRONTEND_OPTIONS')) {
 
             if (isset($_REQUEST['pcpb_cart_item_key'])) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- WooCommerce cart edit flow.
                 // Value comes from WooCommerce cart edit flow; no nonce available in core flow.
+                // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- WooCommerce cart edit flow.
                 $cart_key     = sanitize_text_field( wp_unslash( $_REQUEST['pcpb_cart_item_key'] ) );
                 if ('' !== $cart_key) {
                     $this->is_edit_mode  = true;
@@ -222,8 +223,10 @@ if (!class_exists('STORELLY_FRONTEND_OPTIONS')) {
                     $nbdpb_enable   = get_post_meta($product_id, '_storelly_pb_enable', true);
 
                     if ( isset( $_POST['pcpb-field'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing -- WooCommerce add-to-cart form verification.
+                        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- WooCommerce add-to-cart form verification.
                         $form_values = map_deep( wp_unslash( $_POST['pcpb-field'] ), 'sanitize_text_field' );
                     } elseif ( isset( $_GET['pcpb_cart_item_key'] ) && '' !== sanitize_text_field( wp_unslash( $_GET['pcpb_cart_item_key'] ) ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- WooCommerce cart edit link does not include a custom nonce.
+                        // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- WooCommerce cart edit link does not include a custom nonce.
                         $cart_item_key     = sanitize_text_field( wp_unslash( $_GET['pcpb_cart_item_key'] ) );
                         $cart_item         = WC()->cart->get_cart_item( $cart_item_key );
                         if ( isset( $cart_item['pcpb_meta'] ) ) {
@@ -394,8 +397,10 @@ if (!class_exists('STORELLY_FRONTEND_OPTIONS')) {
                     $nbdpb_enable   = get_post_meta($product_id, '_storelly_pb_enable', true);
 
                     if ( isset( $_POST['pcpb-field'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing -- WooCommerce add-to-cart form verification.
+                        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- WooCommerce add-to-cart form verification.
                         $form_values = map_deep( wp_unslash( $_POST['pcpb-field'] ), 'sanitize_text_field' );
                     } elseif ( isset( $_GET['pcpb_cart_item_key'] ) && '' !== sanitize_text_field( wp_unslash( $_GET['pcpb_cart_item_key'] ) ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- WooCommerce cart edit link.
+                        // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- WooCommerce cart edit link.
                         $cart_item_key     = sanitize_text_field( wp_unslash( $_GET['pcpb_cart_item_key'] ) );
                         $cart_item         = WC()->cart->get_cart_item( $cart_item_key );
                         if ( isset( $cart_item['pcpb_meta'] ) ) {
@@ -473,7 +478,7 @@ if (!class_exists('STORELLY_FRONTEND_OPTIONS')) {
                     unset($cart_item_data['pcpb-field']);
                 } else { 
                     if ( ! empty( $_FILES ) && isset( $_FILES['pcpb-field'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing -- WooCommerce add-to-cart flow.
-                        // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- File upload array is processed by wp_handle_upload which handles validation and sanitization.
+                        // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized, WordPress.Security.NonceVerification.Missing -- File upload array is processed by wp_handle_upload which handles validation and sanitization.
                         $files = $_FILES['pcpb-field']; // phpcs:ignore WordPress.Security.NonceVerification.Missing -- WooCommerce add-to-cart flow.
                         foreach ( $files['name'] as $field_id => $file_name ) {
                             if ( ! isset( $nbd_field[ $field_id ] ) ) {

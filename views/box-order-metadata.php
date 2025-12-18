@@ -3,10 +3,13 @@
 <div id="storelly_order_info">
     <?php if (is_array($order_items)) : ?>
         <?php
+        // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Template variable.
         $count_img_design = 0;
+        // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Template variable.
         $src_img = SPBWC_PB_PLUGIN_URL . 'assets/images/loading.gif';
         ?>
-        <?php foreach ($order_items as $order_item_id => $order_item) :
+        <?php foreach ($order_items as $order_item_id => $order_item) : // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Template variable.
+            // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Template variable.
             $folder_design = wc_get_order_item_meta($order_item_id, '_pcpb_folder', true);
             if ($folder_design) : ?>
                 <div class="storelly_order_product_name">
@@ -17,19 +20,23 @@
                 </div>
                 <hr />
                 <?php
+                // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Template variable.
                 $list_images = SPBWC_Storelly_IO::spbwc_get_list_images(SPBWC_PB_CUSTOMER_DIR . '/' . $folder_design . '/preview', 1);
                 asort($list_images);
+                // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Template variable.
                 $link_view_detail = '';
                 if (count($list_images) > 0) : ?>
                     <input type="checkbox" name="_storelly_order_item_id[]" class="storelly_order_item_id" value="<?php echo esc_attr($order_item_id); ?>" />
-                    <?php foreach ($list_images as $key => $image) : ?>
+                    <?php foreach ($list_images as $key => $image) : // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Template variable. ?>
                         <?php
                         $count_img_design++;
+                        // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Template variable.
                         $src = SPBWC_Storelly_IO::spbwc_convert_path_to_url($image);
                         ?>
                         <img class="storelly_order_image_design" src="<?php echo esc_url($src); ?>" />
                     <?php endforeach; ?>
                     <?php
+                    // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Template variable.
                     $link_view_detail = add_query_arg(array(
                         'nbd_item_key'   => $folder_design,
                     ), SPBWC_Storelly_PB_Util::spbwc_get_url_page('product_builder'));

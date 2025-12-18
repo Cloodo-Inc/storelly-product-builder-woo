@@ -3,14 +3,17 @@
 $link = add_query_arg(array(
     'paged'    => isset($_GET['paged']) ? sanitize_text_field( wp_unslash( $_GET['paged'] ) ) : 1 // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only admin query arg used to build navigation link.
 ), admin_url('admin.php?page=storelly-product-builder-for-woocommerce-options'));
+// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Template variable.
 $link_update = add_query_arg(array(
     'action'    => 'update',
     'id'        => $options['id'],
 ), admin_url('admin.php?page=storelly-product-builder-for-woocommerce-options'));
+// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Template variable.
 $link_unpublish = add_query_arg(array(
     'id'        => isset($_GET['id']) ? sanitize_text_field( wp_unslash( $_GET['id'] ) ) : 0, // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only admin query arg used to build action link.
     'action'    => 'unpublish'
 ), $link);
+// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Template variable.
 $link_create_option = add_query_arg(
     array(
         'action'    => 'create',
@@ -21,6 +24,7 @@ $link_create_option = add_query_arg(
 );
 wp_enqueue_media();
 
+// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Template variable.
 $link_create_pre_builder = add_query_arg(array(
     'oid'   => isset($_GET['id']) ? sanitize_text_field( wp_unslash( $_GET['id'] ) ) : 0, // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only admin query arg used to build action link.
     'paged' => isset($_GET['paged']) ? sanitize_text_field( wp_unslash( $_GET['paged'] ) ) : 1, // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only admin query arg used to build action link.
@@ -30,6 +34,7 @@ $link_create_pre_builder = add_query_arg(array(
 <div class="wrap">
     <h2>
         <?php 
+        // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Template variable.
         $current_id = isset($options['id']) ? $options['id'] : 0; 
         if ($current_id == 0) {
             esc_html_e('Create New Option', 'storelly-product-builder-for-woocommerce'); 
@@ -42,6 +47,7 @@ $link_create_pre_builder = add_query_arg(array(
 </div>
 <div class="message">
     <?php if (isset($message['flag'])) {
+        // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Template variable.
         $message = SPBWC_Storelly_PB_Util::spbwc_custom_notices($message['flag'], $message['content']);
         echo wp_kses_post($message);
     } ?>
@@ -104,7 +110,9 @@ $link_create_pre_builder = add_query_arg(array(
                                 <label for="product_ids" style="display: inline-block;margin-bottom: 10px;"><?php esc_html_e('Select the Products to apply the options', 'storelly-product-builder-for-woocommerce') ?></label>
                                 <select name="product_ids[]" id="product_ids" class="wc-product-search" multiple="multiple" style="width: 100%;" data-placeholder="<?php esc_html_e('Search for a product&hellip;', 'storelly-product-builder-for-woocommerce'); ?>" data-action="woocommerce_json_search_products">
                                     <?php
+                                    // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Template variable.
                                     foreach ($options['product_ids'] as $product_id) {
+                                        // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Template variable.
                                         $product = wc_get_product($product_id);
                                         if (is_object($product)) {
                                             echo '<option value="' . esc_attr($product_id) . '"' . selected(TRUE, TRUE, FALSE) . '>' . wp_kses_post($product->get_formatted_name()) . '</option>';

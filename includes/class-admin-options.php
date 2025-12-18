@@ -235,10 +235,10 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
             }
         }
         public function spbwc_admin_enqueue_scripts($hook) {
-            wp_register_script('spbwc-ag', SPBWC_PB_PLUGIN_URL . 'assets/libs/builderproductag.min.js', array('jquery'), '1.6.9');  
-            wp_register_script('spbwc-snap-svg', SPBWC_PB_ASSETS_URL . 'libs/snap.svg.js', array(), '0.3.0');
-            wp_register_script('spbwc-tiptip', SPBWC_PB_ASSETS_URL . 'js/tiptip.js', array('jquery'), SPBWC_PB_VERSION);
-            wp_register_script('spbwc-fontfaceobserver', SPBWC_PB_PLUGIN_URL . 'assets/libs/fontfaceobserver.js', array(), '2.0.13');
+            wp_register_script('spbwc-ag', SPBWC_PB_PLUGIN_URL . 'assets/libs/builderproductag.min.js', array('jquery'), '1.6.9', true);  
+            wp_register_script('spbwc-snap-svg', SPBWC_PB_ASSETS_URL . 'libs/snap.svg.js', array(), '0.3.0', true);
+            wp_register_script('spbwc-tiptip', SPBWC_PB_ASSETS_URL . 'js/tiptip.js', array('jquery'), SPBWC_PB_VERSION, true);
+            wp_register_script('spbwc-fontfaceobserver', SPBWC_PB_PLUGIN_URL . 'assets/libs/fontfaceobserver.js', array(), '2.0.13', true);
             wp_register_script('spbwc-sweetalert-js', SPBWC_PB_PLUGIN_URL . 'assets/libs/sweetalert.min.js', array(), '5.6.10', true);
             wp_register_script('spbwc-general-js', SPBWC_PB_ASSETS_URL . 'js/storelly-general.js', array('jquery'), SPBWC_PB_VERSION, true);
 
@@ -258,7 +258,7 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
             wp_enqueue_script('spbwc-general-js');
 
             if ($hook == 'toplevel_page_storelly-product-builder-for-woocommerce-options') {
-                wp_register_script('spbwc-options-script', SPBWC_PB_JS_URL . 'admin-options.js', array('jquery', 'wpdialogs', 'jquery-ui-resizable', 'jquery-ui-draggable', 'jquery-ui-droppable', 'jquery-ui-sortable', 'jquery-ui-datepicker', 'jquery-ui-autocomplete', 'wp-color-picker', 'spbwc-ag', 'wc-enhanced-select', 'spbwc-snap-svg', 'spbwc-tiptip'), SPBWC_PB_VERSION);
+                wp_register_script('spbwc-options-script', SPBWC_PB_JS_URL . 'admin-options.js', array('jquery', 'wpdialogs', 'jquery-ui-resizable', 'jquery-ui-draggable', 'jquery-ui-droppable', 'jquery-ui-sortable', 'jquery-ui-datepicker', 'jquery-ui-autocomplete', 'wp-color-picker', 'spbwc-ag', 'wc-enhanced-select', 'spbwc-snap-svg', 'spbwc-tiptip'), SPBWC_PB_VERSION, true);
                 wp_localize_script('spbwc-options-script', 'storelly_options', array(
                     'search_products_nonce'     => wp_create_nonce("search-products"),
                     'calendar_image'            => SPBWC_PB_PLUGIN_URL . 'assets/images/calendar.png',
@@ -369,7 +369,7 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
                         }
                     }
                     
-                    wp_register_script('spbwc_option_field_script', SPBWC_PB_JS_URL . 'admin-options.js');
+                    wp_register_script('spbwc_option_field_script', SPBWC_PB_JS_URL . 'admin-options.js', array(), SPBWC_PB_VERSION, true);
                     wp_localize_script('spbwc_option_field_script', 'storelly_option_variable', array(
                         'STORELLY_OPTIONS' =>  $options,
                         'STORELLY_OPTION_FIELD' => $default_field,

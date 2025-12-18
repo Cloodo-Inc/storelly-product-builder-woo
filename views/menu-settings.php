@@ -1,13 +1,18 @@
 <?php
 if (!defined('ABSPATH')) exit; // Exit if accessed directly  
-?>
-<?php
+
+// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Template variable.
 $api_key = maybe_unserialize(get_option('spbwc_connect_api_keys'));
 
+// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Template variable.
 $sid = isset($api_key['consumer_key']) ? $api_key['consumer_key'] : '';
+// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Template variable.
 $secret = isset($api_key['consumer_secret']) ? $api_key['consumer_secret'] : '';
+// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Template variable.
 $url_new_product = get_home_url() . '/wp-admin/post-new.php?post_type=product';
+// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Template variable.
 $stt_yes_cloud2print_api = isset($storelly_pb_settings['enable_cloud2print_api']) && $storelly_pb_settings['enable_cloud2print_api'] == 'yes' ? 'checked' : '';
+// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Template variable.
 $stt_no_cloud2print_api = isset($storelly_pb_settings['enable_cloud2print_api']) && $storelly_pb_settings['enable_cloud2print_api'] == 'no' ? 'checked' : '';
 ?>
 

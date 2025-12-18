@@ -3,29 +3,29 @@ if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 
 // Read-only query args coming from WooCommerce edit/cart flows; no custom nonce is available.
 $pcpb_cart_item_key_raw = isset( $_GET['pcpb_cart_item_key'] ) ? wp_unslash( $_GET['pcpb_cart_item_key'] ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only query arg for builder configuration.
-$pcpb_cart_item_key     = '' !== $pcpb_cart_item_key_raw ? sanitize_text_field( $pcpb_cart_item_key_raw ) : '';
+$pcpb_cart_item_key     = '' !== $pcpb_cart_item_key_raw ? sanitize_text_field( $pcpb_cart_item_key_raw ) : ''; // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Local template variable.
 
 $oid_raw = isset( $_GET['oid'] ) ? wp_unslash( $_GET['oid'] ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only query arg for builder configuration.
-$oid     = '' !== $oid_raw ? absint( sanitize_text_field( $oid_raw ) ) : 0;
+$oid     = '' !== $oid_raw ? absint( sanitize_text_field( $oid_raw ) ) : 0; // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Local template variable.
 
 $rd_raw      = isset( $_GET['rd'] ) ? wp_unslash( $_GET['rd'] ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only redirect key used to compute safe redirect URL.
-$redirect_url = '' !== $rd_raw ? SPBWC_Storelly_PB_Util::spbwc_get_redirect_url( sanitize_text_field( $rd_raw ) ) : '';
-if ($is_creating_task == 0) {
-    $oid = $option_id;
-} else if ($oid == 0) {
+$redirect_url = '' !== $rd_raw ? SPBWC_Storelly_PB_Util::spbwc_get_redirect_url( sanitize_text_field( $rd_raw ) ) : ''; // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Local template variable.
+if ($is_creating_task == 0) { // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Global variable defined by parent template.
+    $oid = $option_id; // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Local template variable.
+} else if ($oid == 0) { // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Local template variable.
     global $wp_query; // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Global variable $wp_query.
     $wp_query->set_404();
     status_header(404);
     get_template_part(404);
     exit();
 }
-$fonts = array();
-$google_fonts = array();
+$fonts = array(); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Local template variable.
+$google_fonts = array(); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Local template variable.
 if (file_exists(SPBWC_PB_FONT_DIR . '/googlefonts.json')) {
-    $google_fonts = (array)json_decode(file_get_contents(SPBWC_PB_FONT_DIR . '/googlefonts.json'));
+    $google_fonts = (array)json_decode(file_get_contents(SPBWC_PB_FONT_DIR . '/googlefonts.json')); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Local template variable.
 }
-$fonts      = $google_fonts;
-$font_url   = SPBWC_PB_FONT_URL;
+$fonts      = $google_fonts; // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Local template variable.
+$font_url   = SPBWC_PB_FONT_URL; // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Local template variable.
 wp_localize_script( 'product-builder', 'NBPBCONFIG', array(
         'is_mobile' => wp_is_mobile(),
         'is_creating_task' => $is_creating_task,

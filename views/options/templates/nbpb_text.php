@@ -38,18 +38,24 @@
     </div>
     <div class="pcpb-field-info-2">
         <?php
+        // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Template variable.
         $custom_fonts = array();
         if (file_exists(SPBWC_PB_ASSETS_DIR . '/fonts.json')) {
+            // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound, WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- Template variable; reading local JSON config file.
             $custom_fonts = (array)json_decode(file_get_contents(SPBWC_PB_ASSETS_DIR . '/fonts.json'));
         }
         ?>
         <select nbd-select2 name="options[fields][{{fieldIndex}}][general][nbpb_text_configs][custom_fonts][]" ng-model="field.general.nbpb_text_configs.custom_fonts" multiple="multiple">
-            <?php foreach ($custom_fonts as $font) : ?>
+            <?php foreach ($custom_fonts as $font) : // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Template variable. ?>
                 <?php
+                // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Template variable.
                 $font_id = $font->id;
+                // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Template variable.
                 $font_name = $font->name;
                 if ($enable_storelly_api) {
+                    // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Template variable.
                     $font_id = isset($font['id']) ? $font['id'] : '';
+                    // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Template variable.
                     $font_name = isset($font['name']) ? $font['name'] : '';
                 }
                 ?>
@@ -64,13 +70,15 @@
     </div>
     <div class="pcpb-field-info-2">
         <?php
+        // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Template variable.
         $google_fonts = array();
         if (file_exists(SPBWC_PB_DATA_CONFIG_DIR . '/googlefonts.json')) {
+            // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound, WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- Template variable; reading local JSON config file.
             $google_fonts = (array)json_decode(file_get_contents(SPBWC_PB_DATA_CONFIG_DIR . '/googlefonts.json'));
         }
         ?>
         <select nbd-select2 name="options[fields][{{fieldIndex}}][general][nbpb_text_configs][google_fonts][]" ng-model="field.general.nbpb_text_configs.google_fonts" multiple="multiple">
-            <?php foreach ($google_fonts as $font) : ?>
+            <?php foreach ($google_fonts as $font) : // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Template variable. ?>
                 <option value="<?php echo esc_attr($font->id); ?>"><?php echo esc_html($font->name); ?></option>
             <?php endforeach; ?>
         </select>

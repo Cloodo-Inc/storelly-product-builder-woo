@@ -134,6 +134,7 @@ class SPBWC_Storelly_Options_List_Table extends WP_List_Table {
         global $wpdb; // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Global variable $wpdb. 
         if ( ! current_user_can( 'manage_options' ) ) return false;
         $table_name = $wpdb->prefix . 'storelly_product_builder_options';
+        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table name uses $wpdb->prefix and is trusted.
         $result = $wpdb->get_results($wpdb->prepare("SELECT * FROM {$table_name} WHERE `id` = %d", absint($id)), 'ARRAY_A');
         
         if (count($result)) {

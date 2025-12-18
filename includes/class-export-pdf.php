@@ -216,7 +216,7 @@ if (!class_exists('SPBWC_Storelly_Export_PDF')) {
             }  
             if (!empty($google_fonts)) {
                 $google_font_url = '//fonts.googleapis.com/css?family=' . implode('|', $google_fonts) . ':400,400i,700,700i';
-                wp_enqueue_style('custom-google-fonts', $google_font_url, array(), null);
+                wp_enqueue_style('custom-google-fonts', $google_font_url, array(), '1.0.0');
             }
         }
         

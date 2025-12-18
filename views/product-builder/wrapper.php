@@ -1,10 +1,10 @@
 <?php
     if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly 
     if( !(isset($is_nbpb_creating_task) && $is_nbpb_creating_task) ){
-        $is_creating_task = 0;
+        $is_creating_task = 0; // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Global variable defined by parent template.
         include 'js_config.php';
     }
-    if($is_creating_task == 1):
+    if($is_creating_task == 1): // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Global variable defined by parent template.
 ?>
 <div class="nbdpb-load-page nbdpb-show">
     <div class="nbpb-loader">
@@ -14,8 +14,8 @@
     </div>
 </div>
 <?php endif; ?>
-<div class="nbdpb-popup popup-design <?php echo esc_attr($is_creating_task == 0 && is_admin_bar_showing()) ? 'is-admin-bar' : ''; ?>" data-animate="scale">
-    <?php if( $is_creating_task == 0 ): ?>
+<div class="nbdpb-popup popup-design <?php echo esc_attr($is_creating_task == 0 && is_admin_bar_showing()) ? 'is-admin-bar' : ''; // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Global variable defined by parent template. ?>" data-animate="scale">
+    <?php if( $is_creating_task == 0 ): // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Global variable defined by parent template. ?>
     <div class="nbdpb-load-page">
         <div class="nbpb-loader">
             <svg class="circular" viewBox="25 25 50 50">
@@ -24,7 +24,7 @@
         </div>
     </div>
     <?php endif; ?>
-    <?php if( $is_creating_task == 0 ): ?><i class="icon-nbd icon-nbd-clear close-popup"></i><?php endif; ?>
+    <?php if( $is_creating_task == 0 ): // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Global variable defined by parent template. ?><i class="icon-nbd icon-nbd-clear close-popup"></i><?php endif; ?>
     <div id="nbdpb-app" class="nbdpb-product-builder nbdpb-full-contain">
         <div ng-controller="nbpbCtrl" class="nbdpb-full-contain">
             <div id="nbpb-container" class="nbdpb-full-contain">
@@ -144,10 +144,10 @@
                                                     <label><?php esc_html_e('Font family', 'storelly-product-builder-for-woocommerce'); ?></label>
                                                     <div ng-if="resource.currentComponentObj.general.nbpb_text_configs.allow_all_font == 'y'">
                                                         <select class="nbpb-dropdown" ng-change="updateText()" ng-model="resource.components[resource.currentComponent].currentFontId">
-                                                            <?php foreach($fonts as $font): ?>
+                                                            <?php foreach($fonts as $font): // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Global variable defined by parent template. ?>
                                                                 <?php
-                                                                    $font_prefix = ($font->type == 'google') ? 'g' : 'c';
-                                                                    $font_value  = $font_prefix . $font->id;
+                                                                    $font_prefix = ($font->type == 'google') ? 'g' : 'c'; // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Local template variable.
+                                                                    $font_value  = $font_prefix . $font->id; // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Local template variable.
                                                                 ?>
                                                             <option value="<?php echo esc_attr( $font_value ); ?>"><?php echo esc_html($font->name ); ?></option>
                                                             <?php endforeach; ?>

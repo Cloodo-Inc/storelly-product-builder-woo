@@ -1,5 +1,6 @@
 <?php if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly 
 
+// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Template variable.
 $link_css_pdf = get_home_url().'/assets/css/views/normalize.css';
 ?>
 <html>
