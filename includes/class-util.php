@@ -168,7 +168,7 @@ if (!class_exists('SPBWC_Storelly_PB_Util')) {
         public static function spbwc_get_redirect_url()
         {
             // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Reading readonly query arg for redirect helper.
-            $rd = isset($_GET['rd']) ? wc_clean( wp_unslash( $_GET['rd'] ) ) : '';
+            $rd = isset($_GET['rd']) ? wc_clean( sanitize_text_field( wp_unslash( $_GET['rd'] ) ) ) : '';
             switch ($rd) {
                 case 'print_option':
                     $get = array(
@@ -201,7 +201,7 @@ if (!class_exists('SPBWC_Storelly_PB_Util')) {
             } else {
                 global $wpdb; // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Global variable $wpdb.
                 $table_name = $wpdb->prefix . 'storelly_product_builder_options';
-                // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table name uses $wpdb->prefix and is trusted.
+                // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter -- Table name uses $wpdb->prefix and is trusted.
                 $options = $wpdb->get_results($wpdb->prepare("SELECT builder FROM {$table_name} WHERE `id` = %d", $option_id), 'ARRAY_A');
                 if (isset($options[0])) {
                     $builder_folder = $options[0]['builder'];

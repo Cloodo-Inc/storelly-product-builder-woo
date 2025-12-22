@@ -20,9 +20,23 @@
     function storelly_get_product_builder($id) {
         global $wpdb; // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Global variable $wpdb.
         $table_name = $wpdb->prefix . 'storelly_product_builder_options';
-        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table name uses $wpdb->prefix and is trusted.
-        $result = $wpdb->get_results($wpdb->prepare("SELECT * FROM {$table_name} WHERE `id` = %d", $id), 'ARRAY_A'); 
-        return count($result[0]) ? $result[0] : false;
+        
+        $cache_key = 'storelly_pb_option_' . $id;
+        $cache_group = 'storelly_product_builder';
+        $result = wp_cache_get( $cache_key, $cache_group );
+
+        if ( false === $result ) {
+            // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter -- Query is cached, table name uses prefix.
+            $rows = $wpdb->get_results($wpdb->prepare("SELECT * FROM {$table_name} WHERE `id` = %d", $id), 'ARRAY_A');
+            $result = ( ! empty( $rows ) && isset( $rows[0] ) ) ? $rows[0] : 'not_found';
+            wp_cache_set( $cache_key, $result, $cache_group );
+        }
+        
+        if ( 'not_found' === $result ) {
+            return false;
+        }
+        
+        return $result;
     }
     function storelly_recursive_stripslashes($fields) {
         $valid_fields = array();

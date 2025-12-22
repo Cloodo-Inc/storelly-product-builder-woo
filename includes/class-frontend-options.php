@@ -78,7 +78,7 @@ if (!class_exists('STORELLY_FRONTEND_OPTIONS')) {
         public static function get_option($id) {
             global $wpdb; // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Global variable $wpdb.
             $table_name = $wpdb->prefix . 'storelly_product_builder_options';
-            // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table name built from $wpdb->prefix; value parameterized.
+            // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter -- Table name built from $wpdb->prefix; value parameterized.
             $options = $wpdb->get_results( $wpdb->prepare( "SELECT * FROM $table_name WHERE `id` = %d", absint( $id ) ), 'ARRAY_A' );  
             return count($options[0]) ? $options[0] : false;
         }
@@ -89,7 +89,7 @@ if (!class_exists('STORELLY_FRONTEND_OPTIONS')) {
             if (false === $option_id) {
                 global $wpdb; // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Global variable $wpdb.
                 $table_name = $wpdb->prefix . 'storelly_product_builder_options';
-                // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table name built from $wpdb->prefix; value parameterized.
+                // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter -- Table name built from $wpdb->prefix; value parameterized.
                 $options = $wpdb->get_results( $wpdb->prepare( "SELECT id, product_ids FROM $table_name WHERE published = %d", 1 ), 'ARRAY_A' );   
                 if ($options) {
                     $_options = array();
@@ -478,8 +478,7 @@ if (!class_exists('STORELLY_FRONTEND_OPTIONS')) {
                     unset($cart_item_data['pcpb-field']);
                 } else { 
                     if ( ! empty( $_FILES ) && isset( $_FILES['pcpb-field'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing -- WooCommerce add-to-cart flow.
-                        // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized, WordPress.Security.NonceVerification.Missing -- File upload array is processed by wp_handle_upload which handles validation and sanitization.
-                        $files = $_FILES['pcpb-field']; // phpcs:ignore WordPress.Security.NonceVerification.Missing -- WooCommerce add-to-cart flow.
+                        $files = $_FILES['pcpb-field']; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized, WordPress.Security.NonceVerification.Missing -- File upload array is processed by wp_handle_upload which handles validation and sanitization.
                         foreach ( $files['name'] as $field_id => $file_name ) {
                             if ( ! isset( $nbd_field[ $field_id ] ) ) {
                                 $nbd_upload_field = $this->upload_file( $files, $field_id );

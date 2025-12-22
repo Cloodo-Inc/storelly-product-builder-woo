@@ -2,14 +2,14 @@
 if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly 
 
 // Read-only query args coming from WooCommerce edit/cart flows; no custom nonce is available.
-$pcpb_cart_item_key_raw = isset( $_GET['pcpb_cart_item_key'] ) ? wp_unslash( $_GET['pcpb_cart_item_key'] ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only query arg for builder configuration.
-$pcpb_cart_item_key     = '' !== $pcpb_cart_item_key_raw ? sanitize_text_field( $pcpb_cart_item_key_raw ) : ''; // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Local template variable.
+// phpcs:ignore WordPress.Security.NonceVerification.Recommended, WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Read-only query arg for builder configuration.
+$pcpb_cart_item_key = isset( $_GET['pcpb_cart_item_key'] ) ? sanitize_text_field( wp_unslash( $_GET['pcpb_cart_item_key'] ) ) : '';
 
-$oid_raw = isset( $_GET['oid'] ) ? wp_unslash( $_GET['oid'] ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only query arg for builder configuration.
-$oid     = '' !== $oid_raw ? absint( sanitize_text_field( $oid_raw ) ) : 0; // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Local template variable.
+// phpcs:ignore WordPress.Security.NonceVerification.Recommended, WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Read-only query arg for builder configuration.
+$oid = isset( $_GET['oid'] ) ? absint( wp_unslash( $_GET['oid'] ) ) : 0;
 
-$rd_raw      = isset( $_GET['rd'] ) ? wp_unslash( $_GET['rd'] ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only redirect key used to compute safe redirect URL.
-$redirect_url = '' !== $rd_raw ? SPBWC_Storelly_PB_Util::spbwc_get_redirect_url( sanitize_text_field( $rd_raw ) ) : ''; // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Local template variable.
+// phpcs:ignore WordPress.Security.NonceVerification.Recommended, WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Read-only redirect key used to compute safe redirect URL.
+$redirect_url = isset( $_GET['rd'] ) ? SPBWC_Storelly_PB_Util::spbwc_get_redirect_url( sanitize_text_field( wp_unslash( $_GET['rd'] ) ) ) : '';
 if ($is_creating_task == 0) { // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Global variable defined by parent template.
     $oid = $option_id; // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Local template variable.
 } else if ($oid == 0) { // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Local template variable.
@@ -51,8 +51,8 @@ wp_localize_script( 'product-builder', 'NBPBCONFIG', array(
             'cancel' => esc_html__('Cancel', 'storelly-product-builder-for-woocommerce'),
         ),
 ));
-$pid = get_the_ID();
-if (is_singular('product') && SPBWC_Storelly_PB_Util::spbwc_is_product_builder($pid)) {
+$spbwc_pid = get_the_ID();
+if (is_singular('product') && SPBWC_Storelly_PB_Util::spbwc_is_product_builder($spbwc_pid)) {
     wp_enqueue_style('product-builder'); 
     wp_enqueue_script('product-builder');
 }

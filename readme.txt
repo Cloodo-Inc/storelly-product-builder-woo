@@ -56,7 +56,9 @@ This plugin connects to the following external services:
 - **Cloud2Print PDF generation API (`https://api.cloud2print.net`)**  
   - **What it is used for**: Used to generate print‑ready PDF files from customers' product designs created with the builder.  
   - **What data is sent and when**: When a store admin or automated process exports a design to PDF, the plugin builds a temporary HTML representation of the design (including product artwork, layout information and font usage) and sends a request to the Cloud2Print API, which then fetches that HTML from your site in order to render and return the PDF file.  
-  - **Service owner and policies**: This service is provided by Cloud2Print. Please review Cloud2Print’s own terms of service and privacy policy on their official website and ensure they meet your legal and compliance requirements before enabling PDF export in production.
+  - **Service owner and policies**: This service is provided by Cloud2Print. Please review Cloud2Print's policies:
+    - Privacy Policy: http://cloud2print.net/privacy-policy
+    - Terms of Service: http://cloud2print.net/terms-of-service
 
 - **Storelly Dashboard API (`https://dashboard.storelly.com/public`)**  
   - **What it is used for**: Used to register your Storelly account from inside WooCommerce and to synchronise WooCommerce order information with the Storelly Dashboard.  
@@ -64,6 +66,8 @@ This plugin connects to the following external services:
     - On first activation/initialisation, the plugin can create or connect a Storelly account by sending your store owner details (name, email address, billing address fields, time zone and WooCommerce API keys) to the Storelly Dashboard API.  
     - When an order is placed or processed in WooCommerce, the plugin can send order data (order totals, discount amounts, product and variation identifiers, quantities, unit prices and links to the generated design PDF files) to the Storelly Dashboard API so that orders can be tracked and managed there.  
   - **Service owner and policies**: This service is operated by Storelly. You should link your own terms of service and privacy policy pages for this service (for example, from your main `storelly.com` website) in your store’s legal documentation so that your customers understand how their data is processed.
+    - Terms of Service: https://dashboard.storelly.com/terms
+    - Privacy Policy: https://dashboard.storelly.com/privacy
 
 == Screenshots ==
 

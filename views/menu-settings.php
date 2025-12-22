@@ -70,7 +70,7 @@ $stt_no_cloud2print_api = isset($storelly_pb_settings['enable_cloud2print_api'])
                     </div>
                     <div class="code-key">
                         <input placeholder="" value="<?php echo esc_attr($api_key['unauth_token']); ?>" disabled />
-                        <p><?php esc_html_e('Unauth token off store Storelly (Automatically generated when you enter calid sid end secret)', 'storelly-product-builder-for-woocommerce'); ?></p>
+                        <p><?php esc_html_e('Unauth token off store Storelly (Automatically generated when you enter sid and secret)', 'storelly-product-builder-for-woocommerce'); ?></p>
                     </div>
                 </div>
                 <div class="grup-box">

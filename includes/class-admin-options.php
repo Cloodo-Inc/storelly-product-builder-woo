@@ -388,6 +388,7 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
         }
         public function spbwc_unpublish_option($id) { 
             global $wpdb; // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Global variable $wpdb.
+            // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Admin-only update.
             $result = $wpdb->update($wpdb->prefix . 'pc-product_builder_options', array(
                'published' => 0
             ), array('id' => absint($id))); 
@@ -396,7 +397,7 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
         public function spbwc_get_option($id) { 
             global $wpdb; // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Global variable $wpdb.
             $table_name = $wpdb->prefix . 'storelly_product_builder_options';
-            // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table name built from $wpdb->prefix; values are parameterized below.
+            // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Table name built from $wpdb->prefix; values are parameterized below. Cached where needed in other contexts, this is direct admin edit.
             $result = $wpdb->get_results( $wpdb->prepare( "SELECT * FROM {$table_name} WHERE `id` = %d", absint( $id ) ), 'ARRAY_A' );
             return count($result) ? $result[0] : false; 
         }
@@ -1026,9 +1027,8 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
             if (false === $option_id) {
                 global $wpdb;
 
-                $table_name = $wpdb->prefix . 'storelly_roduct_builder_options';
             $table_name = $wpdb->prefix . 'storelly_product_builder_options';
-            // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table name built from $wpdb->prefix; values are parameterized below.
+            // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter -- Table name built from $wpdb->prefix; values are parameterized below.
             $options = $wpdb->get_results( $wpdb->prepare( "SELECT id, product_ids FROM {$table_name} WHERE published = %d", 1 ), 'ARRAY_A' );  
                 if ($options) {
                     $_options = array();
