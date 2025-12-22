@@ -65,7 +65,7 @@ This plugin connects to the following external services:
   - **What data is sent and when**:  
     - On first activation/initialisation, the plugin can create or connect a Storelly account by sending your store owner details (name, email address, billing address fields, time zone and WooCommerce API keys) to the Storelly Dashboard API.  
     - When an order is placed or processed in WooCommerce, the plugin can send order data (order totals, discount amounts, product and variation identifiers, quantities, unit prices and links to the generated design PDF files) to the Storelly Dashboard API so that orders can be tracked and managed there.  
-  - **Service owner and policies**: This service is operated by Storelly. You should link your own terms of service and privacy policy pages for this service (for example, from your main `storelly.com` website) in your store’s legal documentation so that your customers understand how their data is processed.
+  - **Service owner and policies**: This service is operated by Storelly. Please review policies:
     - Terms of Service: https://dashboard.storelly.com/terms
     - Privacy Policy: https://dashboard.storelly.com/privacy
 
@@ -75,6 +75,9 @@ This plugin connects to the following external services:
 2. Back-end product settings
 
 == Changelog ==
+= 1.1.0 =
+* Enhanced Security, Caching, and Code Quality Across the Plugin.
+
 = 1.0.0 =
 * Initial release.
 

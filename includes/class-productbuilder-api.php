@@ -117,14 +117,20 @@ if (!class_exists('SPBWC_Storelly_Product_Builder_API')) {
             );
         
             // Delete all previously generated keys
+            // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- WooCommerce stores REST API keys in a custom table; write query required to rotate keys.
             $wpdb->delete(
                 $wpdb->prefix . 'woocommerce_api_keys',
                 array(
                     'user_id'         => $user_id,
                     'description'     => $description,
+                ),
+                array(
+                    '%d',
+                    '%s',
                 )
             );
         
+            // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- WooCommerce stores REST API keys in a custom table; write query required to generate keys.
             $wpdb->insert(
                 $wpdb->prefix . 'woocommerce_api_keys',
                 $data,

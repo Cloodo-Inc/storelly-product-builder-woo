@@ -5,6 +5,8 @@ if (!defined('ABSPATH')) {
 if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
     class SPBWC_Storelly_PB_Admin_Options {
         protected static $instance;
+        private const CACHE_GROUP = 'spbwc_product_builder';
+        private const CACHE_TTL   = 900; // 15 minutes.
         public function __construct() {
             //todo something
         }
@@ -48,6 +50,49 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
                     add_action('wp_ajax_nopriv_' . $ajax_event, array($this, $ajax_event));
                 }
             }
+        }
+        protected function spbwc_cache_key_option($option_id) {
+            return 'spbwc_option_' . absint($option_id);
+        }
+        protected function spbwc_extract_product_ids_from_option($option) {
+            if (empty($option) || !is_array($option) || !isset($option['product_ids'])) {
+                return array();
+            }
+            $product_ids = maybe_unserialize($option['product_ids']);
+            if (!is_array($product_ids)) {
+                return array();
+            }
+            $product_ids = array_map('absint', $product_ids);
+            return array_filter(array_unique($product_ids));
+        }
+        protected function spbwc_flush_option_caches($option_id = 0, $product_ids = array()) {
+            if ($option_id > 0) {
+                wp_cache_delete($this->spbwc_cache_key_option($option_id), self::CACHE_GROUP);
+            }
+            wp_cache_delete('spbwc_published_options', self::CACHE_GROUP);
+            if (!empty($product_ids)) {
+                $product_ids = array_map('absint', (array) $product_ids);
+                $product_ids = array_filter(array_unique($product_ids));
+                foreach ($product_ids as $product_id) {
+                    delete_transient('spbwc_product_builder_' . $product_id);
+                }
+            }
+        }
+        protected function spbwc_get_cached_published_options() {
+            $cache_key = 'spbwc_published_options';
+            $cached    = wp_cache_get($cache_key, self::CACHE_GROUP);
+            if (false !== $cached) {
+                return $cached;
+            }
+            global $wpdb; // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Global variable $wpdb.
+            $table_name = $wpdb->prefix . 'storelly_product_builder_options';
+            // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter, WordPress.DB.DirectDatabaseQuery.DirectQuery -- Custom table read cached immediately below.
+            $options = $wpdb->get_results($wpdb->prepare("SELECT id, product_ids FROM {$table_name} WHERE published = %d", 1), ARRAY_A);
+            if (!is_array($options)) {
+                $options = array();
+            }
+            wp_cache_set($cache_key, $options, self::CACHE_GROUP, self::CACHE_TTL);
+            return $options;
         }
         public function spbwc_add_display_post_states( $post_states, $post ){
             
@@ -388,18 +433,40 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
         }
         public function spbwc_unpublish_option($id) { 
             global $wpdb; // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Global variable $wpdb.
-            // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Admin-only update.
-            $result = $wpdb->update($wpdb->prefix . 'pc-product_builder_options', array(
-               'published' => 0
-            ), array('id' => absint($id))); 
-            if ($result) $this->spbwc_clear_transients();
+            $option_id   = absint($id);
+            $option      = $this->spbwc_get_option($option_id);
+            $product_ids = $this->spbwc_extract_product_ids_from_option($option);
+            // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Custom table write; caches/transients are flushed below.
+            $result = $wpdb->update(
+                $wpdb->prefix . 'pc-product_builder_options',
+                array('published' => 0),
+                array('id' => $option_id),
+                array('%d'),
+                array('%d')
+            ); 
+            if (false !== $result) {
+                $this->spbwc_flush_option_caches($option_id, $product_ids);
+            }
         }
         public function spbwc_get_option($id) { 
+            $option_id = absint($id);
+            if (0 === $option_id) {
+                return false;
+            }
+            $cache_key = $this->spbwc_cache_key_option($option_id);
+            $cached    = wp_cache_get($cache_key, self::CACHE_GROUP);
+            if (false !== $cached) {
+                return !empty($cached) ? $cached : false;
+            }
             global $wpdb; // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Global variable $wpdb.
             $table_name = $wpdb->prefix . 'storelly_product_builder_options';
-            // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Table name built from $wpdb->prefix; values are parameterized below. Cached where needed in other contexts, this is direct admin edit.
-            $result = $wpdb->get_results( $wpdb->prepare( "SELECT * FROM {$table_name} WHERE `id` = %d", absint( $id ) ), 'ARRAY_A' );
-            return count($result) ? $result[0] : false; 
+            // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter, WordPress.DB.DirectDatabaseQuery.DirectQuery -- Table name built from $wpdb->prefix; values are parameterized below.
+            $option = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$table_name} WHERE `id` = %d LIMIT 1", $option_id ), ARRAY_A );
+            if (!is_array($option)) {
+                $option = array();
+            }
+            wp_cache_set($cache_key, $option, self::CACHE_GROUP, self::CACHE_TTL);
+            return !empty($option) ? $option : false; 
         }
         public function spbwc_save_option( $id = 0 ) {
             if ( ! current_user_can( 'spbwc_manage_product_builder' ) ) {
@@ -424,17 +491,27 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
             $arr['fields'] = serialize($post_options);
             global $wpdb; // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Global variable $wpdb.
             $date = new DateTime();
+            $previous_product_ids = array();
+            if ($id > 0) {
+                $previous_option      = $this->spbwc_get_option($id);
+                $previous_product_ids = $this->spbwc_extract_product_ids_from_option($previous_option);
+            }
             if ($id > 0) {
                 $arr['modified']    = $date->format('Y-m-d H:i:s');
                 $arr['modified_by'] = wp_get_current_user()->ID;
+                // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Custom table write; caches/transients are flushed below.
                 $result             = $wpdb->update("{$wpdb->prefix}storelly_product_builder_options", $arr, array('id' => $id));
             } else {
                 $arr['created']     = $date->format('Y-m-d H:i:s');
                 $arr['created_by']  = wp_get_current_user()->ID;
+                // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Custom table write; caches/transients are flushed below.
                 $result             = $wpdb->insert("{$wpdb->prefix}storelly_product_builder_options", $arr);
                 $id                 = $result ?  $wpdb->insert_id : 0;
             }
-            $this->spbwc_clear_transients();
+            if ($result) {
+                $affected_products = array_merge($product_ids, $previous_product_ids);
+                $this->spbwc_flush_option_caches($id, $affected_products);
+            }
             do_action('storelly_save_print_option', $arr);
             return array(
                 'status'    => $result,
@@ -1025,27 +1102,23 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
             if (!$enable) return false;
             $option_id = get_transient('spbwc_product_builder_' . $product_id);
             if (false === $option_id) {
-                global $wpdb;
-
-            $table_name = $wpdb->prefix . 'storelly_product_builder_options';
-            // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter -- Table name built from $wpdb->prefix; values are parameterized below.
-            $options = $wpdb->get_results( $wpdb->prepare( "SELECT id, product_ids FROM {$table_name} WHERE published = %d", 1 ), 'ARRAY_A' );  
-                if ($options) {
+                $options   = $this->spbwc_get_cached_published_options();
+                $option_id = '';
+                if (!empty($options)) {
                     $_options = array();
                     foreach ($options as $option) {
-                        $execute_option = true;
-                        if ($execute_option) {
-                            $products = unserialize($option['product_ids']);
-                            if(is_array($products) && !empty($products)){
-                                $execute_option = in_array($product_id, $products) ? true : false;
-                            }
+                        $products = $this->spbwc_extract_product_ids_from_option($option);
+                        if (empty($products)) {
+                            continue;
                         }
-                        if ($execute_option) {
+                        if (in_array($product_id, $products, true)) {
                             $_options[] = $option;
                         }
                     }
-                    $_options = array_reverse($_options);
-                    $option_id = isset($_options[0]) && isset($_options[0]['id']) ? $_options[0]['id'] : '';
+                    if (!empty($_options)) {
+                        $_options = array_reverse($_options);
+                        $option_id = isset($_options[0]['id']) ? absint($_options[0]['id']) : '';
+                    }
                     if ($option_id) {
                         set_transient('spbwc_product_builder_' . $product_id, $option_id);
                     }
@@ -1272,6 +1345,15 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
             $type_download = isset($_POST['type_download']) ? sanitize_text_field( wp_unslash( $_POST['type_download'] ) ) : '';
             $files = array();
             $option_name = array();
+            $order_item_names = array();
+            if ($order_id) {
+                $order = wc_get_order($order_id);
+                if ($order) {
+                    foreach ($order->get_items() as $loop_item_id => $order_item) {
+                        $order_item_names[$loop_item_id] = $order_item->get_name();
+                    }
+                }
+            }
             if (is_array($item_ids) && count($item_ids) > 0) {
                 foreach ($item_ids as $key => $item_id) {
                     $folder = wc_get_order_item_meta($item_id, '_pcpb_folder', true);
@@ -1297,13 +1379,7 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
                     }
                     if (count($item_files)) {
                         foreach ($item_files as $item_file) {
-                            global $wpdb;
-                            $order_item_name = $wpdb->get_var(
-                                $wpdb->prepare(
-                                    "SELECT order_item_name FROM {$wpdb->prefix}woocommerce_order_items WHERE order_item_id = %d LIMIT 1;",
-                                    $item_id
-                                )
-                            );
+                            $order_item_name = isset($order_item_names[$item_id]) ? $order_item_names[$item_id] : '';
                             $file_name  = pathinfo($item_file, PATHINFO_FILENAME);
                             $item_option_name[] = $order_item_name  ? $order_item_name . '_' . $key . '_' . $file_name : $order_id . '_' . $item_id  . '_' . $file_name;
                         }

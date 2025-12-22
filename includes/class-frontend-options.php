@@ -76,41 +76,10 @@ if (!class_exists('STORELLY_FRONTEND_OPTIONS')) {
         }
         
         public static function get_option($id) {
-            global $wpdb; // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Global variable $wpdb.
-            $table_name = $wpdb->prefix . 'storelly_product_builder_options';
-            // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter -- Table name built from $wpdb->prefix; value parameterized.
-            $options = $wpdb->get_results( $wpdb->prepare( "SELECT * FROM $table_name WHERE `id` = %d", absint( $id ) ), 'ARRAY_A' );  
-            return count($options[0]) ? $options[0] : false;
+            return SPBWC_Storelly_PB_Admin_Options::instance()->spbwc_get_option($id);
         }
         public static function get_product_option($product_id) {
-            $enable = get_post_meta($product_id, '_storelly_pb_enable', true);
-            if (!$enable) return false;
-            $option_id = get_transient('spbwc_product_builder_' . $product_id);
-            if (false === $option_id) {
-                global $wpdb; // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Global variable $wpdb.
-                $table_name = $wpdb->prefix . 'storelly_product_builder_options';
-                // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter -- Table name built from $wpdb->prefix; value parameterized.
-                $options = $wpdb->get_results( $wpdb->prepare( "SELECT id, product_ids FROM $table_name WHERE published = %d", 1 ), 'ARRAY_A' );   
-                if ($options) {
-                    $_options = array();
-                    foreach ($options as $option) {
-                        $execute_option = true;
-                        if ($execute_option) {
-                            $products = unserialize($option['product_ids']);
-                            $execute_option = in_array($product_id, $products) ? true : false;
-                        }
-                        if ($execute_option) {
-                            $_options[] = $option;
-                        }
-                    }
-                    $_options = array_reverse($_options);
-                    $option_id = isset($_options[0]) && isset($_options[0]['id']) ? $_options[0]['id'] : '';
-                if ($option_id) {
-                        set_transient('spbwc_product_builder_' . $product_id, $option_id);
-                    }
-                }
-            }
-            return $option_id;
+            return SPBWC_Storelly_PB_Admin_Options::instance()->spbwc_get_product_option($product_id);
         }
         public static function recursive_stripslashes($fields) {
             $valid_fields = array();
