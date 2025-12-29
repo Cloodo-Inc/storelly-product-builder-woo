@@ -243,9 +243,10 @@ if (!class_exists('SPBWC_Storelly_Export_PDF')) {
             $svg_string = file_get_contents($svg_path);
             $svg_string = preg_replace("/<(?:\?xml|!DOCTYPE).*?>/", "", $svg_string);
 
+            // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obstart_ob_start -- Output buffer opened and closed in same scope for template rendering.
             ob_start();
             include SPBWC_PB_PLUGIN_DIR . 'views/pdf-template.php';
-            $template    = ob_get_clean();
+            $template = ob_get_clean(); // Buffer closed here - no early return possible.
 
             // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents -- Writing temporary HTML file to uploads directory for PDF service.
             file_put_contents($html_path, $template);

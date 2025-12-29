@@ -10,12 +10,11 @@ if (!class_exists('SPBWC_Storelly_HTTP')) {
         }
 
         public static function spbwc_get_basic_auth() {
-            $api_settings = get_option('spbwc_connect_api_keys');
-
-            $unauth_token = isset($storelly_account['unauth_token']) ? $storelly_account['unauth_token'] : '';
+            $api_settings = get_option('spbwc_connect_api_keys', array());
+            $unauth_token = isset($api_settings['unauth_token']) ? $api_settings['unauth_token'] : '';
 
             return array(
-                'X-STORLY: ' . $unauth_token,
+                'X-Storelly-Unauth-Token' => $unauth_token,
             );
         }
 

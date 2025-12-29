@@ -410,6 +410,7 @@ if (!class_exists('STORELLY_FRONTEND_OPTIONS')) {
                             );
                         }
                     }
+                    // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obstart_ob_start -- Output buffer opened and closed in same scope for template rendering.
                     ob_start();
                     SPBWC_Storelly_PB_Util::spbwc_get_template('single-product/option-builder.php', array(
                         'product_id'            => $product_id,
@@ -426,8 +427,8 @@ if (!class_exists('STORELLY_FRONTEND_OPTIONS')) {
                         'cart_item_key'         => $cart_item_key,
                         'nbau'                  => $nbau,
                     ));
-                    $options_form = ob_get_clean();
-                    // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Output contains required Angular markup rendered from trusted templates.
+                    $options_form = ob_get_clean(); // Buffer closed here - no early return possible.
+                    // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Output contains required markup rendered from trusted templates.
                     echo $options_form;
                 }
             }

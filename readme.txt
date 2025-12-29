@@ -4,8 +4,8 @@ Donate link: https://storelly.com/
 Tags: product builder, product customize, product customizer, woocommerce custom product
 Requires at least: 4.7
 Tested up to: 6.9
-Stable tag: 1.1.0
-Version: 1.1.0
+Stable tag: 1.1.1
+Version: 1.1.1
 Requires PHP: 7.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -60,14 +60,14 @@ This plugin connects to the following external services:
     - Privacy Policy: http://cloud2print.net/privacy-policy
     - Terms of Service: http://cloud2print.net/terms-of-service
 
-- **Storelly Dashboard API (`https://dashboard.storelly.com/public`)**  
+- **Storelly Dashboard API (`https://app.storelly.com/public`)**  
   - **What it is used for**: Used to register your Storelly account from inside WooCommerce and to synchronise WooCommerce order information with the Storelly Dashboard.  
   - **What data is sent and when**:  
     - On first activation/initialisation, the plugin can create or connect a Storelly account by sending your store owner details (name, email address, billing address fields, time zone and WooCommerce API keys) to the Storelly Dashboard API.  
     - When an order is placed or processed in WooCommerce, the plugin can send order data (order totals, discount amounts, product and variation identifiers, quantities, unit prices and links to the generated design PDF files) to the Storelly Dashboard API so that orders can be tracked and managed there.  
   - **Service owner and policies**: This service is operated by Storelly. Please review policies:
-    - Terms of Service: https://dashboard.storelly.com/terms
-    - Privacy Policy: https://dashboard.storelly.com/privacy
+    - Terms of Service: https://app.storelly.com/terms
+    - Privacy Policy: https://app.storelly.com/privacy
 
 == Screenshots ==
 
@@ -75,6 +75,9 @@ This plugin connects to the following external services:
 2. Back-end product settings
 
 == Changelog ==
+= 1.1.1 =
+* Enhance Settings Handling, Template Rendering, and Style CSS in Plugin.
+
 = 1.1.0 =
 * Enhanced Security, Caching, and Code Quality Across the Plugin.
 

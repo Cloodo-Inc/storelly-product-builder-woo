@@ -1272,8 +1272,9 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
         public function spbwc_settings() {
             $storelly_pb_settings = get_option('spbwc_pb_settings');
             if (!isset($storelly_pb_settings['enable_cloud2print_api'])) {
-                $storelly_pb_settings['enable_cloud2print_api'] = 'no';
+                $storelly_pb_settings['enable_cloud2print_api'] = 'yes';
             }
+            $api_keys = get_option( 'spbwc_connect_api_keys', array() );
             $message = '';
             $status = '';
 
@@ -1282,11 +1283,20 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
                 if ( ! $settings_nonce || ! wp_verify_nonce( $settings_nonce, 'spbwc_settings_action' ) ) {
                     wp_die( esc_html__( 'Security error.', 'storelly-product-builder-for-woocommerce' ) );
                 }
-                $storelly_enable_cloud2print_api      = isset($_POST['storelly_enable_cloud2print_api']) ? sanitize_text_field( wp_unslash( $_POST['storelly_enable_cloud2print_api'] ) ) : 'no';
+                $storelly_enable_cloud2print_api      = isset($_POST['storelly_enable_cloud2print_api']) ? sanitize_text_field( wp_unslash( $_POST['storelly_enable_cloud2print_api'] ) ) : 'yes';
+                $consumer_key                         = isset( $_POST['storelly_consumer_key'] ) ? sanitize_text_field( wp_unslash( $_POST['storelly_consumer_key'] ) ) : '';
+                $consumer_secret                      = isset( $_POST['storelly_consumer_secret'] ) ? sanitize_text_field( wp_unslash( $_POST['storelly_consumer_secret'] ) ) : '';
+
                 $message        = esc_html__('Your settings have been saved.', 'storelly-product-builder-for-woocommerce');
                 $status         = 'updated';
                 $storelly_pb_settings['enable_cloud2print_api'] = $storelly_enable_cloud2print_api;
                 update_option('spbwc_pb_settings', $storelly_pb_settings);
+
+                if ( '' !== $consumer_key || '' !== $consumer_secret ) {
+                    $api_keys['consumer_key']    = $consumer_key;
+                    $api_keys['consumer_secret'] = $consumer_secret;
+                    update_option( 'spbwc_connect_api_keys', $api_keys );
+                }
             }
             include_once(SPBWC_PB_PLUGIN_DIR . 'views/menu-settings.php');
         }

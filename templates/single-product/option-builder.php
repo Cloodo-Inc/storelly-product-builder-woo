@@ -1,6 +1,6 @@
 <?php
-do_action('spbwc_head', 'single-product');
 if (!defined('ABSPATH')) exit;
+do_action('spbwc_head', 'single-product');
 // phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Template variables are used within the local scope of the template.
 $in_quick_view      = false;
 $is_wqv             = false;

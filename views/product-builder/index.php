@@ -147,26 +147,27 @@
                 $cart_item_key  = '';
                 $quantity       = 1;
                 $width = $height = '';
-                ob_start();
-                SPBWC_Storelly_PB_Util::spbwc_get_template('single-product/option-builder.php', array(
-                    'product_id'            => $product_id,
-                    'options'               => $options,
-                    'type'                  => $type,
-                    'quantity'              => $quantity,
-                    'width'                 => $width,
-                    'height'                => $height,
-                    'nbdpb_enable'          => 1,
-                    'price'                 => 0,
-                    'is_sold_individually'  => false,
-                    'variations'            => wp_json_encode((array) $variations),
-                    'dimensions'            => wp_json_encode((array) $dimensions),
-                    'form_values'           => $form_values,
-                    'cart_item_key'         => '',
-                    'change_base'           => 'no',
-                    'tooltip_position'      => 'top',
-                    'hide_zero_price'       => 'no'
-                ));
-                $options_form = ob_get_clean();
+                // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obstart_ob_start -- Output buffer opened and closed in same scope for template rendering.
+            ob_start();
+            SPBWC_Storelly_PB_Util::spbwc_get_template('single-product/option-builder.php', array(
+                'product_id'            => $product_id,
+                'options'               => $options,
+                'type'                  => $type,
+                'quantity'              => $quantity,
+                'width'                 => $width,
+                'height'                => $height,
+                'nbdpb_enable'          => 1,
+                'price'                 => 0,
+                'is_sold_individually'  => false,
+                'variations'            => wp_json_encode((array) $variations),
+                'dimensions'            => wp_json_encode((array) $dimensions),
+                'form_values'           => $form_values,
+                'cart_item_key'         => '',
+                'change_base'           => 'no',
+                'tooltip_position'      => 'top',
+                'hide_zero_price'       => 'no'
+            ));
+            $options_form = ob_get_clean(); // Buffer closed here - no early return possible.
                 // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Contains Angular markup and trusted template HTML required for front-end builder rendering.
                 echo ($options_form);
             }
@@ -193,42 +194,48 @@
         );
     }
     function spbwc_add_inline_pdf_styles() {
-        global $page_settings; // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Global variable $page_settings. 
-        if (empty($page_settings)) return;
-    
-     
-        $custom_css = "
-            @page {
-                margin: 0;
-                padding: 0;
-                size: {$page_settings['width']} {$page_settings['height']};
-            }
-            body {
-                width: {$page_settings['width']};
-                height: {$page_settings['height']};
-                position: relative;
-                font-size: 0;
-                font-family: sans-serif;
-            }
-            svg {
-                position: absolute;
-                width: {$page_settings['design_width']};
-                height: {$page_settings['design_height']};
-                top: {$page_settings['design_top']};
-                left: {$page_settings['design_left']};
-                z-index: 2;
-                max-width: 100%;
-                max-height: 100%;
-            }
-            #background {
-                z-index: 1;
-                position: absolute;
-                top: 0;
-                left: 0;
-                width: 100%;
-                height: 100%;
-            }
-        ";
+    global $page_settings; // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Global variable $page_settings. 
+    if (empty($page_settings)) return;
+
+    $page_width      = isset($page_settings['width']) ? esc_attr($page_settings['width']) : 'auto';
+    $page_height     = isset($page_settings['height']) ? esc_attr($page_settings['height']) : 'auto';
+    $design_width    = isset($page_settings['design_width']) ? esc_attr($page_settings['design_width']) : '100%';
+    $design_height   = isset($page_settings['design_height']) ? esc_attr($page_settings['design_height']) : '100%';
+    $design_top      = isset($page_settings['design_top']) ? esc_attr($page_settings['design_top']) : '0';
+    $design_left     = isset($page_settings['design_left']) ? esc_attr($page_settings['design_left']) : '0';
+
+    $custom_css = "
+        @page {
+            margin: 0;
+            padding: 0;
+            size: {$page_width} {$page_height};
+        }
+        body {
+            width: {$page_width};
+            height: {$page_height};
+            position: relative;
+            font-size: 0;
+            font-family: sans-serif;
+        }
+        svg {
+            position: absolute;
+            width: {$design_width};
+            height: {$design_height};
+            top: {$design_top};
+            left: {$design_left};
+            z-index: 2;
+            max-width: 100%;
+            max-height: 100%;
+        }
+        #background {
+            z-index: 1;
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+    ";
   
         wp_add_inline_style('normalize-css', $custom_css);
     }
