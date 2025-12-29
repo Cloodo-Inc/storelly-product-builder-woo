@@ -1,1 +1,1728 @@
-angular.module("optionApp",[]).controller("optionCtrl",function(s,a){s.showPreview=!1,s.previewWide=!1,s.jsonFields="",s.formula={active:!1,price:"",brIndex:null,fieldIndex:null,opIndex:null,saIndex:null,currentLinkField:"0"},s.excludeField=function(n,e){var t=null;return angular.forEach(s.options.fields,function(e){e.id==n&&(t=e)}),"n"!=t.general.enabled.value&&n!=e},s.includeField=function(e,n){return e==n},s.add_field=function(e,n){var t={},i=(angular.copy(storelly_option_variable.STORELLY_OPTION_FIELD,t),new Date);if(t.id="f"+i.getTime(),t.isExpand=!0,angular.isDefined(e))if(t.general.title.value=storelly_options.storelly_options_lang[e],t.nbd_template="nbd."+e,angular.isUndefined(n))angular.isDefined(s.storelly_options[e])&&"builder"!=e&&1==s.storelly_options[e]||(s.storelly_options[e]=1),t.nbd_type=e,angular.forEach(t.general.attributes,function(e,n){e.enable_subattr=0});else switch(t.nbpb_type=e,angular.isUndefined(s.options.views)&&(s.options.views=[{name:storelly_options.storelly_options_lang.view_name,base:0}]),e){case"nbpb_com":t.general.data_type.value="m",t.general.data_type.hidden=!0,t.general.component_icon=0;break;case"nbpb_text":t.general.data_type.value="i",t.general.input_type.value="t",t.general.data_type.hidden=!0,t.general.input_type.hidden=!0,t.general.nbpb_text_configs=angular.isDefined(t.general.nbpb_text_configs)?t.general.nbpb_text_configs:{default_text:"",allow_all_font:"y",custom_fonts:[],google_fonts:[],allow_all_color:"y",colors:[],allow_change_color:"y",allow_font_family:"y",views:[]};break;case"nbpb_image":t.general.data_type.value="i",t.general.input_type.value="u",t.general.data_type.hidden=!0,t.general.input_type.hidden=!0,t.general.nbpb_image_configs=angular.isDefined(t.general.nbpb_image_configs)?t.general.nbpb_image_configs:{views:[]}}s.options.fields.push(t),a(function(){jQuery("html,body").animate({scrollTop:jQuery("#"+t.id).offset().top},"slow")}),s.initfieldValue()},s.addView=function(){s.options.views.push({name:storelly_options.storelly_options_lang.view_name,base:0}),s.initfieldValue()},s.removeView=function(e){1!=s.options.views.length&&(s.options.views.splice(e,1),s.initfieldValue())},s.set_view_base=function(t){var i=wp.media.frames.file_frame=wp.media({title:storelly_options.storelly_options_lang.choose_image,button:{text:storelly_options.storelly_options_lang.choose_image},library:{type:["image"]},multiple:!1});i.on("select",function(){var e=i.state().get("selection").first().toJSON(),n=(s.options.views[t].base=e.id,s.options.views[t].base_width=e.width,s.options.views[t].base_height=e.height,e.url);angular.isDefined(e.sizes)&&angular.isDefined(e.sizes.thumbnail)&&(n=e.sizes.thumbnail.url),s.options.views[t].base_url=n,"$apply"!==s.$root.$$phase&&"$digest"!==s.$root.$$phase&&s.$apply()}),i.open()},s.remove_view_base=function(e){s.options.views[e].base=0,s.options.views[e].base_url=""},s.set_view_config_image=function(t,i,a,o){var l=wp.media.frames.file_frame=wp.media({title:storelly_options.storelly_options_lang.choose_image,button:{text:storelly_options.storelly_options_lang.choose_image},library:{type:["image"]},multiple:!1});l.on("select",function(){var e=l.state().get("selection").first().toJSON(),n=(s.options.fields[t].general.pb_config[i][a].views[o].image=e.id,e.url);angular.isDefined(e.sizes)&&angular.isDefined(e.sizes.thumbnail)&&(n=e.sizes.thumbnail.url),s.options.fields[t].general.pb_config[i][a].views[o].image_url=n,"$apply"!==s.$root.$$phase&&"$digest"!==s.$root.$$phase&&s.$apply()}),l.open()},s.remove_view_config_image=function(e,n,t,i){s.options.fields[e].general.pb_config[n][t].views[i].image=0,s.options.fields[e].general.pb_config[n][t].views[i].image_url=""},s.get_field_class=function(e){var n="default";switch(e){case"nbpb_com":case"nbpb_text":case"nbpb_image":n="wpo"}return n},s.get_field_type=function(e){var n;switch(e=angular.isDefined(e)?e:""){case"nbpb_com":n=2;break;case"nbpb_text":n=3;break;case"nbpb_image":n=4;break;default:n=1}return n},s.copy_field=function(e){var n={},e=(angular.copy(s.options.fields[e],n),new Date);n.id="f"+e.getTime(),n.general.title.value=n.general.title.value+" - Copy",s.options.fields.push(n),s.initfieldValue()},s.delete_field=function(e){confirm(storelly_options.storelly_options_lang.want_to_delete)&&(s.options.fields[e],s.options.fields.splice(e,1),s.initfieldValue())},s.clear_all_fields=function(e){confirm(storelly_options.storelly_options_lang.want_to_delete_all)&&(s.options.fields=[],angular.forEach(s.storelly_options,function(e,n){}),s.initfieldValue())},s.sort_field=function(n,e){var t=n-1;if("up"==e){if(0==n)return}else{if(n==s.options.fields.length-1)return;t=n+1}jQuery(".nbp-loading-wrap").addClass("nbp-show"),a(function(){var e={};angular.copy(s.options.fields[n],e),angular.copy(s.options.fields[t],s.options.fields[n]),angular.copy(e,s.options.fields[t]),s.initfieldValue(),a(function(){jQuery(".nbp-loading-wrap").removeClass("nbp-show"),jQuery.each(jQuery("[nbd-tab]").find(".pcpb-field-tab"),function(){jQuery(this).on("click",function(){var e=jQuery(this).data("target");jQuery(this).parents(".pcpb-field-wrap").find(".pcpb-field-content").removeClass("active"),jQuery(this).parent("ul").find("li").removeClass("active"),jQuery(this).parents(".pcpb-field-wrap").find("."+e).addClass("active"),jQuery(this).addClass("active")})})},400)},100)},s.toggleExpandField=function(e,n){var t=jQuery(n.target).parents(".pcpb-field-wrap");s.options.fields[e].isExpand=!s.options.fields[e].isExpand,a(function(){jQuery("html,body").animate({scrollTop:t.offset().top-50},200)},0)},s.initfieldValue=function(){angular.forEach(s.options.fields,function(e,t){if(s.option_values[t]=angular.isDefined(s.option_values[t])?s.option_values[t]:"","i"==e.general.data_type.value||0==e.general.attributes.options.length?s.option_values[t]="":(s.option_values[t]=0,angular.forEach(e.general.attributes.options,function(e,n){e.selected&&(s.option_values[t]=n)})),angular.isDefined(e.nbpb_type))switch(angular.isUndefined(s.options.views)&&(s.options.views=[{name:storelly_options.storelly_options_lang.view_name,base:0}]),s.has_product_builder_field=!0,e.nbpb_type){case"nbpb_com":e.general.data_type.value="m",e.general.data_type.hidden=!0,e.general.data_type.hidden=!0,e.general.component_icon=angular.isDefined(e.general.component_icon)?e.general.component_icon:0,s.buildPbConfigFlat(e);break;case"nbpb_text":e.general.data_type.value="i",e.general.input_type.value="t",e.general.data_type.hidden=!0,e.general.input_type.hidden=!0,e.general.nbpb_text_configs=angular.isDefined(e.general.nbpb_text_configs)?e.general.nbpb_text_configs:{default_text:"",allow_all_font:"y",custom_fonts:[],google_fonts:[],allow_all_color:"y",colors:[],allow_change_color:"y",allow_font_family:"y",views:[]},e.general.nbpb_text_configs.colors=angular.isDefined(e.general.nbpb_text_configs.colors)?e.general.nbpb_text_configs.colors:[],e.general.nbpb_text_configs.custom_fonts=angular.isDefined(e.general.nbpb_text_configs.custom_fonts)?e.general.nbpb_text_configs.custom_fonts:[],e.general.nbpb_text_configs.google_fonts=angular.isDefined(e.general.nbpb_text_configs.google_fonts)?e.general.nbpb_text_configs.google_fonts:[],e.general.nbpb_text_configs.views=angular.isDefined(e.general.nbpb_text_configs.views)?e.general.nbpb_text_configs.views:[];break;case"nbpb_image":e.general.data_type.value="i",e.general.input_type.value="u",e.general.required.value="n",e.general.data_type.hidden=!0,e.general.input_type.hidden=!0,e.general.required.hidden=!0,e.general.nbpb_image_configs=angular.isDefined(e.general.nbpb_image_configs)?e.general.nbpb_image_configs:{views:[]},e.general.nbpb_image_configs.views=angular.isDefined(e.general.nbpb_image_configs.views)?e.general.nbpb_image_configs.views:[]}}),a(function(){s.current_input_vars=jQuery("[name]").length,s.current_input_vars>s.max_input_vars&&(jQuery("html,body").animate({scrollTop:jQuery("#notice-max-input-vars").offset().top-100},"slow"),alert(storelly_options.storelly_options_lang.max_input_var+" "+s.max_input_vars+". "+storelly_options.storelly_options_lang.max_input_notice))},2e3)},s.buildPbConfigFlat=function(a){var i=a.general.attributes.options;function o(t,e,i,n){angular.isUndefined(a.general.pb_config[t])&&(a.general.pb_config[t]=[]),angular.isUndefined(a.general.pb_config[t][i])&&(a.general.pb_config[t][i]={}),a.general.pb_config[t][i].attr_rowspan=e,a.general.pb_config[t][i].attr_index=t,a.general.pb_config[t][i].sattr_index=i,a.general.pb_config[t][i].has_sattr=n,angular.isUndefined(a.general.pb_config[t][i].views)&&(a.general.pb_config[t][i].views=[]),angular.forEach(s.options.views,function(e,n){angular.isUndefined(a.general.pb_config[t][i].views[n])&&(a.general.pb_config[t][i].views[n]={image:0,image_url:"",display:!0})})}a.general.pb_config_flat=[],angular.isUndefined(a.general.pb_config)&&(a.general.pb_config=[]);angular.forEach(i,function(i,a){angular.isDefined(i.enable_subattr)&&(!0===i.enable_subattr||"on"===i.enable_subattr||1===i.enable_subattr)&&angular.isDefined(i.sub_attributes)&&0<i.sub_attributes.length?angular.forEach(i.sub_attributes,function(e,n){var t=0==n?i.sub_attributes.length:0;o(a,t,n,!0),0}):(o(a,1,0,!1),0)});var l=0;angular.forEach(a.general.pb_config,function(e,n){var t=i[n];t?!angular.isDefined(t.enable_subattr)||!0!==t.enable_subattr&&"on"!==t.enable_subattr&&1!==t.enable_subattr?(a.general.pb_config_flat[l]={},angular.copy(e[0],a.general.pb_config_flat[l]),l++):angular.forEach(e,function(e,n){angular.isDefined(t.sub_attributes)&&angular.isDefined(t.sub_attributes[n])&&(a.general.pb_config_flat[l]={},angular.copy(e,a.general.pb_config_flat[l]),l++)}):a.general.pb_config.splice(n,1)})},s.init=function(e){s.storelly_options={},s.options=storelly_option_variable.STORELLY_OPTIONS,s.current_input_vars=1,s.max_input_vars=storelly_option_variable.max_input_vars,angular.isDefined(e)&&(s.options=e,"$apply"!==s.$root.$$phase)&&"$digest"!==s.$root.$$phase&&s.$apply(),s.option_values=[],angular.forEach(s.options.fields,function(e,n){e.isExpand=!1,e.general.attributes.options.length&&angular.forEach(e.general.attributes.options,function(e,n){e.isExpand=!1,e.enable_subattr&&e.sub_attributes.length&&angular.forEach(e.sub_attributes,function(e,n){e.isExpand=!1})})}),s.has_product_builder_field=!1,s.initfieldValue()},s.export=function(){jQuery(".nbp-loading-wrap").addClass("nbp-show"),s.get_media_full_size_url(function(e){var e=s.merge_new_media(s.options,e),e=JSON.stringify(e,function(e,n){if("$$hashKey"!=e)return n}),n=(jQuery(".nbp-loading-wrap").removeClass("nbp-show"),document.createElement("a"));n.setAttribute("href","data:application/json;charset=utf-8,"+encodeURIComponent(e)),n.setAttribute("download","options.json"),n.style.display="none",document.body.appendChild(n),n.click(),document.body.removeChild(n)})},s.get_media_full_size_url=function(n){var e=s.get_media_from_options(s.options,"id");jQuery.ajax({url:storelly_option_variable.ajax_url,method:"POST",data:{action:"nbd_get_media_full_size_url",nonce:nbnonce,images:JSON.stringify(e)}}).done(function(e){e=JSON.parse(e);1==e.flag?n(e.images):(jQuery(".nbp-loading-wrap").removeClass("nbp-show"),alert("Error, Try again later!"))})},s.merge_new_media=function(e,n,t){var a={},a=angular.copy(e,a),o=angular.isUndefined(t)?"_url":"";return angular.forEach(n,function(e,n){var t=n.split("-"),i=t[t.length-1]+o;/[image|icon|base]$/.test(n)||(i=t[t.length-1],t[t.length-2]=t[t.length-2]+o),t.splice(t.length-1,1);n=t.reduce(function(e,n){return e&&"undefined"!==e[n]?e[n]:void 0},a);0!=e&&(n[i]=e)}),a},s.import=function(){var t=document.createElement("input");function i(){var e,n;0<this.files.length&&(e=this.files[0],(n=new FileReader).onload=function(e){2===e.target.readyState&&(jQuery(".nbp-loading-wrap").addClass("nbp-show"),a(function(){var e=JSON.parse(n.result);s.update_options_media(e),t.removeEventListener("change",i.bind(t),!1),document.body.removeChild(t)},100))},n.readAsText(e))}t.type="file",t.accept="text/json|application/json",t.style.display="none",t.addEventListener("change",i.bind(t),!1),document.body.appendChild(t),t.click()},s.get_media_from_options=function(e,o){var l={};return angular.isDefined(e.views)&&angular.forEach(e.views,function(e,n){"0"!=e.base&&(l["views-"+n+"-base"]="url"==o?e.base_url:e.base)}),angular.forEach(e.fields,function(e,a){angular.isDefined(e.general.attributes.options)&&angular.forEach(e.general.attributes.options,function(t,i){"0"!=t.image&&(l["fields-"+a+"-general-attributes-options-"+i+"-image"]="url"==o?t.image_url:t.image),angular.isDefined(t.bg_image)&&0<t.bg_image.length&&angular.forEach(t.bg_image,function(e,n){"0"!=e&&null!=e&&(l["fields-"+a+"-general-attributes-options-"+i+"-bg_image-"+n]="url"==o?t.bg_image_url[n]:e)}),angular.isDefined(t.product_image)&&"0"!=t.product_image&&(l["fields-"+a+"-general-attributes-options-"+i+"-product_image"]="url"==o?t.product_image_url:t.product_image),angular.isDefined(t.sub_attributes)&&angular.forEach(t.sub_attributes,function(e,n){"0"!=e.image&&(l["fields-"+a+"-general-attributes-options-"+i+"-sub_attributes-"+n+"-image"]="url"==o?e.image_url:e.image)}),angular.isDefined(t.overlay_image)&&0<t.overlay_image.length&&angular.forEach(t.overlay_image,function(e,n){"0"!=e&&null!=e&&(l["fields-"+a+"-general-attributes-options-"+i+"-overlay_image-"+n]="url"==o?t.overlay_image_url[n]:e)}),angular.isDefined(t.frame_image)&&"0"!=t.frame_image&&(l["fields-"+a+"-general-attributes-options-"+i+"-frame_image"]="url"==o?t.frame_image_url:t.frame_image)}),angular.isDefined(e.general.component_icon)&&"0"!=e.general.component_icon&&(l["fields-"+a+"-general-component_icon"]="url"==o?e.general.component_icon_url:e.general.component_icon),angular.isDefined(e.general.pb_config)&&angular.forEach(e.general.pb_config,function(e,i){angular.forEach(e,function(e,t){angular.forEach(e.views,function(e,n){"0"!=e.image&&(l["fields-"+a+"-general-pb_config-"+i+"-"+t+"-views-"+n+"-image"]="url"==o?e.image_url:e.image)})})})}),l},s.update_options_media=function(a){jQuery("#nbp-processing").show();var e=s.get_media_from_options(a,"url"),o={},l=Object.keys(e),r=l.length;jQuery("#nbp-process-loaded").html(0),jQuery("#nbp-process-total").html(r),function n(t,i){var e;i<r?s.download_import_image(t[l[i]],function(e){e=JSON.parse(e),angular.isDefined(e.flag)&&"1"==e.flag?(0==e.image.current_site&&(o[l[i]]=e.image.id),i++,jQuery("#nbp-process-loaded").html(i),n(t,i)):(jQuery(".nbp-loading-wrap").removeClass("nbp-show"),jQuery("#nbp-processing").hide(),alert("Error, Try again later!"))}):(e=s.merge_new_media(a,o,"id"),s.init(e),jQuery(".nbp-loading-wrap").removeClass("nbp-show"),jQuery("#nbp-processing").hide())}(e,0)},s.download_import_image=function(e,n){jQuery.ajax({url:storelly_option_variable.ajax_url,method:"POST",data:{action:"nbd_download_option_image",nonce:storelly_option_variable.nbnonce,image:e}}).done(function(e){n(e)})},s.check_depend=function(e,n,t){var l,i;return!angular.isDefined(n.hidden)&&(!!angular.isUndefined(n.depend)||(l=[],i=!0,angular.forEach(n.depend,function(a,o){l[o]="="!=a.operator,angular.forEach(e,function(t,i){var e=a.value.split(",");1<e.length?angular.forEach(e,function(e,n){i==a.field&&t.value==e&&(l[o]="="==a.operator)}):i==a.field&&t.value==a.value&&(l[o]="="==a.operator)})}),angular.forEach(l,function(e,n){i=i&&e}),i))},s.check_option_depend=function(t,e){var i,a;return!!angular.isUndefined(e)||(i=[],a=!0,angular.forEach(e,function(e,n){i[n]=!1,"="==e.operator?s.options.fields[t].general[e.field].value==e.value&&(i[n]=!0):s.options.fields[t].general[e.field].value!=e.value&&(i[n]=!0)}),angular.forEach(i,function(e,n){a=a&&e}),a)},s.remove_attribute=function(e,n,t){1!=s.options.fields[e].general[n].options.length&&(angular.isDefined(s.options.fields[e].general[n].remove_att)?alert(storelly_options.storelly_options_lang.can_not_remove_att):(s.options.fields[e].general[n].options.splice(t,1),s.initfieldValue()))},s.remove_sub_attribute=function(e,n,t){s.options.fields[e].general.attributes.options[n].sub_attributes.splice(t,1),s.initfieldValue()},s.add_text_configs_color=function(e){s.options.fields[e].general.nbpb_text_configs.colors.push({name:"White",code:"#ffffff"})},s.remove_text_configs_color=function(e,n){s.options.fields[e].general.nbpb_text_configs.colors.splice(n,1)},s.sort_attribute=function(e,n,t){var e=s.options.fields[e].general.attributes.options,i=n-1;if("up"==t){if(0==n)return}else{if(n==e.length-1)return;i=n+1}t={};angular.copy(e[n],t),angular.copy(e[i],e[n]),angular.copy(t,e[i]),s.initfieldValue()},s.sort_sub_attribute=function(e,n,t,i){e=s.options.fields[e].general.attributes.options[n].sub_attributes,n=t-1;if("up"==i){if(0==t)return}else{if(t==e.length-1)return;n=t+1}i={};angular.copy(e[t],i),angular.copy(e[n],e[t]),angular.copy(i,e[n]),s.initfieldValue()},s.toggle_expand_attribute=function(e,n){s.options.fields[e].general.attributes.options[n].isExpand=!s.options.fields[e].general.attributes.options[n].isExpand},s.toggle_expand_sub_attribute=function(e,n,t){s.options.fields[e].general.attributes.options[n].sub_attributes[t].isExpand=!s.options.fields[e].general.attributes.options[n].sub_attributes[t].isExpand},s.seleted_attribute=function(t,i,e){angular.forEach(s.options.fields[t].general[i].options,function(e,n){s.options.fields[t].general[i].options[n].selected=0}),s.options.fields[t].general[i].options[e].selected=1,s.initfieldValue()},s.seleted_sub_attribute=function(t,i,a,e){angular.forEach(s.options.fields[t].general[i].options[a].sub_attributes,function(e,n){s.options.fields[t].general[i].options[a].sub_attributes[n].selected=0}),s.options.fields[t].general[i].options[a].sub_attributes[e].selected=1,s.initfieldValue()},s.add_attribute=function(e,n){angular.isDefined(s.options.fields[e].general[n].add_att)?alert(storelly_options.storelly_options_lang.can_not_add_att):(s.options.fields[e].general[n].options.push({name:storelly_options.storelly_options_lang.attribute_name,des:"",price:[],selected:0,preview_type:"i",image:0,image_url:"",color:"#ffffff",bg_image:[],bg_image_url:[],isExpand:!0,depend:[{id:"",operator:"i",val:"",subval:""}]}),s.initfieldValue())},s.add_sub_attribute=function(e,n){angular.isUndefined(s.options.fields[e].general.attributes.options[n].sub_attributes)&&(s.options.fields[e].general.attributes.options[n].sub_attributes=[]),s.options.fields[e].general.attributes.options[n].sub_attributes.push({name:storelly_options.storelly_options_lang.sub_attribute_name,des:"",price:[],selected:0,preview_type:"i",image:0,image_url:"",color:"#ffffff",isExpand:!0,depend:[{id:"",operator:"i",val:"",subval:""}]}),s.initfieldValue()},s.toggle_enable_subattr=function(e,n){e=s.options.fields[e];angular.isUndefined(e.general.attributes.options[n].sattr_display_type)&&(e.general.attributes.options[n].sattr_display_type="s"),angular.isDefined(e.nbpb_type)&&"nbpb_com"==e.nbpb_type&&s.buildPbConfigFlat(e)},s.set_attribute_image=function(t,i,a,o,l){var r=wp.media.frames.file_frame=wp.media({title:storelly_options.storelly_options_lang.choose_image,button:{text:storelly_options.storelly_options_lang.choose_image},library:{type:["image"]},multiple:!1});r.on("select",function(){var e=r.state().get("selection").first().toJSON(),n=(angular.isDefined(l)?s.options.fields[t].general.attributes.options[i][a][l]=e.id:s.options.fields[t].general.attributes.options[i][a]=e.id,e.url);angular.isDefined(e.sizes)&&angular.isDefined(e.sizes.thumbnail)&&(n=e.sizes.thumbnail.url),angular.isDefined(l)?s.options.fields[t].general.attributes.options[i][o][l]=n:s.options.fields[t].general.attributes.options[i][o]=n,"$apply"!==s.$root.$$phase&&"$digest"!==s.$root.$$phase&&s.$apply()}),r.open()},s.set_component_icon=function(t){var i=wp.media.frames.file_frame=wp.media({title:storelly_options.storelly_options_lang.choose_image,button:{text:storelly_options.storelly_options_lang.choose_image},library:{type:["image"]},multiple:!1});i.on("select",function(){var e=i.state().get("selection").first().toJSON(),n=(s.options.fields[t].general.component_icon=e.id,e.url);angular.isDefined(e.sizes)&&angular.isDefined(e.sizes.thumbnail)&&(n=e.sizes.thumbnail.url),s.options.fields[t].general.component_icon_url=n,"$apply"!==s.$root.$$phase&&"$digest"!==s.$root.$$phase&&s.$apply()}),i.open()},s.remove_component_icon=function(e){s.options.fields[e].general.component_icon=0,s.options.fields[e].general.component_icon_url=""},s.set_sub_attribute_image=function(t,i,a){var o=wp.media.frames.file_frame=wp.media({title:storelly_options.storelly_options_lang.choose_image,button:{text:storelly_options.storelly_options_lang.choose_image},library:{type:["image"]},multiple:!1});o.on("select",function(){var e=o.state().get("selection").first().toJSON(),n=(s.options.fields[t].general.attributes.options[i].sub_attributes[a].image=e.id,e.url);angular.isDefined(e.sizes)&&angular.isDefined(e.sizes.thumbnail)&&(n=e.sizes.thumbnail.url),s.options.fields[t].general.attributes.options[i].sub_attributes[a].image_url=n,"$apply"!==s.$root.$$phase&&"$digest"!==s.$root.$$phase&&s.$apply()}),o.open()},s.remove_attribute_image=function(e,n,t,i){s.options.fields[e].general.attributes.options[n][t]=0,s.options.fields[e].general.attributes.options[n][i]=""},s.remove_sub_attribute_image=function(e,n,t){s.options.fields[e].general.attributes.options[n].sub_attributes[t].image=0,s.options.fields[e].general.attributes.options[n].sub_attributes[t].image_url=""},s.add_remove_second_color=function(e,n){angular.isUndefined(s.options.fields[e].general.attributes.options[n].color2)?s.options.fields[e].general.attributes.options[n].color2="#ffffff":delete s.options.fields[e].general.attributes.options[n].color2},s.update_price_type=function(e){"m"==s.options.fields[e].general.data_type.value&&"c"==s.options.fields[e].general.price_type.value&&(s.options.fields[e].general.price_type.value="f")},s.updateApp=function(){"$apply"!==s.$root.$$phase&&"$digest"!==s.$root.$$phase&&s.$apply()},s.updateJsonFields=function(e){return!0},s.getJsonFields=function(){var a=[];angular.forEach(s.options.fields,function(t,i){if(a[i]={id:t.id,general:{title:t.general.title.value,description:t.general.description.value,data_type:t.general.data_type.value,input_type:t.general.input_type.value,input_option:t.general.input_option.value,text_option:t.general.text_option.value,upload_option:t.general.upload_option.value,enabled:t.general.enabled.value,published:t.general.published?t.general.published.value:"y",required:t.general.required.value,price_type:t.general.price_type.value,price:t.general.price.value,attributes:{}},appearance:{}},0<t.general.attributes.options.length&&(a[i].general.attributes.options=[],angular.forEach(t.general.attributes.options,function(e,n){a[i].general.attributes.options[n]={preview_type:e.preview_type,image:e.image,color:e.color,name:e.name,des:e.des,price:e.price},"y"==t.appearance.change_image_product.value&&(a[i].general.attributes.options[n].product_image=e.product_image),e.selected&&(a[i].general.attributes.options[n].selected="on")})),angular.forEach(t.appearance,function(e,n){a[i].appearance[n]=e.value}),t.nbpb_type)switch(a[i].nbpb_type=t.nbpb_type,t.nbpb_type){case"nbpb_com":a[i].general.component_icon=t.general.component_icon,0<t.general.pb_config_flat.length&&0<s.options.views.length&&(a[i].general.pb_config=t.general.pb_config);break;case"nbpb_image":0<s.options.views.length&&(a[i].general.nbpb_image_configs=t.general.nbpb_image_configs);break;case"nbpb_text":a[i].general.nbpb_text_configs=t.general.nbpb_text_configs}}),function i(a){Object.keys(a).forEach(function(e){var n=a[e],t=typeof n;"object"==t?(i(n),Object.keys(n).length):"undefined"==t||"$$hashKey"==e?delete a[e]:"display"!=e&&"selected"!=e||(!0===n||"on"===n?a[e]="on":delete a[e])})}(a),s.jsonFields=JSON.stringify(a),setTimeout(function(){jQuery('form[name="nboForm"]').submit()})},s.init()}).directive("stringToNumber",function(){return{require:"ngModel",link:function(e,n,t,i){i.$parsers.push(function(e){return""+e}),i.$formatters.push(function(e){return parseFloat(e)})}}}).directive("convertToNumber",function(){return{require:"ngModel",link:function(e,n,t,i){i.$parsers.push(function(e){return null!=e?parseInt(e,10):null}),i.$formatters.push(function(e){return null!=e?""+e:null})}}}).directive("nbdColorPicker",function(){return{restrict:"A",scope:{value:"=nbdColorPicker"},link:function(e,t){e.$watch("value",function(e,n){e!=n&&jQuery(t).wpColorPicker("color",e)},!0),e.$on("$destroy",function(){jQuery(t).parents(".wp-picker-container").remove()}),jQuery(t).val(e.value),jQuery(t).wpColorPicker({change:function(e,n){var t=jQuery(this);setTimeout(function(){t.wpColorPicker("color")!==t.data("tempcolor")&&(t.change().data("tempcolor",t.wpColorPicker("color")),t.val(t.wpColorPicker("color")))},10)}})}}}).directive("nbdSelect2",function(t){return{restrict:"A",link:function(e,n){t(function(){jQuery(n).selectWoo()})}}}).directive("nbdTab",function(t){return{restrict:"A",link:function(e,n){t(function(){jQuery.each(jQuery(n).find(".pcpb-field-tab"),function(){jQuery(this).on("click",function(){var e=jQuery(this).data("target");jQuery(this).parents(".pcpb-field-wrap").find(".pcpb-field-content").removeClass("active"),jQuery(this).parent("ul").find("li").removeClass("active"),jQuery(this).parents(".pcpb-field-wrap").find("."+e).addClass("active"),jQuery(this).addClass("active")})})})}}}).directive("nbdTip",function(a){return{restrict:"E",scope:{dataTip:"@tip"},template:'<span class="woocommerce-help-tip" data-tip="{{dataTip}}" ></span>',link:function(e,n,t){var i={attribute:"data-tip",fadeIn:50,fadeOut:50,delay:200};a(function(){jQuery(n).find(".woocommerce-help-tip").tipTip(i)},0)}}}).directive("nboSubAttrSelect",function(e){return{restrict:"E",scope:{find:"=",oind:"=",cind:"=",sind:"=",con:"=",fields:"="},template:'<select class="nbd-w-100i" name="options[fields][{{find}}][general][attributes][options][{{oind}}]{{sind_name}}[depend][{{cind}}][subval]" ng-if="available" ng-model="con.subval"><option ng-repeat="attr in attributes" value="{{$index}}">{{attr.name}}</option></select>',link:function(e,n,t){e.sind?e.sind_name="[sub_attributes]["+e.sind+"]":e.sind_name=""}}}).filter("range",function(){return function(e,n){n=parseInt(n);for(var t=0;t<n;t++)e.push(t);return e}}).directive("nbdPmDroppable",function(i){return{restrict:"A",scope:{dataDir:"@dir"},link:function(t,n,e){i(function(){jQuery(n).droppable({hoverClass:"nbd-dropzone-hover",accept:".nbd-darg-pm-field",drop:function(e,n){t.$emit("mpm:drop",t.dataDir,n.helper.data("id"))}}).sortable({items:"> .nbd-pm-field",scroll:!0,placeholder:"ui-sortable-placeholder",update:function(){var e=jQuery(n).children(".nbd-pm-field").map(function(e,n){return jQuery(n).data("id")}).get();t.$emit("mpm:sort",t.dataDir,e),i(function(){jQuery(n).sortable("refreshPositions")})}})})}}}).directive("nbdPmDraggable",function(i){return{restrict:"A",link:function(e,n,t){i(function(){jQuery(n).draggable({helper:"clone",cursor:"move"})})}}}),jQuery(document).ready(function(i){i(".nbo-dates input:not(.hasDatepicker)").datepicker({defaultDate:"",dateFormat:"yy-mm-dd",numberOfMonths:1,showButtonPanel:!0,showOn:"button",buttonImage:storelly_options.calendar_image,buttonImageOnly:!0,onSelect:function(e){var n=i(this).is(".date_from")?"minDate":"maxDate",t=i(this).data("datepicker"),e=i.datepicker.parseDate(t.settings.dateFormat||i.datepicker._defaults.dateFormat,e,t.settings);i(this).parents(".nbo-dates").find("input").not(this).datepicker("option",n,e)}}),i(".nbo-toggle-nav").on("click",function(){i(".nbo-toggle").removeClass("active"),i(this).is(":checked")&&i(i(this).data("toggle")).addClass("active")})});
+angular
+  .module("optionApp", [])
+  .controller("optionCtrl", function ($scope, $timeout) {
+    /* init parameters */
+    $scope.showPreview = false;
+    $scope.previewWide = false;
+    $scope.jsonFields = "";
+    $scope.formula = {
+      active: false,
+      price: "",
+      brIndex: null,
+      fieldIndex: null,
+      opIndex: null,
+      saIndex: null,
+      currentLinkField: "0",
+    };
+    /* end init parameters */
+    /* quantity */
+    $scope.excludeField = function (actual, expected) {
+      var _field = null;
+      angular.forEach($scope.options.fields, function (field) {
+        if (field.id == actual) _field = field;
+      });
+      if (_field.general.enabled.value == "n") return false;
+      return actual != expected;
+    };
+    $scope.includeField = function (actual, expected) {
+      return actual == expected;
+    };
+    /* end. quantity */
+    $scope.add_field = function (type, ftype) {
+      var field = {};
+      angular.copy(storelly_option_variable.STORELLY_OPTION_FIELD, field);
+      var d = new Date();
+      field["id"] = "f" + d.getTime();
+      field.isExpand = true;
+      if (angular.isDefined(type)) {
+        field.general.title.value =
+          storelly_options.storelly_options_lang[type];
+        field.nbd_template = "nbd." + type;
+        if (angular.isUndefined(ftype)) {
+          if (
+            angular.isDefined($scope.storelly_options[type]) &&
+            type != "builder" &&
+            $scope.storelly_options[type] == 1
+          ) {
+          } else {
+            $scope.storelly_options[type] = 1;
+          }
+          field.nbd_type = type;
+          angular.forEach(field.general.attributes, function (attr, a_key) {
+            attr.enable_subattr = 0;
+          });
+        } else {
+          field.nbpb_type = type;
+          if (angular.isUndefined($scope.options.views))
+            $scope.options.views = [
+              {
+                name: storelly_options.storelly_options_lang.view_name,
+                base: 0,
+              },
+            ];
+          switch (type) {
+            case "nbpb_com":
+              field.general.data_type.value = "m";
+              field.general.data_type.hidden = true;
+              field.general.component_icon = 0;
+              break;
+            case "nbpb_text":
+              field.general.data_type.value = "i";
+              field.general.input_type.value = "t";
+              field.general.data_type.hidden = true;
+              field.general.input_type.hidden = true;
+              field.general.nbpb_text_configs = angular.isDefined(
+                field.general.nbpb_text_configs
+              )
+                ? field.general.nbpb_text_configs
+                : {
+                    default_text: "",
+                    allow_all_font: "y",
+                    custom_fonts: [],
+                    google_fonts: [],
+                    allow_all_color: "y",
+                    colors: [],
+                    allow_change_color: "y",
+                    allow_font_family: "y",
+                    views: [],
+                  };
+              break;
+            case "nbpb_image":
+              field.general.data_type.value = "i";
+              field.general.input_type.value = "u";
+              field.general.data_type.hidden = true;
+              field.general.input_type.hidden = true;
+              field.general.nbpb_image_configs = angular.isDefined(
+                field.general.nbpb_image_configs
+              )
+                ? field.general.nbpb_image_configs
+                : {
+                    views: [],
+                  };
+              break;
+          }
+        }
+      }
+      $scope.options.fields.push(field);
+      $timeout(function () {
+        jQuery("html,body").animate(
+          {
+            scrollTop: jQuery("#" + field["id"]).offset().top,
+          },
+          "slow"
+        );
+      });
+      $scope.initfieldValue();
+    };
+    $scope.addView = function () {
+      $scope.options.views.push({
+        name: storelly_options.storelly_options_lang.view_name,
+        base: 0,
+      });
+      $scope.initfieldValue();
+    };
+    $scope.removeView = function (vIndex) {
+      if ($scope.options.views.length == 1) {
+        return;
+      }
+      $scope.options.views.splice(vIndex, 1);
+      $scope.initfieldValue();
+    };
+    $scope.set_view_base = function (vIndex) {
+      var file_frame;
+      if (file_frame) {
+        file_frame.open();
+        return;
+      }
+      file_frame = wp.media.frames.file_frame = wp.media({
+        title: storelly_options.storelly_options_lang.choose_image,
+        button: {
+          text: storelly_options.storelly_options_lang.choose_image,
+        },
+        library: {
+          type: ["image"],
+        },
+        multiple: false,
+      });
+      file_frame.on("select", function () {
+        var attachment = file_frame.state().get("selection").first().toJSON();
+        $scope.options.views[vIndex].base = attachment.id;
+        $scope.options.views[vIndex].base_width = attachment.width;
+        $scope.options.views[vIndex].base_height = attachment.height;
+        var url = attachment.url;
+        if (
+          angular.isDefined(attachment.sizes) &&
+          angular.isDefined(attachment.sizes.thumbnail)
+        ) {
+          url = attachment.sizes.thumbnail.url;
+        }
+        $scope.options.views[vIndex].base_url = url;
+        if (
+          $scope.$root.$$phase !== "$apply" &&
+          $scope.$root.$$phase !== "$digest"
+        )
+          $scope.$apply();
+      });
+      file_frame.open();
+    };
+    $scope.remove_view_base = function (vIndex) {
+      $scope.options.views[vIndex].base = 0;
+      $scope.options.views[vIndex].base_url = "";
+    };
+    $scope.set_view_config_image = function (
+      fieldIndex,
+      attr_index,
+      sattr_index,
+      $index
+    ) {
+      var file_frame;
+      if (file_frame) {
+        file_frame.open();
+        return;
+      }
+      file_frame = wp.media.frames.file_frame = wp.media({
+        title: storelly_options.storelly_options_lang.choose_image,
+        button: {
+          text: storelly_options.storelly_options_lang.choose_image,
+        },
+        library: {
+          type: ["image"],
+        },
+        multiple: false,
+      });
+      file_frame.on("select", function () {
+        var attachment = file_frame.state().get("selection").first().toJSON();
+        $scope.options["fields"][fieldIndex]["general"]["pb_config"][
+          attr_index
+        ][sattr_index].views[$index].image = attachment.id;
+        var url = attachment.url;
+        if (
+          angular.isDefined(attachment.sizes) &&
+          angular.isDefined(attachment.sizes.thumbnail)
+        ) {
+          url = attachment.sizes.thumbnail.url;
+        }
+        $scope.options["fields"][fieldIndex]["general"]["pb_config"][
+          attr_index
+        ][sattr_index].views[$index].image_url = url;
+        if (
+          $scope.$root.$$phase !== "$apply" &&
+          $scope.$root.$$phase !== "$digest"
+        )
+          $scope.$apply();
+      });
+      file_frame.open();
+    };
+    $scope.remove_view_config_image = function (
+      fieldIndex,
+      attr_index,
+      sattr_index,
+      $index
+    ) {
+      $scope.options["fields"][fieldIndex]["general"]["pb_config"][attr_index][
+        sattr_index
+      ].views[$index].image = 0;
+      $scope.options["fields"][fieldIndex]["general"]["pb_config"][attr_index][
+        sattr_index
+      ].views[$index].image_url = "";
+    };
+    $scope.get_field_class = function (type) {
+      var klass = "default";
+      switch (type) {
+        case "nbpb_com":
+        case "nbpb_text":
+        case "nbpb_image":
+          klass = "wpo";
+          break;
+      }
+      return klass;
+    };
+    $scope.get_field_type = function (type) {
+      type = angular.isDefined(type) ? type : "";
+      var type_number;
+      switch (type) {
+        case "nbpb_com":
+          type_number = 2;
+          break;
+        case "nbpb_text":
+          type_number = 3;
+          break;
+        case "nbpb_image":
+          type_number = 4;
+          break;
+        default:
+          type_number = 1;
+          break;
+      }
+      return type_number;
+    };
+    $scope.copy_field = function (index) {
+      var field = {};
+      angular.copy($scope.options.fields[index], field);
+      var d = new Date();
+      field["id"] = "f" + d.getTime();
+      field["general"]["title"]["value"] =
+        field["general"]["title"]["value"] + " - Copy";
+      $scope.options.fields.push(field);
+      $scope.initfieldValue();
+    };
+    $scope.delete_field = function (index) {
+      var con = confirm(
+        storelly_options.storelly_options_lang.want_to_delete
+      );
+      if (con) {
+        var field = $scope.options.fields[index];
+        $scope.options.fields.splice(index, 1);
+        $scope.initfieldValue();
+      }
+    };
+    $scope.clear_all_fields = function (index) {
+      var con = confirm(
+        storelly_options.storelly_options_lang.want_to_delete_all
+      );
+      if (con) {
+        $scope.options.fields = [];
+        angular.forEach($scope.storelly_options, function (option, key) {
+          option = 0;
+        });
+        $scope.initfieldValue();
+      }
+    };
+    $scope.sort_field = function (field_index, direction) {
+      var dest_index = field_index - 1;
+      if (direction == "up") {
+        if (field_index == 0) return;
+      } else {
+        if (field_index == $scope.options.fields.length - 1) return;
+        dest_index = field_index + 1;
+      }
+      jQuery(".nbp-loading-wrap").addClass("nbp-show");
+      $timeout(function () {
+        var temp_field = {};
+        angular.copy($scope.options.fields[field_index], temp_field);
+        angular.copy(
+          $scope.options.fields[dest_index],
+          $scope.options.fields[field_index]
+        );
+        angular.copy(temp_field, $scope.options.fields[dest_index]);
+        $scope.initfieldValue();
+        $timeout(function () {
+          jQuery(".nbp-loading-wrap").removeClass("nbp-show");
+          jQuery.each(jQuery("[nbd-tab]").find(".pcpb-field-tab"), function () {
+            jQuery(this).on("click", function () {
+              var target = jQuery(this).data("target");
+              jQuery(this)
+                .parents(".pcpb-field-wrap")
+                .find(".pcpb-field-content")
+                .removeClass("active");
+              jQuery(this).parent("ul").find("li").removeClass("active");
+              jQuery(this)
+                .parents(".pcpb-field-wrap")
+                .find("." + target)
+                .addClass("active");
+              jQuery(this).addClass("active");
+            });
+          });
+        }, 400);
+      }, 100);
+    };
+    $scope.toggleExpandField = function (index, $event) {
+      var parent = jQuery($event.target).parents(".pcpb-field-wrap");
+      function _toggleExpandField() {
+        $scope.options.fields[index].isExpand =
+          !$scope.options.fields[index].isExpand;
+        $timeout(function () {
+          jQuery("html,body").animate(
+            { scrollTop: parent.offset().top - 50 },
+            200
+          );
+        }, 0);
+      }
+      _toggleExpandField();
+    };
+    $scope.initfieldValue = function () {
+      angular.forEach($scope.options.fields, function (field, key) {
+        $scope.option_values[key] = angular.isDefined($scope.option_values[key])
+          ? $scope.option_values[key]
+          : "";
+        if (field.general.data_type.value == "i") {
+          $scope.option_values[key] = "";
+        } else {
+          if (field.general.attributes.options.length == 0) {
+            $scope.option_values[key] = "";
+          } else {
+            $scope.option_values[key] = 0;
+            angular.forEach(field.general.attributes.options, function (op, k) {
+              if (op.selected) $scope.option_values[key] = k;
+            });
+          }
+        }
+        if (angular.isDefined(field.nbpb_type)) {
+          if (angular.isUndefined($scope.options.views)) {
+            $scope.options.views = [
+              {
+                name: storelly_options.storelly_options_lang.view_name,
+                base: 0,
+              },
+            ];
+          }
+
+          $scope.has_product_builder_field = true;
+          switch (field.nbpb_type) {
+            case "nbpb_com":
+              field.general.data_type.value = "m";
+              field.general.data_type.hidden = true;
+              field.general.data_type.hidden = true;
+              field.general.component_icon = angular.isDefined(
+                field.general.component_icon
+              )
+                ? field.general.component_icon
+                : 0;
+              $scope.buildPbConfigFlat(field);
+              break;
+            case "nbpb_text":
+              field.general.data_type.value = "i";
+              field.general.input_type.value = "t";
+              field.general.data_type.hidden = true;
+              field.general.input_type.hidden = true;
+              field.general.nbpb_text_configs = angular.isDefined(
+                field.general.nbpb_text_configs
+              )
+                ? field.general.nbpb_text_configs
+                : {
+                    default_text: "",
+                    allow_all_font: "y",
+                    custom_fonts: [],
+                    google_fonts: [],
+                    allow_all_color: "y",
+                    colors: [],
+                    allow_change_color: "y",
+                    allow_font_family: "y",
+                    views: [],
+                  };
+              field.general.nbpb_text_configs.colors = angular.isDefined(
+                field.general.nbpb_text_configs.colors
+              )
+                ? field.general.nbpb_text_configs.colors
+                : [];
+              field.general.nbpb_text_configs.custom_fonts = angular.isDefined(
+                field.general.nbpb_text_configs.custom_fonts
+              )
+                ? field.general.nbpb_text_configs.custom_fonts
+                : [];
+              field.general.nbpb_text_configs.google_fonts = angular.isDefined(
+                field.general.nbpb_text_configs.google_fonts
+              )
+                ? field.general.nbpb_text_configs.google_fonts
+                : [];
+              field.general.nbpb_text_configs.views = angular.isDefined(
+                field.general.nbpb_text_configs.views
+              )
+                ? field.general.nbpb_text_configs.views
+                : [];
+              break;
+            case "nbpb_image":
+              field.general.data_type.value = "i";
+              field.general.input_type.value = "u";
+              field.general.required.value = "n";
+              field.general.data_type.hidden = true;
+              field.general.input_type.hidden = true;
+              field.general.required.hidden = true;
+              field.general.nbpb_image_configs = angular.isDefined(
+                field.general.nbpb_image_configs
+              )
+                ? field.general.nbpb_image_configs
+                : {
+                    views: [],
+                  };
+              field.general.nbpb_image_configs.views = angular.isDefined(
+                field.general.nbpb_image_configs.views
+              )
+                ? field.general.nbpb_image_configs.views
+                : [];
+              break;
+          }
+        }
+      });
+      $timeout(function () {
+        $scope.current_input_vars = jQuery("[name]").length;
+        if ($scope.current_input_vars > $scope.max_input_vars) {
+          jQuery("html,body").animate(
+            {
+              scrollTop: jQuery("#notice-max-input-vars").offset().top - 100,
+            },
+            "slow"
+          );
+          alert(
+            storelly_options.storelly_options_lang.max_input_var +
+              " " +
+              $scope.max_input_vars +
+              ". " +
+              storelly_options.storelly_options_lang.max_input_notice
+          );
+        }
+      }, 2000);
+
+      // $scope.maybeUpdateManualPm();
+    };
+    $scope.buildPbConfigFlat = function (field) {
+      var options = field.general.attributes.options;
+      field.general.pb_config_flat = [];
+      if (angular.isUndefined(field.general.pb_config))
+        field.general.pb_config = [];
+      function build_config(attr_index, attr_rowspan, sattr_index, has_sattr) {
+        if (angular.isUndefined(field.general.pb_config[attr_index]))
+          field.general.pb_config[attr_index] = [];
+        if (
+          angular.isUndefined(field.general.pb_config[attr_index][sattr_index])
+        )
+          field.general.pb_config[attr_index][sattr_index] = {};
+        field.general.pb_config[attr_index][sattr_index].attr_rowspan =
+          attr_rowspan;
+        field.general.pb_config[attr_index][sattr_index].attr_index =
+          attr_index;
+        field.general.pb_config[attr_index][sattr_index].sattr_index =
+          sattr_index;
+        field.general.pb_config[attr_index][sattr_index].has_sattr = has_sattr;
+        if (
+          angular.isUndefined(
+            field.general.pb_config[attr_index][sattr_index].views
+          )
+        )
+          field.general.pb_config[attr_index][sattr_index].views = [];
+        angular.forEach($scope.options.views, function (view, vkey) {
+          if (
+            angular.isUndefined(
+              field.general.pb_config[attr_index][sattr_index].views[vkey]
+            )
+          )
+            field.general.pb_config[attr_index][sattr_index].views[vkey] = {
+              image: 0,
+              image_url: "",
+              display: true,
+            };
+        });
+      }
+      var configIndex = 0;
+      angular.forEach(options, function (op, key) {
+        if (
+          angular.isDefined(op.enable_subattr) &&
+          (op.enable_subattr === true ||
+            op.enable_subattr === "on" ||
+            op.enable_subattr === 1)
+        ) {
+          if (
+            angular.isDefined(op.sub_attributes) &&
+            op.sub_attributes.length > 0
+          ) {
+            angular.forEach(op.sub_attributes, function (sop, skey) {
+              var attr_rowspan = skey == 0 ? op.sub_attributes.length : 0;
+              build_config(key, attr_rowspan, skey, true);
+              configIndex++;
+            });
+          } else {
+            build_config(key, 1, 0, false);
+            configIndex++;
+          }
+        } else {
+          build_config(key, 1, 0, false);
+          configIndex++;
+        }
+      });
+      var flatConfigIndex = 0;
+      angular.forEach(field.general.pb_config, function (op_config, key) {
+        var op = options[key];
+        if (op) {
+          if (
+            angular.isDefined(op.enable_subattr) &&
+            (op.enable_subattr === true ||
+              op.enable_subattr === "on" ||
+              op.enable_subattr === 1)
+          ) {
+            angular.forEach(op_config, function (sop_config, skey) {
+              if (
+                angular.isDefined(op.sub_attributes) &&
+                angular.isDefined(op.sub_attributes[skey])
+              ) {
+                field.general.pb_config_flat[flatConfigIndex] = {};
+                angular.copy(
+                  sop_config,
+                  field.general.pb_config_flat[flatConfigIndex]
+                );
+                flatConfigIndex++;
+              }
+            });
+          } else {
+            field.general.pb_config_flat[flatConfigIndex] = {};
+            angular.copy(
+              op_config[0],
+              field.general.pb_config_flat[flatConfigIndex]
+            );
+            flatConfigIndex++;
+          }
+        } else {
+          field.general.pb_config.splice(key, 1);
+        }
+      });
+    };
+    $scope.init = function (options) {
+      $scope.storelly_options = {};
+      $scope.options = storelly_option_variable.STORELLY_OPTIONS;
+      $scope.current_input_vars = 1;
+      $scope.max_input_vars = storelly_option_variable.max_input_vars;
+      if (angular.isDefined(options)) {
+        $scope.options = options;
+        if (
+          $scope.$root.$$phase !== "$apply" &&
+          $scope.$root.$$phase !== "$digest"
+        )
+          $scope.$apply();
+      }
+      $scope.option_values = [];
+      angular.forEach($scope.options.fields, function (field, key) {
+        field.isExpand = false;
+        if (field.general.attributes.options.length) {
+          angular.forEach(
+            field.general.attributes.options,
+            function (attr, a_key) {
+              attr.isExpand = false;
+              if (attr.enable_subattr) {
+                if (attr.sub_attributes.length) {
+                  angular.forEach(attr.sub_attributes, function (sattr, s_key) {
+                    sattr.isExpand = false;
+                  });
+                }
+              }
+            }
+          );
+        }
+      });
+      $scope.has_product_builder_field = false;
+      $scope.initfieldValue();
+    };
+    $scope.export = function () {
+      jQuery(".nbp-loading-wrap").addClass("nbp-show");
+      $scope.get_media_full_size_url(function (images) {
+        var new_options = $scope.merge_new_media($scope.options, images);
+        var filename = "options.json",
+          options = JSON.stringify(new_options, function (name, val) {
+            if (name == "$$hashKey") {
+              return undefined;
+            } else {
+              return val;
+            }
+          });
+        jQuery(".nbp-loading-wrap").removeClass("nbp-show");
+        var a = document.createElement("a");
+        a.setAttribute(
+          "href",
+          "data:application/json;charset=utf-8," + encodeURIComponent(options)
+        );
+        a.setAttribute("download", filename);
+        a.style.display = "none";
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+      });
+    };
+    $scope.get_media_full_size_url = function (callback) {
+      var mediaObject = $scope.get_media_from_options($scope.options, "id");
+      jQuery
+        .ajax({
+          url: storelly_option_variable.ajax_url,
+          method: "POST",
+          data: {
+            action: "nbd_get_media_full_size_url",
+            nonce: nbnonce,
+            images: JSON.stringify(mediaObject),
+          },
+        })
+        .done(function (data) {
+          var res = JSON.parse(data);
+          if (res.flag == 1) {
+            callback(res.images);
+          } else {
+            jQuery(".nbp-loading-wrap").removeClass("nbp-show");
+            alert("Error, Try again later!");
+          }
+        });
+    };
+    $scope.merge_new_media = function (options, medias, type) {
+      new_options = {};
+      var new_options = angular.copy(options, new_options);
+      var postfix = angular.isUndefined(type) ? "_url" : "";
+      angular.forEach(medias, function (media, key) {
+        var key_arr = key.split("-");
+        var media_key = key_arr[key_arr.length - 1] + postfix;
+        if (!/[image|icon|base]$/.test(key)) {
+          media_key = key_arr[key_arr.length - 1];
+          //key_arr[key_arr.length - 2] = 'bg_image' + postfix;
+          key_arr[key_arr.length - 2] = key_arr[key_arr.length - 2] + postfix;
+        }
+        key_arr.splice(key_arr.length - 1, 1);
+        function getTargetMedia(new_options, key_arr) {
+          return key_arr.reduce(function (obj, __key) {
+            return obj && obj[__key] !== "undefined" ? obj[__key] : undefined;
+          }, new_options);
+        }
+        var targetMedia = getTargetMedia(new_options, key_arr);
+        if (false != media) targetMedia[media_key] = media;
+      });
+      return new_options;
+    };
+    $scope.import = function () {
+      var input = document.createElement("input");
+      input.type = "file";
+      input.accept = "text/json|application/json";
+      input.style.display = "none";
+      input.addEventListener("change", onChange.bind(input), false);
+      document.body.appendChild(input);
+      input.click();
+      function onChange() {
+        if (this.files.length > 0) {
+          var file = this.files[0],
+            reader = new FileReader();
+          reader.onload = function (event) {
+            if (event.target.readyState === 2) {
+              jQuery(".nbp-loading-wrap").addClass("nbp-show");
+              $timeout(function () {
+                var result = JSON.parse(reader.result);
+                $scope.update_options_media(result);
+                destroy();
+              }, 100);
+            }
+          };
+          reader.readAsText(file);
+        }
+      }
+      function destroy() {
+        input.removeEventListener("change", onChange.bind(input), false);
+        document.body.removeChild(input);
+      }
+    };
+    $scope.get_media_from_options = function (options, type) {
+      var mediaObject = {};
+      var _key;
+      if (angular.isDefined(options.views)) {
+        angular.forEach(options.views, function (view, key) {
+          if (view.base != "0") {
+            _key = "views-" + key + "-base";
+            mediaObject[_key] = type == "url" ? view.base_url : view.base;
+          }
+        });
+      }
+      angular.forEach(options.fields, function (field, fkey) {
+        if (angular.isDefined(field.general.attributes.options)) {
+          angular.forEach(
+            field.general.attributes.options,
+            function (option, okey) {
+              if (option.image != "0") {
+                _key =
+                  "fields-" +
+                  fkey +
+                  "-general-attributes-options-" +
+                  okey +
+                  "-image";
+                mediaObject[_key] =
+                  type == "url" ? option.image_url : option.image;
+              }
+              if (
+                angular.isDefined(option.bg_image) &&
+                option.bg_image.length > 0
+              ) {
+                angular.forEach(option.bg_image, function (obi, obikey) {
+                  if (obi != "0" && obi != null) {
+                    _key =
+                      "fields-" +
+                      fkey +
+                      "-general-attributes-options-" +
+                      okey +
+                      "-bg_image-" +
+                      obikey;
+                    mediaObject[_key] =
+                      type == "url" ? option.bg_image_url[obikey] : obi;
+                  }
+                });
+              }
+              if (
+                angular.isDefined(option.product_image) &&
+                option.product_image != "0"
+              ) {
+                _key =
+                  "fields-" +
+                  fkey +
+                  "-general-attributes-options-" +
+                  okey +
+                  "-product_image";
+                mediaObject[_key] =
+                  type == "url"
+                    ? option.product_image_url
+                    : option.product_image;
+              }
+              if (angular.isDefined(option.sub_attributes)) {
+                angular.forEach(
+                  option.sub_attributes,
+                  function (sub_attr, skey) {
+                    if (sub_attr.image != "0") {
+                      _key =
+                        "fields-" +
+                        fkey +
+                        "-general-attributes-options-" +
+                        okey +
+                        "-sub_attributes-" +
+                        skey +
+                        "-image";
+                      mediaObject[_key] =
+                        type == "url" ? sub_attr.image_url : sub_attr.image;
+                    }
+                  }
+                );
+              }
+              if (
+                angular.isDefined(option.overlay_image) &&
+                option.overlay_image.length > 0
+              ) {
+                angular.forEach(option.overlay_image, function (obi, obikey) {
+                  if (obi != "0" && obi != null) {
+                    _key =
+                      "fields-" +
+                      fkey +
+                      "-general-attributes-options-" +
+                      okey +
+                      "-overlay_image-" +
+                      obikey;
+                    mediaObject[_key] =
+                      type == "url" ? option.overlay_image_url[obikey] : obi;
+                  }
+                });
+              }
+              if (
+                angular.isDefined(option.frame_image) &&
+                option.frame_image != "0"
+              ) {
+                _key =
+                  "fields-" +
+                  fkey +
+                  "-general-attributes-options-" +
+                  okey +
+                  "-frame_image";
+                mediaObject[_key] =
+                  type == "url" ? option.frame_image_url : option.frame_image;
+              }
+            }
+          );
+        }
+        if (angular.isDefined(field.general.component_icon)) {
+          if (field.general.component_icon != "0") {
+            _key = "fields-" + fkey + "-general-component_icon";
+            mediaObject[_key] =
+              type == "url"
+                ? field.general.component_icon_url
+                : field.general.component_icon;
+          }
+        }
+        if (angular.isDefined(field.general.pb_config)) {
+          angular.forEach(field.general.pb_config, function (attr, akey) {
+            angular.forEach(attr, function (sattr, sakey) {
+              angular.forEach(sattr.views, function (cview, vkey) {
+                if (cview.image != "0") {
+                  _key =
+                    "fields-" +
+                    fkey +
+                    "-general-pb_config-" +
+                    akey +
+                    "-" +
+                    sakey +
+                    "-views-" +
+                    vkey +
+                    "-image";
+                  mediaObject[_key] =
+                    type == "url" ? cview.image_url : cview.image;
+                }
+              });
+            });
+          });
+        }
+      });
+      return mediaObject;
+    };
+    $scope.update_options_media = function (options) {
+      jQuery("#nbp-processing").show();
+      var mediaObject = $scope.get_media_from_options(options, "url"),
+        newMediaObject = {},
+        keys = Object.keys(mediaObject),
+        total = keys.length,
+        index = 0;
+      jQuery("#nbp-process-loaded").html(index);
+      jQuery("#nbp-process-total").html(total);
+      function update_media_false() {
+        jQuery(".nbp-loading-wrap").removeClass("nbp-show");
+        jQuery("#nbp-processing").hide();
+        alert("Error, Try again later!");
+      }
+      function merge_new_media() {
+        var new_options = $scope.merge_new_media(options, newMediaObject, "id");
+        $scope.init(new_options);
+        jQuery(".nbp-loading-wrap").removeClass("nbp-show");
+        jQuery("#nbp-processing").hide();
+      }
+      function update_remote_media(mediaObject, index) {
+        if (index < total) {
+          $scope.download_import_image(
+            mediaObject[keys[index]],
+            function (data) {
+              var res = JSON.parse(data);
+              if (angular.isDefined(res.flag) && res.flag == "1") {
+                if (res.image.current_site == 0) {
+                  newMediaObject[keys[index]] = res.image.id;
+                }
+                index++;
+                jQuery("#nbp-process-loaded").html(index);
+                update_remote_media(mediaObject, index);
+              } else {
+                update_media_false();
+              }
+            }
+          );
+        } else {
+          merge_new_media();
+        }
+      }
+      update_remote_media(mediaObject, index);
+    };
+    $scope.download_import_image = function (image, callack) {
+      jQuery
+        .ajax({
+          url: storelly_option_variable.ajax_url,
+          method: "POST",
+          data: {
+            action: "nbd_download_option_image",
+            nonce: storelly_option_variable.nbnonce,
+            image: image,
+          },
+        })
+        .done(function (data) {
+          callack(data);
+        });
+    };
+    $scope.check_depend = function (fields, data, type) {
+      if (angular.isDefined(data.hidden)) return false;
+      if (angular.isUndefined(data.depend)) return true;
+      var check = [],
+        total_check = true;
+      angular.forEach(data.depend, function (f, _key) {
+        check[_key] = f.operator == "=" ? false : true;
+        angular.forEach(fields, function (field, key) {
+          var val_arr = f.value.split(",");
+          if (val_arr.length > 1) {
+            angular.forEach(val_arr, function (val, vkey) {
+              if (key == f.field && field.value == val) {
+                check[_key] = f.operator == "=" ? true : false;
+              }
+            });
+          } else {
+            if (key == f.field && field.value == f.value) {
+              check[_key] = f.operator == "=" ? true : false;
+            }
+          }
+        });
+      });
+      angular.forEach(check, function (c, k) {
+        total_check = total_check && c;
+      });
+      return total_check;
+    };
+    $scope.check_option_depend = function (fieldIndex, depends) {
+      if (angular.isUndefined(depends)) return true;
+      var check = [],
+        total_check = true;
+      angular.forEach(depends, function (depend, _key) {
+        check[_key] = false;
+        if (depend.operator == "=") {
+          if (
+            $scope.options["fields"][fieldIndex]["general"][depend.field]
+              .value == depend.value
+          )
+            check[_key] = true;
+        } else {
+          if (
+            $scope.options["fields"][fieldIndex]["general"][depend.field]
+              .value != depend.value
+          )
+            check[_key] = true;
+        }
+      });
+      angular.forEach(check, function (c, k) {
+        total_check = total_check && c;
+      });
+      return total_check;
+    };
+    $scope.remove_attribute = function (fieldIndex, key, $index) {
+      if (
+        $scope.options["fields"][fieldIndex]["general"][key].options.length == 1
+      ) {
+        return;
+      }
+      if (
+        angular.isDefined(
+          $scope.options["fields"][fieldIndex]["general"][key].remove_att
+        )
+      ) {
+        alert(storelly_options.storelly_options_lang.can_not_remove_att);
+        return;
+      }
+      $scope.options["fields"][fieldIndex]["general"][key]["options"].splice(
+        $index,
+        1
+      );
+      $scope.initfieldValue();
+    };
+    $scope.remove_sub_attribute = function (fieldIndex, opIndex, sopIndex) {
+      $scope.options["fields"][fieldIndex]["general"]["attributes"]["options"][
+        opIndex
+      ]["sub_attributes"].splice(sopIndex, 1);
+      $scope.initfieldValue();
+    };
+    $scope.add_text_configs_color = function (fieldIndex) {
+      $scope.options["fields"][fieldIndex]["general"]["nbpb_text_configs"][
+        "colors"
+      ].push({
+        name: "White",
+        code: "#ffffff",
+      });
+    };
+    $scope.remove_text_configs_color = function (fieldIndex, clIndex) {
+      $scope.options["fields"][fieldIndex]["general"]["nbpb_text_configs"][
+        "colors"
+      ].splice(clIndex, 1);
+    };
+    $scope.sort_attribute = function (fieldIndex, opIndex, direction) {
+      var options =
+        $scope.options["fields"][fieldIndex]["general"]["attributes"][
+          "options"
+        ];
+      var dest_index = opIndex - 1;
+      if (direction == "up") {
+        if (opIndex == 0) return;
+      } else {
+        if (opIndex == options.length - 1) return;
+        dest_index = opIndex + 1;
+      }
+      var temp_op = {};
+      angular.copy(options[opIndex], temp_op);
+      angular.copy(options[dest_index], options[opIndex]);
+      angular.copy(temp_op, options[dest_index]);
+      $scope.initfieldValue();
+    };
+    $scope.sort_sub_attribute = function (
+      fieldIndex,
+      opIndex,
+      sopIndex,
+      direction
+    ) {
+      var sub_attributes =
+        $scope.options["fields"][fieldIndex]["general"]["attributes"][
+          "options"
+        ][opIndex]["sub_attributes"];
+      var dest_index = sopIndex - 1;
+      if (direction == "up") {
+        if (sopIndex == 0) return;
+      } else {
+        if (sopIndex == sub_attributes.length - 1) return;
+        dest_index = sopIndex + 1;
+      }
+      var temp_sop = {};
+      angular.copy(sub_attributes[sopIndex], temp_sop);
+      angular.copy(sub_attributes[dest_index], sub_attributes[sopIndex]);
+      angular.copy(temp_sop, sub_attributes[dest_index]);
+      $scope.initfieldValue();
+    };
+    $scope.toggle_expand_attribute = function (fieldIndex, opIndex) {
+      $scope.options["fields"][fieldIndex]["general"]["attributes"]["options"][
+        opIndex
+      ]["isExpand"] =
+        !$scope.options["fields"][fieldIndex]["general"]["attributes"][
+          "options"
+        ][opIndex]["isExpand"];
+    };
+    $scope.toggle_expand_sub_attribute = function (
+      fieldIndex,
+      opIndex,
+      sopIndex
+    ) {
+      $scope.options["fields"][fieldIndex]["general"]["attributes"]["options"][
+        opIndex
+      ]["sub_attributes"][sopIndex]["isExpand"] =
+        !$scope.options["fields"][fieldIndex]["general"]["attributes"][
+          "options"
+        ][opIndex]["sub_attributes"][sopIndex]["isExpand"];
+    };
+    $scope.seleted_attribute = function (fieldIndex, key, $index) {
+      angular.forEach(
+        $scope.options["fields"][fieldIndex]["general"][key]["options"],
+        function (field, _key) {
+          $scope.options["fields"][fieldIndex]["general"][key]["options"][_key][
+            "selected"
+          ] = 0;
+        }
+      );
+      $scope.options["fields"][fieldIndex]["general"][key]["options"][$index][
+        "selected"
+      ] = 1;
+      $scope.initfieldValue();
+    };
+    $scope.seleted_sub_attribute = function (
+      fieldIndex,
+      key,
+      opIndex,
+      sopIndex
+    ) {
+      angular.forEach(
+        $scope.options["fields"][fieldIndex]["general"][key]["options"][
+          opIndex
+        ]["sub_attributes"],
+        function (field, _key) {
+          $scope.options["fields"][fieldIndex]["general"][key]["options"][
+            opIndex
+          ]["sub_attributes"][_key]["selected"] = 0;
+        }
+      );
+      $scope.options["fields"][fieldIndex]["general"][key]["options"][opIndex][
+        "sub_attributes"
+      ][sopIndex]["selected"] = 1;
+      $scope.initfieldValue();
+    };
+    $scope.add_attribute = function (fieldIndex, key) {
+      if (
+        angular.isDefined(
+          $scope.options["fields"][fieldIndex]["general"][key].add_att
+        )
+      ) {
+        alert(storelly_options.storelly_options_lang.can_not_add_att);
+        return;
+      }
+
+      $scope.options["fields"][fieldIndex]["general"][key]["options"].push({
+        name: storelly_options.storelly_options_lang.attribute_name,
+        des: "",
+        price: [],
+        selected: 0,
+        preview_type: "i",
+        image: 0,
+        image_url: "",
+        color: "#ffffff",
+        bg_image: [],
+        bg_image_url: [],
+        isExpand: true,
+        depend: [
+          {
+            id: "",
+            operator: "i",
+            val: "",
+            subval: "",
+          },
+        ],
+      });
+      $scope.initfieldValue();
+    };
+    $scope.add_sub_attribute = function (fieldIndex, opIndex) {
+      if (
+        angular.isUndefined(
+          $scope.options["fields"][fieldIndex]["general"]["attributes"][
+            "options"
+          ][opIndex]["sub_attributes"]
+        )
+      ) {
+        $scope.options["fields"][fieldIndex]["general"]["attributes"][
+          "options"
+        ][opIndex]["sub_attributes"] = [];
+      }
+      $scope.options["fields"][fieldIndex]["general"]["attributes"]["options"][
+        opIndex
+      ]["sub_attributes"].push({
+        name: storelly_options.storelly_options_lang.sub_attribute_name,
+        des: "",
+        price: [],
+        selected: 0,
+        preview_type: "i",
+        image: 0,
+        image_url: "",
+        color: "#ffffff",
+        isExpand: true,
+        depend: [
+          {
+            id: "",
+            operator: "i",
+            val: "",
+            subval: "",
+          },
+        ],
+      });
+      $scope.initfieldValue();
+    };
+    $scope.toggle_enable_subattr = function (fieldIndex, opIndex) {
+      var field = $scope.options["fields"][fieldIndex];
+      if (
+        angular.isUndefined(
+          field["general"]["attributes"]["options"][opIndex][
+            "sattr_display_type"
+          ]
+        )
+      ) {
+        field["general"]["attributes"]["options"][opIndex][
+          "sattr_display_type"
+        ] = "s";
+      }
+      if (angular.isDefined(field.nbpb_type) && field.nbpb_type == "nbpb_com") {
+        $scope.buildPbConfigFlat(field);
+      }
+    };
+    $scope.set_attribute_image = function (
+      fieldIndex,
+      $index,
+      type,
+      type_url,
+      $bg_index
+    ) {
+      var file_frame;
+      if (file_frame) {
+        file_frame.open();
+        return;
+      }
+      file_frame = wp.media.frames.file_frame = wp.media({
+        title: storelly_options.storelly_options_lang.choose_image,
+        button: {
+          text: storelly_options.storelly_options_lang.choose_image,
+        },
+        library: {
+          type: ["image"],
+        },
+        multiple: false,
+      });
+      file_frame.on("select", function () {
+        var attachment = file_frame.state().get("selection").first().toJSON();
+        if (angular.isDefined($bg_index)) {
+          $scope.options["fields"][fieldIndex]["general"]["attributes"][
+            "options"
+          ][$index][type][$bg_index] = attachment.id;
+        } else {
+          $scope.options["fields"][fieldIndex]["general"]["attributes"][
+            "options"
+          ][$index][type] = attachment.id;
+        }
+        var url = attachment.url;
+        if (
+          angular.isDefined(attachment.sizes) &&
+          angular.isDefined(attachment.sizes.thumbnail)
+        ) {
+          url = attachment.sizes.thumbnail.url;
+        }
+        if (angular.isDefined($bg_index)) {
+          $scope.options["fields"][fieldIndex]["general"]["attributes"][
+            "options"
+          ][$index][type_url][$bg_index] = url;
+        } else {
+          $scope.options["fields"][fieldIndex]["general"]["attributes"][
+            "options"
+          ][$index][type_url] = url;
+        }
+        if (
+          $scope.$root.$$phase !== "$apply" &&
+          $scope.$root.$$phase !== "$digest"
+        )
+          $scope.$apply();
+      });
+      file_frame.open();
+    };
+    $scope.set_component_icon = function (fieldIndex) {
+      var file_frame;
+      if (file_frame) {
+        file_frame.open();
+        return;
+      }
+      file_frame = wp.media.frames.file_frame = wp.media({
+        title: storelly_options.storelly_options_lang.choose_image,
+        button: {
+          text: storelly_options.storelly_options_lang.choose_image,
+        },
+        library: {
+          type: ["image"],
+        },
+        multiple: false,
+      });
+      file_frame.on("select", function () {
+        var attachment = file_frame.state().get("selection").first().toJSON();
+        $scope.options["fields"][fieldIndex]["general"]["component_icon"] =
+          attachment.id;
+        var url = attachment.url;
+        if (
+          angular.isDefined(attachment.sizes) &&
+          angular.isDefined(attachment.sizes.thumbnail)
+        ) {
+          url = attachment.sizes.thumbnail.url;
+        }
+        $scope.options["fields"][fieldIndex]["general"]["component_icon_url"] =
+          url;
+        if (
+          $scope.$root.$$phase !== "$apply" &&
+          $scope.$root.$$phase !== "$digest"
+        )
+          $scope.$apply();
+      });
+      file_frame.open();
+    };
+    $scope.remove_component_icon = function (fieldIndex) {
+      $scope.options["fields"][fieldIndex]["general"]["component_icon"] = 0;
+      $scope.options["fields"][fieldIndex]["general"]["component_icon_url"] =
+        "";
+    };
+    $scope.set_sub_attribute_image = function (fieldIndex, opIndex, sopIndex) {
+      var file_frame;
+      if (file_frame) {
+        file_frame.open();
+        return;
+      }
+      file_frame = wp.media.frames.file_frame = wp.media({
+        title: storelly_options.storelly_options_lang.choose_image,
+        button: {
+          text: storelly_options.storelly_options_lang.choose_image,
+        },
+        library: {
+          type: ["image"],
+        },
+        multiple: false,
+      });
+      file_frame.on("select", function () {
+        var attachment = file_frame.state().get("selection").first().toJSON();
+        $scope.options["fields"][fieldIndex]["general"]["attributes"][
+          "options"
+        ][opIndex]["sub_attributes"][sopIndex]["image"] = attachment.id;
+        var url = attachment.url;
+        if (
+          angular.isDefined(attachment.sizes) &&
+          angular.isDefined(attachment.sizes.thumbnail)
+        ) {
+          url = attachment.sizes.thumbnail.url;
+        }
+        $scope.options["fields"][fieldIndex]["general"]["attributes"][
+          "options"
+        ][opIndex]["sub_attributes"][sopIndex]["image_url"] = url;
+        if (
+          $scope.$root.$$phase !== "$apply" &&
+          $scope.$root.$$phase !== "$digest"
+        )
+          $scope.$apply();
+      });
+      file_frame.open();
+    };
+    $scope.remove_attribute_image = function (
+      fieldIndex,
+      $index,
+      type,
+      type_url
+    ) {
+      $scope.options["fields"][fieldIndex]["general"]["attributes"]["options"][
+        $index
+      ][type] = 0;
+      $scope.options["fields"][fieldIndex]["general"]["attributes"]["options"][
+        $index
+      ][type_url] = "";
+    };
+    $scope.remove_sub_attribute_image = function (
+      fieldIndex,
+      opIndex,
+      sopIndex
+    ) {
+      $scope.options["fields"][fieldIndex]["general"]["attributes"]["options"][
+        opIndex
+      ]["sub_attributes"][sopIndex]["image"] = 0;
+      $scope.options["fields"][fieldIndex]["general"]["attributes"]["options"][
+        opIndex
+      ]["sub_attributes"][sopIndex]["image_url"] = "";
+    };
+    $scope.add_remove_second_color = function (fieldIndex, opIndex) {
+      if (
+        angular.isUndefined(
+          $scope.options["fields"][fieldIndex]["general"]["attributes"][
+            "options"
+          ][opIndex]["color2"]
+        )
+      ) {
+        $scope.options["fields"][fieldIndex]["general"]["attributes"][
+          "options"
+        ][opIndex]["color2"] = "#ffffff";
+      } else {
+        delete $scope.options["fields"][fieldIndex]["general"]["attributes"][
+          "options"
+        ][opIndex].color2;
+      }
+    };
+    $scope.update_price_type = function (fieldIndex) {
+      if (
+        $scope.options["fields"][fieldIndex]["general"].data_type.value ==
+          "m" &&
+        $scope.options["fields"][fieldIndex]["general"].price_type.value == "c"
+      ) {
+        $scope.options["fields"][fieldIndex]["general"].price_type.value = "f";
+      }
+    };
+    $scope.updateApp = function () {
+      if (
+        $scope.$root.$$phase !== "$apply" &&
+        $scope.$root.$$phase !== "$digest"
+      )
+        $scope.$apply();
+    };
+    $scope.updateJsonFields = function (e) {
+      return true;
+      e.preventDefault();
+      $scope.getJsonFields();
+      return false;
+    };
+    $scope.getJsonFields = function () {
+      var fields = [];
+      angular.forEach($scope.options.fields, function (field, fieldIndex) {
+        fields[fieldIndex] = {
+          id: field.id,
+          general: {
+            title: field.general.title.value,
+            description: field.general.description.value,
+            data_type: field.general.data_type.value,
+            input_type: field.general.input_type.value,
+            input_option: field.general.input_option.value,
+            text_option: field.general.text_option.value,
+            upload_option: field.general.upload_option.value,
+            enabled: field.general.enabled.value,
+            published: !!field.general.published
+              ? field.general.published.value
+              : "y",
+            required: field.general.required.value,
+            price_type: field.general.price_type.value,
+            price: field.general.price.value,
+            attributes: {},
+          },
+          appearance: {},
+        };
+
+        if (field.general.attributes.options.length > 0) {
+          fields[fieldIndex].general.attributes.options = [];
+          angular.forEach(
+            field.general.attributes.options,
+            function (op, opIndex) {
+              fields[fieldIndex].general.attributes.options[opIndex] = {
+                preview_type: op.preview_type,
+                image: op.image,
+                color: op.color,
+                name: op.name,
+                des: op.des,
+                price: op.price,
+              };
+
+              if (field.appearance.change_image_product.value == "y") {
+                fields[fieldIndex].general.attributes.options[
+                  opIndex
+                ].product_image = op.product_image;
+              }
+              if (op.selected) {
+                fields[fieldIndex].general.attributes.options[
+                  opIndex
+                ].selected = "on";
+              }
+            }
+          );
+        }
+        angular.forEach(field.appearance, function (data, key) {
+          fields[fieldIndex].appearance[key] = data.value;
+        });
+
+        if (field.nbpb_type) {
+          fields[fieldIndex].nbpb_type = field.nbpb_type;
+          switch (field.nbpb_type) {
+            case "nbpb_com":
+              fields[fieldIndex].general.component_icon =
+                field.general.component_icon;
+              if (
+                field.general.pb_config_flat.length > 0 &&
+                $scope.options.views.length > 0
+              ) {
+                fields[fieldIndex].general.pb_config = field.general.pb_config;
+              }
+              break;
+            case "nbpb_image":
+              if ($scope.options.views.length > 0) {
+                fields[fieldIndex].general.nbpb_image_configs =
+                  field.general.nbpb_image_configs;
+              }
+              break;
+            case "nbpb_text":
+              fields[fieldIndex].general.nbpb_text_configs =
+                field.general.nbpb_text_configs;
+              break;
+          }
+        }
+      });
+
+      function cleanse(obj, path) {
+        Object.keys(obj).forEach(function (key) {
+          var value = obj[key];
+          var type = typeof value;
+          if (type === "object") {
+            cleanse(value);
+            if (!Object.keys(value).length) {
+              //delete obj[key]
+            }
+          } else {
+            if (type === "undefined" || key == "$$hashKey") {
+              delete obj[key];
+            } else {
+              if (key == "display" || key == "selected") {
+                if (value === true || value === "on") {
+                  obj[key] = "on";
+                } else {
+                  delete obj[key];
+                }
+              }
+            }
+          }
+        });
+      }
+
+      cleanse(fields);
+      $scope.jsonFields = JSON.stringify(fields);
+      setTimeout(function () {
+        jQuery('form[name="nboForm"]').submit();
+      });
+    };
+    $scope.init();
+  })
+  .directive("stringToNumber", function () {
+    return {
+      require: "ngModel",
+      link: function (scope, element, attrs, ngModel) {
+        ngModel.$parsers.push(function (value) {
+          return "" + value;
+        });
+        ngModel.$formatters.push(function (value) {
+          return parseFloat(value);
+        });
+      },
+    };
+  })
+  .directive("convertToNumber", function () {
+    return {
+      require: "ngModel",
+      link: function (scope, element, attrs, ngModel) {
+        ngModel.$parsers.push(function (val) {
+          return val != null ? parseInt(val, 10) : null;
+        });
+        ngModel.$formatters.push(function (val) {
+          return val != null ? "" + val : null;
+        });
+      },
+    };
+  })
+  .directive("nbdColorPicker", function () {
+    return {
+      restrict: "A",
+      scope: {
+        value: "=nbdColorPicker",
+      },
+      link: function (scope, element) {
+        function init() {
+          jQuery(element).val(scope.value);
+          jQuery(element).wpColorPicker({
+            change: function (evt, ui) {
+              var $input = jQuery(this);
+              setTimeout(function () {
+                if (
+                  $input.wpColorPicker("color") !== $input.data("tempcolor")
+                ) {
+                  $input
+                    .change()
+                    .data("tempcolor", $input.wpColorPicker("color"));
+                  $input.val($input.wpColorPicker("color"));
+                }
+              }, 10);
+            },
+          });
+        }
+        scope.$watch(
+          "value",
+          function (newValue, oldValue) {
+            if (newValue != oldValue) {
+              jQuery(element).wpColorPicker("color", newValue);
+            }
+          },
+          true
+        );
+        scope.$on("$destroy", function () {
+          jQuery(element).parents(".wp-picker-container").remove();
+        });
+        init();
+      },
+    };
+  })
+  .directive("nbdSelect2", function ($timeout) {
+    return {
+      restrict: "A",
+      link: function (scope, element) {
+        $timeout(function () {
+          jQuery(element).selectWoo();
+        });
+      },
+    };
+  })
+  .directive("nbdTab", function ($timeout) {
+    return {
+      restrict: "A",
+      link: function (scope, element) {
+        $timeout(function () {
+          jQuery.each(jQuery(element).find(".pcpb-field-tab"), function () {
+            jQuery(this).on("click", function () {
+              var target = jQuery(this).data("target");
+              jQuery(this)
+                .parents(".pcpb-field-wrap")
+                .find(".pcpb-field-content")
+                .removeClass("active");
+              jQuery(this).parent("ul").find("li").removeClass("active");
+              jQuery(this)
+                .parents(".pcpb-field-wrap")
+                .find("." + target)
+                .addClass("active");
+              jQuery(this).addClass("active");
+            });
+          });
+        });
+      },
+    };
+  })
+  .directive("nbdTip", function ($timeout) {
+    return {
+      restrict: "E",
+      scope: {
+        dataTip: "@tip",
+      },
+      template:
+        '<span class="woocommerce-help-tip" data-tip="{{dataTip}}" ></span>',
+      link: function (scope, element, attrs) {
+        var tiptip_args = {
+          attribute: "data-tip",
+          fadeIn: 50,
+          fadeOut: 50,
+          delay: 200,
+        };
+        $timeout(function () {
+          jQuery(element).find(".woocommerce-help-tip").tipTip(tiptip_args);
+        }, 0);
+      },
+    };
+  })
+  .directive("nboSubAttrSelect", function ($timeout) {
+    return {
+      restrict: "E",
+      scope: {
+        find: "=",
+        oind: "=",
+        cind: "=",
+        sind: "=",
+        con: "=",
+        fields: "=",
+      },
+      template:
+        '<select class="nbd-w-100i" name="options[fields][{{find}}][general][attributes][options][{{oind}}]{{sind_name}}[depend][{{cind}}][subval]" ng-if="available" ng-model="con.subval"><option ng-repeat="attr in attributes" value="{{$index}}">{{attr.name}}</option></select>',
+      link: function (scope, element, attrs) {
+        if (scope.sind) {
+          scope.sind_name = "[sub_attributes][" + scope.sind + "]";
+        } else {
+          scope.sind_name = "";
+        }
+      },
+    };
+  })
+  .filter("range", function () {
+    return function (input, total) {
+      total = parseInt(total);
+      for (var i = 0; i < total; i++) {
+        input.push(i);
+      }
+      return input;
+    };
+  })
+  .directive("nbdPmDroppable", function ($timeout) {
+    return {
+      restrict: "A",
+      scope: {
+        dataDir: "@dir",
+      },
+      link: function (scope, element, attrs) {
+        $timeout(function () {
+          jQuery(element)
+            .droppable({
+              hoverClass: "nbd-dropzone-hover",
+              accept: ".nbd-darg-pm-field",
+              drop: function (evt, ui) {
+                scope.$emit("mpm:drop", scope.dataDir, ui.helper.data("id"));
+              },
+            })
+            .sortable({
+              items: "> .nbd-pm-field",
+              scroll: true,
+              placeholder: "ui-sortable-placeholder",
+              update: function () {
+                var ids = jQuery(element)
+                  .children(".nbd-pm-field")
+                  .map(function (id, elem) {
+                    return jQuery(elem).data("id");
+                  })
+                  .get();
+                scope.$emit("mpm:sort", scope.dataDir, ids);
+                $timeout(function () {
+                  jQuery(element).sortable("refreshPositions");
+                });
+              },
+            });
+        });
+      },
+    };
+  })
+  .directive("nbdPmDraggable", function ($timeout) {
+    return {
+      restrict: "A",
+      link: function (scope, element, attrs) {
+        $timeout(function () {
+          jQuery(element).draggable({
+            helper: "clone",
+            cursor: "move",
+          });
+        });
+      },
+    };
+  });
+jQuery(document).ready(function ($) {
+  $(".nbo-dates input:not(.hasDatepicker)").datepicker({
+    defaultDate: "",
+    dateFormat: "yy-mm-dd",
+    numberOfMonths: 1,
+    showButtonPanel: true,
+    showOn: "button",
+    buttonImage: storelly_options.calendar_image,
+    buttonImageOnly: true,
+    onSelect: function (selectedDate) {
+      var option = $(this).is(".date_from") ? "minDate" : "maxDate";
+      var instance = $(this).data("datepicker"),
+        date = $.datepicker.parseDate(
+          instance.settings.dateFormat || $.datepicker._defaults.dateFormat,
+          selectedDate,
+          instance.settings
+        );
+      var dates = $(this).parents(".nbo-dates").find("input");
+      dates.not(this).datepicker("option", option, date);
+    },
+  });
+  $(".nbo-toggle-nav").on("click", function () {
+    $(".nbo-toggle").removeClass("active");
+    if ($(this).is(":checked")) {
+      $($(this).data("toggle")).addClass("active");
+    }
+  });
+});

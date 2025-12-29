@@ -1,53 +1,38 @@
 <?php
+/**
+ * Export PDF using Cloud2Print API
+ * 
+ * This class handles PDF export using the cloud2print.net cloud API.
+ * All PDF generation is performed remotely, no local libraries required.
+ *
+ * @package SPBWC_Product_Builder
+ * @since 1.0.0
+ */
+
 if (!defined('ABSPATH')) {
     exit;
 }
-if (!class_exists('Storelly_Export_PDF')) {
-    class Storelly_Export_PDF {
+
+if (!class_exists('SPBWC_Storelly_Export_PDF')) {
+    class SPBWC_Storelly_Export_PDF {
+        
+        /**
+         * Cloud2Print API base URL
+         */
+        const API_BASE_URL = 'https://api.cloud2print.net';
+
         public function __construct() {
         }
-        public static function download_google_font($font_name = '') {
-            $path_dst = array(
-                'r' =>  STORELLY_PB_FONT_DIR . '/' . $font_name . '.ttf'
-            );
-            $google_font_path = STORELLY_PB_DATA_CONFIG_DIR . '/google-fonts-ttf.json';
-            $fonts = json_decode(file_get_contents($google_font_path));
-            $items = $fonts->items;
-            foreach ($items as $item) {
-                if ($item->family == $font_name) {
-                    $font = $item->files;
-                    break;
-                }
-            }
-            if (isset($font)) {
-                $path_src = isset($font->regular) ? $font->regular : reset($font);
-                if (!file_exists($path_dst['r'])) {
-                    copy($path_src, $path_dst['r']);
-                }
-                if (isset($font->italic)) {
-                    $path_dst['i'] = STORELLY_PB_FONT_DIR . '/' . $font_name . 'i.ttf';
-                    if (!file_exists($path_dst['i'])) {
-                        copy($font->italic, $path_dst['i']);
-                    }
-                }
-                if (isset($font->{"700"})) {
-                    $path_dst['b'] = STORELLY_PB_FONT_DIR . '/' . $font_name . 'b.ttf';
-                    if (!file_exists($path_dst['b'])) {
-                        copy($font->{"700"}, $path_dst['b']);
-                    }
-                }
-                if (isset($font->{"700italic"})) {
-                    $path_dst['bi'] = STORELLY_PB_FONT_DIR . '/' . $font_name . 'bi.ttf';
-                    if (!file_exists($path_dst['bi'])) {
-                        copy($font->{"700italic"}, $path_dst['bi']);
-                    }
-                }
-            }
 
-            return $path_dst;
-        }
-        public static function cloudExportPdf($folder_design, $include_background = false) {
-            $path           = STORELLY_PB_CUSTOMER_DIR . '/' . $folder_design;
+        /**
+         * Export PDF using Cloud2Print API
+         *
+         * @param string $folder_design Design folder name
+         * @param bool $include_background Whether to include background in PDF
+         * @return array List of generated PDF files
+         */
+        public static function spbwc_export_pdf($folder_design, $include_background = false) {
+            $path           = SPBWC_PB_CUSTOMER_DIR . '/' . $folder_design;
             $folder         = $path . '/customer-pdfs';
             $result         = array();
             $pages          = array();
@@ -55,21 +40,53 @@ if (!class_exists('Storelly_Export_PDF')) {
             if (!file_exists($folder)) {
                 wp_mkdir_p($folder);
             }
-            $config         = file_exists($path . '/config.json') ? json_decode(file_get_contents($path . '/config.json')) : '';
-            $design_output  = file_exists($path . '/design_output.json') ? json_decode(file_get_contents($path . '/design_output.json')) : '';
+            
+            $config = '';
+            $config_path = $path . '/config.json';
+            if (file_exists($config_path)) {
+                // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- Reading local JSON configuration file from uploads directory.
+                $config_json = file_get_contents($config_path);
+                if ($config_json !== false) {
+                    $config = json_decode($config_json);
+                }
+            }
+            
+            $design_output = '';
+            $design_output_path = $path . '/design_output.json';
+            if (file_exists($design_output_path)) {
+                // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- Reading local JSON design output from uploads directory.
+                $design_json = file_get_contents($design_output_path);
+                if ($design_json !== false) {
+                    $design_output = json_decode($design_json);
+                }
+            }
             $dpi            = isset($design_output->dpi) ? (int) $design_output->dpi : 300;
             $unit           = isset($design_output->dimension_unit) ? $design_output->dimension_unit : 'px';
             $datas          = array();
+            
             if (isset($config->views) && count($config->views)) {
                 foreach ($config->views as $side) {
                     $datas[] = (array)$side;
                 }
             };
-            $unit_ratio     = self::get_unit_ratio($dpi, $unit);
+            
+            $unit_ratio     = self::spbwc_get_unit_ratio($dpi, $unit);
             $used_font_path = $path . '/used_font.json';
-            $used_fonts     =  file_exists($used_font_path) ? json_decode(file_get_contents($used_font_path)) : array();
-            $font_css       = self::build_font_css($used_fonts);
+            $used_fonts     = array();
+            
+            if (file_exists($used_font_path)) {
+                // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- Reading local JSON file from uploads directory.
+                $font_json = file_get_contents($used_font_path);
+                if ($font_json !== false) {
+                    $used_fonts = json_decode($font_json);
+                    if (!is_array($used_fonts) && !is_object($used_fonts)) {
+                        $used_fonts = array();
+                    }
+                }
+            }
+            $font_css       = self::spbwc_build_font_css($used_fonts);
             $requests       = array();
+            
             foreach ($datas as $key => $data) {
                 $page_settings = array(
                     'width'         => $data['base_width'] * $unit_ratio . 'in',
@@ -94,7 +111,7 @@ if (!class_exists('Storelly_Export_PDF')) {
 
                 if ($include_background) {
                     $product_bg     = is_numeric($data['base_url']) ? wp_get_attachment_url($data['base_url']) : $data['base_url'];
-                    if (Storelly_IO::checkFileType(basename($product_bg), $allow_exts)) {
+                    if (SPBWC_Storelly_IO::spbwc_check_file_type(basename($product_bg), $allow_exts)) {
                         $page_settings['include_bg']    = true;
                         $page_settings['bg_src']        = $product_bg;
                     }
@@ -102,9 +119,9 @@ if (!class_exists('Storelly_Export_PDF')) {
 
                 $pages[$key]['page_settings'] = $page_settings;
 
-                $svg_path = STORELLY_PB_CUSTOMER_DIR . '/' . $folder_design . '/frame_' . $key . '_svg.svg';
+                $svg_path = SPBWC_PB_CUSTOMER_DIR . '/' . $folder_design . '/frame_' . $key . '_svg.svg';
                 if (file_exists($svg_path)) {
-                    $html_url           = self::build_html_page($folder_design, $key, $svg_path, $page_settings, $font_css);
+                    $html_url           = self::spbwc_build_html_page($folder_design, $key, $svg_path, $page_settings, $font_css);
                     $url_segment        = urlencode($html_url);
                     $settings_segment   = base64_encode(wp_json_encode(array(
                         'width'         => $data['base_width'] * $unit_ratio . 'in',
@@ -113,264 +130,55 @@ if (!class_exists('Storelly_Export_PDF')) {
 
                     $requests[] = array(
                         'index'         => $key,
-                        'url'           => 'https://api.cloud2print.net/pdf/' . $url_segment . '/' . $settings_segment,
+                        'url'           => self::API_BASE_URL . '/pdf/' . $url_segment . '/' . $settings_segment,
                     );
                 }
             }
-            $pdfs = self::request_create_pdf($requests, $folder, $folder_design);
+            
+            $pdfs = self::spbwc_request_create_pdf($requests, $folder, $folder_design);
             foreach ($pdfs as $key => $pdf) {
                 $pages[$key]['file'] = $pdf;
             }
-            $result = Storelly_IO::get_list_files($folder);
+            
+            $result = SPBWC_Storelly_IO::spbwc_get_list_files($folder);
             return $result;
         }
-        public static function exportPDF($folder_design, $include_background = false) {
-            // if (!class_exists('TCPDF')) {
-            //     // require_once(STORELLY_PB_PLUGIN_DIR . 'lib/tcpdf/tcpdf.php');
-            // }
-            require_once(STORELLY_PB_PLUGIN_DIR . 'lib/fpdi/autoload.php');
 
-            $path           = STORELLY_PB_CUSTOMER_DIR . '/' . $folder_design;
-            $folder         = $path . '/customer-pdfs';
-            $output_file    = $folder . '/' . $folder_design . '.pdf';
-            $result         = array();
-            if (!file_exists($folder)) {
-                wp_mkdir_p($folder);
-            }
-            $storelly_pb_settings = get_option('storelly_pb_settings');
-            $enable_cloud_export_pdf = $storelly_pb_settings && isset($storelly_pb_settings['enable_cloud2print_api']) && $storelly_pb_settings['enable_cloud2print_api'] == 'yes' ? true : false;
-            if ($enable_cloud_export_pdf) {
-                self::cloudExportPdf($folder_design, $include_background);
-                $output_file    = STORELLY_PB_CUSTOMER_DIR . '/' . $folder_design . '/customer-pdfs' . '/' . $folder_design . '.pdf';
-                $result = Storelly_IO::get_list_files_by_type(STORELLY_PB_CUSTOMER_DIR . '/' . $folder_design . '/customer-pdfs', 'pdf', 1);
-            } else {
-                $config     = file_exists($path . '/config.json') ? json_decode(file_get_contents($path . '/config.json')) : '';
-                $datas = array();
-                if (isset($config->views) && count($config->views)) {
-                    foreach ($config->views as $side) {
-                        $datas[] = (array)$side;
-                    }
-                };
-                $design_output  = file_exists($path . '/design_output.json') ? json_decode(file_get_contents($path . '/design_output.json')) : '';
-                $dpi            = isset($design_output->dpi) ? (int) $design_output->dpi : 300;
-                $unit           = isset($design_output->dimension_unit) ? $design_output->dimension_unit : 'cm';
-                $used_font_path = $path . '/used_font.json';
-                $used_font      = file_exists($used_font_path) ? json_decode(file_get_contents($used_font_path)) : array();
-                $path_font      = array();
-                foreach ($used_font as $font) {
-                    $font_name = $font->name;
-                    if ($font->type == 'google') {
-                        $path_font = self::download_google_font($font_name);;
-                    }
-                    $true_type = nbd_get_truetype_fonts();
-                    if (in_array($font_name, $true_type)) {
-                        foreach ($path_font as $pfont) {
-                            $fontname = TCPDF_FONTS::addTTFfont($pfont, 'TrueType', '', 32);
-                        }
-                    } else {
-                        foreach ($path_font as $pfont) {
-                            $fontname = TCPDF_FONTS::addTTFfont($pfont, '', '', 32);
-                        }
-                    }
-                }
-                $pdfs       = array();
-                $unitRatio  = 10;
-                switch ($unit) {
-                    case 'mm':
-                        $unitRatio = 1;
-                        break;
-                    case 'in':
-                        $unitRatio = 25.4;
-                        break;
-                    case 'ft':
-                        $unitRatio = 304.8;
-                        break;
-                    case 'px':
-                        $unitRatio = 25.4 / $dpi;
-                        break;
-                    default:
-                        $unitRatio = 10;
-                        break;
-                }
-                foreach ($datas as $key => $data) {
-                    $proWidth   = $data['base_width'];
-                    $proHeight  = $data['base_height'];
-
-                    $pdfs[$key]['background']           = $data['base_url'];
-                    $pdfs[$key]['product-width']        = round($proWidth * $unitRatio, 2);
-                    $pdfs[$key]['product-height']       = round($proHeight * $unitRatio, 2);
-                    $pdfs[$key]['include_background']   = $include_background;
-                    if ($include_background && $data['base_url']) {
-                        $pdfs[$key]['include_background']   = 0;
-                    }
-                }
-                $bgWidth        = $pdfs[0]['product-width'];
-                $bgHeight       = $pdfs[0]['product-height'];
-                $pWidth         = $bgWidth;
-                $pHeight        = $bgHeight;
-                $pdf_format     = array($pWidth, $pHeight);
-                if ($pWidth > $pHeight) {
-                    $orientation = "L";
-                } else {
-                    $orientation = "P";
-                }
-
-                $pdf = new \setasign\Fpdi\TcpdfFpdi($orientation, 'mm', $pdf_format, true, 'UTF-8', false);
-
-                $pdf->SetMargins(0, 0, 0, true);
-                $pdf->SetCreator(get_site_url());
-                $pdf->SetTitle(get_bloginfo('name'));
-                $pdf->setPrintHeader(false);
-                $pdf->setPrintFooter(false);
-                $pdf->SetAutoPageBreak(TRUE, 0);
-
-                foreach ($pdfs as $key => $_pdf) {
-                    $background         = $_pdf['background'];
-                    $path_bg = (absint($background) > 0) ? get_attached_file($background) : Storelly_IO::convert_url_to_path($background);
-                    $bgWidth    = (float)$_pdf['product-width'];
-                    $bgHeight   = (float)$_pdf['product-height'];
-                    $pdf_format     = array($bgWidth, $bgHeight);
-                    if ($bgWidth > $bgHeight) {
-                        $orientation = "L";
-                    } else {
-                        $orientation = "P";
-                    }
-
-                    $pdf = new \setasign\Fpdi\TcpdfFpdi($orientation, 'mm', $pdf_format, true, 'UTF-8', false);
-
-                    $pdf->SetMargins(0, 0, 0, true);
-                    $pdf->SetCreator(get_site_url());
-                    $pdf->SetTitle(get_bloginfo('name'));
-                    $pdf->setPrintHeader(false);
-                    $pdf->setPrintFooter(false);
-                    $pdf->SetAutoPageBreak(TRUE, 0);
-
-                    $pdf->AddPage();
-                    if ($include_background && $path_bg) {
-                        $img_ext    = array('jpg', 'jpeg', 'png');
-                        $svg_ext    = array('svg');
-                        $eps_ext    = array('eps', 'ai');
-
-                        $check_img  = Storelly_IO::checkFileType(basename($path_bg), $img_ext);
-                        $check_svg  = Storelly_IO::checkFileType(basename($path_bg), $svg_ext);
-                        $check_eps  = Storelly_IO::checkFileType(basename($path_bg), $eps_ext);
-
-                        $ext        = pathinfo($path_bg);
-                        if ($check_img) {
-                            $pdf->Image($path_bg, 0, 0, $bgWidth, $bgHeight, '', '', '', false);
-                        }
-                        if ($check_svg) {
-                            $pdf->ImageSVG($path_bg, 0, 0, $bgWidth, $bgHeight, '', '', '', 0, true);
-                        }
-                        if ($check_eps) {
-                            $pdf->ImageEps($path_bg, 0, 0, $bgWidth, $bgHeight, '', true, '', '', 0, true);
-                        }
-                    }
-                    $svg = $path . '/svgpath/frame_' . $key . '_svg.svg';
-                    self::convert_svg_url($path . '/', 'frame_' . $key . '_svg.svg');
-                    $pdf->ImageSVG($svg, 0, 0, $bgWidth, $bgHeight, '', '', '', 0, true);
-                    $output_file = $folder . '/' . $folder_design . '_' . $key . '.pdf';
-                    $pdf->Output($output_file, 'F');
-                    $result[] = $output_file;
-                }
+        /**
+         * Get file contents via HTTP request
+         *
+         * @param string $url URL to fetch
+         * @return string|false File contents or false on failure
+         */
+        public static function spbwc_file_get_contents($url) {
+            $response = wp_remote_get(
+                $url,
+                array(
+                    'timeout'     => 30,
+                    'sslverify'   => false, // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- Using wp_remote_get with sslverify disabled for compatibility with self-signed certificates in development.
+                    'user-agent'  => 'WordPress/' . get_bloginfo('version') . '; ' . home_url(),
+                )
+            );
+            
+            if (is_wp_error($response)) {
+                return false;
             }
             
-            return $result;
+            if (is_array($response) && isset($response['body'])) {
+                return trim($response['body']);
+            }
+            
+            return false;
         }
-        public static function storelly_file_get_contents($url) {
-            $response = wp_remote_get($url);
-            if (is_array($response) && !is_wp_error($response)) {
-                $result   = trim($response['body']);
-                return $result;
-            }
-            if (ini_get('allow_url_fopen')) {
-                $checkPHP = version_compare(PHP_VERSION, '5.6.0', '>=');
-                if (is_ssl() && $checkPHP) {
-                    $result = file_get_contents($url, false, stream_context_create(array('ssl' => array('verify_peer' => false, 'verify_peer_name' => false))));
-                } else {
-                    $result = file_get_contents($url);
-                }
-            }
-            return $result;
-        }
-        public static function convert_svg_url($path, $file) {
-            $svg_path = $path . '/svgpath';
-            if (!file_exists($svg_path)) wp_mkdir_p($svg_path);
-            $new_svg_path = $svg_path . '/' . $file;
-            $xdoc = new DomDocument;
-            $xdoc->Load($path . $file);
-            /* image path */
-            $images = $xdoc->getElementsByTagName('image');
-            for ($i = 0; $i < $images->length; $i++) {
-                $tagName        = $xdoc->getElementsByTagName('image')->item($i);
-                $attribNode     = $tagName->getAttributeNode('xlink:href');
-                $img_src        = $attribNode->value;
-                if (strpos($img_src, "data:image") !== FALSE)
-                    continue;
-                if (strpos($img_src, "data:img") !== FALSE)
-                    continue;
-                $type           = strtolower(pathinfo($img_src, PATHINFO_EXTENSION));
-                $type           = ($type == 'svg') ? 'svg+xml' : $type;
 
-                $path_image     = Storelly_IO::convert_url_to_path($img_src);
-
-                $data   = self::storelly_file_get_contents($path_image);
-                $base64 = 'data:image/' . $type . ';base64,' . base64_encode($data);
-                $tagName->setAttribute('xlink:href', $base64);
-            }
-
-            //process clipPath 
-            $defsEl = $xdoc->getElementsByTagName('defs')->item(0);
-            $cpEls  = $xdoc->getElementsByTagName('clipPath');
-
-            $has_flag = false;
-            foreach ($cpEls as $cpEl) {
-                $grandParentGroup   = $cpEl->parentNode->parentNode;
-                if ($grandParentGroup->hasAttribute('flag-clip')) {
-                    $has_flag = true;
-                    break;
-                }
-            }
-
-            foreach ($cpEls as $cpEl) {
-                $cloneCp            = $cpEl;
-                $parentGroup        = $cpEl->parentNode;
-                $grandParentGroup   = $cpEl->parentNode->parentNode;
-
-                if ($parentGroup->tagName == 'defs') {
-                    continue;
-                }
-
-                if (strpos($cloneCp->getAttribute('id'), 'imageCrop') !== FALSE) {
-                    continue;
-                }
-
-                if ($cloneCp->childNodes->item(1)->nodeName != 'path') {
-                    continue;
-                }
-
-                if ($has_flag && !$grandParentGroup->hasAttribute('flag-clip')) {
-                    continue;
-                }
-
-                $cpTm       = $cloneCp->childNodes->item(1)->getAttribute('transform');
-                $parentGroup->removeChild($cpEl);
-                $defsEl->appendChild($cloneCp);
-                $tm         = $parentGroup->getAttribute('transform');
-                $cpMtArr    = nbd_get_transform_arr($cpTm, 'matrix');
-                $cpTrArr    = nbd_get_transform_arr($cpTm, 'translate');
-
-                $sx         = 1 / $cpMtArr[0];
-                $sy         = 1 / $cpMtArr[3];
-                $tx         = -$cpMtArr[4] - $cpTrArr[0] * $cpMtArr[0];
-                $ty         = -$cpMtArr[5] - $cpTrArr[1] * $cpMtArr[3];
-                $newTm      = 'scale( ' . $sx . ', ' . $sy . ' ) translate(' . $tx . ', ' . $ty . ') ' . $tm;
-                $parentGroup->setAttribute('transform', $newTm);
-            }
-            $new_svg = $xdoc->saveXML();
-            file_put_contents($new_svg_path, $new_svg);
-        }
-        public static function get_unit_ratio($dpi, $unit) {
+        /**
+         * Convert unit to ratio for PDF dimensions
+         *
+         * @param int $dpi DPI value
+         * @param string $unit Unit type (mm, in, ft, px, cm)
+         * @return float Unit ratio
+         */
+        public static function spbwc_get_unit_ratio($dpi, $unit) {
             switch ($unit) {
                 case 'mm':
                     $unit_ratio = 1 / 25.4;
@@ -390,7 +198,14 @@ if (!class_exists('Storelly_Export_PDF')) {
             }
             return $unit_ratio;
         }
-        public static function build_font_css($fonts) {
+
+        /**
+         * Build font CSS for Google Fonts
+         *
+         * @param array $fonts Array of font objects
+         * @return void
+         */
+        public static function spbwc_build_font_css($fonts) {
             $google_fonts = array();
         
             foreach ($fonts as $font) {
@@ -401,27 +216,108 @@ if (!class_exists('Storelly_Export_PDF')) {
             }  
             if (!empty($google_fonts)) {
                 $google_font_url = '//fonts.googleapis.com/css?family=' . implode('|', $google_fonts) . ':400,400i,700,700i';
-                wp_enqueue_style('custom-google-fonts', $google_font_url, array(), null);
+                wp_enqueue_style('custom-google-fonts', $google_font_url, array(), '1.0.0');
             }
         }
         
-        public static function build_html_page($folder_design, $key, $svg_path, $page_settings, $font_css) {
-            $pdf_temp_path = STORELLY_PB_CUSTOMER_DIR . '/' . $folder_design . '/pdf-templates';
+        /**
+         * Build HTML page for PDF generation
+         *
+         * @param string $folder_design Design folder name
+         * @param int $key Page index
+         * @param string $svg_path Path to SVG file
+         * @param array $page_settings Page settings
+         * @param mixed $font_css Font CSS
+         * @return string URL to the generated HTML page
+         */
+        public static function spbwc_build_html_page($folder_design, $key, $svg_path, $page_settings, $font_css) {
+            $pdf_temp_path = SPBWC_PB_CUSTOMER_DIR . '/' . $folder_design . '/pdf-templates';
             if (!file_exists($pdf_temp_path)) {
                 wp_mkdir_p($pdf_temp_path);
             }
 
             $html_path  =  $pdf_temp_path . '/' . $key . '.html';
-            $html_url   = STORELLY_PB_CUSTOMER_URL . '/' . $folder_design . '/pdf-templates/' . $key . '.html';
+            $html_url   = SPBWC_PB_CUSTOMER_URL . '/' . $folder_design . '/pdf-templates/' . $key . '.html';
+            
+            // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- Reading local SVG file from uploads directory for PDF generation.
             $svg_string = file_get_contents($svg_path);
             $svg_string = preg_replace("/<(?:\?xml|!DOCTYPE).*?>/", "", $svg_string);
 
-ob_start();
-include STORELLY_PB_PLUGIN_DIR . 'views/pdf-template.php';
-$template = ob_get_clean();
+            // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obstart_ob_start -- Output buffer opened and closed in same scope for template rendering.
+            ob_start();
+            include SPBWC_PB_PLUGIN_DIR . 'views/pdf-template.php';
+            $template = ob_get_clean(); // Buffer closed here - no early return possible.
 
-file_put_contents($html_path, $template);
-return $html_url;
+            // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents -- Writing temporary HTML file to uploads directory for PDF service.
+            file_put_contents($html_path, $template);
+            return $html_url;
+        }
+
+        /**
+         * Send requests to Cloud2Print API and download generated PDFs
+         *
+         * @param array $requests Array of API request URLs
+         * @param string $folder Output folder path
+         * @param string $folder_design Design folder name
+         * @return array Array of generated PDF file paths
+         */
+        public static function spbwc_request_create_pdf($requests, $folder, $folder_design) {
+            $result     = array();
+            
+            foreach ($requests as $k => $request) {
+                $output_file    = $folder . '/' . $folder_design . '_' . $request['index'] . '.pdf';
+                $download       = self::spbwc_download_remote_file($request['url'], $output_file);
+                if ($download) {
+                    $result[$request['index']] = $output_file;
+                }
+            }
+
+            return $result;
+        }
+
+        /**
+         * Download remote file and save to local path
+         *
+         * @param string $url  Remote URL.
+         * @param string $path Local file path.
+         * @return bool True on success, false on failure.
+         */
+        public static function spbwc_download_remote_file($url, $path) {
+            $response = wp_remote_get(
+                $url,
+                array(
+                    'timeout'    => 20,
+                    'user-agent' => 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.8; rv:20.0) Gecko/20100101 Firefox/20.0',
+                )
+            );
+
+            if ( is_wp_error( $response ) ) {
+                return false;
+            }
+
+            $body = wp_remote_retrieve_body( $response );
+
+            if ( '' === $body ) {
+                return false;
+            }
+
+            if ( ! function_exists( 'WP_Filesystem' ) ) {
+                require_once ABSPATH . 'wp-admin/includes/file.php';
+            }
+
+            global $wp_filesystem;
+
+            if ( ! $wp_filesystem ) {
+                WP_Filesystem();
+            }
+
+            if ( ! $wp_filesystem ) {
+                return false;
+            }
+
+            return (bool) $wp_filesystem->put_contents( $path, $body, FS_CHMOD_FILE );
+        }
+    }
 }
 public static function request_create_pdf($requests, $folder, $folder_design) {
 $result = array();

@@ -79,7 +79,7 @@ fontApp.controller("fontCtrl", [
           url: storelly_pb_fonts.url,
           method: "POST",
           data: {
-            action: "storelly_add_google_font",
+            action: "spbwc_add_google_font",
             fonts: JSON.stringify($scope.selectedFonts),
             nonce: storelly_pb_fonts.nonce,
           },

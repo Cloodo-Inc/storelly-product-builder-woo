@@ -1,4 +1,7 @@
-<?php if (!defined('ABSPATH')) exit; ?>
+<?php 
+if (!defined('ABSPATH')) exit; 
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Template variables used in local scope.
+?>
 <div class="nbd-option-field pcpb-field-input-wrap <?php echo esc_attr( $class ); ?>" ng-if="nbd_fields['<?php echo esc_attr( $field['id'] ); ?>'].enable">
     <?php include( $currentDir .'/options-builder/field-header.php' ); ?>
     <div class="pcpb-field-content">
@@ -19,12 +22,12 @@
                     $filename = '';
                     $uploaded = 0;
                     if( isset($form_values[$field['id']]) ){
-                        $file_url = STORELLY_PB_UPLOAD_URL . '/' . $form_values[$field['id']];
+                        $file_url = SPBWC_PB_UPLOAD_URL . '/' . $form_values[$field['id']];
                         $filename = explode('/', $form_values[$field['id']])[1];
                         $uploaded = 1;
                     }
                 ?>
-                data-file="<?php printf( esc_attr__( '%s', 'pc-product-builder' ), esc_attr( $file_url ) ); ?>" data-filename="<?php echo esc_attr( $filename ); ?>" data-uploaded="<?php echo esc_attr( $uploaded ); ?>"
+                data-file="<?php echo esc_url( $file_url ); ?>" data-filename="<?php echo esc_attr( $filename ); ?>" data-uploaded="<?php echo esc_attr( $uploaded ); ?>"
                 <?php 
                     if( $field['general']['upload_option']['allow_type'] != '' ):
                         $allow_type = strtolower( trim( $field['general']['upload_option']['allow_type'] ) );
@@ -41,10 +44,12 @@
         <input class="nbd-upload-hidden" id="nbd-upload-hidden-<?php echo esc_attr( $field['id'] ); ?>" type="hidden" name="nbd-field[<?php echo esc_attr( $field['id'] ); ?>]" value="<?php echo esc_attr( $form_values[$field['id']] ); ?>" />
         <?php endif; ?>
         <?php if( $field['general']['input_type'] == 'u' && $field['general']['upload_option']['min_size'] != '' ): ?>
-        <span style="display: block; font-size: 12px;margin-top: 10px;"><?php echo esc_html__('Min size: ', 'pc-product-builder') . $field['general']['upload_option']['min_size'] . ' MB'; ?></span>
+        <?php /* translators: %s: minimum upload size in MB. */ ?>
+        <span style="display: block; font-size: 12px;margin-top: 10px;"><?php printf( esc_html__('Min size: %s MB', 'storelly-product-builder-for-woocommerce'), esc_html( $field['general']['upload_option']['min_size'] ) ); ?></span>
         <?php endif; ?>
         <?php if( $field['general']['input_type'] == 'u' && $field['general']['upload_option']['max_size'] != '' ): ?>
-        <span style="display: block; font-size: 12px;"><?php echo esc_html__('Max size: ', 'pc-product-builder') . $field['general']['upload_option']['max_size'] . ' MB'; ?></span>
+        <?php /* translators: %s: maximum upload size in MB. */ ?>
+        <span style="display: block; font-size: 12px;"><?php printf( esc_html__('Max size: %s MB', 'storelly-product-builder-for-woocommerce'), esc_html( $field['general']['upload_option']['max_size'] ) ); ?></span>
         <?php endif; ?>
     </div>
 </div>

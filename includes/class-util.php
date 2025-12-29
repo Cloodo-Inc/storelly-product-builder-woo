@@ -2,35 +2,35 @@
 if (!defined('ABSPATH')) {
     exit;
 }
-if (!class_exists('Storelly_PB_Util')) {
-    class Storelly_PB_Util
+if (!class_exists('SPBWC_Storelly_PB_Util')) {
+    class SPBWC_Storelly_PB_Util
     {
         public function __construct()
         {
             //TODO
         }
-        public static function storelly_get_page_id($page)
+        public static function spbwc_get_page_id($page)
         {
-            $page = get_option('storelly_' . $page . '_page_id');
+            $page = get_option('spbwc_' . $page . '_page_id');
             return $page ? absint($page) : -1;
         }
-        public static function storellyGetUrlPage($page)
+        public static function spbwc_get_url_page($page)
         {
             switch ($page) {
                 case 'product_builder':
-                    $post = self::storelly_get_page_id('product_builder');
+                    $post = self::spbwc_get_page_id('product_builder');
                     break;
                 default:
-                    $post = self::storelly_get_page_id($page);
+                    $post = self::spbwc_get_page_id($page);
                     break;
             }
             return get_post($post) ? get_page_link($post) : '#';
         }
-        public static function storelly_get_max_input_var()
+        public static function spbwc_get_max_input_var()
         {
             return abs(intval(ini_get('max_input_vars')));
         }
-        public static function storelly_get_max_upload_default()
+        public static function spbwc_get_max_upload_default()
         {
             if (function_exists('wp_max_upload_size')) {
                 return round(wp_max_upload_size() / 1024 / 1024);
@@ -38,7 +38,7 @@ if (!class_exists('Storelly_PB_Util')) {
                 return abs(intval(ini_get('post_max_size')));
             }
         }
-        public static function storelly_get_image_thumbnail($id, $size = 'thumbnail')
+        public static function spbwc_get_image_thumbnail($id, $size = 'thumbnail')
         {
             if (absint($id) != 0) {
                 $image = wp_get_attachment_image_src($id, $size);
@@ -48,47 +48,47 @@ if (!class_exists('Storelly_PB_Util')) {
                     $image_url = $image[0];
                 }
             } else {
-                $image_url = STORELLY_PB_ASSETS_URL . 'images/placeholder.png';
+                $image_url = SPBWC_PB_ASSETS_URL . 'images/placeholder.png';
             }
             return $image_url;
         }
-        public static function storelly_custom_notices($command, $mes = '')
+        public static function spbwc_custom_notices($command, $mes = '')
         {
             switch ($command) {
                 case 'success':
                     if (!$mes)
-                        $mes = esc_html__('Your settings have been saved.', 'pc-product-builder');
+                        $mes = esc_html__('Your settings have been saved.', 'storelly-product-builder-for-woocommerce');
                     $notice = '<div class="updated notice notice-success is-dismissible">
                                 <p>' . $mes . '</p>
                                 <button type="button" class="notice-dismiss">
-                                    <span class="screen-reader-text">' . esc_html__('Dismiss this notice.', 'pc-product-builder') . '</span>
+                                    <span class="screen-reader-text">' . esc_html__('Dismiss this notice.', 'storelly-product-builder-for-woocommerce') . '</span>
                                 </button>
                             </div>';
                     break;
                 case 'error':
                     if (!$mes)
-                        $mes = esc_html__('Irks! An error has occurred.', 'pc-product-builder');
+                        $mes = esc_html__('Irks! An error has occurred.', 'storelly-product-builder-for-woocommerce');
                     $notice = '<div class="notice notice-error is-dismissible">
                                 <p>' . $mes . '</p>
                                 <button type="button" class="notice-dismiss">
-                                    <span class="screen-reader-text">' . esc_html__('Dismiss this notice.', 'pc-product-builder') . '</span>
+                                    <span class="screen-reader-text">' . esc_html__('Dismiss this notice.', 'storelly-product-builder-for-woocommerce') . '</span>
                                 </button>
                             </div>';
                     break;
                 case 'notices':
                     if (!$mes)
-                        $mes = esc_html__('Irks! An error has occurred.', 'pc-product-builder');
+                        $mes = esc_html__('Irks! An error has occurred.', 'storelly-product-builder-for-woocommerce');
                     $notice = '<div class="notice notice-warning">
                                 <p>' . $mes . '</p>
                             </div>';
                     break;
                 case 'warning':
                     if (!$mes)
-                        $mes = esc_html__('Warning.', 'pc-product-builder');
+                        $mes = esc_html__('Warning.', 'storelly-product-builder-for-woocommerce');
                     $notice = '<div class="notice notice-warning is-dismissible">
                                 <p>' . $mes . '</p>
                                 <button type="button" class="notice-dismiss">
-                                    <span class="screen-reader-text">' . esc_html__('Dismiss this notice.', 'pc-product-builder') . '</span>
+                                    <span class="screen-reader-text">' . esc_html__('Dismiss this notice.', 'storelly-product-builder-for-woocommerce') . '</span>
                                 </button>
                             </div>';
                     break;
@@ -97,15 +97,15 @@ if (!class_exists('Storelly_PB_Util')) {
             }
             return $notice;
         }
-        public static function storelly_locate_template($template_name, $template_path = '', $default_path = '')
+        public static function spbwc_locate_template($template_name, $template_path = '', $default_path = '')
         {
             // Set variable to search in pc-product-builder folder of theme.
-            if (!$template_path) :
+            if (!$template_path):
                 $template_path = 'pc-product-builder/';
             endif;
             // Set default plugin templates path.
-            if (!$default_path) :
-                $default_path = STORELLY_PB_PLUGIN_DIR . 'templates/'; // Path to the template folder
+            if (!$default_path):
+                $default_path = SPBWC_PB_PLUGIN_DIR . 'templates/'; // Path to the template folder
             endif;
             // Search template file in theme folder.
             $template = locate_template(array(
@@ -113,39 +113,48 @@ if (!class_exists('Storelly_PB_Util')) {
                 $template_name
             ));
             // Get plugins template file.
-            if (!$template) :
+            if (!$template):
                 $template = $default_path . $template_name;
             endif;
-            return apply_filters('storelly_locate_template', $template, $template_name, $template_path, $default_path);
+            return apply_filters('spbwc_locate_template', $template, $template_name, $template_path, $default_path);
         }
-        public static function storelly_get_template($template_name, $args = array(), $tempate_path = '', $default_path = '')
-        {
-            if (is_array($args) && isset($args)) :
-                extract($args);
-            endif;
-            $template_file = self::storelly_locate_template($template_name, $tempate_path, $default_path);
-            if (!file_exists($template_file)) :
-                _doing_it_wrong(__FUNCTION__, sprintf('<code>%s</code> does not exist.', $template_file), '1.3.1');
+        public static function spbwc_get_template( $template_name, $args = array(), $tempate_path = '', $default_path = '' ) {
+            if ( is_array( $args ) && isset( $args ) ) {
+                extract( $args );
+            }
+        
+            $template_file = self::spbwc_locate_template( $template_name, $tempate_path, $default_path );
+        
+            if ( ! file_exists( $template_file ) ) {
+                $message = sprintf(
+                    /* translators: %1$s: Template file path. */
+                    esc_html__( '%1$s does not exist.', 'storelly-product-builder-for-woocommerce' ),
+                    esc_html( $template_file )
+                );
+        
+                _doing_it_wrong(__FUNCTION__, esc_html($message), '1.3.1');
                 return;
-            endif;
+            }
+        
             include $template_file;
         }
-        public static function is_storelly_product_builder_page()
+        public static function spbwc_is_product_builder_page()
         {
-            return is_page(self::storelly_get_page_id('product_builder'));
+            return is_page(self::spbwc_get_page_id('product_builder'));
         }
 
-        public static function is_storelly_product_builder($id)
+        public static function spbwc_is_product_builder($id)
         {
-            $id     = self::get_wpml_original_id($id);
-            $check  = get_post_meta($id, '_storelly_pb_enable', true);
-            if ($check) return true;
+            $id = self::spbwc_get_wpml_original_id($id);
+            $check = get_post_meta($id, '_storelly_pb_enable', true);
+            if ($check)
+                return true;
             return false;
         }
-        public static function get_wpml_original_id($id, $type = 'post', $current_lang = false)
+        public static function spbwc_get_wpml_original_id($id, $type = 'post', $current_lang = false)
         {
             if (class_exists('SitePress')) {
-                global $sitepress;
+                global $sitepress; // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Global variable $sitepress from WPML.
                 $langcode = $sitepress->get_default_language();
                 if ($current_lang) {
                     $langcode = $sitepress->get_current_language();
@@ -156,51 +165,56 @@ if (!class_exists('Storelly_PB_Util')) {
             }
             return $id;
         }
-        public static function storelly_get_redirect_url()
+        public static function spbwc_get_redirect_url()
         {
-            $rd                 = wc_clean($_GET['rd']);
+            // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Reading readonly query arg for redirect helper.
+            $rd = isset($_GET['rd']) ? wc_clean( sanitize_text_field( wp_unslash( $_GET['rd'] ) ) ) : '';
             switch ($rd) {
                 case 'print_option':
-                    $get                = array(
-                        'action'    => 'edit',
-                        'id'        => isset($_GET['oid']) ? absint($_GET['oid']) : '',
-                        'paged'     => isset($_GET['paged']) ? absint($_GET['paged']) : '',
+                    $get = array(
+                        'action' => 'edit',
+                        // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Readonly query args for redirect helper.
+                        'id' => isset($_GET['oid']) ? absint( wp_unslash( $_GET['oid'] ) ) : '',
+                        // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Readonly query args for redirect helper.
+                        'paged' => isset($_GET['paged']) ? absint( wp_unslash( $_GET['paged'] ) ) : '',
                     );
-                    $redirect_url       = add_query_arg($get, admin_url('admin.php?page=pc-product-builder-options'));
+                    $redirect_url = add_query_arg($get, admin_url('admin.php?page=storelly-product-builder-for-woocommerce-options'));
                     break;
                 default:
-                    $redirect_url       = $rd;
+                    // Sanitize redirect URL to prevent injection attacks
+                    $redirect_url = esc_url_raw( $rd );
                     break;
             }
             return apply_filters('storelly_redirect_url', $redirect_url);
         }
-        public static function storelly_get_product_pre_builder($option_id, $pcpb_cart_item_key)
+        public static function spbwc_get_product_pre_builder($option_id, $pcpb_cart_item_key)
         {
             $data = array();
             if ($pcpb_cart_item_key != '') {
                 $cart_item = WC()->cart->get_cart_item($pcpb_cart_item_key);
                 if (isset($cart_item['pcpb_meta'])) {
                     $builder_folder = $cart_item['pcpb_meta']['pcpb'];
-                    $path           = STORELLY_PB_CUSTOMER_DIR . '/' . $builder_folder;
-                    $data['config'] = self::storelly_get_data_from_json($path . '/config.json');
-                    $data['design'] = self::storelly_get_data_from_json($path . '/design.json');
+                    $path = SPBWC_PB_CUSTOMER_DIR . '/' . $builder_folder;
+                    $data['config'] = self::spbwc_get_data_from_json($path . '/config.json');
+                    $data['design'] = self::spbwc_get_data_from_json($path . '/design.json');
                 }
             } else {
-                global $wpdb;
+                global $wpdb; // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Global variable $wpdb.
                 $table_name = $wpdb->prefix . 'storelly_product_builder_options';
-                $options = $wpdb->get_results($wpdb->prepare("SELECT builder FROM $table_name WHERE `id` = %d", $option_id), 'ARRAY_A');   
+                // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter -- Table name uses $wpdb->prefix and is trusted.
+                $options = $wpdb->get_results($wpdb->prepare("SELECT builder FROM {$table_name} WHERE `id` = %d", $option_id), 'ARRAY_A');
                 if (isset($options[0])) {
                     $builder_folder = $options[0]['builder'];
                     if ($builder_folder) {
-                        $path = STORELLY_PB_CUSTOMER_DIR . '/' . $builder_folder;
-                        $data['config'] = self::storelly_get_data_from_json($path . '/config.json');
-                        $data['design'] = self::storelly_get_data_from_json($path . '/design.json');
+                        $path = SPBWC_PB_CUSTOMER_DIR . '/' . $builder_folder;
+                        $data['config'] = self::spbwc_get_data_from_json($path . '/config.json');
+                        $data['design'] = self::spbwc_get_data_from_json($path . '/design.json');
                     }
                 }
             }
             return $data;
         }
-        public static function pritcart_get_image_thumbnail($id, $size = 'thumbnail')
+        public static function spbwc_get_image_thumbnail_pritcart($id, $size = 'thumbnail')
         {
             if (absint($id) != 0) {
                 $image = wp_get_attachment_image_src($id, $size);
@@ -210,16 +224,16 @@ if (!class_exists('Storelly_PB_Util')) {
                     $image_url = $image[0];
                 }
             } else {
-                $image_url = STORELLY_PB_ASSETS_URL . 'images/placeholder.png';
+                $image_url = SPBWC_PB_ASSETS_URL . 'images/placeholder.png';
             }
             return $image_url;
         }
-        public static function storelly_get_data_from_json($path = '')
+        public static function spbwc_get_data_from_json($path = '')
         {
             $content = file_exists($path) ? file_get_contents($path) : '';
             return json_decode($content);
         }
-        public static function is_base64_string($s)
+        public static function spbwc_is_base64_string($s)
         {
             if (($b = base64_decode($s, TRUE)) === FALSE) {
                 return FALSE;
@@ -231,7 +245,7 @@ if (!class_exists('Storelly_PB_Util')) {
                 return FALSE;
             }
         }
-        public static function storelly_read_json_setting($fullname)
+        public static function spbwc_read_json_setting($fullname)
         {
             if (file_exists($fullname)) {
                 $list = json_decode(file_get_contents($fullname));
@@ -242,164 +256,166 @@ if (!class_exists('Storelly_PB_Util')) {
             }
             return $list;
         }
-        public static function storelly_get_list_google_font()
+        public static function spbwc_get_list_google_font()
         {
-            $path = STORELLY_PB_PLUGIN_DIR . 'data/listgooglefonts.json';
-            $data = (array) self::storelly_read_json_setting($path);
+            $path = SPBWC_PB_PLUGIN_DIR . 'data/listgooglefonts.json';
+            $data = (array) self::spbwc_read_json_setting($path);
             return wp_json_encode($data);
         }
-        public static function storelly_font_subsets()
+        public static function spbwc_font_subsets()
         {
             return array(
-                'all'   =>  array(
-                    'name'  =>  'All language',
-                    'preview_text'  =>  'Abc Xyz',
-                    'default_font'  =>  'Roboto'
+                'all' => array(
+                    'name' => 'All language',
+                    'preview_text' => 'Abc Xyz',
+                    'default_font' => 'Roboto'
                 ),
-                'arabic'   =>  array(
-                    'name'  =>  'Arabic',
-                    'preview_text'  =>  'ءيوهن',
-                    'default_font'  =>  'Cairo'
+                'arabic' => array(
+                    'name' => 'Arabic',
+                    'preview_text' => 'ءيوهن',
+                    'default_font' => 'Cairo'
                 ),
-                'bengali'   =>  array(
-                    'name'  =>  'Bengali',
-                    'preview_text'  =>  'অআইঈউ',
-                    'default_font'  =>  'Hind Siliguri'
+                'bengali' => array(
+                    'name' => 'Bengali',
+                    'preview_text' => 'অআইঈউ',
+                    'default_font' => 'Hind Siliguri'
                 ),
-                'cyrillic'   =>  array(
-                    'name'  =>  'Cyrillic',
-                    'preview_text'  =>  'БВГҐД',
-                    'default_font'  =>  'Roboto'
+                'cyrillic' => array(
+                    'name' => 'Cyrillic',
+                    'preview_text' => 'БВГҐД',
+                    'default_font' => 'Roboto'
                 ),
-                'cyrillic-ext'   =>  array(
-                    'name'  =>  'Cyrillic Extended',
-                    'preview_text'  =>  'БВГҐД',
-                    'default_font'  =>  'Roboto'
+                'cyrillic-ext' => array(
+                    'name' => 'Cyrillic Extended',
+                    'preview_text' => 'БВГҐД',
+                    'default_font' => 'Roboto'
                 ),
-                'chinese-simplified'   =>  array(
-                    'name'  =>  'Chinese (Simplified)',
-                    'preview_text'  =>  '一二三四五',
-                    'default_font'  =>  'ZCOOL XiaoWei'
+                'chinese-simplified' => array(
+                    'name' => 'Chinese (Simplified)',
+                    'preview_text' => '一二三四五',
+                    'default_font' => 'ZCOOL XiaoWei'
                 ),
-                'devanagari'   =>  array(
-                    'name'  =>  'Devanagari',
-                    'preview_text'  =>  'आईऊऋॠ',
-                    'default_font'  =>  'Noto Sans'
+                'devanagari' => array(
+                    'name' => 'Devanagari',
+                    'preview_text' => 'आईऊऋॠ',
+                    'default_font' => 'Noto Sans'
                 ),
-                'greek'   =>  array(
-                    'name'  =>  'Greek',
-                    'preview_text'  =>  'αβγδε',
-                    'default_font'  =>  'Roboto'
+                'greek' => array(
+                    'name' => 'Greek',
+                    'preview_text' => 'αβγδε',
+                    'default_font' => 'Roboto'
                 ),
-                'greek-ext'   =>  array(
-                    'name'  =>  'Greek Extended',
-                    'preview_text'  =>  'αβγδε',
-                    'default_font'  =>  'Roboto'
+                'greek-ext' => array(
+                    'name' => 'Greek Extended',
+                    'preview_text' => 'αβγδε',
+                    'default_font' => 'Roboto'
                 ),
-                'gujarati'   =>  array(
-                    'name'  =>  'Gujarati',
-                    'preview_text'  =>  'આઇઈઉઊ',
-                    'default_font'  =>  'Shrikhand'
+                'gujarati' => array(
+                    'name' => 'Gujarati',
+                    'preview_text' => 'આઇઈઉઊ',
+                    'default_font' => 'Shrikhand'
                 ),
-                'gurmukhi'   =>  array(
-                    'name'  =>  'Gurmukhi',
-                    'preview_text'  =>  'ਆਈਊਏਐ',
-                    'default_font'  =>  'Baloo Paaji'
+                'gurmukhi' => array(
+                    'name' => 'Gurmukhi',
+                    'preview_text' => 'ਆਈਊਏਐ',
+                    'default_font' => 'Baloo Paaji'
                 ),
-                'hebrew'   =>  array(
-                    'name'  =>  'Hebrew',
-                    'preview_text'  =>  'אבגדה',
-                    'default_font'  =>  'Arimo'
+                'hebrew' => array(
+                    'name' => 'Hebrew',
+                    'preview_text' => 'אבגדה',
+                    'default_font' => 'Arimo'
                 ),
-                'japanese'   =>  array(
-                    'name'  =>  'Japanese',
-                    'preview_text'  =>  '一二三四五',
-                    'default_font'  =>  'Sawarabi Mincho'
+                'japanese' => array(
+                    'name' => 'Japanese',
+                    'preview_text' => '一二三四五',
+                    'default_font' => 'Sawarabi Mincho'
                 ),
-                'kannada'   =>  array(
-                    'name'  =>  'Kannada',
-                    'preview_text'  =>  'ಅಆಇಈಉ',
-                    'default_font'  =>  'Baloo Tamma'
+                'kannada' => array(
+                    'name' => 'Kannada',
+                    'preview_text' => 'ಅಆಇಈಉ',
+                    'default_font' => 'Baloo Tamma'
                 ),
-                'khmer'   =>  array(
-                    'name'  =>  'Khmer',
-                    'preview_text'  =>  'កខគឃង',
-                    'default_font'  =>  'Hanuman'
+                'khmer' => array(
+                    'name' => 'Khmer',
+                    'preview_text' => 'កខគឃង',
+                    'default_font' => 'Hanuman'
                 ),
-                'korean'   =>  array(
-                    'name'  =>  'Korean',
-                    'preview_text'  =>  '가개갸거게',
-                    'default_font'  =>  'Nanum Gothic'
+                'korean' => array(
+                    'name' => 'Korean',
+                    'preview_text' => '가개갸거게',
+                    'default_font' => 'Nanum Gothic'
                 ),
-                'latin'   =>  array(
-                    'name'  =>  'Latin',
-                    'preview_text'  =>  'Abc Xyz',
-                    'default_font'  =>  'Roboto'
+                'latin' => array(
+                    'name' => 'Latin',
+                    'preview_text' => 'Abc Xyz',
+                    'default_font' => 'Roboto'
                 ),
-                'latin-ext'   =>  array(
-                    'name'  =>  'Latin Extended',
-                    'preview_text'  =>  'Abc Xyz',
-                    'default_font'  =>  'Roboto'
+                'latin-ext' => array(
+                    'name' => 'Latin Extended',
+                    'preview_text' => 'Abc Xyz',
+                    'default_font' => 'Roboto'
                 ),
-                'malayalam'   =>  array(
-                    'name'  =>  'Malayalam',
-                    'preview_text'  =>  'അആഇഈഉ',
-                    'default_font'  =>  'Baloo Chettan'
+                'malayalam' => array(
+                    'name' => 'Malayalam',
+                    'preview_text' => 'അആഇഈഉ',
+                    'default_font' => 'Baloo Chettan'
                 ),
-                'myanmar'   =>  array(
-                    'name'  =>  'Myanmar',
-                    'preview_text'  =>  'ကခဂဃင',
-                    'default_font'  =>  'Padauk'
+                'myanmar' => array(
+                    'name' => 'Myanmar',
+                    'preview_text' => 'ကခဂဃင',
+                    'default_font' => 'Padauk'
                 ),
-                'oriya'   =>  array(
-                    'name'  =>  'Oriya',
-                    'preview_text'  =>  'ଅଆଇଈଉ',
-                    'default_font'  =>  'Baloo Bhaina'
+                'oriya' => array(
+                    'name' => 'Oriya',
+                    'preview_text' => 'ଅଆଇଈଉ',
+                    'default_font' => 'Baloo Bhaina'
                 ),
-                'sinhala'   =>  array(
-                    'name'  =>  'Sinhala',
-                    'preview_text'  =>  'අආඇඈඉ',
-                    'default_font'  =>  'Abhaya Libre'
+                'sinhala' => array(
+                    'name' => 'Sinhala',
+                    'preview_text' => 'අආඇඈඉ',
+                    'default_font' => 'Abhaya Libre'
                 ),
-                'tamil'   =>  array(
-                    'name'  =>  'Tamil',
-                    'preview_text'  =>  'க்ங்ச்ஞ்ட்',
-                    'default_font'  =>  'Catamaran'
+                'tamil' => array(
+                    'name' => 'Tamil',
+                    'preview_text' => 'க்ங்ச்ஞ்ட்',
+                    'default_font' => 'Catamaran'
                 ),
-                'telugu'   =>  array(
-                    'name'  =>  'Telugu',
-                    'preview_text'  =>  'అఆఇఈఉ',
-                    'default_font'  =>  'Gurajada'
+                'telugu' => array(
+                    'name' => 'Telugu',
+                    'preview_text' => 'అఆఇఈఉ',
+                    'default_font' => 'Gurajada'
                 ),
-                'thai'   =>  array(
-                    'name'  =>  'Thai',
-                    'preview_text'  =>  'กขคฆง',
-                    'default_font'  =>  'Kanit'
+                'thai' => array(
+                    'name' => 'Thai',
+                    'preview_text' => 'กขคฆง',
+                    'default_font' => 'Kanit'
                 ),
-                'vietnamese'   =>  array(
-                    'name'  =>  'Vietnamese',
-                    'preview_text'  =>  'Abc Xyz',
-                    'default_font'  =>  'Roboto'
+                'vietnamese' => array(
+                    'name' => 'Vietnamese',
+                    'preview_text' => 'Abc Xyz',
+                    'default_font' => 'Roboto'
                 )
             );
         }
-        public static function zip_files($file_names, $archive_file_name, $option_name = array())
+        public static function spbwc_zip_files($file_names, $archive_file_name, $option_name = array())
         {
-            if (file_exists($archive_file_name)) {
-                unlink($archive_file_name);
-            }
-            $pathZip = STORELLY_PB_DATA_DIR . '/download';
-            if (!file_exists($pathZip)) {
-                mkdir($pathZip);
-            }
+        if (file_exists($archive_file_name)) {
+            wp_delete_file($archive_file_name);
+        }
+            $pathZip = SPBWC_PB_DATA_DIR . '/download';
+        if (!file_exists($pathZip)) {
+            wp_mkdir_p($pathZip);
+        }
             if (class_exists('ZipArchive')) {
                 $zip = new ZipArchive();
                 if ($zip->open($archive_file_name, ZIPARCHIVE::CREATE) !== TRUE) {
-                    exit("cannot open <$archive_file_name>\n");
+                    /* translators: %s: archive file path. */
+                    _doing_it_wrong(__FUNCTION__, sprintf(esc_html__('Cannot open %s.', 'storelly-product-builder-for-woocommerce'), esc_html($archive_file_name)), '1.3.1');
+                    return false;
                 }
                 foreach ($file_names as $key => $file) {
 
-                    $file_ext   = pathinfo($file, PATHINFO_EXTENSION);
+                    $file_ext = pathinfo($file, PATHINFO_EXTENSION);
 
                     $path_arr = explode('/', $file);
                     $name = $path_arr[count($path_arr) - 2] . '_' . basename($file);

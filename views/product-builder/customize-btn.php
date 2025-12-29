@@ -1,3 +1,3 @@
 <?php if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly ?>
-<a class="button nbd-button" id="pcpb-start-design"><?php esc_html_e('Customize', 'pc-product-builder'); ?></a>
+<a class="button nbd-button" id="pcpb-start-design"><?php esc_html_e('Customize', 'storelly-product-builder-for-woocommerce'); ?></a>
 <div class="pcpb-custom-design"></div>

@@ -3,15 +3,15 @@
 <?php echo '<script type="text/ng-template" id="field_body_upload_option">'; ?>
 <div class="pcpb-field-info" ng-show="check_depend(field.general, field.general.upload_option)">
     <div class="pcpb-field-info-1">
-        <div><label><b><?php esc_html_e('Upload file option', 'pc-product-builder'); ?></b></label></div>
+        <div><label><b><?php esc_html_e('Upload file option', 'storelly-product-builder-for-woocommerce'); ?></b></label></div>
     </div>
     <div class="pcpb-field-info-2">
         <div>
             <table class="nbd-table">
                 <tr>
-                    <th><?php esc_html_e('Min size', 'pc-product-builder'); ?></th>
-                    <th><?php esc_html_e('Max size', 'pc-product-builder'); ?></th>
-                    <th><?php esc_html_e('Allow type', 'pc-product-builder'); ?></th>
+                    <th><?php esc_html_e('Min size', 'storelly-product-builder-for-woocommerce'); ?></th>
+                    <th><?php esc_html_e('Max size', 'storelly-product-builder-for-woocommerce'); ?></th>
+                    <th><?php esc_html_e('Allow type', 'storelly-product-builder-for-woocommerce'); ?></th>
                 </tr>
                 <tr>
                     <td>

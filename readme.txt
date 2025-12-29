@@ -1,98 +1,88 @@
-=== Product Builder for Woocommerce ===
+=== Storelly Product Builder for WooCommerce ===
 Contributors: storelly
 Donate link: https://storelly.com/
-Tags: product builder, product customize, product customizer,
+Tags: product builder, product customize, product customizer, woocommerce custom product
 Requires at least: 4.7
-Tested up to: 6.6.2
-Stable tag: 1.0.0
-Version: 1.0.0
-Requires PHP: 7.0 
+Tested up to: 6.9
+Stable tag: 1.1.1
+Version: 1.1.1
+Requires PHP: 7.0
 License: GPLv2 or later
-License URI: https://www.gnu.org/licenses/gpl-2.0.html 
+License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-WooCommerce Product Builder is a plugin platform that allows customers to build and customize products on the front end of their website.
+Storelly Product Builder allows customers to configure and personalize products. Ideal for customizable or made-to-order items.
+
 == Description ==
 
-WooCommerce Product Builder is a plugin for the WooCommerce e-commerce platform that allows customers to build and customize products on the front end of their website. 
+Storelly Product Builder for WooCommerce is a visual product customization tool that allows customers to build products step-by-step on the front end of your website.
 
-It allows customers to choose from a variety of options, such as size, color, material, and other specifications to create a unique and personalized product. 
+Customers can select different attributes such as size, color, material, text, layers, and other specifications to create a personalized product. Once finished, the customized product is added to the WooCommerce cart and processed like any normal order.
 
-This plugin integrates with the WooCommerce platform, so once customers have built their product, they can proceed to checkout and purchase the product directly through the website.
+This plugin is especially useful for businesses offering:
+- Customized or made-to-order products  
+- Print-on-demand services  
+- Layer-based product configuration  
+- Digital or physical product personalization  
 
-This tool is often used by e-commerce businesses that sell customized or made-to-order products.
+### Key Features
 
-The WooCommerce Product Builder tool or platform allows product customization and configuration to specifications. 
-
-This can include physical products, digital products, or a combination of both.Then , 
-
-the custom product builder takes care of the manufacturing and assembly process, providing the customer with a fully customized product. This type of tool can be used in a variety of industries, 
-
-including manufacturing, e-commerce, and even in creating digital products like websites and mobile apps.
-
--Main Features- 
-
-    This is free product include full featured, but only allows the shop owner created or modify maximum five of product. You can purchase premium version here 
-
-    https://wp.storelly.com/index.php/shop/
-
-    Easy to use Shopper can easily use this product, it is very friendly with customer, and special it is very simple to use .
-
-    Compatible with WooCommerce This plugin is an extension of WooCommerce plugin that allow your users to design products easily
+- **Front-end product builder:** Customers can design and customize products visually.
+- **WooCommerce integration:** Compatible with the latest WooCommerce versions.
+- **Easy to use:** Simple interface suitable for both store owners and customers.
+- **Free version limitation:** The free version allows creating or modifying up to **five customizable products**. You may upgrade to the premium version for unlimited usage:  
+https://storelly.com/product-builder
 
 == Frequently Asked Questions ==
 
-= How to contact you? =
+= How can I contact support? =
+You can reach the Storelly team via email: support@storelly.com
 
-You can contact my team via email: support@storelly.com
+= What third-party resources does this plugin use? =
 
-= What third-party resources does the plugin use? =
+This plugin includes or depends on the following open-source libraries:
 
-THE PLUGIN USES THE FOLLOWING THIRD-PARTY RESOURCES
-Animate.css
-http://daneden.me/animate
-Licensed under the MIT license
+- Animate.css — MIT License  
+- normalize.css v8.0.1 — MIT License  
+- Snap.svg 0.3.0 — Apache License 2.0  
+- FPDI — MIT License
+- fontfaceobserver.js — BSD License  
+- spectrum.js — MIT License  
+- fabric.js — MIT License  
 
-normalize.css
-normalize.css v8.0.1 
-github.com/necolas/normalize.css
+== External services ==
 
-Snap.svg.JS
-Snap.svg 0.3.0
-Author http://dmitry.baranovskiy.com/ 
-Licensed under the Apache License, Version 2.0 (the "License");
-http://www.apache.org/licenses/LICENSE-2.0
+This plugin connects to the following external services:
 
-This file is part of FPDI
-https://www.setasign.com/
-https://opensource.org/license/mit
+- **Cloud2Print PDF generation API (`https://api.cloud2print.net`)**  
+  - **What it is used for**: Used to generate print‑ready PDF files from customers' product designs created with the builder.  
+  - **What data is sent and when**: When a store admin or automated process exports a design to PDF, the plugin builds a temporary HTML representation of the design (including product artwork, layout information and font usage) and sends a request to the Cloud2Print API, which then fetches that HTML from your site in order to render and return the PDF file.  
+  - **Service owner and policies**: This service is provided by Cloud2Print. Please review Cloud2Print's policies:
+    - Privacy Policy: http://cloud2print.net/privacy-policy
+    - Terms of Service: http://cloud2print.net/terms-of-service
 
-Angular JS 
-License: MIT
-Source: https://angularjs.org/
-
-
-fontfaceobserver.js
-https://github.com/bramstein/fontfaceobserver
-Font Face Observer is licensed under the BSD License. Copyright 2014-2017 Bram Stein. All rights reserved.
-
-spectrum.js
-https://bgrins.github.io/spectrum/
-https://github.com/bgrins/spectrum/blob/master/LICENSE
-
-
-https://github.com/fabricjs/fabric.js
-https://www.npmjs.com/package/fabric?activeTab=versions
-Copyright (c) 2008-2015 Printio (Juriy Zaytsev, Maxim Chernyak)
+- **Storelly Dashboard API (`https://app.storelly.com/public`)**  
+  - **What it is used for**: Used to register your Storelly account from inside WooCommerce and to synchronise WooCommerce order information with the Storelly Dashboard.  
+  - **What data is sent and when**:  
+    - On first activation/initialisation, the plugin can create or connect a Storelly account by sending your store owner details (name, email address, billing address fields, time zone and WooCommerce API keys) to the Storelly Dashboard API.  
+    - When an order is placed or processed in WooCommerce, the plugin can send order data (order totals, discount amounts, product and variation identifiers, quantities, unit prices and links to the generated design PDF files) to the Storelly Dashboard API so that orders can be tracked and managed there.  
+  - **Service owner and policies**: This service is operated by Storelly. Please review policies:
+    - Terms of Service: https://app.storelly.com/terms
+    - Privacy Policy: https://app.storelly.com/privacy
 
 == Screenshots ==
 
-1. Product builder front-end
-2. Product builder back-end
+1. Front-end product builder
+2. Back-end product settings
 
 == Changelog ==
+= 1.1.1 =
+* Enhance Settings Handling, Template Rendering, and Style CSS in Plugin.
 
-= 1.0.0=
+= 1.1.0 =
+* Enhanced Security, Caching, and Code Quality Across the Plugin.
 
-* Initial version.
+= 1.0.0 =
+* Initial release.
 
 == Upgrade Notice ==
+First stable public version.

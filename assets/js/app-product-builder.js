@@ -1,1 +1,1989 @@
-"use strict";var appConfig={ready:!1},nbdpbApp=angular.module("nbdpbApp",[]);function getTransform(e){e=jQuery(e).css("transform").match(/matrix(?:(3d)\(\d+(?:, \d+)*(?:, (\d+))(?:, (\d+))(?:, (\d+)), \d+\)|\(\d+(?:, \d+)*(?:, (\d+))(?:, (\d+))\))/);return e?"3d"==e[1]?e.slice(2,5):(e.push(0),e.slice(5,8)):[0,0,0]}nbdpbApp.controller("nbpbCtrl",["$scope","FabricWindow","NBDDataFactory","$window","$timeout",function(p,r,i,e,f){p.isStartDesign=!1,p.onloadTemplate=!1,p.init=function(){p.initSettings()},p.defaultStageStates={showAdminTool:!1},p.initSettings=function(){p.settings={},p.stages=[],p.side=[],p.resource={views:[],components:[],values:{},showValue:!1,currentComponent:0,currentView:0,jsonDesign:{},config:{},uploaded:[],currentColor:"#ff0000",colorOptions:{preferredFormat:"hex",flat:!0,showButtons:!0,showInput:!0,containerClassName:"nbd-sp",clickoutFiresChange:!1,chooseText:NBPBCONFIG.i18n.choose,cancelText:NBPBCONFIG.i18n.cancel},design_output:{dimension_unit:"px",dpi:"300"}},angular.isDefined(nbOption.options.design_output)&&(p.resource.design_output.dimension_unit=angular.isDefined(nbOption.options.design_output.dimension_unit)?nbOption.options.design_output.dimension_unit:"px",p.resource.design_output.dpi=angular.isDefined(nbOption.options.design_output.dpi)?nbOption.options.design_output.dpi:"300");var e=localStorage.getItem("nbpb_uploaded");e&&(p.resource.uploaded=JSON.parse(e)),angular.copy(NBPBCONFIG,p.settings),p.currentStage=0,p.includeExport=["itemId","isLogo","evented","a_index","sa_index"],p.processProductSettings()},p.processProductSettings=function(){p.initValues(!0),_.each(p.resource.views,function(e,t){p.stages[t]={config:{},states:{},canvas:{}};t=p.stages[t].states;angular.copy(p.defaultStageStates,t)})},p.initValues=function(e,t){e&&(angular.copy(nbOption.options.views,p.resource.views),p.resource.components=[],_.each(nbOption.options.fields,function(e,t){if("nbpb_com"==e.nbpb_type||"nbpb_text"==e.nbpb_type||"nbpb_image"==e.nbpb_type){var n={};if(angular.copy(e,n),n.currentSubAtrribute=0,n.currentConfig=0,"nbpb_text"==e.nbpb_type)if(n.currentContent="","n"==n.general.nbpb_text_configs.allow_all_color&&0<n.general.nbpb_text_configs.colors.length?n.currentColor=n.general.nbpb_text_configs.colors[0].color:n.currentColor="#000000",n.currentFontId="","y"==n.general.nbpb_text_configs.allow_font_family)if("n"==n.general.nbpb_text_configs.allow_all_font){if(angular.isUndefined(n.general.nbpb_text_configs.custom_fonts)&&(n.general.nbpb_text_configs.custom_fonts=[]),angular.isUndefined(n.general.nbpb_text_configs.google_fonts)&&(n.general.nbpb_text_configs.google_fonts=[]),0<n.general.nbpb_text_configs.custom_fonts.length){for(var o=n.general.nbpb_text_configs.custom_fonts.length-1;0<=o;)p.settings.custom_fonts[n.general.nbpb_text_configs.custom_fonts[o]]&&(n.currentFontId="c"+n.general.nbpb_text_configs.custom_fonts[o]),o--;if(""==n.currentFontId&&0<n.general.nbpb_text_configs.google_fonts.length)for(o=n.general.nbpb_text_configs.google_fonts.length-1;0<=o;)p.settings.google_fonts[n.general.nbpb_text_configs.google_fonts[o]]&&(n.currentFontId="g"+n.general.nbpb_text_configs.google_fonts[o]),o--}else if(0<n.general.nbpb_text_configs.google_fonts.length)for(o=n.general.nbpb_text_configs.google_fonts.length-1;0<=o;)p.settings.google_fonts[n.general.nbpb_text_configs.google_fonts[o]]&&(n.currentFontId="g"+n.general.nbpb_text_configs.google_fonts[o]),o--}else 0<NBPBCONFIG.fonts.length?(e="google"==NBPBCONFIG.fonts[0].type?"g":"c",n.currentFontId=e+"0"):n.currentFontId="";p.resource.components.push(n)}})),p.resource.values={},angular.copy(nbOption.nbd_fields,p.resource.values),_.each(p.resource.values,function(e,t){t=p.getComponentById(t);t&&(t.enable=e.enable)}),t||(p.resource.showValue=!1),e||_.each(p.stages,function(e,t){e.canvas.forEachObject(function(e,t){var n=e.get("itemId");n&&!p.getComponentById(n).enable&&e.set("visible",!1)}),e.canvas.renderAll()})},p.initStageSetting=function(e){p.setStageDimension(e),p.renderStage(e),p.updateApp()},p.setStageDimension=function(o){o=angular.isDefined(o)?o:p.currentStage;var i=p.stages[o];f(function(){var e=p.calcViewport(),t=angular.isDefined(p.resource.views[o].base_width)&&""!=p.resource.views[o].base_width?parseFloat(p.resource.views[o].base_width):e.width,n=angular.isDefined(p.resource.views[o].base_height)&&""!=p.resource.views[o].base_height?parseFloat(p.resource.views[o].base_height):e.height,t=p.fitRectangle(e.width,e.height,t,n,!0);i.canvas.setDimensions({width:t.width,height:t.height}),i.config.width=t.width,i.config.height=t.height,i.config.top=t.top,i.config.left=t.left,angular.isUndefined(p.resource.config.lastViewport)&&(p.resource.config.lastViewport=e)})},p.showAttribute=function(e){var i,r,t,n;p.resource.showValue=!0,angular.isDefined(e)&&(p.resource.currentComponent=e,i=p.resource.components[e],r=nbOption.options.views.length,"nbpb_com"==(p.resource.currentComponentObj=i).nbpb_type&&(i.current_pb_configs=[],_.each(i.general.pb_config,function(e,o){_.each(e,function(e,t){var n=[],e=(e.views.length>nbOption.options.views.length&&e.views.splice(r,e.views.length-r),angular.copy(e.views,n),i.general.attributes.options[o]);angular.isDefined(e)&&(angular.isDefined(e.enable_subattr)&&"on"==e.enable_subattr&&angular.isDefined(e.sub_attributes)&&0<e.sub_attributes.length?(n.sattr_name=e.sub_attributes[t].name,n.attr_name=e.name,n.icon_bg=e.sub_attributes[t].image_url,n.a_index=o,n.sa_index=t,n.level=2,n.bg_type=e.sub_attributes[t].preview_type,n.icon_color=e.sub_attributes[t].color):(n.icon_bg=e.image_url,n.sattr_name=e.name,n.attr_name="",n.a_index=o,n.sa_index=0,n.level=1,"c"==e.preview_type?(n.bg_type="c",n.icon_color=e.color):n.bg_type="i"),i.current_pb_configs.push(n))})})),t=p.getLayerById(i.id),1==NBPBCONFIG.is_creating_task&&(n=p.stages[p.currentStage].canvas,t)&&(n.setActiveObject(t),n.renderAll()),t)&&("nbpb_com"==i.nbpb_type?p.resource.components[e].currentConfig=p.getCurrentConfig(p.resource.components[e].id,t.a_index,t.sa_index):"nbpb_text"==i.nbpb_type&&((n=p.getFontByAlias(t.fontFamily))&&(p.resource.components[e].currentFontId=("google"==n.type?"g":"c")+n.id),p.resource.components[e].currentFontFamily=t.fontFamily,p.resource.components[e].currentColor=t.fill,p.resource.components[e].currentContent=t.text))},p.saveLayer=function(){p.resource.showValue=!1,p.deactiveAllLayer()},p.selectAttribute=function(c){var l=p.resource.components[p.resource.currentComponent],d=(l.currentConfig=c,[]),t=!0;_.each(l.current_pb_configs[c],function(e,t){"on"==e.display&&(d[t]=!1)});var n=-1;_.each(l.current_pb_configs[c],function(e,r){var a=p.stages[r].canvas,s=p.getLayerById(l.id,r);"on"==e.display?(-1==n&&(n=r),t&&(jQuery(".nbpb-stage-loading").addClass("nbdpb-show"),t=!1),s&&s.getElement().setAttribute("src",e.image_url),fabric.Image.fromURL(e.image_url,function(e){var t,n,o,i;s?(s.set({visible:!0,dirty:!0,width:e.width,height:e.height,scaleX:s.scaleX*s.width/e.width,scaleY:s.scaleY*s.height/e.height,a_index:l.current_pb_configs[c].a_index,sa_index:l.current_pb_configs[c].sa_index}),s.setCoords()):(o=a.width,t=a.height,n=(o=o=o)/e.width,t<(n=e.height*n)&&(o=e.width*((n=t)/e.height)),e.set({fill:"#ff0000",scaleX:o/e.width,scaleY:n/e.height,itemId:l.id,a_index:l.current_pb_configs[c].a_index,sa_index:l.current_pb_configs[c].sa_index}),a.add(e),a.viewportCenterObject(e),1==NBPBCONFIG.is_creating_task&&a.setActiveObject(e)),i=d[r]=!0,_.each(d,function(e,t){e=!angular.isDefined(e)||e;i=i&&e}),i&&jQuery(".nbpb-stage-loading").removeClass("nbdpb-show"),a.renderAll()},{crossOrigin:"anonymous"})):s&&(s.set({visible:!1}),a.renderAll())}),"on"!=l.current_pb_configs[c][p.currentStage].display&&-1!=n&&appConfig.slider.activeItemByIndex(n),p.resource.values[l.id].value=""+l.current_pb_configs[c].a_index,p.resource.values[l.id].sub_value=""+l.current_pb_configs[c].sa_index,jQuery(document).triggerHandler("update_pcpb_options_from_builder",{nbd_fields:p.resource.values,pro:!0})},p.selectColor=function(e){angular.isDefined(e)&&p.resource.components[p.resource.currentComponent].currentColor!=e&&(p.resource.components[p.resource.currentComponent].currentColor=e,p.updateText())},p.updateText=function(){console.log("hehe");var e,t=p.resource.components[p.resource.currentComponent],n=(t.currentFontFamily="Arial",""!=t.currentFontId&&(n=t.currentFontId.slice(0,1),e=t.currentFontId.slice(1),n="c"==n?p.getFontByIdAndType(e,"ttf"):p.getFontByIdAndType(e,"google"))&&(p.insertFontScript(n),t.currentFontFamily=n.alias),new FontFaceObserver(t.currentFontFamily));""!=t.general.text_option.max&&(e=parseInt(t.general.text_option.max),t.currentContent.length>e)&&(t.currentContent=t.currentContent.slice(0,e-1)),n.load(t.currentContent).then(function(){fabric.util.clearFabricFontCache(),p.addText()},function(){p.addText()}),p.resource.values[t.id].value=t.currentContent,jQuery(document).triggerHandler("update_pcpb_options_from_builder",{nbd_fields:p.resource.values,pro:!0})},p.insertFontScript=function(o){var i;jQuery("#nbpb"+o.id).length||("google"==o.type?jQuery("head").append('<link id="nbpb'+o.id+'" href="https://fonts.googleapis.com/css?family='+o.alias.replace(/\s/gi,"+")+':400,400i,700,700i" rel="stylesheet" type="text/css">'):(i="<style type='text/css' id='nbpb"+o.id+"' >",_.each(o.file,function(e,t){var n=e;switch(-1<e.indexOf("http")||(n=NBPBCONFIG.font_url+e),i=(i+="@font-face {font-family: '"+o.alias+"';")+"src: local('☺'), "+("url('"+n+"') format('truetype');"),t){case"r":i+="font-weight: normal;font-style: normal;";break;case"b":i+="font-weight: bold;font-style: normal;";break;case"i":i+="font-weight: normal;font-style: italic;";break;case"bi":i+="font-weight: bold;font-style: italic;"}i+="}"}),i+="</style>",jQuery("head").append(i)))},p.getFontByIdAndType=function(n,o){var i;return _.each(NBPBCONFIG.fonts,function(e,t){e.id==n&&e.type.toLowerCase()==o&&(i=e)}),i},p.getFontByAlias=function(n){var o;return _.each(NBPBCONFIG.fonts,function(e,t){e.alias==n&&(o=e)}),o},p.addText=function(){var i=p.resource.components[p.resource.currentComponent],e=i.general.nbpb_text_configs.views;_.each(e,function(e,t){var n,o=p.getLayerById(i.id,t);"on"==e.display?(n=p.stages[t].canvas,o?o.set({text:i.currentContent,visible:!0,fontFamily:"y"==i.general.nbpb_text_configs.allow_font_family?i.currentFontFamily:o.fontFamily,fill:"y"==i.general.nbpb_text_configs.allow_change_color?i.currentColor:o.fill}):(n.add(new r.Textbox(i.currentContent,{itemId:i.id,fontFamily:i.currentFontFamily,fontSize:19,fill:i.currentColor,textAlign:"center"})),n.viewportCenterObject(n.item(n.getObjects().length-1)))):o&&o.set({visible:!1}),n.renderAll()})},p.getLayerById=function(n,e){var t=null,t=(angular.isDefined(e)?p.stages[e]:p.stages[p.currentStage]).canvas,o=null;return t.forEachObject(function(e,t){e.get("itemId")==n&&(o=e)}),o},p.getLayerIndex=function(n,e){var o,e=(angular.isDefined(e)?p.stages[e]:p.stages[p.currentStage]).canvas;return e.forEachObject(function(e,t){e.get("itemId")==n&&(o=t)}),o},p.deactiveAllLayer=function(e){e=e||p.currentStage,p.stages[e].canvas.discardActiveObject(),p.renderStage(),p.updateApp()},p.clearAllStages=function(){_.each(p.stages,function(e,t){e.canvas.clear(),e.canvas.renderAll()})},p.renderStage=function(e){e=e||p.currentStage,p.stages[e].canvas.calcOffset(),p.stages[e].canvas.requestRenderAll()},p.updateApp=function(){"$apply"!==p.$root.$$phase&&"$digest"!==p.$root.$$phase&&p.$apply()},p.setStackPosition=function(e,t){var n=t||p.stages[p.currentStage].canvas.getActiveObject();switch(e){case"bring-front":n.bringToFront(),p.setStackLayerAlwaysOnTop();break;case"bring-forward":n.bringForward();break;case"send-backward":n.sendBackwards();break;case"send-back":n.sendToBack();break;default:var o=parseInt(e);n.moveTo(o)}p.renderStage(p.currentStage)},p.calcViewport=function(){return{width:jQuery(".design-stages").width(),height:jQuery(".design-stages").height()}},p.makeblob=function(e){var t=";base64,";if(-1==e.indexOf(t))return i=(n=e.split(","))[0].split(":")[1],o=decodeURIComponent(n[1]),new Blob([o],{type:i});for(var n,o,i=(n=e.split(t))[0].split(":")[1],r=(o=window.atob(n[1])).length,a=new Uint8Array(r),s=0;s<r;++s)a[s]=o.charCodeAt(s);return new Blob([a],{type:i})},p.saveData=function(){p.toggleAppLoading(),jQuery(".pcpb-custom-design").empty().hide(),p.saveDesign(),p.resource.config.views=p.resource.views,p.resource.config.viewport=p.calcViewport();var o={};o.design=new Blob([JSON.stringify(p.resource.jsonDesign)],{type:"application/json"}),_.each(p.stages,function(e,t){var n="frame_"+t+"_svg";o["frame_"+t]=p.makeblob(e.design),o[n]=new Blob([e.svg],{type:"image/svg"})}),["pcpb_cart_item_key","is_creating_task","oid"].forEach(function(e){o[e]=NBPBCONFIG[e]}),o.config=new Blob([JSON.stringify(p.resource.config)],{type:"application/json"}),o.used_font=new Blob([JSON.stringify(p.resource.used_font)],{type:"application/json"}),o.design_output=new Blob([JSON.stringify(p.resource.design_output)],{type:"application/json"});i.get("storelly_save_product_builder_design",o,function(e){"success"==(e=JSON.parse(e)).flag?1==p.settings.is_creating_task?""!=p.settings.redirect_url&&(window.location=p.settings.redirect_url):(p.toggleAppLoading(),jQuery(".pcpb-custom-design").show(),_.each(e.image,function(e){e='<div class="item"><img src="'+(e+="?t="+Math.random())+'" alt="Custom Design"/></div>';jQuery(".pcpb-custom-design").append(e)}),jQuery(".variations_form, form.cart").append('<input type="hidden" name="prcpb-folder" value="'+e.folder+'" />'),jQuery(document).triggerHandler("update_product_image_from_builder",{image_link:e.image[0],image_srcset:e.image[0],full_src:e.image[0],full_src_w:p.stages[0].config.width,full_src_h:p.stages[0].config.height,image_sizes:[p.stages[0].config.width,p.stages[0].config.height],image_title:"",image_alt:"",image_caption:""}),jQuery(".close-popup").triggerHandler("click")):(p.toggleAppLoading(),alert(NBPBCONFIG.i18n.can_not_save_design))})},p.saveDesign=function(){var o=[];_.each(p.stages,function(e,t){p.deactiveAllLayer(t);var n=e.canvas;p.renderStage(t),p.resource.jsonDesign[t]=n.toJSON(p.includeExport),n.getObjects().forEach(function(e){-1<["i-text","text","textbox","curvedText"].indexOf(e.type)&&(_.filter(o,["alias",e.fontFamily]).length||(e=p.getFontInfo(e.fontFamily),o.push(e)))}),e.design=n.toDataURL(),e.svg=n.toSVG()}),p.resource.used_font=o},p.getFontInfo=function(e){var e=_.filter(NBPBCONFIG.fonts,{alias:e})[0],t=angular.copy(e,t);return t?(t.file={r:e.file.r},t.file.i=angular.isDefined(e.file.i)?e.file.i:0,t.file.b=angular.isDefined(e.file.b)?e.file.b:0,t.file.bi=angular.isDefined(e.file.bi)?e.file.bi:0):t={name:"Roboto",alias:"Roboto",file:{r:1,b:1,i:1,bi:1},cat:["99"],type:"google",subset:"latin"},t},p.onObjectAdded=function(e,t){1!=NBPBCONFIG.is_creating_task&&angular.isUndefined(p.settings.pre_builder.design)&&_.each(p.stages,function(e,t){var i=0,r=e.canvas;_.each(p.resource.components,function(e,t){var n,o=e.id;r.forEachObject(function(e,t){e.get("itemId")==o&&(n=e)}),n&&(n.moveTo(i),i++)})})},p.onMouseOver=function(e,t){var n=p.stages[p.currentStage].canvas,t=t.target;t&&t.set("opacity","0.9"),n.renderAll()},p.onMouseOut=function(e,t){var n=p.stages[p.currentStage].canvas,t=t.target;t&&t.set("opacity","1"),n.renderAll()},p.onMouseDown=function(e,t){p.stages[p.currentStage].canvas;var n,t=t.target;t?angular.isDefined(t.get("itemId"))&&(n=t.get("itemId"),_.each(p.resource.components,function(e,t){e.id==n&&(p.showAttribute(t),p.updateApp())})):p.saveLayer()},p.onSelectionCreated=function(e,t){var n,o;t.target&&((n=p.stages[p.currentStage]).states.scaleX=(t=t.target).get("scaleX"),n.states.scaleY=t.get("scaleY"),n.states.angle=t.get("angle"),"textbox"==t.type&&((o=p.getFontByAlias(t.fontFamily))&&(p.resource.components[p.resource.currentComponent].currentFontId=("google"==o.type?"g":"c")+o.id),p.resource.components[p.resource.currentComponent].currentFontFamily=t.fontFamily,p.resource.components[p.resource.currentComponent].currentColor=t.fill,p.resource.components[p.resource.currentComponent].currentContent=t.text),n.states.showAdminTool=!0,p.updateApp())},p.onSelectionCleared=function(e,t){p.stages[p.currentStage].states.showAdminTool=!1,p.updateApp()},p.updateLayerAttribute=function(e,t){var n,o;appConfig.ready&&(n=p.stages[p.currentStage].canvas.getActiveObject())&&(p.stages[p.currentStage].states[e]=(o={})[e]=t,n.set(o),p.renderStage())},angular.element(e).on("resize",function(){p.reCalcViewPort()}),p.reCalcViewPort=function(){var e=p.stages;jQuery(".nbdpb-carousel").nbdpbCarousel(),_.each(e,function(e,t){p.setStageDimension(t)}),p.resizeStages(p.resource.config.lastViewport)},p.resizeStages=function(i){_.each(p.stages,function(e,t){var n=p.calcViewport(),o=p.fitRectangle(i.width,i.height,e.config.width,e.config.height,!0),r=p.fitRectangle(n.width,n.height,e.config.width,e.config.height,!0).width/o.width;1!=r&&(e.canvas.forEachObject(function(e){var t=e.scaleX,n=e.scaleY*r,o=e.left*r,i=e.top*r;e.scaleX=t*r,e.scaleY=n,e.left=o,e.top=i,e.setCoords()}),e.canvas.calcOffset(),p.renderStage(t)),t==p.stages.length-1&&(p.resource.config.lastViewport=n)})},p.$on("canvas:created",function(e,t,n){p.initStageSetting(t);var o=p.stages[t].canvas;o.on("mouse:over",function(e){p.onMouseOver(t,e)}),o.on("mouse:out",function(e){p.onMouseOut(t,e)}),o.on("mouse:down",function(e){p.onMouseDown(t,e)}),o.on("object:added",function(e){p.onObjectAdded(t,e)}),o.on("selection:created",function(e){p.onSelectionCreated(t,e)}),o.on("selection:cleared",function(e){p.onSelectionCleared(t,e)}),"1"==n&&(appConfig.ready=!0,p.loadPreBuilder())}),p.$on("component:mouseover",function(e,t){var n;appConfig.ready&&(n=p.stages[p.currentStage].canvas,t=p.getLayerById(t))&&(t.set("opacity","0.9"),n.renderAll())}),p.$on("component:mouseout",function(e,t){var n;appConfig.ready&&(n=p.stages[p.currentStage].canvas,t=p.getLayerById(t))&&(t.set("opacity","1"),n.renderAll())}),p.loadPreBuilder=function(){f(function(){angular.isDefined(p.settings.pre_builder.design)&&p.insertTemplate(p.settings.pre_builder.design,p.settings.pre_builder.config)})},p.insertTemplate=function(e,t){p.onloadTemplate=!0;var u=t.viewport;function g(c){var l=p.stages[c].canvas,d=(l.clear(),[]);angular.isDefined(e[c])&&(d=e[c].objects),function e(t){function n(){t++,0!=d.length&&t<d.length?e(t):++c<p.stages.length?g(c):_.each(p.stages,function(e,t){p.deactiveAllLayer(),p.renderStage(t),f(function(){p.deactiveAllLayer(),p.renderStage(t),t==p.stages.length-1&&(p.resizeStages(u),p.toggleAppLoading(),p.onloadTemplate=!1)})})}function o(e){fabric.util.getKlass(r).fromObject(e,function(e){""==NBPBCONFIG.pcpb_cart_item_key&&0==NBPBCONFIG.is_creating_task&&e.set({visible:!1,text:""}),l.add(e),n()})}var i,r,a,s;0<d.length&&(i=d[t],r=i.type,a=p.getComponentById(i.itemId))&&a.enable?"image"==r?fabric.Image.fromObject(i,function(e){angular.isDefined(e.isLogo)&&1==e.isLogo&&(""==NBPBCONFIG.pcpb_cart_item_key&&0==NBPBCONFIG.is_creating_task&&e.set({visible:!1}),a.general.nbpb_image_configs.views[c].width=e.width*e.scaleX,a.general.nbpb_image_configs.views[c].height=e.height*e.scaleY,a.general.nbpb_image_configs.views[c].top=e.top,a.general.nbpb_image_configs.views[c].left=e.left),l.add(e),n()}):"textbox"==r&&((s=p.getFontByAlias(i.fontFamily))?(p.insertFontScript(s),(s=new FontFaceObserver(i.fontFamily)).load(i.text).then(function(){fabric.util.clearFabricFontCache(),o(i)},function(){o(i)})):(i.fontFamily="Arial",o(i))):n()}(0)}p.toggleAppLoading(),g(0)},p.fitRectangle=function(e,t,n,o,i){var r={};return!(n<e&&o<t)||i?n/o<e/t?(r.width=n*t/o,r.height=t,r.top=0,r.left=(e*o-n*t)/o/2):(r.width=e,r.height=e*o/n,r.top=(n*t-e*o)/n/2,r.left=0):(r.top=(e-n)/2,r.left=(t-o)/2,r.width=n,r.height=o),r},p.toggleAppLoading=function(){var e=jQuery(".nbdpb-load-page");e.hasClass("nbdpb-show")?(e.removeClass("nbdpb-show"),jQuery("body, html").removeClass("nbdpb-no-overflow")):(e.addClass("nbdpb-show"),jQuery("body, html").addClass("nbdpb-no-overflow"))},p.uploadImage=function(e,t){var n,t=t[0],e=p.get_field(e),o=parseInt(e.general.upload_option.min_size),e=parseInt(e.general.upload_option.max_size);-1===t.type.indexOf("image")?alert(p.settings.i18n.only_support_image):t.size>1024*e*1024?alert(p.settings.i18n.max_file_size+e+" MB"):t.size<1024*o*1024?alert(p.settings.i18n.min_file_size+o+" MB"):-1<t.type.indexOf("svg")?((n=new FileReader).onload=function(e){2===e.target.readyState&&(e=n.result,p.addSvgFromString(e))},n.readAsText(t)):i.get("storelly_customer_upload",{file:t},function(e){1==(e=JSON.parse(e)).flag?(p.addImage(e.src),p.resource.uploaded.push(e.src),10<p.resource.uploaded.length&&p.resource.uploaded.shift(),localStorage.setItem("nbpb_uploaded",JSON.stringify(p.resource.uploaded))):alert(e.mes)})},p.addImage=function(u){var g=p.resource.components[p.resource.currentComponent],e=g?.general?.nbpb_image_configs?.views,i=[],t=!0;_.each(e,function(e,t){"on"==e.display&&(i[t]=!1)}),_.each(e,function(s,o){var c=p.stages[o],l=c.canvas,d=p.getLayerById(g.id,o);"on"==s.display&&(t&&(jQuery(".nbpb-stage-loading").addClass("nbdpb-show"),t=!1),fabric.Image.fromURL(u,function(a){function e(e){o=angular.isDefined(s.width)?(r=p.settings.pre_builder.config.viewport,o=p.calcViewport(),r=p.fitRectangle(r.width,r.height,c.config.width,c.config.height,!0),o=p.fitRectangle(o.width,o.height,c.config.width,c.config.height,!0).width/r.width,r=s.width*o,t=s.height*o,n=s.left*o,s.top*o):(r=l.width/2,t=l.height/2,n=l.width/2,l.height/2);var t,n,o,i=r,r=(i=a.width<r?a.width:i)/a.width,r=a.height*r;t<r&&(r=t,i=a.width*(r/a.height)),angular.isDefined(e)?(d.getElement().setAttribute("src",u),d.set({dirty:!0,width:a.width,height:a.height,scaleX:i/a.width,scaleY:r/a.height,visible:!0}),d.setCoords()):(a.set({fill:"#ff0000",scaleX:i/a.width,scaleY:r/a.height,left:n,top:o,itemId:g.id,isLogo:1}),l.add(a),1==NBPBCONFIG.is_creating_task&&l.setActiveObject(a))}var t,n;d?"image"==d.type?e(!0):(t=p.getLayerIndex(g.id,o),s.width=d.width*d.scaleX,s.height=d.height*d.scaleY,s.left=d.left,s.top=d.top,l.remove(d),e(!0),a.moveTo(t)):e(),l.renderAll(),n=i[o]=!0,_.each(i,function(e,t){e=!angular.isDefined(e)||e;n=n&&e}),n&&jQuery(".nbpb-stage-loading").removeClass("nbdpb-show")},{crossOrigin:"anonymous"})),jQuery(".nbd-upload-loading").removeClass("is-visible")}),0<jQuery(".nbo-fields-wrapper").find("#nbd-upload-hidden-"+g.id).length?jQuery(".nbo-fields-wrapper").find("#nbd-upload-hidden-"+g.id).val(u):jQuery(".nbo-fields-wrapper").append('<input class="nbd-upload-hidden" id="nbd-upload-hidden-'+g.id+'" type="hidden" name="pcpb-field['+g.id+']" value="'+u+'" />'),p.resource.values[g.id].value=u,jQuery(document).triggerHandler("update_pcpb_options_from_builder",{nbd_fields:p.resource.values,pro:!0})},p.addSvgFromString=function(e){var d=p.resource.components[p.resource.currentComponent],t=d?.general?.nbpb_image_configs?.views,r=[],n=!0;_.each(t,function(e,t){"on"==e.display&&(r[t]=!1)}),_.each(t,function(c,i){var l;"on"==c.display&&(l=p.stages[i].canvas,n&&(jQuery(".nbpb-stage-loading").addClass("nbdpb-show"),n=!1),fabric.loadSVGFromString(e,function(e,a){var t,n,s=fabric.util.groupSVGElements(e,a);function o(e){var t,n,o,i,r;angular.isDefined(e)?(n=(e=p.fitRectangle(c.width,c.height,a.width,a.height,!0)).width,r=c.left+(c.width-n)/2,i=c.top+(c.height-(o=e.height))/2):(e=l.width,t=l.height,e=(n=a.width<(n=e)?a.width:n)/a.width,t<(o=a.height*e)&&(n=a.width*((o=t)/a.height)),i=l.height/2,r=l.width/2),s.scaleToWidth(n),s.scaleToHeight(o),l.add(s),s.set({left:r,top:i,itemId:d.id})}angular.isDefined(d.existView)&&d.existView?(e=p.getLayerById(d.id,i),t=p.getLayerIndex(d.id,i),c.width=e.width*e.scaleX,c.height=e.height*e.scaleY,c.left=e.left,c.top=e.top,l.remove(e),o(!0),s.moveTo(t)):o(),l.renderAll(),n=r[i]=!0,_.each(r,function(e,t){e=!angular.isDefined(e)||e;n=n&&e}),n&&(jQuery(".nbpb-stage-loading").removeClass("nbdpb-show"),d.existView=!0)})),jQuery(".nbd-upload-loading").removeClass("is-visible")})},p.deleteLayer=function(e){var t=confirm(p.settings.i18n["confirm_delete_"+e]),o=p.resource.components[p.resource.currentComponent],n=o.general["nbpb_"+e+"_configs"].views;t&&_.each(n,function(e,t){p.getLayerIndex(o.id,t);var n=p.getLayerById(o.id,t),t=p.stages[t].canvas;1==NBPBCONFIG.is_creating_task?t.remove(n):(n.set({visible:!1}),"textbox"==n.type&&n.set({text:""})),t.renderAll()}),"image"==e?jQuery(".nbo-fields-wrapper").find("#nbd-upload-hidden-"+o.id).remove():o.currentContent="",p.resource.values[o.id].value="",jQuery(document).triggerHandler("update_pcpb_options_from_builder",{nbd_fields:p.resource.values,pro:!0})},p.getComponentById=function(t){var n=null;return angular.forEach(p.resource.components,function(e){e.id==t&&(n=e)}),n},p.get_field=function(t){var n=null;return angular.forEach(nbOption.options.fields,function(e){e.id==t&&(n=e)}),n},p.getCurrentConfig=function(e,n,o){var i,e=p.getComponentById(e);return angular.isDefined(e.current_pb_configs)&&0<e.current_pb_configs.length&&_.each(e.current_pb_configs,function(e,t){e.a_index==n&&e.sa_index==o&&(i=t)}),i},p.init()}]),nbdpbApp.factory("FabricWindow",["$window",function(e){return fabric.Object.NUM_FRACTION_DIGITS=10,e.fabric.Object.prototype.set({transparentCorners:!1,borderColor:"rgba(79, 84, 103, 0.7)",cornerStyle:"circle",cornerColor:"rgba(255, 255, 255, 1)",borderDashArray:[2,2],cornerStrokeColor:"rgba(63, 70, 82, 1)",hoverCursor:"pointer",borderOpacityWhenMoving:0,selectable:!0,perPixelTargetFind:!0,originX:"center",originY:"center",centeredScaling:!0,lockScalingX:!1,lockScalingY:!1,_controlsVisibility:{tl:!0,tr:!0,br:!0,bl:!0,ml:!1,mt:!1,mr:!1,mb:!1,mtr:!0}}),NBPBCONFIG.is_mobile&&e.fabric.Object.prototype.set({cornerSize:17}),e.fabric.Canvas.prototype.set({preserveObjectStacking:!0,controlsAboveOverlay:!0,selectionColor:"rgba(1, 196, 204, 0.3)",selectionBorderColor:"#01c4cc",selectionLineWidth:.5,centeredKey:"shiftKey",uniScaleKey:"altKey"}),e.fabric}]),nbdpbApp.directive("nbdCanvas",["FabricWindow","$timeout","$rootScope",function(o,i,e){return{restrict:"AE",scope:{stage:"=stage",index:"@",last:"@"},link:function(e,t,n){i(function(){e.stage.canvas=new o.Canvas("canvas-"+e.index),e.$emit("canvas:created",e.index,e.last)})}}}]),nbdpbApp.directive("nbpbHover",["$timeout",function(o){return{restrict:"AE",scope:{componentId:"@nbpbHover"},link:function(e,t,n){o(function(){jQuery(t).on("mouseover",function(){e.$emit("component:mouseover",e.componentId)}),jQuery(t).on("mouseout",function(){e.$emit("component:mouseout",e.componentId)})})}}}]),nbdpbApp.factory("NBDDataFactory",function(o){return{get:function(e,t,n){var i=new FormData,e=(i.append("action",e),i.append("nonce",NBPBCONFIG.nonce),angular.forEach(t,function(e,t){var n,o;if("object"!=typeof e||_.includes(["file","design","config","used_font","design_output"],t)||-1<t.indexOf("frame"))i.append(t,e);else for(o in e)e.hasOwnProperty(o)&&(n=[t,"[",o,"]"].join(""),i.append(n,e[o]))}),{transformRequest:angular.identity,transformResponse:angular.identity,headers:{"Content-Type":void 0}}),t=NBPBCONFIG.ajax_url;o.post(t,i,e).then(function(e){n(e.data)},function(e){console.log(e)})}}}),nbdpbApp.directive("nbdDndFile",["$timeout",function(e){return{restrict:"A",scope:{fieldId:"@",uploadFile:"&nbdDndFile"},link:function(a,s){e(function(){var n=jQuery(s),t=n.find('input[type="file"]');function o(e){e.preventDefault(),e.stopPropagation(),n.addClass("highlight")}function i(e){e.preventDefault(),e.stopPropagation(),n.removeClass("highlight")}function r(e){0<e.length&&(jQuery(s).find(".nbd-upload-loading").addClass("is-visible"),a.uploadFile({field_id:a.fieldId,files:e}))}_.each(["dragenter","dragover"],function(e,t){n.on(e,o)}),_.each(["dragleave","drop"],function(e,t){n.on(e,i)}),n.on("drop",function(e){e.originalEvent.dataTransfer&&e.originalEvent.dataTransfer.files.length&&(e.preventDefault(),e.stopPropagation(),r(e.originalEvent.dataTransfer.files))}),n.on("click",function(e){t.click()}),t.on("click",function(e){e.stopPropagation()}),t.on("change",function(){r(this.files)})})}}}]),nbdpbApp.directive("nbpbColorPicker",["$timeout",function(o){return{restrict:"C",scope:{onChange:"&",options:"=?"},link:function(t,e,n){o(function(){t.options.change=function(e){t.onChange({color:(e=e)&&e.toString(t.options.preferredFormat)})},e.spectrum(t.options)}),e.on("$destroy",function(){e.spectrum("destroy")})}}}]),jQuery.fn.nbShowPopup=function(){return this.each(function(){var e=this,t=jQuery(this).find(".overlay-popup, .close-popup");jQuery(this).hasClass("nbdpb-show")||jQuery(this).addClass("nbdpb-show"),t.on("click",function(){jQuery(e).removeClass("nbdpb-show"),jQuery("body, html").removeClass("nbdpb-no-overflow"),angular.element(document.getElementById("nbpb-container")).scope().updateApp()})})},jQuery.fn.nbdpbCarousel=function(){var c=this;return this.itemActive=function(e){var t=e.find(".nbdpb-carousel-item").filter(".nbdpb-active"),n=e.closest(".nbdpb-carousel-outer").find(".js-nav-item"),o=e.closest(".nbdpb-carousel-outer").find(".nbdpb-owl-dots"),i=e.offset().left-t.offset().left,n=(n.removeClass("nbdpb-disabled"),o.find(".nbdpb-owl-dot").removeClass("nbdpb-active"),o.find(".nbdpb-owl-dot").filter(function(e){return e===t.index()}).addClass("nbdpb-active"),e.css({transform:"translate3d("+i+"px, 0, 0)"}),angular.element(document.getElementById("nbpb-container")).scope()),o=t.find(".stage").data("stage");n.currentStage=o,n.updateApp()},this.activeItemByIndex=function(e){var t=jQuery(c).find(".nbdpb-carousel-item");t.removeClass("nbdpb-active"),jQuery(t[e]).addClass("nbdpb-active"),c.itemActive(jQuery(c))},this.each(function(){var n=jQuery(this),o=jQuery(this).find(".nbdpb-carousel-item"),t=jQuery(this).closest(".nbdpb-carousel-outer"),i=0,r=(o.length,jQuery('<div class="nbdpb-owl-dots"></div>')),e=jQuery('<div class="nbdpb-owl-nav"></div>'),a=jQuery('<button type="button" role="presentation" class="nbdpb-owl-prev js-nav-item"><i aria-label="Previous" class="icon-nbd icon-nbd-chevron-right rotate180"></i></button>'),s=jQuery('<button type="button" role="presentation" class="nbdpb-owl-next js-nav-item"><i aria-label="Next" class="icon-nbd icon-nbd-chevron-right"></i></button>');t.find(".nbdpb-owl-nav").remove(),t.find(".nbdpb-owl-dots").remove(),1<o.length&&t.append(r),1<o.length&&t.append(e),e.append(a),e.append(s),o.each(function(e){i+=t.outerWidth(),jQuery(this).css({width:t.outerWidth()}),r.append('<button role="button" class="nbdpb-owl-dot"><span></span></button>')}),r.find(".nbdpb-owl-dot").first().addClass("nbdpb-active"),jQuery(this).css({width:i+"px"}),r.find(".nbdpb-owl-dot").on("click",function(){var t=jQuery(this).index();r.find(".nbdpb-owl-dot").removeClass("nbdpb-active"),jQuery(this).addClass("nbdpb-active"),o.removeClass("nbdpb-active"),o.filter(function(e){return e===t}).addClass("nbdpb-active"),c.itemActive(n)}),a.on("click",function(){var e=o.filter(".nbdpb-active");e.removeClass("nbdpb-active"),(0==e.index()?o.last():e.prev()).addClass("nbdpb-active"),c.itemActive(n)}),s.on("click",function(){var e=o.filter(".nbdpb-active");e.removeClass("nbdpb-active"),(e.index()==o.length-1?o.first():e.next()).addClass("nbdpb-active"),c.itemActive(n)})})},jQuery(document).ready(function(){jQuery("#pcpb-start-design").on("click",function(){angular.element(document.getElementById("nbpb-container")).scope().updateApp(),jQuery("body, html").addClass("nbdpb-no-overflow"),jQuery(".nbdpb-popup.popup-design").nbShowPopup().addClass("nbdpb-no-overflow"),appConfig.slider=jQuery(".nbdpb-carousel").nbdpbCarousel()})}),jQuery(document).on("initialed_nbo_options",function(){var e=document.getElementById("nbdpb-app");angular.element(function(){angular.bootstrap(e,["nbdpbApp"]),1==NBPBCONFIG.is_creating_task&&setTimeout(function(){jQuery("body, html").addClass("nbdpb-no-overflow"),jQuery(".nbdpb-popup.popup-design").nbShowPopup().addClass("nbdpb-no-overflow"),appConfig.slider=jQuery(".nbdpb-carousel").nbdpbCarousel(),jQuery(".nbdpb-load-page").removeClass("nbdpb-show")})})}),jQuery(document).on("update_nbo_options",function(e,t){appConfig.ready&&angular.element(document.getElementById("nbpb-container")).scope().initValues(!1,t.pro)});
+"use strict";
+
+var appConfig = {
+  ready: false,
+};
+var nbdpbApp = angular.module("nbdpbApp", []);
+nbdpbApp.controller("nbpbCtrl", [
+  "$scope",
+  "FabricWindow",
+  "NBDDataFactory",
+  "$window",
+  "$timeout",
+  function ($scope, FabricWindow, NBDDataFactory, $window, $timeout) {
+    $scope.isStartDesign = false;
+    $scope.onloadTemplate = false;
+    $scope.init = function () {
+      $scope.initSettings();
+    };
+    $scope.defaultStageStates = {
+      showAdminTool: false,
+    };
+    $scope.initSettings = function () {
+      $scope.settings = {};
+      $scope.stages = [];
+      $scope.side = [];
+      $scope.resource = {
+        views: [],
+        components: [],
+        values: {},
+        showValue: false,
+        currentComponent: 0,
+        currentView: 0,
+        jsonDesign: {},
+        config: {},
+        uploaded: [],
+        currentColor: "#ff0000",
+        colorOptions: {
+          preferredFormat: "hex",
+          flat: true,
+          showButtons: true,
+          showInput: true,
+          containerClassName: "nbd-sp",
+          clickoutFiresChange: false,
+          chooseText: NBPBCONFIG.i18n.choose,
+          cancelText: NBPBCONFIG.i18n.cancel,
+        },
+        design_output: {
+          dimension_unit: "px",
+          dpi: "300",
+        },
+      };
+      if (angular.isDefined(nbOption.options.design_output)) {
+        $scope.resource.design_output.dimension_unit = angular.isDefined(
+          nbOption.options.design_output.dimension_unit
+        )
+          ? nbOption.options.design_output.dimension_unit
+          : "px";
+        $scope.resource.design_output.dpi = angular.isDefined(
+          nbOption.options.design_output.dpi
+        )
+          ? nbOption.options.design_output.dpi
+          : "300";
+      }
+      var uploaded = localStorage.getItem("nbpb_uploaded");
+      if (uploaded) {
+        $scope.resource.uploaded = JSON.parse(uploaded);
+      }
+      angular.copy(NBPBCONFIG, $scope.settings);
+      $scope.currentStage = 0;
+      $scope.includeExport = [
+        "itemId",
+        "isLogo",
+        "evented",
+        "a_index",
+        "sa_index",
+      ];
+      $scope.processProductSettings();
+    };
+    $scope.processProductSettings = function () {
+      $scope.initValues(true);
+      _.each($scope.resource.views, function (side, index) {
+        $scope.stages[index] = {
+          config: {},
+          states: {},
+          canvas: {},
+        };
+        var _state = $scope.stages[index].states;
+        angular.copy($scope.defaultStageStates, _state);
+      });
+    };
+    $scope.initValues = function (init, pro) {
+      if (init) {
+        angular.copy(nbOption.options.views, $scope.resource.views);
+        $scope.resource.components = [];
+        _.each(nbOption.options.fields, function (field, index) {
+          if (
+            field.nbpb_type == "nbpb_com" ||
+            field.nbpb_type == "nbpb_text" ||
+            field.nbpb_type == "nbpb_image"
+          ) {
+            var _field = {};
+            angular.copy(field, _field);
+            _field.currentSubAtrribute = 0;
+            _field.currentConfig = 0;
+            if (field.nbpb_type == "nbpb_text") {
+              _field.currentContent = "";
+              if (_field.general.nbpb_text_configs.allow_all_color == "n") {
+                if (_field.general.nbpb_text_configs.colors.length > 0) {
+                  _field.currentColor =
+                    _field.general.nbpb_text_configs.colors[0].color;
+                } else {
+                  _field.currentColor = "#000000";
+                }
+              } else {
+                _field.currentColor = "#000000";
+              }
+              _field.currentFontId = "";
+              if (_field.general.nbpb_text_configs.allow_font_family == "y") {
+                if (_field.general.nbpb_text_configs.allow_all_font == "n") {
+                  if (
+                    angular.isUndefined(
+                      _field.general.nbpb_text_configs.custom_fonts
+                    )
+                  )
+                    _field.general.nbpb_text_configs.custom_fonts = [];
+                  if (
+                    angular.isUndefined(
+                      _field.general.nbpb_text_configs.google_fonts
+                    )
+                  )
+                    _field.general.nbpb_text_configs.google_fonts = [];
+                  if (
+                    _field.general.nbpb_text_configs.custom_fonts.length > 0
+                  ) {
+                    var i =
+                      _field.general.nbpb_text_configs.custom_fonts.length - 1;
+                    while (i >= 0) {
+                      if (
+                        $scope.settings.custom_fonts[
+                          _field.general.nbpb_text_configs.custom_fonts[i]
+                        ]
+                      ) {
+                        _field.currentFontId =
+                          "c" +
+                          _field.general.nbpb_text_configs.custom_fonts[i];
+                      }
+                      i--;
+                    }
+                    if (
+                      _field.currentFontId == "" &&
+                      _field.general.nbpb_text_configs.google_fonts.length > 0
+                    ) {
+                      var i =
+                        _field.general.nbpb_text_configs.google_fonts.length -
+                        1;
+                      while (i >= 0) {
+                        if (
+                          $scope.settings.google_fonts[
+                            _field.general.nbpb_text_configs.google_fonts[i]
+                          ]
+                        ) {
+                          _field.currentFontId =
+                            "g" +
+                            _field.general.nbpb_text_configs.google_fonts[i];
+                        }
+                        i--;
+                      }
+                    }
+                  } else if (
+                    _field.general.nbpb_text_configs.google_fonts.length > 0
+                  ) {
+                    var i =
+                      _field.general.nbpb_text_configs.google_fonts.length - 1;
+                    while (i >= 0) {
+                      if (
+                        $scope.settings.google_fonts[
+                          _field.general.nbpb_text_configs.google_fonts[i]
+                        ]
+                      ) {
+                        _field.currentFontId =
+                          "g" +
+                          _field.general.nbpb_text_configs.google_fonts[i];
+                      }
+                      i--;
+                    }
+                  }
+                } else {
+                  if (NBPBCONFIG.fonts.length > 0) {
+                    var prefix =
+                      NBPBCONFIG.fonts[0].type == "google" ? "g" : "c";
+                    _field.currentFontId = prefix + "0";
+                  } else {
+                    _field.currentFontId = "";
+                  }
+                }
+              }
+            }
+            $scope.resource.components.push(_field);
+          }
+        });
+      }
+      $scope.resource.values = {};
+      angular.copy(nbOption.nbd_fields, $scope.resource.values);
+      _.each($scope.resource.values, function (field, index) {
+        var component = $scope.getComponentById(index);
+        if (component) component.enable = field.enable;
+      });
+      if (!pro) $scope.resource.showValue = false;
+      if (!init) {
+        _.each($scope.stages, function (stage, index) {
+          stage.canvas.forEachObject(function (obj, index) {
+            var itemId = obj.get("itemId");
+            if (itemId) {
+              var component = $scope.getComponentById(itemId);
+              if (!component.enable) {
+                obj.set("visible", false);
+              }
+            }
+          });
+          stage.canvas.renderAll();
+        });
+      }
+    };
+    $scope.initStageSetting = function (id) {
+      $scope.setStageDimension(id);
+      $scope.renderStage(id);
+      $scope.updateApp();
+    };
+    $scope.setStageDimension = function (id) {
+      id = angular.isDefined(id) ? id : $scope.currentStage;
+      var _stage = $scope.stages[id];
+      $timeout(function () {
+        var viewPort = $scope.calcViewport();
+        var base_width =
+            angular.isDefined($scope.resource.views[id].base_width) &&
+            $scope.resource.views[id].base_width != ""
+              ? parseFloat($scope.resource.views[id].base_width)
+              : viewPort.width,
+          base_height =
+            angular.isDefined($scope.resource.views[id].base_height) &&
+            $scope.resource.views[id].base_height != ""
+              ? parseFloat($scope.resource.views[id].base_height)
+              : viewPort.height;
+        var designViewPort = $scope.fitRectangle(
+          viewPort.width,
+          viewPort.height,
+          base_width,
+          base_height,
+          true
+        );
+        _stage["canvas"].setDimensions({
+          width: designViewPort.width,
+          height: designViewPort.height,
+        });
+        _stage.config.width = designViewPort.width;
+        _stage.config.height = designViewPort.height;
+        _stage.config.top = designViewPort.top;
+        _stage.config.left = designViewPort.left;
+        if (angular.isUndefined($scope.resource.config.lastViewport)) {
+          $scope.resource.config.lastViewport = viewPort;
+        }
+      });
+    };
+    $scope.showAttribute = function (index) {
+      $scope.resource.showValue = true;
+      if (angular.isDefined(index)) {
+        $scope.resource.currentComponent = index;
+        var field = $scope.resource.components[index],
+          viewLen = nbOption.options.views.length;
+        $scope.resource.currentComponentObj = field;
+        if (field.nbpb_type == "nbpb_com") {
+          field.current_pb_configs = [];
+          _.each(field.general.pb_config, function (attr, a_index) {
+            _.each(attr, function (s_attr, sa_index) {
+              var config = [];
+              if (s_attr.views.length > nbOption.options.views.length) {
+                s_attr.views.splice(viewLen, s_attr.views.length - viewLen);
+              }
+              angular.copy(s_attr.views, config);
+              var attribute = field.general.attributes.options[a_index];
+              if (angular.isDefined(attribute)) {
+                if (
+                  angular.isDefined(attribute.enable_subattr) &&
+                  attribute.enable_subattr == "on" &&
+                  angular.isDefined(attribute.sub_attributes) &&
+                  attribute.sub_attributes.length > 0
+                ) {
+                  config.sattr_name = attribute.sub_attributes[sa_index].name;
+                  config.attr_name = attribute.name;
+                  config.icon_bg = attribute.sub_attributes[sa_index].image_url;
+                  config.a_index = a_index;
+                  config.sa_index = sa_index;
+                  config.level = 2;
+                  config.bg_type =
+                    attribute.sub_attributes[sa_index].preview_type;
+                  config.icon_color = attribute.sub_attributes[sa_index].color;
+                } else {
+                  config.icon_bg = attribute.image_url;
+                  config.sattr_name = attribute.name;
+                  config.attr_name = "";
+                  config.a_index = a_index;
+                  config.sa_index = 0;
+                  config.level = 1;
+                  if (attribute.preview_type == "c") {
+                    config.bg_type = "c";
+                    config.icon_color = attribute.color;
+                  } else {
+                    config.bg_type = "i";
+                  }
+                }
+                field.current_pb_configs.push(config);
+              }
+            });
+          });
+        }
+        var item = $scope.getLayerById(field.id);
+        if (NBPBCONFIG.is_creating_task == 1) {
+          var _canvas = $scope.stages[$scope.currentStage].canvas;
+          if (item) {
+            _canvas.setActiveObject(item);
+            _canvas.renderAll();
+          }
+        }
+        if (item) {
+          if (field.nbpb_type == "nbpb_com") {
+            $scope.resource.components[index].currentConfig =
+              $scope.getCurrentConfig(
+                $scope.resource.components[index].id,
+                item.a_index,
+                item.sa_index
+              );
+          } else if (field.nbpb_type == "nbpb_text") {
+            var font = $scope.getFontByAlias(item.fontFamily);
+            if (font) {
+              $scope.resource.components[index].currentFontId =
+                (font.type == "google" ? "g" : "c") + font.id;
+            }
+            $scope.resource.components[index].currentFontFamily =
+              item.fontFamily;
+            $scope.resource.components[index].currentColor = item.fill;
+            $scope.resource.components[index].currentContent = item.text;
+          }
+        }
+      }
+    };
+    $scope.saveLayer = function () {
+      $scope.resource.showValue = false;
+      $scope.deactiveAllLayer();
+    };
+    $scope.selectAttribute = function (index) {
+      var currentComponent =
+        $scope.resource.components[$scope.resource.currentComponent];
+      currentComponent.currentConfig = index;
+      var statusImages = [],
+        firstView = true;
+      function isLoadedAllImages() {
+        var check = true;
+        _.each(statusImages, function (status, index) {
+          var _status = angular.isDefined(status) ? status : true;
+          check = check && _status;
+        });
+        return check;
+      }
+      _.each(
+        currentComponent.current_pb_configs[index],
+        function (view, viewIndex) {
+          if (view.display == "on") {
+            statusImages[viewIndex] = false;
+          }
+        }
+      );
+      var currentStage = -1;
+      _.each(
+        currentComponent.current_pb_configs[index],
+        function (view, viewIndex) {
+          var _stage = $scope.stages[viewIndex],
+            _canvas = _stage.canvas,
+            _item = $scope.getLayerById(currentComponent.id, viewIndex);
+          if (view.display == "on") {
+            if (currentStage == -1) {
+              currentStage = viewIndex;
+            }
+            if (firstView) {
+              jQuery(".nbpb-stage-loading").addClass("nbdpb-show");
+              firstView = false;
+            }
+            if (_item) {
+              var element = _item.getElement();
+              element.setAttribute("src", view.image_url);
+            }
+            fabric.Image.fromURL(
+              view.image_url,
+              function (obj) {
+                if (_item) {
+                  _item.set({
+                    visible: true,
+                    dirty: true,
+                    width: obj.width,
+                    height: obj.height,
+                    scaleX: (_item.scaleX * _item.width) / obj.width,
+                    scaleY: (_item.scaleY * _item.height) / obj.height,
+                    a_index: currentComponent.current_pb_configs[index].a_index,
+                    sa_index:
+                      currentComponent.current_pb_configs[index].sa_index,
+                  });
+                  _item.setCoords();
+                } else {
+                  var max_width = _canvas.width,
+                    max_height = _canvas.height,
+                    new_width = max_width;
+                  new_width = max_width;
+                  var width_ratio = new_width / obj.width,
+                    new_height = obj.height * width_ratio;
+                  if (new_height > max_height) {
+                    new_height = max_height;
+                    var height_ratio = new_height / obj.height;
+                    new_width = obj.width * height_ratio;
+                  }
+                  obj.set({
+                    fill: "#ff0000",
+                    scaleX: new_width / obj.width,
+                    scaleY: new_height / obj.height,
+                    itemId: currentComponent.id,
+                    a_index: currentComponent.current_pb_configs[index].a_index,
+                    sa_index:
+                      currentComponent.current_pb_configs[index].sa_index,
+                  });
+                  _canvas.add(obj);
+                  _canvas.viewportCenterObject(obj);
+                  if (NBPBCONFIG.is_creating_task == 1) {
+                    _canvas.setActiveObject(obj);
+                  }
+                }
+                statusImages[viewIndex] = true;
+                if (isLoadedAllImages())
+                  jQuery(".nbpb-stage-loading").removeClass("nbdpb-show");
+                _canvas.renderAll();
+              },
+              { crossOrigin: "anonymous" }
+            );
+          } else {
+            if (_item) {
+              _item.set({
+                visible: false,
+              });
+              _canvas.renderAll();
+            }
+          }
+        }
+      );
+      if (
+        currentComponent.current_pb_configs[index][$scope.currentStage]
+          .display != "on" &&
+        currentStage != -1
+      ) {
+        appConfig.slider.activeItemByIndex(currentStage);
+      }
+      $scope.resource.values[currentComponent.id].value =
+        "" + currentComponent.current_pb_configs[index].a_index;
+      $scope.resource.values[currentComponent.id].sub_value =
+        "" + currentComponent.current_pb_configs[index].sa_index;
+      jQuery(document).triggerHandler("update_pcpb_options_from_builder", {
+        nbd_fields: $scope.resource.values,
+        pro: true,
+      });
+    };
+    $scope.selectColor = function (color) {
+      if (
+        angular.isDefined(color) &&
+        $scope.resource.components[$scope.resource.currentComponent]
+          .currentColor != color
+      ) {
+        $scope.resource.components[
+          $scope.resource.currentComponent
+        ].currentColor = color;
+        $scope.updateText();
+      }
+    };
+    $scope.updateText = function () {
+      var currentComponent =
+        $scope.resource.components[$scope.resource.currentComponent];
+      currentComponent.currentFontFamily = "Arial";
+      var font;
+      if (currentComponent.currentFontId != "") {
+        var type = currentComponent.currentFontId.slice(0, 1),
+        id = currentComponent.currentFontId.slice(1);
+        if (type == "c") {
+          font = $scope.getFontByIdAndType(id, "ttf");
+        } else {
+          font = $scope.getFontByIdAndType(id, "google");
+        }
+        if (font) {
+          $scope.insertFontScript(font);
+          currentComponent.currentFontFamily = font.alias;
+        }
+      }
+      var font = new FontFaceObserver(currentComponent.currentFontFamily);
+      if (currentComponent.general.text_option.max != "") {
+        var maxlen = parseInt(currentComponent.general.text_option.max);
+        if (currentComponent.currentContent.length > maxlen) {
+          currentComponent.currentContent =
+            currentComponent.currentContent.slice(0, maxlen - 1);
+        }
+      }
+      font.load(currentComponent.currentContent).then(
+        function () {
+          fabric.util.clearFabricFontCache();
+          $scope.addText();
+        },
+        function () {
+          $scope.addText();
+        }
+      );
+      $scope.resource.values[currentComponent.id].value =
+        currentComponent.currentContent;
+      jQuery(document).triggerHandler("update_pcpb_options_from_builder", {
+        nbd_fields: $scope.resource.values,
+        pro: true,
+      });
+    };
+    $scope.insertFontScript = function (font) {
+      if (!jQuery("#nbpb" + font.id).length) {
+        if (font.type == "google") {
+          jQuery("head").append(
+            '<link id="nbpb' +
+              font.id +
+              '" href="https://fonts.googleapis.com/css?family=' +
+              font.alias.replace(/\s/gi, "+") +
+              ':400,400i,700,700i" rel="stylesheet" type="text/css">'
+          );
+        } else {
+          var css = "<style type='text/css' id='nbpb" + font.id + "' >";
+          _.each(font.file, function (file, index) {
+            var font_url = file;
+            if (!(file.indexOf("http") > -1))
+              font_url = NBPBCONFIG["font_url"] + file;
+            css += "@font-face {font-family: '" + font.alias + "';";
+            css += "src: local('\u263a'), ";
+            css += "url('" + font_url + "') format('truetype');";
+            switch (index) {
+              case "r":
+                css += "font-weight: normal;font-style: normal;";
+                break;
+              case "b":
+                css += "font-weight: bold;font-style: normal;";
+                break;
+              case "i":
+                css += "font-weight: normal;font-style: italic;";
+                break;
+              case "bi":
+                css += "font-weight: bold;font-style: italic;";
+                break;
+            }
+            css += "}";
+          });
+          css += "</style>";
+          jQuery("head").append(css);
+        }
+      }
+    };
+    $scope.getFontByIdAndType = function (id, type) {
+      var _font = null;
+      var fonts = NBPBCONFIG.fonts;
+      if (typeof fonts === 'string') {
+        try {
+          fonts = JSON.parse(fonts);
+        } catch (e) {
+          return null;
+        }
+      }
+      _.each(fonts, function (font) {
+        if (parseInt(font.id) === parseInt(id) && font.type.toLowerCase() === type.toLowerCase()) {
+          _font = font;
+        }
+      });
+      return _font;
+    };
+    $scope.getFontByAlias = function (alias) {
+      var _font;
+      _.each(NBPBCONFIG.fonts, function (font, index) {
+        if (font.alias == alias) {
+          _font = font;
+        }
+      });
+      return _font;
+    };
+    $scope.addText = function () {
+      var currentComponent =
+          $scope.resource.components[$scope.resource.currentComponent],
+        views = currentComponent.general.nbpb_text_configs.views;
+      _.each(views, function (view, viewIndex) {
+        var item = $scope.getLayerById(currentComponent.id, viewIndex);
+        if (view.display == "on") {
+          var _canvas = $scope.stages[viewIndex].canvas;
+          if (item) {
+            item.set({
+              text: currentComponent.currentContent,
+              visible: true,
+              fontFamily:
+                currentComponent.general.nbpb_text_configs.allow_font_family ==
+                "y"
+                  ? currentComponent.currentFontFamily
+                  : item.fontFamily,
+              fill:
+                currentComponent.general.nbpb_text_configs.allow_change_color ==
+                "y"
+                  ? currentComponent.currentColor
+                  : item.fill,
+            });
+          } else {
+            _canvas.add(
+              new FabricWindow["Textbox"](currentComponent.currentContent, {
+                itemId: currentComponent.id,
+                fontFamily: currentComponent.currentFontFamily,
+                fontSize: 19,
+                fill: currentComponent.currentColor,
+                textAlign: "center",
+              })
+            );
+            _canvas.viewportCenterObject(
+              _canvas.item(_canvas.getObjects().length - 1)
+            );
+          }
+        } else {
+          if (item) {
+            item.set({
+              visible: false,
+            });
+          }
+        }
+        _canvas.renderAll();
+      });
+    };
+    $scope.getLayerById = function (itemId, stage) {
+      var _canvas = null;
+      if (angular.isDefined(stage)) {
+        _canvas = $scope.stages[stage].canvas;
+      } else {
+        _canvas = $scope.stages[$scope.currentStage].canvas;
+      }
+      var _object = null;
+      _canvas.forEachObject(function (obj, index) {
+        if (obj.get("itemId") == itemId) _object = obj;
+      });
+      return _object;
+    };
+    $scope.getLayerIndex = function (itemId, stage) {
+      var _canvas;
+      if (angular.isDefined(stage)) {
+        _canvas = $scope.stages[stage].canvas;
+      } else {
+        _canvas = $scope.stages[$scope.currentStage].canvas;
+      }
+      var _index;
+      _canvas.forEachObject(function (obj, index) {
+        if (obj.get("itemId") == itemId) _index = index;
+      });
+      return _index;
+    };
+    $scope.deactiveAllLayer = function (stage_id) {
+      stage_id = stage_id ? stage_id : $scope.currentStage;
+      $scope.stages[stage_id]["canvas"].discardActiveObject();
+      $scope.renderStage();
+      $scope.updateApp();
+    };
+    $scope.clearAllStages = function () {
+      _.each($scope.stages, function (stage, index) {
+        stage.canvas.clear();
+        stage.canvas.renderAll();
+      });
+    };
+    $scope.renderStage = function (stage_id) {
+      stage_id = stage_id ? stage_id : $scope.currentStage;
+      $scope.stages[stage_id]["canvas"].calcOffset();
+      $scope.stages[stage_id]["canvas"].requestRenderAll();
+    };
+    $scope.updateApp = function () {
+      if (
+        $scope.$root.$$phase !== "$apply" &&
+        $scope.$root.$$phase !== "$digest"
+      )
+        $scope.$apply();
+    };
+    $scope.setStackPosition = function (command, _item) {
+      var item = _item
+        ? _item
+        : $scope.stages[$scope.currentStage]["canvas"].getActiveObject();
+      switch (command) {
+        case "bring-front":
+          item.bringToFront();
+          $scope.setStackLayerAlwaysOnTop();
+          break;
+        case "bring-forward":
+          item.bringForward();
+          break;
+        case "send-backward":
+          item.sendBackwards();
+          break;
+        case "send-back":
+          item.sendToBack();
+          break;
+        default:
+          var index = parseInt(command);
+          item.moveTo(index);
+      }
+      $scope.renderStage($scope.currentStage);
+    };
+    $scope.calcViewport = function () {
+      var _width = jQuery(".design-stages").width(),
+        _height = jQuery(".design-stages").height();
+      return { width: _width, height: _height };
+    };
+    $scope.makeblob = function (dataURL) {
+      var BASE64_MARKER = ";base64,";
+      if (dataURL.indexOf(BASE64_MARKER) == -1) {
+        var parts = dataURL.split(",");
+        var contentType = parts[0].split(":")[1];
+        var raw = decodeURIComponent(parts[1]);
+        return new Blob([raw], { type: contentType });
+      }
+      var parts = dataURL.split(BASE64_MARKER);
+      var contentType = parts[0].split(":")[1];
+      var raw = window.atob(parts[1]);
+      var rawLength = raw.length;
+      var uInt8Array = new Uint8Array(rawLength);
+      for (var i = 0; i < rawLength; ++i) {
+        uInt8Array[i] = raw.charCodeAt(i);
+      }
+      return new Blob([uInt8Array], { type: contentType });
+    };
+    $scope.saveData = function () {
+      $scope.toggleAppLoading();
+      jQuery(".pcpb-custom-design").empty().hide();
+      $scope.saveDesign();
+      $scope.resource.config.views = $scope.resource.views;
+      $scope.resource.config.viewport = $scope.calcViewport();
+      var dataObj = {};
+      dataObj.design = new Blob([JSON.stringify($scope.resource.jsonDesign)], {
+        type: "application/json",
+      });
+      _.each($scope.stages, function (stage, index) {
+        var key = "frame_" + index;
+        var svgKey = "frame_" + index + "_svg";
+        dataObj[key] = $scope.makeblob(stage.design);
+        dataObj[svgKey] = new Blob([stage.svg], { type: "image/svg" });
+      });
+      ["pcpb_cart_item_key", "is_creating_task", "oid"].forEach(function (key) {
+        dataObj[key] = NBPBCONFIG[key];
+      });
+      dataObj.config = new Blob([JSON.stringify($scope.resource.config)], {
+        type: "application/json",
+      });
+      dataObj.used_font = new Blob(
+        [JSON.stringify($scope.resource.used_font)],
+        {
+          type: "application/json",
+        }
+      );
+      dataObj.design_output = new Blob(
+        [JSON.stringify($scope.resource.design_output)],
+        {
+          type: "application/json",
+        }
+      );
+      var action = "spbwc_save_product_builder_design";
+      NBDDataFactory.get(action, dataObj, function (data) {
+        data = JSON.parse(data);
+        if (data.flag == "success") {
+          if ($scope.settings.is_creating_task == 1) {
+            if ($scope.settings.redirect_url != "")
+              window.location = $scope.settings.redirect_url;
+          } else {
+            $scope.toggleAppLoading();
+            jQuery(".pcpb-custom-design").show();
+            _.each(data.image, function (image) {
+              image += "?t=" + Math.random();
+              var item =
+                '<div class="item">' +
+                '<img src="' +
+                image +
+                '" alt="Custom Design"/>' +
+                "</div>";
+              jQuery(".pcpb-custom-design").append(item);
+            });
+            jQuery(".variations_form, form.cart").append(
+              '<input type="hidden" name="prcpb-folder" value="' +
+                data.folder +
+                '" />'
+            );
+            jQuery(document).triggerHandler(
+              "update_product_image_from_builder",
+              {
+                image_link: data.image[0],
+                image_srcset: data.image[0],
+                full_src: data.image[0],
+                full_src_w: $scope.stages[0].config.width,
+                full_src_h: $scope.stages[0].config.height,
+                image_sizes: [
+                  $scope.stages[0].config.width,
+                  $scope.stages[0].config.height,
+                ],
+                image_title: "",
+                image_alt: "",
+                image_caption: "",
+              }
+            );
+            jQuery(".close-popup").triggerHandler("click");
+          }
+        } else {
+          $scope.toggleAppLoading();
+          alert(NBPBCONFIG.i18n.can_not_save_design);
+        }
+      });
+    };
+    $scope.saveDesign = function () {
+      var used_font = [];
+      _.each($scope.stages, function (stage, index) {
+        $scope.deactiveAllLayer(index);
+        var _canvas = stage.canvas;
+        $scope.renderStage(index);
+        $scope.resource.jsonDesign[index] = _canvas.toJSON(
+          $scope.includeExport
+        );
+        _canvas.getObjects().forEach(function (obj) {
+          if (
+            ["i-text", "text", "textbox", "curvedText"].indexOf(obj.type) > -1
+          ) {
+            if (!_.filter(used_font, ["alias", obj.fontFamily]).length) {
+              var font = $scope.getFontInfo(obj.fontFamily);
+              used_font.push(font);
+            }
+          }
+        });
+        stage.design = _canvas.toDataURL();
+        stage.svg = _canvas.toSVG();
+      });
+      $scope.resource.used_font = used_font;
+    };
+    $scope.getFontInfo = function (alias) {
+      var font = _.filter(NBPBCONFIG.fonts, { alias: alias })[0],
+        _font = angular.copy(font, _font);
+      if (_font) {
+        _font.file = { r: font.file.r };
+        _font.file.i = angular.isDefined(font.file.i) ? font.file.i : 0;
+        _font.file.b = angular.isDefined(font.file.b) ? font.file.b : 0;
+        _font.file.bi = angular.isDefined(font.file.bi) ? font.file.bi : 0;
+      } else {
+        _font = {
+          name: "Roboto",
+          alias: "Roboto",
+          file: { r: 1, b: 1, i: 1, bi: 1 },
+          cat: ["99"],
+          type: "google",
+          subset: "latin",
+        };
+      }
+      return _font;
+    };
+    $scope.onObjectAdded = function (id, options) {
+      /* Reindex layers */
+      if (
+        NBPBCONFIG.is_creating_task != 1 &&
+        angular.isUndefined($scope.settings.pre_builder.design)
+      ) {
+        _.each($scope.stages, function (stage, sIndex) {
+          var layerIndex = 0,
+            _canvas = stage.canvas;
+          _.each($scope.resource.components, function (component, cIndex) {
+            var _obj,
+              itemId = component.id;
+            _canvas.forEachObject(function (obj, index) {
+              if (obj.get("itemId") == itemId) {
+                _obj = obj;
+              }
+            });
+            if (_obj) {
+              _obj.moveTo(layerIndex);
+              layerIndex++;
+            }
+          });
+        });
+      }
+    };
+    $scope.onMouseOver = function (id, options) {
+      var _stage = $scope.stages[$scope.currentStage],
+        _canvas = _stage["canvas"],
+        item = options.target;
+      if (item) {
+        item.set("opacity", "0.9");
+      }
+      _canvas.renderAll();
+    };
+    $scope.onMouseOut = function (id, options) {
+      var _stage = $scope.stages[$scope.currentStage],
+        _canvas = _stage["canvas"],
+        item = options.target,
+        itemId = "",
+        proAttr = null;
+      if (item) {
+        item.set("opacity", "1");
+      }
+      _canvas.renderAll();
+    };
+    $scope.onMouseDown = function (id, options) {
+      var _stage = $scope.stages[$scope.currentStage],
+        _canvas = _stage["canvas"],
+        item = options.target;
+      if (item) {
+        if (angular.isDefined(item.get("itemId"))) {
+          var itemId = item.get("itemId");
+          _.each($scope.resource.components, function (component, index) {
+            if (component.id == itemId) {
+              $scope.showAttribute(index);
+              $scope.updateApp();
+            }
+          });
+        }
+      } else {
+        $scope.saveLayer();
+      }
+    };
+    $scope.onSelectionCreated = function (id, options) {
+      if (options.target) {
+        var item = options.target,
+          _stage = $scope.stages[$scope.currentStage];
+        _stage.states.scaleX = item.get("scaleX");
+        _stage.states.scaleY = item.get("scaleY");
+        _stage.states.angle = item.get("angle");
+        if (item.type == "textbox") {
+          var font = $scope.getFontByAlias(item.fontFamily);
+          if (font) {
+            $scope.resource.components[
+              $scope.resource.currentComponent
+            ].currentFontId = (font.type == "google" ? "g" : "c") + font.id;
+          }
+          $scope.resource.components[
+            $scope.resource.currentComponent
+          ].currentFontFamily = item.fontFamily;
+          $scope.resource.components[
+            $scope.resource.currentComponent
+          ].currentColor = item.fill;
+          $scope.resource.components[
+            $scope.resource.currentComponent
+          ].currentContent = item.text;
+        }
+        _stage.states.showAdminTool = true;
+        $scope.updateApp();
+      }
+    };
+    $scope.onSelectionCleared = function (id, options) {
+      var _stage = $scope.stages[$scope.currentStage];
+      _stage.states.showAdminTool = false;
+      $scope.updateApp();
+    };
+    $scope.updateLayerAttribute = function (type, value) {
+      if (!appConfig.ready) return;
+      var item = $scope.stages[$scope.currentStage]["canvas"].getActiveObject();
+      if (!item) return;
+      var ob = {};
+      ob[type] = value;
+      $scope.stages[$scope.currentStage].states[type] = value;
+      item.set(ob);
+      $scope.renderStage();
+    };
+    var _window = angular.element($window);
+    _window.on("resize", function () {
+      $scope.reCalcViewPort();
+    });
+    $scope.reCalcViewPort = function () {
+      var _stages = $scope.stages;
+      jQuery(".nbdpb-carousel").nbdpbCarousel();
+      _.each(_stages, function (stage, index) {
+        $scope.setStageDimension(index);
+      });
+      $scope.resizeStages($scope.resource.config.lastViewport);
+    };
+    $scope.resizeStages = function (viewport) {
+      _.each($scope.stages, function (stage, index) {
+        var currentViewport = $scope.calcViewport();
+        var newFitRec = $scope.fitRectangle(
+          viewport.width,
+          viewport.height,
+          stage.config.width,
+          stage.config.height,
+          true
+        );
+        var oldFitRec = $scope.fitRectangle(
+          currentViewport.width,
+          currentViewport.height,
+          stage.config.width,
+          stage.config.height,
+          true
+        );
+        var factor = oldFitRec.width / newFitRec.width;
+        if (factor != 1) {
+          stage.canvas.forEachObject(function (obj) {
+            var scaleX = obj.scaleX,
+              scaleY = obj.scaleY,
+              left = obj.left,
+              top = obj.top,
+              tempScaleX = scaleX * factor,
+              tempScaleY = scaleY * factor,
+              tempLeft = left * factor,
+              tempTop = top * factor;
+            obj.scaleX = tempScaleX;
+            obj.scaleY = tempScaleY;
+            obj.left = tempLeft;
+            obj.top = tempTop;
+            obj.setCoords();
+          });
+          stage.canvas.calcOffset();
+          $scope.renderStage(index);
+        }
+        if (index == $scope.stages.length - 1) {
+          $scope.resource.config.lastViewport = currentViewport;
+        }
+      });
+    };
+    $scope.$on("canvas:created", function (event, id, last) {
+      /* init canvas parameters */
+      $scope.initStageSetting(id);
+      var _canvas = $scope.stages[id].canvas;
+      /* Listen canvas events */
+      _canvas.on("mouse:over", function (options) {
+        $scope.onMouseOver(id, options);
+      });
+      _canvas.on("mouse:out", function (options) {
+        $scope.onMouseOut(id, options);
+      });
+      _canvas.on("mouse:down", function (options) {
+        $scope.onMouseDown(id, options);
+      });
+      _canvas.on("object:added", function (options) {
+        $scope.onObjectAdded(id, options);
+      });
+      _canvas.on("selection:created", function (options) {
+        $scope.onSelectionCreated(id, options);
+      });
+      _canvas.on("selection:cleared", function (options) {
+        $scope.onSelectionCleared(id, options);
+      });
+      /* Load template after render canvas */
+      if (last == "1") {
+        appConfig.ready = true;
+        $scope.loadPreBuilder();
+      }
+    });
+    $scope.$on("component:mouseover", function (event, id) {
+      if (!appConfig.ready) return;
+      var _canvas = $scope.stages[$scope.currentStage].canvas;
+      var item = $scope.getLayerById(id);
+      if (item) {
+        item.set("opacity", "0.9");
+        _canvas.renderAll();
+      }
+    });
+    $scope.$on("component:mouseout", function (event, id) {
+      if (!appConfig.ready) return;
+      var _canvas = $scope.stages[$scope.currentStage].canvas;
+      var item = $scope.getLayerById(id);
+      if (item) {
+        item.set("opacity", "1");
+        _canvas.renderAll();
+      }
+    });
+    $scope.loadPreBuilder = function () {
+      $timeout(function () {
+        if (angular.isDefined($scope.settings.pre_builder.design)) {
+          $scope.insertTemplate(
+            $scope.settings.pre_builder.design,
+            $scope.settings.pre_builder.config
+          );
+        }
+      });
+    };
+    $scope.insertTemplate = function (design, config) {
+      $scope.onloadTemplate = true;
+      var stageIndex = 0,
+        viewport = config.viewport;
+      $scope.toggleAppLoading();
+      function loadStage(stageIndex) {
+        var stage = $scope.stages[stageIndex],
+          _canvas = stage["canvas"],
+          layerIndex = 0;
+        _canvas.clear();
+        var objects = [];
+        if (angular.isDefined(design[stageIndex]))
+          objects = design[stageIndex].objects;
+        function loadLayer(layerIndex) {
+          function continueLoadLayer() {
+            layerIndex++;
+            if (objects.length != 0 && layerIndex < objects.length) {
+              loadLayer(layerIndex);
+            } else {
+              stageIndex++;
+              if (stageIndex < $scope.stages.length) {
+                loadStage(stageIndex);
+              } else {
+                _.each($scope.stages, function (_stage, index) {
+                  $scope.deactiveAllLayer();
+                  $scope.renderStage(index);
+                  $timeout(function () {
+                    $scope.deactiveAllLayer();
+                    $scope.renderStage(index);
+                    if (index == $scope.stages.length - 1) {
+                      $scope.resizeStages(viewport);
+                      $scope.toggleAppLoading();
+                      $scope.onloadTemplate = false;
+                    }
+                  });
+                });
+              }
+            }
+          }
+          if (objects.length > 0) {
+            var item = objects[layerIndex],
+              type = item.type,
+              component = $scope.getComponentById(item.itemId);
+            if (component && component.enable) {
+              if (type == "image") {
+                fabric.Image.fromObject(item, function (_image) {
+                  if (angular.isDefined(_image.isLogo) && _image.isLogo == 1) {
+                    if (
+                      NBPBCONFIG.pcpb_cart_item_key == "" &&
+                      NBPBCONFIG.is_creating_task == 0
+                    )
+                      _image.set({ visible: false });
+                    component.general.nbpb_image_configs.views[
+                      stageIndex
+                    ].width = _image.width * _image.scaleX;
+                    component.general.nbpb_image_configs.views[
+                      stageIndex
+                    ].height = _image.height * _image.scaleY;
+                    component.general.nbpb_image_configs.views[stageIndex].top =
+                      _image.top;
+                    component.general.nbpb_image_configs.views[
+                      stageIndex
+                    ].left = _image.left;
+                  }
+                  _canvas.add(_image);
+                  continueLoadLayer();
+                });
+              } else if (type == "textbox") {
+                function addText(item) {
+                  var klass = fabric.util.getKlass(type);
+                  klass.fromObject(item, function (item) {
+                    if (
+                      NBPBCONFIG.pcpb_cart_item_key == "" &&
+                      NBPBCONFIG.is_creating_task == 0
+                    )
+                      item.set({ visible: false, text: "" });
+                    _canvas.add(item);
+                    continueLoadLayer();
+                  });
+                }
+                var font = $scope.getFontByAlias(item.fontFamily);
+                if (font) {
+                  $scope.insertFontScript(font);
+                  var font = new FontFaceObserver(item.fontFamily);
+                  font.load(item.text).then(
+                    function () {
+                      fabric.util.clearFabricFontCache();
+                      addText(item);
+                    },
+                    function () {
+                      addText(item);
+                    }
+                  );
+                } else {
+                  item.fontFamily = "Arial";
+                  addText(item);
+                }
+              }
+            } else {
+              continueLoadLayer();
+            }
+          } else {
+            continueLoadLayer();
+          }
+        }
+        loadLayer(layerIndex);
+      }
+      loadStage(stageIndex);
+    };
+    $scope.fitRectangle = function (x1, y1, x2, y2, fill) {
+      var rec = {};
+      if (x2 < x1 && y2 < y1) {
+        if (fill) {
+          if (x1 / y1 > x2 / y2) {
+            rec.width = (x2 * y1) / y2;
+            rec.height = y1;
+            rec.top = 0;
+            rec.left = (x1 * y2 - x2 * y1) / y2 / 2;
+          } else {
+            rec.width = x1;
+            rec.height = (x1 * y2) / x2;
+            rec.top = (x2 * y1 - x1 * y2) / x2 / 2;
+            rec.left = 0;
+          }
+        } else {
+          rec.top = (x1 - x2) / 2;
+          rec.left = (y1 - y2) / 2;
+          rec.width = x2;
+          rec.height = y2;
+        }
+      } else if (x1 / y1 > x2 / y2) {
+        rec.width = (x2 * y1) / y2;
+        rec.height = y1;
+        rec.top = 0;
+        rec.left = (x1 * y2 - x2 * y1) / y2 / 2;
+      } else {
+        rec.width = x1;
+        rec.height = (x1 * y2) / x2;
+        rec.top = (x2 * y1 - x1 * y2) / x2 / 2;
+        rec.left = 0;
+      }
+      return rec;
+    };
+    $scope.toggleAppLoading = function () {
+      var $loading = jQuery(".nbdpb-load-page");
+      if ($loading.hasClass("nbdpb-show")) {
+        $loading.removeClass("nbdpb-show");
+        jQuery("body, html").removeClass("nbdpb-no-overflow");
+      } else {
+        $loading.addClass("nbdpb-show");
+        jQuery("body, html").addClass("nbdpb-no-overflow");
+      }
+    };
+    $scope.uploadImage = function (field_id, files) {
+      var file = files[0],
+        field = $scope.get_field(field_id),
+        min_size = parseInt(field.general.upload_option.min_size),
+        max_size = parseInt(field.general.upload_option.max_size);
+      if (file.type.indexOf("image") === -1) {
+        alert($scope.settings.i18n.only_support_image);
+        return;
+      }
+      if (file.size > max_size * 1024 * 1024) {
+        alert($scope.settings.i18n.max_file_size + max_size + " MB");
+        return;
+      } else if (file.size < min_size * 1024 * 1024) {
+        alert($scope.settings.i18n.min_file_size + min_size + " MB");
+        return;
+      }
+      if (file.type.indexOf("svg") > -1) {
+        var reader = new FileReader();
+        reader.onload = function (event) {
+          if (event.target.readyState === 2) {
+            var result = reader.result;
+            $scope.addSvgFromString(result);
+          }
+        };
+        reader.readAsText(file);
+      } else {
+        NBDDataFactory.get(
+           "spbwc_customer_upload",
+          { file: file },
+          function (data) {
+            var data = JSON.parse(data);
+            if (data.flag == 1) {
+              $scope.addImage(data.src);
+              $scope.resource.uploaded.push(data.src);
+              if ($scope.resource.uploaded.length > 10) {
+                $scope.resource.uploaded.shift();
+              }
+              localStorage.setItem(
+                "nbpb_uploaded",
+                JSON.stringify($scope.resource.uploaded)
+              );
+            } else {
+              alert(data.mes);
+            }
+          }
+        );
+      }
+    };
+    $scope.addImage = function (url) {
+      var currentComponent = $scope.resource.components[$scope.resource.currentComponent],
+      views = currentComponent?.general?.nbpb_image_configs?.views;
+      var statusImages = [],
+        firstView = true;
+      function isLoadedAllImages() {
+        var check = true;
+        _.each(statusImages, function (status, index) {
+          var _status = angular.isDefined(status) ? status : true;
+          check = check && _status;
+        });
+        return check;
+      }
+      _.each(views, function (view, viewIndex) {
+        if (view.display == "on") {
+          statusImages[viewIndex] = false;
+        }
+      });
+      _.each(views, function (view, viewIndex) {
+        var stage = $scope.stages[viewIndex],
+          _canvas = stage.canvas,
+          _item = $scope.getLayerById(currentComponent.id, viewIndex);
+        if (view.display == "on") {
+          if (firstView) {
+            jQuery(".nbpb-stage-loading").addClass("nbdpb-show");
+            firstView = false;
+          }
+          fabric.Image.fromURL(
+            url,
+            function (op) {
+              function _addImage(exist) {
+                if (angular.isDefined(view.width)) {
+                  //todo resize holder
+                  var preViewport = $scope.settings.pre_builder.config.viewport,
+                    currentViewport = $scope.calcViewport(),
+                    newFitRec = $scope.fitRectangle(
+                      preViewport.width,
+                      preViewport.height,
+                      stage.config.width,
+                      stage.config.height,
+                      true
+                    ),
+                    oldFitRec = $scope.fitRectangle(
+                      currentViewport.width,
+                      currentViewport.height,
+                      stage.config.width,
+                      stage.config.height,
+                      true
+                    );
+                  var factor = oldFitRec.width / newFitRec.width,
+                    max_width = view.width * factor,
+                    max_height = view.height * factor,
+                    left = view.left * factor,
+                    top = view.top * factor;
+                } else {
+                  var max_width = _canvas.width / 2,
+                    max_height = _canvas.height / 2,
+                    left = _canvas.width / 2,
+                    top = _canvas.height / 2;
+                }
+                var new_width = max_width;
+                if (op.width < max_width) new_width = op.width;
+                var width_ratio = new_width / op.width,
+                  new_height = op.height * width_ratio;
+                if (new_height > max_height) {
+                  new_height = max_height;
+                  var height_ratio = new_height / op.height;
+                  new_width = op.width * height_ratio;
+                }
+                if (angular.isDefined(exist)) {
+                  var element = _item.getElement();
+                  element.setAttribute("src", url);
+                  _item.set({
+                    dirty: true,
+                    width: op.width,
+                    height: op.height,
+                    scaleX: new_width / op.width,
+                    scaleY: new_height / op.height,
+                    visible: true,
+                  });
+                  _item.setCoords();
+                } else {
+                  op.set({
+                    fill: "#ff0000",
+                    scaleX: new_width / op.width,
+                    scaleY: new_height / op.height,
+                    left: left,
+                    top: top,
+                    itemId: currentComponent.id,
+                    isLogo: 1,
+                  });
+                  _canvas.add(op);
+                  if (NBPBCONFIG.is_creating_task == 1) {
+                    _canvas.setActiveObject(op);
+                  }
+                }
+              }
+              if (_item) {
+                if (_item.type == "image") {
+                  _addImage(true);
+                } else {
+                  var layerIndex = $scope.getLayerIndex(
+                    currentComponent.id,
+                    viewIndex
+                  );
+                  view.width = _item.width * _item.scaleX;
+                  view.height = _item.height * _item.scaleY;
+                  view.left = _item.left;
+                  view.top = _item.top;
+                  _canvas.remove(_item);
+                  _addImage(true);
+                  op.moveTo(layerIndex);
+                }
+              } else {
+                _addImage();
+              }
+              _canvas.renderAll();
+              statusImages[viewIndex] = true;
+              if (isLoadedAllImages()) {
+                jQuery(".nbpb-stage-loading").removeClass("nbdpb-show");
+              }
+            },
+            { crossOrigin: "anonymous" }
+          );
+        }
+        jQuery(".nbd-upload-loading").removeClass("is-visible");
+      });
+      if (
+        jQuery(".nbo-fields-wrapper").find(
+          "#nbd-upload-hidden-" + currentComponent.id
+        ).length > 0
+      ) {
+        jQuery(".nbo-fields-wrapper")
+          .find("#nbd-upload-hidden-" + currentComponent.id)
+          .val(url);
+      } else {
+        jQuery(".nbo-fields-wrapper").append(
+          '<input class="nbd-upload-hidden" id="nbd-upload-hidden-' +
+            currentComponent.id +
+            '" type="hidden" name="pcpb-field[' +
+            currentComponent.id +
+            ']" value="' +
+            url +
+            '" />'
+        );
+      }
+      $scope.resource.values[currentComponent.id].value = url;
+      jQuery(document).triggerHandler("update_pcpb_options_from_builder", {
+        nbd_fields: $scope.resource.values,
+        pro: true,
+      });
+    };
+    $scope.addSvgFromString = function (svg) {
+      var currentComponent =
+        $scope.resource.components[$scope.resource.currentComponent],
+        views = currentComponent?.general?.nbpb_image_configs?.views;
+      var statusSvgs = [],
+        firstView = true;
+      function isLoadedAllImages() {
+        var check = true;
+        _.each(statusSvgs, function (status, index) {
+          var _status = angular.isDefined(status) ? status : true;
+          check = check && _status;
+        });
+        return check;
+      }
+      _.each(views, function (view, viewIndex) {
+        if (view.display == "on") {
+          statusSvgs[viewIndex] = false;
+        }
+      });
+      _.each(views, function (view, viewIndex) {
+        if (view.display == "on") {
+          var _canvas = $scope.stages[viewIndex].canvas;
+          if (firstView) {
+            jQuery(".nbpb-stage-loading").addClass("nbdpb-show");
+            firstView = false;
+          }
+          fabric.loadSVGFromString(svg, function (ob, op) {
+            var object = fabric.util.groupSVGElements(ob, op);
+            function _addSvg(exist) {
+              if (angular.isDefined(exist)) {
+                var new_rect = $scope.fitRectangle(
+                    view.width,
+                    view.height,
+                    op.width,
+                    op.height,
+                    true
+                  ),
+                  new_width = new_rect.width,
+                  new_height = new_rect.height,
+                  left = view.left + (view.width - new_width) / 2,
+                  top = view.top + (view.height - new_height) / 2;
+              } else {
+                var max_width = _canvas.width,
+                  max_height = _canvas.height,
+                  new_width = max_width;
+                if (op.width < max_width) new_width = op.width;
+                var width_ratio = new_width / op.width,
+                  new_height = op.height * width_ratio;
+                if (new_height > max_height) {
+                  new_height = max_height;
+                  var height_ratio = new_height / op.height;
+                  new_width = op.width * height_ratio;
+                }
+                var top = _canvas.height / 2,
+                  left = _canvas.width / 2;
+              }
+              object.scaleToWidth(new_width);
+              object.scaleToHeight(new_height);
+              _canvas.add(object);
+              object.set({
+                left: left,
+                top: top,
+                itemId: currentComponent.id,
+              });
+            }
+            if (
+              angular.isDefined(currentComponent.existView) &&
+              currentComponent.existView
+            ) {
+              var _item = $scope.getLayerById(currentComponent.id, viewIndex);
+              var layerIndex = $scope.getLayerIndex(
+                currentComponent.id,
+                viewIndex
+              );
+              view.width = _item.width * _item.scaleX;
+              view.height = _item.height * _item.scaleY;
+              view.left = _item.left;
+              view.top = _item.top;
+              _canvas.remove(_item);
+              _addSvg(true);
+              object.moveTo(layerIndex);
+            } else {
+              _addSvg();
+            }
+            _canvas.renderAll();
+            statusSvgs[viewIndex] = true;
+            if (isLoadedAllImages()) {
+              jQuery(".nbpb-stage-loading").removeClass("nbdpb-show");
+              currentComponent.existView = true;
+            }
+          });
+        }
+        jQuery(".nbd-upload-loading").removeClass("is-visible");
+      });
+    };
+    $scope.deleteLayer = function (type) {
+      var type_confirm = "confirm_delete_" + type;
+      var con = confirm($scope.settings.i18n[type_confirm]);
+      var currentComponent =
+            $scope.resource.components[$scope.resource.currentComponent],
+          views = currentComponent.general["nbpb_" + type + "_configs"].views;
+      if (con) {
+        _.each(views, function (view, viewIndex) {
+          var layerIndex = $scope.getLayerIndex(currentComponent.id, viewIndex),
+            item = $scope.getLayerById(currentComponent.id, viewIndex),
+            _canvas = $scope.stages[viewIndex].canvas;
+          if (NBPBCONFIG.is_creating_task == 1) {
+            _canvas.remove(item);
+          } else {
+            item.set({ visible: false });
+            if (item.type == "textbox") item.set({ text: "" });
+          }
+          _canvas.renderAll();
+        });
+      }
+      if (type == "image") {
+        jQuery(".nbo-fields-wrapper")
+          .find("#nbd-upload-hidden-" + currentComponent.id)
+          .remove();
+      } else {
+        currentComponent.currentContent = "";
+      }
+      $scope.resource.values[currentComponent.id].value = "";
+      jQuery(document).triggerHandler("update_pcpb_options_from_builder", {
+        nbd_fields: $scope.resource.values,
+        pro: true,
+      });
+    };
+    $scope.getComponentById = function (id) {
+      var component = null;
+      angular.forEach($scope.resource.components, function (_component) {
+        if (_component.id == id) component = _component;
+      });
+      return component;
+    };
+    $scope.get_field = function (field_id) {
+      var _field = null;
+      angular.forEach(nbOption.options.fields, function (field) {
+        if (field.id == field_id) _field = field;
+      });
+      return _field;
+    };
+    $scope.getCurrentConfig = function (component_id, a_index, sa_index) {
+      var config_index;
+      var component = $scope.getComponentById(component_id);
+      if (
+        angular.isDefined(component.current_pb_configs) &&
+        component.current_pb_configs.length > 0
+      ) {
+        _.each(component.current_pb_configs, function (config, index) {
+          if (config.a_index == a_index && config.sa_index == sa_index)
+            config_index = index;
+        });
+      }
+      return config_index;
+    };
+    $scope.init();
+  },
+]);
+nbdpbApp.factory("FabricWindow", [
+  "$window",
+  function ($window) {
+    fabric.Object.NUM_FRACTION_DIGITS = 10;
+    $window.fabric.Object.prototype.set({
+      transparentCorners: false,
+      borderColor: "rgba(79, 84, 103, 0.7)",
+      cornerStyle: "circle",
+      cornerColor: "rgba(255, 255, 255, 1)",
+      borderDashArray: [2, 2],
+      cornerStrokeColor: "rgba(63, 70, 82, 1)",
+      hoverCursor: "pointer",
+      borderOpacityWhenMoving: 0,
+      selectable:  true ,
+      perPixelTargetFind:  true,
+      originX: "center",
+      originY: "center",
+      centeredScaling: true,
+      _controlsVisibility: {
+        tl: true,
+        tr: true,
+        br: true,
+        bl: true,
+        ml: false,
+        mt: false,
+        mr: false,
+        mb: false,
+        mtr: true,
+      },
+    });
+    if (NBPBCONFIG.is_mobile)
+    $window.fabric.Object.prototype.set({ cornerSize: 17 });
+    $window.fabric.Canvas.prototype.set({
+      preserveObjectStacking: true,
+      controlsAboveOverlay: true,
+      selectionColor: "rgba(1, 196, 204, 0.3)",
+      selectionBorderColor: "#01c4cc",
+      selectionLineWidth: 0.5,
+      centeredKey: "shiftKey",
+      uniScaleKey: "altKey",
+    });
+    return $window.fabric;
+  },
+]);
+nbdpbApp.directive("nbdCanvas", [
+  "FabricWindow",
+  "$timeout",
+  "$rootScope",
+  function (FabricWindow, $timeout, $rootScope) {
+    return {
+      restrict: "AE",
+      scope: {
+        stage: "=stage",
+        index: "@",
+        last: "@",
+      },
+      link: function (scope, element, attrs) {
+        $timeout(function () {
+          scope.stage.canvas = new FabricWindow.Canvas("canvas-" + scope.index);
+          scope.$emit("canvas:created", scope.index, scope.last);
+        });
+      },
+    };
+  },
+]);
+nbdpbApp.directive("nbpbHover", [
+  "$timeout",
+  function ($timeout) {
+    return {
+      restrict: "AE",
+      scope: {
+        componentId: "@nbpbHover",
+      },
+      link: function (scope, element, attrs) {
+        $timeout(function () {
+          jQuery(element).on("mouseover", function () {
+            scope.$emit("component:mouseover", scope.componentId);
+          });
+          jQuery(element).on("mouseout", function () {
+            scope.$emit("component:mouseout", scope.componentId);
+          });
+        });
+      },
+    };
+  },
+]);
+nbdpbApp.factory("NBDDataFactory", function ($http) {
+  return {
+    get: function (action, data, callback) {
+      var formData = new FormData();
+      formData.append("action", action);
+      formData.append("nonce", NBPBCONFIG["nonce"]);
+      angular.forEach(data, function (value, key) {
+        var keepDefault = [
+          "file",
+          "design",
+          "config",
+          "used_font",
+          "design_output",
+        ];
+        if (
+          typeof value != "object" ||
+          _.includes(keepDefault, key) ||
+          key.indexOf("frame") > -1
+        ) {
+          formData.append(key, value);
+        } else {
+          var keyName;
+          for (var k in value) {
+            if (value.hasOwnProperty(k)) {
+              keyName = [key, "[", k, "]"].join("");
+              formData.append(keyName, value[k]);
+            }
+          }
+        }
+      });
+      var config = {
+        transformRequest: angular.identity,
+        transformResponse: angular.identity,
+        headers: {
+          "Content-Type": undefined,
+        },
+      };
+      var url = NBPBCONFIG["ajax_url"];
+      $http.post(url, formData, config).then(
+        function (response) {
+          callback(response.data);
+        },
+        function (response) {
+          console.log(response);
+        }
+      );
+    },
+  };
+});
+nbdpbApp.directive("nbdDndFile", [
+  "$timeout",
+  function ($timeout) {
+    return {
+      restrict: "A",
+      scope: {
+        fieldId: "@",
+        uploadFile: "&nbdDndFile",
+      },
+      link: function (scope, element) {
+        $timeout(function () {
+          var dropArea = jQuery(element),
+            Input = dropArea.find('input[type="file"]');
+          _.each(["dragenter", "dragover"], function (eventName, key) {
+            dropArea.on(eventName, highlight);
+          });
+          _.each(["dragleave", "drop"], function (eventName, key) {
+            dropArea.on(eventName, unhighlight);
+          });
+          function highlight(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            dropArea.addClass("highlight");
+          }
+          function unhighlight(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            dropArea.removeClass("highlight");
+          }
+          dropArea.on("drop", handleDrop);
+          function handleDrop(e) {
+            if (e.originalEvent.dataTransfer) {
+              if (e.originalEvent.dataTransfer.files.length) {
+                e.preventDefault();
+                e.stopPropagation();
+                handleFiles(e.originalEvent.dataTransfer.files);
+              }
+            }
+          }
+          dropArea.on("click", function (e) {
+            Input.click();
+          });
+          Input.on("click", function (e) {
+            e.stopPropagation();
+          });
+          Input.on("change", function () {
+            handleFiles(this.files);
+          });
+          function handleFiles(files) {
+            if (files.length > 0) {
+              jQuery(element)
+                .find(".nbd-upload-loading")
+                .addClass("is-visible");
+              scope.uploadFile({ field_id: scope.fieldId, files: files });
+            }
+          }
+        });
+      },
+    };
+  },
+]);
+nbdpbApp.directive("nbpbColorPicker", [
+  "$timeout",
+  function ($timeout) {
+    return {
+      restrict: "C",
+      scope: {
+        onChange: "&",
+        options: "=?",
+      },
+      link: function (scope, element, attrs) {
+        function formatColor(tiny) {
+          var formatted = tiny;
+          if (formatted) {
+            formatted = tiny.toString(scope.options.preferredFormat);
+          }
+          return formatted;
+        }
+        $timeout(function () {
+          scope.options.change = function (color) {
+            scope.onChange({ color: formatColor(color) });
+          };
+          element.spectrum(scope.options);
+        });
+        element.on("$destroy", function () {
+          element.spectrum("destroy");
+        });
+      },
+    };
+  },
+]);
+jQuery.fn.nbShowPopup = function () {
+  return this.each(function () {
+    var sefl = this;
+    var $close = jQuery(this).find(".overlay-popup, .close-popup");
+    if (!jQuery(this).hasClass("nbdpb-show")) {
+      jQuery(this).addClass("nbdpb-show");
+    }
+    $close.on("click", function () {
+      jQuery(sefl).removeClass("nbdpb-show");
+      jQuery("body, html").removeClass("nbdpb-no-overflow");
+      var $scope = angular
+        .element(document.getElementById("nbpb-container"))
+        .scope();
+      $scope.updateApp();
+    });
+  });
+};
+jQuery.fn.nbdpbCarousel = function () {
+  var seflC = this;
+  this.itemActive = function ($carousel) {
+    var $items = $carousel.find(".nbdpb-carousel-item"),
+      $itemA = $items.filter(".nbdpb-active"),
+      $nav = $carousel.closest(".nbdpb-carousel-outer").find(".js-nav-item"),
+      $dots = $carousel
+        .closest(".nbdpb-carousel-outer")
+        .find(".nbdpb-owl-dots");
+    var curT = $carousel.offset().left - $itemA.offset().left;
+
+    $nav.removeClass("nbdpb-disabled");
+    $dots.find(".nbdpb-owl-dot").removeClass("nbdpb-active");
+    $dots
+      .find(".nbdpb-owl-dot")
+      .filter(function (i) {
+        return i === $itemA.index();
+      })
+      .addClass("nbdpb-active");
+    $carousel.css({
+      transform: "translate3d(" + curT + "px, 0, 0)",
+    });
+    var $scope = angular
+        .element(document.getElementById("nbpb-container"))
+        .scope(),
+      stage = $itemA.find(".stage").data("stage");
+    $scope.currentStage = stage;
+    $scope.updateApp();
+  };
+  this.activeItemByIndex = function (index) {
+    var $items = jQuery(seflC).find(".nbdpb-carousel-item");
+    $items.removeClass("nbdpb-active");
+    jQuery($items[index]).addClass("nbdpb-active");
+    seflC.itemActive(jQuery(seflC));
+  };
+  return this.each(function () {
+    var $sefl = jQuery(this),
+      $items = jQuery(this).find(".nbdpb-carousel-item"),
+      $outerCarousel = jQuery(this).closest(".nbdpb-carousel-outer");
+
+    var cWith = 0,
+      total = $items.length,
+      dots = '<div class="nbdpb-owl-dots"></div>';
+    var nav = '<div class="nbdpb-owl-nav"></div>',
+      navPrev =
+        '<button type="button" role="presentation" class="nbdpb-owl-prev js-nav-item">' +
+        '<i aria-label="Previous" class="icon-nbd icon-nbd-chevron-right rotate180"></i>' +
+        "</button>",
+      navNext =
+        '<button type="button" role="presentation" class="nbdpb-owl-next js-nav-item">' +
+        '<i aria-label="Next" class="icon-nbd icon-nbd-chevron-right"></i>' +
+        "</button>";
+    var $dots = jQuery(dots),
+      $nav = jQuery(nav),
+      $navPrev = jQuery(navPrev),
+      $navNext = jQuery(navNext);
+    $outerCarousel.find(".nbdpb-owl-nav").remove();
+    $outerCarousel.find(".nbdpb-owl-dots").remove();
+    if ($items.length > 1) $outerCarousel.append($dots);
+    if ($items.length > 1) $outerCarousel.append($nav);
+    $nav.append($navPrev);
+    $nav.append($navNext);
+    $items.each(function (i) {
+      var dot =
+        '<button role="button" class="nbdpb-owl-dot"><span></span></button>';
+      cWith += $outerCarousel.outerWidth();
+      jQuery(this).css({
+        width: $outerCarousel.outerWidth(),
+      });
+      $dots.append(dot);
+    });
+    $dots.find(".nbdpb-owl-dot").first().addClass("nbdpb-active");
+    jQuery(this).css({
+      width: cWith + "px",
+    });
+    $dots.find(".nbdpb-owl-dot").on("click", function () {
+      var index = jQuery(this).index();
+
+      $dots.find(".nbdpb-owl-dot").removeClass("nbdpb-active");
+      jQuery(this).addClass("nbdpb-active");
+
+      $items.removeClass("nbdpb-active");
+      $items
+        .filter(function (i) {
+          return i === index;
+        })
+        .addClass("nbdpb-active");
+
+      seflC.itemActive($sefl);
+    });
+    $navPrev.on("click", function () {
+      var $itemA = $items.filter(".nbdpb-active");
+      $itemA.removeClass("nbdpb-active");
+      if ($itemA.index() == 0) {
+        $items.last().addClass("nbdpb-active");
+      } else {
+        $itemA.prev().addClass("nbdpb-active");
+      }
+      seflC.itemActive($sefl);
+    });
+    $navNext.on("click", function () {
+      var $itemA = $items.filter(".nbdpb-active");
+      $itemA.removeClass("nbdpb-active");
+      if ($itemA.index() == $items.length - 1) {
+        $items.first().addClass("nbdpb-active");
+      } else {
+        $itemA.next().addClass("nbdpb-active");
+      }
+      seflC.itemActive($sefl);
+    });
+  });
+};
+function getTransform(el) {
+  var results = jQuery(el)
+    .css("transform")
+    .match(
+      /matrix(?:(3d)\(\d+(?:, \d+)*(?:, (\d+))(?:, (\d+))(?:, (\d+)), \d+\)|\(\d+(?:, \d+)*(?:, (\d+))(?:, (\d+))\))/
+    );
+  if (!results) return [0, 0, 0];
+  if (results[1] == "3d") return results.slice(2, 5);
+  results.push(0);
+  return results.slice(5, 8);
+}
+jQuery(document).ready(function () {
+  jQuery("#pcpb-start-design").on("click", function () {
+    var $scope = angular
+      .element(document.getElementById("nbpb-container"))
+      .scope();
+    $scope.updateApp();
+    jQuery("body, html").addClass("nbdpb-no-overflow");
+    jQuery(".nbdpb-popup.popup-design")
+      .nbShowPopup()
+      .addClass("nbdpb-no-overflow");
+    appConfig.slider = jQuery(".nbdpb-carousel").nbdpbCarousel();
+  });
+});
+jQuery(document).on("initialed_nbo_options", function () {
+  var nbdpbAppEl = document.getElementById("nbdpb-app");
+  angular.element(function () {
+    angular.bootstrap(nbdpbAppEl, ["nbdpbApp"]);
+    if (NBPBCONFIG.is_creating_task == 1) {
+      setTimeout(function () {
+        jQuery("body, html").addClass("nbdpb-no-overflow");
+        jQuery(".nbdpb-popup.popup-design")
+          .nbShowPopup()
+          .addClass("nbdpb-no-overflow");
+        appConfig.slider = jQuery(".nbdpb-carousel").nbdpbCarousel();
+        jQuery(".nbdpb-load-page").removeClass("nbdpb-show");
+      });
+    }
+  });
+});
+jQuery(document).on("update_nbo_options", function (e, data) {
+  if (!appConfig.ready) return;
+  var $scope = angular
+    .element(document.getElementById("nbpb-container"))
+    .scope();
+  $scope.initValues(false, data.pro);
+});

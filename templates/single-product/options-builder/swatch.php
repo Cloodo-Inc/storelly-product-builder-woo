@@ -1,11 +1,14 @@
-<?php if (!defined('ABSPATH')) exit; ?>
+<?php 
+if (!defined('ABSPATH')) exit; 
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Template variables used in local scope.
+?>
 <div class="nbd-option-field <?php echo esc_attr( $class ); ?>" data-id="<?php echo esc_attr( $field['id'] ); ?>" ng-if="nbd_fields['<?php echo esc_attr( $field['id'] ); ?>'].enable">
     <?php include( $currentDir .'/options-builder/field-header.php' ); ?>
     <div class="pcpb-field-content">
         <div class="nbd-swatch-wrap">
             <?php 
                 foreach ($field['general']['attributes']["options"] as $key => $attr): 
-                    $image_url = Storelly_PB_Util::storelly_get_image_thumbnail( $attr['image'] );
+                    $image_url = SPBWC_Storelly_PB_Util::spbwc_get_image_thumbnail( $attr['image'] );
                     $enable_subattr = isset($attr['enable_subattr']) ? $attr['enable_subattr'] : 0;
                     $attr['sub_attributes'] = isset( $attr['sub_attributes'] ) ? $attr['sub_attributes'] : array();
                     $show_subattr = ($enable_subattr == 'on' && count($attr['sub_attributes']) > 0) ? true : false;
@@ -40,7 +43,7 @@
         </div>
         <div class="nbo-invalid-option" 
             ng-class="nbd_fields['<?php echo esc_attr( $field['id'] ); ?>'].valid === false ? 'active' : ''"
-            ng-if="nbd_fields['<?php echo esc_attr( $field['id'] ); ?>'].valid === false">{{nbd_fields['<?php echo esc_attr( $field['id'] ); ?>'].invalidOption}} <?php esc_html_e('is not available.', 'pc-product-builder'); ?>
+            ng-if="nbd_fields['<?php echo esc_attr( $field['id'] ); ?>'].valid === false">{{nbd_fields['<?php echo esc_attr( $field['id'] ); ?>'].invalidOption}} <?php esc_html_e('is not available.', 'storelly-product-builder-for-woocommerce'); ?>
         </div>
     </div>
 </div>

@@ -1,6 +1,7 @@
 <?php
-do_action('storelly_head', 'single-product');
 if (!defined('ABSPATH')) exit;
+do_action('spbwc_head', 'single-product');
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Template variables are used within the local scope of the template.
 $in_quick_view      = false;
 $is_wqv             = false;
 $display_type       = '1';
@@ -18,8 +19,9 @@ $nbds_frontend = array(
 
 $prefix             = '';
 $style_class        = 'nbo-style-1';
+// phpcs:enable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound
 
-$currentDir = realpath(dirname(__FILE__));
+$currentDir = realpath(dirname(__FILE__)); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Template variable.
 
 ?>
 <div class="nbo-wrapper <?php if ($is_wqv) echo esc_attr('nbd-option-in-wqv'); ?> <?php echo esc_attr('wrapper-type-' . $display_type); ?>">
@@ -27,6 +29,7 @@ $currentDir = realpath(dirname(__FILE__));
         <div ng-controller="optionCtrl" ng-form="nboForm" id="nbo-ctrl-<?php echo esc_attr($appid); ?>" ng-cloak>
             <div class="nbo-fields-wrapper">
                 <?php
+                // phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Template variables used in loop.
                 $html_field         = '';
                 $has_nbpb           = false;
                 $artwork_action     = '';
@@ -92,20 +95,21 @@ $currentDir = realpath(dirname(__FILE__));
                 $show_quantity_option   = false;
 
                 $popup_fields   = array();
-                if ($has_nbpb) do_action('storelly_after_default_options');
+                // phpcs:enable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound
+                if ($has_nbpb) do_action('spbwc_after_default_options');
                 ?>
                 <div ng-if="fields.length" class="nbo-clear-option-wrap">
                     <?php if ($num_visible_field > 0) : ?>
-                        <a class="button nbd-button" ng-click="reset_options()"><?php esc_html_e('Clear selection', 'pc-product-builder'); ?></a>
+                        <a class="button nbd-button" ng-click="reset_options()"><?php esc_html_e('Clear selection', 'storelly-product-builder-for-woocommerce'); ?></a>
                     <?php endif; ?>
                 </div>
                 <input type="hidden" value="<?php echo esc_attr($product_id); ?>" name="pcpb-add-to-cart" />
-                <p ng-if="!valid_form" class="nbd-invalid-form"><?php esc_html_e('Please check invalid fields and quantity input or choose a different combination!', 'pc-product-builder'); ?></p>
+                <p ng-if="!valid_form" class="nbd-invalid-form"><?php esc_html_e('Please check invalid fields and quantity input or choose a different combination!', 'storelly-product-builder-for-woocommerce'); ?></p>
             </div>
             <div class="nbo-summary-wrapper">
                 <div ng-if="valid_form" class="nbo-table-summary-wrap <?php echo esc_attr($style_class); ?>">
                     <p class="nbo-summary-title" ng-init="showNboSummary = true">
-                        <b><?php esc_html_e('Summary options', 'pc-product-builder'); ?></b>
+                        <b><?php esc_html_e('Summary options', 'storelly-product-builder-for-woocommerce'); ?></b>
                         <span class="nbo-minus nbo-toggle" ng-show="showNboSummary" ng-click="showNboSummary = !showNboSummary">
                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
                                 <path d="M19 13H5v-2h14v2z" />
@@ -128,32 +132,32 @@ $currentDir = realpath(dirname(__FILE__));
                         <tbody>
                             <tr ng-repeat="(key, field) in nbd_fields" ng-show="field.enable && field.published">
                                 <td>{{field.title}} : <b>{{field.value_name}}</b>
-                                    <br ng-if="field.ind_qty" /><small ng-if="field.ind_qty && field.price != ''"> <?php esc_html_e('( cart fee )', 'pc-product-builder'); ?></small>
-                                    <br ng-if="field.fixed_amount" /><small ng-if="field.fixed_amount && field.price != ''"> <?php esc_html_e('( for all items )', 'pc-product-builder'); ?></small>
+                                    <br ng-if="field.ind_qty" /><small ng-if="field.ind_qty && field.price != ''"> <?php esc_html_e('( cart fee )', 'storelly-product-builder-for-woocommerce'); ?></small>
+                                    <br ng-if="field.fixed_amount" /><small ng-if="field.fixed_amount && field.price != ''"> <?php esc_html_e('( for all items )', 'storelly-product-builder-for-woocommerce'); ?></small>
                                 </td>
                                 <td ng-bind-html="field.price | to_trusted"></td>
                             </tr>
                         </tbody>
                         <tfoot style="border-top: 1px solid #404762;">
                             <tr>
-                                <td><b><?php esc_html_e('Options price', 'pc-product-builder'); ?></b></td>
-                                <td><span id="nbd-option-total"><span ng-bind-html="total_price | to_trusted"></span> / <?php esc_html_e('1 item', 'pc-product-builder'); ?></span></td>
+                                <td><b><?php esc_html_e('Options price', 'storelly-product-builder-for-woocommerce'); ?></b></td>
+                                <td><span id="nbd-option-total"><span ng-bind-html="total_price | to_trusted"></span> / <?php esc_html_e('1 item', 'storelly-product-builder-for-woocommerce'); ?></span></td>
                             </tr>
                             <tr class="nbo-final-price">
-                                <td><b><?php esc_html_e('Final price', 'pc-product-builder'); ?></b></td>
+                                <td><b><?php esc_html_e('Final price', 'storelly-product-builder-for-woocommerce'); ?></b></td>
                                 <td>
                                     <span id="nbd-option-total">
-                                        <span ng-hide="_qty == 1" ng-bind-html="final_price | to_trusted"></span><span ng-show="_qty == 1" ng-bind-html="total_cart_price | to_trusted"></span> / <?php esc_html_e('1 item', 'pc-product-builder'); ?>
+                                        <span ng-hide="_qty == 1" ng-bind-html="final_price | to_trusted"></span><span ng-show="_qty == 1" ng-bind-html="total_cart_price | to_trusted"></span> / <?php esc_html_e('1 item', 'storelly-product-builder-for-woocommerce'); ?>
                                     </span>
                                 </td>
                             </tr>
                             <tr class="nbo-final-price" ng-if="cart_item_fee.enable">
-                                <td><b><?php esc_html_e('Cart item fee', 'pc-product-builder'); ?></b></td>
-                                <td><span id="nbd-option-total"><span ng-bind-html="cart_item_fee.value | to_trusted"></span> / <?php esc_html_e('all items', 'pc-product-builder'); ?></span></td>
+                                <td><b><?php esc_html_e('Cart item fee', 'storelly-product-builder-for-woocommerce'); ?></b></td>
+                                <td><span id="nbd-option-total"><span ng-bind-html="cart_item_fee.value | to_trusted"></span> / <?php esc_html_e('all items', 'storelly-product-builder-for-woocommerce'); ?></span></td>
                             </tr>
                             <tr class="nbo-final-price nbo-total-price" ng-if="_qty > 1">
-                                <td><b><?php esc_html_e('Subtotal price', 'pc-product-builder'); ?></b></td>
-                                <td><span id="nbd-option-total"><span ng-bind-html="total_cart_price | to_trusted"></span> / {{_qty}} <?php esc_html_e('items', 'pc-product-builder'); ?></span></td>
+                                <td><b><?php esc_html_e('Subtotal price', 'storelly-product-builder-for-woocommerce'); ?></b></td>
+                                <td><span id="nbd-option-total"><span ng-bind-html="total_cart_price | to_trusted"></span> / {{_qty}} <?php esc_html_e('items', 'storelly-product-builder-for-woocommerce'); ?></span></td>
                             </tr>
                         </tfoot>
                     </table>

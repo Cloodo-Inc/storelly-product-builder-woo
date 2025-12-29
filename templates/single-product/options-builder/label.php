@@ -1,4 +1,7 @@
-<?php if (!defined('ABSPATH')) exit; ?>
+<?php 
+if (!defined('ABSPATH')) exit; 
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Template variables used in local scope.
+?>
 <div class="nbd-option-field <?php echo esc_attr( $class ); ?>" data-id="<?php echo esc_attr( $field['id'] ); ?>" ng-if="nbd_fields['<?php echo esc_attr( $field['id'] ); ?>'].enable">
     <?php include( $currentDir .'/options-builder/field-header.php' ); ?>
     <div class="pcpb-field-content">
@@ -27,7 +30,7 @@
         </div>
         <div class="nbo-invalid-option" 
             ng-class="nbd_fields['<?php echo esc_attr( $field['id'] ); ?>'].valid === false ? 'active' : ''"
-            ng-if="nbd_fields['<?php echo esc_attr( $field['id'] ); ?>'].valid === false">{{nbd_fields['<?php echo esc_attr( $field['id'] ); ?>'].invalidOption}} <?php esc_html_e('is not available', 'pc-product-builder'); ?></div>
+            ng-if="nbd_fields['<?php echo esc_attr( $field['id'] ); ?>'].valid === false">{{nbd_fields['<?php echo esc_attr( $field['id'] ); ?>'].invalidOption}} <?php esc_html_e('is not available', 'storelly-product-builder-for-woocommerce'); ?></div>
     </div>
 </div>
 

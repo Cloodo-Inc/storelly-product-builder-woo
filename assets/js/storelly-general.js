@@ -32,10 +32,11 @@ jQuery(document).ready(function ($) {
         url: storelly_admin.url,
         method: "POST",
         data: {
-          action: "storelly_download_order_designs",
+          action: "spbwc_download_order_designs",
           order_id: order_id,
           item_ids: item_ids,
           type_download: designType,
+          nonce: storelly_admin.nonce,
         },
       })
       .done(function (data) {

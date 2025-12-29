@@ -3,7 +3,7 @@
 <?php echo '<script type="text/ng-template" id="field_body_enabled">'; ?>
 <div class="pcpb-field-info">
     <div class="pcpb-field-info-1">
-        <div><label><b><?php esc_html_e('Enabled', 'pc-product-builder'); ?></b> <nbd-tip data-tip="<?php esc_html_e('Choose whether the option is enabled or not.', 'pc-product-builder'); ?>"></nbd-tip></label></div>
+        <div><label><b><?php esc_html_e('Enabled', 'storelly-product-builder-for-woocommerce'); ?></b> <nbd-tip data-tip="<?php esc_html_e('Choose whether the option is enabled or not.', 'storelly-product-builder-for-woocommerce'); ?>"></nbd-tip></label></div>
     </div>
     <div class="pcpb-field-info-2">
         <div>

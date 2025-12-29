@@ -8,7 +8,7 @@ if (!defined('ABSPATH')) {
     <div style="overflow: hidden;">
         <div class="storelly_options_panel" id="storelly-options">
             <p class="storelly-form-field">
-                <label for="_storelly_pb_enable"><?php esc_html_e ('Enable Product builder', 'pc-product-builder'); ?></label>
+                <label for="_storelly_pb_enable"><?php esc_html_e ('Enable Product builder', 'storelly-product-builder-for-woocommerce'); ?></label>
                 <span class="storelly-option-val">
                     <input type="hidden" value="0" name="_storelly_pb_enable" />
                     <input type="checkbox" value="1" name="_storelly_pb_enable" id="_storelly_pb_enable" <?php checked($nbdpb_enable); ?> class="short" />
@@ -18,9 +18,9 @@ if (!defined('ABSPATH')) {
                 <label>
                     <a href="<?php echo esc_url($link_edit_option); ?>" target="_blank" class="button">
                         <?php if ($option_id != 0) {
-                            esc_html_e ('Edit option', 'pc-product-builder');
+                            esc_html_e ('Edit option', 'storelly-product-builder-for-woocommerce');
                         } else {
-                            esc_html_e ('Create option', 'pc-product-builder');
+                            esc_html_e ('Create option', 'storelly-product-builder-for-woocommerce');
                         }; ?>
                     </a>
                 </label>

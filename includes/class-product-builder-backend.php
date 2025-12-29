@@ -2,19 +2,19 @@
 if (!defined('ABSPATH')) {
     exit;
 }
-if (!class_exists('Storelly_Product_Builder_Backend')) {
-    class Storelly_Product_Builder_Backend {
+if (!class_exists('SPBWC_Storelly_Product_Builder_Backend')) {
+    class SPBWC_Storelly_Product_Builder_Backend {
         public function __construct() {
         }
-        public function init() {
+        public function spbwc_init() {
             if (is_admin()) {
-                $this->admin_hook();
-                $this->ajax();
+                $this->spbwc_admin_hook();
+                $this->spbwc_ajax();
             } else {
-                $this->frontend_hook();
+                $this->spbwc_frontend_hook();
             }
         }
-        public function ajax() {
+        public function spbwc_ajax() {
             $ajax_events = array();
 
             foreach ($ajax_events as $ajax_event => $nopriv) {
@@ -24,18 +24,18 @@ if (!class_exists('Storelly_Product_Builder_Backend')) {
                 }
             }
         }
-        public function admin_hook() {
-            add_action('admin_menu', array($this, 'storelly_menu'));
-            add_action('plugins_loaded', array($this, 'storelly_user_role'));
+        public function spbwc_admin_hook() {
+            add_action('admin_menu', array($this, 'spbwc_menu'));
+            add_action('plugins_loaded', array($this, 'spbwc_user_role'));
         }
-        public function frontend_hook() {
+        public function spbwc_frontend_hook() {
         }
-        public function storelly_menu() {
-            do_action('storelly_pb_menu');
+        public function spbwc_menu() {
+            do_action('spbwc_pb_menu');
         }
-        public function storelly_user_role() {
+        public function spbwc_user_role() {
             $capabilities = array(
-                1 => 'manage_product_builder',
+                1 => 'spbwc_manage_product_builder',
             );
             $admin_role = get_role('administrator');
             if (null != $admin_role) {
@@ -44,27 +44,32 @@ if (!class_exists('Storelly_Product_Builder_Backend')) {
                 }
             }
         }
-        public static function plugin_activation($network_wide = '') {
+        public static function spbwc_plugin_activation($network_wide = '') {
             if (is_multisite() && $network_wide) {
-                global $wpdb;
-                foreach ($wpdb->get_col("SELECT blog_id FROM $wpdb->blogs") as $blog_id) {
-                    switch_to_blog($blog_id);
-                    self::_plugin_activation();
+                $site_ids = get_sites(
+                    array(
+                        'fields' => 'ids',
+                        'number' => 0,
+                    )
+                );
+                foreach ($site_ids as $blog_id) {
+                    switch_to_blog((int) $blog_id);
+                    self::spbwc__plugin_activation();
                     restore_current_blog();
                 }
             } else {
-                self::_plugin_activation();
+                self::spbwc__plugin_activation();
             }
         }
-        public static function _plugin_activation() {
-            self::install();
+        public static function spbwc__plugin_activation() {
+            self::spbwc_install();
         }
-        public static function install() {
+        public static function spbwc_install() {
             /* Install */
-            Storelly_Install::create_pages();
-            Storelly_Install::create_tables();
-            Storelly_Install::init_files_and_folders();
-            update_option('storelly_version_plugin', STORELLY_PB_VERSION);
+            SPBWC_Storelly_Install::spbwc_create_pages();
+            SPBWC_Storelly_Install::spbwc_create_tables();
+            SPBWC_Storelly_Install::spbwc_init_files_and_folders();
+            update_option('spbwc_version_plugin', SPBWC_PB_VERSION);
         }
     }
 }

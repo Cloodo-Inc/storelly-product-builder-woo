@@ -4,9 +4,11 @@
 
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <?php do_action('storelly_head', 'product-builder'); ?>
+    <?php do_action('spbwc_head', 'product-builder'); ?>
     <?php
+    // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Template variable.
     $is_nbpb_creating_task = true;
+    // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Template variable.
     $is_creating_task = 1;
     include 'js_config.php';
     ?>
@@ -14,12 +16,27 @@
 
 <body>
     <?php
-    include(STORELLY_PB_PLUGIN_DIR . 'views/product-builder/wrapper.php');
+    include(SPBWC_PB_PLUGIN_DIR . 'views/product-builder/wrapper.php');
     function storelly_get_product_builder($id) {
-        global $wpdb;
+        global $wpdb; // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Global variable $wpdb.
         $table_name = $wpdb->prefix . 'storelly_product_builder_options';
-        $result = $wpdb->get_results($wpdb->prepare("SELECT * FROM $table_name WHERE `id` = %d", $id), 'ARRAY_A'); 
-        return count($result[0]) ? $result[0] : false;
+        
+        $cache_key = 'storelly_pb_option_' . $id;
+        $cache_group = 'storelly_product_builder';
+        $result = wp_cache_get( $cache_key, $cache_group );
+
+        if ( false === $result ) {
+            // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter -- Query is cached, table name uses prefix.
+            $rows = $wpdb->get_results($wpdb->prepare("SELECT * FROM {$table_name} WHERE `id` = %d", $id), 'ARRAY_A');
+            $result = ( ! empty( $rows ) && isset( $rows[0] ) ) ? $rows[0] : 'not_found';
+            wp_cache_set( $cache_key, $result, $cache_group );
+        }
+        
+        if ( 'not_found' === $result ) {
+            return false;
+        }
+        
+        return $result;
     }
     function storelly_recursive_stripslashes($fields) {
         $valid_fields = array();
@@ -34,7 +51,8 @@
     }
     function storelly_show_option_fields() {
         $product_id = 0;
-        $option_id = sanitize_text_field($_GET['oid']);
+        // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Readonly admin preview page.
+        $option_id = isset( $_GET['oid'] ) ? sanitize_text_field( wp_unslash( $_GET['oid'] ) ) : '';
         if ($option_id) {
             $_options = storelly_get_product_builder($option_id);
             if ($_options) {
@@ -59,7 +77,7 @@
                                 $attachment_object  = get_post($attachment_id);
                                 $full_src           = wp_get_attachment_image_src($attachment_id, 'large');
                                 $image_title        = get_the_title($attachment_id);
-                                $image_alt          = trim(strip_tags(get_post_meta($attachment_id, '_wp_attachment_image_alt', TRUE)));
+                                $image_alt          = trim( wp_strip_all_tags( get_post_meta($attachment_id, '_wp_attachment_image_alt', TRUE ) ) );
                                 $image_srcset       = function_exists('wp_get_attachment_image_srcset') ? wp_get_attachment_image_srcset($attachment_id, 'shop_single') : FALSE;
                                 $image_sizes        = function_exists('wp_get_attachment_image_sizes') ? wp_get_attachment_image_sizes($attachment_id, 'shop_single') : FALSE;
                                 $image_caption      = $attachment_object->post_excerpt;
@@ -87,7 +105,7 @@
                                 foreach ($attr as $s_index => $sattr) {
                                     foreach ($sattr['views'] as $v_index => $view) {
                                         $pb_image_obj = wp_get_attachment_url(absint($view['image']));
-                                        $options['fields'][$key]['general']['pb_config'][$a_index][$s_index]['views'][$v_index]['image_url'] =  $pb_image_obj ? $pb_image_obj : STORELLY_PB_ASSETS_URL . 'images/placeholder.png';
+                                        $options['fields'][$key]['general']['pb_config'][$a_index][$s_index]['views'][$v_index]['image_url'] =  $pb_image_obj ? $pb_image_obj : SPBWC_PB_ASSETS_URL . 'images/placeholder.png';
                                     }
                                 }
                             }
@@ -97,19 +115,19 @@
                         foreach ($field['general']['attributes']['options'] as $op_index => $option) {
                             if (isset($option['enable_subattr']) && $option['enable_subattr'] == 'on' && count($option['sub_attributes']) > 0) {
                                 foreach ($option['sub_attributes'] as $sa_index => $sattr) {
-                                    $options['fields'][$key]['general']['attributes']['options'][$op_index]['sub_attributes'][$sa_index]['image_url'] = Storelly_PB_Util::storelly_get_image_thumbnail($sattr['image']);
+                                    $options['fields'][$key]['general']['attributes']['options'][$op_index]['sub_attributes'][$sa_index]['image_url'] = SPBWC_Storelly_PB_Util::spbwc_get_image_thumbnail($sattr['image']);
                                 }
                             } else {
-                                $options['fields'][$key]['general']['attributes']['options'][$op_index]['image_url'] = Storelly_PB_Util::storelly_get_image_thumbnail($option['image']);
+                                $options['fields'][$key]['general']['attributes']['options'][$op_index]['image_url'] = SPBWC_Storelly_PB_Util::spbwc_get_image_thumbnail($option['image']);
                             }
                         };
-                        $options['fields'][$key]['general']['component_icon_url'] = Storelly_PB_Util::storelly_get_image_thumbnail($field['general']['component_icon']);
+                        $options['fields'][$key]['general']['component_icon_url'] = SPBWC_Storelly_PB_Util::spbwc_get_image_thumbnail($field['general']['component_icon']);
                     }
                     if (isset($field['general']['attributes']['bg_type']) && $field['general']['attributes']['bg_type'] == 'i') {
                         foreach ($field['general']['attributes']['options'] as $op_index => $option) {
                             foreach ($option['bg_image'] as $bg_index => $bg) {
                                 $bg_obj = wp_get_attachment_url(absint($bg));
-                                $options['fields'][$key]['general']['attributes']['options'][$op_index]['bg_image_url'][$bg_index] = $bg_obj ? $bg_obj : STORELLY_PB_ASSETS_URL . 'images/placeholder.png';
+                                $options['fields'][$key]['general']['attributes']['options'][$op_index]['bg_image_url'][$bg_index] = $bg_obj ? $bg_obj : SPBWC_PB_ASSETS_URL . 'images/placeholder.png';
                             }
                         };
                     }
@@ -119,7 +137,7 @@
                         $view['base'] = isset($view['base']) ? $view['base'] : 0;
                         $options['views'][$vkey]['base'] = $view['base'];
                         $view_bg_obj = wp_get_attachment_url(absint($view['base']));
-                        $options['views'][$vkey]['base_url'] = $view_bg_obj ? $view_bg_obj : STORELLY_PB_ASSETS_URL . 'images/placeholder.png';
+                        $options['views'][$vkey]['base_url'] = $view_bg_obj ? $view_bg_obj : SPBWC_PB_ASSETS_URL . 'images/placeholder.png';
                     }
                 }
                 $type           = 'simple';
@@ -129,100 +147,108 @@
                 $cart_item_key  = '';
                 $quantity       = 1;
                 $width = $height = '';
-                ob_start();
-                storelly_PB_Util::storelly_get_template('single-product/option-builder.php', array(
-                    'product_id'            => $product_id,
-                    'options'               => $options,
-                    'type'                  => $type,
-                    'quantity'              => $quantity,
-                    'width'                 => $width,
-                    'height'                => $height,
-                    'nbdpb_enable'          => 1,
-                    'price'                 => 0,
-                    'is_sold_individually'  => false,
-                    'variations'            => wp_json_encode((array) $variations),
-                    'dimensions'            => wp_json_encode((array) $dimensions),
-                    'form_values'           => $form_values,
-                    'cart_item_key'         => '',
-                    'change_base'           => 'no',
-                    'tooltip_position'      => 'top',
-                    'hide_zero_price'       => 'no'
-                ));
-                $options_form = ob_get_clean();
+                // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obstart_ob_start -- Output buffer opened and closed in same scope for template rendering.
+            ob_start();
+            SPBWC_Storelly_PB_Util::spbwc_get_template('single-product/option-builder.php', array(
+                'product_id'            => $product_id,
+                'options'               => $options,
+                'type'                  => $type,
+                'quantity'              => $quantity,
+                'width'                 => $width,
+                'height'                => $height,
+                'nbdpb_enable'          => 1,
+                'price'                 => 0,
+                'is_sold_individually'  => false,
+                'variations'            => wp_json_encode((array) $variations),
+                'dimensions'            => wp_json_encode((array) $dimensions),
+                'form_values'           => $form_values,
+                'cart_item_key'         => '',
+                'change_base'           => 'no',
+                'tooltip_position'      => 'top',
+                'hide_zero_price'       => 'no'
+            ));
+            $options_form = ob_get_clean(); // Buffer closed here - no early return possible.
+                // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Contains Angular markup and trusted template HTML required for front-end builder rendering.
                 echo ($options_form);
             }
         }
     }
-    function enqueue_pdf_styles() {
+    function spbwc_enqueue_pdf_styles() {
       
         wp_register_style(
             'normalize-css',
             get_home_url() . '/assets/css/views/normalize.css',
             array(), 
-            null 
+            '1.0.0' 
         );
     
         wp_enqueue_style('normalize-css');
     }
-    function enqueue_google_fonts() {
+    function spbwc_enqueue_google_fonts() {
         
         wp_enqueue_style(
             'google-fonts', 
             'https://fonts.googleapis.com/css?family=Roboto:400,400i,700,700i', 
             array(),
-            null 
+            '1.0.0' 
         );
     }
-    function add_inline_pdf_styles() {
-        global $page_settings; 
-        if (empty($page_settings)) return;
-    
-     
-        $custom_css = "
-            @page {
-                margin: 0;
-                padding: 0;
-                size: {$page_settings['width']} {$page_settings['height']};
-            }
-            body {
-                width: {$page_settings['width']};
-                height: {$page_settings['height']};
-                position: relative;
-                font-size: 0;
-                font-family: sans-serif;
-            }
-            svg {
-                position: absolute;
-                width: {$page_settings['design_width']};
-                height: {$page_settings['design_height']};
-                top: {$page_settings['design_top']};
-                left: {$page_settings['design_left']};
-                z-index: 2;
-                max-width: 100%;
-                max-height: 100%;
-            }
-            #background {
-                z-index: 1;
-                position: absolute;
-                top: 0;
-                left: 0;
-                width: 100%;
-                height: 100%;
-            }
-        ";
+    function spbwc_add_inline_pdf_styles() {
+    global $page_settings; // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Global variable $page_settings. 
+    if (empty($page_settings)) return;
+
+    $page_width      = isset($page_settings['width']) ? esc_attr($page_settings['width']) : 'auto';
+    $page_height     = isset($page_settings['height']) ? esc_attr($page_settings['height']) : 'auto';
+    $design_width    = isset($page_settings['design_width']) ? esc_attr($page_settings['design_width']) : '100%';
+    $design_height   = isset($page_settings['design_height']) ? esc_attr($page_settings['design_height']) : '100%';
+    $design_top      = isset($page_settings['design_top']) ? esc_attr($page_settings['design_top']) : '0';
+    $design_left     = isset($page_settings['design_left']) ? esc_attr($page_settings['design_left']) : '0';
+
+    $custom_css = "
+        @page {
+            margin: 0;
+            padding: 0;
+            size: {$page_width} {$page_height};
+        }
+        body {
+            width: {$page_width};
+            height: {$page_height};
+            position: relative;
+            font-size: 0;
+            font-family: sans-serif;
+        }
+        svg {
+            position: absolute;
+            width: {$design_width};
+            height: {$design_height};
+            top: {$design_top};
+            left: {$design_left};
+            z-index: 2;
+            max-width: 100%;
+            max-height: 100%;
+        }
+        #background {
+            z-index: 1;
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+    ";
   
         wp_add_inline_style('normalize-css', $custom_css);
     }
-    function custom_pdf_enqueue_assets() {
-        enqueue_pdf_styles(); 
-        enqueue_google_fonts(); 
-        add_inline_pdf_styles();
+    function spbwc_custom_pdf_enqueue_assets() {
+        spbwc_enqueue_pdf_styles(); 
+        spbwc_enqueue_google_fonts(); 
+        spbwc_add_inline_pdf_styles();
     }
-    add_action('wp_enqueue_scripts', 'custom_pdf_enqueue_assets');
+    add_action('wp_enqueue_scripts', 'spbwc_custom_pdf_enqueue_assets');
                 
     storelly_show_option_fields();
     ?>
-    <?php do_action('storelly_footer', 'product-builder'); ?>
+    <?php do_action('spbwc_footer', 'product-builder'); ?>
 </body>
 
 </html>
