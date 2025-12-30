@@ -14,7 +14,7 @@ if (!class_exists('SPBWC_Storelly_HTTP')) {
             $unauth_token = isset($api_settings['unauth_token']) ? $api_settings['unauth_token'] : '';
 
             return array(
-                'X-Storelly-Unauth-Token' => $unauth_token,
+                'X-STORLY' => $unauth_token,
             );
         }
 
