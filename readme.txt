@@ -4,8 +4,8 @@ Donate link: https://storelly.com/
 Tags: product builder, product customize, product customizer, woocommerce custom product
 Requires at least: 4.7
 Tested up to: 6.9
-Stable tag: 1.1.1
-Version: 1.1.1
+Stable tag: 1.1.2
+Version: 1.1.2
 Requires PHP: 7.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -75,6 +75,9 @@ This plugin connects to the following external services:
 2. Back-end product settings
 
 == Changelog ==
+= 1.1.2 =
+* Security Updates: Nonce Verification and User Permissions.
+
 = 1.1.1 =
 * Enhance Settings Handling, Template Rendering, and Style CSS in Plugin.
 

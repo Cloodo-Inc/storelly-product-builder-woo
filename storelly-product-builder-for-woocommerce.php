@@ -8,7 +8,7 @@
 Plugin Name:            Storelly Product Builder for WooCommerce
 Plugin URI:             https://storelly.com/product-builder
 Description:            Create product builder for Woocommerce products
-Version:                1.1.1
+Version:                1.1.2
 Requires Plugins:       woocommerce
 WC requires at least:   6.0.0
 WC tested up to:        6.5.1

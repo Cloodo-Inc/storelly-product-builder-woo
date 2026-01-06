@@ -159,9 +159,10 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
             if (!current_user_can('upload_files')) {
                 wp_send_json_error(array('mes' => esc_html__('You do not have permission.', 'storelly-product-builder-for-woocommerce')));
             }
-            $nonce = isset( $_POST['nonce'] ) ? sanitize_text_field( wp_unslash( $_POST['nonce'] ) ) : '';
-            if ( ( ! $nonce || ( ! wp_verify_nonce( $nonce, 'spbwc_save_design_action' ) && SPBWC_ENABLE_NONCE ) ) ) {
-                wp_die(esc_html__('Security error.', 'storelly-product-builder-for-woocommerce'));
+            $nonce          = isset( $_POST['nonce'] ) ? sanitize_text_field( wp_unslash( $_POST['nonce'] ) ) : '';
+            $nonce_required = ! defined( 'SPBWC_ENABLE_NONCE' ) || true === SPBWC_ENABLE_NONCE;
+            if ( $nonce_required && ( ! $nonce || ! wp_verify_nonce( $nonce, 'spbwc_save_design_action' ) ) ) {
+                wp_die( esc_html__( 'Security error.', 'storelly-product-builder-for-woocommerce' ) );
             }
             $result = array(
                 'flag'      => 1,
@@ -187,9 +188,10 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
             if (!current_user_can('upload_files')) {
                 wp_send_json_error(array('mes' => esc_html__('You do not have permission.', 'storelly-product-builder-for-woocommerce')));
             }
-            $nonce = isset( $_POST['nonce'] ) ? sanitize_text_field( wp_unslash( $_POST['nonce'] ) ) : '';
-            if ( ( ! $nonce || ( ! wp_verify_nonce( $nonce, 'spbwc_save_design_action' ) && SPBWC_ENABLE_NONCE ) ) ) {
-                wp_die(esc_html__('Security error.', 'storelly-product-builder-for-woocommerce'));
+            $nonce          = isset( $_POST['nonce'] ) ? sanitize_text_field( wp_unslash( $_POST['nonce'] ) ) : '';
+            $nonce_required = ! defined( 'SPBWC_ENABLE_NONCE' ) || true === SPBWC_ENABLE_NONCE;
+            if ( $nonce_required && ( ! $nonce || ! wp_verify_nonce( $nonce, 'spbwc_save_design_action' ) ) ) {
+                wp_die( esc_html__( 'Security error.', 'storelly-product-builder-for-woocommerce' ) );
             }
             $result = array(
                 'flag'      => 1,
@@ -1178,16 +1180,27 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
             return $image;
         }
         public function spbwc_add_google_font() {
-            $data = array(
-                'mes'   =>  esc_html__('You do not have permission to add font!', 'storelly-product-builder-for-woocommerce'),
-                'flag'  => 0
-            );
-            if ( ! isset( $_POST['nonce'] ) || !wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['nonce'])), 'spbwc_update_fonts')) {
-                die('Security error');
+            if ( ! current_user_can( 'manage_options' ) ) {
+                wp_send_json_error(
+                    array(
+                        'mes'  => esc_html__( 'You do not have permission to add font!', 'storelly-product-builder-for-woocommerce' ),
+                        'flag' => 0,
+                    )
+                );
             }
+
+            $nonce = isset( $_POST['nonce'] ) ? sanitize_text_field( wp_unslash( $_POST['nonce'] ) ) : '';
+            if ( ! $nonce || ! wp_verify_nonce( $nonce, 'spbwc_update_fonts' ) ) {
+                wp_die( esc_html__( 'Security error.', 'storelly-product-builder-for-woocommerce' ) );
+            }
+
+            $data    = array(
+                'mes'  => esc_html__( 'You do not have permission to add font!', 'storelly-product-builder-for-woocommerce' ),
+                'flag' => 0,
+            );
             $gg_fonts = array();
             if ( ! isset( $_POST['fonts'] ) ) {
-                die('Empty data');
+                wp_die( esc_html__( 'Empty data.', 'storelly-product-builder-for-woocommerce' ) );
             } else {
                 $fonts_raw = wp_unslash( $_POST['fonts'] ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- JSON string decoded and individual font properties sanitized below.
                 $fonts     = json_decode( $fonts_raw );
