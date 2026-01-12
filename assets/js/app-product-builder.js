@@ -41,8 +41,8 @@ nbdpbApp.controller("nbpbCtrl", [
           showInput: true,
           containerClassName: "nbd-sp",
           clickoutFiresChange: false,
-          chooseText: NBPBCONFIG.i18n.choose,
-          cancelText: NBPBCONFIG.i18n.cancel,
+          chooseText: SPBWC_PB_CONFIG.i18n.choose,
+          cancelText: SPBWC_PB_CONFIG.i18n.cancel,
         },
         design_output: {
           dimension_unit: "px",
@@ -65,7 +65,7 @@ nbdpbApp.controller("nbpbCtrl", [
       if (uploaded) {
         $scope.resource.uploaded = JSON.parse(uploaded);
       }
-      angular.copy(NBPBCONFIG, $scope.settings);
+      angular.copy(SPBWC_PB_CONFIG, $scope.settings);
       $scope.currentStage = 0;
       $scope.includeExport = [
         "itemId",
@@ -185,9 +185,9 @@ nbdpbApp.controller("nbpbCtrl", [
                     }
                   }
                 } else {
-                  if (NBPBCONFIG.fonts.length > 0) {
+                  if (SPBWC_PB_CONFIG.fonts.length > 0) {
                     var prefix =
-                      NBPBCONFIG.fonts[0].type == "google" ? "g" : "c";
+                      SPBWC_PB_CONFIG.fonts[0].type == "google" ? "g" : "c";
                     _field.currentFontId = prefix + "0";
                   } else {
                     _field.currentFontId = "";
@@ -314,7 +314,7 @@ nbdpbApp.controller("nbpbCtrl", [
           });
         }
         var item = $scope.getLayerById(field.id);
-        if (NBPBCONFIG.is_creating_task == 1) {
+        if (SPBWC_PB_CONFIG.is_creating_task == 1) {
           var _canvas = $scope.stages[$scope.currentStage].canvas;
           if (item) {
             _canvas.setActiveObject(item);
@@ -427,7 +427,7 @@ nbdpbApp.controller("nbpbCtrl", [
                   });
                   _canvas.add(obj);
                   _canvas.viewportCenterObject(obj);
-                  if (NBPBCONFIG.is_creating_task == 1) {
+                  if (SPBWC_PB_CONFIG.is_creating_task == 1) {
                     _canvas.setActiveObject(obj);
                   }
                 }
@@ -533,7 +533,7 @@ nbdpbApp.controller("nbpbCtrl", [
           _.each(font.file, function (file, index) {
             var font_url = file;
             if (!(file.indexOf("http") > -1))
-              font_url = NBPBCONFIG["font_url"] + file;
+              font_url = SPBWC_PB_CONFIG["font_url"] + file;
             css += "@font-face {font-family: '" + font.alias + "';";
             css += "src: local('\u263a'), ";
             css += "url('" + font_url + "') format('truetype');";
@@ -560,7 +560,7 @@ nbdpbApp.controller("nbpbCtrl", [
     };
     $scope.getFontByIdAndType = function (id, type) {
       var _font = null;
-      var fonts = NBPBCONFIG.fonts;
+      var fonts = SPBWC_PB_CONFIG.fonts;
       if (typeof fonts === 'string') {
         try {
           fonts = JSON.parse(fonts);
@@ -577,7 +577,7 @@ nbdpbApp.controller("nbpbCtrl", [
     };
     $scope.getFontByAlias = function (alias) {
       var _font;
-      _.each(NBPBCONFIG.fonts, function (font, index) {
+      _.each(SPBWC_PB_CONFIG.fonts, function (font, index) {
         if (font.alias == alias) {
           _font = font;
         }
@@ -745,7 +745,7 @@ nbdpbApp.controller("nbpbCtrl", [
         dataObj[svgKey] = new Blob([stage.svg], { type: "image/svg" });
       });
       ["pcpb_cart_item_key", "is_creating_task", "oid"].forEach(function (key) {
-        dataObj[key] = NBPBCONFIG[key];
+        dataObj[key] = SPBWC_PB_CONFIG[key];
       });
       dataObj.config = new Blob([JSON.stringify($scope.resource.config)], {
         type: "application/json",
@@ -808,7 +808,7 @@ nbdpbApp.controller("nbpbCtrl", [
           }
         } else {
           $scope.toggleAppLoading();
-          alert(NBPBCONFIG.i18n.can_not_save_design);
+          alert(SPBWC_PB_CONFIG.i18n.can_not_save_design);
         }
       });
     };
@@ -837,7 +837,7 @@ nbdpbApp.controller("nbpbCtrl", [
       $scope.resource.used_font = used_font;
     };
     $scope.getFontInfo = function (alias) {
-      var font = _.filter(NBPBCONFIG.fonts, { alias: alias })[0],
+      var font = _.filter(SPBWC_PB_CONFIG.fonts, { alias: alias })[0],
         _font = angular.copy(font, _font);
       if (_font) {
         _font.file = { r: font.file.r };
@@ -859,7 +859,7 @@ nbdpbApp.controller("nbpbCtrl", [
     $scope.onObjectAdded = function (id, options) {
       /* Reindex layers */
       if (
-        NBPBCONFIG.is_creating_task != 1 &&
+        SPBWC_PB_CONFIG.is_creating_task != 1 &&
         angular.isUndefined($scope.settings.pre_builder.design)
       ) {
         _.each($scope.stages, function (stage, sIndex) {
@@ -1121,8 +1121,8 @@ nbdpbApp.controller("nbpbCtrl", [
                 fabric.Image.fromObject(item, function (_image) {
                   if (angular.isDefined(_image.isLogo) && _image.isLogo == 1) {
                     if (
-                      NBPBCONFIG.pcpb_cart_item_key == "" &&
-                      NBPBCONFIG.is_creating_task == 0
+                      SPBWC_PB_CONFIG.pcpb_cart_item_key == "" &&
+                      SPBWC_PB_CONFIG.is_creating_task == 0
                     )
                       _image.set({ visible: false });
                     component.general.nbpb_image_configs.views[
@@ -1145,8 +1145,8 @@ nbdpbApp.controller("nbpbCtrl", [
                   var klass = fabric.util.getKlass(type);
                   klass.fromObject(item, function (item) {
                     if (
-                      NBPBCONFIG.pcpb_cart_item_key == "" &&
-                      NBPBCONFIG.is_creating_task == 0
+                      SPBWC_PB_CONFIG.pcpb_cart_item_key == "" &&
+                      SPBWC_PB_CONFIG.is_creating_task == 0
                     )
                       item.set({ visible: false, text: "" });
                     _canvas.add(item);
@@ -1366,7 +1366,7 @@ nbdpbApp.controller("nbpbCtrl", [
                     isLogo: 1,
                   });
                   _canvas.add(op);
-                  if (NBPBCONFIG.is_creating_task == 1) {
+                  if (SPBWC_PB_CONFIG.is_creating_task == 1) {
                     _canvas.setActiveObject(op);
                   }
                 }
@@ -1532,7 +1532,7 @@ nbdpbApp.controller("nbpbCtrl", [
           var layerIndex = $scope.getLayerIndex(currentComponent.id, viewIndex),
             item = $scope.getLayerById(currentComponent.id, viewIndex),
             _canvas = $scope.stages[viewIndex].canvas;
-          if (NBPBCONFIG.is_creating_task == 1) {
+          if (SPBWC_PB_CONFIG.is_creating_task == 1) {
             _canvas.remove(item);
           } else {
             item.set({ visible: false });
@@ -1615,7 +1615,7 @@ nbdpbApp.factory("FabricWindow", [
         mtr: true,
       },
     });
-    if (NBPBCONFIG.is_mobile)
+    if (SPBWC_PB_CONFIG.is_mobile)
     $window.fabric.Object.prototype.set({ cornerSize: 17 });
     $window.fabric.Canvas.prototype.set({
       preserveObjectStacking: true,
@@ -1676,7 +1676,7 @@ nbdpbApp.factory("NBDDataFactory", function ($http) {
     get: function (action, data, callback) {
       var formData = new FormData();
       formData.append("action", action);
-      formData.append("nonce", NBPBCONFIG["nonce"]);
+      formData.append("nonce", SPBWC_PB_CONFIG["nonce"]);
       angular.forEach(data, function (value, key) {
         var keepDefault = [
           "file",
@@ -1708,7 +1708,7 @@ nbdpbApp.factory("NBDDataFactory", function ($http) {
           "Content-Type": undefined,
         },
       };
-      var url = NBPBCONFIG["ajax_url"];
+      var url = SPBWC_PB_CONFIG["ajax_url"];
       $http.post(url, formData, config).then(
         function (response) {
           callback(response.data);
@@ -1968,7 +1968,7 @@ jQuery(document).on("initialed_nbo_options", function () {
   var nbdpbAppEl = document.getElementById("nbdpb-app");
   angular.element(function () {
     angular.bootstrap(nbdpbAppEl, ["nbdpbApp"]);
-    if (NBPBCONFIG.is_creating_task == 1) {
+    if (SPBWC_PB_CONFIG.is_creating_task == 1) {
       setTimeout(function () {
         jQuery("body, html").addClass("nbdpb-no-overflow");
         jQuery(".nbdpb-popup.popup-design")

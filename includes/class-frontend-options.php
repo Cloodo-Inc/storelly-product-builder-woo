@@ -13,13 +13,14 @@ if (!class_exists('STORELLY_FRONTEND_OPTIONS')) {
         /** Edit option in cart helper **/
         public function __construct() {
 
-            if (isset($_REQUEST['pcpb_cart_item_key'])) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- WooCommerce cart edit flow.
-                // Value comes from WooCommerce cart edit flow; no nonce available in core flow.
-                // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- WooCommerce cart edit flow.
-                $cart_key     = sanitize_text_field( wp_unslash( $_REQUEST['pcpb_cart_item_key'] ) );
-                if ('' !== $cart_key) {
-                    $this->is_edit_mode  = true;
-                    $this->cart_edit_key = $cart_key;
+            if ( isset( $_REQUEST['pcpb_cart_item_key'] ) ) {
+                $nonce_value = isset( $_REQUEST['_wpnonce'] ) ? sanitize_text_field( wp_unslash( $_REQUEST['_wpnonce'] ) ) : '';
+                if ( $nonce_value && wp_verify_nonce( $nonce_value, 'nbo-edit' ) ) {
+                    $cart_key = sanitize_text_field( wp_unslash( $_REQUEST['pcpb_cart_item_key'] ) );
+                    if ( '' !== $cart_key ) {
+                        $this->is_edit_mode  = true;
+                        $this->cart_edit_key = $cart_key;
+                    }
                 }
             }
             $this->appid = "nbo-app-" . time() . rand(1, 1000); // phpcs:ignore WordPress.WP.AlternativeFunctions.rand_rand -- Using PHP rand() as wp_rand() may not be defined in non-WP contexts.
@@ -32,6 +33,9 @@ if (!class_exists('STORELLY_FRONTEND_OPTIONS')) {
         }
         public function init() {
             add_filter('upload_mimes', [__CLASS__, 'storelly_allow_uploads']);
+
+            // Verify nonce for add-to-cart requests that include builder fields.
+            add_filter( 'woocommerce_add_to_cart_validation', array( $this, 'spbwc_verify_add_to_cart_nonce' ), 1, 6 );
             
             add_action('woocommerce_before_add_to_cart_button', array($this, 'show_option_fields'));
 
@@ -68,6 +72,32 @@ if (!class_exists('STORELLY_FRONTEND_OPTIONS')) {
 
             add_action('wp_enqueue_scripts', array($this , 'spbwc_frontend_enqueue_scripts'));
             
+        }
+
+        /**
+         * Verify nonce for add-to-cart submissions that include builder fields.
+         *
+         * @param bool  $passed       Whether add to cart is allowed.
+         * @param int   $product_id   Product ID.
+         * @param int   $quantity     Quantity.
+         * @param int   $variation_id Variation ID.
+         * @param array $variations   Variation data.
+         * @param array $cart_item_data Cart item data.
+         * @return bool
+         */
+        public function spbwc_verify_add_to_cart_nonce( $passed, $product_id, $quantity, $variation_id = 0, $variations = array(), $cart_item_data = array() ) {
+            $needs_nonce = isset( $_POST['pcpb-field'] ) || isset( $_POST['pcpb-add-to-cart'] ) || ( ! empty( $_FILES ) && isset( $_FILES['pcpb-field'] ) );
+            if ( ! $needs_nonce ) {
+                return $passed;
+            }
+
+            $nonce_value = isset( $_POST['spbwc_add_to_cart_nonce'] ) ? sanitize_text_field( wp_unslash( $_POST['spbwc_add_to_cart_nonce'] ) ) : '';
+            if ( ! $nonce_value || ! wp_verify_nonce( $nonce_value, 'spbwc_add_to_cart_action' ) ) {
+                wc_add_notice( esc_html__( 'Security check failed.', 'storelly-product-builder-for-woocommerce' ), 'error' );
+                return false;
+            }
+
+            return $passed;
         }
         public static function storelly_allow_uploads($mimes) {
             $mimes['json'] = 'application/json';
@@ -191,22 +221,44 @@ if (!class_exists('STORELLY_FRONTEND_OPTIONS')) {
                     $nbau           = '';
                     $nbdpb_enable   = get_post_meta($product_id, '_storelly_pb_enable', true);
 
-                    if ( isset( $_POST['pcpb-field'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing -- WooCommerce add-to-cart form verification.
-                        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- WooCommerce add-to-cart form verification.
-                        $form_values = map_deep( wp_unslash( $_POST['pcpb-field'] ), 'sanitize_text_field' );
-                    } elseif ( isset( $_GET['pcpb_cart_item_key'] ) && '' !== sanitize_text_field( wp_unslash( $_GET['pcpb_cart_item_key'] ) ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- WooCommerce cart edit link does not include a custom nonce.
-                        // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- WooCommerce cart edit link does not include a custom nonce.
-                        $cart_item_key     = sanitize_text_field( wp_unslash( $_GET['pcpb_cart_item_key'] ) );
-                        $cart_item         = WC()->cart->get_cart_item( $cart_item_key );
+                    $add_to_cart_nonce = isset( $_POST['spbwc_add_to_cart_nonce'] ) ? sanitize_text_field( wp_unslash( $_POST['spbwc_add_to_cart_nonce'] ) ) : '';
+                    $add_to_cart_valid = ( $add_to_cart_nonce && wp_verify_nonce( $add_to_cart_nonce, 'spbwc_add_to_cart_action' ) );
+
+                    $pcpb_field_sanitized = isset( $_POST['pcpb-field'] ) ? map_deep( wp_unslash( $_POST['pcpb-field'] ), 'sanitize_text_field' ) : array();
+
+                    if ( ! empty( $pcpb_field_sanitized ) && $add_to_cart_valid ) {
+                        $form_values = $pcpb_field_sanitized;
+                    } elseif ( isset( $_GET['pcpb_cart_item_key'], $_GET['_wpnonce'] ) ) {
+                        $edit_nonce = sanitize_text_field( wp_unslash( $_GET['_wpnonce'] ) );
+                        if ( ! wp_verify_nonce( $edit_nonce, 'nbo-edit' ) ) {
+                            $edit_nonce = '';
+                        }
+                        if ( $edit_nonce ) {
+                            $cart_item_key = sanitize_text_field( wp_unslash( $_GET['pcpb_cart_item_key'] ) );
+                        }
+                        $cart_item = WC()->cart->get_cart_item( $cart_item_key );
                         if ( isset( $cart_item['pcpb_meta'] ) ) {
                             $form_values = $cart_item['pcpb_meta']['field'];
                         }
                     }
 
-                    if ( isset( $_GET['nbo_values'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- WooCommerce order-again flow does not provide a nonce for nbo_values.
-                        $params           = array();
-                        $value_str_raw    = wp_unslash( $_GET['nbo_values'] ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Value is base64 encoded, sanitized after decoding.
-                        $value_str        = base64_decode( $value_str_raw );
+                    if ( isset( $_GET['nbo_values'], $_GET['_wpnonce'] ) ) {
+                        $order_again_nonce = sanitize_text_field( wp_unslash( $_GET['_wpnonce'] ) );
+                        $order_again_valid = (
+                            wp_verify_nonce( $order_again_nonce, 'woocommerce-order_again' ) ||
+                            wp_verify_nonce( $order_again_nonce, 'woocommerce-order-again' ) ||
+                            wp_verify_nonce( $order_again_nonce, 'order_again' ) ||
+                            wp_verify_nonce( $order_again_nonce, 'order-again' )
+                        );
+                        if ( ! $order_again_valid ) {
+                            $order_again_nonce = '';
+                        }
+                    }
+
+                    if ( isset( $_GET['nbo_values'] ) && ! empty( $order_again_nonce ) ) {
+                        $params        = array();
+                        $value_str_raw = wp_unslash( $_GET['nbo_values'] ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Base64 value is sanitized after decoding and parsing.
+                        $value_str     = base64_decode( $value_str_raw );
                         parse_str( $value_str, $params );
                         if ( isset( $params['pcpb-field'] ) ) {
                             $form_values = map_deep( $params['pcpb-field'], 'sanitize_text_field' );
@@ -365,21 +417,41 @@ if (!class_exists('STORELLY_FRONTEND_OPTIONS')) {
                     $nbau           = '';
                     $nbdpb_enable   = get_post_meta($product_id, '_storelly_pb_enable', true);
 
-                    if ( isset( $_POST['pcpb-field'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing -- WooCommerce add-to-cart form verification.
-                        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- WooCommerce add-to-cart form verification.
-                        $form_values = map_deep( wp_unslash( $_POST['pcpb-field'] ), 'sanitize_text_field' );
-                    } elseif ( isset( $_GET['pcpb_cart_item_key'] ) && '' !== sanitize_text_field( wp_unslash( $_GET['pcpb_cart_item_key'] ) ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- WooCommerce cart edit link.
-                        // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- WooCommerce cart edit link.
-                        $cart_item_key     = sanitize_text_field( wp_unslash( $_GET['pcpb_cart_item_key'] ) );
+                    $add_to_cart_nonce = isset( $_POST['spbwc_add_to_cart_nonce'] ) ? sanitize_text_field( wp_unslash( $_POST['spbwc_add_to_cart_nonce'] ) ) : '';
+                    $add_to_cart_valid = ( $add_to_cart_nonce && wp_verify_nonce( $add_to_cart_nonce, 'spbwc_add_to_cart_action' ) );
+
+                    if ( isset( $_POST['pcpb-field'] ) && $add_to_cart_valid ) {
+                        $form_values = $pcpb_field_sanitized;
+                    } elseif ( isset( $_GET['pcpb_cart_item_key'], $_GET['_wpnonce'] ) ) {
+                        $edit_nonce = sanitize_text_field( wp_unslash( $_GET['_wpnonce'] ) );
+                        if ( ! wp_verify_nonce( $edit_nonce, 'nbo-edit' ) ) {
+                            $edit_nonce = '';
+                        }
+                        if ( $edit_nonce ) {
+                            $cart_item_key = sanitize_text_field( wp_unslash( $_GET['pcpb_cart_item_key'] ) );
+                        }
                         $cart_item         = WC()->cart->get_cart_item( $cart_item_key );
                         if ( isset( $cart_item['pcpb_meta'] ) ) {
                             $form_values = $cart_item['pcpb_meta']['field'];
                         }
                     }
 
-                    if ( isset( $_GET['nbo_values'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- WooCommerce order-again flow does not provide a nonce for nbo_values.
+                    if ( isset( $_GET['nbo_values'], $_GET['_wpnonce'] ) ) {
+                        $order_again_nonce = sanitize_text_field( wp_unslash( $_GET['_wpnonce'] ) );
+                        $order_again_valid = (
+                            wp_verify_nonce( $order_again_nonce, 'woocommerce-order_again' ) ||
+                            wp_verify_nonce( $order_again_nonce, 'woocommerce-order-again' ) ||
+                            wp_verify_nonce( $order_again_nonce, 'order_again' ) ||
+                            wp_verify_nonce( $order_again_nonce, 'order-again' )
+                        );
+                        if ( ! $order_again_valid ) {
+                            $order_again_nonce = '';
+                        }
+                    }
+
+                    if ( isset( $_GET['nbo_values'] ) && ! empty( $order_again_nonce ) ) {
                         $params           = array();
-                        $value_str_raw    = wp_unslash( $_GET['nbo_values'] ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Value is base64 encoded, sanitized after decoding.
+                        $value_str_raw    = wp_unslash( $_GET['nbo_values'] ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Base64 value is sanitized after decoding and parsing.
                         $value_str        = base64_decode( $value_str_raw );
                         parse_str( $value_str, $params );
                         if ( isset( $params['pcpb-field'] ) ) {
@@ -412,6 +484,7 @@ if (!class_exists('STORELLY_FRONTEND_OPTIONS')) {
                     }
                     // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obstart_ob_start -- Output buffer opened and closed in same scope for template rendering.
                     ob_start();
+                    wp_nonce_field( 'spbwc_add_to_cart_action', 'spbwc_add_to_cart_nonce' );
                     SPBWC_Storelly_PB_Util::spbwc_get_template('single-product/option-builder.php', array(
                         'product_id'            => $product_id,
                         'appid'                 => $this->appid,
@@ -434,21 +507,33 @@ if (!class_exists('STORELLY_FRONTEND_OPTIONS')) {
             }
         }
         public function add_cart_item_data($cart_item_data, $product_id, $variation_id, $quantity = 1) {
-            $post_data = map_deep( $_POST, 'sanitize_text_field' ); // phpcs:ignore WordPress.Security.NonceVerification.Missing -- WooCommerce add-to-cart form does not include a custom nonce; values sanitized via map_deep(sanitize_text_field).
             $option_id = $this->get_product_option($product_id);
             if (!$option_id) {
                 return $cart_item_data;
             }
-            if (isset($post_data['pcpb-field']) || isset($post_data['pcpb-add-to-cart'])) {
+
+            $needs_nonce = isset( $_POST['pcpb-field'] ) || isset( $_POST['pcpb-add-to-cart'] ) || ( ! empty( $_FILES ) && isset( $_FILES['pcpb-field'] ) );
+            if ( $needs_nonce ) {
+                $nonce_value = isset( $_POST['spbwc_add_to_cart_nonce'] ) ? sanitize_text_field( wp_unslash( $_POST['spbwc_add_to_cart_nonce'] ) ) : '';
+                if ( ! $nonce_value || ! wp_verify_nonce( $nonce_value, 'spbwc_add_to_cart_action' ) ) {
+                    return $cart_item_data;
+                }
+            }
+
+            $pcpb_add_to_cart = isset( $_POST['pcpb-add-to-cart'] ) ? sanitize_text_field( wp_unslash( $_POST['pcpb-add-to-cart'] ) ) : '';
+            $post_field       = isset( $_POST['pcpb-field'] ) ? map_deep( wp_unslash( $_POST['pcpb-field'] ), 'sanitize_text_field' ) : array();
+            $prcpb_folder     = isset( $_POST['prcpb-folder'] ) ? sanitize_text_field( wp_unslash( $_POST['prcpb-folder'] ) ) : '';
+
+            if ( ! empty( $post_field ) || '' !== $pcpb_add_to_cart ) {
                 $options        = $this->get_option($option_id);
-                $nbd_field      = isset($post_data['pcpb-field']) ? $post_data['pcpb-field'] : array();
+                $nbd_field      = $post_field;
                 if (isset($cart_item_data['pcpb-field'])) {
                     /* Bulk variation */
                     $nbd_field = $cart_item_data['pcpb-field'];
                     unset($cart_item_data['pcpb-field']);
                 } else { 
-                    if ( ! empty( $_FILES ) && isset( $_FILES['pcpb-field'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing -- WooCommerce add-to-cart flow.
-                        $files = $_FILES['pcpb-field']; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized, WordPress.Security.NonceVerification.Missing -- File upload array is processed by wp_handle_upload which handles validation and sanitization.
+                    if ( ! empty( $_FILES ) && isset( $_FILES['pcpb-field'] ) ) {
+                        $files = $_FILES['pcpb-field']; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Upload array validated and sanitized inside upload_file().
                         foreach ( $files['name'] as $field_id => $file_name ) {
                             if ( ! isset( $nbd_field[ $field_id ] ) ) {
                                 $nbd_upload_field = $this->upload_file( $files, $field_id );
@@ -462,9 +547,9 @@ if (!class_exists('STORELLY_FRONTEND_OPTIONS')) {
                 $product        = $variation_id ? wc_get_product($variation_id) : wc_get_product($product_id);
                 $original_price = (float)$product->get_price('edit');
                 $option_price   = $this->option_processing($options, $original_price, $nbd_field, $quantity, null, $product);
-                if (isset($post_data['prcpb-folder'])) {
-                    $cart_item_data['pcpb_meta']['pcpb'] = $post_data['prcpb-folder'];
-                    $path   = SPBWC_PB_CUSTOMER_DIR . '/' . $post_data['prcpb-folder'] . '/preview';
+                if ( '' !== $prcpb_folder ) {
+                    $cart_item_data['pcpb_meta']['pcpb'] = $prcpb_folder;
+                    $path   = SPBWC_PB_CUSTOMER_DIR . '/' . $prcpb_folder . '/preview';
                     $images = SPBWC_Storelly_IO::spbwc_get_list_images($path, 1);
                     if (count($images)) {
                         ksort($images);
@@ -492,30 +577,60 @@ if (!class_exists('STORELLY_FRONTEND_OPTIONS')) {
         public function upload_file($files, $field_id) {
             $nbd_upload_fields = array();
             $user_folder = md5(WC()->session->get_customer_id());
-            $file = $files['name'][$field_id];
-            if ($files['error'][$field_id] == 0) {
-                $ext = pathinfo($file, PATHINFO_EXTENSION);
-                $new_name = strtotime("now") . substr(md5(rand(1111, 9999)), 0, 8) . '.' . $ext; // phpcs:ignore WordPress.WP.AlternativeFunctions.rand_rand -- Using PHP rand() as wp_rand() may not be defined in non-WP contexts.
-                $new_path = SPBWC_PB_UPLOAD_DIR . '/' . $user_folder . '/' . $new_name;
-                $mkpath = wp_mkdir_p(SPBWC_PB_UPLOAD_DIR . '/' . $user_folder);
+            
+            // Validate file input exists
+            if ( ! isset( $files['name'][ $field_id ] ) ) {
+                return $nbd_upload_fields;
+            }
 
-                if ($mkpath) {
-                    add_filter( 'upload_dir',array($this,'custom_upload_directory_no_date' ));
-                    $file = array(
-                        'name' => $new_name,
-                        'type' => $files['type'][$field_id],
-                        'tmp_name' => $files['tmp_name'][ $field_id ],
-                        'error' => $files['error'][ $field_id ],
-                        'size' => $files['size'][ $field_id ]
-                    );
-                    $upload_overrides = array( 'test_form' => false );
-                    $movefile = wp_handle_upload( $file, $upload_overrides );
-                    remove_filter( 'upload_dir',array($this,'custom_upload_directory_no_date' ));
-                    if ($movefile && !isset( $movefile['error'] )) {
-                        $nbd_upload_fields[$field_id] = $user_folder . '/' . $new_name;
-                    } else {
-                        //todo
-                    }
+            $raw_name = $files['name'][$field_id];
+            $file_name_clean = sanitize_file_name( wp_basename( $raw_name ) );
+             
+            $file_error = isset( $files['error'][ $field_id ] ) ? absint( $files['error'][ $field_id ] ) : UPLOAD_ERR_NO_FILE;
+            if ( UPLOAD_ERR_OK !== $file_error ) {
+                return $nbd_upload_fields;
+            }
+
+            $tmp_name = isset( $files['tmp_name'][ $field_id ] ) ? $files['tmp_name'][ $field_id ] : '';
+            if ( '' === $tmp_name || ! is_uploaded_file( $tmp_name ) ) {
+                return $nbd_upload_fields;
+            }
+
+            $file_check = wp_check_filetype_and_ext( $tmp_name, $file_name_clean );
+            $ext  = isset( $file_check['ext'] ) ? $file_check['ext'] : '';
+            $type = isset( $file_check['type'] ) ? $file_check['type'] : '';
+
+            if ( '' === $ext || '' === $type ) {
+                return $nbd_upload_fields;
+            }
+
+            $allowed_extensions = apply_filters(
+                'spbwc_upload_file_allowed_extensions',
+                array( 'json', 'svg', 'png', 'jpg', 'jpeg', 'gif' )
+            );
+
+            if ( ! in_array( $ext, $allowed_extensions, true ) ) {
+                return $nbd_upload_fields;
+            }
+
+            $new_name = strtotime( 'now' ) . substr( md5( rand( 1111, 9999 ) ), 0, 8 ) . '.' . $ext; // phpcs:ignore WordPress.WP.AlternativeFunctions.rand_rand
+            $new_path = SPBWC_PB_UPLOAD_DIR . '/' . $user_folder . '/' . $new_name;
+            $mkpath = wp_mkdir_p( SPBWC_PB_UPLOAD_DIR . '/' . $user_folder );
+
+            if ( $mkpath ) {
+                add_filter( 'upload_dir', array( $this, 'custom_upload_directory_no_date' ) );
+                $file = array(
+                    'name'     => $new_name, // Use the new sanitized safe name
+                    'type'     => $type,
+                    'tmp_name' => $tmp_name,
+                    'error'    => $file_error,
+                    'size'     => isset( $files['size'][ $field_id ] ) ? absint( $files['size'][ $field_id ] ) : 0,
+                );
+                $upload_overrides = array( 'test_form' => false );
+                $movefile = wp_handle_upload( $file, $upload_overrides );
+                remove_filter( 'upload_dir', array( $this, 'custom_upload_directory_no_date' ) );
+                if ( $movefile && ! isset( $movefile['error'] ) ) {
+                    $nbd_upload_fields[ $field_id ] = $user_folder . '/' . $new_name;
                 }
             }
             return $nbd_upload_fields;
@@ -685,10 +800,12 @@ if (!class_exists('STORELLY_FRONTEND_OPTIONS')) {
             if ($this->cart_edit_key) {
                 $cart_item_key = $this->cart_edit_key;
                 if (isset($this->new_add_to_cart_key)) {
-                    // phpcs:ignore WordPress.Security.NonceVerification.Missing -- WooCommerce cart update request already protected by core nonce.
-                    if ($this->new_add_to_cart_key == $cart_item_key && isset($_POST['quantity'])) { // phpcs:ignore WordPress.Security.NonceVerification.Missing -- WooCommerce cart update flow.
-                        $posted_quantity = sanitize_text_field( wp_unslash( $_POST['quantity'] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Missing -- WooCommerce cart update flow.
-                        WC()->cart->set_quantity($this->new_add_to_cart_key, $posted_quantity, TRUE);
+                    if ($this->new_add_to_cart_key == $cart_item_key && isset($_POST['quantity'])) {
+                        $nonce_value = isset( $_POST['spbwc_add_to_cart_nonce'] ) ? sanitize_text_field( wp_unslash( $_POST['spbwc_add_to_cart_nonce'] ) ) : '';
+                        if ( $nonce_value && wp_verify_nonce( $nonce_value, 'spbwc_add_to_cart_action' ) ) {
+                            $posted_quantity = absint( wp_unslash( $_POST['quantity'] ) );
+                            WC()->cart->set_quantity($this->new_add_to_cart_key, $posted_quantity, TRUE);
+                        }
                     } else {
                         $nbd_session = WC()->session->get($cart_item_key . '_nbd');
                         if ($nbd_session) {

@@ -51,8 +51,16 @@
     }
     function storelly_show_option_fields() {
         $product_id = 0;
-        // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Readonly admin preview page.
-        $option_id = isset( $_GET['oid'] ) ? sanitize_text_field( wp_unslash( $_GET['oid'] ) ) : '';
+        $nonce_value = isset( $_GET['_wpnonce'] ) ? sanitize_text_field( wp_unslash( $_GET['_wpnonce'] ) ) : '';
+        if (
+            ! current_user_can( 'spbwc_manage_product_builder' ) ||
+            ! $nonce_value ||
+            ! wp_verify_nonce( $nonce_value, 'spbwc_builder_preview_action' )
+        ) {
+            return;
+        }
+        $pcpb_builder_fields = isset( $_POST['pcpb-field'] ) ? map_deep( wp_unslash( $_POST['pcpb-field'] ), 'sanitize_text_field' ) : array();
+        $option_id = isset( $_GET['oid'] ) ? absint( wp_unslash( $_GET['oid'] ) ) : 0;
         if ($option_id) {
             $_options = storelly_get_product_builder($option_id);
             if ($_options) {
@@ -194,15 +202,15 @@
         );
     }
     function spbwc_add_inline_pdf_styles() {
-    global $page_settings; // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Global variable $page_settings. 
-    if (empty($page_settings)) return;
+    global $spbwc_page_settings; // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Global variable with prefix.
+    if (empty($spbwc_page_settings)) return;
 
-    $page_width      = isset($page_settings['width']) ? esc_attr($page_settings['width']) : 'auto';
-    $page_height     = isset($page_settings['height']) ? esc_attr($page_settings['height']) : 'auto';
-    $design_width    = isset($page_settings['design_width']) ? esc_attr($page_settings['design_width']) : '100%';
-    $design_height   = isset($page_settings['design_height']) ? esc_attr($page_settings['design_height']) : '100%';
-    $design_top      = isset($page_settings['design_top']) ? esc_attr($page_settings['design_top']) : '0';
-    $design_left     = isset($page_settings['design_left']) ? esc_attr($page_settings['design_left']) : '0';
+    $page_width      = isset($spbwc_page_settings['width']) ? esc_attr($spbwc_page_settings['width']) : 'auto';
+    $page_height     = isset($spbwc_page_settings['height']) ? esc_attr($spbwc_page_settings['height']) : 'auto';
+    $design_width    = isset($spbwc_page_settings['design_width']) ? esc_attr($spbwc_page_settings['design_width']) : '100%';
+    $design_height   = isset($spbwc_page_settings['design_height']) ? esc_attr($spbwc_page_settings['design_height']) : '100%';
+    $design_top      = isset($spbwc_page_settings['design_top']) ? esc_attr($spbwc_page_settings['design_top']) : '0';
+    $design_left     = isset($spbwc_page_settings['design_left']) ? esc_attr($spbwc_page_settings['design_left']) : '0';
 
     $custom_css = "
         @page {

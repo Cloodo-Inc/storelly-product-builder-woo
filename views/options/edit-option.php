@@ -10,8 +10,9 @@ $link_update = add_query_arg(array(
 ), admin_url('admin.php?page=storelly-product-builder-for-woocommerce-options'));
 // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Template variable.
 $link_unpublish = add_query_arg(array(
-    'id'        => isset($_GET['id']) ? sanitize_text_field( wp_unslash( $_GET['id'] ) ) : 0, // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only admin query arg used to build action link.
-    'action'    => 'unpublish'
+    'id'        => isset($options['id']) ? absint( $options['id'] ) : 0,
+    'action'    => 'unpublish',
+    '_wpnonce'  => wp_create_nonce('spbwc_unpublish_option_action'),
 ), $link);
 // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Template variable.
 $link_create_option = add_query_arg(
@@ -26,9 +27,10 @@ wp_enqueue_media();
 
 // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Template variable.
 $link_create_pre_builder = add_query_arg(array(
-    'oid'   => isset($_GET['id']) ? sanitize_text_field( wp_unslash( $_GET['id'] ) ) : 0, // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only admin query arg used to build action link.
+    'oid'   => isset($options['id']) ? absint( $options['id'] ) : 0,
     'paged' => isset($_GET['paged']) ? sanitize_text_field( wp_unslash( $_GET['paged'] ) ) : 1, // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only admin query arg used to build action link.
-    'rd'    => 'print_option'
+    'rd'      => 'print_option',
+    '_wpnonce' => wp_create_nonce( 'spbwc_builder_preview_action' ),
 ), SPBWC_Storelly_PB_Util::spbwc_get_url_page('product_builder'));
 ?>
 <div class="wrap">

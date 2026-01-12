@@ -45,9 +45,8 @@ if (!class_exists('SPBWC_Storelly_Product_Builder_Frontend')) {
             }
         }
         public function spbwc_customer_upload() {
-            $nonce_value    = isset($_POST['nonce']) ? sanitize_text_field(wp_unslash($_POST['nonce'])) : '';
-            $nonce_required = !defined('SPBWC_ENABLE_NONCE') || true === SPBWC_ENABLE_NONCE;
-            if ($nonce_required && (!$nonce_value || !wp_verify_nonce($nonce_value, 'spbwc_save_design_action'))) {
+            $nonce_value = isset($_POST['nonce']) ? sanitize_text_field(wp_unslash($_POST['nonce'])) : '';
+            if ( ! $nonce_value || ! wp_verify_nonce( $nonce_value, 'spbwc_save_design_action' ) ) {
                 wp_send_json(array('flag' => 0, 'mes' => esc_html__('Security check failed.', 'storelly-product-builder-for-woocommerce')));
             }
 
@@ -100,9 +99,8 @@ if (!class_exists('SPBWC_Storelly_Product_Builder_Frontend')) {
             if ( ! current_user_can( 'edit_posts' ) ) { 
                 die( esc_html__( 'You do not have permission to save design.', 'storelly-product-builder-for-woocommerce' ) );
             }
-            $nonce_required = ! defined( 'SPBWC_ENABLE_NONCE' ) || true === SPBWC_ENABLE_NONCE;
-            $nonce_value    = isset( $_POST['nonce'] ) ? sanitize_text_field( wp_unslash( $_POST['nonce'] ) ) : '';
-            if ( $nonce_required && ( ! $nonce_value || ! wp_verify_nonce( $nonce_value, 'spbwc_save_design_action' ) ) ) {
+            $nonce_value = isset( $_POST['nonce'] ) ? sanitize_text_field( wp_unslash( $_POST['nonce'] ) ) : '';
+            if ( ! $nonce_value || ! wp_verify_nonce( $nonce_value, 'spbwc_save_design_action' ) ) {
                 die( esc_html__( 'Security error.', 'storelly-product-builder-for-woocommerce' ) );
             }
             $result = array(
@@ -143,7 +141,8 @@ if (!class_exists('SPBWC_Storelly_Product_Builder_Frontend')) {
             wp_die();
         }
         private function spbwc_create_preview($path) {
-            $config = json_decode(file_get_contents($path . '/config.json'));
+            $config_raw = SPBWC_Storelly_IO::spbwc_get_local_file_contents($path . '/config.json');
+            $config = (false !== $config_raw) ? json_decode($config_raw) : null;
             $images = array();
             if (wp_mkdir_p($path . '/preview')) {
                 foreach ($config->views as $index => $view) {

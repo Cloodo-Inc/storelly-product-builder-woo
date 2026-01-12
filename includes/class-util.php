@@ -230,8 +230,11 @@ if (!class_exists('SPBWC_Storelly_PB_Util')) {
         }
         public static function spbwc_get_data_from_json($path = '')
         {
-            $content = file_exists($path) ? file_get_contents($path) : '';
-            return json_decode($content);
+            if ( ! file_exists( $path ) ) {
+                return null;
+            }
+            $content = self::spbwc_get_local_file_contents( $path );
+            return $content ? json_decode( $content ) : null;
         }
         public static function spbwc_is_base64_string($s)
         {
@@ -248,9 +251,11 @@ if (!class_exists('SPBWC_Storelly_PB_Util')) {
         public static function spbwc_read_json_setting($fullname)
         {
             if (file_exists($fullname)) {
-                $list = json_decode(file_get_contents($fullname));
+                $content = self::spbwc_get_local_file_contents($fullname);
+                $list = $content ? json_decode($content) : array();
             } else {
                 $list = '[]';
+                // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents -- Initializing empty JSON setting file.
                 file_put_contents($fullname, $list);
                 $list = array();
             }
@@ -427,18 +432,37 @@ if (!class_exists('SPBWC_Storelly_PB_Util')) {
                 }
                 $zip->close();
             } else {
-                require_once(ABSPATH . 'wp-admin/includes/class-pclzip.php');
-                $archive = new PclZip($archive_file_name);
-                foreach ($file_names as $file) {
-                    $path_arr = explode('/', $file);
-                    $dir = dirname($file) . '/';
-                    $archive->add($file, PCLZIP_OPT_REMOVE_PATH, $dir, PCLZIP_OPT_ADD_PATH, $path_arr[count($path_arr) - 2]);
+                if ( ! class_exists( 'PclZip' ) ) {
+                    if ( defined( 'ABSPATH' ) ) {
+                        require_once( ABSPATH . 'wp-admin/includes/class-pclzip.php' );
+                    }
+                }
+                if ( class_exists( 'PclZip' ) ) {
+                    $archive = new PclZip($archive_file_name);
+                    foreach ($file_names as $file) {
+                        $path_arr = explode('/', $file);
+                        $dir = dirname($file) . '/';
+                        $archive->add($file, PCLZIP_OPT_REMOVE_PATH, $dir, PCLZIP_OPT_ADD_PATH, $path_arr[count($path_arr) - 2]);
+                    }
                 }
             }
             if (file_exists($archive_file_name)) {
                 return true;
             }
             return false;
+        }
+        public static function spbwc_get_local_file_contents( $path ) {
+            if ( ! function_exists( 'WP_Filesystem' ) ) {
+                require_once ABSPATH . 'wp-admin/includes/file.php';
+            }
+            global $wp_filesystem;
+            if ( ! $wp_filesystem ) {
+                WP_Filesystem();
+            }
+            if ( ! $wp_filesystem ) {
+                return false; // Unable to initialize filesystem
+            }
+            return $wp_filesystem->get_contents( $path );
         }
     }
 }

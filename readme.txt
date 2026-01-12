@@ -4,8 +4,8 @@ Donate link: https://storelly.com/
 Tags: product builder, product customize, product customizer, woocommerce custom product
 Requires at least: 4.7
 Tested up to: 6.9
-Stable tag: 1.1.2
-Version: 1.1.2
+Stable tag: 1.2.2
+Version: 1.2.2
 Requires PHP: 7.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -41,13 +41,14 @@ You can reach the Storelly team via email: support@storelly.com
 
 This plugin includes or depends on the following open-source libraries:
 
-- Animate.css — MIT License  
-- normalize.css v8.0.1 — MIT License  
-- Snap.svg 0.3.0 — Apache License 2.0  
-- FPDI — MIT License
-- fontfaceobserver.js — BSD License  
-- spectrum.js — MIT License  
-- fabric.js — MIT License  
+- Animate.css — MIT License (https://github.com/animate-css/animate.css)
+- normalize.css v8.0.1 — MIT License (https://github.com/necolas/normalize.css)
+- Snap.svg 0.3.0 — Apache License 2.0 (https://github.com/adobe-webplatform/Snap.svg)
+- FPDI — MIT License (http://www.setasign.com/products/fpdi/about/)
+- fontfaceobserver.js — BSD License (https://github.com/bramstein/fontfaceobserver)
+- spectrum.js — MIT License (https://github.com/bgrins/spectrum)
+- fabric.js — MIT License (https://github.com/fabricjs/fabric.js)
+- SweetAlert — MIT License (https://github.com/t4t5/sweetalert)
 
 == External services ==
 
@@ -69,12 +70,24 @@ This plugin connects to the following external services:
     - Terms of Service: https://app.storelly.com/terms
     - Privacy Policy: https://app.storelly.com/privacy
 
+- **Google Fonts API (`https://fonts.googleapis.com`)**  
+  - **What it is used for**: Used to load custom web fonts for the admin interface styling.  
+  - **What data is sent and when**: When admin users access the plugin settings pages, their browser automatically requests font files (Poppins font family) from Google's CDN. This is a standard browser request that may include the user's IP address and browser information as part of normal HTTP headers.  
+  - **Service owner and policies**: This service is provided by Google LLC. Please review Google Fonts policies:
+    - Privacy Policy: https://policies.google.com/privacy
+    - Terms of Service: https://policies.google.com/terms
+
+**Note about local file operations**: The plugin reads and writes design configuration files (config.json, design_output.json, used_font.json) to your server's local file system in the WordPress uploads directory. These are not external service calls.
+
 == Screenshots ==
 
 1. Front-end product builder
 2. Back-end product settings
 
 == Changelog ==
+= 1.2.2 =
+* Enhance file handling and security checks.
+
 = 1.1.2 =
 * Security Updates: Nonce Verification and User Permissions.
 

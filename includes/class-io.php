@@ -62,51 +62,60 @@ if (!class_exists('SPBWC_Storelly_IO')) {
             }
         }
         public static function spbwc_convert_url_to_path($url) {
-            $upload_dir     = wp_upload_dir();
-            $basedir        = $upload_dir['basedir'];
-            $arr            = explode('/', $basedir);
-            $upload         = $arr[count($arr) - 1];
-            if (is_multisite() && !is_main_site()) $upload = $arr[count($arr) - 3] . '/' . $arr[count($arr) - 2] . '/' . $arr[count($arr) - 1];
-            $arr_url = explode('/' . $upload, $url);
-            if (isset($arr_url[1])) {
-                if (count($arr_url) == 2) {
-                    return $basedir . $arr_url[1];
-                } else {
-                    return $basedir . $arr_url[1] . '/' . $upload . $arr_url[2];
-                }
-            } else {
-                // Fallback: try converting from content URL to content directory.
-                $content_url = content_url();
-                $content_dir = wp_normalize_path(WP_CONTENT_DIR);
-                
-                if (strpos($url, $content_url) !== false) {
-                    $path = str_replace($content_url, $content_dir, $url);
-                } else {
-                    // Last resort: calculate from site URL using WordPress root derived from content directory.
-                    $site_url = site_url();
-                    $site_path = dirname(wp_normalize_path(WP_CONTENT_DIR));
-                    $path = str_replace($site_url, $site_path, wp_normalize_path($url));
-                }
-                return $path;
+            $upload_dir = wp_upload_dir();
+            $base_url   = $upload_dir['baseurl'];
+            $basedir    = $upload_dir['basedir'];
+
+            // Check if the URL is within the uploads directory.
+            if ( strpos( $url, $base_url ) !== false ) {
+                return str_replace( $base_url, $basedir, $url );
             }
-        }
-        public static function spbwc_convert_path_to_url($path = '') {
-            $normalized_path = wp_normalize_path($path);
-            
-            // Try converting from content directory first.
-            $content_dir = wp_normalize_path(WP_CONTENT_DIR);
+
+            // Fallback for content directory.
             $content_url = content_url();
-            
-            if (strpos($normalized_path, $content_dir) !== false) {
-                $url = str_replace($content_dir, $content_url, $normalized_path);
-            } else {
-                // Fallback to site root conversion using WordPress root derived from content directory.
-                $site_path = dirname(wp_normalize_path(WP_CONTENT_DIR));
-                $site_url = site_url();
-                $url = str_replace($site_path, $site_url, $normalized_path);
+            $content_dir = WP_CONTENT_DIR; // Still allowed if defined, but prefer functions.
+            if ( defined( 'WP_CONTENT_DIR' ) && strpos( $url, $content_url ) !== false ) {
+                return str_replace( $content_url, WP_CONTENT_DIR, $url );
+            }
+
+            // Final fallback (use with caution).
+            $site_url = site_url();
+            $site_path = ABSPATH; 
+            if ( strpos( $url, $site_url ) !== false ) {
+                 // Try to map based on site URL to ABSPATH. This is approximate and may not work for all setups (subdirectories etc).
+                 // Better to rely on uploads/content.
+                 return str_replace( $site_url, $site_path, $url );
+            }
+
+            return $url;
+        }
+
+        public static function spbwc_convert_path_to_url($path = '') {
+            $path = wp_normalize_path($path);
+            $upload_dir = wp_upload_dir();
+            $basedir    = wp_normalize_path($upload_dir['basedir']);
+            $baseurl    = $upload_dir['baseurl'];
+
+            if ( strpos( $path, $basedir ) !== false ) {
+                return str_replace( $basedir, $baseurl, $path );
             }
             
-            return esc_url_raw($url);
+            if ( defined( 'WP_CONTENT_DIR' ) ) {
+                $content_dir = wp_normalize_path( WP_CONTENT_DIR );
+                $content_url = content_url();
+                if ( strpos( $path, $content_dir ) !== false ) {
+                    return str_replace( $content_dir, $content_url, $path );
+                }
+            }
+
+            // Fallback to site URL for ABSPATH
+            $abspath = wp_normalize_path( ABSPATH );
+            $site_url = site_url();
+            if ( strpos( $path, $abspath ) !== false ) {
+                return str_replace( $abspath, $site_url, $path );
+            }
+            
+            return esc_url_raw($path);
         }
         public static function spbwc_get_list_files_by_type($path, $type, $level = 100) {
             $list       = array();
@@ -120,6 +129,25 @@ if (!class_exists('SPBWC_Storelly_IO')) {
             $file_exten = $filetype[count($filetype) - 1];
             if (in_array(strtolower($file_exten), $arr_mime)) $check = true;
             return $check;
+        }
+        /**
+         * Get local file contents using WP_Filesystem
+         *
+         * @param string $path Local file path.
+         * @return string|false File contents or false on failure.
+         */
+        public static function spbwc_get_local_file_contents($path) {
+            if ( ! function_exists( 'WP_Filesystem' ) ) {
+                require_once ABSPATH . 'wp-admin/includes/file.php';
+            }
+            global $wp_filesystem;
+            if ( ! $wp_filesystem ) {
+                WP_Filesystem();
+            }
+            if ( ! $wp_filesystem ) {
+                return false; // Unable to initialize filesystem
+            }
+            return $wp_filesystem->get_contents( $path );
         }
     }
 }

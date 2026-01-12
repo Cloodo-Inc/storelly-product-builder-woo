@@ -159,9 +159,8 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
             if (!current_user_can('upload_files')) {
                 wp_send_json_error(array('mes' => esc_html__('You do not have permission.', 'storelly-product-builder-for-woocommerce')));
             }
-            $nonce          = isset( $_POST['nonce'] ) ? sanitize_text_field( wp_unslash( $_POST['nonce'] ) ) : '';
-            $nonce_required = ! defined( 'SPBWC_ENABLE_NONCE' ) || true === SPBWC_ENABLE_NONCE;
-            if ( $nonce_required && ( ! $nonce || ! wp_verify_nonce( $nonce, 'spbwc_save_design_action' ) ) ) {
+            $nonce = isset( $_POST['nonce'] ) ? sanitize_text_field( wp_unslash( $_POST['nonce'] ) ) : '';
+            if ( ! $nonce || ! wp_verify_nonce( $nonce, 'spbwc_save_design_action' ) ) {
                 wp_die( esc_html__( 'Security error.', 'storelly-product-builder-for-woocommerce' ) );
             }
             $result = array(
@@ -188,9 +187,8 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
             if (!current_user_can('upload_files')) {
                 wp_send_json_error(array('mes' => esc_html__('You do not have permission.', 'storelly-product-builder-for-woocommerce')));
             }
-            $nonce          = isset( $_POST['nonce'] ) ? sanitize_text_field( wp_unslash( $_POST['nonce'] ) ) : '';
-            $nonce_required = ! defined( 'SPBWC_ENABLE_NONCE' ) || true === SPBWC_ENABLE_NONCE;
-            if ( $nonce_required && ( ! $nonce || ! wp_verify_nonce( $nonce, 'spbwc_save_design_action' ) ) ) {
+            $nonce = isset( $_POST['nonce'] ) ? sanitize_text_field( wp_unslash( $_POST['nonce'] ) ) : '';
+            if ( ! $nonce || ! wp_verify_nonce( $nonce, 'spbwc_save_design_action' ) ) {
                 wp_die( esc_html__( 'Security error.', 'storelly-product-builder-for-woocommerce' ) );
             }
             $result = array(
@@ -340,7 +338,15 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
                     );
                 }
                 
-                if ($current_action == 'unpublish') { 
+                if ($current_action == 'unpublish') {
+                    $nonce_value = isset($_GET['_wpnonce']) ? sanitize_text_field(wp_unslash($_GET['_wpnonce'])) : '';
+                    if (
+                        ! $nonce_value ||
+                        ! wp_verify_nonce( $nonce_value, 'spbwc_unpublish_option_action' ) ||
+                        ! current_user_can( 'spbwc_manage_product_builder' )
+                    ) {
+                        wp_die( esc_html__( 'Security check failed.', 'storelly-product-builder-for-woocommerce' ) );
+                    }
                     $this->spbwc_unpublish_option($ID);
                     wp_safe_redirect(esc_url_raw(add_query_arg(array('paged' => $paged), admin_url('admin.php?page=storelly-product-builder-for-woocommerce-options'))));
                     exit;
@@ -1208,9 +1214,8 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
                     die('Empty data');
                 }
 
-                // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- Reading bundled JSON definition.
-                $all_fonts_json = file_get_contents( SPBWC_PB_PLUGIN_DIR . '/data/google-fonts-ttf.json' );
-                $all_fonts      = json_decode( $all_fonts_json );
+                $all_fonts_json = SPBWC_Storelly_IO::spbwc_get_local_file_contents( SPBWC_PB_PLUGIN_DIR . '/data/google-fonts-ttf.json' );
+                $all_fonts      = ( false !== $all_fonts_json ) ? json_decode( $all_fonts_json ) : null;
                 $all_fonts_list = isset( $all_fonts->items ) ? $all_fonts->items : array();
 
                 foreach ( $fonts as $key => $font ) {
@@ -1271,12 +1276,16 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
                 file_put_contents($path_font, json_encode($gg_fonts));
             }
             $path = SPBWC_PB_FONT_DIR . '/googlefonts.json';
-            $selected_fonts = file_get_contents($path);
-            if ($selected_fonts == '') $selected_fonts = '[]';
+            $selected_fonts = SPBWC_Storelly_IO::spbwc_get_local_file_contents($path);
+            if ($selected_fonts === false || $selected_fonts == '') {
+                $selected_fonts = '[]';
+            }
+            $google_fonts_ttf_json = SPBWC_Storelly_IO::spbwc_get_local_file_contents(SPBWC_PB_DATA_CONFIG_DIR . '/google-fonts-ttf.json');
+            $google_fonts_ttf = (false !== $google_fonts_ttf_json) ? json_decode($google_fonts_ttf_json, true) : array();
             wp_register_script('storelly_manager_fonts_script', SPBWC_PB_JS_URL . 'manager-fonts.js', array('spbwc-fontfaceobserver', 'spbwc-sweetalert-js', 'spbwc-ag'), SPBWC_PB_VERSION, true);
             wp_localize_script('storelly_manager_fonts_script', 'storelly_manager_fonts_variable', array(
                 'selected_fonts' =>  $selected_fonts,
-                'ggFonts' => json_decode(file_get_contents(SPBWC_PB_DATA_CONFIG_DIR . '/google-fonts-ttf.json'), true),
+                'ggFonts' => $google_fonts_ttf,
                 'fSubsets' => $subsets
             ));
             wp_enqueue_script("storelly_manager_fonts_script");
@@ -1335,7 +1344,10 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
                     $type = pathinfo($img_src, PATHINFO_EXTENSION);
                     $type = ($type == 'svg') ? 'svg+xml' : $type;
                     $path_image = SPBWC_Storelly_IO::spbwc_convert_url_to_path($img_src);
-                    $data = nbd_file_get_contents($path_image);
+                    $data = SPBWC_Storelly_IO::spbwc_get_local_file_contents($path_image);
+                    if (false === $data) {
+                        continue;
+                    }
                     $base64 = 'data:image/' . $type . ';base64,' . base64_encode($data);
                     $tagName->setAttribute('xlink:href', $base64);
                 }

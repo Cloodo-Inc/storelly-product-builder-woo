@@ -44,8 +44,7 @@ if (!class_exists('SPBWC_Storelly_Export_PDF')) {
             $config = '';
             $config_path = $path . '/config.json';
             if (file_exists($config_path)) {
-                // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- Reading local JSON configuration file from uploads directory.
-                $config_json = file_get_contents($config_path);
+                $config_json = self::spbwc_get_local_file_contents($config_path);
                 if ($config_json !== false) {
                     $config = json_decode($config_json);
                 }
@@ -54,8 +53,7 @@ if (!class_exists('SPBWC_Storelly_Export_PDF')) {
             $design_output = '';
             $design_output_path = $path . '/design_output.json';
             if (file_exists($design_output_path)) {
-                // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- Reading local JSON design output from uploads directory.
-                $design_json = file_get_contents($design_output_path);
+                $design_json = self::spbwc_get_local_file_contents($design_output_path);
                 if ($design_json !== false) {
                     $design_output = json_decode($design_json);
                 }
@@ -75,8 +73,7 @@ if (!class_exists('SPBWC_Storelly_Export_PDF')) {
             $used_fonts     = array();
             
             if (file_exists($used_font_path)) {
-                // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- Reading local JSON file from uploads directory.
-                $font_json = file_get_contents($used_font_path);
+                $font_json = self::spbwc_get_local_file_contents($used_font_path);
                 if ($font_json !== false) {
                     $used_fonts = json_decode($font_json);
                     if (!is_array($used_fonts) && !is_object($used_fonts)) {
@@ -230,7 +227,7 @@ if (!class_exists('SPBWC_Storelly_Export_PDF')) {
          * @param mixed $font_css Font CSS
          * @return string URL to the generated HTML page
          */
-        public static function spbwc_build_html_page($folder_design, $key, $svg_path, $page_settings, $font_css) {
+        public static function spbwc_build_html_page($folder_design, $key, $svg_path, $spbwc_page_settings, $font_css) {
             $pdf_temp_path = SPBWC_PB_CUSTOMER_DIR . '/' . $folder_design . '/pdf-templates';
             if (!file_exists($pdf_temp_path)) {
                 wp_mkdir_p($pdf_temp_path);
@@ -239,18 +236,51 @@ if (!class_exists('SPBWC_Storelly_Export_PDF')) {
             $html_path  =  $pdf_temp_path . '/' . $key . '.html';
             $html_url   = SPBWC_PB_CUSTOMER_URL . '/' . $folder_design . '/pdf-templates/' . $key . '.html';
             
-            // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- Reading local SVG file from uploads directory for PDF generation.
-            $svg_string = file_get_contents($svg_path);
+            $svg_string = self::spbwc_get_local_file_contents($svg_path);
             $svg_string = preg_replace("/<(?:\?xml|!DOCTYPE).*?>/", "", $svg_string);
 
-            // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obstart_ob_start -- Output buffer opened and always closed in the same scope (try/finally) for template rendering.
-            ob_start();
-            try {
-                include SPBWC_PB_PLUGIN_DIR . 'views/pdf-template.php';
-            } finally {
-                // Always close the buffer even if the included template triggers an early exit.
-                $template = ob_get_clean();
+            // Build HTML template directly from variables instead of using ob_start().
+            $title = esc_html__('NBStorelly', 'storelly-product-builder-for-woocommerce');
+
+            // Inline CSS to avoid <link> tags (PHPCS enqueue rule) and to make Cloud rendering deterministic.
+            $normalize_css = '';
+            $normalize_path = SPBWC_PB_PLUGIN_DIR . 'assets/css/views/normalize.css';
+            if (file_exists($normalize_path)) {
+                $normalize_css = self::spbwc_get_local_file_contents($normalize_path);
+                if (false === $normalize_css) {
+                    $normalize_css = '';
+                }
             }
+
+            $inline_css = trim((string) $normalize_css);
+            if (!empty($inline_css)) {
+                $inline_css = "<style>\n" . $inline_css . "\n</style>\n";
+            } else {
+                $inline_css = '';
+            }
+
+            // Build background image HTML if needed.
+            $background_html = '';
+            if ($spbwc_page_settings['include_bg']) {
+                $bg_src         = esc_url($spbwc_page_settings['bg_src']);
+                $background_html = '<img id="background" src="' . $bg_src . '" />';
+            }
+
+            // Build HTML template string
+            $template = '<!DOCTYPE html>' . "\n" .
+                '<html>' . "\n" .
+                '<head>' . "\n" .
+                '    <meta charset="utf-8" />' . "\n" .
+                '    <meta http-equiv="Content-type" content="text/html; charset=utf-8">' . "\n" .
+                '    <title>' . $title . '</title>' . "\n" .
+                '    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=1, minimum-scale=0.5, maximum-scale=1.0" />' . "\n" .
+                $inline_css .
+                '</head>' . "\n" .
+                '<body>' . "\n" .
+                '    ' . $background_html . "\n" .
+                '    ' . $svg_string . "\n" .
+                '</body>' . "\n" .
+                '</html>';
 
             // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents -- Writing temporary HTML file to uploads directory for PDF service.
             file_put_contents($html_path, $template);
@@ -320,6 +350,26 @@ if (!class_exists('SPBWC_Storelly_Export_PDF')) {
             }
 
             return (bool) $wp_filesystem->put_contents( $path, $body, FS_CHMOD_FILE );
+        }
+
+        /**
+         * Get local file contents using WP_Filesystem
+         *
+         * @param string $path Local file path.
+         * @return string|false File contents or false on failure.
+         */
+        public static function spbwc_get_local_file_contents($path) {
+            if ( ! function_exists( 'WP_Filesystem' ) ) {
+                require_once ABSPATH . 'wp-admin/includes/file.php';
+            }
+            global $wp_filesystem;
+            if ( ! $wp_filesystem ) {
+                WP_Filesystem();
+            }
+            if ( ! $wp_filesystem ) {
+                return false;
+            }
+            return $wp_filesystem->get_contents($path);
         }
     }
 }

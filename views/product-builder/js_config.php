@@ -1,15 +1,31 @@
 <?php
 if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly 
 
-// Read-only query args coming from WooCommerce edit/cart flows; no custom nonce is available.
-// phpcs:ignore WordPress.Security.NonceVerification.Recommended, WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Read-only query arg for builder configuration.
-$pcpb_cart_item_key = isset( $_GET['pcpb_cart_item_key'] ) ? sanitize_text_field( wp_unslash( $_GET['pcpb_cart_item_key'] ) ) : '';
+// Only accept cart edit keys when the edit nonce is valid.
+// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Local template variable.
+$pcpb_cart_item_key = '';
+if ( isset( $_GET['pcpb_cart_item_key'], $_GET['_wpnonce'] ) ) {
+    $spbwc_edit_nonce = sanitize_text_field( wp_unslash( $_GET['_wpnonce'] ) );
+    if ( wp_verify_nonce( $spbwc_edit_nonce, 'nbo-edit' ) ) {
+        // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Local template variable.
+        $pcpb_cart_item_key = sanitize_text_field( wp_unslash( $_GET['pcpb_cart_item_key'] ) );
+    }
+}
 
-// phpcs:ignore WordPress.Security.NonceVerification.Recommended, WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Read-only query arg for builder configuration.
-$oid = isset( $_GET['oid'] ) ? absint( wp_unslash( $_GET['oid'] ) ) : 0;
-
-// phpcs:ignore WordPress.Security.NonceVerification.Recommended, WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Read-only redirect key used to compute safe redirect URL.
-$redirect_url = isset( $_GET['rd'] ) ? SPBWC_Storelly_PB_Util::spbwc_get_redirect_url( sanitize_text_field( wp_unslash( $_GET['rd'] ) ) ) : '';
+// Only accept preview/task query args when the preview nonce is valid.
+// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Local template variable.
+$oid = 0;
+// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Local template variable.
+$redirect_url = '';
+if ( isset( $_GET['_wpnonce'] ) ) {
+    $spbwc_preview_nonce = sanitize_text_field( wp_unslash( $_GET['_wpnonce'] ) );
+    if ( wp_verify_nonce( $spbwc_preview_nonce, 'spbwc_builder_preview_action' ) ) {
+        // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Local template variable.
+        $oid = isset( $_GET['oid'] ) ? absint( wp_unslash( $_GET['oid'] ) ) : 0;
+        // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Local template variable.
+        $redirect_url = isset( $_GET['rd'] ) ? SPBWC_Storelly_PB_Util::spbwc_get_redirect_url( sanitize_text_field( wp_unslash( $_GET['rd'] ) ) ) : '';
+    }
+}
 if ($is_creating_task == 0) { // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Global variable defined by parent template.
     $oid = $option_id; // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Local template variable.
 } else if ($oid == 0) { // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Local template variable.
@@ -21,12 +37,14 @@ if ($is_creating_task == 0) { // phpcs:ignore WordPress.NamingConventions.Prefix
 }
 $fonts = array(); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Local template variable.
 $google_fonts = array(); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Local template variable.
-if (file_exists(SPBWC_PB_FONT_DIR . '/googlefonts.json')) {
-    $google_fonts = (array)json_decode(file_get_contents(SPBWC_PB_FONT_DIR . '/googlefonts.json')); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Local template variable.
+// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Local template variable.
+$google_fonts_json = SPBWC_Storelly_IO::spbwc_get_local_file_contents(SPBWC_PB_FONT_DIR . '/googlefonts.json');
+if (false !== $google_fonts_json) {
+    $google_fonts = (array) json_decode($google_fonts_json); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Local template variable.
 }
 $fonts      = $google_fonts; // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Local template variable.
 $font_url   = SPBWC_PB_FONT_URL; // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Local template variable.
-wp_localize_script( 'product-builder', 'NBPBCONFIG', array(
+wp_localize_script( 'product-builder', 'SPBWC_PB_CONFIG', array(
         'is_mobile' => wp_is_mobile(),
         'is_creating_task' => $is_creating_task,
         'assets_url' => SPBWC_PB_ASSETS_URL,
