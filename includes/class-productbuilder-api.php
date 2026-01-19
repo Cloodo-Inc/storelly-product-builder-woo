@@ -9,9 +9,9 @@ if (!class_exists('SPBWC_Storelly_Product_Builder_API')) {
         
         public function spbwc_init()
         {
-            //  bat su kien active plguin     
-            add_action('init',  array($this, 'spbwc_create_user_storelly'));
-
+            // Removed automatic user creation on init hook to prevent phoning home without opt-in consent.
+            // User creation now only happens when admin explicitly connects account in settings page.
+            
             add_action('activated_plugin', array($this, 'spbwc_activation_redirect'), 10, 1);
             
             // lấy thông tin order trong woocommerce và đồng bộ qua curl 
@@ -36,6 +36,14 @@ if (!class_exists('SPBWC_Storelly_Product_Builder_API')) {
         }
 
         public static function spbwc_create_user_storelly(){
+            // Only create user if explicitly enabled by admin via settings.
+            $api_settings = get_option('spbwc_pb_settings', array());
+            $enable_api_sync = isset($api_settings['enable_api_sync']) && 'yes' === $api_settings['enable_api_sync'];
+            
+            if (!$enable_api_sync) {
+                return; // Exit early if API sync is not enabled (opt-in required).
+            }
+            
             $option = get_option('spbwc_connect_api_keys');
             if (empty($option['username'])) {
                 $current_user = wp_get_current_user(); 
@@ -148,15 +156,30 @@ if (!class_exists('SPBWC_Storelly_Product_Builder_API')) {
             $response['consumer_secret'] = $consumer_secret;
         
             update_option('spbwc_connect_api_keys', $response);
-            self::spbwc_create_user_storelly();  
+            // Removed automatic user creation - now only happens when admin enables API sync in settings.
         }
 
         public function spbwc_order_processed($order_id){
+            // Only sync orders if API sync is enabled (opt-in).
+            $api_settings = get_option('spbwc_pb_settings', array());
+            $enable_api_sync = isset($api_settings['enable_api_sync']) && 'yes' === $api_settings['enable_api_sync'];
+            
+            if (!$enable_api_sync) {
+                return; // Exit early if API sync is not enabled.
+            }
+            
             $order = wc_get_order($order_id);
             $this->spbwc_notify_on_new_order($order);
         } 
         
         public function spbwc_notify_on_new_order($order){
+            // Only sync orders if API sync is enabled (opt-in).
+            $api_settings = get_option('spbwc_pb_settings', array());
+            $enable_api_sync = isset($api_settings['enable_api_sync']) && 'yes' === $api_settings['enable_api_sync'];
+            
+            if (!$enable_api_sync) {
+                return; // Exit early if API sync is not enabled.
+            }
             $products = array();
             $cFile = [];
             foreach ($order->get_items() as $item_id => $item) {

@@ -293,7 +293,7 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
             wp_register_style('spbwc-manager-fonts', SPBWC_PB_CSS_URL . 'manager-fonts.css', array('spbwc-sweetalert-css'), SPBWC_PB_VERSION);
 
             // style menu setting
-            wp_enqueue_style('menu-setting',  SPBWC_PB_CSS_URL . '/menu-setting.css', array(), '1.0', 'all');
+            wp_enqueue_style('spbwc-menu-setting',  SPBWC_PB_CSS_URL . '/menu-setting.css', array(), SPBWC_PB_VERSION, 'all');
 
             wp_localize_script('spbwc-general-js', 'storelly_admin', array(
                 'url'       => admin_url('admin-ajax.php'),
@@ -1266,6 +1266,14 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
             wp_die();
         }
         public function spbwc_manager_fonts() {
+            // Verify nonce for GET parameters to prevent unauthorized access.
+            if (isset($_GET['cat_id'])) {
+                $nonce = isset($_GET['_wpnonce']) ? sanitize_text_field(wp_unslash($_GET['_wpnonce'])) : '';
+                if (empty($nonce) || !wp_verify_nonce($nonce, 'spbwc_manager_fonts_action')) {
+                    wp_die(esc_html__('Security error.', 'storelly-product-builder-for-woocommerce'));
+                }
+            }
+            
             $subsets                = SPBWC_Storelly_PB_Util::spbwc_font_subsets();
             $current_subset         = 'all';
             $current_cat            = filter_input(INPUT_GET, "cat_id", FILTER_VALIDATE_INT);
@@ -1306,13 +1314,20 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
                     wp_die( esc_html__( 'Security error.', 'storelly-product-builder-for-woocommerce' ) );
                 }
                 $storelly_enable_cloud2print_api      = isset($_POST['storelly_enable_cloud2print_api']) ? sanitize_text_field( wp_unslash( $_POST['storelly_enable_cloud2print_api'] ) ) : 'yes';
+                $storelly_enable_api_sync              = isset($_POST['storelly_enable_api_sync']) ? sanitize_text_field( wp_unslash( $_POST['storelly_enable_api_sync'] ) ) : 'no';
                 $consumer_key                         = isset( $_POST['storelly_consumer_key'] ) ? sanitize_text_field( wp_unslash( $_POST['storelly_consumer_key'] ) ) : '';
                 $consumer_secret                      = isset( $_POST['storelly_consumer_secret'] ) ? sanitize_text_field( wp_unslash( $_POST['storelly_consumer_secret'] ) ) : '';
 
                 $message        = esc_html__('Your settings have been saved.', 'storelly-product-builder-for-woocommerce');
                 $status         = 'updated';
                 $storelly_pb_settings['enable_cloud2print_api'] = $storelly_enable_cloud2print_api;
+                $storelly_pb_settings['enable_api_sync'] = $storelly_enable_api_sync;
                 update_option('spbwc_pb_settings', $storelly_pb_settings);
+                
+                // If API sync is enabled and user has entered credentials, trigger account creation.
+                if ('yes' === $storelly_enable_api_sync && ( ! empty( $consumer_key ) || ! empty( $consumer_secret ) ) ) {
+                    SPBWC_Storelly_Product_Builder_API::spbwc_create_user_storelly();
+                }
 
                 if ( '' !== $consumer_key || '' !== $consumer_secret ) {
                     $api_keys['consumer_key']    = $consumer_key;

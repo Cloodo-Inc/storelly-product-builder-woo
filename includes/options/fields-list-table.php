@@ -42,6 +42,29 @@ class SPBWC_Storelly_Options_List_Table extends WP_List_Table {
         );
         return $sortable_columns;
     }
+    /**
+     * Get current action from request (compatible with WP_List_Table).
+     *
+     * Note: This method only reads the action value to determine which action was requested.
+     * Nonce verification is performed in spbwc_process_bulk_action() where the action is actually processed.
+     *
+     * @return string|false Current action or false if none.
+     */
+    public function spbwc_current_action() {
+        // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Reading action value only; nonce verification performed in spbwc_process_bulk_action().
+        if (isset($_REQUEST['filter_action']) && !empty($_REQUEST['filter_action'])) {
+            return false;
+        }
+        // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Reading action value only; nonce verification performed in spbwc_process_bulk_action().
+        if (isset($_REQUEST['action']) && -1 != $_REQUEST['action']) {
+            return sanitize_text_field(wp_unslash($_REQUEST['action'])); // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Reading action value only; nonce verification performed in spbwc_process_bulk_action().
+        }
+        // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Reading action value only; nonce verification performed in spbwc_process_bulk_action().
+        if (isset($_REQUEST['action2']) && -1 != $_REQUEST['action2']) {
+            return sanitize_text_field(wp_unslash($_REQUEST['action2'])); // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Reading action value only; nonce verification performed in spbwc_process_bulk_action().
+        }
+        return false;
+    }
     public static function spbwc_record_count() {
         global $wpdb; // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Global variable $wpdb.
         $table_name = $wpdb->prefix . 'storelly_product_builder_options';
@@ -62,15 +85,24 @@ class SPBWC_Storelly_Options_List_Table extends WP_List_Table {
                   return;
         }
         $current_action = $this->spbwc_current_action();
+        
+        // Verify nonce for all actions to prevent CSRF attacks.
         $nonce = isset($_REQUEST['_wpnonce']) ? sanitize_text_field(wp_unslash($_REQUEST['_wpnonce'])) : '';
         
         $is_bulk_action = in_array($current_action, array('bulk-publish', 'bulk-unpublish', 'bulk-delete'));
         if ($current_action === 'delete' || $current_action === 'copy') {
-            if (!wp_verify_nonce($nonce, 'spbwc_options_nonce')) { 
+            if (empty($nonce) || !wp_verify_nonce($nonce, 'spbwc_options_nonce')) { 
                         wp_die(esc_html__('Security error.', 'storelly-product-builder-for-woocommerce'));
             }
         } else if ($is_bulk_action) {
-            if (!wp_verify_nonce($nonce, 'bulk-' . $this->get_plural())) {
+            // WP_List_Table uses 'bulk-' . $this->_args['plural'] for bulk action nonces.
+            $plural = isset($this->_args['plural']) ? $this->_args['plural'] : 'options';
+            if (empty($nonce) || !wp_verify_nonce($nonce, 'bulk-' . $plural)) {
+                wp_die(esc_html__('Security error.', 'storelly-product-builder-for-woocommerce'));
+            }
+        } else if (!empty($current_action)) {
+            // Require nonce for any other action as well.
+            if (empty($nonce) || !wp_verify_nonce($nonce, 'spbwc_options_nonce')) {
                 wp_die(esc_html__('Security error.', 'storelly-product-builder-for-woocommerce'));
             }
         }
@@ -190,7 +222,7 @@ class SPBWC_Storelly_Options_List_Table extends WP_List_Table {
     }
     function column_title($item) {
         $title      = $item['title'];
-        $_nonce     = wp_create_nonce('nbd_options_nonce');
+        $_nonce     = wp_create_nonce('spbwc_options_nonce');
         // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Readonly page slug from request.
         $page       = isset( $_REQUEST['page'] ) ? sanitize_text_field( wp_unslash( $_REQUEST['page'] ) ) : '';
         $actions    = array(

@@ -113,8 +113,36 @@ if (!class_exists('SPBWC_Storelly_Product_Builder_Frontend')) {
             $is_creating_task = isset($_POST['is_creating_task']) ? sanitize_text_field(wp_unslash($_POST['is_creating_task'])) : '0';
             $oid = isset($_POST['oid']) ? absint(wp_unslash($_POST['oid'])) : 0;
             $path = SPBWC_PB_CUSTOMER_DIR . '/' . $pcpb_item_pb_key;
-            // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- File upload data validated by wp_handle_upload in spbwc_store_product_builder_design_data.
-            $save_status = $this->spbwc_store_product_builder_design_data($pcpb_item_pb_key, $_FILES);
+            // Only process specific files needed for design, not entire $_FILES array.
+            $allowed_file_keys = array('design', 'config', 'used_font', 'design_output');
+            $filtered_files = array();
+            foreach ($allowed_file_keys as $key) {
+                if (isset($_FILES[$key]) && !empty($_FILES[$key]['tmp_name'])) {
+                    // Sanitize file array values.
+                    $filtered_files[$key] = array(
+                        'name'     => isset($_FILES[$key]['name']) ? sanitize_file_name(wp_unslash($_FILES[$key]['name'])) : '',
+                        'type'     => isset($_FILES[$key]['type']) ? sanitize_text_field(wp_unslash($_FILES[$key]['type'])) : '',
+                        'tmp_name' => isset($_FILES[$key]['tmp_name']) ? sanitize_text_field(wp_unslash($_FILES[$key]['tmp_name'])) : '',
+                        'error'    => isset($_FILES[$key]['error']) ? absint($_FILES[$key]['error']) : 0,
+                        'size'     => isset($_FILES[$key]['size']) ? absint($_FILES[$key]['size']) : 0,
+                    );
+                }
+            }
+            // Also include frame_* files if present.
+            foreach ($_FILES as $key => $file) {
+                if (strpos($key, 'frame_') === 0 && !empty($file['tmp_name'])) {
+                    // Sanitize file array values.
+                    $filtered_files[$key] = array(
+                        'name'     => isset($file['name']) ? sanitize_file_name(wp_unslash($file['name'])) : '',
+                        'type'     => isset($file['type']) ? sanitize_text_field(wp_unslash($file['type'])) : '',
+                        'tmp_name' => isset($file['tmp_name']) ? sanitize_text_field(wp_unslash($file['tmp_name'])) : '',
+                        'error'    => isset($file['error']) ? absint($file['error']) : 0,
+                        'size'     => isset($file['size']) ? absint($file['size']) : 0,
+                    );
+                }
+            }
+            
+            $save_status = $this->spbwc_store_product_builder_design_data($pcpb_item_pb_key, $filtered_files);
             if (false != $save_status) {
                 $result['image'] = $this->spbwc_create_preview($path);
                 asort($result['image']);
@@ -270,7 +298,7 @@ if (!class_exists('SPBWC_Storelly_Product_Builder_Frontend')) {
                         'version'   => '2.6.0',
                         'depends'  => array()
                     ),
-                    'pc-angularjs' => array(
+                    'pc-builderjs' => array(
                         'link' => SPBWC_PB_ASSETS_URL . 'libs/builderproductag.min.js',
                         'version'   => '1.6.9',
                         'depends'  => array('jquery')
@@ -278,7 +306,7 @@ if (!class_exists('SPBWC_Storelly_Product_Builder_Frontend')) {
                     'product-builder' => array(
                         'link' => SPBWC_PB_JS_URL . 'app-product-builder.js',
                         'version'   => SPBWC_PB_VERSION,
-                        'depends'  => array('jquery', 'underscore', 'pc-angularjs', 'fabricjs', 'fontfaceobserver', 'spectrum')
+                        'depends'  => array('jquery', 'underscore', 'pc-builderjs', 'fabricjs', 'fontfaceobserver', 'spectrum')
                     )
                 );
                 $css_libs = array(

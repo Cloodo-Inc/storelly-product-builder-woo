@@ -22,6 +22,8 @@ $link_create_option = add_query_arg(
                 <div class="meta-box-sortables ui-sortable">
                     <form method="post">
                         <?php
+                        // Add nonce field for bulk actions.
+                        wp_nonce_field('bulk-options', '_wpnonce');
                         $spbwc_options->spbwc_prepare_items();
                         $spbwc_options->display();
                         ?>

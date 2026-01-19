@@ -2,6 +2,8 @@
 if (!defined('ABSPATH')) exit; // Exit if accessed directly  
 
 // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Template variable.
+$storelly_pb_settings = get_option('spbwc_pb_settings', array());
+// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Template variable.
 $api_key_raw = maybe_unserialize(get_option('spbwc_connect_api_keys'));
 // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Template variable.
 $api_key = is_array($api_key_raw) ? $api_key_raw : array();
@@ -25,8 +27,7 @@ $stt_no_cloud2print_api = isset($storelly_pb_settings['enable_cloud2print_api'])
 ?>
 
 <div class="storelly-box">
-    <h3 class="storelly-settings"><?php esc_html_e('Storelly settings', 'storelly-product-builder-for-woocommerce'); ?></h3>
-    <hr>
+    <h2 class="storelly-settings"><?php esc_html_e('Storelly settings', 'storelly-product-builder-for-woocommerce'); ?></h2>
     <?php
     if ($message && $status) {
         echo '<div id="message" class="inline ' . esc_attr($status) . '" style="margin-left: 0;"><p><strong>' . esc_html($message) . '</strong></p></div>';
@@ -38,22 +39,46 @@ $stt_no_cloud2print_api = isset($storelly_pb_settings['enable_cloud2print_api'])
                 <tbody>
                     <tr valign="top">
                         <th class="titledesc">
-                            <label><?php esc_html_e('Enable Storelly cloud api to create PDF', 'storelly-product-builder-for-woocommerce'); ?><span class="storelly-help-tip"></span></label>
+                            <label><?php esc_html_e('Enable Storelly cloud api to create PDF', 'storelly-product-builder-for-woocommerce'); ?></label>
                         </th>
                         <td>
                             <p class="row">
-                                <input type="radio" name="storelly_enable_cloud2print_api" value="yes" <?php echo esc_attr($stt_yes_cloud2print_api); ?> /><?php esc_html_e('Yes', 'storelly-product-builder-for-woocommerce'); ?>
+                                <input type="radio" id="cloud2print_yes" name="storelly_enable_cloud2print_api" value="yes" <?php echo esc_attr($stt_yes_cloud2print_api); ?> />
+                                <label for="cloud2print_yes"><?php esc_html_e('Yes', 'storelly-product-builder-for-woocommerce'); ?></label>
                             </p>
                             <p class="row">
-                                <input type="radio" name="storelly_enable_cloud2print_api" value="no" <?php echo esc_attr($stt_no_cloud2print_api);  ?> /><?php esc_html_e('No', 'storelly-product-builder-for-woocommerce'); ?>
+                                <input type="radio" id="cloud2print_no" name="storelly_enable_cloud2print_api" value="no" <?php echo esc_attr($stt_no_cloud2print_api);  ?> />
+                                <label for="cloud2print_no"><?php esc_html_e('No', 'storelly-product-builder-for-woocommerce'); ?></label>
                             </p>
+                        </td>
+                    </tr>
+                    <?php
+                    $spbwc_stt_yes_api_sync = isset($storelly_pb_settings['enable_api_sync']) && $storelly_pb_settings['enable_api_sync'] == 'yes' ? 'checked' : '';
+                    $spbwc_stt_no_api_sync = isset($storelly_pb_settings['enable_api_sync']) && $storelly_pb_settings['enable_api_sync'] == 'no' ? 'checked' : '';
+                    if (empty($spbwc_stt_yes_api_sync) && empty($spbwc_stt_no_api_sync)) {
+                        $spbwc_stt_no_api_sync = 'checked'; // Default to OFF (opt-in required).
+                    }
+                    ?>
+                    <tr valign="top">
+                        <th class="titledesc">
+                            <label><?php esc_html_e('Enable Storelly Dashboard API sync (opt-in)', 'storelly-product-builder-for-woocommerce'); ?></label>
+                        </th>
+                        <td>
+                            <p class="row">
+                                <input type="radio" id="api_sync_yes" name="storelly_enable_api_sync" value="yes" <?php echo esc_attr($stt_yes_api_sync); ?> />
+                                <label for="api_sync_yes"><?php esc_html_e('Yes', 'storelly-product-builder-for-woocommerce'); ?></label>
+                            </p>
+                            <p class="row">
+                                <input type="radio" id="api_sync_no" name="storelly_enable_api_sync" value="no" <?php echo esc_attr($spbwc_stt_no_api_sync);  ?> />
+                                <label for="api_sync_no"><?php esc_html_e('No', 'storelly-product-builder-for-woocommerce'); ?></label>
+                            </p>
+                            <p class="description"><?php esc_html_e('When enabled, order data will be synchronized with Storelly Dashboard. This feature is OFF by default and requires your explicit consent.', 'storelly-product-builder-for-woocommerce'); ?></p>
                         </td>
                     </tr>
                 </tbody>
             </table>
             <div class="box-key">
-                <h4><?php esc_html_e('Manually enter an API Key', 'storelly-product-builder-for-woocommerce'); ?></h4>
-                <hr />
+                <h3><?php esc_html_e('Manually enter an API Key', 'storelly-product-builder-for-woocommerce'); ?></h3>
                 <div class="grup-box">
                     <div class="desc-key">
                         <p><?php esc_html_e('Sid : ', 'storelly-product-builder-for-woocommerce'); ?></p>
@@ -116,7 +141,9 @@ $stt_no_cloud2print_api = isset($storelly_pb_settings['enable_cloud2print_api'])
                         <p><?php esc_html_e('Log', 'storelly-product-builder-for-woocommerce'); ?> :</p>
                     </div>
                     <div class="code-key">
-                    <p><?php echo esc_html($api_log); ?></p>
+                        <div class="api-log-box">
+                            <p><?php echo esc_html($api_log); ?></p>
+                        </div>
                     </div>
                 </div>
             </div>

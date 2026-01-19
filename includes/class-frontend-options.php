@@ -297,8 +297,8 @@ if (!class_exists('STORELLY_FRONTEND_OPTIONS')) {
                         'currency_format'                               =>  esc_attr(str_replace(array('%1$s', '%2$s'), array('%s', '%v'), get_woocommerce_price_format())),
                         'nbstorelly_hide_add_cart_until_form_filled'    =>  'yes'
                     );
-                    wp_register_script('option_builder', SPBWC_PB_JS_URL . 'option-builder.js',('pc-angularjs'), '1.0.0', true);
-                    wp_localize_script( 'option_builder', 'option_builder_variable', array(
+                    wp_register_script('spbwc-option-builder', SPBWC_PB_JS_URL . 'option-builder.js',('pc-builderjs'), '1.0.0', true);
+                    wp_localize_script( 'spbwc-option-builder', 'option_builder_variable', array(
                         'ajaxUrl'               => admin_url( 'admin-ajax.php' ),
                         'appid'                 => $this->appid,
                         'nbds_frontend'         => $nbds_frontend,
@@ -313,7 +313,7 @@ if (!class_exists('STORELLY_FRONTEND_OPTIONS')) {
                         'file_too_small'        => __('Sorry, file is too small, min size: ', 'storelly-product-builder-for-woocommerce'),
                         'file_type'             => __('Sorry, this file type is not permitted for security reasons. Only accept: ', 'storelly-product-builder-for-woocommerce'),
                     ));
-                    wp_enqueue_script('option_builder');
+                    wp_enqueue_script('spbwc-option-builder');
                 }
             }
         }

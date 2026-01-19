@@ -432,9 +432,13 @@ if (!class_exists('SPBWC_Storelly_PB_Util')) {
                 }
                 $zip->close();
             } else {
+                // Load PclZip library if ZipArchive is not available.
+                // PclZip is a WordPress core library for creating ZIP archives.
                 if ( ! class_exists( 'PclZip' ) ) {
-                    if ( defined( 'ABSPATH' ) ) {
-                        require_once( ABSPATH . 'wp-admin/includes/class-pclzip.php' );
+                    // Check if WordPress admin includes are available before loading.
+                    if ( defined( 'ABSPATH' ) && file_exists( ABSPATH . 'wp-admin/includes/class-pclzip.php' ) ) {
+                        // phpcs:ignore WordPressVIPMinimum.Files.IncludingFile.IncludingFile -- Loading WordPress core PclZip library as fallback when ZipArchive is unavailable.
+                        include_once( ABSPATH . 'wp-admin/includes/class-pclzip.php' );
                     }
                 }
                 if ( class_exists( 'PclZip' ) ) {

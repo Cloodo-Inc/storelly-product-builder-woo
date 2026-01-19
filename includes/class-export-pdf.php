@@ -213,12 +213,18 @@ if (!class_exists('SPBWC_Storelly_Export_PDF')) {
             }  
             if (!empty($google_fonts)) {
                 $google_font_url = '//fonts.googleapis.com/css?family=' . implode('|', $google_fonts) . ':400,400i,700,700i';
-                wp_enqueue_style('custom-google-fonts', $google_font_url, array(), '1.0.0');
+                wp_enqueue_style('spbwc-google-fonts-pdf', $google_font_url, array(), '1.0.0');
             }
         }
         
         /**
          * Build HTML page for PDF generation
+         *
+         * Note: This creates a standalone HTML file for external PDF service (Cloud2Print API).
+         * WordPress wp_enqueue_style() cannot be used here because:
+         * 1. This is a standalone HTML file accessed directly by external service
+         * 2. No WordPress context exists when the file is loaded by the PDF service
+         * 3. The file must be self-contained for reliable PDF rendering
          *
          * @param string $folder_design Design folder name
          * @param int $key Page index
@@ -242,22 +248,11 @@ if (!class_exists('SPBWC_Storelly_Export_PDF')) {
             // Build HTML template directly from variables instead of using ob_start().
             $title = esc_html__('NBStorelly', 'storelly-product-builder-for-woocommerce');
 
-            // Inline CSS to avoid <link> tags (PHPCS enqueue rule) and to make Cloud rendering deterministic.
-            $normalize_css = '';
-            $normalize_path = SPBWC_PB_PLUGIN_DIR . 'assets/css/views/normalize.css';
-            if (file_exists($normalize_path)) {
-                $normalize_css = self::spbwc_get_local_file_contents($normalize_path);
-                if (false === $normalize_css) {
-                    $normalize_css = '';
-                }
-            }
-
-            $inline_css = trim((string) $normalize_css);
-            if (!empty($inline_css)) {
-                $inline_css = "<style>\n" . $inline_css . "\n</style>\n";
-            } else {
-                $inline_css = '';
-            }
+            // Minimal CSS for PDF HTML template (only contains SVG and background image).
+            // normalize.css is not needed as the template doesn't contain forms, buttons, or other complex HTML elements.
+            // $minimal_css = '<style>' . "\n" .
+            //     'body { margin: 0; padding: 0; }' . "\n" .
+            //     '</style>' . "\n";
 
             // Build background image HTML if needed.
             $background_html = '';
@@ -274,7 +269,6 @@ if (!class_exists('SPBWC_Storelly_Export_PDF')) {
                 '    <meta http-equiv="Content-type" content="text/html; charset=utf-8">' . "\n" .
                 '    <title>' . $title . '</title>' . "\n" .
                 '    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=1, minimum-scale=0.5, maximum-scale=1.0" />' . "\n" .
-                $inline_css .
                 '</head>' . "\n" .
                 '<body>' . "\n" .
                 '    ' . $background_html . "\n" .

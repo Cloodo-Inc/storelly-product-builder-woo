@@ -1,102 +1,389 @@
+/* Storelly Settings Page - Professional Styling */
+
 .form-table td {
-    vertical-align: inherit;
+    vertical-align: top;
+    padding: 15px 10px;
 }
 
 .storelly-box {
-    margin: 5px 15px 2px;
+    margin: 20px 20px 20px 0;
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    padding: 0;
+    overflow: hidden;
+}
+
+.storelly-settings {
+    font-size: 23px;
+    font-weight: 400;
+    padding: 20px 30px;
+    margin: 0;
+    border-bottom: 1px solid #e5e5e5;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: #fff;
+}
+
+.storelly-box hr {
+    margin: 0;
+    border: none;
+    border-bottom: 1px solid #e5e5e5;
 }
 
 .content-form {
     display: flex;
+    gap: 30px;
+    padding: 30px;
+    background: #f8f9fa;
 }
 
 .content-form .pc-table {
-    max-width: 23%;
+    flex: 0 0 320px;
+    border-radius: 8px;
+    padding: 25px;
+    height: fit-content;
+}
+
+.content-form .pc-table tbody {
+    display: table-row-group;
+}
+
+.content-form .pc-table tr {
+    border-bottom: 1px solid #f0f0f0;
+    transition: background-color 0.2s ease;
+}
+
+.content-form .pc-table tr:hover {
+    background-color: #f8f9fa;
+}
+
+.content-form .pc-table tr:last-child {
+    border-bottom: none;
+}
+
+.content-form .pc-table th {
+    padding: 20px 0;
+    font-weight: 600;
+    font-size: 14px;
+    color: #2c3e50;
     width: 100%;
+    display: block;
+}
+
+.content-form .pc-table td {
+    padding: 0 0 20px 0;
+    display: block;
+}
+
+.content-form .pc-table .row {
+    margin: 8px 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.content-form .pc-table label {
+    cursor: pointer;
+    font-size: 14px;
+    color: #555;
+    user-select: none;
+}
+
+.content-form .pc-table .description {
+    margin-top: 12px;
+    padding: 12px;
+    background: #fff3cd;
+    border-left: 4px solid #ffc107;
+    border-radius: 4px;
+    font-size: 13px;
+    line-height: 1.6;
+    color: #856404;
 }
 
 .content-form .box-key {
-    max-width: 57%;
-    width: 100%;
-    padding: 20px;
-    background-color: #fff;
+    flex: 1;
+    background: #fff;
+    border-radius: 8px;
+    padding: 30px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.content-form .box-key h4 {
+    font-size: 18px;
+    font-weight: 600;
+    color: #2c3e50;
+    margin: 0 0 20px 0;
+    padding-bottom: 15px;
+    border-bottom: 2px solid #667eea;
+}
+
+.content-form .box-key hr {
+    margin: 0 0 25px 0;
+    border: none;
+    border-bottom: 1px solid #e5e5e5;
 }
 
 .content-form .box-key .grup-box {
     display: flex;
-    align-items: center;
-    margin-bottom: 30px;
+    align-items: flex-start;
+    margin-bottom: 25px;
+    padding: 20px;
+    background: #f8f9fa;
+    border-radius: 6px;
+    transition: all 0.3s ease;
+    border: 1px solid transparent;
+}
+
+.content-form .box-key .grup-box:hover {
+    background: #fff;
+    border-color: #e0e0e0;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 }
 
 .content-form .box-key .desc-key {
-    max-width: 20%;
-    width: 100%;
+    flex: 0 0 180px;
+    min-width: 180px;
 }
 
 .content-form .box-key .desc-key p {
     font-size: 14px;
-    color: #333;
-    font-weight: 500;
+    color: #2c3e50;
+    font-weight: 600;
+    margin: 0;
+    line-height: 1.5;
 }
 
 .content-form .box-key .code-key {
-    max-width: 60%;
-    width: 100%;
-    padding-left: 30px;
+    flex: 1;
+    padding-left: 20px;
 }
 
 .content-form .box-key .code-key input {
-    max-width: 350px;
     width: 100%;
-    height: 34px;
-    padding: 6px 12px;
+    max-width: 500px;
+    height: 42px;
+    padding: 10px 15px;
     font-size: 14px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075);
+    border: 2px solid #e0e0e0;
+    border-radius: 6px;
+    background: #fff;
+    transition: all 0.3s ease;
+    box-sizing: border-box;
 }
 
 .content-form .box-key .code-key input:focus {
-    box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075);
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.content-form .box-key .code-key input:disabled {
+    background: #f5f5f5;
+    color: #999;
+    cursor: not-allowed;
 }
 
 .content-form .box-key .code-key p {
-    margin: 0px;
+    margin: 8px 0 0 0;
+    font-size: 13px;
+    color: #666;
+    line-height: 1.5;
 }
 
 .content-form .box-key .code-key a {
-    padding: 10px;
-    border: 1px solid #2271b1;
-    border-radius: 4px;
     display: inline-block;
+    padding: 10px 20px;
+    margin-right: 10px;
+    margin-bottom: 10px;
+    background: #667eea;
+    color: #fff;
+    border-radius: 6px;
     text-decoration: none;
+    font-size: 14px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    border: 2px solid #667eea;
 }
 
-.content-form .box-key .code-key p {
-    margin: 0px;
+.content-form .box-key .code-key a:hover {
+    background: #5568d3;
+    border-color: #5568d3;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(102, 126, 234, 0.3);
+}
+
+.content-form .box-key .code-key a:last-of-type {
+    background: #fff;
+    color: #667eea;
+    border-color: #667eea;
+}
+
+.content-form .box-key .code-key a:last-of-type:hover {
+    background: #667eea;
+    color: #fff;
 }
 
 .content-form .box-key .code-key p.desc_sync {
-    margin-top: 5px;
+    margin-top: 10px;
+    font-size: 13px;
+    color: #666;
 }
 
 .content-form .box-key .code-key p.desc_sync a {
-    padding: 0px;
+    padding: 0;
+    margin: 0;
+    background: transparent;
     border: none;
-    border-radius: none;
-    font-size: 15px;
-    color: #2271b1;
+    color: #667eea;
     text-decoration: underline;
+    font-weight: 400;
+    display: inline;
 }
 
 .content-form .box-key .code-key p.desc_sync a:hover {
-    color: #2271b1;
-    color: #000;
+    color: #5568d3;
+    transform: none;
+    box-shadow: none;
 }
 
-/* hidden left menu  ( print pdf) */
+.storelly-form .submit {
+    padding: 25px 30px;
+    background: #fff;
+    border-top: 1px solid #e5e5e5;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
 
+.storelly-form .submit .button-primary {
+    background: #667eea;
+    border-color: #667eea;
+    color: #fff;
+    padding: 10px 25px;
+    height: auto;
+    font-size: 14px;
+    font-weight: 600;
+    border-radius: 6px;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 4px rgba(102, 126, 234, 0.2);
+}
 
-.storelly-form .content-form .form-table tbody {
-    display: none;
+.storelly-form .submit .button-primary:hover {
+    background: #5568d3;
+    border-color: #5568d3;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(102, 126, 234, 0.3);
+}
+
+/* Message styling */
+.storelly-box #message {
+    margin: 20px 30px;
+    padding: 15px 20px;
+    border-radius: 6px;
+    border-left: 4px solid;
+}
+
+.storelly-box #message.updated {
+    background: #d4edda;
+    border-color: #28a745;
+    color: #155724;
+}
+
+.storelly-box #message.error {
+    background: #f8d7da;
+    border-color: #dc3545;
+    color: #721c24;
+}
+
+/* Help tip icon */
+.storelly-help-tip {
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    margin-left: 5px;
+    background: #667eea;
+    color: #fff;
+    border-radius: 50%;
+    font-size: 11px;
+    line-height: 16px;
+    text-align: center;
+    cursor: help;
+    vertical-align: middle;
+}
+
+/* API Log box styling */
+.api-log-box {
+    padding: 12px 15px;
+    background: #f8f9fa;
+    border: 1px solid #e0e0e0;
+    border-radius: 6px;
+    min-height: 40px;
+    display: flex;
+    align-items: center;
+}
+
+.api-log-box p {
+    margin: 0;
+    color: #666;
+    font-family: 'Courier New', monospace;
+    font-size: 13px;
+    word-break: break-word;
+}
+
+/* Responsive design */
+@media (max-width: 1200px) {
+    .content-form {
+        flex-direction: column;
+    }
+    
+    .content-form .pc-table {
+        flex: 1;
+        max-width: 100%;
+    }
+}
+
+@media (max-width: 782px) {
+    .storelly-box {
+        margin: 10px;
+    }
+    
+    .content-form {
+        padding: 20px;
+        gap: 20px;
+    }
+    
+    .content-form .box-key .grup-box {
+        flex-direction: column;
+        gap: 15px;
+    }
+    
+    .content-form .box-key .desc-key {
+        flex: 1;
+        min-width: 100%;
+    }
+    
+    .content-form .box-key .code-key {
+        padding-left: 0;
+    }
+    
+    .content-form .box-key .code-key input {
+        max-width: 100%;
+    }
+}
+
+/* Animation for smooth transitions */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.content-form .pc-table,
+.content-form .box-key {
+    animation: fadeIn 0.3s ease-out;
 }
