@@ -9,9 +9,6 @@ if (!class_exists('SPBWC_Storelly_Product_Builder_API')) {
         
         public function spbwc_init()
         {
-            //  bat su kien active plguin     
-            add_action('init',  array($this, 'spbwc_create_user_storelly'));
-
             add_action('activated_plugin', array($this, 'spbwc_activation_redirect'), 10, 1);
             
             // lấy thông tin order trong woocommerce và đồng bộ qua curl 
@@ -148,7 +145,6 @@ if (!class_exists('SPBWC_Storelly_Product_Builder_API')) {
             $response['consumer_secret'] = $consumer_secret;
         
             update_option('spbwc_connect_api_keys', $response);
-            self::spbwc_create_user_storelly();  
         }
 
         public function spbwc_order_processed($order_id){
@@ -157,6 +153,13 @@ if (!class_exists('SPBWC_Storelly_Product_Builder_API')) {
         } 
         
         public function spbwc_notify_on_new_order($order){
+            $settings = get_option('spbwc_pb_settings', array());
+            if (!is_array($settings)) {
+                $settings = array();
+            }
+            if (!isset($settings['enable_cloud2print_api']) || $settings['enable_cloud2print_api'] !== 'yes') {
+                return;
+            }
             $products = array();
             $cFile = [];
             foreach ($order->get_items() as $item_id => $item) {
@@ -235,7 +238,7 @@ if (!class_exists('SPBWC_Storelly_Product_Builder_API')) {
         
         public function spbwc_activation_redirect($plugin){
             if ($plugin == plugin_basename(__FILE__)) {
-                wp_safe_redirect(admin_url('admin.php?page=storelly-product-builder-for-woocommerce-options/settings'));
+                wp_safe_redirect(admin_url('admin.php?page=spbwc-settings'));
                 exit;
             }
         }

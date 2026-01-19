@@ -19,6 +19,7 @@ if (!class_exists('SPBWC_SPBWC_Storelly_PB_Script_Hook')) {
         {
             add_action('spbwc_head', array($this, 'spbwc_enqueue_script_head'), 1, 1);
             add_action('spbwc_footer', array($this, 'spbwc_enqueue_script_footer'), 1, 1);
+            add_filter('script_loader_tag', array($this, 'spbwc_add_defer_attribute'), 10, 2);
         }
 
         public function spbwc_print_styles($handles = false)
@@ -109,6 +110,28 @@ if (!class_exists('SPBWC_SPBWC_Storelly_PB_Script_Hook')) {
                 $this->spbwc_enqueue_script(array('spbwc-spectrum-css'));
                 $this->spbwc_enqueue_script(array('spbwc-app-product-builder'));
             }
+        }
+
+        public function spbwc_add_defer_attribute($tag, $handle)
+        {
+            $defer_scripts = array(
+                'wc-accounting',
+                'spbwc-fontfaceobserver',
+                'spbwc-fabric',
+                'spbwc-spectrum-css',
+                'spbwc-tiptip',
+                'spbwc-app-product-builder',
+                'spbwc-ag',
+                'spbwc-options-script',
+                'spbwc-manager-fonts-script',
+                'spbwc-admin-connect'
+            );
+
+            if (in_array($handle, $defer_scripts)) {
+                return str_replace(' src', ' defer="defer" src', $tag);
+            }
+
+            return $tag;
         }
     }
 }

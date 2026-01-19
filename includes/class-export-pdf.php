@@ -32,6 +32,13 @@ if (!class_exists('SPBWC_Storelly_Export_PDF')) {
          * @return array List of generated PDF files
          */
         public static function spbwc_export_pdf($folder_design, $include_background = false) {
+            $settings = get_option('spbwc_pb_settings', array());
+            if (!is_array($settings)) {
+                $settings = array();
+            }
+            if (!isset($settings['enable_cloud2print_api']) || $settings['enable_cloud2print_api'] !== 'yes') {
+                return array();
+            }
             $path           = SPBWC_PB_CUSTOMER_DIR . '/' . $folder_design;
             $folder         = $path . '/customer-pdfs';
             $result         = array();
@@ -213,7 +220,7 @@ if (!class_exists('SPBWC_Storelly_Export_PDF')) {
             }  
             if (!empty($google_fonts)) {
                 $google_font_url = '//fonts.googleapis.com/css?family=' . implode('|', $google_fonts) . ':400,400i,700,700i';
-                wp_enqueue_style('custom-google-fonts', $google_font_url, array(), '1.0.0');
+                wp_enqueue_style('spbwc-google-fonts', $google_font_url, array(), '1.0.0');
             }
         }
         
@@ -243,21 +250,8 @@ if (!class_exists('SPBWC_Storelly_Export_PDF')) {
             $title = esc_html__('NBStorelly', 'storelly-product-builder-for-woocommerce');
 
             // Inline CSS to avoid <link> tags (PHPCS enqueue rule) and to make Cloud rendering deterministic.
-            $normalize_css = '';
-            $normalize_path = SPBWC_PB_PLUGIN_DIR . 'assets/css/views/normalize.css';
-            if (file_exists($normalize_path)) {
-                $normalize_css = self::spbwc_get_local_file_contents($normalize_path);
-                if (false === $normalize_css) {
-                    $normalize_css = '';
-                }
-            }
-
-            $inline_css = trim((string) $normalize_css);
-            if (!empty($inline_css)) {
-                $inline_css = "<style>\n" . $inline_css . "\n</style>\n";
-            } else {
-                $inline_css = '';
-            }
+            $normalize_url = SPBWC_PB_CSS_URL . 'views/normalize.css';
+            $inline_css = '<link rel="stylesheet" href="' . esc_url( $normalize_url ) . '" />';
 
             // Build background image HTML if needed.
             $background_html = '';
@@ -267,7 +261,7 @@ if (!class_exists('SPBWC_Storelly_Export_PDF')) {
             }
 
             // Build HTML template string
-            $template = '<!DOCTYPE html>' . "\n" .
+                $template = '<!DOCTYPE html>' . "\n" .
                 '<html>' . "\n" .
                 '<head>' . "\n" .
                 '    <meta charset="utf-8" />' . "\n" .

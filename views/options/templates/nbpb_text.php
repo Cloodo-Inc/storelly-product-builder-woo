@@ -29,7 +29,7 @@
             <option value="y"><?php esc_html_e('Yes', 'storelly-product-builder-for-woocommerce'); ?></option>
             <option value="n"><?php esc_html_e('No', 'storelly-product-builder-for-woocommerce'); ?></option>
         </select>
-        <br /><?php esc_html_e('Manage fonts', 'storelly-product-builder-for-woocommerce'); ?> <a target="_blank" href="<?php echo esc_url(admin_url('admin.php?page=storelly-product-builder-for-woocommerce-options/manager-fonts')); ?>"><?php esc_html_e('here', 'storelly-product-builder-for-woocommerce'); ?></a>
+        <br /><?php esc_html_e('Manage fonts', 'storelly-product-builder-for-woocommerce'); ?> <a target="_blank" href="<?php echo esc_url(admin_url('admin.php?page=spbwc-manager-fonts')); ?>"><?php esc_html_e('here', 'storelly-product-builder-for-woocommerce'); ?></a>
     </div>
 </div>
 <div class="pcpb-field-info" ng-show="field.general.nbpb_text_configs.allow_font_family == 'y' && field.general.nbpb_text_configs.allow_all_font == 'n'">

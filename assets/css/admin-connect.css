@@ -1,0 +1,15 @@
+.tab-content {
+    display: none;
+}
+.tab-content.active {
+    display: block;
+}
+.storelly-connect-method {
+    margin-top: 20px;
+    padding: 15px;
+    border: 1px solid #ddd;
+    background-color: #f9f9f9;
+}
+#storelly-admin-notices .notice {
+    margin: 5px 0 15px;
+}

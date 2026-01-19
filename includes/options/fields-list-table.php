@@ -11,7 +11,7 @@ class SPBWC_Storelly_Options_List_Table extends WP_List_Table {
             'ajax'      => false
         ));
     }
-    public function spbwc_prepare_items() {
+    public function prepare_items() {
         $columns    = $this->get_columns();
         $hidden     = array();
         $sortable   = $this->spbwc_get_sortable_columns();
@@ -58,54 +58,80 @@ class SPBWC_Storelly_Options_List_Table extends WP_List_Table {
         return $result;
     } 
     public function spbwc_process_bulk_action() {
+        // phpcs:disable WordPress.Security.NonceVerification.Recommended, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+        // Reason: This function handles bulk actions and single item actions for a WP_List_Table.
+        // The nonce is checked conditionally based on the action being performed.
+        // Input is sanitized and validated within the conditions.
         if (!current_user_can('manage_options')) {
-                  return;
+            return;
         }
-        $current_action = $this->spbwc_current_action();
+
+        $action = $this->current_action();
+
+        if (!$action || $action === -1) {
+            return;
+        }
+
         $nonce = isset($_REQUEST['_wpnonce']) ? sanitize_text_field(wp_unslash($_REQUEST['_wpnonce'])) : '';
-        
-        $is_bulk_action = in_array($current_action, array('bulk-publish', 'bulk-unpublish', 'bulk-delete'));
-        if ($current_action === 'delete' || $current_action === 'copy') {
-            if (!wp_verify_nonce($nonce, 'spbwc_options_nonce')) { 
-                        wp_die(esc_html__('Security error.', 'storelly-product-builder-for-woocommerce'));
+
+        // Verify nonce for the specific action.
+        $nonce_verified = false;
+        if (in_array($action, array('delete', 'copy'), true)) {
+            if (wp_verify_nonce($nonce, 'spbwc_options_nonce')) {
+                $nonce_verified = true;
             }
-        } else if ($is_bulk_action) {
-            if (!wp_verify_nonce($nonce, 'bulk-' . $this->get_plural())) {
-                wp_die(esc_html__('Security error.', 'storelly-product-builder-for-woocommerce'));
+        } elseif (in_array($action, array('bulk-delete', 'bulk-publish', 'bulk-unpublish'), true)) {
+            if (wp_verify_nonce($nonce, 'bulk-' . $this->_args['plural'])) {
+                $nonce_verified = true;
             }
         }
-        if ('delete' === $current_action) {
-                  if ( ! isset( $_GET['id'] ) ) {
-                      wp_die( esc_html__( 'Invalid request.', 'storelly-product-builder-for-woocommerce' ) );
-                  }
-                  $this->spbwc_delete_option(absint( wp_unslash( $_GET['id'] ) )); 
-                  wp_safe_redirect(esc_url_raw(add_query_arg(array('paged' => $this->get_pagenum()), admin_url('admin.php?page=storelly-product-builder-for-woocommerce-options'))));
-                  exit;
+
+        if (!$nonce_verified) {
+            wp_die(esc_html__('Security check failed. Please try again.', 'storelly-product-builder-for-woocommerce'));
         }
-        if ('copy' === $current_action) {
-                  if ( ! isset( $_GET['id'] ) ) {
-                      wp_die( esc_html__( 'Invalid request.', 'storelly-product-builder-for-woocommerce' ) );
-                  }
-                  $this->spbwc_copy_options(absint( wp_unslash( $_GET['id'] ) )); 
-                  wp_safe_redirect(esc_url_raw(admin_url('admin.php?page=storelly-product-builder-for-woocommerce-options')));
-                  exit;
-        }
-        if ($is_bulk_action) {
-          if (isset($_POST['bulk-delete'])) {
-           $bulk_ids = array_map('absint', (array) wp_unslash($_POST['bulk-delete'])); 
-           foreach ($bulk_ids as $id) {
-            if ($current_action == 'bulk-publish') {
-                    $this->spbwc_publish_option($id); 
-            } elseif ($current_action == 'bulk-unpublish') {
-                    $this->spbwc_unpublish_option($id); 
-            } elseif ($current_action == 'bulk-delete') {
-                    $this->spbwc_delete_option($id); 
+
+        // Process single actions.
+        if ('delete' === $action || 'copy' === $action) {
+            if (!isset($_GET['id'])) {
+                wp_die(esc_html__('Invalid request. Missing item ID.', 'storelly-product-builder-for-woocommerce'));
             }
-           }
-          }
-          wp_safe_redirect(esc_url_raw(add_query_arg('', '')));
-          exit;
+            $id = absint($_GET['id']);
+            if ('delete' === $action) {
+                $this->spbwc_delete_option($id);
+            }
+            if ('copy' === $action) {
+                $this->spbwc_copy_options($id);
+            }
+            wp_safe_redirect(remove_query_arg(array('action', 'id', '_wpnonce')));
+            exit;
         }
+
+        // Process bulk actions.
+        if (in_array($action, array('bulk-delete', 'bulk-publish', 'bulk-unpublish'), true)) {
+            $bulk_ids = isset($_POST['option_id']) ? array_map('absint', (array) wp_unslash($_POST['option_id'])) : array();
+
+            if (empty($bulk_ids)) {
+                wp_safe_redirect(remove_query_arg(array('action', '_wpnonce')));
+                exit;
+            }
+
+            foreach ($bulk_ids as $id) {
+                switch ($action) {
+                    case 'bulk-publish':
+                        $this->spbwc_publish_option($id);
+                        break;
+                    case 'bulk-unpublish':
+                        $this->spbwc_unpublish_option($id);
+                        break;
+                    case 'bulk-delete':
+                        $this->spbwc_delete_option($id);
+                        break;
+                }
+            }
+            wp_safe_redirect(remove_query_arg(array('action', '_wpnonce')));
+            exit;
+        }
+        // phpcs:enable
     }
    public function spbwc_delete_option($id) { // Added prefix
          global $wpdb; // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Global variable $wpdb.
@@ -188,17 +214,56 @@ class SPBWC_Storelly_Options_List_Table extends WP_List_Table {
     public function no_items() {
         esc_html_e('No options avaliable.', 'storelly-product-builder-for-woocommerce');
     }
-    function column_title($item) {
-        $title      = $item['title'];
-        $_nonce     = wp_create_nonce('nbd_options_nonce');
-        // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Readonly page slug from request.
-        $page       = isset( $_REQUEST['page'] ) ? sanitize_text_field( wp_unslash( $_REQUEST['page'] ) ) : '';
-        $actions    = array(
-            'edit' => sprintf('<a href="?page=%s&action=%s&id=%s&paged=%s&_wpnonce=%s">' . esc_html__('Edit', 'storelly-product-builder-for-woocommerce') . '</a>', esc_attr($page), 'edit', absint($item['id']), $this->get_pagenum(), $_nonce),
-            'copy' => sprintf('<a href="?page=%s&action=%s&id=%s&paged=%s&_wpnonce=%s">' . esc_html__('Copy', 'storelly-product-builder-for-woocommerce') . '</a>', esc_attr($page), 'copy', absint($item['id']), $this->get_pagenum(), $_nonce)
+    function column_cb($item) {
+        return sprintf(
+            '<input type="checkbox" name="option_id[]" value="%s" />', $item['id']
         );
-        return $title . $this->spbwc_row_actions($actions);
     }
+    function column_title($item) {
+        $title = $item['title'];
+        $page  = isset($_REQUEST['page']) ? sanitize_text_field(wp_unslash($_REQUEST['page'])) : '';
+
+        // Create nonces for each action.
+        $edit_nonce = wp_create_nonce('spbwc_options_nonce');
+        $copy_nonce = wp_create_nonce('spbwc_options_nonce');
+        $delete_nonce = wp_create_nonce('spbwc_options_nonce');
+
+        $paged = $this->get_pagenum();
+
+        $actions = array(
+            'edit'   => sprintf(
+                '<a href="?page=%s&action=%s&id=%s&paged=%s&_wpnonce=%s">%s</a>',
+                esc_attr($page),
+                'edit',
+                absint($item['id']),
+                esc_attr($paged),
+                esc_attr($edit_nonce),
+                esc_html__('Edit', 'storelly-product-builder-for-woocommerce')
+            ),
+            'copy'   => sprintf(
+                '<a href="?page=%s&action=%s&id=%s&paged=%s&_wpnonce=%s">%s</a>',
+                esc_attr($page),
+                'copy',
+                absint($item['id']),
+                esc_attr($paged),
+                esc_attr($copy_nonce),
+                esc_html__('Copy', 'storelly-product-builder-for-woocommerce')
+            ),
+            'delete' => sprintf(
+                '<a href="?page=%s&action=%s&id=%s&paged=%s&_wpnonce=%s" onclick="return confirm(\'%s\')">%s</a>',
+                esc_attr($page),
+                'delete',
+                absint($item['id']),
+                esc_attr($paged),
+                esc_attr($delete_nonce),
+                esc_js(esc_html__('Are you sure you want to delete this item?', 'storelly-product-builder-for-woocommerce')),
+                esc_html__('Delete', 'storelly-product-builder-for-woocommerce')
+            ),
+        );
+
+        return $title . $this->row_actions($actions);
+    }
+    
     function column_published($item) {
         return $item['published'] == 1 ? esc_html__('Publish', 'storelly-product-builder-for-woocommerce') : esc_html__('Unpublish', 'storelly-product-builder-for-woocommerce');
     }
@@ -221,9 +286,6 @@ class SPBWC_Storelly_Options_List_Table extends WP_List_Table {
     }
     function column_default($item, $column_name) {
         return $item[$column_name];
-    }
-    function column_cb($item) {
-        return sprintf('<input type="checkbox" name="bulk-delete[]" value="%s" />', $item['id']);
     }
     function extra_tablenav($which) {
     }

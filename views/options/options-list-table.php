@@ -7,7 +7,7 @@ $link_create_option = add_query_arg(
         'paged'     => 1,
         'id'        => 0
     ),
-    admin_url('admin.php?page=storelly-product-builder-for-woocommerce-options')
+    admin_url('admin.php?page=spbwc-product-builder')
 );
 ?>
 <div class="wrap">
@@ -22,7 +22,7 @@ $link_create_option = add_query_arg(
                 <div class="meta-box-sortables ui-sortable">
                     <form method="post">
                         <?php
-                        $spbwc_options->spbwc_prepare_items();
+                        $spbwc_options->prepare_items();
                         $spbwc_options->display();
                         ?>
                     </form>

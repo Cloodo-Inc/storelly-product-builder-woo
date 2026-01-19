@@ -71,22 +71,6 @@ if (!class_exists('SPBWC_Storelly_IO')) {
                 return str_replace( $base_url, $basedir, $url );
             }
 
-            // Fallback for content directory.
-            $content_url = content_url();
-            $content_dir = WP_CONTENT_DIR; // Still allowed if defined, but prefer functions.
-            if ( defined( 'WP_CONTENT_DIR' ) && strpos( $url, $content_url ) !== false ) {
-                return str_replace( $content_url, WP_CONTENT_DIR, $url );
-            }
-
-            // Final fallback (use with caution).
-            $site_url = site_url();
-            $site_path = ABSPATH; 
-            if ( strpos( $url, $site_url ) !== false ) {
-                 // Try to map based on site URL to ABSPATH. This is approximate and may not work for all setups (subdirectories etc).
-                 // Better to rely on uploads/content.
-                 return str_replace( $site_url, $site_path, $url );
-            }
-
             return $url;
         }
 
@@ -98,21 +82,6 @@ if (!class_exists('SPBWC_Storelly_IO')) {
 
             if ( strpos( $path, $basedir ) !== false ) {
                 return str_replace( $basedir, $baseurl, $path );
-            }
-            
-            if ( defined( 'WP_CONTENT_DIR' ) ) {
-                $content_dir = wp_normalize_path( WP_CONTENT_DIR );
-                $content_url = content_url();
-                if ( strpos( $path, $content_dir ) !== false ) {
-                    return str_replace( $content_dir, $content_url, $path );
-                }
-            }
-
-            // Fallback to site URL for ABSPATH
-            $abspath = wp_normalize_path( ABSPATH );
-            $site_url = site_url();
-            if ( strpos( $path, $abspath ) !== false ) {
-                return str_replace( $abspath, $site_url, $path );
             }
             
             return esc_url_raw($path);

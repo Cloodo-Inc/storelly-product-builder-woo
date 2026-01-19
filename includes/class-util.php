@@ -178,7 +178,7 @@ if (!class_exists('SPBWC_Storelly_PB_Util')) {
                         // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Readonly query args for redirect helper.
                         'paged' => isset($_GET['paged']) ? absint( wp_unslash( $_GET['paged'] ) ) : '',
                     );
-                    $redirect_url = add_query_arg($get, admin_url('admin.php?page=storelly-product-builder-for-woocommerce-options'));
+                    $redirect_url = add_query_arg($get, admin_url('admin.php?page=spbwc-product-builder'));
                     break;
                 default:
                     // Sanitize redirect URL to prevent injection attacks
@@ -432,19 +432,7 @@ if (!class_exists('SPBWC_Storelly_PB_Util')) {
                 }
                 $zip->close();
             } else {
-                if ( ! class_exists( 'PclZip' ) ) {
-                    if ( defined( 'ABSPATH' ) ) {
-                        require_once( ABSPATH . 'wp-admin/includes/class-pclzip.php' );
-                    }
-                }
-                if ( class_exists( 'PclZip' ) ) {
-                    $archive = new PclZip($archive_file_name);
-                    foreach ($file_names as $file) {
-                        $path_arr = explode('/', $file);
-                        $dir = dirname($file) . '/';
-                        $archive->add($file, PCLZIP_OPT_REMOVE_PATH, $dir, PCLZIP_OPT_ADD_PATH, $path_arr[count($path_arr) - 2]);
-                    }
-                }
+                return false;
             }
             if (file_exists($archive_file_name)) {
                 return true;

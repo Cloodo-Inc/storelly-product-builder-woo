@@ -177,63 +177,92 @@ if (!class_exists('SPBWC_Storelly_Product_Builder_Frontend')) {
             if ( ! function_exists( 'wp_handle_upload' ) ) {
                 require_once( ABSPATH . 'wp-admin/includes/file.php' );
             }
-            $upload_overrides = array( 'test_form' => false );
+        
+            // Whitelist of allowed file keys and mime types.
+            $allowed_json_keys   = array('design', 'config', 'used_font', 'design_output');
+            $allowed_mimes = array(
+                'json'         => 'application/json',
+                'jpg|jpeg|jpe' => 'image/jpeg',
+                'gif'          => 'image/gif',
+                'png'          => 'image/png',
+                'svg'          => 'image/svg+xml',
+            );
+        
+            $upload_overrides = array(
+                'test_form' => false,
+                'mimes'     => $allowed_mimes,
+            );
+        
             $path = SPBWC_PB_CUSTOMER_DIR . '/' . $pcpb_item_pb_key;
             $this->path = $pcpb_item_pb_key;
-            if (file_exists($path . '_old')) SPBWC_Storelly_IO::spbwc_delete_folder($path . '_old');
-            if (file_exists($path)) rename($path, $path . '_old'); // phpcs:ignore WordPress.WP.AlternativeFunctions.rename_rename -- Direct filesystem rename needed for atomic backup operation.
+        
+            if (file_exists($path . '_old')) {
+                SPBWC_Storelly_IO::spbwc_delete_folder($path . '_old');
+            }
+            if (file_exists($path)) {
+                rename($path, $path . '_old'); // phpcs:ignore WordPress.WP.AlternativeFunctions.rename_rename -- Direct filesystem rename needed for atomic backup operation.
+            }
+        
             if (wp_mkdir_p($path)) {
-                foreach ($data as $key => $val) {
-                    if ($key == 'design') {
-                        $full_name = $path . '/design.json';
-                    } else if ($key == 'config') {
-                        $full_name = $path . '/config.json';
-                    } else if ($key == 'used_font') {
-                        $full_name = $path . '/used_font.json';
-                    } else if ($key == 'design_output') {
-                        $full_name = $path . '/design_output.json';
-                    } else {
-                        $mime_parts = isset($val['type']) ? explode('/', $val['type']) : array();
-                        $raw_ext    = isset($mime_parts[1]) ? strtolower($mime_parts[1]) : 'bin';
-                        $ext_map    = array(
-                            'svg+xml' => 'svg',
-                        );
-                        $safe_ext   = isset($ext_map[$raw_ext]) ? $ext_map[$raw_ext] : preg_replace('/[^a-z0-9]/', '', $raw_ext);
-                        $safe_key   = sanitize_file_name($key);
-                        $full_name  = $path . '/' . $safe_key . '.' . ( $safe_ext ? $safe_ext : 'bin' );
-                    }
-
-                    if (!is_array($val) || empty($val['tmp_name'])) {
+                foreach ($data as $key => $file) {
+                    if ( ! is_array( $file ) || empty( $file['tmp_name'] ) || ! is_uploaded_file( $file['tmp_name'] ) ) {
                         continue;
                     }
-
-                    $prepared_file = array(
-                        'name'     => sanitize_file_name(basename($full_name)),
-                        'type'     => isset($val['type']) ? sanitize_text_field($val['type']) : '',
-                        'tmp_name' => $val['tmp_name'],
-                        'error'    => isset($val['error']) ? absint($val['error']) : 0,
-                        'size'     => isset($val['size']) ? absint($val['size']) : 0,
-                    );
-
-                    if (UPLOAD_ERR_OK !== $prepared_file['error']) {
+        
+                    $file_type_info = wp_check_filetype($file['name'], $allowed_mimes);
+                    if ( empty($file_type_info['ext']) ) {
+                        continue; // Skip files with disallowed extensions.
+                    }
+        
+                    $is_allowed_json = in_array($key, $allowed_json_keys, true) && 'json' === $file_type_info['ext'];
+                    $is_image        = strpos($file_type_info['type'], 'image/') === 0;
+        
+                    if ( ! $is_allowed_json && ! $is_image ) {
+                        continue; // Skip if not an allowed JSON file or a recognized image type.
+                    }
+        
+                    if (UPLOAD_ERR_OK !== $file['error']) {
                         $this->spbwc_restore_backup_directory($path);
                         return false;
                     }
-
-                    $uploaded_file = wp_handle_upload($prepared_file, $upload_overrides);
+        
+                    $uploaded_file = wp_handle_upload($file, $upload_overrides);
+        
                     if (isset($uploaded_file['error'])) {
                         $this->spbwc_restore_backup_directory($path);
                         return false;
                     }
-
+        
                     if (isset($uploaded_file['file']) && file_exists($uploaded_file['file'])) {
-                        rename($uploaded_file['file'], $full_name); // phpcs:ignore WordPress.WP.AlternativeFunctions.rename_rename -- Direct filesystem rename needed to move uploaded file to final destination.
+                        $full_name = '';
+                        if ($is_allowed_json) {
+                            $full_name = $path . '/' . sanitize_file_name($key) . '.json';
+                        } else { // It's an image
+                            $safe_key   = sanitize_file_name($key);
+                            $full_name  = $path . '/' . $safe_key . '.' . $file_type_info['ext'];
+                        }
+        
+                        if (!rename($uploaded_file['file'], $full_name)) {
+                            // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged -- Best effort to clean up temp file.
+                            @unlink($uploaded_file['file']);
+                            $this->spbwc_restore_backup_directory($path);
+                            return false;
+                        }
+                    } else {
+                        $this->spbwc_restore_backup_directory($path);
+                        return false;
                     }
                 }
             } else {
                 $this->spbwc_restore_backup_directory($path);
                 return false;
             }
+        
+            // Cleanup backup
+            if (file_exists($path . '_old')) {
+                SPBWC_Storelly_IO::spbwc_delete_folder($path . '_old');
+            }
+        
             return true;
         }
         private function spbwc_restore_backup_directory($path) {

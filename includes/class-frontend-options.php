@@ -106,10 +106,10 @@ if (!class_exists('STORELLY_FRONTEND_OPTIONS')) {
         }
         
         public static function get_option($id) {
-            return SPBWC_Storelly_PB_Admin_Options::instance()->spbwc_get_option($id);
+            return SPBWC_Storelly_PB_Admin_Options::spbwc_instance()->spbwc_get_option($id);
         }
         public static function get_product_option($product_id) {
-            return SPBWC_Storelly_PB_Admin_Options::instance()->spbwc_get_product_option($product_id);
+            return SPBWC_Storelly_PB_Admin_Options::spbwc_instance()->spbwc_get_product_option($product_id);
         }
         public static function recursive_stripslashes($fields) {
             $valid_fields = array();
@@ -242,20 +242,24 @@ if (!class_exists('STORELLY_FRONTEND_OPTIONS')) {
                         }
                     }
 
+                    $order_again_valid = false;
                     if ( isset( $_GET['nbo_values'], $_GET['_wpnonce'] ) ) {
                         $order_again_nonce = sanitize_text_field( wp_unslash( $_GET['_wpnonce'] ) );
-                        $order_again_valid = (
-                            wp_verify_nonce( $order_again_nonce, 'woocommerce-order_again' ) ||
-                            wp_verify_nonce( $order_again_nonce, 'woocommerce-order-again' ) ||
-                            wp_verify_nonce( $order_again_nonce, 'order_again' ) ||
-                            wp_verify_nonce( $order_again_nonce, 'order-again' )
+                        $allowed_nonce_actions = array(
+                            'woocommerce-order_again',
+                            'woocommerce-order-again', // Duplicate for safety, can be removed if confident.
+                            'order_again',
                         );
-                        if ( ! $order_again_valid ) {
-                            $order_again_nonce = '';
+
+                        foreach ( $allowed_nonce_actions as $action ) {
+                            if ( wp_verify_nonce( $order_again_nonce, $action ) ) {
+                                $order_again_valid = true;
+                                break;
+                            }
                         }
                     }
 
-                    if ( isset( $_GET['nbo_values'] ) && ! empty( $order_again_nonce ) ) {
+                    if ( isset( $_GET['nbo_values'] ) && $order_again_valid ) {
                         $params        = array();
                         $value_str_raw = wp_unslash( $_GET['nbo_values'] ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Base64 value is sanitized after decoding and parsing.
                         $value_str     = base64_decode( $value_str_raw );
@@ -297,8 +301,8 @@ if (!class_exists('STORELLY_FRONTEND_OPTIONS')) {
                         'currency_format'                               =>  esc_attr(str_replace(array('%1$s', '%2$s'), array('%s', '%v'), get_woocommerce_price_format())),
                         'nbstorelly_hide_add_cart_until_form_filled'    =>  'yes'
                     );
-                    wp_register_script('option_builder', SPBWC_PB_JS_URL . 'option-builder.js',('pc-angularjs'), '1.0.0', true);
-                    wp_localize_script( 'option_builder', 'option_builder_variable', array(
+                    wp_register_script('spbwc-option-builder', SPBWC_PB_JS_URL . 'option-builder.js', array('pc-angularjs'), '1.0.0', true);
+                    wp_localize_script( 'spbwc-option-builder', 'option_builder_variable', array(
                         'ajaxUrl'               => admin_url( 'admin-ajax.php' ),
                         'appid'                 => $this->appid,
                         'nbds_frontend'         => $nbds_frontend,
@@ -313,7 +317,7 @@ if (!class_exists('STORELLY_FRONTEND_OPTIONS')) {
                         'file_too_small'        => __('Sorry, file is too small, min size: ', 'storelly-product-builder-for-woocommerce'),
                         'file_type'             => __('Sorry, this file type is not permitted for security reasons. Only accept: ', 'storelly-product-builder-for-woocommerce'),
                     ));
-                    wp_enqueue_script('option_builder');
+                    wp_enqueue_script('spbwc-option-builder');
                 }
             }
         }
@@ -436,20 +440,24 @@ if (!class_exists('STORELLY_FRONTEND_OPTIONS')) {
                         }
                     }
 
+                    $order_again_valid = false;
                     if ( isset( $_GET['nbo_values'], $_GET['_wpnonce'] ) ) {
                         $order_again_nonce = sanitize_text_field( wp_unslash( $_GET['_wpnonce'] ) );
-                        $order_again_valid = (
-                            wp_verify_nonce( $order_again_nonce, 'woocommerce-order_again' ) ||
-                            wp_verify_nonce( $order_again_nonce, 'woocommerce-order-again' ) ||
-                            wp_verify_nonce( $order_again_nonce, 'order_again' ) ||
-                            wp_verify_nonce( $order_again_nonce, 'order-again' )
+                        $allowed_nonce_actions = array(
+                            'woocommerce-order_again',
+                            'woocommerce-order-again', // Duplicate for safety, can be removed if confident.
+                            'order_again',
                         );
-                        if ( ! $order_again_valid ) {
-                            $order_again_nonce = '';
+
+                        foreach ( $allowed_nonce_actions as $action ) {
+                            if ( wp_verify_nonce( $order_again_nonce, $action ) ) {
+                                $order_again_valid = true;
+                                break;
+                            }
                         }
                     }
 
-                    if ( isset( $_GET['nbo_values'] ) && ! empty( $order_again_nonce ) ) {
+                    if ( isset( $_GET['nbo_values'] ) && $order_again_valid ) {
                         $params           = array();
                         $value_str_raw    = wp_unslash( $_GET['nbo_values'] ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Base64 value is sanitized after decoding and parsing.
                         $value_str        = base64_decode( $value_str_raw );
