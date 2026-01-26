@@ -298,7 +298,7 @@ if (!class_exists('STORELLY_FRONTEND_OPTIONS')) {
                         'nbstorelly_hide_add_cart_until_form_filled'    =>  'yes'
                     );
                     wp_register_script('spbwc-option-builder', SPBWC_PB_JS_URL . 'option-builder.js',('pc-builderjs'), '1.0.0', true);
-                    wp_localize_script( 'spbwc-option-builder', 'option_builder_variable', array(
+                    wp_localize_script( 'spbwc-option-builder', 'spbwc_option_builder_variable', array(
                         'ajaxUrl'               => admin_url( 'admin-ajax.php' ),
                         'appid'                 => $this->appid,
                         'nbds_frontend'         => $nbds_frontend,

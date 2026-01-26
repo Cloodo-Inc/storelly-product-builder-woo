@@ -8,7 +8,7 @@
 Plugin Name:            Storelly Product Builder for WooCommerce
 Plugin URI:             https://storelly.com/product-builder
 Description:            Create product builder for Woocommerce products
-Version:                1.2.3
+Version:                1.2.4
 Requires Plugins:       woocommerce
 WC requires at least:   6.0.0
 WC tested up to:        6.5.1
@@ -23,8 +23,8 @@ Text Domain:            storelly-product-builder-for-woocommerce
 $spbwc_upload_dir = wp_upload_dir();
 $spbwc_basedir    = $spbwc_upload_dir['basedir'];
 $spbwc_baseurl    = $spbwc_upload_dir['baseurl'];
-define('SPBWC_PB_VERSION',                  '1.2.3');
-define('SPBWC_PB_NUMBER_VERSION',           123);
+define('SPBWC_PB_VERSION',                  '1.2.4');
+define('SPBWC_PB_NUMBER_VERSION',           124);
 define('SPBWC_PB_PLUGIN_URL',               plugin_dir_url(__FILE__));
 define('SPBWC_PB_PLUGIN_DIR',               plugin_dir_path(__FILE__));
 define('SPBWC_PB_DATA_DIR',                 $spbwc_basedir . '/storelly-product-builder');
@@ -46,8 +46,8 @@ define('SPBWC_API_URL',                     'https://app.storelly.com/public');
 
 
 // check if woocommerce works
-register_activation_hook(__FILE__, 'storelly_plugin_activation');
-function storelly_plugin_activation() {
+register_activation_hook(__FILE__, 'spbwc_plugin_activation');
+function spbwc_plugin_activation() {
     if (!is_plugin_active('woocommerce/woocommerce.php')) {
         $message  = '<div class="error"><p>';
         $message .= esc_html__('WooCommerce is not active. Please activate WooCommerce before using', 'storelly-product-builder-for-woocommerce');

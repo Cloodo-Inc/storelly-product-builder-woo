@@ -1266,7 +1266,8 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
             wp_die();
         }
         public function spbwc_manager_fonts() {
-            // Verify nonce for GET parameters to prevent unauthorized access.
+            // CORRECT PATTERN: Verify nonce and parameters BEFORE processing.
+            // This method is read-only (displays/filters fonts), but we verify nonce when cat_id is provided for consistency.
             if (isset($_GET['cat_id'])) {
                 $nonce = isset($_GET['_wpnonce']) ? sanitize_text_field(wp_unslash($_GET['_wpnonce'])) : '';
                 if (empty($nonce) || !wp_verify_nonce($nonce, 'spbwc_manager_fonts_action')) {
@@ -1276,6 +1277,7 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
             
             $subsets                = SPBWC_Storelly_PB_Util::spbwc_font_subsets();
             $current_subset         = 'all';
+            // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only filter parameter, nonce verified above if provided.
             $current_cat            = filter_input(INPUT_GET, "cat_id", FILTER_VALIDATE_INT);
             
             $path_font      = SPBWC_PB_FONT_DIR . '/googlefonts.json';
