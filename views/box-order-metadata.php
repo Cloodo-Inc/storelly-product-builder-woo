@@ -6,7 +6,7 @@
         // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Template variable.
         $count_img_design = 0;
         // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Template variable.
-        $src_img = SPBWC_PB_PLUGIN_URL . 'assets/images/loading.gif';
+        $src_img = SPBWC_PB_ASSETS_URL . 'images/loading.gif';
         ?>
         <?php foreach ($order_items as $order_item_id => $order_item) : // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Template variable.
             // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Template variable.

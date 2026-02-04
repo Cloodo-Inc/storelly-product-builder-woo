@@ -225,7 +225,7 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
                     'spbwc_manage_product_builder',
                     'storelly-product-builder-for-woocommerce-options',
                     array($this, 'spbwc_product_builder_options'),
-                    SPBWC_PB_PLUGIN_URL . '/assets/images/logo.svg'
+                    SPBWC_PB_ASSETS_URL . 'images/logo.svg'
                 );
                 add_submenu_page(
                     'storelly-product-builder-for-woocommerce-options',
@@ -280,11 +280,11 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
             }
         }
         public function spbwc_admin_enqueue_scripts($hook) {
-            wp_register_script('spbwc-ag', SPBWC_PB_PLUGIN_URL . 'assets/libs/builderproductag.min.js', array('jquery'), '1.6.9', true);  
+            wp_register_script('spbwc-ag', SPBWC_PB_ASSETS_URL . 'libs/builderproductag.min.js', array('jquery'), '1.6.9', true);  
             wp_register_script('spbwc-snap-svg', SPBWC_PB_ASSETS_URL . 'libs/snap.svg.js', array(), '0.3.0', true);
             wp_register_script('spbwc-tiptip', SPBWC_PB_ASSETS_URL . 'js/tiptip.js', array('jquery'), SPBWC_PB_VERSION, true);
-            wp_register_script('spbwc-fontfaceobserver', SPBWC_PB_PLUGIN_URL . 'assets/libs/fontfaceobserver.js', array(), '2.0.13', true);
-            wp_register_script('spbwc-sweetalert-js', SPBWC_PB_PLUGIN_URL . 'assets/libs/sweetalert.min.js', array(), '5.6.10', true);
+            wp_register_script('spbwc-fontfaceobserver', SPBWC_PB_ASSETS_URL . 'libs/fontfaceobserver.js', array(), '2.0.13', true);
+            wp_register_script('spbwc-sweetalert-js', SPBWC_PB_ASSETS_URL . 'libs/sweetalert.min.js', array(), '5.6.10', true);
             wp_register_script('spbwc-general-js', SPBWC_PB_ASSETS_URL . 'js/storelly-general.js', array('jquery'), SPBWC_PB_VERSION, true);
 
             wp_register_style('spbwc-options-style', SPBWC_PB_CSS_URL . 'admin-options.css', array('wp-color-picker', 'wp-jquery-ui-dialog'), SPBWC_PB_VERSION);
@@ -306,7 +306,7 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
                 wp_register_script('spbwc-options-script', SPBWC_PB_JS_URL . 'admin-options.js', array('jquery', 'wpdialogs', 'jquery-ui-resizable', 'jquery-ui-draggable', 'jquery-ui-droppable', 'jquery-ui-sortable', 'jquery-ui-datepicker', 'jquery-ui-autocomplete', 'wp-color-picker', 'spbwc-ag', 'wc-enhanced-select', 'spbwc-snap-svg', 'spbwc-tiptip'), SPBWC_PB_VERSION, true);
                 wp_localize_script('spbwc-options-script', 'storelly_options', array(
                     'search_products_nonce'     => wp_create_nonce("search-products"),
-                    'calendar_image'            => SPBWC_PB_PLUGIN_URL . 'assets/images/calendar.png',
+                    'calendar_image'            => SPBWC_PB_ASSETS_URL . 'images/calendar.png',
                     'storelly_options_lang'    => $this->spbwc_storelly_option_i18n(),
                 ));
                wp_enqueue_style('spbwc-options-style');
@@ -1214,7 +1214,7 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
                     die('Empty data');
                 }
 
-                $all_fonts_json = SPBWC_Storelly_IO::spbwc_get_local_file_contents( SPBWC_PB_PLUGIN_DIR . '/data/google-fonts-ttf.json' );
+                $all_fonts_json = SPBWC_Storelly_IO::spbwc_get_local_file_contents( SPBWC_PB_DATA_CONFIG_DIR . 'google-fonts-ttf.json' );
                 $all_fonts      = ( false !== $all_fonts_json ) ? json_decode( $all_fonts_json ) : null;
                 $all_fonts_list = isset( $all_fonts->items ) ? $all_fonts->items : array();
 
@@ -1290,7 +1290,7 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
             if ($selected_fonts === false || $selected_fonts == '') {
                 $selected_fonts = '[]';
             }
-            $google_fonts_ttf_json = SPBWC_Storelly_IO::spbwc_get_local_file_contents(SPBWC_PB_DATA_CONFIG_DIR . '/google-fonts-ttf.json');
+            $google_fonts_ttf_json = SPBWC_Storelly_IO::spbwc_get_local_file_contents(SPBWC_PB_DATA_CONFIG_DIR . 'google-fonts-ttf.json');
             $google_fonts_ttf = (false !== $google_fonts_ttf_json) ? json_decode($google_fonts_ttf_json, true) : array();
             wp_register_script('storelly_manager_fonts_script', SPBWC_PB_JS_URL . 'manager-fonts.js', array('spbwc-fontfaceobserver', 'spbwc-sweetalert-js', 'spbwc-ag'), SPBWC_PB_VERSION, true);
             wp_localize_script('storelly_manager_fonts_script', 'storelly_manager_fonts_variable', array(

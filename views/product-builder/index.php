@@ -185,7 +185,7 @@
       
         wp_register_style(
             'normalize-css',
-            get_home_url() . '/assets/css/views/normalize.css',
+            SPBWC_PB_CSS_URL . 'views/normalize.css',
             array(), 
             '1.0.0' 
         );

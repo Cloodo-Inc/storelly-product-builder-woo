@@ -76,8 +76,8 @@ if (!class_exists('SPBWC_SPBWC_Storelly_PB_Script_Hook')) {
             wp_register_style('storelly-product-builder-for-woocommerce-view', SPBWC_PB_CSS_URL . 'views/product-builder.css', array(), SPBWC_PB_VERSION);
 
             wp_register_script('wc-accounting', WC()->plugin_url() . '/assets/js/accounting/accounting.min.js', array(), '0.4.2', true);
-            wp_register_script('spbwc-fontfaceobserver', SPBWC_PB_PLUGIN_URL . 'assets/libs/fontfaceobserver.js', array(), '2.0.13', true);
-            wp_register_script('spbwc-fabric', SPBWC_PB_PLUGIN_URL . 'assets/libs/fabric.2.6.0.min.js', array(), '2.6.0', true);
+            wp_register_script('spbwc-fontfaceobserver', SPBWC_PB_ASSETS_URL . 'libs/fontfaceobserver.js', array(), '2.0.13', true);
+            wp_register_script('spbwc-fabric', SPBWC_PB_ASSETS_URL . 'libs/fabric.2.6.0.min.js', array(), '2.6.0', true);
             wp_register_script('spbwc-spectrum-css', SPBWC_PB_JS_URL . 'spectrum.js', array(), SPBWC_PB_VERSION, true);
             wp_register_script('spbwc-tiptip', SPBWC_PB_ASSETS_URL . 'js/tiptip.js', array('jquery'), SPBWC_PB_VERSION, true);
 
@@ -98,8 +98,8 @@ if (!class_exists('SPBWC_SPBWC_Storelly_PB_Script_Hook')) {
         public function spbwc_enqueue_script_footer($page)
         {
             wp_enqueue_script('lodash');
-            wp_register_script('spbwc-fontfaceobserver', SPBWC_PB_PLUGIN_URL . 'assets/libs/fontfaceobserver.js', array('jquery'), '2.0.13', true);
-            wp_register_script('spbwc-fabric', SPBWC_PB_PLUGIN_URL . 'assets/libs/fabric.2.6.0.min.js', array('jquery'), '2.6.0', true);
+            wp_register_script('spbwc-fontfaceobserver', SPBWC_PB_ASSETS_URL . 'libs/fontfaceobserver.js', array('jquery'), '2.0.13', true);
+            wp_register_script('spbwc-fabric', SPBWC_PB_ASSETS_URL . 'libs/fabric.2.6.0.min.js', array('jquery'), '2.6.0', true);
             wp_register_script('spbwc-spectrum-css', SPBWC_PB_JS_URL . 'spectrum.js', array('jQuery'), SPBWC_PB_VERSION, true);
             wp_register_script('spbwc-app-product-builder', SPBWC_PB_JS_URL . 'app-product-builder.js', array('jquery'), SPBWC_PB_VERSION, true);
 

@@ -263,7 +263,7 @@ if (!class_exists('SPBWC_Storelly_PB_Util')) {
         }
         public static function spbwc_get_list_google_font()
         {
-            $path = SPBWC_PB_PLUGIN_DIR . 'data/listgooglefonts.json';
+            $path = SPBWC_PB_DATA_CONFIG_DIR . 'listgooglefonts.json';
             $data = (array) self::spbwc_read_json_setting($path);
             return wp_json_encode($data);
         }

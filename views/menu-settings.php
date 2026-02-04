@@ -65,7 +65,7 @@ $stt_no_cloud2print_api = isset($storelly_pb_settings['enable_cloud2print_api'])
                         </th>
                         <td>
                             <p class="row">
-                                <input type="radio" id="api_sync_yes" name="storelly_enable_api_sync" value="yes" <?php echo esc_attr($stt_yes_api_sync); ?> />
+                                <input type="radio" id="api_sync_yes" name="storelly_enable_api_sync" value="yes" <?php echo esc_attr($spbwc_stt_yes_api_sync); ?> />
                                 <label for="api_sync_yes"><?php esc_html_e('Yes', 'storelly-product-builder-for-woocommerce'); ?></label>
                             </p>
                             <p class="row">
