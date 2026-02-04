@@ -81,8 +81,9 @@ This plugin connects to the following external services:
 
 == Screenshots ==
 
-1. Front-end product builder
-2. Back-end product settings
+1. Create new option screen for product builder fields
+2. Google Fonts manager for selecting admin fonts
+3. Storelly settings page with API keys and sync options
 
 == Changelog ==
 = 1.2.4 =
