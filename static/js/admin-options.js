@@ -632,9 +632,9 @@ angular
           url: storelly_option_variable.ajax_url,
           method: "POST",
           data: {
-            action: "nbd_get_media_full_size_url",
-            nonce: nbnonce,
-            images: JSON.stringify(mediaObject),
+            action: "spbwc_get_media_full_size_url",
+            nonce: storelly_option_variable.nbnonce,
+            images: mediaObject,
           },
         })
         .done(function (data) {

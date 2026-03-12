@@ -177,9 +177,8 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
                         $result['images'][ $key ] = esc_url( wp_get_attachment_url( $image_id ) );
                     }
                 }
-            } else {
-                $result['flag'] = 0;
             }
+            // flag stays 1 even when images is empty (export with no media is still valid)
             echo wp_json_encode($result);
             wp_die();
         }
@@ -1087,7 +1086,7 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
             );
         }
         public function spbwc_add_meta_boxes() {
-            add_meta_box('storelly_product_builder', __('Storelly product builder', 'storelly-product-builder-for-woocommerce'), array($this, 'meta_box'), 'product', 'normal', 'high');
+            add_meta_box('storelly_product_builder', __('Storelly product builder', 'storelly-product-builder-for-woocommerce'), array($this, 'spbwc_meta_box'), 'product', 'normal', 'high');
         }
         public function spbwc_meta_box() {
             $post_id            = get_the_ID();
