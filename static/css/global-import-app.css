@@ -1,0 +1,197 @@
+.spbwc-global-import-wrap {
+    --gi-primary: #2563eb;
+    --gi-primary-dark: #1d4ed8;
+    --gi-bg: #f8fafc;
+    --gi-text: #0f172a;
+    --gi-muted: #64748b;
+    --gi-border: #e2e8f0;
+    --gi-shadow: 0 6px 20px rgba(15, 23, 42, 0.08);
+    --gi-radius: 10px;
+    --gi-gap: 16px;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    color: var(--gi-text);
+}
+.spbwc-gi-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 18px;
+}
+.spbwc-gi-title {
+    font-size: 24px;
+    font-weight: 700;
+}
+.spbwc-gi-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--gi-gap);
+}
+.spbwc-gi-card {
+    background: #fff;
+    border: 1px solid var(--gi-border);
+    border-radius: var(--gi-radius);
+    padding: 18px;
+    box-shadow: var(--gi-shadow);
+}
+.spbwc-gi-card h3 {
+    margin: 0 0 12px;
+    font-size: 16px;
+}
+.spbwc-gi-toolbar {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    align-items: center;
+}
+.spbwc-gi-input,
+.spbwc-gi-select {
+    border: 1px solid var(--gi-border);
+    border-radius: 8px;
+    padding: 8px 10px;
+    min-height: 36px;
+}
+.spbwc-gi-btn {
+    background: var(--gi-primary);
+    border: none;
+    color: #fff;
+    padding: 9px 14px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+}
+.spbwc-gi-btn.secondary {
+    background: #fff;
+    color: var(--gi-primary);
+    border: 1px solid var(--gi-primary);
+}
+.spbwc-gi-btn,
+.spbwc-gi-btn:hover,
+.spbwc-gi-btn:focus {
+    text-decoration: none;
+}
+.spbwc-gi-actions {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+.spbwc-gi-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+.spbwc-gi-dropzone {
+    border: 2px dashed var(--gi-border);
+    border-radius: 12px;
+    padding: 24px;
+    text-align: center;
+    color: var(--gi-muted);
+    background: var(--gi-bg);
+    transition: all 0.2s ease;
+}
+.spbwc-gi-dropzone.active {
+    border-color: var(--gi-primary);
+    color: var(--gi-primary);
+    background: #eff6ff;
+}
+.spbwc-gi-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+.spbwc-gi-table th,
+.spbwc-gi-table td {
+    border-bottom: 1px solid var(--gi-border);
+    padding: 10px 8px;
+    text-align: left;
+    font-size: 13px;
+}
+.spbwc-gi-table th {
+    font-weight: 600;
+    color: var(--gi-muted);
+}
+.spbwc-gi-table img {
+    width: 36px;
+    height: 36px;
+    border-radius: 6px;
+    object-fit: cover;
+    background: #f1f5f9;
+}
+.spbwc-gi-pagination {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+    margin-top: 12px;
+}
+.spbwc-gi-badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 999px;
+    background: #e2e8f0;
+    color: #334155;
+    font-size: 11px;
+}
+.spbwc-gi-progress {
+    width: 100%;
+    height: 10px;
+    background: #e2e8f0;
+    border-radius: 999px;
+    overflow: hidden;
+}
+.spbwc-gi-progress span {
+    display: block;
+    height: 100%;
+    background: var(--gi-primary);
+    transition: width 0.2s ease;
+}
+.spbwc-gi-log {
+    background: #0f172a;
+    color: #e2e8f0;
+    font-family: "Courier New", monospace;
+    font-size: 12px;
+    padding: 12px;
+    border-radius: 8px;
+    max-height: 200px;
+    overflow-y: auto;
+}
+.spbwc-gi-toast {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    z-index: 9999;
+}
+.spbwc-gi-toast-item {
+    background: #111827;
+    color: #fff;
+    padding: 10px 14px;
+    border-radius: 8px;
+    min-width: 220px;
+    box-shadow: var(--gi-shadow);
+}
+.spbwc-gi-flex {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+.spbwc-gi-modal {
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.45);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9998;
+}
+.spbwc-gi-modal-card {
+    background: #fff;
+    border-radius: 12px;
+    padding: 18px;
+    width: 100%;
+    max-width: 520px;
+}
+@media (max-width: 782px) {
+    .spbwc-gi-toolbar { flex-direction: column; align-items: stretch; }
+    .spbwc-gi-header { flex-direction: column; gap: 10px; align-items: flex-start; }
+    .spbwc-gi-table th, .spbwc-gi-table td { font-size: 12px; }
+}

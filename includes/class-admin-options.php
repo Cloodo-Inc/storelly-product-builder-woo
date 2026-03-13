@@ -217,9 +217,9 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
             wp_die();
         }
         public function spbwc_tab_menu() {
-            if (current_user_can('spbwc_manage_product_builder')) {
+            if (current_user_can('spbwc_manage_product_builder') && current_user_can('manage_woocommerce')) {
                 add_menu_page(
-                    'PC Product Builder',
+                    'Storelly Builder',
                     'Product Builder Options',
                     'spbwc_manage_product_builder',
                     'storelly-product-builder-for-woocommerce-options',
@@ -249,6 +249,14 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
                     'manage_options',
                     'storelly-product-builder-for-woocommerce-options/settings',
                     array($this, 'spbwc_settings')
+                );
+                add_submenu_page(
+                    'storelly-product-builder-for-woocommerce-options',
+                    esc_html__('Global Import', 'storelly-product-builder-for-woocommerce'),
+                    esc_html__('Global Import', 'storelly-product-builder-for-woocommerce'),
+                    'manage_options',
+                    'storelly-product-builder-for-woocommerce-options/global-import',
+                    array($this, 'spbwc_global_import')
                 );
             }
         }
@@ -1338,6 +1346,13 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
             }
             include_once(SPBWC_PB_PLUGIN_DIR . 'views/menu-settings.php');
         }
+        
+        public function spbwc_global_import() {
+            // Delegate to the global import admin class
+            $global_import_admin = SPBWC_Global_Import_Admin::instance();
+            $global_import_admin->render_global_import_page();
+        }
+        
         public function spbwc_convert_svg_embed($path) {
             $svgs       = SPBWC_Storelly_IO::spbwc_get_list_files_by_type($path, 'svg', 1);
             $svg_path   = $path . '/svg';

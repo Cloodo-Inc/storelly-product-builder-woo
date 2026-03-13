@@ -70,6 +70,11 @@ require_once(SPBWC_PB_PLUGIN_DIR .  'includes/class-admin-options.php');
 require_once(SPBWC_PB_PLUGIN_DIR .  'includes/class-frontend-options.php');
 require_once(SPBWC_PB_PLUGIN_DIR .  'includes/class-http.php');
 require_once(SPBWC_PB_PLUGIN_DIR .  'includes/class-productbuilder-api.php');
+require_once(SPBWC_PB_PLUGIN_DIR .  'includes/class-global-import.php');
+require_once(SPBWC_PB_PLUGIN_DIR .  'includes/class-global-import-admin.php');
+require_once(SPBWC_PB_PLUGIN_DIR .  'includes/class-global-import-controller.php');
+require_once(SPBWC_PB_PLUGIN_DIR .  'includes/class-printcart-import-adapter.php');
+require_once(SPBWC_PB_PLUGIN_DIR .  'includes/class-printcart-import-schema.php');
 
 register_activation_hook(__FILE__, array('SPBWC_Storelly_Product_Builder_API', 'spbwc_generate_key'));
 
@@ -93,6 +98,4 @@ function spbwc_sanitize_recursive($data) {
 
 $storelly_product_builder = new SPBWC_Storelly_Product_Builder_Backend();
 $storelly_product_builder->spbwc_init();
-
-
 

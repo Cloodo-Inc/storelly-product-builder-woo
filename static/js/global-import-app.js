@@ -1,0 +1,503 @@
+(() => {
+    const { createApp } = Vue;
+    const GI_CONFIG = window.SPBWC_GLOBAL_IMPORT || {
+        ajax_url: '',
+        admin_url: '',
+        page_slug: 'storelly-product-builder-for-woocommerce-options/global-import',
+        nonce: '',
+        rest_url: '',
+        rest_nonce: '',
+        assets_url: '',
+        i18n: {
+            upload_title: 'Upload file',
+            import_title: 'Import products',
+            export_title: 'Export sessions',
+            confirm_delete: 'Are you sure you want to delete this export?'
+        }
+    };
+    createApp({
+        data() {
+            return {
+                config: GI_CONFIG,
+                importId: '',
+                runId: '',
+                rows: [],
+                total: 0,
+                page: 1,
+                perPage: 12,
+                batchSize: 2,
+                search: '',
+                category: '',
+                stock: '',
+                priceMin: '',
+                priceMax: '',
+                sortBy: 'name',
+                sortDir: 'asc',
+                selected: {},
+                loading: false,
+                uploading: false,
+                dragActive: false,
+                importRunning: false,
+                importQueue: [],
+                totalSelected: 0,
+                completed: 0,
+                processed: 0,
+                logs: [],
+                logOffset: 0,
+                exports: [],
+                toasts: [],
+                showStageModal: false,
+                stageForm: { import_id: '', target_url: '', consumer_key: '', consumer_secret: '' }
+            };
+        },
+        computed: {
+            totalPages() {
+                return Math.ceil(this.total / this.perPage) || 1;
+            },
+            progressPercent() {
+                if (!this.totalSelected) return 0;
+                return Math.min(100, Math.round((this.completed / this.totalSelected) * 100));
+            },
+            selectedIds() {
+                return Object.keys(this.selected).filter(rowId => !!this.selected[rowId]);
+            },
+            allRowsOnPageSelected() {
+                return this.rows.length > 0 && this.rows.every(row => !!this.selected[row.row_id]);
+            }
+        },
+        methods: {
+            buildFiltersPayload(actionName) {
+                return {
+                    action: actionName,
+                    nonce: this.config.nonce,
+                    import_id: this.importId,
+                    search: this.search,
+                    category: this.category,
+                    stock: this.stock,
+                    price_min: this.priceMin,
+                    price_max: this.priceMax,
+                    sort_by: this.sortBy,
+                    sort_dir: this.sortDir
+                };
+            },
+            toast(message) {
+                const id = Date.now();
+                this.toasts.push({ id, message });
+                setTimeout(() => {
+                    this.toasts = this.toasts.filter(t => t.id !== id);
+                }, 3500);
+            },
+            clearSelection() {
+                this.selected = {};
+            },
+            onFilterChange() {
+                this.page = 1;
+                this.clearSelection();
+                this.fetchList();
+            },
+            openFilePicker() {
+                this.$refs.fileInput.click();
+            },
+            handleFileChange(e) {
+                const file = e.target.files[0];
+                if (file) this.uploadFile(file);
+            },
+            handleDrop(e) {
+                e.preventDefault();
+                this.dragActive = false;
+                const file = e.dataTransfer.files[0];
+                if (file) this.uploadFile(file);
+            },
+            handleDragOver(e) {
+                e.preventDefault();
+                this.dragActive = true;
+            },
+            handleDragLeave() {
+                this.dragActive = false;
+            },
+            uploadFile(file) {
+                this.uploading = true;
+                const data = new FormData();
+                data.append('action', 'spbwc_global_import_upload');
+                data.append('nonce', this.config.nonce);
+                data.append('file', file);
+                jQuery.ajax({
+                    url: this.config.ajax_url,
+                    method: 'POST',
+                    data,
+                    contentType: false,
+                    processData: false
+                }).done(res => {
+                    if (res.success) {
+                        this.importId = res.data.import_id;
+                        this.total = res.data.total;
+                        this.rows = res.data.preview || [];
+                        this.page = 1;
+                        this.clearSelection();
+                        this.toast('File uploaded');
+                        this.fetchList();
+                    } else {
+                        this.toast('Upload failed');
+                    }
+                }).fail(() => {
+                    this.toast('Upload failed');
+                }).always(() => {
+                    this.uploading = false;
+                });
+            },
+            fetchList() {
+                this.loading = true;
+                const payload = this.buildFiltersPayload('spbwc_global_import_list');
+                payload.page = this.page;
+                payload.per_page = this.perPage;
+                jQuery.post(this.config.ajax_url, payload).done(res => {
+                    if (res.success) {
+                        this.rows = res.data.items;
+                        this.total = res.data.total;
+                    }
+                }).always(() => {
+                    this.loading = false;
+                });
+            },
+            selectAllFiltered() {
+                this.loading = true;
+                const payload = this.buildFiltersPayload('spbwc_global_import_row_ids');
+                jQuery.post(this.config.ajax_url, payload).done(res => {
+                    if (res.success && Array.isArray(res.data.row_ids)) {
+                        const selectedMap = {};
+                        res.data.row_ids.forEach(rowId => {
+                            selectedMap[String(rowId)] = true;
+                        });
+                        this.selected = selectedMap;
+                        if (res.data.row_ids.length) {
+                            this.toast('Selected all filtered products');
+                        } else {
+                            this.toast('No products to select');
+                        }
+                    } else {
+                        this.toast('Select all failed');
+                    }
+                }).fail(() => {
+                    this.toast('Select all failed');
+                }).always(() => {
+                    this.loading = false;
+                });
+            },
+            toggleSelectAll(e) {
+                if (e.target.checked) {
+                    this.selectAllFiltered();
+                } else {
+                    this.clearSelection();
+                }
+            },
+            toggleRow(row) {
+                if (this.selected[row.row_id]) {
+                    delete this.selected[row.row_id];
+                } else {
+                    this.selected[row.row_id] = true;
+                }
+            },
+            changeSort(key) {
+                if (this.sortBy === key) {
+                    this.sortDir = this.sortDir === 'asc' ? 'desc' : 'asc';
+                } else {
+                    this.sortBy = key;
+                    this.sortDir = 'asc';
+                }
+                this.clearSelection();
+                this.page = 1;
+                this.fetchList();
+            },
+            startImport() {
+                this.importQueue = Array.from(new Set(this.selectedIds.map(rowId => String(rowId))));
+                if (!this.importQueue.length) {
+                    this.toast('No items selected');
+                    return;
+                }
+                this.runId = 'run-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 8);
+                this.importRunning = true;
+                this.totalSelected = this.importQueue.length;
+                this.completed = 0;
+                this.processed = 0;
+                this.logs = [];
+                this.logOffset = 0;
+                this.runBatch();
+                this.pollLog();
+            },
+            runBatch() {
+                if (!this.importQueue.length) {
+                    this.importRunning = false;
+                    this.fetchExports();
+                    this.clearSelection();
+                    this.toast('Import completed');
+                    return;
+                }
+                const batch = this.importQueue.splice(0, this.batchSize);
+                jQuery.ajax({
+                    url: this.config.ajax_url,
+                    method: 'POST',
+                    dataType: 'json',
+                    data: {
+                        action: 'spbwc_global_import_run',
+                        nonce: this.config.nonce,
+                        import_id: this.importId,
+                        run_id: this.runId,
+                        row_ids: batch,
+                        batch: this.batchSize
+                    }
+                }).done(res => {
+                    if (res.success) {
+                        const processedRows = Array.isArray(res.data && res.data.processed) ? res.data.processed : [];
+                        const importErrors = Array.isArray(res.data && res.data.errors) ? res.data.errors : [];
+                        const attempted = Number(res.data && res.data.attempted ? res.data.attempted : batch.length);
+                        this.completed += attempted;
+                        this.processed += processedRows.length;
+                        processedRows.forEach(item => {
+                            if (item && item.row_id) {
+                                delete this.selected[String(item.row_id)];
+                            }
+                        });
+                        if (importErrors.length) {
+                            this.toast('Some items failed');
+                        }
+                    } else {
+                        this.toast('Import failed');
+                        this.fetchExports();
+                        this.importQueue = [];
+                        this.importRunning = false;
+                    }
+                }).fail(xhr => {
+                    const message = xhr && xhr.responseJSON && xhr.responseJSON.data
+                        ? xhr.responseJSON.data
+                        : 'Import failed';
+                    this.toast(message);
+                    this.fetchExports();
+                    this.importQueue = [];
+                    this.importRunning = false;
+                }).always(() => {
+                    if (this.importRunning) {
+                        setTimeout(() => this.runBatch(), 300);
+                    }
+                });
+            },
+            pollLog() {
+                if (!this.importRunning) return;
+                jQuery.post(this.config.ajax_url, {
+                    action: 'spbwc_global_import_log',
+                    nonce: this.config.nonce,
+                    import_id: this.importId,
+                    run_id: this.runId,
+                    offset: this.logOffset
+                }).done(res => {
+                    if (res.success) {
+                        this.logs = this.logs.concat(res.data.lines);
+                        this.logOffset = res.data.offset;
+                    }
+                }).always(() => {
+                    if (this.importRunning) {
+                        setTimeout(() => this.pollLog(), 1200);
+                    }
+                });
+            },
+            fetchExports() {
+                jQuery.post(this.config.ajax_url, {
+                    action: 'spbwc_global_import_exports',
+                    nonce: this.config.nonce
+                }).done(res => {
+                    if (res.success) {
+                        this.exports = res.data.files || [];
+                    }
+                });
+            },
+            deleteExport(file) {
+                if (!confirm(this.config.i18n.confirm_delete)) return;
+                jQuery.post(this.config.ajax_url, {
+                    action: 'spbwc_global_import_export_delete',
+                    nonce: this.config.nonce,
+                    filename: file.filename
+                }).done(() => this.fetchExports());
+            },
+            categoriesText(row) {
+                if (!row) return '';
+                if (Array.isArray(row.categories)) {
+                    return row.categories.join(', ');
+                }
+                return row.categories || '';
+            },
+            exportDate(file) {
+                if (file && file.manifest && file.manifest.export_date) {
+                    return file.manifest.export_date;
+                }
+                return '-';
+            },
+            downloadUrl(file) {
+                if (file && file.download_url) {
+                    return file.download_url;
+                }
+                if (!this.config.admin_url || !file || !file.filename) {
+                    return '#';
+                }
+                const pageSlug = this.config.page_slug || 'storelly-product-builder-for-woocommerce-options/global-import';
+                return this.config.admin_url
+                    + '?page=' + encodeURIComponent(pageSlug)
+                    + '&spbwc_export_action=download&filename=' + encodeURIComponent(file.filename);
+            },
+            openStage(file) {
+                this.stageForm = {
+                    import_id: file && file.manifest ? (file.manifest.import_id || '') : '',
+                    target_url: '',
+                    consumer_key: '',
+                    consumer_secret: ''
+                };
+                this.showStageModal = true;
+            },
+            closeStage() {
+                this.showStageModal = false;
+            },
+            stageImport() {
+                fetch(this.config.rest_url + '/stage-import', {
+                    method: 'POST',
+                    credentials: 'same-origin',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-WP-Nonce': this.config.rest_nonce
+                    },
+                    body: JSON.stringify(this.stageForm)
+                }).then(r => r.json()).then(res => {
+                    if (res && res.success) {
+                        this.toast('Staged successfully');
+                        this.closeStage();
+                    } else {
+                        this.toast('Stage failed');
+                    }
+                }).catch(() => {
+                    this.toast('Stage failed');
+                });
+            }
+        },
+        mounted() {
+            this.fetchList();
+            this.fetchExports();
+        },
+        template: `
+        <div class="spbwc-gi-grid">
+            <div class="spbwc-gi-header">
+                <div class="spbwc-gi-title">Global Import</div>
+                <div class="spbwc-gi-toolbar">
+                    <button class="spbwc-gi-btn secondary" @click="fetchList">Refresh</button>
+                </div>
+            </div>
+            <div class="spbwc-gi-card">
+                <h3>{{ config.i18n.upload_title }}</h3>
+                <div class="spbwc-gi-dropzone" :class="{active: dragActive}" @drop="handleDrop" @dragover="handleDragOver" @dragleave="handleDragLeave">
+                    <div>Drag and drop CSV, Excel or JSON file here</div>
+                    <div class="spbwc-gi-flex" style="margin-top:12px; justify-content:center;">
+                        <button class="spbwc-gi-btn" @click="openFilePicker" :disabled="uploading">{{ uploading ? 'Uploading...' : 'Browse file' }}</button>
+                    </div>
+                    <input type="file" ref="fileInput" style="display:none" @change="handleFileChange" />
+                </div>
+            </div>
+            <div class="spbwc-gi-card">
+                <h3>{{ config.i18n.import_title }}</h3>
+                <div class="spbwc-gi-toolbar" style="margin-bottom:12px;">
+                    <input class="spbwc-gi-input" v-model="search" @input="onFilterChange" placeholder="Search by name or SKU" />
+                    <input class="spbwc-gi-input" v-model="category" @input="onFilterChange" placeholder="Category" />
+                    <select class="spbwc-gi-select" v-model="stock" @change="onFilterChange">
+                        <option value="">All stock</option>
+                        <option value="instock">In stock</option>
+                        <option value="outofstock">Out of stock</option>
+                    </select>
+                    <input class="spbwc-gi-input" v-model="priceMin" @input="onFilterChange" placeholder="Min price" />
+                    <input class="spbwc-gi-input" v-model="priceMax" @input="onFilterChange" placeholder="Max price" />
+                    <button class="spbwc-gi-btn" @click="startImport" :disabled="importRunning || selectedIds.length===0">Import products</button>
+                </div>
+                <div v-if="importRunning" style="margin-bottom:12px;">
+                    <div class="spbwc-gi-progress"><span :style="{width: progressPercent+'%'}"></span></div>
+                    <div style="margin-top:6px;">{{ completed }} / {{ totalSelected }} processed, {{ processed }} imported</div>
+                </div>
+                <table class="spbwc-gi-table">
+                    <thead>
+                        <tr>
+                            <th><input type="checkbox" :checked="allRowsOnPageSelected" @change="toggleSelectAll" :disabled="loading || importRunning" /></th>
+                            <th @click="changeSort('name')">Name</th>
+                            <th @click="changeSort('sku')">SKU</th>
+                            <th @click="changeSort('price')">Price</th>
+                            <th @click="changeSort('stock_status')">Stock</th>
+                            <th>Categories</th>
+                            <th>Image</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr v-for="row in rows" :key="row.row_id">
+                            <td><input type="checkbox" :checked="selected[row.row_id]" @change="toggleRow(row)" /></td>
+                            <td>{{ row.name }}</td>
+                            <td>{{ row.sku || '-' }}</td>
+                            <td>{{ row.price }}</td>
+                            <td><span class="spbwc-gi-badge">{{ row.stock_status }}</span></td>
+                            <td>{{ categoriesText(row) }}</td>
+                            <td><img :src="row.image" v-if="row.image" /></td>
+                        </tr>
+                        <tr v-if="rows.length===0"><td colspan="7">No data</td></tr>
+                    </tbody>
+                </table>
+                <div class="spbwc-gi-pagination">
+                    <button class="spbwc-gi-btn secondary" :disabled="page<=1" @click="page--; fetchList()">Prev</button>
+                    <span>{{ page }} / {{ totalPages }}</span>
+                    <button class="spbwc-gi-btn secondary" :disabled="page>=totalPages" @click="page++; fetchList()">Next</button>
+                </div>
+            </div>
+            <div class="spbwc-gi-card">
+                <h3>Realtime log</h3>
+                <div class="spbwc-gi-log">
+                    <div v-for="(line, idx) in logs" :key="idx">{{ line }}</div>
+                </div>
+            </div>
+            <div class="spbwc-gi-card">
+                <h3>{{ config.i18n.export_title }}</h3>
+                <table class="spbwc-gi-table">
+                    <thead>
+                        <tr>
+                            <th>File</th>
+                            <th>Date</th>
+                            <th>Total</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr v-for="file in exports" :key="file.filename">
+                            <td>{{ file.filename }}</td>
+                            <td>{{ exportDate(file) }}</td>
+                            <td>{{ file.product_count }}</td>
+                            <td>
+                                <div class="spbwc-gi-actions">
+                                    <a class="spbwc-gi-btn secondary" :href="downloadUrl(file)">Download</a>
+                                    <button class="spbwc-gi-btn secondary" @click="deleteExport(file)">Delete</button>
+                                    <button class="spbwc-gi-btn" @click="openStage(file)">Stage on Server</button>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr v-if="exports.length===0"><td colspan="4">No exports</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="spbwc-gi-toast">
+                <div class="spbwc-gi-toast-item" v-for="t in toasts" :key="t.id">{{ t.message }}</div>
+            </div>
+            <div v-if="showStageModal" class="spbwc-gi-modal">
+                <div class="spbwc-gi-modal-card">
+                    <h3>Stage Import</h3>
+                    <div class="spbwc-gi-toolbar" style="flex-direction:column; align-items:stretch;">
+                        <input class="spbwc-gi-input" v-model="stageForm.target_url" placeholder="Target URL" />
+                        <input class="spbwc-gi-input" v-model="stageForm.consumer_key" placeholder="Consumer key" />
+                        <input class="spbwc-gi-input" v-model="stageForm.consumer_secret" placeholder="Consumer secret" />
+                        <div class="spbwc-gi-flex">
+                            <button class="spbwc-gi-btn" @click="stageImport">Stage</button>
+                            <button class="spbwc-gi-btn secondary" @click="closeStage">Cancel</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        `
+    }).mount('#spbwc-global-import-app');
+})();
