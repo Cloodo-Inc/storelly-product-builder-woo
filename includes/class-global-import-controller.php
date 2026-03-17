@@ -6,6 +6,7 @@ if (!defined('ABSPATH')) {
 class SPBWC_Global_Import_Controller {
     protected static $instance;
     private $adapter;
+    private const DEMO_DATA_URL = 'https://app.storelly.com/product-data/data/data.json';
 
     public static function instance() {
         if (is_null(self::$instance)) {
@@ -85,15 +86,10 @@ class SPBWC_Global_Import_Controller {
 
     private function ensure_demo_session() {
         $import_id = $this->demo_session_id();
-        $existing = $this->get_session($import_id);
-        if ($existing && !empty($existing['session_path'])) {
-            return $existing;
-        }
-        $path = $this->demo_data_path();
-        if (!file_exists($path)) {
+        $rows = $this->fetch_demo_rows();
+        if (empty($rows)) {
             return null;
         }
-        $rows = $this->parse_json($path);
         $rows = $this->normalize_rows($rows);
         $this->ensure_dirs();
         $session_path = $this->session_dir() . $import_id . '.json';
@@ -103,8 +99,8 @@ class SPBWC_Global_Import_Controller {
         }
         $session = array(
             'import_id' => $import_id,
-            'file_path' => $path,
-            'file_name' => basename($path),
+            'file_path' => self::DEMO_DATA_URL,
+            'file_name' => basename(self::DEMO_DATA_URL),
             'file_ext' => 'json',
             'session_path' => $session_path,
             'created_at' => current_time('mysql'),
@@ -208,9 +204,10 @@ class SPBWC_Global_Import_Controller {
         if ($import_id === '') {
             $import_id = $this->demo_session_id();
         }
-        $session = $this->get_session($import_id);
-        if (!$session && $import_id === $this->demo_session_id()) {
+        if ($import_id === $this->demo_session_id()) {
             $session = $this->ensure_demo_session();
+        } else {
+            $session = $this->get_session($import_id);
         }
         if (!$session) {
             wp_send_json_error(__('Session not found', 'storelly-product-builder-for-woocommerce'));
@@ -254,9 +251,10 @@ class SPBWC_Global_Import_Controller {
         if ($import_id === '') {
             $import_id = $this->demo_session_id();
         }
-        $session = $this->get_session($import_id);
-        if (!$session && $import_id === $this->demo_session_id()) {
+        if ($import_id === $this->demo_session_id()) {
             $session = $this->ensure_demo_session();
+        } else {
+            $session = $this->get_session($import_id);
         }
         if (!$session) {
             wp_send_json_error(__('Session not found', 'storelly-product-builder-for-woocommerce'));
@@ -330,9 +328,10 @@ class SPBWC_Global_Import_Controller {
             wp_send_json_error(__('No rows selected', 'storelly-product-builder-for-woocommerce'));
         }
         $batch = max(1, absint($_POST['batch'] ?? 20));
-        $session = $this->get_session($import_id);
-        if (!$session && $import_id === $this->demo_session_id()) {
+        if ($import_id === $this->demo_session_id()) {
             $session = $this->ensure_demo_session();
+        } else {
+            $session = $this->get_session($import_id);
         }
         if (!$session) {
             wp_send_json_error(__('Session not found', 'storelly-product-builder-for-woocommerce'));
@@ -344,6 +343,7 @@ class SPBWC_Global_Import_Controller {
         }
         $processed = array();
         $errors = array();
+        $debug_lines = array();
         $payload = array();
         $count = 0;
         foreach ($row_ids as $row_id) {
@@ -362,11 +362,21 @@ class SPBWC_Global_Import_Controller {
                 $result = array(
                     'success' => false,
                     'message' => $throwable->getMessage(),
+                    'warnings' => array(),
+                    'debug' => array(
+                        'Row ' . $row_id . ': exception during import - ' . $throwable->getMessage(),
+                    ),
                 );
+            }
+            if (!empty($result['debug']) && is_array($result['debug'])) {
+                $debug_lines = array_merge($debug_lines, $result['debug']);
             }
             if ($result['success']) {
                 $processed[] = $result['data'];
                 $payload[] = $this->build_product_payload($result['data']['product_id']);
+                if (!empty($result['warnings']) && is_array($result['warnings'])) {
+                    $errors = array_merge($errors, $result['warnings']);
+                }
             } else {
                 $errors[] = $result['message'];
             }
@@ -381,7 +391,7 @@ class SPBWC_Global_Import_Controller {
                 $errors[] = isset($export_result['error']) ? $export_result['error'] : __('Failed to export import session', 'storelly-product-builder-for-woocommerce');
             }
         }
-        $this->append_log($job_id, $processed, $errors);
+        $this->append_log($job_id, $processed, $errors, $debug_lines);
         wp_send_json_success(array(
             'processed' => $processed,
             'errors' => $errors,
@@ -481,6 +491,23 @@ class SPBWC_Global_Import_Controller {
     private function parse_json($path) {
         $fs = $this->filesystem();
         $contents = $fs ? $fs->get_contents($path) : '';
+        return $this->parse_json_content($contents);
+    }
+
+    private function fetch_demo_rows() {
+        $response = wp_remote_get(self::DEMO_DATA_URL, array('timeout' => 20));
+        if (is_wp_error($response)) {
+            return array();
+        }
+        $code = (int) wp_remote_retrieve_response_code($response);
+        if ($code < 200 || $code >= 300) {
+            return array();
+        }
+        $body = (string) wp_remote_retrieve_body($response);
+        return $this->parse_json_content($body);
+    }
+
+    private function parse_json_content($contents) {
         $json = json_decode($contents, true);
         if (isset($json['products']) && is_array($json['products'])) {
             return $json['products'];
@@ -602,10 +629,136 @@ class SPBWC_Global_Import_Controller {
         return is_array($rows) ? $rows : array();
     }
 
+    private function decode_remote_payload_to_array($payload, &$debug_lines, $payload_type) {
+        if (is_array($payload)) {
+            return $payload;
+        }
+        if (is_object($payload)) {
+            return (array) $payload;
+        }
+        $payload = is_string($payload) ? trim($payload) : '';
+        if ('' === $payload) {
+            $debug_lines[] = sprintf('%s payload is empty.', $payload_type);
+            return array();
+        }
+        $unserialized = maybe_unserialize($payload);
+        if (is_array($unserialized)) {
+            $debug_lines[] = sprintf('%s payload decoded via maybe_unserialize.', $payload_type);
+            return $unserialized;
+        }
+        if (is_object($unserialized)) {
+            $debug_lines[] = sprintf('%s payload decoded as object via maybe_unserialize.', $payload_type);
+            return (array) $unserialized;
+        }
+        $json = json_decode($payload, true);
+        if (is_array($json)) {
+            $debug_lines[] = sprintf('%s payload decoded via json_decode.', $payload_type);
+            return $json;
+        }
+        if (is_string($json)) {
+            $json_unserialized = maybe_unserialize($json);
+            if (is_array($json_unserialized)) {
+                $debug_lines[] = sprintf('%s payload decoded via json + maybe_unserialize.', $payload_type);
+                return $json_unserialized;
+            }
+            if (is_object($json_unserialized)) {
+                $debug_lines[] = sprintf('%s payload decoded as object via json + maybe_unserialize.', $payload_type);
+                return (array) $json_unserialized;
+            }
+        }
+        $debug_lines[] = sprintf('%s payload decode failed. Sample: %s', $payload_type, substr($payload, 0, 140));
+        return array();
+    }
+
+    private function deep_unserialize($value) {
+        if (is_string($value)) {
+            $un = @unserialize($value); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.serialize_unserialize -- Needed to decode nested serialized strings from legacy export format.
+            if (false !== $un && $un !== $value) {
+                return $this->deep_unserialize($un);
+            }
+            $un2 = maybe_unserialize($value);
+            if ($un2 !== $value && (is_array($un2) || is_object($un2))) {
+                return $this->deep_unserialize($un2);
+            }
+            return $value;
+        }
+        if (is_object($value)) {
+            $value = (array) $value;
+        }
+        if (is_array($value)) {
+            foreach ($value as $k => $v) {
+                $value[$k] = $this->deep_unserialize($v);
+            }
+        }
+        return $value;
+    }
+
+    private function import_print_options_for_product($product_id, $row_id, $raw, &$warnings, &$debug_lines) {
+        if (empty($raw['print_options'])) {
+            $debug_lines[] = 'Row ' . $row_id . ': print options URL not provided.';
+            return;
+        }
+        $print_options_url = (string) $raw['print_options'];
+        $debug_lines[] = 'Row ' . $row_id . ': fetching print options from ' . $print_options_url;
+        $path = wp_parse_url($print_options_url, PHP_URL_PATH);
+        $ext = $path ? strtolower(pathinfo($path, PATHINFO_EXTENSION)) : '';
+        $print_options_str = $this->adapter->file_get_contents_remote($print_options_url);
+        if ('' === $print_options_str) {
+            $warnings[] = sprintf(
+                __('Row %1$s: unable to fetch print options from %2$s', 'storelly-product-builder-for-woocommerce'),
+                $row_id,
+                $print_options_url
+            );
+            return;
+        }
+        if ('json' === $ext) {
+            $debug_lines[] = 'Row ' . $row_id . ': detected print options JSON payload.';
+            $print_options_data = $this->decode_remote_payload_to_array($print_options_str, $debug_lines, 'print_options');
+        } elseif ('txt' === $ext) {
+            $debug_lines[] = 'Row ' . $row_id . ': detected print options TXT (serialized) payload.';
+            $print_options_data = $this->deep_unserialize($print_options_str);
+            if (!is_array($print_options_data)) {
+                $debug_lines[] = 'Row ' . $row_id . ': TXT deep_unserialize failed, falling back to auto decode.';
+                $print_options_data = $this->decode_remote_payload_to_array($print_options_str, $debug_lines, 'print_options');
+            } else {
+                $debug_lines[] = 'Row ' . $row_id . ': TXT payload decoded successfully via deep_unserialize.';
+            }
+        } else {
+            $debug_lines[] = 'Row ' . $row_id . ': print options extension not detected, using auto decode.';
+            $print_options_data = $this->decode_remote_payload_to_array($print_options_str, $debug_lines, 'print_options');
+        }
+        if (empty($print_options_data)) {
+            $warnings[] = sprintf(
+                __('Row %1$s: print options payload is invalid for product #%2$d', 'storelly-product-builder-for-woocommerce'),
+                $row_id,
+                $product_id
+            );
+            return;
+        }
+        $print_option_result = $this->adapter->create_or_update_print_option($product_id, $print_options_data);
+        if (!is_array($print_option_result) || empty($print_option_result['success'])) {
+            $warnings[] = sprintf(
+                __('Row %1$s: failed to save print options for product #%2$d. %3$s', 'storelly-product-builder-for-woocommerce'),
+                $row_id,
+                $product_id,
+                isset($print_option_result['message']) ? $print_option_result['message'] : __('Unknown error', 'storelly-product-builder-for-woocommerce')
+            );
+            return;
+        }
+        $debug_lines[] = sprintf(
+            'Row %1$s: print options saved for product #%2$d (option_id=%3$d).',
+            $row_id,
+            $product_id,
+            isset($print_option_result['option_id']) ? (int) $print_option_result['option_id'] : 0
+        );
+    }
+
     private function import_row($row) {
         $raw = $row['raw'];
         $sku = $row['sku'];
         $external_id = $raw['external_id'] ?? $raw['id'] ?? '';
+        $warnings = array();
+        $debug_lines = array();
         $existing_id = $sku ? wc_get_product_id_by_sku($sku) : 0;
         if (!$existing_id && $external_id) {
             $existing = get_posts(array(
@@ -621,17 +774,20 @@ class SPBWC_Global_Import_Controller {
         }
         if (!empty($raw['settings'])) {
             $settings_str = $this->adapter->file_get_contents_remote($raw['settings']);
-            $data = maybe_unserialize($settings_str);
-            $product_id = $existing_id ?: $this->adapter->add_product($data);
-            if (!empty($raw['print_options'])) {
-                $print_options_str = $this->adapter->file_get_contents_remote($raw['print_options']);
-                if (!empty($print_options_str)) {
-                    $print_options_data = maybe_unserialize($print_options_str);
-                    if (is_array($print_options_data) && !empty($print_options_data)) {
-                        $this->adapter->create_or_update_print_option($product_id, $print_options_data);
-                    }
-                }
+            $data = $this->decode_remote_payload_to_array($settings_str, $debug_lines, 'settings');
+            if (empty($data)) {
+                return array(
+                    'success' => false,
+                    'message' => sprintf(
+                        __('Row %s: product settings payload is invalid', 'storelly-product-builder-for-woocommerce'),
+                        $row['row_id']
+                    ),
+                    'warnings' => $warnings,
+                    'debug' => $debug_lines,
+                );
             }
+            $product_id = $existing_id ?: $this->adapter->add_product($data);
+            $this->import_print_options_for_product($product_id, $row['row_id'], $raw, $warnings, $debug_lines);
             if (!empty($raw['templates'])) {
                 $templates_str = $this->adapter->file_get_contents_remote($raw['templates']);
                 $templates = json_decode($templates_str, true);
@@ -650,15 +806,7 @@ class SPBWC_Global_Import_Controller {
             if (isset($raw['stock_quantity'])) $product->set_stock_quantity(intval($raw['stock_quantity']));
             if ($sku) $product->set_sku($sku);
             $product_id = $product->save();
-            if (!empty($raw['print_options'])) {
-                $print_options_str = $this->adapter->file_get_contents_remote($raw['print_options']);
-                if (!empty($print_options_str)) {
-                    $print_options_data = maybe_unserialize($print_options_str);
-                    if (is_array($print_options_data) && !empty($print_options_data)) {
-                        $this->adapter->create_or_update_print_option($product_id, $print_options_data);
-                    }
-                }
-            }
+            $this->import_print_options_for_product($product_id, $row['row_id'], $raw, $warnings, $debug_lines);
         }
         if ($external_id) {
             update_post_meta($product_id, '_spbwc_external_id', $external_id);
@@ -717,7 +865,9 @@ class SPBWC_Global_Import_Controller {
                 'row_id' => $row['row_id'],
                 'product_id' => $product_id,
                 'sku' => $sku
-            )
+            ),
+            'warnings' => $warnings,
+            'debug' => $debug_lines,
         );
     }
 
@@ -775,7 +925,7 @@ class SPBWC_Global_Import_Controller {
         return $data;
     }
 
-    private function append_log($import_id, $processed, $errors) {
+    private function append_log($import_id, $processed, $errors, $debug_lines = array()) {
         $this->ensure_dirs();
         $fs = $this->filesystem();
         if (!$fs) return;
@@ -783,6 +933,9 @@ class SPBWC_Global_Import_Controller {
         $lines = array();
         foreach ($processed as $p) {
             $lines[] = 'IMPORTED ' . wp_json_encode($p);
+        }
+        foreach ($debug_lines as $debug) {
+            $lines[] = 'DEBUG ' . $debug;
         }
         foreach ($errors as $e) {
             $lines[] = 'ERROR ' . $e;

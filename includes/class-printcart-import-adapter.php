@@ -110,15 +110,187 @@ class SPBWC_Printcart_Import_Adapter {
         return $product_id;
     }
 
-    public function create_or_update_print_option($new_product_id, $data) {
-        if (!is_array($data)) {
-            return;
+    private function decode_payload_to_array($value) {
+        if (is_array($value)) {
+            return $value;
         }
+        if (is_object($value)) {
+            return (array) $value;
+        }
+        $value = is_string($value) ? trim($value) : '';
+        if ('' === $value) {
+            return array();
+        }
+        $unserialized = maybe_unserialize($value);
+        if (is_array($unserialized)) {
+            return $unserialized;
+        }
+        if (is_object($unserialized)) {
+            return (array) $unserialized;
+        }
+        $json = json_decode($value, true);
+        if (is_array($json)) {
+            return $json;
+        }
+        if (is_string($json)) {
+            $json_unserialized = maybe_unserialize($json);
+            if (is_array($json_unserialized)) {
+                return $json_unserialized;
+            }
+            if (is_object($json_unserialized)) {
+                return (array) $json_unserialized;
+            }
+        }
+        return array();
+    }
+
+    private function normalize_exported_print_option($data, $new_product_id) {
+        if (!is_array($data)) {
+            return array();
+        }
+        $normalized = $data;
+        $normalized['id'] = '0';
+        $normalized['product_ids'] = array((string) $new_product_id);
+        if (!isset($normalized['fields']) || !is_array($normalized['fields'])) {
+            $normalized['fields'] = array();
+        }
+        return $normalized;
+    }
+
+    private function import_exported_print_option_media($value) {
+        if (is_array($value)) {
+            foreach ($value as $key => $item) {
+                if (is_string($key) && substr($key, -4) === '_url') {
+                    $media_key = substr($key, 0, -4);
+                    if (is_string($item) && '' !== trim($item)) {
+                        $attachment_id = $this->add_attachment_from_url($item);
+                        if ($attachment_id) {
+                            $value[$media_key] = $attachment_id;
+                        }
+                    } elseif (is_array($item)) {
+                        $media_values = array();
+                        foreach ($item as $index => $url) {
+                            if (!is_string($url) || '' === trim($url)) {
+                                $media_values[$index] = 0;
+                                continue;
+                            }
+                            $attachment_id = $this->add_attachment_from_url($url);
+                            $media_values[$index] = $attachment_id ? $attachment_id : 0;
+                        }
+                        $value[$media_key] = $media_values;
+                    }
+                } else {
+                    $value[$key] = $this->import_exported_print_option_media($item);
+                }
+            }
+        }
+        return $value;
+    }
+
+    private function is_field_config_object($value) {
+        return is_array($value)
+            && array_key_exists('value', $value)
+            && array_key_exists('type', $value)
+            && array_key_exists('title', $value);
+    }
+
+    private function collapse_field_config_objects($value) {
+        if ($this->is_field_config_object($value)) {
+            return $value['value'];
+        }
+        if (is_array($value)) {
+            foreach ($value as $k => $v) {
+                $value[$k] = $this->collapse_field_config_objects($v);
+            }
+        }
+        return $value;
+    }
+
+    private function collapse_exported_print_option_to_raw($option) {
+        if (!is_array($option) || !isset($option['fields']) || !is_array($option['fields'])) {
+            return $option;
+        }
+        foreach ($option['fields'] as $idx => $field) {
+            if (!is_array($field)) {
+                continue;
+            }
+            if (isset($field['general']) && is_array($field['general'])) {
+                $field['general'] = $this->collapse_field_config_objects($field['general']);
+            }
+            if (isset($field['appearance']) && is_array($field['appearance'])) {
+                $field['appearance'] = $this->collapse_field_config_objects($field['appearance']);
+            }
+            $option['fields'][$idx] = $field;
+        }
+        return $option;
+    }
+
+    private function is_legacy_db_row($data) {
+        return is_array($data)
+            && isset($data['fields'])
+            && is_string($data['fields'])
+            && isset($data['created'])
+            && isset($data['modified']);
+    }
+
+    private function deep_unserialize($value) {
+        if (is_string($value)) {
+            $unserialized = maybe_unserialize($value);
+            if ($unserialized !== $value) {
+                return $this->deep_unserialize($unserialized);
+            }
+            return $value;
+        }
+        if (is_array($value)) {
+            foreach ($value as $k => $v) {
+                $value[$k] = $this->deep_unserialize($v);
+            }
+        }
+        return $value;
+    }
+
+    public function create_or_update_print_option($new_product_id, $data) {
+        if ($new_product_id <= 0) {
+            return array(
+                'success' => false,
+                'option_id' => 0,
+                'message' => __('Invalid product ID', 'storelly-product-builder-for-woocommerce'),
+            );
+        }
+        if (!is_array($data)) {
+            $data = $this->decode_payload_to_array($data);
+        }
+        if (empty($data)) {
+            return array(
+                'success' => false,
+                'option_id' => 0,
+                'message' => __('Print option payload is empty or invalid', 'storelly-product-builder-for-woocommerce'),
+            );
+        }
+
+        if ($this->is_legacy_db_row($data)) {
+            $fields_raw = $this->deep_unserialize($data['fields']);
+            if (!is_array($fields_raw)) {
+                $fields_raw = array();
+            }
+            $save_data = $fields_raw;
+            $save_data['product_ids'] = array((string) $new_product_id);
+            return $this->save_print_option($new_product_id, $save_data);
+        }
+
+        $is_exported_option = isset($data['fields']) && is_array($data['fields']);
+        if ($is_exported_option) {
+            $data = $this->normalize_exported_print_option($data, $new_product_id);
+            $data = $this->import_exported_print_option_media($data);
+            $data = $this->collapse_exported_print_option_to_raw($data);
+            return $this->save_print_option($new_product_id, $data);
+        }
+
         $media_objects_raw = isset($data['media_objects']) ? $data['media_objects'] : '';
-        $media_objects = maybe_unserialize($media_objects_raw);
+        $media_objects = $this->decode_payload_to_array($media_objects_raw);
         if (is_array($media_objects) && count($media_objects) > 0) {
             $option_fields_raw = isset($data['fields']) ? $data['fields'] : '';
-            $option_fields = maybe_unserialize($option_fields_raw);
+            $option_fields = $this->decode_payload_to_array($option_fields_raw);
             if (!is_array($option_fields)) {
                 $option_fields = array();
             }
@@ -139,9 +311,16 @@ class SPBWC_Printcart_Import_Adapter {
                 $reference = $uploaded_id;
                 unset($reference);
             }
-            $data['fields'] = serialize($option_fields);
+            $data['fields'] = $option_fields;
         }
-        $this->save_print_option($new_product_id, $data);
+        if (isset($data['fields']) && !is_array($data['fields'])) {
+            $decoded_fields = $this->deep_unserialize($data['fields']);
+            $data['fields'] = is_array($decoded_fields) ? $decoded_fields : array();
+        }
+        if (isset($data['builder']) && is_array($data['builder'])) {
+            $data['builder'] = wp_json_encode($data['builder']);
+        }
+        return $this->save_print_option($new_product_id, $data);
     }
 
     public function save_print_option($new_product_id, $data) {
@@ -159,7 +338,14 @@ class SPBWC_Printcart_Import_Adapter {
                 __('Printing Options for %s', 'storelly-product-builder-for-woocommerce'),
                 $product_name
             );
-        $wpdb->insert(
+        $fields_payload = $data;
+        if (
+            isset($data['fields']) && is_array($data['fields'])
+            && isset($data['fields']['fields']) && is_array($data['fields']['fields'])
+        ) {
+            $fields_payload = $data['fields'];
+        }
+        $inserted = $wpdb->insert(
             $table_name,
             array(
                 'title'       => $title,
@@ -169,11 +355,18 @@ class SPBWC_Printcart_Import_Adapter {
                 'modified'    => $now,
                 'created_by'  => $current_user_id,
                 'modified_by' => $current_user_id,
-                'fields'      => isset($data['fields']) ? $data['fields'] : '',
+                'fields'      => serialize($fields_payload),
                 'builder'     => isset($data['builder']) ? $data['builder'] : '',
             ),
             array('%s', '%d', '%s', '%s', '%s', '%d', '%d', '%s', '%s')
         );
+        if (false === $inserted) {
+            return array(
+                'success' => false,
+                'option_id' => 0,
+                'message' => '' !== $wpdb->last_error ? $wpdb->last_error : __('Failed to insert print option', 'storelly-product-builder-for-woocommerce'),
+            );
+        }
         $option_id = $wpdb->insert_id;
         if ($option_id) {
             delete_transient('spbwc_product_builder_' . $new_product_id);
@@ -181,6 +374,11 @@ class SPBWC_Printcart_Import_Adapter {
             update_post_meta($new_product_id, '_spbwc_option_id', $option_id);
             update_post_meta($new_product_id, '_storelly_pb_enable', 1);
         }
+        return array(
+            'success' => true,
+            'option_id' => (int) $option_id,
+            'message' => '',
+        );
     }
 
     public function add_templates($templates, $product_id, $new_product_id) {

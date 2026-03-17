@@ -388,16 +388,6 @@
                 </div>
             </div>
             <div class="spbwc-gi-card">
-                <h3>{{ config.i18n.upload_title }}</h3>
-                <div class="spbwc-gi-dropzone" :class="{active: dragActive}" @drop="handleDrop" @dragover="handleDragOver" @dragleave="handleDragLeave">
-                    <div>Drag and drop CSV, Excel or JSON file here</div>
-                    <div class="spbwc-gi-flex" style="margin-top:12px; justify-content:center;">
-                        <button class="spbwc-gi-btn" @click="openFilePicker" :disabled="uploading">{{ uploading ? 'Uploading...' : 'Browse file' }}</button>
-                    </div>
-                    <input type="file" ref="fileInput" style="display:none" @change="handleFileChange" />
-                </div>
-            </div>
-            <div class="spbwc-gi-card">
                 <h3>{{ config.i18n.import_title }}</h3>
                 <div class="spbwc-gi-toolbar" style="margin-bottom:12px;">
                     <input class="spbwc-gi-input" v-model="search" @input="onFilterChange" placeholder="Search by name or SKU" />
