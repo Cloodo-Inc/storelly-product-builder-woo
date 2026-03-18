@@ -388,6 +388,12 @@
                 </div>
             </div>
             <div class="spbwc-gi-card">
+                <h3>Realtime log</h3>
+                <div class="spbwc-gi-log">
+                    <div v-for="(line, idx) in logs" :key="idx">{{ line }}</div>
+                </div>
+            </div>
+            <div class="spbwc-gi-card">
                 <h3>{{ config.i18n.import_title }}</h3>
                 <div class="spbwc-gi-toolbar" style="margin-bottom:12px;">
                     <input class="spbwc-gi-input" v-model="search" @input="onFilterChange" placeholder="Search by name or SKU" />
@@ -434,12 +440,6 @@
                     <button class="spbwc-gi-btn secondary" :disabled="page<=1" @click="page--; fetchList()">Prev</button>
                     <span>{{ page }} / {{ totalPages }}</span>
                     <button class="spbwc-gi-btn secondary" :disabled="page>=totalPages" @click="page++; fetchList()">Next</button>
-                </div>
-            </div>
-            <div class="spbwc-gi-card">
-                <h3>Realtime log</h3>
-                <div class="spbwc-gi-log">
-                    <div v-for="(line, idx) in logs" :key="idx">{{ line }}</div>
                 </div>
             </div>
             <div class="spbwc-gi-card">

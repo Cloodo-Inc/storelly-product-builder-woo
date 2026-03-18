@@ -258,7 +258,7 @@ if (!class_exists('SPBWC_Storelly_Product_Builder_API')) {
         
         public function spbwc_activation_redirect($plugin){
             if ($plugin == plugin_basename(__FILE__)) {
-                wp_safe_redirect(admin_url('admin.php?page=storelly-product-builder-for-woocommerce-options/settings'));
+                wp_safe_redirect(admin_url('admin.php?page=' . SPBWC_PB_OPTIONS_SLUG));
                 exit;
             }
         }

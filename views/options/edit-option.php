@@ -2,12 +2,12 @@
 <?php
 $link = add_query_arg(array(
     'paged'    => isset($_GET['paged']) ? sanitize_text_field( wp_unslash( $_GET['paged'] ) ) : 1 // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only admin query arg used to build navigation link.
-), admin_url('admin.php?page=storelly-product-builder-for-woocommerce-options'));
+), admin_url('admin.php?page=' . SPBWC_PB_BUILDER_SLUG));
 // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Template variable.
 $link_update = add_query_arg(array(
     'action'    => 'update',
     'id'        => $options['id'],
-), admin_url('admin.php?page=storelly-product-builder-for-woocommerce-options'));
+), admin_url('admin.php?page=' . SPBWC_PB_BUILDER_SLUG));
 // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Template variable.
 $link_unpublish = add_query_arg(array(
     'id'        => isset($options['id']) ? absint( $options['id'] ) : 0,
@@ -21,7 +21,7 @@ $link_create_option = add_query_arg(
         'paged'     => 1,
         'id'        => 0
     ),
-    admin_url('admin.php?page=storelly-product-builder-for-woocommerce-options')
+    admin_url('admin.php?page=' . SPBWC_PB_BUILDER_SLUG)
 );
 wp_enqueue_media();
 

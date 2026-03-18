@@ -7,7 +7,7 @@ $link_create_option = add_query_arg(
         'paged'     => 1,
         'id'        => 0
     ),
-    admin_url('admin.php?page=storelly-product-builder-for-woocommerce-options')
+    admin_url('admin.php?page=' . SPBWC_PB_BUILDER_SLUG)
 );
 ?>
 <div class="wrap">

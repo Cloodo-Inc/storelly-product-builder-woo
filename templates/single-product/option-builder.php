@@ -8,13 +8,13 @@ $display_type       = '1';
 $in_design_editor   = false;
 $group_mode = false;
 $nbds_frontend = array(
-    'wc_currency_format_num_decimals'               =>  wc_get_price_decimals(),
+    'wc_currency_format_num_decimals'               =>  SPBWC_Storelly_PB_Util::spbwc_get_option_decimals(),
     'currency_format_num_decimals'                  =>  4,
     'currency_format_symbol'                        =>  html_entity_decode((string) get_woocommerce_currency_symbol(), ENT_QUOTES, 'UTF-8'),
     'currency_format_decimal_sep'                   =>  stripslashes(wc_get_price_decimal_separator()),
     'currency_format_thousand_sep'                  =>  stripslashes(wc_get_price_thousand_separator()),
     'currency_format'                               =>  esc_attr(str_replace(array('%1$s', '%2$s'), array('%s', '%v'), get_woocommerce_price_format())),
-    'nbstorelly_hide_add_cart_until_form_filled'    =>  'yes'
+    'nbstorelly_hide_add_cart_until_form_filled'    =>  get_option('spbwc_hide_add_cart_until_form_filled', 'no') === 'yes' ? 'yes' : 'no'
 );
 
 $prefix             = '';

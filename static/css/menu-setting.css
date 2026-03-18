@@ -1,5 +1,365 @@
 /* Storelly Settings Page - Professional Styling */
 
+.spbwc-settings-wrap {
+    margin: 20px 20px 20px 0;
+    padding: 0 24px 32px;
+    max-width: 1200px;
+}
+
+.spbwc-settings-box {
+    margin: 0;
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+    overflow: hidden;
+}
+
+.spbwc-settings-tabs {
+    margin: 0;
+    padding: 0 24px;
+    border-bottom: 2px solid #e8e8e8;
+    background: #fafafa;
+}
+
+.spbwc-settings-tabs .nav-tab {
+    margin-bottom: -2px;
+    border: none;
+    border-bottom: 3px solid transparent;
+    background: transparent;
+    padding: 14px 20px;
+    font-weight: 500;
+    color: #5c5c5c;
+    transition: all 0.2s ease;
+}
+
+.spbwc-settings-tabs .nav-tab:hover {
+    color: #1d2327;
+}
+
+.spbwc-settings-tabs .nav-tab-active {
+    color: #2271b1;
+    border-bottom-color: #2271b1;
+    background: #fff;
+}
+
+.spbwc-settings-content {
+    padding: 32px 32px 40px;
+    background: #fff;
+}
+
+.spbwc-settings-section {
+    margin-bottom: 40px;
+}
+
+.spbwc-settings-section:last-child {
+    margin-bottom: 0;
+}
+
+.spbwc-section-storelly {
+    padding: 24px 0;
+    border-bottom: 1px solid #e8e8e8;
+    margin-bottom: 32px;
+}
+
+.spbwc-section-title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 0 0 8px 0;
+    font-size: 16px;
+    font-weight: 600;
+    color: #1d2327;
+}
+
+.spbwc-section-title .dashicons {
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
+    color: #2271b1;
+}
+
+.spbwc-section-desc {
+    margin: 0 0 20px 0;
+    font-size: 13px;
+    color: #646970;
+    line-height: 1.5;
+}
+
+.spbwc-settings-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+}
+
+.spbwc-settings-card {
+    background: #f9fafb;
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
+    padding: 20px 24px;
+}
+
+.spbwc-card-title {
+    margin: 0 0 16px 0;
+    font-size: 14px;
+    font-weight: 600;
+    color: #374151;
+}
+.spbwc-card-api .spbwc-card-title {
+    margin-bottom: 20px;
+}
+
+.spbwc-form-row {
+    margin-bottom: 18px;
+}
+
+.spbwc-form-row:last-child {
+    margin-bottom: 0;
+}
+
+.spbwc-form-label {
+    display: block;
+    margin-bottom: 6px;
+    font-size: 13px;
+    font-weight: 500;
+    color: #374151;
+}
+
+.spbwc-input {
+    width: 100%;
+    max-width: 100%;
+    padding: 10px 14px;
+    font-size: 13px;
+    line-height: 1.5;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    background: #fff;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.spbwc-input:focus {
+    border-color: #2271b1;
+    box-shadow: 0 0 0 1px #2271b1;
+    outline: none;
+}
+
+.spbwc-input-readonly {
+    background: #f3f4f6;
+    color: #6b7280;
+    cursor: not-allowed;
+}
+
+.spbwc-form-hint {
+    display: block;
+    margin-top: 6px;
+    font-size: 12px;
+    color: #6b7280;
+    line-height: 1.4;
+}
+
+.spbwc-form-actions {
+    display: flex;
+    gap: 12px;
+    margin-top: 20px;
+    flex-wrap: wrap;
+}
+
+.spbwc-btn {
+    display: inline-block;
+    padding: 10px 18px;
+    font-size: 13px;
+    font-weight: 500;
+    text-decoration: none;
+    border-radius: 6px;
+    transition: all 0.2s ease;
+}
+
+.spbwc-btn-primary {
+    background: #2271b1;
+    color: #fff;
+    border: 1px solid #2271b1;
+}
+
+.spbwc-btn-primary:hover {
+    background: #135e96;
+    border-color: #135e96;
+    color: #fff;
+}
+
+.spbwc-btn-secondary {
+    background: #fff;
+    color: #2271b1;
+    border: 1px solid #2271b1;
+}
+
+.spbwc-btn-secondary:hover {
+    background: #f0f6fc;
+    color: #135e96;
+}
+
+.spbwc-log-row {
+    margin-top: 20px;
+    padding-top: 20px;
+    border-top: 1px solid #e5e7eb;
+}
+
+.spbwc-log-box {
+    padding: 12px 16px;
+    background: #f8f9fa;
+    border: 1px solid #e5e7eb;
+    border-radius: 6px;
+    min-height: 44px;
+}
+
+.spbwc-log-box code {
+    font-size: 12px;
+    color: #6b7280;
+    word-break: break-word;
+}
+
+.spbwc-radio-inline {
+    display: inline-block;
+    margin-right: 20px;
+    font-size: 13px;
+    cursor: pointer;
+}
+
+.spbwc-radio-inline input {
+    margin-right: 6px;
+    vertical-align: middle;
+}
+
+.spbwc-tab-title {
+    margin: 0 0 20px 0;
+    padding-bottom: 12px;
+    font-size: 16px;
+    font-weight: 600;
+    color: #1d2327;
+    border-bottom: 1px solid #e8e8e8;
+}
+
+.spbwc-settings-content .form-table th {
+    padding: 14px 16px 14px 0;
+    width: 220px;
+    font-weight: 500;
+    font-size: 13px;
+    color: #374151;
+}
+
+.spbwc-settings-content .form-table td {
+    padding: 14px 0;
+}
+
+.spbwc-settings-content .form-table .description {
+    margin-top: 8px;
+    margin-left: 0;
+    font-size: 12px;
+    color: #6b7280;
+    line-height: 1.5;
+}
+
+.spbwc-settings-content .form-table .row {
+    margin: 6px 0;
+}
+
+.spbwc-settings-content .form-table .row label {
+    font-size: 13px;
+    cursor: pointer;
+}
+
+/* Sticky Save Bar - Always visible at bottom */
+.spbwc-sticky-save-bar {
+    position: fixed;
+    bottom: 0;
+    left: 160px;
+    right: 0;
+    z-index: 99999;
+    background: #fff;
+    border-top: 1px solid #c3c4c7;
+    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.08);
+    padding: 16px 24px;
+}
+
+.spbwc-sticky-save-inner {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+}
+
+.spbwc-save-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 28px;
+    font-size: 14px;
+    font-weight: 600;
+    color: #fff;
+    background: linear-gradient(135deg, #2271b1 0%, #135e96 100%);
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(34, 113, 177, 0.35);
+    transition: all 0.2s ease;
+}
+
+.spbwc-save-btn:hover {
+    background: linear-gradient(135deg, #135e96 0%, #0d4b7a 100%);
+    box-shadow: 0 4px 12px rgba(34, 113, 177, 0.4);
+    transform: translateY(-1px);
+}
+
+.spbwc-save-btn:active {
+    transform: translateY(0);
+}
+
+.spbwc-save-btn .dashicons {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+}
+
+/* Add bottom padding so content isn't hidden behind sticky bar */
+.spbwc-settings-wrap .storelly-form {
+    padding-bottom: 80px;
+}
+
+/* WordPress admin menu folded state */
+body.folded .spbwc-sticky-save-bar {
+    left: 36px;
+}
+
+@media screen and (max-width: 960px) {
+    .spbwc-sticky-save-bar {
+        left: 36px;
+    }
+}
+
+@media screen and (max-width: 782px) {
+    .spbwc-sticky-save-bar {
+        left: 0;
+        padding: 12px 16px;
+    }
+    
+    .spbwc-save-btn {
+        padding: 10px 20px;
+        font-size: 13px;
+    }
+}
+
+@media (max-width: 782px) {
+    .spbwc-settings-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .spbwc-settings-wrap {
+        padding: 0 16px 24px;
+    }
+    
+    .spbwc-settings-content {
+        padding: 24px 20px 32px;
+    }
+}
+
 .form-table td {
     vertical-align: top;
     padding: 15px 10px;
@@ -246,34 +606,6 @@
     box-shadow: none;
 }
 
-.storelly-form .submit {
-    padding: 25px 30px;
-    background: #fff;
-    border-top: 1px solid #e5e5e5;
-    display: flex;
-    align-items: center;
-    gap: 15px;
-}
-
-.storelly-form .submit .button-primary {
-    background: #667eea;
-    border-color: #667eea;
-    color: #fff;
-    padding: 10px 25px;
-    height: auto;
-    font-size: 14px;
-    font-weight: 600;
-    border-radius: 6px;
-    transition: all 0.3s ease;
-    box-shadow: 0 2px 4px rgba(102, 126, 234, 0.2);
-}
-
-.storelly-form .submit .button-primary:hover {
-    background: #5568d3;
-    border-color: #5568d3;
-    transform: translateY(-1px);
-    box-shadow: 0 4px 8px rgba(102, 126, 234, 0.3);
-}
 
 /* Message styling */
 .storelly-box #message {

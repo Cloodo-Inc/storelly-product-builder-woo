@@ -133,7 +133,7 @@ class SPBWC_Storelly_Options_List_Table extends WP_List_Table
 
         // Define the redirect URL (clean URL without action/id params)
         $redirect_url = remove_query_arg(array('action', 'action2', '_wpnonce', '_wp_http_referer', 'id', 'paged'), wp_get_referer());
-        $redirect_url = add_query_arg('page', 'storelly-product-builder-for-woocommerce-options', admin_url('admin.php'));
+        $redirect_url = add_query_arg('page', SPBWC_PB_BUILDER_SLUG, admin_url('admin.php'));
 
         if ('delete' === $current_action) {
             if (!isset($_GET['id'])) {

@@ -14,6 +14,11 @@ if (!defined('ABSPATH')) {
                     <input type="checkbox" value="1" name="_storelly_pb_enable" id="_storelly_pb_enable" <?php checked($nbdpb_enable); ?> class="short" />
                 </span>
             </p>
+            <?php if ($option_id > 0 && !empty($option_title)) : ?>
+            <p class="storelly-form-field">
+                <label><?php esc_html_e('Mapped printing option:', 'storelly-product-builder-for-woocommerce'); ?> <strong><?php echo esc_html($option_title); ?></strong></label>
+            </p>
+            <?php endif; ?>
             <p class="storelly-form-field">
                 <label>
                     <a href="<?php echo esc_url($link_edit_option); ?>" target="_blank" class="button">

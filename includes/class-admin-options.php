@@ -222,40 +222,40 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
                     'Storelly Builder',
                     'Product Builder Options',
                     'spbwc_manage_product_builder',
-                    'storelly-product-builder-for-woocommerce-options',
-                    array($this, 'spbwc_product_builder_options'),
+                    SPBWC_PB_OPTIONS_SLUG,
+                    array($this, 'spbwc_settings'),
                     SPBWC_PB_ASSETS_URL . 'images/logo.svg'
                 );
                 add_submenu_page(
-                    'storelly-product-builder-for-woocommerce-options',
-                    esc_html__('Builder options', 'storelly-product-builder-for-woocommerce'),
-                    esc_html__('Builder options', 'storelly-product-builder-for-woocommerce'),
-                    'manage_options',
-                    'storelly-product-builder-for-woocommerce-options',
-                    array($this, 'spbwc_product_builder_options')
-                );
-                add_submenu_page(
-                    'storelly-product-builder-for-woocommerce-options',
-                    esc_html__('Fonts', 'storelly-product-builder-for-woocommerce'),
-                    esc_html__('Fonts', 'storelly-product-builder-for-woocommerce'),
-                    'manage_options',
-                    'storelly-product-builder-for-woocommerce-options/manager-fonts',
-                    array($this, 'spbwc_manager_fonts')
-                );
-                add_submenu_page(
-                    'storelly-product-builder-for-woocommerce-options',
+                    SPBWC_PB_OPTIONS_SLUG,
                     esc_html__('Settings', 'storelly-product-builder-for-woocommerce'),
                     esc_html__('Settings', 'storelly-product-builder-for-woocommerce'),
                     'manage_options',
-                    'storelly-product-builder-for-woocommerce-options/settings',
+                    SPBWC_PB_OPTIONS_SLUG,
                     array($this, 'spbwc_settings')
                 );
                 add_submenu_page(
-                    'storelly-product-builder-for-woocommerce-options',
+                    SPBWC_PB_OPTIONS_SLUG,
+                    esc_html__('Builder options', 'storelly-product-builder-for-woocommerce'),
+                    esc_html__('Builder options', 'storelly-product-builder-for-woocommerce'),
+                    'manage_options',
+                    SPBWC_PB_BUILDER_SLUG,
+                    array($this, 'spbwc_product_builder_options')
+                );
+                add_submenu_page(
+                    SPBWC_PB_OPTIONS_SLUG,
+                    esc_html__('Fonts', 'storelly-product-builder-for-woocommerce'),
+                    esc_html__('Fonts', 'storelly-product-builder-for-woocommerce'),
+                    'manage_options',
+                    SPBWC_PB_OPTIONS_SLUG . '/manager-fonts',
+                    array($this, 'spbwc_manager_fonts')
+                );
+                add_submenu_page(
+                    SPBWC_PB_OPTIONS_SLUG,
                     esc_html__('Global Import', 'storelly-product-builder-for-woocommerce'),
                     esc_html__('Global Import', 'storelly-product-builder-for-woocommerce'),
                     'manage_options',
-                    'storelly-product-builder-for-woocommerce-options/global-import',
+                    SPBWC_PB_OPTIONS_SLUG . '/global-import',
                     array($this, 'spbwc_global_import')
                 );
             }
@@ -309,7 +309,7 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
             wp_enqueue_style('spbwc-general-css');
             wp_enqueue_script('spbwc-general-js');
 
-            if ($hook == 'toplevel_page_storelly-product-builder-for-woocommerce-options') {
+            if ($hook === 'toplevel_page_' . SPBWC_PB_OPTIONS_SLUG || $hook === 'product-builder-options_page_' . SPBWC_PB_BUILDER_SLUG) {
                 wp_register_script('spbwc-options-script', SPBWC_PB_JS_URL . 'admin-options.js', array('jquery', 'wpdialogs', 'jquery-ui-resizable', 'jquery-ui-draggable', 'jquery-ui-droppable', 'jquery-ui-sortable', 'jquery-ui-datepicker', 'jquery-ui-autocomplete', 'wp-color-picker', 'spbwc-ag', 'wc-enhanced-select', 'spbwc-snap-svg', 'spbwc-tiptip'), SPBWC_PB_VERSION, true);
                 wp_localize_script('spbwc-options-script', 'storelly_options', array(
                     'search_products_nonce'     => wp_create_nonce("search-products"),
@@ -319,7 +319,7 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
                wp_enqueue_style('spbwc-options-style');
                wp_enqueue_script('spbwc-options-script');
             }
-            if ($hook == 'product-builder-options_page_storelly-product-builder-for-woocommerce-options/manager-fonts') {
+            if ($hook === 'product-builder-options_page_' . SPBWC_PB_OPTIONS_SLUG . '/manager-fonts') {
                 wp_register_script('spbwc-manager-fonts-script', SPBWC_PB_JS_URL . 'manager-fonts.js', array('spbwc-fontfaceobserver', 'spbwc-sweetalert-js', 'spbwc-ag'), SPBWC_PB_VERSION, true);
                 wp_localize_script('spbwc-manager-fonts-script', 'storelly_pb_fonts', array(
                     'url'       => admin_url('admin-ajax.php'),
@@ -355,7 +355,7 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
                         wp_die( esc_html__( 'Security check failed.', 'storelly-product-builder-for-woocommerce' ) );
                     }
                     $this->spbwc_unpublish_option($ID);
-                    wp_safe_redirect(esc_url_raw(add_query_arg(array('paged' => $paged), admin_url('admin.php?page=storelly-product-builder-for-woocommerce-options'))));
+                    wp_safe_redirect(esc_url_raw(add_query_arg(array('paged' => $paged), admin_url('admin.php?page=' . SPBWC_PB_BUILDER_SLUG))));
                     exit;
                 } 
                 
@@ -381,7 +381,7 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
                                     'action'    => 'edit', // Chuyển sang action edit sau khi tạo
                                     'id'        => $id,
                                     'message'   => 'created' // Truyền thông báo
-                                ), admin_url('admin.php?page=storelly-product-builder-for-woocommerce-options'))));
+                                ), admin_url('admin.php?page=' . SPBWC_PB_BUILDER_SLUG))));
                                 exit;
                             } else {
                                 $message = array(
@@ -1101,6 +1101,11 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
             $nbdpb_enable       = get_post_meta($post_id, '_storelly_pb_enable', true);
             $option_id          = $this->spbwc_get_product_option($post_id);
             $option_id          = $option_id ? $option_id : 0;
+            $option_title       = '';
+            if ($option_id > 0) {
+                $option_row = $this->spbwc_get_option($option_id);
+                $option_title = is_array($option_row) && !empty($option_row['title']) ? $option_row['title'] : '';
+            }
             $link_edit_option   = add_query_arg(
                 array(
                     'product_id'    => $post_id,
@@ -1108,7 +1113,7 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
                     'paged'         => 1,
                     'id'            => $option_id
                 ),
-                admin_url('admin.php?page=storelly-product-builder-for-woocommerce-options')
+                admin_url('admin.php?page=' . SPBWC_PB_BUILDER_SLUG)
             );
             include_once(SPBWC_PB_PLUGIN_DIR . 'views/options/meta-box.php');
         }
@@ -1342,6 +1347,45 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
                     $api_keys['consumer_key']    = $consumer_key;
                     $api_keys['consumer_secret'] = $consumer_secret;
                     update_option( 'spbwc_connect_api_keys', $api_keys );
+                }
+
+                // Save Printing Options.
+                $po_keys = array(
+                    'spbwc_number_of_decimals',
+                    'spbwc_enable_rich_snippet_price',
+                    'spbwc_option_display',
+                    'spbwc_hide_add_cart_until_form_filled',
+                    'spbwc_hide_summary_options',
+                    'spbwc_float_summary_options',
+                    'spbwc_hide_table_pricing',
+                    'spbwc_table_pricing_type',
+                    'spbwc_hide_option_swatch_label',
+                    'spbwc_change_base_price_html',
+                    'spbwc_hide_zero_price',
+                    'spbwc_tooltip_position',
+                    'spbwc_ad_sublist_position',
+                    'spbwc_selector_increase_qty_btn',
+                    'spbwc_display_product_option',
+                    'spbwc_force_select_options',
+                    'spbwc_show_options_in_archive_pages',
+                    'spbwc_enable_ajax_cart',
+                    'spbwc_turn_off_persistent_cart',
+                    'spbwc_enable_clear_cart_button',
+                    'spbwc_hide_options_in_cart',
+                    'spbwc_hide_option_price_in_cart',
+                    'spbwc_hide_option_price_in_order',
+                );
+                foreach ( $po_keys as $key ) {
+                    if ( isset( $_POST[ $key ] ) ) {
+                        $val = sanitize_text_field( wp_unslash( $_POST[ $key ] ) );
+                        if ( 'spbwc_number_of_decimals' === $key ) {
+                            $val = absint( $val );
+                            if ( $val > 6 ) {
+                                $val = 6;
+                            }
+                        }
+                        update_option( $key, $val );
+                    }
                 }
             }
             include_once(SPBWC_PB_PLUGIN_DIR . 'views/menu-settings.php');
