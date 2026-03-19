@@ -236,11 +236,35 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
                 );
                 add_submenu_page(
                     SPBWC_PB_OPTIONS_SLUG,
-                    esc_html__('Builder options', 'storelly-product-builder-for-woocommerce'),
-                    esc_html__('Builder options', 'storelly-product-builder-for-woocommerce'),
+                    esc_html__('Pricing Options', 'storelly-product-builder-for-woocommerce'),
+                    esc_html__('Pricing Options', 'storelly-product-builder-for-woocommerce'),
                     'manage_options',
                     SPBWC_PB_BUILDER_SLUG,
                     array($this, 'spbwc_product_builder_options')
+                );
+                add_submenu_page(
+                    SPBWC_PB_OPTIONS_SLUG,
+                    esc_html__('Products', 'storelly-product-builder-for-woocommerce'),
+                    esc_html__('Products', 'storelly-product-builder-for-woocommerce'),
+                    'manage_options',
+                    SPBWC_PB_PRODUCTS_SLUG,
+                    array($this, 'spbwc_products_manager')
+                );
+                add_submenu_page(
+                    SPBWC_PB_OPTIONS_SLUG,
+                    esc_html__('Orders', 'storelly-product-builder-for-woocommerce'),
+                    esc_html__('Orders', 'storelly-product-builder-for-woocommerce'),
+                    'manage_options',
+                    SPBWC_PB_ORDERS_SLUG,
+                    array($this, 'spbwc_orders_manager')
+                );
+                add_submenu_page(
+                    SPBWC_PB_OPTIONS_SLUG,
+                    esc_html__('Quotes', 'storelly-product-builder-for-woocommerce'),
+                    esc_html__('Quotes', 'storelly-product-builder-for-woocommerce'),
+                    'manage_options',
+                    SPBWC_PB_QUOTES_SLUG,
+                    array($this, 'spbwc_quotes_manager')
                 );
                 add_submenu_page(
                     SPBWC_PB_OPTIONS_SLUG,
@@ -257,6 +281,22 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
                     'manage_options',
                     SPBWC_PB_OPTIONS_SLUG . '/global-import',
                     array($this, 'spbwc_global_import')
+                );
+                add_submenu_page(
+                    SPBWC_PB_OPTIONS_SLUG,
+                    esc_html__('System Infor', 'storelly-product-builder-for-woocommerce'),
+                    esc_html__('System Infor', 'storelly-product-builder-for-woocommerce'),
+                    'manage_options',
+                    SPBWC_PB_OPTIONS_SLUG . '/system-infor',
+                    array($this, 'spbwc_system_infor')
+                );
+                add_submenu_page(
+                    SPBWC_PB_OPTIONS_SLUG,
+                    esc_html__('About', 'storelly-product-builder-for-woocommerce'),
+                    esc_html__('About', 'storelly-product-builder-for-woocommerce'),
+                    'manage_options',
+                    SPBWC_PB_OPTIONS_SLUG . '/about',
+                    array($this, 'spbwc_about')
                 );
             }
         }
@@ -445,6 +485,667 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
                 $spbwc_options = new SPBWC_Storelly_Options_List_Table();
                 include_once(SPBWC_PB_PLUGIN_DIR . 'views/options/options-list-table.php');
             }
+        }
+        public function spbwc_products_manager() {
+            if ( ! current_user_can( 'spbwc_manage_product_builder' ) ) {
+                wp_die( esc_html__( 'You do not have permission to access this page.', 'storelly-product-builder-for-woocommerce' ) );
+            }
+
+            // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only listing filters.
+            $search = isset( $_GET['s'] ) ? sanitize_text_field( wp_unslash( $_GET['s'] ) ) : '';
+            // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only pagination value.
+            $paged = isset( $_GET['paged'] ) ? max( 1, absint( wp_unslash( $_GET['paged'] ) ) ) : 1;
+            $per_page = 20;
+
+            $products_query = new WP_Query(
+                array(
+                    'post_type'      => 'product',
+                    'post_status'    => array( 'publish', 'draft', 'pending', 'private' ),
+                    'posts_per_page' => $per_page,
+                    'paged'          => $paged,
+                    's'              => $search,
+                    'orderby'        => 'date',
+                    'order'          => 'DESC',
+                )
+            );
+            ?>
+            <div class="wrap">
+                <h1><?php esc_html_e( 'Products', 'storelly-product-builder-for-woocommerce' ); ?></h1>
+                <p><?php esc_html_e( 'Manage products with card view. Template actions are removed and replaced by printing option actions.', 'storelly-product-builder-for-woocommerce' ); ?></p>
+                <form method="get" style="margin: 12px 0;">
+                    <input type="hidden" name="page" value="<?php echo esc_attr( SPBWC_PB_PRODUCTS_SLUG ); ?>" />
+                    <input type="search" name="s" value="<?php echo esc_attr( $search ); ?>" placeholder="<?php esc_attr_e( 'Search products', 'storelly-product-builder-for-woocommerce' ); ?>" />
+                    <button type="submit" class="button"><?php esc_html_e( 'Search', 'storelly-product-builder-for-woocommerce' ); ?></button>
+                </form>
+                <style>
+                    .spbwc-product-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:16px}
+                    .spbwc-product-card{background:#fff;border:1px solid #dcdcde;border-radius:8px;overflow:hidden}
+                    .spbwc-product-thumb{display:block;position:relative;aspect-ratio:1/1;background:#f6f7f7}
+                    .spbwc-product-thumb img{width:100%;height:100%;object-fit:cover}
+                    .spbwc-product-body{padding:12px}
+                    .spbwc-product-title{font-weight:600;line-height:1.35;margin:0 0 8px}
+                    .spbwc-product-meta{font-size:12px;color:#50575e;margin-bottom:10px}
+                    .spbwc-product-actions{display:flex;gap:8px;align-items:center}
+                    .spbwc-product-actions .dashicons{font-size:18px;line-height:18px}
+                    .spbwc-action-icon{display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border:1px solid #dcdcde;border-radius:4px;color:#1d2327;text-decoration:none}
+                </style>
+                <?php if ( $products_query->have_posts() ) : ?>
+                    <div class="spbwc-product-grid">
+                        <?php while ( $products_query->have_posts() ) : $products_query->the_post(); ?>
+                            <?php
+                            $product_id       = get_the_ID();
+                            $product          = wc_get_product( $product_id );
+                            $thumb_id         = get_post_thumbnail_id( $product_id );
+                            $thumb_url        = $thumb_id ? wp_get_attachment_image_url( $thumb_id, 'medium' ) : wc_placeholder_img_src();
+                            $option_id        = $this->spbwc_get_product_option( $product_id );
+                            $edit_option_link = add_query_arg(
+                                array(
+                                    'page'       => SPBWC_PB_BUILDER_SLUG,
+                                    'action'     => ( $option_id ? 'edit' : 'create' ),
+                                    'id'         => absint( $option_id ),
+                                    'product_id' => $product_id,
+                                    'paged'      => 1,
+                                ),
+                                admin_url( 'admin.php' )
+                            );
+                            $option_text = $option_id ? sprintf( __( 'Printing Option #%d', 'storelly-product-builder-for-woocommerce' ), $option_id ) : __( 'No printing option mapped', 'storelly-product-builder-for-woocommerce' );
+                            ?>
+                            <div class="spbwc-product-card">
+                                <a class="spbwc-product-thumb" href="<?php echo esc_url( $product ? $product->get_permalink() : '#' ); ?>" target="_blank" rel="noopener">
+                                    <img src="<?php echo esc_url( $thumb_url ); ?>" alt="<?php echo esc_attr( get_the_title() ); ?>" />
+                                </a>
+                                <div class="spbwc-product-body">
+                                    <p class="spbwc-product-title"><?php echo esc_html( get_the_title() ); ?></p>
+                                    <p class="spbwc-product-meta">
+                                        <?php echo esc_html( $option_text ); ?><br/>
+                                        <code>#<?php echo esc_html( (string) $product_id ); ?></code>
+                                    </p>
+                                    <div class="spbwc-product-actions">
+                                        <a class="spbwc-action-icon" href="<?php echo esc_url( get_edit_post_link( $product_id ) ); ?>" title="<?php esc_attr_e( 'Edit product', 'storelly-product-builder-for-woocommerce' ); ?>">
+                                            <span class="dashicons dashicons-edit"></span>
+                                        </a>
+                                        <?php if ( $product ) : ?>
+                                            <a class="spbwc-action-icon" href="<?php echo esc_url( $product->get_permalink() ); ?>" target="_blank" rel="noopener" title="<?php esc_attr_e( 'View product', 'storelly-product-builder-for-woocommerce' ); ?>">
+                                                <span class="dashicons dashicons-visibility"></span>
+                                            </a>
+                                        <?php endif; ?>
+                                        <a class="button button-small button-primary" href="<?php echo esc_url( $edit_option_link ); ?>" target="_blank" rel="noopener">
+                                            <?php echo $option_id ? esc_html__( 'Edit Printing Option', 'storelly-product-builder-for-woocommerce' ) : esc_html__( 'Create Printing Option', 'storelly-product-builder-for-woocommerce' ); ?>
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        <?php endwhile; ?>
+                    </div>
+                <?php else : ?>
+                    <p><?php esc_html_e( 'No products found.', 'storelly-product-builder-for-woocommerce' ); ?></p>
+                <?php endif; ?>
+                <?php
+                $total_pages = (int) $products_query->max_num_pages;
+                if ( $total_pages > 1 ) {
+                    echo '<div class="tablenav"><div class="tablenav-pages">';
+                    echo wp_kses_post(
+                        paginate_links(
+                            array(
+                                'base'      => add_query_arg(
+                                    array(
+                                        'page'  => SPBWC_PB_PRODUCTS_SLUG,
+                                        's'     => rawurlencode( $search ),
+                                        'paged' => '%#%',
+                                    ),
+                                    admin_url( 'admin.php' )
+                                ),
+                                'format'    => '',
+                                'prev_text' => '&laquo;',
+                                'next_text' => '&raquo;',
+                                'total'     => $total_pages,
+                                'current'   => $paged,
+                            )
+                        )
+                    );
+                    echo '</div></div>';
+                }
+                wp_reset_postdata();
+                ?>
+            </div>
+            <?php
+        }
+        public function spbwc_quotes_manager() {
+            if ( ! current_user_can( 'spbwc_manage_product_builder' ) ) {
+                wp_die( esc_html__( 'You do not have permission to access this page.', 'storelly-product-builder-for-woocommerce' ) );
+            }
+
+            // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only tab/search query args.
+            $tab = isset( $_GET['tab'] ) ? sanitize_key( wp_unslash( $_GET['tab'] ) ) : 'get-quote';
+            if ( ! in_array( $tab, array( 'get-quote', 'form-builder', 'history' ), true ) ) {
+                $tab = 'get-quote';
+            }
+
+            if ( 'POST' === $_SERVER['REQUEST_METHOD'] && isset( $_POST['spbwc_save_quote_settings'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce checked below.
+                check_admin_referer( 'spbwc_quote_settings_action', 'spbwc_quote_settings_nonce' );
+                $settings = array(
+                    'enable_quote'      => isset( $_POST['enable_quote'] ) ? sanitize_text_field( wp_unslash( $_POST['enable_quote'] ) ) : 'no', // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce checked above.
+                    'admin_email'       => isset( $_POST['admin_email'] ) ? sanitize_email( wp_unslash( $_POST['admin_email'] ) ) : '', // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce checked above.
+                    'success_message'   => isset( $_POST['success_message'] ) ? sanitize_textarea_field( wp_unslash( $_POST['success_message'] ) ) : '', // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce checked above.
+                );
+                update_option( 'spbwc_quote_settings', $settings );
+                echo '<div class="notice notice-success is-dismissible"><p>' . esc_html__( 'Quote settings saved.', 'storelly-product-builder-for-woocommerce' ) . '</p></div>';
+            }
+            if ( 'POST' === $_SERVER['REQUEST_METHOD'] && isset( $_POST['spbwc_save_quote_form'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce checked below.
+                check_admin_referer( 'spbwc_quote_form_action', 'spbwc_quote_form_nonce' );
+                $fields = $this->spbwc_get_default_quote_form_fields();
+                // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce checked above.
+                $posted_names = isset( $_POST['field_name'] ) ? (array) wp_unslash( $_POST['field_name'] ) : array();
+                // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce checked above.
+                $posted_types = isset( $_POST['field_type'] ) ? (array) wp_unslash( $_POST['field_type'] ) : array();
+                // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce checked above.
+                $posted_labels = isset( $_POST['field_label'] ) ? (array) wp_unslash( $_POST['field_label'] ) : array();
+                // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce checked above.
+                $posted_placeholders = isset( $_POST['field_placeholder'] ) ? (array) wp_unslash( $_POST['field_placeholder'] ) : array();
+                // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce checked above.
+                $posted_validation = isset( $_POST['field_validation'] ) ? (array) wp_unslash( $_POST['field_validation'] ) : array();
+                // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce checked above.
+                $posted_required = isset( $_POST['field_required'] ) ? (array) wp_unslash( $_POST['field_required'] ) : array();
+                // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce checked above.
+                $posted_enabled = isset( $_POST['field_enabled'] ) ? (array) wp_unslash( $_POST['field_enabled'] ) : array();
+                $rows = max(
+                    count( $posted_names ),
+                    count( $posted_types ),
+                    count( $posted_labels ),
+                    count( $posted_placeholders ),
+                    count( $posted_validation )
+                );
+                $new_fields = array();
+                for ( $i = 0; $i < $rows; $i++ ) {
+                    $name = isset( $posted_names[ $i ] ) ? sanitize_key( $posted_names[ $i ] ) : '';
+                    if ( '' === $name ) {
+                        continue;
+                    }
+                    $type = isset( $posted_types[ $i ] ) ? sanitize_key( $posted_types[ $i ] ) : 'text';
+                    if ( ! in_array( $type, array( 'text', 'email', 'textarea', 'tel', 'select' ), true ) ) {
+                        $type = 'text';
+                    }
+                    $new_fields[ $name ] = array(
+                        'name'        => $name,
+                        'type'        => $type,
+                        'label'       => isset( $posted_labels[ $i ] ) ? sanitize_text_field( $posted_labels[ $i ] ) : ucfirst( $name ),
+                        'placeholder' => isset( $posted_placeholders[ $i ] ) ? sanitize_text_field( $posted_placeholders[ $i ] ) : '',
+                        'validation'  => isset( $posted_validation[ $i ] ) ? sanitize_key( $posted_validation[ $i ] ) : '',
+                        'required'    => in_array( (string) $i, $posted_required, true ) ? '1' : '0',
+                        'enabled'     => in_array( (string) $i, $posted_enabled, true ) ? '1' : '0',
+                    );
+                }
+                if ( ! empty( $new_fields ) ) {
+                    $fields = $new_fields;
+                }
+                update_option( 'spbwc_quote_form_fields', $fields );
+                echo '<div class="notice notice-success is-dismissible"><p>' . esc_html__( 'Quote form fields saved.', 'storelly-product-builder-for-woocommerce' ) . '</p></div>';
+            }
+
+            $settings = get_option( 'spbwc_quote_settings', array() );
+            $enable_quote = isset( $settings['enable_quote'] ) ? $settings['enable_quote'] : 'no';
+            $admin_email = isset( $settings['admin_email'] ) ? $settings['admin_email'] : get_option( 'admin_email' );
+            $success_message = isset( $settings['success_message'] ) ? $settings['success_message'] : __( 'Your quote request has been sent successfully.', 'storelly-product-builder-for-woocommerce' );
+            $form_fields = get_option( 'spbwc_quote_form_fields', $this->spbwc_get_default_quote_form_fields() );
+            ?>
+            <div class="wrap">
+                <h1><?php esc_html_e( 'Quotes', 'storelly-product-builder-for-woocommerce' ); ?></h1>
+                <h2 class="nav-tab-wrapper">
+                    <a href="<?php echo esc_url( add_query_arg( array( 'page' => SPBWC_PB_QUOTES_SLUG, 'tab' => 'get-quote' ), admin_url( 'admin.php' ) ) ); ?>" class="nav-tab <?php echo ( 'get-quote' === $tab ) ? 'nav-tab-active' : ''; ?>"><?php esc_html_e( 'Get Quote', 'storelly-product-builder-for-woocommerce' ); ?></a>
+                    <a href="<?php echo esc_url( add_query_arg( array( 'page' => SPBWC_PB_QUOTES_SLUG, 'tab' => 'form-builder' ), admin_url( 'admin.php' ) ) ); ?>" class="nav-tab <?php echo ( 'form-builder' === $tab ) ? 'nav-tab-active' : ''; ?>"><?php esc_html_e( 'Form Builder', 'storelly-product-builder-for-woocommerce' ); ?></a>
+                    <a href="<?php echo esc_url( add_query_arg( array( 'page' => SPBWC_PB_QUOTES_SLUG, 'tab' => 'history' ), admin_url( 'admin.php' ) ) ); ?>" class="nav-tab <?php echo ( 'history' === $tab ) ? 'nav-tab-active' : ''; ?>"><?php esc_html_e( 'Request History', 'storelly-product-builder-for-woocommerce' ); ?></a>
+                </h2>
+                <?php if ( 'get-quote' === $tab ) : ?>
+                    <form method="post" style="margin-top:16px;">
+                        <?php wp_nonce_field( 'spbwc_quote_settings_action', 'spbwc_quote_settings_nonce' ); ?>
+                        <table class="form-table">
+                            <tr>
+                                <th scope="row"><label><?php esc_html_e( 'Enable Get Quote', 'storelly-product-builder-for-woocommerce' ); ?></label></th>
+                                <td>
+                                    <label><input type="radio" name="enable_quote" value="yes" <?php checked( $enable_quote, 'yes' ); ?> /> <?php esc_html_e( 'Yes', 'storelly-product-builder-for-woocommerce' ); ?></label>
+                                    <label style="margin-left:10px;"><input type="radio" name="enable_quote" value="no" <?php checked( $enable_quote, 'no' ); ?> /> <?php esc_html_e( 'No', 'storelly-product-builder-for-woocommerce' ); ?></label>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th scope="row"><label for="spbwc_quote_admin_email"><?php esc_html_e( 'Notification Email', 'storelly-product-builder-for-woocommerce' ); ?></label></th>
+                                <td>
+                                    <input id="spbwc_quote_admin_email" type="email" name="admin_email" value="<?php echo esc_attr( $admin_email ); ?>" class="regular-text" />
+                                    <p class="description"><?php esc_html_e( 'Send quote request notifications to this email.', 'storelly-product-builder-for-woocommerce' ); ?></p>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th scope="row"><label for="spbwc_quote_success_message"><?php esc_html_e( 'Success Message', 'storelly-product-builder-for-woocommerce' ); ?></label></th>
+                                <td>
+                                    <textarea id="spbwc_quote_success_message" name="success_message" rows="4" class="large-text"><?php echo esc_textarea( $success_message ); ?></textarea>
+                                </td>
+                            </tr>
+                        </table>
+                        <p><button class="button button-primary" type="submit" name="spbwc_save_quote_settings" value="1"><?php esc_html_e( 'Save changes', 'storelly-product-builder-for-woocommerce' ); ?></button></p>
+                    </form>
+                <?php elseif ( 'form-builder' === $tab ) : ?>
+                    <style>
+                        .spbwc-qf-add{display:flex;gap:8px;align-items:center;margin:16px 0}
+                        .spbwc-qf-table th,.spbwc-qf-table td{vertical-align:middle}
+                        .spbwc-qf-table input[type="text"],.spbwc-qf-table select{width:100%}
+                    </style>
+                    <form method="post" style="margin-top:16px;">
+                        <?php wp_nonce_field( 'spbwc_quote_form_action', 'spbwc_quote_form_nonce' ); ?>
+                        <h3><?php esc_html_e( 'Request quote form builder', 'storelly-product-builder-for-woocommerce' ); ?></h3>
+                        <div class="spbwc-qf-add">
+                            <input type="text" id="spbwc-new-field-name" class="regular-text" placeholder="<?php esc_attr_e( 'Enter field name', 'storelly-product-builder-for-woocommerce' ); ?>" />
+                            <button type="button" class="button" id="spbwc-add-quote-field"><?php esc_html_e( 'Add field', 'storelly-product-builder-for-woocommerce' ); ?></button>
+                        </div>
+                        <table class="widefat striped spbwc-qf-table" id="spbwc-quote-fields-table">
+                            <thead>
+                                <tr>
+                                    <th style="width:36px;">&nbsp;</th>
+                                    <th><?php esc_html_e( 'Name', 'storelly-product-builder-for-woocommerce' ); ?></th>
+                                    <th><?php esc_html_e( 'Type', 'storelly-product-builder-for-woocommerce' ); ?></th>
+                                    <th><?php esc_html_e( 'Label', 'storelly-product-builder-for-woocommerce' ); ?></th>
+                                    <th><?php esc_html_e( 'Placeholder', 'storelly-product-builder-for-woocommerce' ); ?></th>
+                                    <th><?php esc_html_e( 'Validation rules', 'storelly-product-builder-for-woocommerce' ); ?></th>
+                                    <th><?php esc_html_e( 'Required', 'storelly-product-builder-for-woocommerce' ); ?></th>
+                                    <th><?php esc_html_e( 'Enabled', 'storelly-product-builder-for-woocommerce' ); ?></th>
+                                    <th><?php esc_html_e( 'Actions', 'storelly-product-builder-for-woocommerce' ); ?></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php $index = 0; ?>
+                                <?php foreach ( (array) $form_fields as $field ) : ?>
+                                    <tr>
+                                        <td><span class="dashicons dashicons-menu"></span></td>
+                                        <td><input type="text" name="field_name[]" value="<?php echo esc_attr( isset( $field['name'] ) ? $field['name'] : '' ); ?>" /></td>
+                                        <td>
+                                            <select name="field_type[]">
+                                                <option value="text" <?php selected( isset( $field['type'] ) ? $field['type'] : '', 'text' ); ?>><?php esc_html_e( 'Text', 'storelly-product-builder-for-woocommerce' ); ?></option>
+                                                <option value="email" <?php selected( isset( $field['type'] ) ? $field['type'] : '', 'email' ); ?>><?php esc_html_e( 'Email', 'storelly-product-builder-for-woocommerce' ); ?></option>
+                                                <option value="tel" <?php selected( isset( $field['type'] ) ? $field['type'] : '', 'tel' ); ?>><?php esc_html_e( 'Phone', 'storelly-product-builder-for-woocommerce' ); ?></option>
+                                                <option value="textarea" <?php selected( isset( $field['type'] ) ? $field['type'] : '', 'textarea' ); ?>><?php esc_html_e( 'Textarea', 'storelly-product-builder-for-woocommerce' ); ?></option>
+                                                <option value="select" <?php selected( isset( $field['type'] ) ? $field['type'] : '', 'select' ); ?>><?php esc_html_e( 'Select', 'storelly-product-builder-for-woocommerce' ); ?></option>
+                                            </select>
+                                        </td>
+                                        <td><input type="text" name="field_label[]" value="<?php echo esc_attr( isset( $field['label'] ) ? $field['label'] : '' ); ?>" /></td>
+                                        <td><input type="text" name="field_placeholder[]" value="<?php echo esc_attr( isset( $field['placeholder'] ) ? $field['placeholder'] : '' ); ?>" /></td>
+                                        <td>
+                                            <select name="field_validation[]">
+                                                <option value="" <?php selected( isset( $field['validation'] ) ? $field['validation'] : '', '' ); ?>><?php esc_html_e( 'No validation', 'storelly-product-builder-for-woocommerce' ); ?></option>
+                                                <option value="email" <?php selected( isset( $field['validation'] ) ? $field['validation'] : '', 'email' ); ?>><?php esc_html_e( 'Email', 'storelly-product-builder-for-woocommerce' ); ?></option>
+                                                <option value="phone" <?php selected( isset( $field['validation'] ) ? $field['validation'] : '', 'phone' ); ?>><?php esc_html_e( 'Phone', 'storelly-product-builder-for-woocommerce' ); ?></option>
+                                            </select>
+                                        </td>
+                                        <td><input type="checkbox" name="field_required[]" value="<?php echo esc_attr( (string) $index ); ?>" <?php checked( isset( $field['required'] ) ? $field['required'] : '0', '1' ); ?> /></td>
+                                        <td><input type="checkbox" name="field_enabled[]" value="<?php echo esc_attr( (string) $index ); ?>" <?php checked( isset( $field['enabled'] ) ? $field['enabled'] : '1', '1' ); ?> /></td>
+                                        <td><button type="button" class="button button-small spbwc-remove-field"><?php esc_html_e( 'Remove', 'storelly-product-builder-for-woocommerce' ); ?></button></td>
+                                    </tr>
+                                    <?php $index++; ?>
+                                <?php endforeach; ?>
+                            </tbody>
+                        </table>
+                        <p style="margin-top:12px;">
+                            <button class="button button-primary" type="submit" name="spbwc_save_quote_form" value="1"><?php esc_html_e( 'Save changes', 'storelly-product-builder-for-woocommerce' ); ?></button>
+                        </p>
+                    </form>
+                    <script>
+                        (function($){
+                            function nextIndex(){ return $('#spbwc-quote-fields-table tbody tr').length; }
+                            function buildRow(name){
+                                var idx = nextIndex();
+                                var label = name ? name.replace(/_/g, ' ').replace(/\b\w/g, function(l){ return l.toUpperCase(); }) : '';
+                                return '<tr>'
+                                    + '<td><span class="dashicons dashicons-menu"></span></td>'
+                                    + '<td><input type="text" name="field_name[]" value="'+ (name || '') +'" /></td>'
+                                    + '<td><select name="field_type[]"><option value="text">Text</option><option value="email">Email</option><option value="tel">Phone</option><option value="textarea">Textarea</option><option value="select">Select</option></select></td>'
+                                    + '<td><input type="text" name="field_label[]" value="'+ label +'" /></td>'
+                                    + '<td><input type="text" name="field_placeholder[]" value="" /></td>'
+                                    + '<td><select name="field_validation[]"><option value="">No validation</option><option value="email">Email</option><option value="phone">Phone</option></select></td>'
+                                    + '<td><input type="checkbox" name="field_required[]" value="'+ idx +'" /></td>'
+                                    + '<td><input type="checkbox" name="field_enabled[]" value="'+ idx +'" checked /></td>'
+                                    + '<td><button type="button" class="button button-small spbwc-remove-field">Remove</button></td>'
+                                    + '</tr>';
+                            }
+                            $('#spbwc-add-quote-field').on('click', function(){
+                                var val = ($('#spbwc-new-field-name').val() || '').toLowerCase().replace(/[^a-z0-9_]/g, '_');
+                                if(!val){ return; }
+                                $('#spbwc-quote-fields-table tbody').append(buildRow(val));
+                                $('#spbwc-new-field-name').val('');
+                            });
+                            $(document).on('click', '.spbwc-remove-field', function(){
+                                $(this).closest('tr').remove();
+                            });
+                        })(jQuery);
+                    </script>
+                <?php else : ?>
+                    <?php
+                    // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only search filter.
+                    $search = isset( $_GET['s'] ) ? sanitize_text_field( wp_unslash( $_GET['s'] ) ) : '';
+                    // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only pagination value.
+                    $paged = isset( $_GET['paged'] ) ? max( 1, absint( wp_unslash( $_GET['paged'] ) ) ) : 1;
+                    $quote_orders = wc_get_orders(
+                        array(
+                            'type'        => 'shop_order',
+                            'limit'       => 20,
+                            'page'        => $paged,
+                            'paginate'    => true,
+                            'orderby'     => 'date',
+                            'order'       => 'DESC',
+                            'meta_query'  => array(
+                                'relation' => 'OR',
+                                array(
+                                    'key'     => '_raq_request',
+                                    'compare' => 'EXISTS',
+                                ),
+                                array(
+                                    'key'     => '_spbwc_quote_request',
+                                    'compare' => 'EXISTS',
+                                ),
+                            ),
+                            'search'      => $search ? '*' . $search . '*' : '',
+                            'search_columns' => array( 'billing_email', 'billing_first_name', 'billing_last_name' ),
+                        )
+                    );
+                    $orders = isset( $quote_orders->orders ) ? $quote_orders->orders : array();
+                    $max_pages = isset( $quote_orders->max_num_pages ) ? (int) $quote_orders->max_num_pages : 1;
+                    ?>
+                    <form method="get" style="margin:16px 0;">
+                        <input type="hidden" name="page" value="<?php echo esc_attr( SPBWC_PB_QUOTES_SLUG ); ?>" />
+                        <input type="hidden" name="tab" value="history" />
+                        <input type="search" name="s" value="<?php echo esc_attr( $search ); ?>" placeholder="<?php esc_attr_e( 'Search by customer info', 'storelly-product-builder-for-woocommerce' ); ?>" />
+                        <button type="submit" class="button"><?php esc_html_e( 'Search', 'storelly-product-builder-for-woocommerce' ); ?></button>
+                    </form>
+                    <table class="widefat striped">
+                        <thead>
+                            <tr>
+                                <th><?php esc_html_e( 'Quote Order', 'storelly-product-builder-for-woocommerce' ); ?></th>
+                                <th><?php esc_html_e( 'Customer', 'storelly-product-builder-for-woocommerce' ); ?></th>
+                                <th><?php esc_html_e( 'Email', 'storelly-product-builder-for-woocommerce' ); ?></th>
+                                <th><?php esc_html_e( 'Message', 'storelly-product-builder-for-woocommerce' ); ?></th>
+                                <th><?php esc_html_e( 'Date', 'storelly-product-builder-for-woocommerce' ); ?></th>
+                                <th><?php esc_html_e( 'Actions', 'storelly-product-builder-for-woocommerce' ); ?></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php if ( ! empty( $orders ) ) : ?>
+                                <?php foreach ( $orders as $order ) : ?>
+                                    <?php
+                                    $customer_name = $order->get_meta( '_raq_customer_name' );
+                                    $customer_email = $order->get_meta( '_raq_customer_email' );
+                                    $message = $order->get_meta( '_raq_customer_message' );
+                                    if ( ! $message ) {
+                                        $message = $order->get_meta( '_spbwc_quote_request' );
+                                    }
+                                    if ( ! $customer_name ) {
+                                        $customer_name = trim( $order->get_formatted_billing_full_name() );
+                                    }
+                                    if ( ! $customer_email ) {
+                                        $customer_email = $order->get_billing_email();
+                                    }
+                                    ?>
+                                    <tr>
+                                        <td><strong>#<?php echo esc_html( (string) $order->get_id() ); ?></strong></td>
+                                        <td><?php echo esc_html( $customer_name ? $customer_name : __( 'Guest', 'storelly-product-builder-for-woocommerce' ) ); ?></td>
+                                        <td><?php echo esc_html( $customer_email ); ?></td>
+                                        <td><?php echo esc_html( $message ? wp_trim_words( $message, 14, '...' ) : '-' ); ?></td>
+                                        <td><?php echo esc_html( $order->get_date_created() ? wc_format_datetime( $order->get_date_created() ) : '-' ); ?></td>
+                                        <td><a class="button button-small" href="<?php echo esc_url( $order->get_edit_order_url() ); ?>"><?php esc_html_e( 'View order', 'storelly-product-builder-for-woocommerce' ); ?></a></td>
+                                    </tr>
+                                <?php endforeach; ?>
+                            <?php else : ?>
+                                <tr><td colspan="6"><?php esc_html_e( 'No quote requests found.', 'storelly-product-builder-for-woocommerce' ); ?></td></tr>
+                            <?php endif; ?>
+                        </tbody>
+                    </table>
+                    <?php if ( $max_pages > 1 ) : ?>
+                        <div class="tablenav"><div class="tablenav-pages">
+                            <?php
+                            echo wp_kses_post(
+                                paginate_links(
+                                    array(
+                                        'base'      => add_query_arg(
+                                            array(
+                                                'page'  => SPBWC_PB_QUOTES_SLUG,
+                                                'tab'   => 'history',
+                                                's'     => rawurlencode( $search ),
+                                                'paged' => '%#%',
+                                            ),
+                                            admin_url( 'admin.php' )
+                                        ),
+                                        'format'    => '',
+                                        'prev_text' => '&laquo;',
+                                        'next_text' => '&raquo;',
+                                        'total'     => $max_pages,
+                                        'current'   => $paged,
+                                    )
+                                )
+                            );
+                            ?>
+                        </div></div>
+                    <?php endif; ?>
+                <?php endif; ?>
+            </div>
+            <?php
+        }
+        private function spbwc_get_default_quote_form_fields() {
+            return array(
+                'first_name' => array(
+                    'name'        => 'first_name',
+                    'type'        => 'text',
+                    'label'       => 'First Name',
+                    'placeholder' => '',
+                    'validation'  => '',
+                    'required'    => '1',
+                    'enabled'     => '1',
+                ),
+                'last_name' => array(
+                    'name'        => 'last_name',
+                    'type'        => 'text',
+                    'label'       => 'Last Name',
+                    'placeholder' => '',
+                    'validation'  => '',
+                    'required'    => '1',
+                    'enabled'     => '1',
+                ),
+                'email' => array(
+                    'name'        => 'email',
+                    'type'        => 'email',
+                    'label'       => 'Email',
+                    'placeholder' => '',
+                    'validation'  => 'email',
+                    'required'    => '1',
+                    'enabled'     => '1',
+                ),
+                'message' => array(
+                    'name'        => 'message',
+                    'type'        => 'textarea',
+                    'label'       => 'Message',
+                    'placeholder' => '',
+                    'validation'  => '',
+                    'required'    => '0',
+                    'enabled'     => '1',
+                ),
+            );
+        }
+        public function spbwc_system_infor() {
+            if ( ! current_user_can( 'spbwc_manage_product_builder' ) ) {
+                wp_die( esc_html__( 'You do not have permission to access this page.', 'storelly-product-builder-for-woocommerce' ) );
+            }
+            global $wp_version; // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Core global variable.
+            $upload_dir = wp_upload_dir();
+            $memory_limit = ini_get( 'memory_limit' );
+            $max_execution_time = ini_get( 'max_execution_time' );
+            $max_input_vars = ini_get( 'max_input_vars' );
+            $max_upload_size = size_format( wp_max_upload_size() );
+            $timezone = wp_timezone_string();
+            $theme = wp_get_theme();
+            $active_plugins = (array) get_option( 'active_plugins', array() );
+            ?>
+            <div class="wrap">
+                <h1><?php esc_html_e( 'System Infor', 'storelly-product-builder-for-woocommerce' ); ?></h1>
+                <table class="widefat striped" style="max-width:900px;">
+                    <tbody>
+                        <tr><th><?php esc_html_e( 'Plugin Version', 'storelly-product-builder-for-woocommerce' ); ?></th><td><?php echo esc_html( SPBWC_PB_VERSION ); ?></td></tr>
+                        <tr><th><?php esc_html_e( 'WordPress Version', 'storelly-product-builder-for-woocommerce' ); ?></th><td><?php echo esc_html( $wp_version ); ?></td></tr>
+                        <tr><th><?php esc_html_e( 'WooCommerce Version', 'storelly-product-builder-for-woocommerce' ); ?></th><td><?php echo esc_html( defined( 'WC_VERSION' ) ? WC_VERSION : 'N/A' ); ?></td></tr>
+                        <tr><th><?php esc_html_e( 'PHP Version', 'storelly-product-builder-for-woocommerce' ); ?></th><td><?php echo esc_html( phpversion() ); ?></td></tr>
+                        <tr><th><?php esc_html_e( 'MySQL Version', 'storelly-product-builder-for-woocommerce' ); ?></th><td><?php echo esc_html( function_exists( 'mysqli_get_client_info' ) ? mysqli_get_client_info() : 'N/A' ); ?></td></tr>
+                        <tr><th><?php esc_html_e( 'Site URL', 'storelly-product-builder-for-woocommerce' ); ?></th><td><?php echo esc_html( site_url() ); ?></td></tr>
+                        <tr><th><?php esc_html_e( 'Home URL', 'storelly-product-builder-for-woocommerce' ); ?></th><td><?php echo esc_html( home_url() ); ?></td></tr>
+                        <tr><th><?php esc_html_e( 'WP Debug', 'storelly-product-builder-for-woocommerce' ); ?></th><td><?php echo esc_html( ( defined( 'WP_DEBUG' ) && WP_DEBUG ) ? 'Enabled' : 'Disabled' ); ?></td></tr>
+                        <tr><th><?php esc_html_e( 'WP Memory Limit', 'storelly-product-builder-for-woocommerce' ); ?></th><td><?php echo esc_html( defined( 'WP_MEMORY_LIMIT' ) ? WP_MEMORY_LIMIT : 'N/A' ); ?></td></tr>
+                        <tr><th><?php esc_html_e( 'PHP Memory Limit', 'storelly-product-builder-for-woocommerce' ); ?></th><td><?php echo esc_html( $memory_limit ? $memory_limit : 'N/A' ); ?></td></tr>
+                        <tr><th><?php esc_html_e( 'PHP Max Execution Time', 'storelly-product-builder-for-woocommerce' ); ?></th><td><?php echo esc_html( $max_execution_time ? $max_execution_time . 's' : 'N/A' ); ?></td></tr>
+                        <tr><th><?php esc_html_e( 'PHP Max Input Vars', 'storelly-product-builder-for-woocommerce' ); ?></th><td><?php echo esc_html( $max_input_vars ? $max_input_vars : 'N/A' ); ?></td></tr>
+                        <tr><th><?php esc_html_e( 'Max Upload Size', 'storelly-product-builder-for-woocommerce' ); ?></th><td><?php echo esc_html( $max_upload_size ); ?></td></tr>
+                        <tr><th><?php esc_html_e( 'Timezone', 'storelly-product-builder-for-woocommerce' ); ?></th><td><?php echo esc_html( $timezone ? $timezone : 'UTC' ); ?></td></tr>
+                        <tr><th><?php esc_html_e( 'Theme', 'storelly-product-builder-for-woocommerce' ); ?></th><td><?php echo esc_html( $theme->get( 'Name' ) . ' ' . $theme->get( 'Version' ) ); ?></td></tr>
+                        <tr><th><?php esc_html_e( 'Uploads Base Directory', 'storelly-product-builder-for-woocommerce' ); ?></th><td><code><?php echo esc_html( isset( $upload_dir['basedir'] ) ? $upload_dir['basedir'] : '' ); ?></code></td></tr>
+                        <tr><th><?php esc_html_e( 'Uploads Base URL', 'storelly-product-builder-for-woocommerce' ); ?></th><td><code><?php echo esc_html( isset( $upload_dir['baseurl'] ) ? $upload_dir['baseurl'] : '' ); ?></code></td></tr>
+                        <tr><th><?php esc_html_e( 'Storelly Data Directory', 'storelly-product-builder-for-woocommerce' ); ?></th><td><code><?php echo esc_html( SPBWC_PB_DATA_DIR ); ?></code></td></tr>
+                        <tr><th><?php esc_html_e( 'Storelly Data URL', 'storelly-product-builder-for-woocommerce' ); ?></th><td><code><?php echo esc_html( SPBWC_PB_DATA_URL ); ?></code></td></tr>
+                        <tr><th><?php esc_html_e( 'Active Plugins', 'storelly-product-builder-for-woocommerce' ); ?></th><td><?php echo esc_html( (string) count( $active_plugins ) ); ?></td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <?php
+        }
+        public function spbwc_about() {
+            if ( ! current_user_can( 'spbwc_manage_product_builder' ) ) {
+                wp_die( esc_html__( 'You do not have permission to access this page.', 'storelly-product-builder-for-woocommerce' ) );
+            }
+            ?>
+            <div class="wrap">
+                <h1><?php esc_html_e( 'About', 'storelly-product-builder-for-woocommerce' ); ?></h1>
+                <p><?php esc_html_e( 'Storelly Product Builder for WooCommerce helps merchants create advanced printing options and product builder workflows.', 'storelly-product-builder-for-woocommerce' ); ?></p>
+                <p>
+                    <a class="button button-primary" href="https://storelly.com/product-builder" target="_blank" rel="noopener"><?php esc_html_e( 'Visit Website', 'storelly-product-builder-for-woocommerce' ); ?></a>
+                    <a class="button" href="https://storelly.com" target="_blank" rel="noopener"><?php esc_html_e( 'Storelly', 'storelly-product-builder-for-woocommerce' ); ?></a>
+                </p>
+            </div>
+            <?php
+        }
+        public function spbwc_orders_manager() {
+            if ( ! current_user_can( 'spbwc_manage_product_builder' ) ) {
+                wp_die( esc_html__( 'You do not have permission to access this page.', 'storelly-product-builder-for-woocommerce' ) );
+            }
+
+            global $wpdb; // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Global variable $wpdb.
+
+            // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only listing filters.
+            $search = isset( $_GET['s'] ) ? sanitize_text_field( wp_unslash( $_GET['s'] ) ) : '';
+            // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only pagination value.
+            $paged = isset( $_GET['paged'] ) ? max( 1, absint( wp_unslash( $_GET['paged'] ) ) ) : 1;
+            $per_page = 20;
+            $offset   = ( $paged - 1 ) * $per_page;
+
+            $order_items_table = $wpdb->prefix . 'woocommerce_order_items';
+            $order_itemmeta_table = $wpdb->prefix . 'woocommerce_order_itemmeta';
+            $posts_table = $wpdb->posts;
+
+            // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter -- Read-only query for admin listing, table names are trusted from $wpdb.
+            $total_orders = (int) $wpdb->get_var(
+                $wpdb->prepare(
+                    "SELECT COUNT(DISTINCT oi.order_id)
+                    FROM {$order_items_table} oi
+                    INNER JOIN {$order_itemmeta_table} oim ON oi.order_item_id = oim.order_item_id
+                    INNER JOIN {$posts_table} p ON p.ID = oi.order_id
+                    WHERE oim.meta_key = %s
+                    AND p.post_type IN ('shop_order', 'shop_order_refund')
+                    AND (%s = '' OR CAST(oi.order_id AS CHAR) LIKE %s)",
+                    '_pcpb_option_price',
+                    $search,
+                    '%' . $wpdb->esc_like( $search ) . '%'
+                )
+            );
+
+            // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter -- Read-only query for admin listing, table names are trusted from $wpdb.
+            $order_ids = $wpdb->get_col(
+                $wpdb->prepare(
+                    "SELECT DISTINCT oi.order_id
+                    FROM {$order_items_table} oi
+                    INNER JOIN {$order_itemmeta_table} oim ON oi.order_item_id = oim.order_item_id
+                    INNER JOIN {$posts_table} p ON p.ID = oi.order_id
+                    WHERE oim.meta_key = %s
+                    AND p.post_type IN ('shop_order', 'shop_order_refund')
+                    AND (%s = '' OR CAST(oi.order_id AS CHAR) LIKE %s)
+                    ORDER BY oi.order_id DESC
+                    LIMIT %d OFFSET %d",
+                    '_pcpb_option_price',
+                    $search,
+                    '%' . $wpdb->esc_like( $search ) . '%',
+                    $per_page,
+                    $offset
+                )
+            );
+            ?>
+            <div class="wrap">
+                <h1><?php esc_html_e( 'Orders', 'storelly-product-builder-for-woocommerce' ); ?></h1>
+                <p><?php esc_html_e( 'Manage custom orders that contain pricing options.', 'storelly-product-builder-for-woocommerce' ); ?></p>
+                <form method="get" style="margin: 12px 0;">
+                    <input type="hidden" name="page" value="<?php echo esc_attr( SPBWC_PB_ORDERS_SLUG ); ?>" />
+                    <input type="search" name="s" value="<?php echo esc_attr( $search ); ?>" placeholder="<?php esc_attr_e( 'Search by order ID', 'storelly-product-builder-for-woocommerce' ); ?>" />
+                    <button type="submit" class="button"><?php esc_html_e( 'Search', 'storelly-product-builder-for-woocommerce' ); ?></button>
+                </form>
+                <table class="widefat striped">
+                    <thead>
+                        <tr>
+                            <th><?php esc_html_e( 'Order', 'storelly-product-builder-for-woocommerce' ); ?></th>
+                            <th><?php esc_html_e( 'Date', 'storelly-product-builder-for-woocommerce' ); ?></th>
+                            <th><?php esc_html_e( 'Status', 'storelly-product-builder-for-woocommerce' ); ?></th>
+                            <th><?php esc_html_e( 'Customer', 'storelly-product-builder-for-woocommerce' ); ?></th>
+                            <th><?php esc_html_e( 'Total', 'storelly-product-builder-for-woocommerce' ); ?></th>
+                            <th><?php esc_html_e( 'Actions', 'storelly-product-builder-for-woocommerce' ); ?></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php if ( ! empty( $order_ids ) ) : ?>
+                            <?php foreach ( $order_ids as $order_id ) : ?>
+                                <?php $order = wc_get_order( absint( $order_id ) ); ?>
+                                <?php if ( ! $order ) { continue; } ?>
+                                <tr>
+                                    <td><strong>#<?php echo esc_html( (string) $order->get_id() ); ?></strong></td>
+                                    <td><?php echo esc_html( wc_format_datetime( $order->get_date_created() ) ); ?></td>
+                                    <td><?php echo esc_html( wc_get_order_status_name( $order->get_status() ) ); ?></td>
+                                    <td><?php echo esc_html( trim( $order->get_formatted_billing_full_name() ) ? $order->get_formatted_billing_full_name() : __( 'Guest', 'storelly-product-builder-for-woocommerce' ) ); ?></td>
+                                    <td><?php echo wp_kses_post( $order->get_formatted_order_total() ); ?></td>
+                                    <td>
+                                        <a class="button button-small" href="<?php echo esc_url( $order->get_edit_order_url() ); ?>"><?php esc_html_e( 'View order', 'storelly-product-builder-for-woocommerce' ); ?></a>
+                                    </td>
+                                </tr>
+                            <?php endforeach; ?>
+                        <?php else : ?>
+                            <tr>
+                                <td colspan="6"><?php esc_html_e( 'No custom orders found.', 'storelly-product-builder-for-woocommerce' ); ?></td>
+                            </tr>
+                        <?php endif; ?>
+                    </tbody>
+                </table>
+                <?php
+                $total_pages = (int) ceil( $total_orders / $per_page );
+                if ( $total_pages > 1 ) {
+                    echo '<div class="tablenav"><div class="tablenav-pages">';
+                    echo wp_kses_post(
+                        paginate_links(
+                            array(
+                                'base'      => add_query_arg(
+                                    array(
+                                        'page'  => SPBWC_PB_ORDERS_SLUG,
+                                        's'     => rawurlencode( $search ),
+                                        'paged' => '%#%',
+                                    ),
+                                    admin_url( 'admin.php' )
+                                ),
+                                'format'    => '',
+                                'prev_text' => '&laquo;',
+                                'next_text' => '&raquo;',
+                                'total'     => $total_pages,
+                                'current'   => $paged,
+                            )
+                        )
+                    );
+                    echo '</div></div>';
+                }
+                ?>
+            </div>
+            <?php
         }
         public function spbwc_unpublish_option($id) { 
             global $wpdb; // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Global variable $wpdb.
@@ -1099,6 +1800,7 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
         public function spbwc_meta_box() {
             $post_id            = get_the_ID();
             $nbdpb_enable       = get_post_meta($post_id, '_storelly_pb_enable', true);
+            $spbwc_enable_quote = get_post_meta($post_id, '_spbwc_enable_quote', true);
             $option_id          = $this->spbwc_get_product_option($post_id);
             $option_id          = $option_id ? $option_id : 0;
             $option_title       = '';
@@ -1169,6 +1871,10 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
             if (isset($_POST['_storelly_pb_enable'])) { // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce verified in surrounding save_post handler.
                 $enable = sanitize_text_field( wp_unslash( $_POST['_storelly_pb_enable'] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce verified in surrounding save_post handler.
                 update_post_meta($post_id, '_storelly_pb_enable', $enable);
+            }
+            if (isset($_POST['_spbwc_enable_quote'])) { // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce verified in surrounding save_post handler.
+                $enable_quote = sanitize_text_field( wp_unslash( $_POST['_spbwc_enable_quote'] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce verified in surrounding save_post handler.
+                update_post_meta($post_id, '_spbwc_enable_quote', $enable_quote);
             }
         }
         public function spbwc_hidden_custom_order_item_metada($order_items) {

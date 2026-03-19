@@ -14,6 +14,13 @@ if (!defined('ABSPATH')) {
                     <input type="checkbox" value="1" name="_storelly_pb_enable" id="_storelly_pb_enable" <?php checked($nbdpb_enable); ?> class="short" />
                 </span>
             </p>
+            <p class="storelly-form-field">
+                <label for="_spbwc_enable_quote"><?php esc_html_e ('Enable request quote', 'storelly-product-builder-for-woocommerce'); ?></label>
+                <span class="storelly-option-val">
+                    <input type="hidden" value="0" name="_spbwc_enable_quote" />
+                    <input type="checkbox" value="1" name="_spbwc_enable_quote" id="_spbwc_enable_quote" <?php checked(!empty($spbwc_enable_quote)); ?> class="short" />
+                </span>
+            </p>
             <?php if ($option_id > 0 && !empty($option_title)) : ?>
             <p class="storelly-form-field">
                 <label><?php esc_html_e('Mapped printing option:', 'storelly-product-builder-for-woocommerce'); ?> <strong><?php echo esc_html($option_title); ?></strong></label>

@@ -45,6 +45,9 @@ define('SPBWC_ENABLE_NONCE',                TRUE);
 define('SPBWC_API_URL',                     'https://app.storelly.com/public');
 define('SPBWC_PB_OPTIONS_SLUG',             'storelly-product-builder-for-woocommerce-options');
 define('SPBWC_PB_BUILDER_SLUG',             'storelly-product-builder-for-woocommerce-builder');
+define('SPBWC_PB_PRODUCTS_SLUG',            'storelly-product-builder-for-woocommerce-products');
+define('SPBWC_PB_ORDERS_SLUG',              'storelly-product-builder-for-woocommerce-orders');
+define('SPBWC_PB_QUOTES_SLUG',              'storelly-product-builder-for-woocommerce-quotes');
 
 
 // check if woocommerce works
@@ -72,6 +75,7 @@ require_once(SPBWC_PB_PLUGIN_DIR .  'includes/class-admin-options.php');
 require_once(SPBWC_PB_PLUGIN_DIR .  'includes/class-frontend-options.php');
 require_once(SPBWC_PB_PLUGIN_DIR .  'includes/class-http.php');
 require_once(SPBWC_PB_PLUGIN_DIR .  'includes/class-productbuilder-api.php');
+require_once(SPBWC_PB_PLUGIN_DIR .  'includes/class-request-quote.php');
 require_once(SPBWC_PB_PLUGIN_DIR .  'includes/class-global-import.php');
 require_once(SPBWC_PB_PLUGIN_DIR .  'includes/class-global-import-admin.php');
 require_once(SPBWC_PB_PLUGIN_DIR .  'includes/class-global-import-controller.php');
