@@ -533,10 +533,55 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
                     .spbwc-product-actions .button-primary{background:#339af0;border:none;box-shadow:none;font-weight:600;transition:background .2s}
                     .spbwc-product-actions .button-primary:hover{background:#1971c2}
                     /* Pagination styles */
-                    .spbwc-pagination{display:flex;justify-content:center;align-items:center;margin:32px 0 0 0;gap:4px;font-size:16px}
-                    .spbwc-pagination .page-numbers{display:inline-block;padding:6px 14px;margin:0 2px;border-radius:6px;background:#f7f8fa;color:#1971c2;text-decoration:none;transition:background .2s,color .2s;font-weight:500;border:1px solid #e0e4ea}
-                    .spbwc-pagination .page-numbers.current,.spbwc-pagination .page-numbers:hover{background:#339af0;color:#fff;border-color:#339af0}
-                    .spbwc-pagination .page-numbers.dots{background:none;color:#888;border:none;pointer-events:none}
+                    .spbwc-pagination {
+                        display: flex;
+                        justify-content: center;
+                        align-items: center;
+                        margin: 40px 0 20px;
+                        gap: 8px;
+                    }
+                    .spbwc-pagination .page-numbers {
+                        display: inline-flex;
+                        align-items: center;
+                        justify-content: center;
+                        min-width: 40px;
+                        height: 40px;
+                        padding: 0 8px;
+                        border-radius: 10px;
+                        background: #fff;
+                        color: #4a5568;
+                        text-decoration: none;
+                        transition: all 0.25s ease;
+                        font-weight: 600;
+                        font-size: 14px;
+                        border: 1px solid #e2e8f0;
+                        box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+                    }
+                    .spbwc-pagination .page-numbers:hover:not(.dots):not(.current) {
+                        background: #f7fafc;
+                        border-color: #cbd5e0;
+                        color: #3182ce;
+                        transform: translateY(-1px);
+                        box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+                    }
+                    .spbwc-pagination .page-numbers.current {
+                        background: #3182ce;
+                        color: #fff;
+                        border-color: #3182ce;
+                        box-shadow: 0 4px 12px rgba(49, 130, 206, 0.3);
+                    }
+                    .spbwc-pagination .page-numbers.dots {
+                        background: none;
+                        color: #a0aec0;
+                        border: none;
+                        box-shadow: none;
+                        cursor: default;
+                    }
+                    .spbwc-pagination .prev.page-numbers,
+                    .spbwc-pagination .next.page-numbers {
+                        font-size: 18px;
+                        padding-bottom: 2px;
+                    }
                 </style>
                 <?php if ( $products_query->have_posts() ) : ?>
                     <div class="spbwc-product-grid">
@@ -592,7 +637,8 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
                 <?php
                 $total_pages = (int) $products_query->max_num_pages;
                 if ( $total_pages > 1 ) {
-                    $pagination = paginate_links(
+                    echo '<div class="spbwc-pagination">';
+                    echo paginate_links(
                         array(
                             'base'      => add_query_arg(
                                 array(
@@ -607,12 +653,10 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
                             'next_text' => '&raquo;',
                             'total'     => $total_pages,
                             'current'   => $paged,
-                            'type'      => 'list',
+                            'type'      => 'plain',
                         )
                     );
-                    // Thay class ul thành .spbwc-pagination
-                    $pagination = str_replace('class="page-numbers"', 'class="spbwc-pagination"', $pagination);
-                    echo $pagination;
+                    echo '</div>';
                 }
                 wp_reset_postdata();
                 ?>
