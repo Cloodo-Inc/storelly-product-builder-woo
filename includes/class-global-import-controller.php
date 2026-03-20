@@ -24,8 +24,6 @@ class SPBWC_Global_Import_Controller {
         add_action('wp_ajax_spbwc_global_import_list', array($this, 'handle_list'));
         add_action('wp_ajax_spbwc_global_import_row_ids', array($this, 'handle_row_ids'));
         add_action('wp_ajax_spbwc_global_import_run', array($this, 'handle_import'));
-        add_action('wp_ajax_spbwc_global_import_exports', array($this, 'handle_exports'));
-        add_action('wp_ajax_spbwc_global_import_export_delete', array($this, 'handle_export_delete'));
         add_action('wp_ajax_spbwc_global_import_log', array($this, 'handle_log'));
     }
 
@@ -327,6 +325,9 @@ class SPBWC_Global_Import_Controller {
         if (empty($row_ids)) {
             wp_send_json_error(__('No rows selected', 'storelly-product-builder-for-woocommerce'));
         }
+        @set_time_limit(0);
+        wp_defer_term_counting(true);
+        wp_defer_comment_counting(true);
         $batch = max(1, absint($_POST['batch'] ?? 20));
         if ($import_id === $this->demo_session_id()) {
             $session = $this->ensure_demo_session();
@@ -392,6 +393,8 @@ class SPBWC_Global_Import_Controller {
             }
         }
         $this->append_log($job_id, $processed, $errors, $debug_lines);
+        wp_defer_term_counting(false);
+        wp_defer_comment_counting(false);
         wp_send_json_success(array(
             'processed' => $processed,
             'errors' => $errors,

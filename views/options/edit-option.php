@@ -146,15 +146,15 @@ $link_create_pre_builder = add_query_arg(array(
                             <h2 style="border-bottom: 1px solid #ddd;"><?php esc_html_e('Production builder fields', 'storelly-product-builder-for-woocommerce'); ?></h2>
                             <div class="inside">
                                 <div>
-                                    <p class="section-title"><input class="nbd-ip-readonly" value="<?php esc_html_e('Default field', 'storelly-product-builder-for-woocommerce'); ?>" readonly=""></p>
+                                    <p class="section-title"><input class="nbd-ip-readonly" value="<?php esc_html_e('New field', 'storelly-product-builder-for-woocommerce'); ?>" readonly=""></p>
                                     <div class="nbd-section-wrap">
                                         <a title="<?php esc_html_e('Add fields', 'storelly-product-builder-for-woocommerce'); ?>" class="pcpb-field-btn button" ng-click="add_field()">
-                                            <?php esc_html_e('Default field', 'storelly-product-builder-for-woocommerce'); ?> <span class="nbo-type-label default">1</span>
+                                            <?php esc_html_e('New field', 'storelly-product-builder-for-woocommerce'); ?> <span class="nbo-type-label default">1</span>
                                         </a>
                                     </div>
                                 </div>
                                 <div style="margin-top: 10px;">
-                                    <p class="section-title"><input class="nbd-ip-readonly" value="<?php esc_html_e('Product builder fields', 'storelly-product-builder-for-woocommerce'); ?>" readonly=""></p>
+                                    <p class="section-title"><input class="nbd-ip-readonly" value="<?php esc_html_e('Product Builder View', 'storelly-product-builder-for-woocommerce'); ?>" readonly=""></p>
                                     <div class="nbd-section-wrap">
                                         <a class="pcpb-field-btn button" ng-click="add_field('nbpb_com', 'nbpb_com')"><?php esc_html_e('Component', 'storelly-product-builder-for-woocommerce'); ?> <span class="nbo-type-label wpo">2</span></a>
                                         <a class="pcpb-field-btn button" ng-click="add_field('nbpb_text', 'nbpb_text')"><?php esc_html_e('Text', 'storelly-product-builder-for-woocommerce'); ?> <span class="nbo-type-label wpo">3</span></a>
