@@ -48,6 +48,8 @@ define('SPBWC_PB_BUILDER_SLUG',             'storelly-product-builder-for-woocom
 define('SPBWC_PB_PRODUCTS_SLUG',            'storelly-product-builder-for-woocommerce-products');
 define('SPBWC_PB_ORDERS_SLUG',              'storelly-product-builder-for-woocommerce-orders');
 define('SPBWC_PB_QUOTES_SLUG',              'storelly-product-builder-for-woocommerce-quotes');
+define('SPBWC_PB_LICENSE_SLUG',             'storelly-product-builder-for-woocommerce-license');
+define('SPBWC_PB_OVERVIEW_SLUG',            'storelly-product-builder-for-woocommerce-overview');
 
 
 // check if woocommerce works
@@ -81,6 +83,7 @@ require_once(SPBWC_PB_PLUGIN_DIR .  'includes/class-global-import-admin.php');
 require_once(SPBWC_PB_PLUGIN_DIR .  'includes/class-global-import-controller.php');
 require_once(SPBWC_PB_PLUGIN_DIR .  'includes/class-printcart-import-adapter.php');
 require_once(SPBWC_PB_PLUGIN_DIR .  'includes/class-printcart-import-schema.php');
+require_once(SPBWC_PB_PLUGIN_DIR .  'includes/class-license-manager.php');
 
 register_activation_hook(__FILE__, array('SPBWC_Storelly_Product_Builder_API', 'spbwc_generate_key'));
 

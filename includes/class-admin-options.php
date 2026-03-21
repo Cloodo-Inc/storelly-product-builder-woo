@@ -38,10 +38,13 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
         }
         public function spbwc_ajax() {
             $ajax_events = array(
-                'spbwc_download_option_image'         => true,
-                'spbwc_get_media_full_size_url'       => true,
-                'spbwc_add_google_font'         => true,
-                'spbwc_download_order_designs'  => true,
+                'spbwc_download_option_image'   => true,
+                'spbwc_get_media_full_size_url'  => true,
+                'spbwc_add_google_font'          => true,
+                'spbwc_download_order_designs'   => true,
+                // License management AJAX actions
+                'spbwc_license_activate'         => false, // admin only
+                'spbwc_license_sync'             => false, // admin only
             );
             foreach ($ajax_events as $ajax_event => $nopriv) {
                 add_action('wp_ajax_' . $ajax_event, array($this, $ajax_event));
@@ -222,12 +225,21 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
                     'Storelly Builder',
                     'Product Builder Options',
                     'spbwc_manage_product_builder',
-                    SPBWC_PB_OPTIONS_SLUG,
-                    array($this, 'spbwc_settings'),
+                    SPBWC_PB_OVERVIEW_SLUG,
+                    array($this, 'spbwc_overview'),
                     SPBWC_PB_ASSETS_URL . 'images/logo.png'
                 );
+                // Set Overview as the first child of the main menu slug to prevent double entries
                 add_submenu_page(
-                    SPBWC_PB_OPTIONS_SLUG,
+                    SPBWC_PB_OVERVIEW_SLUG,
+                    esc_html__('Overview', 'storelly-product-builder-for-woocommerce'),
+                    esc_html__('Overview', 'storelly-product-builder-for-woocommerce'),
+                    'manage_options',
+                    SPBWC_PB_OVERVIEW_SLUG,
+                    array($this, 'spbwc_overview')
+                );
+                add_submenu_page(
+                    SPBWC_PB_OVERVIEW_SLUG,
                     esc_html__('Settings', 'storelly-product-builder-for-woocommerce'),
                     esc_html__('Settings', 'storelly-product-builder-for-woocommerce'),
                     'manage_options',
@@ -235,7 +247,7 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
                     array($this, 'spbwc_settings')
                 );
                 add_submenu_page(
-                    SPBWC_PB_OPTIONS_SLUG,
+                    SPBWC_PB_OVERVIEW_SLUG,
                     esc_html__('Pricing Options', 'storelly-product-builder-for-woocommerce'),
                     esc_html__('Pricing Options', 'storelly-product-builder-for-woocommerce'),
                     'manage_options',
@@ -243,7 +255,7 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
                     array($this, 'spbwc_product_builder_options')
                 );
                 add_submenu_page(
-                    SPBWC_PB_OPTIONS_SLUG,
+                    SPBWC_PB_OVERVIEW_SLUG,
                     esc_html__('Products', 'storelly-product-builder-for-woocommerce'),
                     esc_html__('Products', 'storelly-product-builder-for-woocommerce'),
                     'manage_options',
@@ -251,7 +263,7 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
                     array($this, 'spbwc_products_manager')
                 );
                 add_submenu_page(
-                    SPBWC_PB_OPTIONS_SLUG,
+                    SPBWC_PB_OVERVIEW_SLUG,
                     esc_html__('Orders', 'storelly-product-builder-for-woocommerce'),
                     esc_html__('Orders', 'storelly-product-builder-for-woocommerce'),
                     'manage_options',
@@ -259,15 +271,24 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
                     array($this, 'spbwc_orders_manager')
                 );
                 add_submenu_page(
-                    SPBWC_PB_OPTIONS_SLUG,
+                    SPBWC_PB_OVERVIEW_SLUG,
                     esc_html__('Quotes', 'storelly-product-builder-for-woocommerce'),
                     esc_html__('Quotes', 'storelly-product-builder-for-woocommerce'),
                     'manage_options',
                     SPBWC_PB_QUOTES_SLUG,
                     array($this, 'spbwc_quotes_manager')
                 );
+                // License submenu – placed right after Quotes
                 add_submenu_page(
-                    SPBWC_PB_OPTIONS_SLUG,
+                    SPBWC_PB_OVERVIEW_SLUG,
+                    esc_html__('License', 'storelly-product-builder-for-woocommerce'),
+                    esc_html__('License', 'storelly-product-builder-for-woocommerce'),
+                    'manage_options',
+                    SPBWC_PB_LICENSE_SLUG,
+                    array($this, 'spbwc_license_page')
+                );
+                add_submenu_page(
+                    SPBWC_PB_OVERVIEW_SLUG,
                     esc_html__('Fonts', 'storelly-product-builder-for-woocommerce'),
                     esc_html__('Fonts', 'storelly-product-builder-for-woocommerce'),
                     'manage_options',
@@ -275,7 +296,7 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
                     array($this, 'spbwc_manager_fonts')
                 );
                 add_submenu_page(
-                    SPBWC_PB_OPTIONS_SLUG,
+                    SPBWC_PB_OVERVIEW_SLUG,
                     esc_html__('Global Import', 'storelly-product-builder-for-woocommerce'),
                     esc_html__('Global Import', 'storelly-product-builder-for-woocommerce'),
                     'manage_options',
@@ -2296,6 +2317,133 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
             }
             echo wp_json_encode($response);
             wp_die();
+        }
+
+        // ============================================================
+        //  Overview Page
+        // ============================================================
+
+        /**
+         * Render the Overview dashboard page.
+         * Shows general stats (products, pricing options, orders, quotes) and license status.
+         */
+        public function spbwc_overview() {
+            if ( ! current_user_can( 'manage_options' ) ) {
+                wp_die( esc_html__( 'You do not have permission to access this page.', 'storelly-product-builder-for-woocommerce' ) );
+            }
+
+            // --- Local WooCommerce / WordPress counts ---
+            global $wpdb; // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals
+            $table_options    = $wpdb->prefix . 'storelly_product_builder_options';
+            $total_pricing    = (int) $wpdb->get_var( "SELECT COUNT(id) FROM {$table_options}" ); // phpcs:ignore WordPress.DB
+            $total_products   = (int) wp_count_posts( 'product' )->publish;
+
+            // WooCommerce orders (all statuses)
+            $total_orders = 0;
+            if ( function_exists( 'wc_get_orders' ) ) {
+                $total_orders = (int) array_sum( (array) wc_get_order_statuses() );
+                $count_query = $wpdb->get_var( // phpcs:ignore WordPress.DB
+                    "SELECT COUNT(ID) FROM {$wpdb->posts} WHERE post_type='shop_order' AND post_status != 'trash'"
+                );
+                $total_orders = $count_query ? (int) $count_query : 0;
+            }
+
+            // Quote requests stored in plugin's own table (if exists)
+            $quote_table  = $wpdb->prefix . 'storelly_quote_requests';
+            $total_quotes = 0;
+            // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+            if ( $wpdb->get_var( $wpdb->prepare( "SHOW TABLES LIKE %s", $quote_table ) ) === $quote_table ) {
+                $total_quotes = (int) $wpdb->get_var( "SELECT COUNT(id) FROM {$quote_table}" ); // phpcs:ignore WordPress.DB
+            }
+
+            // --- Remote (Storelly) stats overlay ---
+            $remote_stats = SPBWC_License_Manager::get_overview_stats();
+
+            // --- License info ---
+            $license = SPBWC_License_Manager::get_current_license();
+
+            include_once( SPBWC_PB_PLUGIN_DIR . 'views/overview.php' );
+        }
+
+        // ============================================================
+        //  License Page
+        // ============================================================
+
+        /**
+         * Render the License management page.
+         * Shows available packages and the user's current active plan.
+         */
+        public function spbwc_license_page() {
+            if ( ! current_user_can( 'manage_options' ) ) {
+                wp_die( esc_html__( 'You do not have permission to access this page.', 'storelly-product-builder-for-woocommerce' ) );
+            }
+
+            $license   = SPBWC_License_Manager::get_current_license();
+            $packages  = SPBWC_License_Manager::get_packages();
+            $nonce     = wp_create_nonce( 'spbwc_license_action' );
+
+            include_once( SPBWC_PB_PLUGIN_DIR . 'views/license.php' );
+        }
+
+        // ============================================================
+        //  AJAX: Activate License Key
+        // ============================================================
+
+        /**
+         * AJAX handler: activate a license key entered by the admin.
+         * wp_ajax_spbwc_license_activate
+         */
+        public function spbwc_license_activate() {
+            if ( ! current_user_can( 'manage_options' ) ) {
+                wp_send_json_error( array( 'msg' => esc_html__( 'Permission denied.', 'storelly-product-builder-for-woocommerce' ) ) );
+            }
+
+            $nonce = isset( $_POST['nonce'] ) ? sanitize_text_field( wp_unslash( $_POST['nonce'] ) ) : '';
+            if ( ! wp_verify_nonce( $nonce, 'spbwc_license_action' ) ) {
+                wp_send_json_error( array( 'msg' => esc_html__( 'Security check failed.', 'storelly-product-builder-for-woocommerce' ) ) );
+            }
+
+            $key = isset( $_POST['license_key'] ) ? sanitize_text_field( wp_unslash( $_POST['license_key'] ) ) : '';
+            $result = SPBWC_License_Manager::activate_key( $key );
+
+            if ( $result['success'] ) {
+                wp_send_json_success( $result );
+            } else {
+                wp_send_json_error( $result );
+            }
+        }
+
+        // ============================================================
+        //  AJAX: Sync License from Server
+        // ============================================================
+
+        /**
+         * AJAX handler: manually trigger a license sync from the Storelly server.
+         * wp_ajax_spbwc_license_sync
+         */
+        public function spbwc_license_sync() {
+            if ( ! current_user_can( 'manage_options' ) ) {
+                wp_send_json_error( array( 'msg' => esc_html__( 'Permission denied.', 'storelly-product-builder-for-woocommerce' ) ) );
+            }
+
+            $nonce = isset( $_POST['nonce'] ) ? sanitize_text_field( wp_unslash( $_POST['nonce'] ) ) : '';
+            if ( ! wp_verify_nonce( $nonce, 'spbwc_license_action' ) ) {
+                wp_send_json_error( array( 'msg' => esc_html__( 'Security check failed.', 'storelly-product-builder-for-woocommerce' ) ) );
+            }
+
+            $result = SPBWC_License_Manager::sync_from_api();
+
+            if ( is_wp_error( $result ) ) {
+                wp_send_json_error( array( 'msg' => $result->get_error_message() ) );
+            }
+
+            $license = SPBWC_License_Manager::get_current_license();
+            wp_send_json_success( array(
+                'msg'          => esc_html__( 'License synced successfully.', 'storelly-product-builder-for-woocommerce' ),
+                'package_name' => $license['package_name'],
+                'status'       => $license['status'],
+                'expires_at'   => $license['expires_at'],
+            ) );
         }
     }
 }
