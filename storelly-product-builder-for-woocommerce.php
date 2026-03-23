@@ -42,7 +42,7 @@ define('SPBWC_PB_ASSETS_DIR',               SPBWC_PB_PLUGIN_DIR . 'static/');
 define('SPBWC_PB_JS_URL',                   SPBWC_PB_PLUGIN_URL . 'static/js/');
 define('SPBWC_PB_CSS_URL',                  SPBWC_PB_PLUGIN_URL . 'static/css/');
 define('SPBWC_ENABLE_NONCE',                TRUE);
-define('SPBWC_API_URL',                     'https://app.storelly.com/public');
+define('SPBWC_API_URL',                     'https://app.storelly.com');
 define('SPBWC_PB_OPTIONS_SLUG',             'storelly-product-builder-for-woocommerce-options');
 define('SPBWC_PB_BUILDER_SLUG',             'storelly-product-builder-for-woocommerce-builder');
 define('SPBWC_PB_PRODUCTS_SLUG',            'storelly-product-builder-for-woocommerce-products');

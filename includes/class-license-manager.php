@@ -19,6 +19,12 @@ if ( ! class_exists( 'SPBWC_License_Manager' ) ) {
         const CACHE_GROUP = 'spbwc_license';
         const OPTION_KEY  = 'spbwc_license_data';
 
+        /** Transient key for cached package list from the license API. */
+        const TRANSIENT_PACKAGES = 'spbwc_license_packages';
+
+        /** Transient key for Overview page stats from the plugin API. */
+        const TRANSIENT_OVERVIEW_STATS = 'spbwc_overview_stats';
+
         protected static $instance;
 
         private function __construct() {}
@@ -65,19 +71,22 @@ if ( ! class_exists( 'SPBWC_License_Manager' ) ) {
         }
 
         /**
+         * Drop license-related transients and object cache so the next load fetches fresh API data.
+         * Call only after a successful sync so failed requests keep previous cached data.
+         */
+        public static function invalidate_license_caches() {
+            delete_transient( self::TRANSIENT_PACKAGES );
+            delete_transient( self::TRANSIENT_OVERVIEW_STATS );
+            wp_cache_delete( 'spbwc_current_license', self::CACHE_GROUP );
+        }
+
+        /**
          * Fetch real-time license status from the Storelly Dashboard API.
          * Returns true on success, WP_Error on failure.
          *
          * @return true|WP_Error
          */
         public static function sync_from_api() {
-            $api_keys    = get_option( 'spbwc_connect_api_keys', array() );
-            $business_id = isset( $api_keys['business_id'] ) ? absint( $api_keys['business_id'] ) : 0;
-
-            if ( ! $business_id ) {
-                return new WP_Error( 'no_business', __( 'No business ID configured. Please complete the Storelly connection.', 'storelly-product-builder-for-woocommerce' ) );
-            }
-
             $url  = SPBWC_API_URL . '/api/v1/license/status';
             $resp = SPBWC_Storelly_HTTP::spbwc_fetch_data( $url );
 
@@ -105,7 +114,7 @@ if ( ! class_exists( 'SPBWC_License_Manager' ) ) {
             );
 
             update_option( self::OPTION_KEY, $data );
-            wp_cache_delete( 'spbwc_current_license', self::CACHE_GROUP );
+            self::invalidate_license_caches();
 
             return true;
         }
@@ -117,7 +126,7 @@ if ( ! class_exists( 'SPBWC_License_Manager' ) ) {
          * @return array|WP_Error
          */
         public static function get_packages() {
-            $cached = get_transient( 'spbwc_license_packages' );
+            $cached = get_transient( self::TRANSIENT_PACKAGES );
             if ( false !== $cached ) {
                 return $cached;
             }
@@ -126,8 +135,8 @@ if ( ! class_exists( 'SPBWC_License_Manager' ) ) {
             $resp = SPBWC_Storelly_HTTP::spbwc_fetch_data( $url );
 
             if ( is_wp_error( $resp ) || empty( $resp['success'] ) || ! isset( $resp['packages'] ) ) {
-                // Return built-in fallback packages if API unavailable
-                return self::built_in_packages();
+                // Do not use multi-tier marketing fallbacks; show a single temporary Free tier until the API responds.
+                return self::temporary_free_packages();
             }
 
             $packages = array_map( function( $pkg ) {
@@ -147,7 +156,7 @@ if ( ! class_exists( 'SPBWC_License_Manager' ) ) {
                 );
             }, $resp['packages'] );
 
-            set_transient( 'spbwc_license_packages', $packages, HOUR_IN_SECONDS );
+            set_transient( self::TRANSIENT_PACKAGES, $packages, HOUR_IN_SECONDS );
             return $packages;
         }
 
@@ -183,7 +192,6 @@ if ( ! class_exists( 'SPBWC_License_Manager' ) ) {
                 $api_keys['license_key'] = $license_key;
                 update_option( 'spbwc_connect_api_keys', $api_keys );
                 self::sync_from_api();
-                delete_transient( 'spbwc_license_packages' );
             }
 
             return array(
@@ -199,7 +207,7 @@ if ( ! class_exists( 'SPBWC_License_Manager' ) ) {
          * @return array|WP_Error
          */
         public static function get_overview_stats() {
-            $cached = get_transient( 'spbwc_overview_stats' );
+            $cached = get_transient( self::TRANSIENT_OVERVIEW_STATS );
             if ( false !== $cached ) {
                 return $cached;
             }
@@ -227,7 +235,7 @@ if ( ! class_exists( 'SPBWC_License_Manager' ) ) {
                 'license_expires' => sanitize_text_field( $resp['license_expires'] ?? '' ),
             );
 
-            set_transient( 'spbwc_overview_stats', $stats, 5 * MINUTE_IN_SECONDS );
+            set_transient( self::TRANSIENT_OVERVIEW_STATS, $stats, 5 * MINUTE_IN_SECONDS );
             return $stats;
         }
 
@@ -258,65 +266,27 @@ if ( ! class_exists( 'SPBWC_License_Manager' ) ) {
         }
 
         /**
-         * Built-in fallback packages shown when the API is unreachable.
+         * Single temporary Free package when the packages API is unreachable (not the old multi-tier demo list).
+         *
+         * @return array<int, array<string, mixed>>
          */
-        public static function built_in_packages() {
+        public static function temporary_free_packages() {
+            $defaults = self::free_license_defaults();
+
             return array(
                 array(
                     'id'                   => 0,
-                    'name'                 => 'Free',
-                    'slug'                 => 'free',
-                    'description'          => 'Get started with basic product builder features at no cost.',
+                    'name'                 => $defaults['package_name'],
+                    'slug'                 => $defaults['package_slug'],
+                    'description'          => __( 'Temporary Free plan while the license server is unavailable. Reconnect to load live plans.', 'storelly-product-builder-for-woocommerce' ),
                     'price'                => 0,
                     'currency'             => 'USD',
-                    'billing_cycle'        => 'monthly',
-                    'features'             => array( 'Up to 5 products', 'Up to 3 pricing options', 'Community support' ),
-                    'max_products'         => 5,
-                    'max_orders'           => 50,
-                    'max_pricing_options'  => 3,
+                    'billing_cycle'        => '—',
+                    'features'             => array_map( 'strval', (array) $defaults['features'] ),
+                    'max_products'         => absint( $defaults['max_products'] ),
+                    'max_orders'           => absint( $defaults['max_orders'] ),
+                    'max_pricing_options'  => absint( $defaults['max_pricing_options'] ),
                     'is_free'              => true,
-                ),
-                array(
-                    'id'                   => 0,
-                    'name'                 => 'Starter',
-                    'slug'                 => 'starter',
-                    'description'          => 'Perfect for small businesses.',
-                    'price'                => 19,
-                    'currency'             => 'USD',
-                    'billing_cycle'        => 'monthly',
-                    'features'             => array( 'Up to 50 products', 'Up to 30 pricing options', 'Email support', 'Remove branding' ),
-                    'max_products'         => 50,
-                    'max_orders'           => 500,
-                    'max_pricing_options'  => 30,
-                    'is_free'              => false,
-                ),
-                array(
-                    'id'                   => 0,
-                    'name'                 => 'Professional',
-                    'slug'                 => 'professional',
-                    'description'          => 'Full-featured for established businesses.',
-                    'price'                => 49,
-                    'currency'             => 'USD',
-                    'billing_cycle'        => 'monthly',
-                    'features'             => array( 'Unlimited products', 'Unlimited pricing options', 'Priority support', 'API access', 'PDF export' ),
-                    'max_products'         => 0,
-                    'max_orders'           => 0,
-                    'max_pricing_options'  => 0,
-                    'is_free'              => false,
-                ),
-                array(
-                    'id'                   => 0,
-                    'name'                 => 'Enterprise',
-                    'slug'                 => 'enterprise',
-                    'description'          => 'Tailored solutions for large teams.',
-                    'price'                => 149,
-                    'currency'             => 'USD',
-                    'billing_cycle'        => 'monthly',
-                    'features'             => array( 'Everything in Professional', 'Dedicated account manager', 'SLA guarantee', 'White-label ready' ),
-                    'max_products'         => 0,
-                    'max_orders'           => 0,
-                    'max_pricing_options'  => 0,
-                    'is_free'              => false,
                 ),
             );
         }

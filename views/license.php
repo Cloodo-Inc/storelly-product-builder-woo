@@ -108,6 +108,10 @@ $synced_at    = $license['synced_at'] ? esc_html( $license['synced_at'] ) : null
     }
     #spbwc-activate-btn:hover { filter: brightness(1.1); }
     #spbwc-license-msg { margin-top: 12px; display: none; }
+    /* Sync button loading state */
+    #spbwc-sync-btn.is-loading { cursor: wait; opacity: 0.85; }
+    #spbwc-sync-btn.is-loading .dashicons-update { animation: spbwc-spin 0.8s linear infinite; }
+    @keyframes spbwc-spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
     </style>
 
     <!-- Current Plan Banner -->
@@ -148,7 +152,7 @@ $synced_at    = $license['synced_at'] ? esc_html( $license['synced_at'] ) : null
             </div>
         </div>
         <div>
-            <button id="spbwc-sync-btn"
+            <button id="spbwc-sync-btn" class="spbwc-sync-btn"
                     style="background:rgba(255,255,255,.15);color:#fff;border:1px solid rgba(255,255,255,.4);border-radius:8px;padding:9px 18px;font-size:13px;cursor:pointer;"
                     data-nonce="<?php echo esc_attr( $nonce ); ?>">
                 <span class="dashicons dashicons-update" style="font-size:14px;vertical-align:middle;"></span>
@@ -261,22 +265,24 @@ $synced_at    = $license['synced_at'] ? esc_html( $license['synced_at'] ) : null
 
     <script>
     (function($){
-        // Sync license
-        $('#spbwc-sync-btn').on('click', function(){
-            var $btn = $(this);
-            $btn.prop('disabled', true);
+        var $syncBtn = $('#spbwc-sync-btn');
+        var syncBtnHtml = $syncBtn.html();
+        $syncBtn.on('click', function(){
+            if ( $syncBtn.hasClass('is-loading') ) return;
+            $syncBtn.addClass('is-loading').prop('disabled', true)
+                .html('<span class="dashicons dashicons-update" style="font-size:14px;vertical-align:middle;"></span> <?php echo esc_js( __( 'Syncing...', 'storelly-product-builder-for-woocommerce' ) ); ?>');
             $.post(ajaxurl, {
                 action: 'spbwc_license_sync',
-                nonce:  $btn.data('nonce')
+                nonce: $syncBtn.data('nonce')
             }, function(res){
                 if (res.success) { location.reload(); }
                 else {
-                    alert((res.data && res.data.msg) ? res.data.msg : 'Sync failed.');
-                    $btn.prop('disabled', false);
+                    alert((res.data && res.data.msg) ? res.data.msg : '<?php echo esc_js( __( 'Sync failed.', 'storelly-product-builder-for-woocommerce' ) ); ?>');
+                    $syncBtn.removeClass('is-loading').prop('disabled', false).html(syncBtnHtml);
                 }
             }).fail(function(){
                 alert('<?php echo esc_js( __( 'Request failed. Check your connection.', 'storelly-product-builder-for-woocommerce' ) ); ?>');
-                $btn.prop('disabled', false);
+                $syncBtn.removeClass('is-loading').prop('disabled', false).html(syncBtnHtml);
             });
         });
     })(jQuery);

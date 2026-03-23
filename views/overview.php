@@ -83,6 +83,9 @@ $nonce_license  = wp_create_nonce( 'spbwc_license_action' );
         transition: background .2s;
     }
     .spbwc-license-banner .btn-sync:hover { background: rgba(255,255,255,0.25); }
+    .spbwc-license-banner .btn-sync.is-loading { cursor: wait; opacity: 0.85; pointer-events: none; }
+    .spbwc-license-banner .btn-sync.is-loading .dashicons-update { animation: spbwc-spin 0.8s linear infinite; }
+    @keyframes spbwc-spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
 
     /* ---- Quick Links ---- */
     .spbwc-quick-links { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 24px; }
@@ -226,25 +229,24 @@ $nonce_license  = wp_create_nonce( 'spbwc_license_action' );
 
     <script>
     (function($){
-        $('#spbwc-overview-sync-btn').on('click', function(){
-            var $btn = $(this);
+        var $btn = $('#spbwc-overview-sync-btn');
+        var btnHtml = $btn.html();
+        $btn.on('click', function(){
             if ( $btn.hasClass('is-loading') ) return;
-            $btn.addClass('is-loading').text('Syncing...');
+            $btn.addClass('is-loading').prop('disabled', true)
+                .html('<span class="dashicons dashicons-update" style="font-size:14px;vertical-align:middle;"></span> <?php echo esc_js( __( 'Syncing...', 'storelly-product-builder-for-woocommerce' ) ); ?>');
             $.post(ajaxurl, {
                 action: 'spbwc_license_sync',
                 nonce: $btn.data('nonce')
             }, function(res){
-                if ( res.success ) {
-                    location.reload();
-                } else {
-                    alert( (res.data && res.data.msg) ? res.data.msg : 'Sync failed.' );
-                    $btn.removeClass('is-loading')
-                        .html('<span class="dashicons dashicons-update" style="font-size:14px;vertical-align:middle;"></span> Sync License');
+                if ( res.success ) { location.reload(); }
+                else {
+                    alert( (res.data && res.data.msg) ? res.data.msg : '<?php echo esc_js( __( 'Sync failed.', 'storelly-product-builder-for-woocommerce' ) ); ?>' );
+                    $btn.removeClass('is-loading').prop('disabled', false).html(btnHtml);
                 }
             }).fail(function(){
-                alert('Request failed. Check your connection.');
-                $btn.removeClass('is-loading')
-                    .html('<span class="dashicons dashicons-update" style="font-size:14px;vertical-align:middle;"></span> Sync License');
+                alert('<?php echo esc_js( __( 'Request failed. Check your connection.', 'storelly-product-builder-for-woocommerce' ) ); ?>');
+                $btn.removeClass('is-loading').prop('disabled', false).html(btnHtml);
             });
         });
     })(jQuery);

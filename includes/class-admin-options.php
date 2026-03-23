@@ -2434,7 +2434,11 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
             $result = SPBWC_License_Manager::sync_from_api();
 
             if ( is_wp_error( $result ) ) {
-                wp_send_json_error( array( 'msg' => $result->get_error_message() ) );
+                $msg = __( 'Could not connect to the license server. The Free plan is shown temporarily until sync succeeds.', 'storelly-product-builder-for-woocommerce' );
+                if ( defined( 'WP_DEBUG' ) && WP_DEBUG && $result->get_error_message() ) {
+                    $msg .= ' ' . $result->get_error_message();
+                }
+                wp_send_json_error( array( 'msg' => $msg ) );
             }
 
             $license = SPBWC_License_Manager::get_current_license();
