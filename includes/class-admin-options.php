@@ -2132,15 +2132,16 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
                 $storelly_pb_settings['enable_api_sync'] = $storelly_enable_api_sync;
                 update_option('spbwc_pb_settings', $storelly_pb_settings);
                 
-                // If API sync is enabled and user has entered credentials, trigger account creation.
-                if ('yes' === $storelly_enable_api_sync && ( ! empty( $consumer_key ) || ! empty( $consumer_secret ) ) ) {
-                    SPBWC_Storelly_Product_Builder_API::spbwc_create_user_storelly();
-                }
-
+                // Save API keys FIRST so they are available when registering with Storelly.
                 if ( '' !== $consumer_key || '' !== $consumer_secret ) {
                     $api_keys['consumer_key']    = $consumer_key;
                     $api_keys['consumer_secret'] = $consumer_secret;
                     update_option( 'spbwc_connect_api_keys', $api_keys );
+                }
+
+                // Always attempt to fetch unauth_token when credentials are provided.
+                if ( ! empty( $consumer_key ) && ! empty( $consumer_secret ) ) {
+                    SPBWC_Storelly_Product_Builder_API::spbwc_create_user_storelly();
                 }
 
                 // Save Printing Options.
