@@ -4,7 +4,22 @@ if (!defined('ABSPATH')) {
 }
 
 class SPBWC_Printcart_Import_Adapter {
+    private $media_cache = array();
+    private $logger = null;
+
+    public function set_logger($callback) {
+        $this->logger = $callback;
+    }
+
+    protected function log($message) {
+        if ($this->logger && is_callable($this->logger)) {
+            call_user_func($this->logger, $message);
+        }
+    }
+
+
     private function filesystem() {
+
         global $wp_filesystem;
         if (!$wp_filesystem) {
             require_once ABSPATH . 'wp-admin/includes/file.php';
@@ -25,17 +40,46 @@ class SPBWC_Printcart_Import_Adapter {
     }
 
     public function add_attachment_from_url($file) {
+        if (empty($file) || !is_string($file)) {
+            return 0;
+        }
+
+        // Check if it's already a local ID
+        if (is_numeric($file) && (int)$file > 0) {
+            return (int)$file;
+        }
+
+        $file = trim($file);
+        
+        // Handle local URLs efficiently
+        $site_url = get_site_url();
+        if (strpos($file, $site_url) !== false) {
+            $path = str_replace($site_url, '', $file);
+            $attachment_id = attachment_url_to_postid($file);
+            if ($attachment_id) {
+                return $attachment_id;
+            }
+        }
+
         $filename = basename(parse_url($file, PHP_URL_PATH));
-        $response = wp_remote_get($file);
+        if (empty($filename)) {
+            $filename = 'image-' . time() . '.jpg';
+        }
+
+        $this->log('Downloading image: ' . $file);
+        $response = wp_remote_get($file, array('timeout' => 15));
         if (is_wp_error($response)) {
+            $this->log('Download failed: ' . $response->get_error_message());
             return 0;
         }
         $contents = wp_remote_retrieve_body($response);
         if ($contents === '') {
+            $this->log('Download failed: Empty body');
             return 0;
         }
         $upload_file = wp_upload_bits($filename, null, $contents);
         if (!empty($upload_file['error'])) {
+            $this->log('Failed to save image to uploads: ' . $upload_file['error']);
             return 0;
         }
         $wp_filetype = wp_check_filetype($filename, null);
@@ -47,13 +91,17 @@ class SPBWC_Printcart_Import_Adapter {
         );
         $attachment_id = wp_insert_attachment($attachment, $upload_file['file']);
         if (is_wp_error($attachment_id)) {
+            $this->log('Failed to insert attachment: ' . $attachment_id->get_error_message());
             return 0;
         }
         require_once ABSPATH . 'wp-admin/includes/image.php';
         $attachment_data = wp_generate_attachment_metadata($attachment_id, $upload_file['file']);
         wp_update_attachment_metadata($attachment_id, $attachment_data);
+        $this->log('Successfully imported image. ID: ' . $attachment_id);
         return $attachment_id;
     }
+
+
 
     public function download_remote_file($url, $path) {
         $response = wp_remote_get($url);
@@ -163,7 +211,15 @@ class SPBWC_Printcart_Import_Adapter {
                 if (is_string($key) && substr($key, -4) === '_url') {
                     $media_key = substr($key, 0, -4);
                     if (is_string($item) && '' !== trim($item)) {
-                        $attachment_id = $this->add_attachment_from_url($item);
+                        if (isset($this->media_cache[$item])) {
+                            $attachment_id = $this->media_cache[$item];
+                            $this->log('Key "' . $key . '": using cached attachment ID ' . $attachment_id);
+                        } else {
+                            $this->log('Processing key: ' . $key);
+                            $attachment_id = $this->add_attachment_from_url($item);
+                            $this->media_cache[$item] = $attachment_id;
+                        }
+                        
                         if ($attachment_id) {
                             $value[$media_key] = $attachment_id;
                         }
@@ -174,7 +230,14 @@ class SPBWC_Printcart_Import_Adapter {
                                 $media_values[$index] = 0;
                                 continue;
                             }
-                            $attachment_id = $this->add_attachment_from_url($url);
+                            
+                            if (isset($this->media_cache[$url])) {
+                                $attachment_id = $this->media_cache[$url];
+                            } else {
+                                $attachment_id = $this->add_attachment_from_url($url);
+                                $this->media_cache[$url] = $attachment_id;
+                            }
+                            
                             $media_values[$index] = $attachment_id ? $attachment_id : 0;
                         }
                         $value[$media_key] = $media_values;
@@ -186,6 +249,7 @@ class SPBWC_Printcart_Import_Adapter {
         }
         return $value;
     }
+
 
     private function is_field_config_object($value) {
         return is_array($value)
@@ -233,6 +297,11 @@ class SPBWC_Printcart_Import_Adapter {
             && isset($data['modified']);
     }
 
+    private function is_fields_array($data) {
+        return is_array($data) && isset($data[0]) && isset($data[0]['id']) && isset($data[0]['general']);
+    }
+
+
     private function deep_unserialize($value) {
         if (is_string($value)) {
             $unserialized = maybe_unserialize($value);
@@ -278,13 +347,23 @@ class SPBWC_Printcart_Import_Adapter {
             return $this->save_print_option($new_product_id, $save_data);
         }
 
+        $is_fields_array = $this->is_fields_array($data);
         $is_exported_option = isset($data['fields']) && is_array($data['fields']);
-        if ($is_exported_option) {
+        
+        if ($is_fields_array || $is_exported_option) {
+            if ($is_fields_array) {
+                $data = array(
+                    'title' => '',
+                    'fields' => $data,
+                    'published' => 1
+                );
+            }
             $data = $this->normalize_exported_print_option($data, $new_product_id);
             $data = $this->import_exported_print_option_media($data);
             $data = $this->collapse_exported_print_option_to_raw($data);
             return $this->save_print_option($new_product_id, $data);
         }
+
 
         $media_objects_raw = isset($data['media_objects']) ? $data['media_objects'] : '';
         $media_objects = $this->decode_payload_to_array($media_objects_raw);

@@ -24,7 +24,7 @@
                 total: 0,
                 page: 1,
                 perPage: 12,
-                batchSize: 10,
+                batchSize: 5,
                 search: '',
                 category: '',
                 stock: '',
@@ -291,7 +291,20 @@
                     if (res.success) {
                         this.logs = this.logs.concat(res.data.lines);
                         this.logOffset = res.data.offset;
+                        if (res.data.lines.length > 0) {
+                            // Update status with latest log line if it's informative
+                            const lastLine = res.data.lines[res.data.lines.length - 1];
+                            if (lastLine.includes('Downloading') || lastLine.includes('IMPORTING') || lastLine.includes('Successfully')) {
+                                this.importStatus = lastLine.replace(/^\[\d+:\d+:\d+\]\s*/, '');
+                            }
+                            
+                            this.$nextTick(() => {
+                                const logEl = this.$el.querySelector('.spbwc-gi-log');
+                                if (logEl) logEl.scrollTop = logEl.scrollHeight;
+                            });
+                        }
                     }
+
                 }).always(() => {
                     if (this.importRunning) {
                         setTimeout(() => this.pollLog(), 1200);
@@ -317,12 +330,18 @@
                     <button class="spbwc-gi-btn secondary" @click="fetchList">Refresh</button>
                 </div>
             </div>
-            <div class="spbwc-gi-card" style="display:none;">
-                <h3>Realtime log</h3>
+            <div class="spbwc-gi-card" v-if="logs.length > 0">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+                    <h3 style="margin:0;">Realtime log</h3>
+                    <button class="spbwc-gi-btn secondary" style="padding:4px 8px; font-size:11px;" @click="logs = []">Clear</button>
+                </div>
                 <div class="spbwc-gi-log">
-                    <div v-for="(line, idx) in logs" :key="idx">{{ line }}</div>
+                    <div v-for="(line, idx) in logs" :key="idx" :style="{color: line.includes('ERROR') ? '#f87171' : (line.includes('BATCH_COMPLETE') ? '#4ade80' : 'inherit')}">
+                        {{ line }}
+                    </div>
                 </div>
             </div>
+
             <div class="spbwc-gi-card">
                 <h3>{{ config.i18n.import_title }}</h3>
                 <div class="spbwc-gi-toolbar" style="margin-bottom:12px;">

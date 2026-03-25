@@ -647,6 +647,9 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
                                         <a class="button button-small button-primary" href="<?php echo esc_url( $edit_option_link ); ?>" target="_blank" rel="noopener">
                                             <?php echo $option_id ? esc_html__( 'Edit Printing Option', 'storelly-product-builder-for-woocommerce' ) : esc_html__( 'Create Printing Option', 'storelly-product-builder-for-woocommerce' ); ?>
                                         </a>
+                                        <button class="button button-small spbwc-export-ref" data-id="<?php echo esc_attr( $product_id ); ?>" title="<?php esc_attr_e( 'Export product reference data', 'storelly-product-builder-for-woocommerce' ); ?>" style="display: none;">
+                                            <span class="dashicons dashicons-download" style="vertical-align: middle;"></span>
+                                        </button>
                                     </div>
                                 </div>
                             </div>

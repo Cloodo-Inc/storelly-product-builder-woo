@@ -84,6 +84,8 @@ require_once(SPBWC_PB_PLUGIN_DIR .  'includes/class-global-import-controller.php
 require_once(SPBWC_PB_PLUGIN_DIR .  'includes/class-printcart-import-adapter.php');
 require_once(SPBWC_PB_PLUGIN_DIR .  'includes/class-printcart-import-schema.php');
 require_once(SPBWC_PB_PLUGIN_DIR .  'includes/class-license-manager.php');
+require_once(SPBWC_PB_PLUGIN_DIR .  'includes/class-product-exporter.php');
+
 
 register_activation_hook(__FILE__, array('SPBWC_Storelly_Product_Builder_API', 'spbwc_generate_key'));
 

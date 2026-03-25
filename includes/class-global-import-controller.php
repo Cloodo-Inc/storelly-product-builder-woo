@@ -304,7 +304,13 @@ class SPBWC_Global_Import_Controller {
         }
         $run_id = sanitize_text_field($_POST['run_id'] ?? '');
         $job_id = '' !== $run_id ? $run_id : $import_id;
+
+        $this->adapter->set_logger(function($message) use ($job_id) {
+            $this->log_line($job_id, $message);
+        });
+
         $row_ids_raw = isset($_POST['row_ids']) ? wp_unslash($_POST['row_ids']) : array();
+
         if (is_array($row_ids_raw)) {
             $row_ids = array_map('sanitize_text_field', $row_ids_raw);
         } elseif (is_string($row_ids_raw) && '' !== $row_ids_raw) {
@@ -357,9 +363,11 @@ class SPBWC_Global_Import_Controller {
                 continue;
             }
             $row = $rows_map[$row_id];
+            $this->log_line($job_id, 'IMPORTING product: ' . ($row['name'] ? $row['name'] : $row_id));
             try {
                 $result = $this->import_row($row);
             } catch (Throwable $throwable) {
+
                 $result = array(
                     'success' => false,
                     'message' => $throwable->getMessage(),
@@ -935,7 +943,7 @@ class SPBWC_Global_Import_Controller {
         $path = $this->log_dir() . $import_id . '.log';
         $lines = array();
         foreach ($processed as $p) {
-            $lines[] = 'IMPORTED ' . wp_json_encode($p);
+            $lines[] = 'BATCH_COMPLETE ' . wp_json_encode($p);
         }
         foreach ($debug_lines as $debug) {
             $lines[] = 'DEBUG ' . $debug;
@@ -944,13 +952,31 @@ class SPBWC_Global_Import_Controller {
             $lines[] = 'ERROR ' . $e;
         }
         $content = implode("\n", $lines) . "\n";
+        
+        // Append to file
         if ($fs->exists($path)) {
             $existing = $fs->get_contents($path);
             $content = $existing . $content;
         }
         $fs->put_contents($path, $content);
     }
+
+    private function log_line($import_id, $message) {
+        $this->ensure_dirs();
+        $fs = $this->filesystem();
+        if (!$fs) return;
+        $path = $this->log_dir() . $import_id . '.log';
+        $line = date('[H:i:s] ') . $message . "\n";
+        
+        $content = '';
+        if ($fs->exists($path)) {
+            $content = $fs->get_contents($path);
+        }
+        $content .= $line;
+        $fs->put_contents($path, $content);
+    }
 }
+
 
 function spbwc_global_import_controller_init() {
     SPBWC_Global_Import_Controller::instance()->init();
