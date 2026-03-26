@@ -63,6 +63,23 @@
             }
         },
         methods: {
+            parseGallery(val) {
+                if (!val) return [];
+                if (Array.isArray(val)) return val.filter(Boolean);
+                const s = String(val || '').trim();
+                if (!s) return [];
+                try {
+                    const arr = JSON.parse(s);
+                    if (Array.isArray(arr)) return arr.filter(Boolean);
+                } catch (e) {}
+                return s.split(',').map(v => v.trim()).filter(Boolean);
+            },
+            hasManyImages(row) {
+                if (!row || !row.raw) return false;
+                if (row.raw.hasManyImages === true) return true;
+                const gallery = this.parseGallery(row.raw.gallery);
+                return gallery.length >= 5;
+            },
             buildFiltersPayload(actionName) {
                 return {
                     action: actionName,
@@ -365,23 +382,33 @@
                     <thead>
                         <tr>
                             <th><input type="checkbox" :checked="allRowsOnPageSelected" @change="toggleSelectAll" :disabled="loading || importRunning" /></th>
+                            <th>Image</th>
                             <th @click="changeSort('name')">Name</th>
                             <th @click="changeSort('sku')">SKU</th>
                             <th @click="changeSort('price')">Price</th>
                             <th @click="changeSort('stock_status')">Stock</th>
                             <th>Categories</th>
-                            <th>Image</th>
                         </tr>
                     </thead>
                     <tbody>
                         <tr v-for="row in rows" :key="row.row_id">
                             <td><input type="checkbox" :checked="selected[row.row_id]" @change="toggleRow(row)" /></td>
-                            <td>{{ row.name }}</td>
+                            <td><img :src="row.image" v-if="row.image" /></td>
+                            <td>
+                                <div class="spbwc-gi-name">
+                                    <span>{{ row.name }}</span>
+                                    <span v-if="hasManyImages(row)" class="spbwc-gi-warning" title="This product has many images, so the import time may be long.">
+                                        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                                            <path fill="currentColor" d="M1 21h22L12 2 1 21zm12-3h-2v2h2v-2zm0-6h-2v5h2v-5z"/>
+                                        </svg>
+                                        <span>Warning</span>
+                                    </span>
+                                </div>
+                            </td>
                             <td>{{ row.sku || '-' }}</td>
                             <td>{{ row.price }}</td>
                             <td><span class="spbwc-gi-badge">{{ row.stock_status }}</span></td>
                             <td>{{ categoriesText(row) }}</td>
-                            <td><img :src="row.image" v-if="row.image" /></td>
                         </tr>
                         <tr v-if="rows.length===0"><td colspan="7">No data</td></tr>
                     </tbody>

@@ -160,8 +160,8 @@ if (!class_exists('SPBWC_Storelly_PB_Util')) {
         public static function spbwc_is_product_builder($id)
         {
             $id = self::spbwc_get_wpml_original_id($id);
-            $check = get_post_meta($id, '_storelly_pb_enable', true);
-            if ($check)
+            $option_id = STORELLY_FRONTEND_OPTIONS::get_product_option($id);
+            if ($option_id)
                 return true;
             return false;
         }

@@ -297,7 +297,7 @@ if (!class_exists('STORELLY_FRONTEND_OPTIONS')) {
                         'currency_format'                               =>  esc_attr(str_replace(array('%1$s', '%2$s'), array('%s', '%v'), get_woocommerce_price_format())),
                         'nbstorelly_hide_add_cart_until_form_filled'    =>  get_option('spbwc_hide_add_cart_until_form_filled', 'no') === 'yes' ? 'yes' : 'no'
                     );
-                    wp_register_script('spbwc-option-builder', SPBWC_PB_JS_URL . 'option-builder.js',('pc-builderjs'), '1.0.0', true);
+                    wp_register_script('spbwc-option-builder', SPBWC_PB_JS_URL . 'option-builder.js', array('pc-builderjs'), '1.0.0', true);
                     wp_localize_script( 'spbwc-option-builder', 'spbwc_option_builder_variable', array(
                         'ajaxUrl'               => admin_url( 'admin-ajax.php' ),
                         'appid'                 => $this->appid,

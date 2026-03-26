@@ -640,6 +640,103 @@ class SPBWC_Global_Import_Controller {
         return is_array($rows) ? $rows : array();
     }
 
+    /**
+     * Unserialize import blobs with classes disabled when supported (PHP 7+).
+     *
+     * @param string $str Serialized string.
+     * @return mixed Decoded value or false on failure / non-serialized input.
+     */
+    private function unserialize_import_payload($str) {
+        if (!is_string($str) || '' === $str) {
+            return false;
+        }
+        if (function_exists('is_serialized') && !is_serialized($str)) {
+            return false;
+        }
+        if (version_compare(PHP_VERSION, '7.0.0', '>=')) {
+            return @unserialize($str, array('allowed_classes' => false)); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.serialize_unserialize -- Decoding trusted legacy Storelly dashboard export payloads during Global Import only.
+        }
+        return @unserialize($str); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.serialize_unserialize -- Decoding trusted legacy Storelly dashboard export payloads during Global Import only.
+    }
+
+    /**
+     * Fix the first broken s:N:"..." segment where N does not match the closing quote (common with old UTF-8 / DB exports).
+     *
+     * @param string $s Serialized blob.
+     * @return string Same string if nothing was fixed, otherwise a corrected blob.
+     */
+    private function repair_next_broken_serialized_length($s) {
+        if (!is_string($s) || '' === $s) {
+            return $s;
+        }
+        $len = strlen($s);
+        $pos = 0;
+        $max_candidates = 200;
+        while ($pos < $len) {
+            $spos = strpos($s, 's:', $pos);
+            if (false === $spos) {
+                return $s;
+            }
+            $i = $spos + 2;
+            $num_str = '';
+            while ($i < $len && ctype_digit($s[$i])) {
+                $num_str .= $s[$i];
+                $i++;
+            }
+            if ('' === $num_str || $i >= $len || ':' !== $s[$i]) {
+                $pos = $spos + 2;
+                continue;
+            }
+            $i++;
+            if ($i >= $len || '"' !== $s[$i]) {
+                $pos = $spos + 2;
+                continue;
+            }
+            $i++;
+            $q_start = $i;
+            $declared = (int) $num_str;
+            $after_declared = $q_start + $declared;
+            if ($after_declared < $len && '"' === $s[$after_declared]) {
+                $i = $after_declared + 1;
+                if ($i < $len && ';' === $s[$i]) {
+                    $i++;
+                }
+                $pos = $i;
+                continue;
+            }
+            $head = substr($s, 0, $spos);
+            $candidates = array();
+            for ($j = $q_start; $j < $len - 1; $j++) {
+                if ('"' === $s[$j] && ';' === $s[$j + 1]) {
+                    $candidates[] = $j;
+                }
+            }
+            usort(
+                $candidates,
+                static function ($a, $b) use ($q_start, $declared) {
+                    $da = abs($a - $q_start - $declared);
+                    $db = abs($b - $q_start - $declared);
+                    if ($da === $db) {
+                        return $a - $b;
+                    }
+                    return ($da < $db) ? -1 : 1;
+                }
+            );
+            $candidates = array_slice($candidates, 0, $max_candidates);
+            foreach ($candidates as $j) {
+                $body = substr($s, $q_start, $j - $q_start);
+                $tail = substr($s, $j + 2);
+                $trial = $head . 's:' . strlen($body) . ':"' . $body . '";' . $tail;
+                $un = $this->unserialize_import_payload($trial);
+                if (is_array($un) || is_object($un)) {
+                    return $trial;
+                }
+            }
+            return $s;
+        }
+        return $s;
+    }
+
     private function decode_remote_payload_to_array($payload, &$debug_lines, $payload_type) {
         if (is_array($payload)) {
             return $payload;
@@ -647,7 +744,9 @@ class SPBWC_Global_Import_Controller {
         if (is_object($payload)) {
             return (array) $payload;
         }
-        $payload = is_string($payload) ? trim($payload) : '';
+        $payload = is_string($payload) ? $payload : '';
+        $payload = preg_replace('/^\xEF\xBB\xBF/', '', $payload);
+        $payload = trim($payload);
         if ('' === $payload) {
             $debug_lines[] = sprintf('%s payload is empty.', $payload_type);
             return array();
@@ -675,6 +774,54 @@ class SPBWC_Global_Import_Controller {
             if (is_object($json_unserialized)) {
                 $debug_lines[] = sprintf('%s payload decoded as object via json + maybe_unserialize.', $payload_type);
                 return (array) $json_unserialized;
+            }
+        }
+        $current = $payload;
+        for ($pass = 0; $pass < 80; $pass++) {
+            $repaired = $this->unserialize_import_payload($current);
+            if (is_array($repaired)) {
+                $debug_lines[] = sprintf(
+                    '%s payload decoded via legacy serialize repair (%d pass(es)).',
+                    $payload_type,
+                    $pass
+                );
+                return $repaired;
+            }
+            if (is_object($repaired)) {
+                $debug_lines[] = sprintf(
+                    '%s payload decoded as object via legacy serialize repair (%d pass(es)).',
+                    $payload_type,
+                    $pass
+                );
+                return (array) $repaired;
+            }
+            $next = $this->repair_next_broken_serialized_length($current);
+            if ($next === $current) {
+                break;
+            }
+            $current = $next;
+        }
+        $deep = $this->deep_unserialize($payload);
+        if (is_array($deep)) {
+            $debug_lines[] = sprintf('%s payload decoded via deep_unserialize.', $payload_type);
+            return $deep;
+        }
+        if (is_object($deep)) {
+            $debug_lines[] = sprintf('%s payload decoded as object via deep_unserialize.', $payload_type);
+            return (array) $deep;
+        }
+        if (function_exists('mb_convert_encoding')) {
+            $latin = mb_convert_encoding($payload, 'UTF-8', 'ISO-8859-1');
+            if ($latin !== $payload) {
+                $latin_try = maybe_unserialize($latin);
+                if (is_array($latin_try)) {
+                    $debug_lines[] = sprintf('%s payload decoded after ISO-8859-1 to UTF-8 reassignment.', $payload_type);
+                    return $latin_try;
+                }
+                if (is_object($latin_try)) {
+                    $debug_lines[] = sprintf('%s payload decoded as object after ISO-8859-1 to UTF-8 reassignment.', $payload_type);
+                    return (array) $latin_try;
+                }
             }
         }
         $debug_lines[] = sprintf('%s payload decode failed. Sample: %s', $payload_type, substr($payload, 0, 140));

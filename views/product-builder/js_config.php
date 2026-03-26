@@ -23,7 +23,7 @@ if ( isset( $_GET['_wpnonce'] ) ) {
         // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Local template variable.
         $oid = isset( $_GET['oid'] ) ? absint( wp_unslash( $_GET['oid'] ) ) : 0;
         // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Local template variable.
-        $redirect_url = isset( $_GET['rd'] ) ? SPBWC_Storelly_PB_Util::spbwc_get_redirect_url( sanitize_text_field( wp_unslash( $_GET['rd'] ) ) ) : '';
+        $redirect_url = isset( $_GET['rd'] ) ? SPBWC_Storelly_PB_Util::spbwc_get_redirect_url() : '';
     }
 }
 if ($is_creating_task == 0) { // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Global variable defined by parent template.
@@ -70,7 +70,8 @@ wp_localize_script( 'product-builder', 'SPBWC_PB_CONFIG', array(
         ),
 ));
 $spbwc_pid = get_the_ID();
-if (is_singular('product') && SPBWC_Storelly_PB_Util::spbwc_is_product_builder($spbwc_pid)) {
+$is_pb_page = SPBWC_Storelly_PB_Util::spbwc_is_product_builder_page();
+if ($is_pb_page || (is_singular('product') && SPBWC_Storelly_PB_Util::spbwc_is_product_builder($spbwc_pid))) {
     wp_enqueue_style('product-builder'); 
     wp_enqueue_script('product-builder');
 }

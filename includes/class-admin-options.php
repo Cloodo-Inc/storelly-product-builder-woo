@@ -68,18 +68,32 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
             $product_ids = array_map('absint', $product_ids);
             return array_filter(array_unique($product_ids));
         }
+        protected function spbwc_extract_product_cats_from_option($option) {
+            if (empty($option) || !is_array($option) || !isset($option['product_cats'])) {
+                return array();
+            }
+            $product_cats = maybe_unserialize($option['product_cats']);
+            if (!is_array($product_cats)) {
+                return array();
+            }
+            $product_cats = array_map('absint', $product_cats);
+            return array_filter(array_unique($product_cats));
+        }
         protected function spbwc_flush_option_caches($option_id = 0, $product_ids = array()) {
             if ($option_id > 0) {
                 wp_cache_delete($this->spbwc_cache_key_option($option_id), self::CACHE_GROUP);
             }
             wp_cache_delete('spbwc_published_options', self::CACHE_GROUP);
-            if (!empty($product_ids)) {
-                $product_ids = array_map('absint', (array) $product_ids);
-                $product_ids = array_filter(array_unique($product_ids));
-                foreach ($product_ids as $product_id) {
-                    delete_transient('spbwc_product_builder_' . $product_id);
-                }
-            }
+
+            global $wpdb; // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Global variable $wpdb.
+            // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Bulk clearing transients via prefix.
+            $wpdb->query(
+                $wpdb->prepare(
+                    "DELETE FROM {$wpdb->options} WHERE option_name LIKE %s OR option_name LIKE %s",
+                    '_transient_spbwc_product_builder_%',
+                    '_transient_timeout_spbwc_product_builder_%'
+                )
+            );
         }
         protected function spbwc_get_cached_published_options() {
             $cache_key = 'spbwc_published_options';
@@ -90,7 +104,7 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
             global $wpdb; // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Global variable $wpdb.
             $table_name = $wpdb->prefix . 'storelly_product_builder_options';
             // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter, WordPress.DB.DirectDatabaseQuery.DirectQuery -- Custom table read cached immediately below.
-            $options = $wpdb->get_results($wpdb->prepare("SELECT id, product_ids FROM {$table_name} WHERE published = %d", 1), ARRAY_A);
+            $options = $wpdb->get_results($wpdb->prepare("SELECT id, product_ids, apply_for, product_cats FROM {$table_name} WHERE published = %d", 1), ARRAY_A);
             if (!is_array($options)) {
                 $options = array();
             }
@@ -335,6 +349,8 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
                     title text NOT NULL,
                     published  TINYINT(1) NOT NULL default 1,
                     product_ids text NULL, 
+                    apply_for varchar(10) NOT NULL default 'p',
+                    product_cats text NULL,
                     created datetime NOT NULL default '0000-00-00 00:00:00',
                     modified datetime NOT NULL default '0000-00-00 00:00:00', 
                     created_by BIGINT(20) NULL, 
@@ -1282,11 +1298,15 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
             $modified_date  = new DateTime();
             $title = isset($_POST['title']) ? sanitize_text_field(wp_unslash($_POST['title'])) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce verified in spbwc_product_builder_options.
             $product_ids = isset($_POST['product_ids']) ? array_map('absint', (array) wp_unslash($_POST['product_ids'])) : array(); // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce verified in spbwc_product_builder_options.
+            $apply_for   = isset($_POST['apply_for']) ? sanitize_text_field(wp_unslash($_POST['apply_for'])) : 'p';
+            $product_cats = isset($_POST['product_cats']) ? array_map('absint', (array) wp_unslash($_POST['product_cats'])) : array();
             $arr            = array(
-                'title'       => $title,
-                'published'   => 1,
-                'product_ids' => serialize($product_ids),
-                'modified'    => $modified_date->format('Y-m-d H:i:s')
+                'title'        => $title,
+                'published'    => 1,
+                'product_ids'  => serialize($product_ids),
+                'apply_for'    => $apply_for,
+                'product_cats' => serialize($product_cats),
+                'modified'     => $modified_date->format('Y-m-d H:i:s')
             );
             $post_options_raw = isset( $_POST['options'] ) ? wp_unslash( $_POST['options'] ) : array(); // phpcs:ignore WordPress.Security.NonceVerification.Missing,WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Nonce verified in spbwc_product_builder_options and data sanitized recursively via spbwc_sanitize_recursive.
             $post_options = spbwc_sanitize_recursive( $post_options_raw );
@@ -1911,21 +1931,35 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
             include_once(SPBWC_PB_PLUGIN_DIR . 'views/options/meta-box.php');
         }
         public function spbwc_get_product_option($product_id) {
-            $enable = get_post_meta($product_id, '_storelly_pb_enable', true);
-            if (!$enable) return false;
             $option_id = get_transient('spbwc_product_builder_' . $product_id);
             if (false === $option_id) {
                 $options   = $this->spbwc_get_cached_published_options();
                 $option_id = '';
                 if (!empty($options)) {
                     $_options = array();
+                    $product_cat_ids = array();
+
                     foreach ($options as $option) {
-                        $products = $this->spbwc_extract_product_ids_from_option($option);
-                        if (empty($products)) {
-                            continue;
-                        }
-                        if (in_array($product_id, $products, true)) {
-                            $_options[] = $option;
+                        $apply_for = isset($option['apply_for']) ? $option['apply_for'] : 'p';
+                        if ('p' === $apply_for) {
+                            $products = $this->spbwc_extract_product_ids_from_option($option);
+                            if (in_array($product_id, $products, true)) {
+                                $_options[] = $option;
+                            }
+                        } else {
+                            if (empty($product_cat_ids)) {
+                                $terms = get_the_terms($product_id, 'product_cat');
+                                if (!is_wp_error($terms) && !empty($terms)) {
+                                    foreach ($terms as $term) {
+                                        $product_cat_ids[] = $term->term_id;
+                                    }
+                                }
+                            }
+                            $option_cats = $this->spbwc_extract_product_cats_from_option($option);
+                            $intersect = array_intersect($product_cat_ids, $option_cats);
+                            if (!empty($intersect)) {
+                                $_options[] = $option;
+                            }
                         }
                     }
                     if (!empty($_options)) {

@@ -26,7 +26,7 @@ if (!class_exists('SPBWC_Storelly_Product_Builder_Frontend')) {
             if (is_admin()) {
                 $this->spbwc_ajax();
             }
-            add_action('spbwc_template_redirect', array($this, 'spbwc_template_redirect'));
+            add_action('template_redirect', array($this, 'spbwc_template_redirect'));
         }
         public function spbwc_ajax()
         {
