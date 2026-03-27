@@ -297,7 +297,16 @@ if (!class_exists('STORELLY_FRONTEND_OPTIONS')) {
                         'currency_format'                               =>  esc_attr(str_replace(array('%1$s', '%2$s'), array('%s', '%v'), get_woocommerce_price_format())),
                         'nbstorelly_hide_add_cart_until_form_filled'    =>  get_option('spbwc_hide_add_cart_until_form_filled', 'no') === 'yes' ? 'yes' : 'no'
                     );
-                    wp_register_script('spbwc-option-builder', SPBWC_PB_JS_URL . 'option-builder.js', array('pc-builderjs'), '1.0.0', true);
+                    if ( function_exists( 'WC' ) && ! wp_script_is( 'wc-accounting', 'registered' ) ) {
+                        wp_register_script(
+                            'wc-accounting',
+                            WC()->plugin_url() . '/assets/js/accounting/accounting.min.js',
+                            array(),
+                            defined( 'WC_VERSION' ) ? WC_VERSION : '0.4.2',
+                            true
+                        );
+                    }
+                    wp_register_script( 'spbwc-option-builder', SPBWC_PB_JS_URL . 'option-builder.js', array( 'pc-builderjs', 'wc-accounting' ), '1.0.0', true );
                     wp_localize_script( 'spbwc-option-builder', 'spbwc_option_builder_variable', array(
                         'ajaxUrl'               => admin_url( 'admin-ajax.php' ),
                         'appid'                 => $this->appid,
@@ -312,6 +321,14 @@ if (!class_exists('STORELLY_FRONTEND_OPTIONS')) {
                         'file_too_big'          => __('Sorry, file is too big, max size: ', 'storelly-product-builder-for-woocommerce'),
                         'file_too_small'        => __('Sorry, file is too small, min size: ', 'storelly-product-builder-for-woocommerce'),
                         'file_type'             => __('Sorry, this file type is not permitted for security reasons. Only accept: ', 'storelly-product-builder-for-woocommerce'),
+                        'nbo_validation_i18n'  => array(
+                            'field_required'     => __( '%1$s: This field is required.', 'storelly-product-builder-for-woocommerce' ),
+                            'field_min_length'   => __( '%1$s: Enter at least %2$s characters.', 'storelly-product-builder-for-woocommerce' ),
+                            'field_max_length'   => __( '%1$s: No more than %2$s characters.', 'storelly-product-builder-for-woocommerce' ),
+                            'option_unavailable'   => __( '%1$s: The choice "%2$s" is not available for the current product options.', 'storelly-product-builder-for-woocommerce' ),
+                            'quantity_invalid'   => __( 'Enter a valid quantity (at least 1).', 'storelly-product-builder-for-woocommerce' ),
+                            'form_invalid_generic' => __( 'Please check invalid fields, quantity, or choose a different combination.', 'storelly-product-builder-for-woocommerce' ),
+                        ),
                     ));
                     wp_enqueue_script('spbwc-option-builder');
                 }
