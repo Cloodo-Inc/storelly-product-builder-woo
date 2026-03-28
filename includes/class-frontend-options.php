@@ -196,6 +196,9 @@ if (!class_exists('STORELLY_FRONTEND_OPTIONS')) {
                         }
                         if (isset($field['general']['attributes']['bg_type']) && $field['general']['attributes']['bg_type'] == 'i') {
                             foreach ($field['general']['attributes']['options'] as $op_index => $option) {
+                                if (!isset($option['bg_image']) || !is_array($option['bg_image'])) {
+                                    continue;
+                                }
                                 foreach ($option['bg_image'] as $bg_index => $bg) {
                                     $bg_obj = wp_get_attachment_url(absint($bg));
                                     $options['fields'][$key]['general']['attributes']['options'][$op_index]['bg_image_url'][$bg_index] = $bg_obj ? $bg_obj : SPBWC_PB_ASSETS_URL . 'images/placeholder.png';
@@ -409,6 +412,9 @@ if (!class_exists('STORELLY_FRONTEND_OPTIONS')) {
                         }
                         if (isset($field['general']['attributes']['bg_type']) && $field['general']['attributes']['bg_type'] == 'i') {
                             foreach ($field['general']['attributes']['options'] as $op_index => $option) {
+                                if (!isset($option['bg_image']) || !is_array($option['bg_image'])) {
+                                    continue;
+                                }
                                 foreach ($option['bg_image'] as $bg_index => $bg) {
                                     $bg_obj = wp_get_attachment_url(absint($bg));
                                     $options['fields'][$key]['general']['attributes']['options'][$op_index]['bg_image_url'][$bg_index] = $bg_obj ? $bg_obj : SPBWC_PB_ASSETS_URL . 'images/placeholder.png';

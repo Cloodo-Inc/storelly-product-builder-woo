@@ -237,7 +237,7 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
             if (current_user_can('spbwc_manage_product_builder') && current_user_can('manage_woocommerce')) {
                 add_menu_page(
                     'Storelly Builder',
-                    'Product Builder Options',
+                    'Storelly Builder',
                     'spbwc_manage_product_builder',
                     SPBWC_PB_OVERVIEW_SLUG,
                     array($this, 'spbwc_overview'),

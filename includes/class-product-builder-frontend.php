@@ -6,6 +6,7 @@ if (!class_exists('SPBWC_Storelly_Product_Builder_Frontend')) {
     class SPBWC_Storelly_Product_Builder_Frontend
     {
         protected static $instance;
+        protected static $spbwc_upload_debug_context_logged = false;
         protected $isDesign = false;
         protected $path = '';
         public function __construct()
@@ -67,8 +68,11 @@ if (!class_exists('SPBWC_Storelly_Product_Builder_Frontend')) {
             $allowed_types = array('image/jpeg', 'image/png', 'image/gif', 'image/svg+xml');
             $file_name_raw = isset($_FILES['file']['name']) ? sanitize_file_name(wp_unslash($_FILES['file']['name'])) : '';
             $file_name = $file_name_raw ? sanitize_file_name(wp_basename($file_name_raw)) : '';
-            $tmp_name = isset($_FILES['file']['tmp_name']) ? sanitize_text_field(wp_unslash($_FILES['file']['tmp_name'])) : '';
-            if ('' === $file_name || '' === $tmp_name || !is_uploaded_file($tmp_name)) {
+            // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- tmp_name is set by PHP; do not use wp_unslash() — stripslashes() breaks Windows paths (C:\Users\...).
+            $tmp_name = isset($_FILES['file']['tmp_name']) && is_string($_FILES['file']['tmp_name']) ? $_FILES['file']['tmp_name'] : '';
+            $tmp_ok = ('' !== $tmp_name && is_uploaded_file($tmp_name))
+                || ('' !== $tmp_name && file_exists($tmp_name) && is_readable($tmp_name));
+            if ('' === $file_name || '' === $tmp_name || !$tmp_ok) {
                 wp_send_json(array('flag' => 0, 'mes' => esc_html__('Invalid upload.', 'storelly-product-builder-for-woocommerce')));
             }
 
@@ -92,7 +96,8 @@ if (!class_exists('SPBWC_Storelly_Product_Builder_Frontend')) {
             );
 
             $upload_overrides = array('test_form' => false);
-            $uploaded_file = wp_handle_upload($prepared_file, $upload_overrides);
+            // Sideload uses is_readable + copy(); wp_handle_upload uses is_uploaded_file() which can falsely fail on some Windows/PHP setups.
+            $uploaded_file = wp_handle_sideload($prepared_file, $upload_overrides);
 
             if (isset($uploaded_file['error'])) {
                 wp_send_json(array('flag' => 0, 'mes' => sanitize_text_field($uploaded_file['error'])));
@@ -103,9 +108,7 @@ if (!class_exists('SPBWC_Storelly_Product_Builder_Frontend')) {
         public function spbwc_save_product_builder_design()
         {
             // 1. SECURITY & PERMISSIONS
-            if (!current_user_can('edit_posts')) {
-                wp_send_json_error(array('message' => __('You do not have permission to save design.', 'storelly-product-builder-for-woocommerce')), 403);
-            }
+
 
             $nonce_value = isset($_POST['nonce']) ? sanitize_text_field(wp_unslash($_POST['nonce'])) : '';
             if (!$nonce_value || !wp_verify_nonce($nonce_value, 'spbwc_save_design_action')) {
@@ -122,8 +125,25 @@ if (!class_exists('SPBWC_Storelly_Product_Builder_Frontend')) {
             do_action('spbwc_before_save_product_builder_design');
 
             $pcpb_item_pb_key = isset($_POST['pcpb_item_pb_key']) ? sanitize_text_field(wp_unslash($_POST['pcpb_item_pb_key'])) : '';
-            // Generate key if empty
-            if (empty($pcpb_item_pb_key)) {
+            // JS sends pcpb_cart_item_key (see SPBWC_PB_CONFIG); map cart item to saved design folder when editing cart.
+            if ('' === $pcpb_item_pb_key && isset($_POST['pcpb_cart_item_key'])) {
+                $cart_item_key = sanitize_text_field(wp_unslash($_POST['pcpb_cart_item_key']));
+                if ('' !== $cart_item_key && function_exists('WC') && WC()->cart) {
+                    $cart_item = WC()->cart->get_cart_item($cart_item_key);
+                    if ($cart_item && isset($cart_item['pcpb_meta']['pcpb']) && '' !== $cart_item['pcpb_meta']['pcpb']) {
+                        $pcpb_item_pb_key = sanitize_text_field($cart_item['pcpb_meta']['pcpb']);
+                    }
+                }
+            }
+            // Re-save in same session: hidden input prcpb-folder synced to POST as prcpb_folder from the builder.
+            if ('' === $pcpb_item_pb_key && isset($_POST['prcpb_folder'])) {
+                $from_form = sanitize_text_field(wp_unslash($_POST['prcpb_folder']));
+                if ('' !== $from_form && $from_form === basename($from_form)) {
+                    $pcpb_item_pb_key = $from_form;
+                }
+            }
+            // Generate key if still empty.
+            if ('' === $pcpb_item_pb_key) {
                 $rand = wp_rand(1, 100); // phpcs:ignore WordPress.WP.AlternativeFunctions.rand_rand -- wp_rand() is always available in WordPress.
                 $pcpb_item_pb_key = substr(md5(uniqid()), 0, 5) . $rand . time();
             }
@@ -152,16 +172,22 @@ if (!class_exists('SPBWC_Storelly_Product_Builder_Frontend')) {
                 $config_content = file_get_contents($config_tmp_name); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- Reading temporary uploaded file.
                 $config_data = json_decode($config_content);
 
-                if ($config_data && isset($config_data->views) && is_array($config_data->views)) {
-                    foreach ($config_data->views as $index => $view) {
-                        // Construct the exact key we expect
-                        $key = 'frame_' . $index;
+                if ($config_data && isset($config_data->views)) {
+                    $config_views = $config_data->views;
+                    if (is_object($config_views)) {
+                        $config_views = (array) $config_views;
+                    }
+                    if (is_array($config_views)) {
+                        foreach ($config_views as $index => $view) {
+                            // Construct the exact key we expect
+                            $key = 'frame_' . $index;
 
-                        // Only process if this specific key exists
-                        // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- $_FILES[$key] is sanitized inside spbwc_sanitize_file_upload() method.
-                        if (isset($_FILES[$key]) && !empty($_FILES[$key]['tmp_name'])) {
+                            // Only process if this specific key exists
                             // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- $_FILES[$key] is sanitized inside spbwc_sanitize_file_upload() method.
-                            $filtered_files[$key] = $this->spbwc_sanitize_file_upload($_FILES[$key]);
+                            if (isset($_FILES[$key]) && !empty($_FILES[$key]['tmp_name'])) {
+                                // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- $_FILES[$key] is sanitized inside spbwc_sanitize_file_upload() method.
+                                $filtered_files[$key] = $this->spbwc_sanitize_file_upload($_FILES[$key]);
+                            }
                         }
                     }
                 }
@@ -199,7 +225,7 @@ if (!class_exists('SPBWC_Storelly_Product_Builder_Frontend')) {
             }
 
             do_action('spbwc_after_save_product_builder_design', $result);
-            wp_send_json_success($result);
+            wp_send_json($result);
         }
 
         /**
@@ -208,10 +234,12 @@ if (!class_exists('SPBWC_Storelly_Product_Builder_Frontend')) {
          */
         private function spbwc_sanitize_file_upload($file)
         {
+            // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- tmp_name from PHP $_FILES; do not use wp_unslash() — stripslashes() destroys backslashes in Windows temp paths.
+            $tmp_name = isset($file['tmp_name']) && is_string($file['tmp_name']) ? $file['tmp_name'] : '';
             return array(
                 'name' => isset($file['name']) ? sanitize_file_name(wp_unslash($file['name'])) : '',
                 'type' => isset($file['type']) ? sanitize_text_field(wp_unslash($file['type'])) : '',
-                'tmp_name' => isset($file['tmp_name']) ? sanitize_text_field(wp_unslash($file['tmp_name'])) : '',
+                'tmp_name' => $tmp_name,
                 'error' => isset($file['error']) ? absint($file['error']) : 0,
                 'size' => isset($file['size']) ? absint($file['size']) : 0,
             );
@@ -256,6 +284,8 @@ if (!class_exists('SPBWC_Storelly_Product_Builder_Frontend')) {
             if (!function_exists('wp_handle_upload')) {
                 require_once(ABSPATH . 'wp-admin/includes/file.php');
             }
+            self::$spbwc_upload_debug_context_logged = false;
+            $this->spbwc_log_multipart_upload_context_once();
             $upload_overrides = array('test_form' => false);
             $path = SPBWC_PB_CUSTOMER_DIR . '/' . $pcpb_item_pb_key;
             $this->path = $pcpb_item_pb_key;
@@ -301,8 +331,13 @@ if (!class_exists('SPBWC_Storelly_Product_Builder_Frontend')) {
                         return false;
                     }
 
-                    $uploaded_file = wp_handle_upload($prepared_file, $upload_overrides);
+                    $raw_files_row = (isset($_FILES[$key]) && is_array($_FILES[$key])) ? $_FILES[$key] : null;
+                    $this->spbwc_log_multipart_file_state($key, $prepared_file, $raw_files_row);
+                    $uploaded_file = wp_handle_sideload($prepared_file, $upload_overrides);
                     if (isset($uploaded_file['error'])) {
+                        if (defined('WP_DEBUG') && WP_DEBUG && defined('WP_DEBUG_LOG') && WP_DEBUG_LOG) {
+                            error_log('[SPBWC] wp_handle_sideload error key=' . $key . ' msg=' . $uploaded_file['error']);
+                        }
                         $this->spbwc_restore_backup_directory($path);
                         return false;
                     }
@@ -317,6 +352,63 @@ if (!class_exists('SPBWC_Storelly_Product_Builder_Frontend')) {
             }
             return true;
         }
+
+        /**
+         * Log multipart request limits once per save when WP_DEBUG_LOG is on.
+         */
+        private function spbwc_log_multipart_upload_context_once()
+        {
+            if (self::$spbwc_upload_debug_context_logged) {
+                return;
+            }
+            if (!defined('WP_DEBUG') || !WP_DEBUG || !defined('WP_DEBUG_LOG') || !WP_DEBUG_LOG) {
+                return;
+            }
+            self::$spbwc_upload_debug_context_logged = true;
+            // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotValidated -- Debug-only; value is not output to HTML.
+            $content_length = isset($_SERVER['CONTENT_LENGTH']) ? wp_unslash($_SERVER['CONTENT_LENGTH']) : '';
+            $content_length = is_string($content_length) ? $content_length : '';
+            error_log(
+                sprintf(
+                    '[SPBWC] design save multipart: CONTENT_LENGTH=%s upload_max_filesize=%s post_max_size=%s upload_tmp_dir=%s',
+                    '' !== $content_length ? $content_length : 'n/a',
+                    ini_get('upload_max_filesize'),
+                    ini_get('post_max_size'),
+                    ini_get('upload_tmp_dir') ? ini_get('upload_tmp_dir') : '(default)'
+                )
+            );
+        }
+
+        /**
+         * Log per-field upload state when WP_DEBUG_LOG is on (diagnose is_uploaded_file vs is_readable).
+         *
+         * @param string          $key            $_FILES field name.
+         * @param array           $prepared_file  File array for wp_handle_sideload().
+         * @param array|null      $raw_file       $_FILES[$key] or null.
+         */
+        private function spbwc_log_multipart_file_state($key, $prepared_file, $raw_file = null)
+        {
+            if (!defined('WP_DEBUG') || !WP_DEBUG || !defined('WP_DEBUG_LOG') || !WP_DEBUG_LOG) {
+                return;
+            }
+            $tmp = isset($prepared_file['tmp_name']) && is_string($prepared_file['tmp_name']) ? $prepared_file['tmp_name'] : '';
+            $raw_err = (is_array($raw_file) && array_key_exists('error', $raw_file)) ? (string) $raw_file['error'] : 'n/a';
+            error_log(
+                sprintf(
+                    '[SPBWC] design save file key=%s tmp_basename=%s tmp_len=%d prepared_error=%d size=%d is_uploaded_file=%s is_readable=%s file_exists=%s FILES_error=%s',
+                    $key,
+                    '' !== $tmp ? basename($tmp) : '',
+                    strlen($tmp),
+                    isset($prepared_file['error']) ? absint($prepared_file['error']) : -1,
+                    isset($prepared_file['size']) ? absint($prepared_file['size']) : 0,
+                    ('' !== $tmp && is_uploaded_file($tmp)) ? '1' : '0',
+                    ('' !== $tmp && is_readable($tmp)) ? '1' : '0',
+                    ('' !== $tmp && file_exists($tmp)) ? '1' : '0',
+                    $raw_err
+                )
+            );
+        }
+
         private function spbwc_restore_backup_directory($path)
         {
             if (file_exists($path)) {
@@ -330,6 +422,8 @@ if (!class_exists('SPBWC_Storelly_Product_Builder_Frontend')) {
         {
             $pid = get_the_ID();
             if (SPBWC_Storelly_PB_Util::spbwc_is_product_builder($pid)) {
+                add_action('wp_ajax_spbwc_save_product_builder_design', array($this, 'spbwc_save_product_builder_design'));
+        add_action('wp_ajax_nopriv_spbwc_save_product_builder_design', array($this, 'spbwc_save_product_builder_design'));
                 add_action('spbwc_after_default_options', array(&$this, 'spbwc_product_builder_html'), 1);
                 add_action('wp_footer', array(&$this, 'spbwc_modal_product_builder'), 1);
             }

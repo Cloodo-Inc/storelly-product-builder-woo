@@ -11,7 +11,8 @@
         i18n: {
             upload_title: 'Upload file',
             import_title: 'Import products',
-            confirm_delete: 'Are you sure you want to delete this export?'
+            confirm_delete: 'Are you sure you want to delete this export?',
+            loading_products: 'Loading products…'
         }
     };
     createApp({
@@ -212,6 +213,9 @@
                 }
             },
             changeSort(key) {
+                if (this.loading) {
+                    return;
+                }
                 if (this.sortBy === key) {
                     this.sortDir = this.sortDir === 'asc' ? 'desc' : 'asc';
                 } else {
@@ -344,7 +348,7 @@
             <div class="spbwc-gi-header">
                 <div class="spbwc-gi-title">Global Import</div>
                 <div class="spbwc-gi-toolbar">
-                    <button class="spbwc-gi-btn secondary" @click="fetchList">Refresh</button>
+                    <button class="spbwc-gi-btn secondary" @click="fetchList" :disabled="loading">{{ loading ? config.i18n.loading_products : 'Refresh' }}</button>
                 </div>
             </div>
             <div class="spbwc-gi-card" v-if="logs.length > 0">
@@ -362,23 +366,28 @@
             <div class="spbwc-gi-card">
                 <h3>{{ config.i18n.import_title }}</h3>
                 <div class="spbwc-gi-toolbar" style="margin-bottom:12px;">
-                    <input class="spbwc-gi-input" v-model="search" @input="onFilterChange" placeholder="Search by name or SKU" />
-                    <input class="spbwc-gi-input" v-model="category" @input="onFilterChange" placeholder="Category" />
-                    <select class="spbwc-gi-select" v-model="stock" @change="onFilterChange">
+                    <input class="spbwc-gi-input" v-model="search" @input="onFilterChange" placeholder="Search by name or SKU" :disabled="loading" />
+                    <input class="spbwc-gi-input" v-model="category" @input="onFilterChange" placeholder="Category" :disabled="loading" />
+                    <select class="spbwc-gi-select" v-model="stock" @change="onFilterChange" :disabled="loading">
                         <option value="">All stock</option>
                         <option value="instock">In stock</option>
                         <option value="outofstock">Out of stock</option>
                     </select>
-                    <input class="spbwc-gi-input" v-model="priceMin" @input="onFilterChange" placeholder="Min price" />
-                    <input class="spbwc-gi-input" v-model="priceMax" @input="onFilterChange" placeholder="Max price" />
-                    <button class="spbwc-gi-btn" @click="startImport" :disabled="importRunning || selectedIds.length===0">Import products</button>
+                    <input class="spbwc-gi-input" v-model="priceMin" @input="onFilterChange" placeholder="Min price" :disabled="loading" />
+                    <input class="spbwc-gi-input" v-model="priceMax" @input="onFilterChange" placeholder="Max price" :disabled="loading" />
+                    <button class="spbwc-gi-btn" @click="startImport" :disabled="importRunning || selectedIds.length===0 || loading">Import products</button>
                 </div>
                 <div v-if="importRunning" style="margin-bottom:12px;">
                     <div class="spbwc-gi-progress"><span :style="{width: progressPercent+'%'}"></span></div>
                     <div style="margin-top:6px; font-weight: 600; color: var(--gi-primary);">{{ importStatus }}</div>
                     <div style="margin-top:2px; font-size: 13px; color: var(--gi-muted);">{{ completed }} / {{ totalSelected }} processed, {{ processed }} imported</div>
                 </div>
-                <table class="spbwc-gi-table">
+                <div class="spbwc-gi-table-wrap">
+                    <div v-if="loading" class="spbwc-gi-loading-overlay" role="status" aria-live="polite">
+                        <span class="spbwc-gi-spinner" aria-hidden="true"></span>
+                        <span>{{ config.i18n.loading_products }}</span>
+                    </div>
+                    <table class="spbwc-gi-table" :class="{ 'spbwc-gi-table--loading': loading }">
                     <thead>
                         <tr>
                             <th><input type="checkbox" :checked="allRowsOnPageSelected" @change="toggleSelectAll" :disabled="loading || importRunning" /></th>
@@ -392,7 +401,7 @@
                     </thead>
                     <tbody>
                         <tr v-for="row in rows" :key="row.row_id">
-                            <td><input type="checkbox" :checked="selected[row.row_id]" @change="toggleRow(row)" /></td>
+                            <td><input type="checkbox" :checked="selected[row.row_id]" @change="toggleRow(row)" :disabled="loading" /></td>
                             <td><img :src="row.image" v-if="row.image" /></td>
                             <td>
                                 <div class="spbwc-gi-name">
@@ -410,13 +419,14 @@
                             <td><span class="spbwc-gi-badge">{{ row.stock_status }}</span></td>
                             <td>{{ categoriesText(row) }}</td>
                         </tr>
-                        <tr v-if="rows.length===0"><td colspan="7">No data</td></tr>
+                        <tr v-if="rows.length===0 && !loading"><td colspan="7">No data</td></tr>
                     </tbody>
                 </table>
+                </div>
                 <div class="spbwc-gi-pagination">
-                    <button class="spbwc-gi-btn secondary" :disabled="page<=1" @click="page--; fetchList()">Prev</button>
+                    <button class="spbwc-gi-btn secondary" :disabled="page<=1 || loading" @click="page--; fetchList()">Prev</button>
                     <span>{{ page }} / {{ totalPages }}</span>
-                    <button class="spbwc-gi-btn secondary" :disabled="page>=totalPages" @click="page++; fetchList()">Next</button>
+                    <button class="spbwc-gi-btn secondary" :disabled="page>=totalPages || loading" @click="page++; fetchList()">Next</button>
                 </div>
             </div>
             <div class="spbwc-gi-toast">

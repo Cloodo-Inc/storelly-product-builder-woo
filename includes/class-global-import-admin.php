@@ -19,10 +19,9 @@ if (!class_exists('SPBWC_Global_Import_Admin')) {
         }
         
         public function enqueue_admin_scripts($hook) {
-            $allowed_hooks = array(
-                'product-builder-options_page_storelly-product-builder-for-woocommerce-options/global-import',
-            );
-            if (!in_array($hook, $allowed_hooks, true)) {
+            // Hook suffix is {sanitize_title( top menu title )}_page_{ submenu slug }. Top menu is "Storelly Builder" → "storelly-builder_page_…", not "product-builder-options_page_…".
+            $global_import_page_needle = '_page_' . SPBWC_PB_OPTIONS_SLUG . '/global-import';
+            if (strpos($hook, $global_import_page_needle) === false) {
                 return;
             }
             wp_enqueue_style(
@@ -64,7 +63,8 @@ if (!class_exists('SPBWC_Global_Import_Admin')) {
                     'upload_title' => __('Upload file', 'storelly-product-builder-for-woocommerce'),
                     'import_title' => __('Import products', 'storelly-product-builder-for-woocommerce'),
                     'export_title' => __('Export sessions', 'storelly-product-builder-for-woocommerce'),
-                    'confirm_delete' => __('Are you sure you want to delete this export?', 'storelly-product-builder-for-woocommerce')
+                    'confirm_delete' => __('Are you sure you want to delete this export?', 'storelly-product-builder-for-woocommerce'),
+                    'loading_products' => __('Loading products…', 'storelly-product-builder-for-woocommerce'),
                 )
             ));
         }
