@@ -36,16 +36,14 @@ if (!class_exists('SPBWC_Storelly_Product_Builder_API')) {
         }
 
         public static function spbwc_create_user_storelly(){
-            // Only create user if explicitly enabled by admin via settings.
-            $api_settings = get_option('spbwc_pb_settings', array());
-            $enable_api_sync = isset($api_settings['enable_api_sync']) && 'yes' === $api_settings['enable_api_sync'];
-            
-            if (!$enable_api_sync) {
-                return; // Exit early if API sync is not enabled (opt-in required).
-            }
-            
+            // Register with Storelly to obtain unauth_token for API communication.
+            // This is required regardless of API sync setting - the token is needed for license and PDF features.
             $option = get_option('spbwc_connect_api_keys');
-            if (empty($option['username'])) {
+            if (!is_array($option)) {
+                $option = array();
+            }
+            // Re-register if we don't have a username OR don't have an unauth_token yet.
+            if (empty($option['username']) || empty($option['unauth_token'])) {
                 $current_user = wp_get_current_user(); 
                 $user_name = sanitize_user($current_user->user_login) . '_' . time();
 
@@ -59,14 +57,14 @@ if (!class_exists('SPBWC_Storelly_Product_Builder_API')) {
                     "landmark" => get_user_meta($current_user->ID, 'billing_address_1', true) ? sanitize_text_field(get_user_meta($current_user->ID, 'billing_address_1', true)) : 'address',
                     "time_zone" => "Asia/Ho_Chi_Minh", 
                     "surname" => get_user_meta($current_user->ID, 'billing_last_name', true) ? sanitize_text_field(get_user_meta($current_user->ID, 'billing_last_name', true)) : 'lastname',
-                    "email" => sanitize_email($current_user->user_email), // Sử dụng sanitize_email
+                    "email" => sanitize_email($current_user->user_email),
                     "first_name" => get_user_meta($current_user->ID, 'billing_first_name', true) ? sanitize_text_field(get_user_meta($current_user->ID, 'billing_first_name', true)) : 'firstname',
                     "username" => $user_name,
                     "password" => $user_name,
                     "fy_start_month" => gmdate('n'),
                     "accounting_method" => "phuong_phap_1", 
                     "woocommerce_api_settings" => array(
-                        "woocommerce_app_url" => esc_url(home_url()), // Escaping URL
+                        "woocommerce_app_url" => esc_url(home_url()),
                         "woocommerce_consumer_key" => isset($option['consumer_key']) ? sanitize_text_field($option['consumer_key']) : '',
                         "woocommerce_consumer_secret" => isset($option['consumer_secret']) ? sanitize_text_field($option['consumer_secret']) : ''
                     )
@@ -75,21 +73,22 @@ if (!class_exists('SPBWC_Storelly_Product_Builder_API')) {
                 $api_url = SPBWC_API_URL . '/api/v1/register';
                 $resp = SPBWC_Storelly_HTTP::spbwc_post_data_without_auth($api_url, $datas);
                 if (isset($resp) && is_array($resp)) {
-                    if ($resp['success'] == 1) {
+                    if (isset($resp['success']) && $resp['success'] == 1) {
                         if (isset($resp['username'])) {
                             $option['username'] = sanitize_text_field($resp['username']);
                         }
                         if (isset($resp['unauth_token'])) {
                             $option['unauth_token'] = sanitize_text_field($resp['unauth_token']);
                         }
+                        $option['log'] = esc_html__('Connected successfully', 'storelly-product-builder-for-woocommerce') . ' - ' . current_time('mysql');
                         update_option('spbwc_connect_api_keys', $option);
                     } else {
-                        if (isset($resp['msg'])) {
-                            $option['log'] = sanitize_text_field($resp['msg']);
-                        }
+                        $option['log'] = isset($resp['msg']) ? sanitize_text_field($resp['msg']) : esc_html__('Registration failed: unknown error', 'storelly-product-builder-for-woocommerce');
+                        $option['log'] .= ' - ' . current_time('mysql');
                         update_option('spbwc_connect_api_keys', $option);
                     }
                 } else {
+                    $option['log'] = esc_html__('Connection error: could not reach Storelly API', 'storelly-product-builder-for-woocommerce') . ' - ' . current_time('mysql');
                     update_option('spbwc_connect_api_keys', $option);
                 }
             }
@@ -258,7 +257,7 @@ if (!class_exists('SPBWC_Storelly_Product_Builder_API')) {
         
         public function spbwc_activation_redirect($plugin){
             if ($plugin == plugin_basename(__FILE__)) {
-                wp_safe_redirect(admin_url('admin.php?page=storelly-product-builder-for-woocommerce-options/settings'));
+                wp_safe_redirect(admin_url('admin.php?page=' . SPBWC_PB_OPTIONS_SLUG));
                 exit;
             }
         }

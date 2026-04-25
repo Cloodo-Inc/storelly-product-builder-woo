@@ -14,6 +14,20 @@ if (!class_exists('SPBWC_Storelly_PB_Util')) {
             $page = get_option('spbwc_' . $page . '_page_id');
             return $page ? absint($page) : -1;
         }
+        /**
+         * Get number of decimals for option prices.
+         * Uses spbwc_number_of_decimals if set, otherwise WooCommerce default.
+         *
+         * @return int
+         */
+        public static function spbwc_get_option_decimals()
+        {
+            $val = get_option('spbwc_number_of_decimals', '');
+            if ('' !== $val && is_numeric($val)) {
+                return min(6, max(0, absint($val)));
+            }
+            return function_exists('wc_get_price_decimals') ? wc_get_price_decimals() : 2;
+        }
         public static function spbwc_get_url_page($page)
         {
             switch ($page) {
@@ -146,8 +160,8 @@ if (!class_exists('SPBWC_Storelly_PB_Util')) {
         public static function spbwc_is_product_builder($id)
         {
             $id = self::spbwc_get_wpml_original_id($id);
-            $check = get_post_meta($id, '_storelly_pb_enable', true);
-            if ($check)
+            $option_id = STORELLY_FRONTEND_OPTIONS::get_product_option($id);
+            if ($option_id)
                 return true;
             return false;
         }
@@ -178,7 +192,7 @@ if (!class_exists('SPBWC_Storelly_PB_Util')) {
                         // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Readonly query args for redirect helper.
                         'paged' => isset($_GET['paged']) ? absint( wp_unslash( $_GET['paged'] ) ) : '',
                     );
-                    $redirect_url = add_query_arg($get, admin_url('admin.php?page=storelly-product-builder-for-woocommerce-options'));
+                    $redirect_url = add_query_arg($get, admin_url('admin.php?page=' . SPBWC_PB_BUILDER_SLUG));
                     break;
                 default:
                     // Sanitize redirect URL to prevent injection attacks

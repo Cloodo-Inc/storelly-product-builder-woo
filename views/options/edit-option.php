@@ -2,12 +2,12 @@
 <?php
 $link = add_query_arg(array(
     'paged'    => isset($_GET['paged']) ? sanitize_text_field( wp_unslash( $_GET['paged'] ) ) : 1 // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only admin query arg used to build navigation link.
-), admin_url('admin.php?page=storelly-product-builder-for-woocommerce-options'));
+), admin_url('admin.php?page=' . SPBWC_PB_BUILDER_SLUG));
 // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Template variable.
 $link_update = add_query_arg(array(
     'action'    => 'update',
     'id'        => $options['id'],
-), admin_url('admin.php?page=storelly-product-builder-for-woocommerce-options'));
+), admin_url('admin.php?page=' . SPBWC_PB_BUILDER_SLUG));
 // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Template variable.
 $link_unpublish = add_query_arg(array(
     'id'        => isset($options['id']) ? absint( $options['id'] ) : 0,
@@ -21,7 +21,7 @@ $link_create_option = add_query_arg(
         'paged'     => 1,
         'id'        => 0
     ),
-    admin_url('admin.php?page=storelly-product-builder-for-woocommerce-options')
+    admin_url('admin.php?page=' . SPBWC_PB_BUILDER_SLUG)
 );
 wp_enqueue_media();
 
@@ -146,15 +146,15 @@ $link_create_pre_builder = add_query_arg(array(
                             <h2 style="border-bottom: 1px solid #ddd;"><?php esc_html_e('Production builder fields', 'storelly-product-builder-for-woocommerce'); ?></h2>
                             <div class="inside">
                                 <div>
-                                    <p class="section-title"><input class="nbd-ip-readonly" value="<?php esc_html_e('Default field', 'storelly-product-builder-for-woocommerce'); ?>" readonly=""></p>
+                                    <p class="section-title"><input class="nbd-ip-readonly" value="<?php esc_html_e('New field', 'storelly-product-builder-for-woocommerce'); ?>" readonly=""></p>
                                     <div class="nbd-section-wrap">
                                         <a title="<?php esc_html_e('Add fields', 'storelly-product-builder-for-woocommerce'); ?>" class="pcpb-field-btn button" ng-click="add_field()">
-                                            <?php esc_html_e('Default field', 'storelly-product-builder-for-woocommerce'); ?> <span class="nbo-type-label default">1</span>
+                                            <?php esc_html_e('New field', 'storelly-product-builder-for-woocommerce'); ?> <span class="nbo-type-label default">1</span>
                                         </a>
                                     </div>
                                 </div>
                                 <div style="margin-top: 10px;">
-                                    <p class="section-title"><input class="nbd-ip-readonly" value="<?php esc_html_e('Product builder fields', 'storelly-product-builder-for-woocommerce'); ?>" readonly=""></p>
+                                    <p class="section-title"><input class="nbd-ip-readonly" value="<?php esc_html_e('Product Builder View', 'storelly-product-builder-for-woocommerce'); ?>" readonly=""></p>
                                     <div class="nbd-section-wrap">
                                         <a class="pcpb-field-btn button" ng-click="add_field('nbpb_com', 'nbpb_com')"><?php esc_html_e('Component', 'storelly-product-builder-for-woocommerce'); ?> <span class="nbo-type-label wpo">2</span></a>
                                         <a class="pcpb-field-btn button" ng-click="add_field('nbpb_text', 'nbpb_text')"><?php esc_html_e('Text', 'storelly-product-builder-for-woocommerce'); ?> <span class="nbo-type-label wpo">3</span></a>

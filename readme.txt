@@ -4,8 +4,8 @@ Donate link: https://storelly.com/
 Tags: product builder, product customize, product customizer, woocommerce custom product
 Requires at least: 4.7
 Tested up to: 6.9.4
-Stable tag: 1.2.5
-Version: 1.2.5
+Stable tag: 1.2.6
+Version: 1.2.6
 Requires PHP: 7.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -86,6 +86,9 @@ This plugin connects to the following external services:
 3. Storelly settings page with API keys and sync options
 
 == Changelog ==
+= 1.2.6 =
+* Add Category-Based Options & Enhance Import Reliability
+
 = 1.2.5 =
 * Fixed Builder Options Export: Resolved an issue where export would hang indefinitely.
 

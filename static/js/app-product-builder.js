@@ -3,6 +3,50 @@
 var appConfig = {
   ready: false,
 };
+
+/**
+ * Fabric toSVG() may throw when a fabric.Image has no backing DOM element
+ * (hasCrop reads width from null). Embed the raster from toDataURL() so
+ * frame_*_svg files remain valid for PDF/export pipelines.
+ */
+function spbwcFabricCanvasToSVGOrFallback(canvas, rasterDataUrl) {
+  try {
+    return canvas.toSVG();
+  } catch (err) {
+    if (
+      typeof rasterDataUrl !== "string" ||
+      rasterDataUrl.indexOf("data:") !== 0
+    ) {
+      return "";
+    }
+    var w = canvas && canvas.width ? canvas.width : 0;
+    var h = canvas && canvas.height ? canvas.height : 0;
+    if (!w || !h) {
+      return "";
+    }
+    var href = rasterDataUrl
+      .replace(/&/g, "&amp;")
+      .replace(/"/g, "&quot;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;");
+    return (
+      '<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="' +
+      w +
+      '" height="' +
+      h +
+      '"><image xlink:href="' +
+      href +
+      '" href="' +
+      href +
+      '" width="' +
+      w +
+      '" height="' +
+      h +
+      '" preserveAspectRatio="none" /></svg>'
+    );
+  }
+}
+
 var nbdpbApp = angular.module("nbdpbApp", []);
 nbdpbApp.controller("nbpbCtrl", [
   "$scope",
@@ -12,6 +56,9 @@ nbdpbApp.controller("nbpbCtrl", [
   "$timeout",
   function ($scope, FabricWindow, NBDDataFactory, $window, $timeout) {
     $scope.isStartDesign = false;
+    $scope.isDisplayOn = function (display) {
+      return display == "on" || display == "1" || display === 1 || display === true;
+    };
     $scope.onloadTemplate = false;
     $scope.init = function () {
       $scope.initSettings();
@@ -196,6 +243,9 @@ nbdpbApp.controller("nbpbCtrl", [
               }
             }
             $scope.resource.components.push(_field);
+            if (_field.nbpb_type == "nbpb_com") {
+              _field.current_pb_configs = $scope.getComponentConfigs(_field);
+            }
           }
         });
       }
@@ -203,17 +253,58 @@ nbdpbApp.controller("nbpbCtrl", [
       angular.copy(nbOption.nbd_fields, $scope.resource.values);
       _.each($scope.resource.values, function (field, index) {
         var component = $scope.getComponentById(index);
-        if (component) component.enable = field.enable;
+        if (component) {
+          component.enable = field.enable;
+          if (component.nbpb_type == "nbpb_text") {
+            component.currentContent = field.value;
+          }
+          if (component.nbpb_type == "nbpb_com") {
+            var configIndex = $scope.getCurrentConfig(index, field.value, field.sub_value);
+            if (angular.isDefined(configIndex)) {
+                component.currentConfig = configIndex;
+            } else {
+                component.currentConfig = field.value;
+            }
+          }
+        }
       });
       if (!pro) $scope.resource.showValue = false;
       if (!init) {
-        _.each($scope.stages, function (stage, index) {
-          stage.canvas.forEachObject(function (obj, index) {
+        _.each($scope.stages, function (stage, sIndex) {
+          stage.canvas.forEachObject(function (obj) {
             var itemId = obj.get("itemId");
             if (itemId) {
               var component = $scope.getComponentById(itemId);
-              if (!component.enable) {
-                obj.set("visible", false);
+              if (component) {
+                if (!component.enable) {
+                  obj.set("visible", false);
+                } else {
+                  obj.set("visible", true);
+                  if (component.nbpb_type == "nbpb_text") {
+                    obj.set("text", component.currentContent);
+                  }
+                  if (component.nbpb_type == "nbpb_com") {
+                    var pb_config = component.current_pb_configs[component.currentConfig];
+                    if (pb_config && pb_config[sIndex] && $scope.isDisplayOn(pb_config[sIndex].display)) {
+                      if (obj.get("a_index") != pb_config.a_index || obj.get("sa_index") != pb_config.sa_index) {
+                        fabric.Image.fromURL(
+                          pb_config[sIndex].image_url,
+                          function (img) {
+                            obj.setElement(img.getElement());
+                            obj.set({
+                              a_index: pb_config.a_index,
+                              sa_index: pb_config.sa_index,
+                            });
+                            stage.canvas.renderAll();
+                          },
+                          { crossOrigin: "anonymous" }
+                        );
+                      }
+                    } else {
+                      obj.set("visible", false);
+                    }
+                  }
+                }
               }
             }
           });
@@ -268,50 +359,8 @@ nbdpbApp.controller("nbpbCtrl", [
         var field = $scope.resource.components[index],
           viewLen = nbOption.options.views.length;
         $scope.resource.currentComponentObj = field;
-        if (field.nbpb_type == "nbpb_com") {
-          field.current_pb_configs = [];
-          _.each(field.general.pb_config, function (attr, a_index) {
-            _.each(attr, function (s_attr, sa_index) {
-              var config = [];
-              if (s_attr.views.length > nbOption.options.views.length) {
-                s_attr.views.splice(viewLen, s_attr.views.length - viewLen);
-              }
-              angular.copy(s_attr.views, config);
-              var attribute = field.general.attributes.options[a_index];
-              if (angular.isDefined(attribute)) {
-                if (
-                  angular.isDefined(attribute.enable_subattr) &&
-                  attribute.enable_subattr == "on" &&
-                  angular.isDefined(attribute.sub_attributes) &&
-                  attribute.sub_attributes.length > 0
-                ) {
-                  config.sattr_name = attribute.sub_attributes[sa_index].name;
-                  config.attr_name = attribute.name;
-                  config.icon_bg = attribute.sub_attributes[sa_index].image_url;
-                  config.a_index = a_index;
-                  config.sa_index = sa_index;
-                  config.level = 2;
-                  config.bg_type =
-                    attribute.sub_attributes[sa_index].preview_type;
-                  config.icon_color = attribute.sub_attributes[sa_index].color;
-                } else {
-                  config.icon_bg = attribute.image_url;
-                  config.sattr_name = attribute.name;
-                  config.attr_name = "";
-                  config.a_index = a_index;
-                  config.sa_index = 0;
-                  config.level = 1;
-                  if (attribute.preview_type == "c") {
-                    config.bg_type = "c";
-                    config.icon_color = attribute.color;
-                  } else {
-                    config.bg_type = "i";
-                  }
-                }
-                field.current_pb_configs.push(config);
-              }
-            });
-          });
+        if (field.nbpb_type == "nbpb_com" && (!angular.isDefined(field.current_pb_configs) || field.current_pb_configs.length == 0)) {
+          field.current_pb_configs = $scope.getComponentConfigs(field);
         }
         var item = $scope.getLayerById(field.id);
         if (SPBWC_PB_CONFIG.is_creating_task == 1) {
@@ -350,6 +399,9 @@ nbdpbApp.controller("nbpbCtrl", [
     $scope.selectAttribute = function (index) {
       var currentComponent =
         $scope.resource.components[$scope.resource.currentComponent];
+      if (!currentComponent) {
+        return;
+      }
       currentComponent.currentConfig = index;
       var statusImages = [],
         firstView = true;
@@ -364,7 +416,7 @@ nbdpbApp.controller("nbpbCtrl", [
       _.each(
         currentComponent.current_pb_configs[index],
         function (view, viewIndex) {
-          if (view.display == "on") {
+          if ($scope.isDisplayOn(view.display)) {
             statusImages[viewIndex] = false;
           }
         }
@@ -373,10 +425,16 @@ nbdpbApp.controller("nbpbCtrl", [
       _.each(
         currentComponent.current_pb_configs[index],
         function (view, viewIndex) {
-          var _stage = $scope.stages[viewIndex],
-            _canvas = _stage.canvas,
+          var _stage = $scope.stages[viewIndex];
+          if (!_stage) {
+            return;
+          }
+          var _canvas = _stage.canvas,
             _item = $scope.getLayerById(currentComponent.id, viewIndex);
-          if (view.display == "on") {
+          if (!_canvas) {
+            return;
+          }
+          if ($scope.isDisplayOn(view.display)) {
             if (currentStage == -1) {
               currentStage = viewIndex;
             }
@@ -384,14 +442,17 @@ nbdpbApp.controller("nbpbCtrl", [
               jQuery(".nbpb-stage-loading").addClass("nbdpb-show");
               firstView = false;
             }
-            if (_item) {
-              var element = _item.getElement();
-              element.setAttribute("src", view.image_url);
+            if (_item && typeof _item.getElement === "function") {
+              var el = _item.getElement();
+              if (el && el.tagName === "IMG" && "src" in el) {
+                el.src = view.image_url;
+              }
             }
             fabric.Image.fromURL(
               view.image_url,
               function (obj) {
                 if (_item) {
+                  _item.setElement(obj.getElement());
                   _item.set({
                     visible: true,
                     dirty: true,
@@ -449,16 +510,21 @@ nbdpbApp.controller("nbpbCtrl", [
         }
       );
       if (
-        currentComponent.current_pb_configs[index][$scope.currentStage]
-          .display != "on" &&
-        currentStage != -1
+        currentComponent.current_pb_configs &&
+        currentComponent.current_pb_configs[index]
       ) {
-        appConfig.slider.activeItemByIndex(currentStage);
+        if (
+          currentComponent.current_pb_configs[index][$scope.currentStage] &&
+          !$scope.isDisplayOn(currentComponent.current_pb_configs[index][$scope.currentStage].display) &&
+          currentStage != -1
+        ) {
+          appConfig.slider.activeItemByIndex(currentStage);
+        }
+        $scope.resource.values[currentComponent.id].value =
+          "" + currentComponent.current_pb_configs[index].a_index;
+        $scope.resource.values[currentComponent.id].sub_value =
+          "" + currentComponent.current_pb_configs[index].sa_index;
       }
-      $scope.resource.values[currentComponent.id].value =
-        "" + currentComponent.current_pb_configs[index].a_index;
-      $scope.resource.values[currentComponent.id].sub_value =
-        "" + currentComponent.current_pb_configs[index].sa_index;
       jQuery(document).triggerHandler("update_pcpb_options_from_builder", {
         nbd_fields: $scope.resource.values,
         pro: true,
@@ -590,7 +656,7 @@ nbdpbApp.controller("nbpbCtrl", [
         views = currentComponent.general.nbpb_text_configs.views;
       _.each(views, function (view, viewIndex) {
         var item = $scope.getLayerById(currentComponent.id, viewIndex);
-        if (view.display == "on") {
+        if ($scope.isDisplayOn(view.display)) {
           var _canvas = $scope.stages[viewIndex].canvas;
           if (item) {
             item.set({
@@ -742,11 +808,17 @@ nbdpbApp.controller("nbpbCtrl", [
         var key = "frame_" + index;
         var svgKey = "frame_" + index + "_svg";
         dataObj[key] = $scope.makeblob(stage.design);
-        dataObj[svgKey] = new Blob([stage.svg], { type: "image/svg" });
+        dataObj[svgKey] = new Blob([stage.svg], { type: "image/svg+xml" });
       });
       ["pcpb_cart_item_key", "is_creating_task", "oid"].forEach(function (key) {
         dataObj[key] = SPBWC_PB_CONFIG[key];
       });
+      var $prcpbFolder = jQuery(".variations_form, form.cart").find(
+        'input[name="prcpb-folder"]'
+      );
+      if ($prcpbFolder.length && $prcpbFolder.val()) {
+        dataObj.prcpb_folder = $prcpbFolder.val();
+      }
       dataObj.config = new Blob([JSON.stringify($scope.resource.config)], {
         type: "application/json",
       });
@@ -771,7 +843,7 @@ nbdpbApp.controller("nbpbCtrl", [
               window.location = $scope.settings.redirect_url;
           } else {
             $scope.toggleAppLoading();
-            jQuery(".pcpb-custom-design").show();
+            jQuery(".pcpb-custom-design").empty().show();
             _.each(data.image, function (image) {
               image += "?t=" + Math.random();
               var item =
@@ -782,11 +854,16 @@ nbdpbApp.controller("nbpbCtrl", [
                 "</div>";
               jQuery(".pcpb-custom-design").append(item);
             });
-            jQuery(".variations_form, form.cart").append(
-              '<input type="hidden" name="prcpb-folder" value="' +
-                data.folder +
-                '" />'
-            );
+            var $form = jQuery(".variations_form, form.cart");
+            if ($form.find('input[name="prcpb-folder"]').length) {
+              $form.find('input[name="prcpb-folder"]').val(data.folder);
+            } else {
+              $form.append(
+                '<input type="hidden" name="prcpb-folder" value="' +
+                  data.folder +
+                  '" />'
+              );
+            }
             jQuery(document).triggerHandler(
               "update_product_image_from_builder",
               {
@@ -804,6 +881,7 @@ nbdpbApp.controller("nbpbCtrl", [
                 image_caption: "",
               }
             );
+            nbOption.design_stored = 1;
             jQuery(".close-popup").triggerHandler("click");
           }
         } else {
@@ -831,8 +909,9 @@ nbdpbApp.controller("nbpbCtrl", [
             }
           }
         });
-        stage.design = _canvas.toDataURL();
-        stage.svg = _canvas.toSVG();
+        var raster = _canvas.toDataURL();
+        stage.design = raster;
+        stage.svg = spbwcFabricCanvasToSVGOrFallback(_canvas, raster);
       });
       $scope.resource.used_font = used_font;
     };
@@ -1288,7 +1367,7 @@ nbdpbApp.controller("nbpbCtrl", [
         return check;
       }
       _.each(views, function (view, viewIndex) {
-        if (view.display == "on") {
+        if ($scope.isDisplayOn(view.display)) {
           statusImages[viewIndex] = false;
         }
       });
@@ -1296,7 +1375,7 @@ nbdpbApp.controller("nbpbCtrl", [
         var stage = $scope.stages[viewIndex],
           _canvas = stage.canvas,
           _item = $scope.getLayerById(currentComponent.id, viewIndex);
-        if (view.display == "on") {
+        if ($scope.isDisplayOn(view.display)) {
           if (firstView) {
             jQuery(".nbpb-stage-loading").addClass("nbdpb-show");
             firstView = false;
@@ -1344,8 +1423,13 @@ nbdpbApp.controller("nbpbCtrl", [
                   new_width = op.width * height_ratio;
                 }
                 if (angular.isDefined(exist)) {
-                  var element = _item.getElement();
-                  element.setAttribute("src", url);
+                  var existEl =
+                    typeof _item.getElement === "function"
+                      ? _item.getElement()
+                      : null;
+                  if (existEl && existEl.tagName === "IMG" && "src" in existEl) {
+                    existEl.src = url;
+                  }
                   _item.set({
                     dirty: true,
                     width: op.width,
@@ -1441,12 +1525,12 @@ nbdpbApp.controller("nbpbCtrl", [
         return check;
       }
       _.each(views, function (view, viewIndex) {
-        if (view.display == "on") {
+        if ($scope.isDisplayOn(view.display)) {
           statusSvgs[viewIndex] = false;
         }
       });
       _.each(views, function (view, viewIndex) {
-        if (view.display == "on") {
+        if ($scope.isDisplayOn(view.display)) {
           var _canvas = $scope.stages[viewIndex].canvas;
           if (firstView) {
             jQuery(".nbpb-stage-loading").addClass("nbdpb-show");
@@ -1568,6 +1652,52 @@ nbdpbApp.controller("nbpbCtrl", [
       });
       return _field;
     };
+    $scope.getComponentConfigs = function (field) {
+      var configs = [],
+        viewLen = nbOption.options.views.length;
+      _.each(field.general.pb_config, function (attr, a_index) {
+        _.each(attr, function (s_attr, sa_index) {
+          var config = [];
+          if (s_attr.views.length > nbOption.options.views.length) {
+            s_attr.views.splice(viewLen, s_attr.views.length - viewLen);
+          }
+          angular.copy(s_attr.views, config);
+          var attribute = field.general.attributes.options[a_index];
+          if (angular.isDefined(attribute)) {
+            if (
+              angular.isDefined(attribute.enable_subattr) &&
+              attribute.enable_subattr == "on" &&
+              angular.isDefined(attribute.sub_attributes) &&
+              attribute.sub_attributes.length > 0
+            ) {
+              config.sattr_name = attribute.sub_attributes[sa_index].name;
+              config.attr_name = attribute.name;
+              config.icon_bg = attribute.sub_attributes[sa_index].image_url;
+              config.a_index = a_index;
+              config.sa_index = sa_index;
+              config.level = 2;
+              config.bg_type = attribute.sub_attributes[sa_index].preview_type;
+              config.icon_color = attribute.sub_attributes[sa_index].color;
+            } else {
+              config.icon_bg = attribute.image_url;
+              config.sattr_name = attribute.name;
+              config.attr_name = "";
+              config.a_index = a_index;
+              config.sa_index = 0;
+              config.level = 1;
+              if (attribute.preview_type == "c") {
+                config.bg_type = "c";
+                config.icon_color = attribute.color;
+              } else {
+                config.bg_type = "i";
+              }
+            }
+            configs.push(config);
+          }
+        });
+      });
+      return configs;
+    };
     $scope.getCurrentConfig = function (component_id, a_index, sa_index) {
       var config_index;
       var component = $scope.getComponentById(component_id);
@@ -1672,6 +1802,24 @@ nbdpbApp.directive("nbpbHover", [
   },
 ]);
 nbdpbApp.factory("NBDDataFactory", function ($http) {
+  function spbwcUploadFilename(fieldKey, blob) {
+    if (!(blob instanceof Blob)) {
+      return null;
+    }
+    if (typeof File !== "undefined" && blob instanceof File && blob.name) {
+      return blob.name;
+    }
+    if (fieldKey === "design" || fieldKey === "config" || fieldKey === "used_font" || fieldKey === "design_output") {
+      return fieldKey + ".json";
+    }
+    if (fieldKey.indexOf("_svg") !== -1) {
+      return fieldKey + ".svg";
+    }
+    if (fieldKey.indexOf("frame_") === 0) {
+      return fieldKey + ".png";
+    }
+    return fieldKey + ".bin";
+  }
   return {
     get: function (action, data, callback) {
       var formData = new FormData();
@@ -1687,10 +1835,15 @@ nbdpbApp.factory("NBDDataFactory", function ($http) {
         ];
         if (
           typeof value != "object" ||
-          _.includes(keepDefault, key) ||
+          keepDefault.indexOf(key) != -1 ||
           key.indexOf("frame") > -1
         ) {
-          formData.append(key, value);
+          var uploadName = spbwcUploadFilename(key, value);
+          if (uploadName) {
+            formData.append(key, value, uploadName);
+          } else {
+            formData.append(key, value);
+          }
         } else {
           var keyName;
           for (var k in value) {
@@ -1817,6 +1970,12 @@ jQuery.fn.nbShowPopup = function () {
     var $close = jQuery(this).find(".overlay-popup, .close-popup");
     if (!jQuery(this).hasClass("nbdpb-show")) {
       jQuery(this).addClass("nbdpb-show");
+      var $scope = angular.element(
+        document.getElementById("nbpb-container")
+      ).scope();
+      $scope.initValues(false, true);
+      $scope.reCalcViewPort();
+      $scope.updateApp();
     }
     $close.on("click", function () {
       jQuery(sefl).removeClass("nbdpb-show");
@@ -1956,7 +2115,10 @@ jQuery(document).ready(function () {
     var $scope = angular
       .element(document.getElementById("nbpb-container"))
       .scope();
-    $scope.updateApp();
+    setTimeout(function () {
+      $scope.reCalcViewPort();
+      $scope.updateApp();
+    }, 300);
     jQuery("body, html").addClass("nbdpb-no-overflow");
     jQuery(".nbdpb-popup.popup-design")
       .nbShowPopup()
@@ -1986,4 +2148,5 @@ jQuery(document).on("update_nbo_options", function (e, data) {
     .element(document.getElementById("nbpb-container"))
     .scope();
   $scope.initValues(false, data.pro);
+  $scope.updateApp();
 });

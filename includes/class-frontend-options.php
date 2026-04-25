@@ -196,6 +196,9 @@ if (!class_exists('STORELLY_FRONTEND_OPTIONS')) {
                         }
                         if (isset($field['general']['attributes']['bg_type']) && $field['general']['attributes']['bg_type'] == 'i') {
                             foreach ($field['general']['attributes']['options'] as $op_index => $option) {
+                                if (!isset($option['bg_image']) || !is_array($option['bg_image'])) {
+                                    continue;
+                                }
                                 foreach ($option['bg_image'] as $bg_index => $bg) {
                                     $bg_obj = wp_get_attachment_url(absint($bg));
                                     $options['fields'][$key]['general']['attributes']['options'][$op_index]['bg_image_url'][$bg_index] = $bg_obj ? $bg_obj : SPBWC_PB_ASSETS_URL . 'images/placeholder.png';
@@ -289,15 +292,24 @@ if (!class_exists('STORELLY_FRONTEND_OPTIONS')) {
                         }
                     }
                     $nbds_frontend = array(
-                        'wc_currency_format_num_decimals'               =>  wc_get_price_decimals(),
+                        'wc_currency_format_num_decimals'               =>  SPBWC_Storelly_PB_Util::spbwc_get_option_decimals(),
                         'currency_format_num_decimals'                  =>  4,
                         'currency_format_symbol'                        =>  html_entity_decode((string) get_woocommerce_currency_symbol(), ENT_QUOTES, 'UTF-8'),
                         'currency_format_decimal_sep'                   =>  stripslashes(wc_get_price_decimal_separator()),
                         'currency_format_thousand_sep'                  =>  stripslashes(wc_get_price_thousand_separator()),
                         'currency_format'                               =>  esc_attr(str_replace(array('%1$s', '%2$s'), array('%s', '%v'), get_woocommerce_price_format())),
-                        'nbstorelly_hide_add_cart_until_form_filled'    =>  'yes'
+                        'nbstorelly_hide_add_cart_until_form_filled'    =>  get_option('spbwc_hide_add_cart_until_form_filled', 'no') === 'yes' ? 'yes' : 'no'
                     );
-                    wp_register_script('spbwc-option-builder', SPBWC_PB_JS_URL . 'option-builder.js',('pc-builderjs'), '1.0.0', true);
+                    if ( function_exists( 'WC' ) && ! wp_script_is( 'wc-accounting', 'registered' ) ) {
+                        wp_register_script(
+                            'wc-accounting',
+                            WC()->plugin_url() . '/assets/js/accounting/accounting.min.js',
+                            array(),
+                            defined( 'WC_VERSION' ) ? WC_VERSION : '0.4.2',
+                            true
+                        );
+                    }
+                    wp_register_script( 'spbwc-option-builder', SPBWC_PB_JS_URL . 'option-builder.js', array( 'pc-builderjs', 'wc-accounting' ), '1.0.0', true );
                     wp_localize_script( 'spbwc-option-builder', 'spbwc_option_builder_variable', array(
                         'ajaxUrl'               => admin_url( 'admin-ajax.php' ),
                         'appid'                 => $this->appid,
@@ -312,6 +324,14 @@ if (!class_exists('STORELLY_FRONTEND_OPTIONS')) {
                         'file_too_big'          => __('Sorry, file is too big, max size: ', 'storelly-product-builder-for-woocommerce'),
                         'file_too_small'        => __('Sorry, file is too small, min size: ', 'storelly-product-builder-for-woocommerce'),
                         'file_type'             => __('Sorry, this file type is not permitted for security reasons. Only accept: ', 'storelly-product-builder-for-woocommerce'),
+                        'nbo_validation_i18n'  => array(
+                            'field_required'     => __( '%1$s: This field is required.', 'storelly-product-builder-for-woocommerce' ),
+                            'field_min_length'   => __( '%1$s: Enter at least %2$s characters.', 'storelly-product-builder-for-woocommerce' ),
+                            'field_max_length'   => __( '%1$s: No more than %2$s characters.', 'storelly-product-builder-for-woocommerce' ),
+                            'option_unavailable'   => __( '%1$s: The choice "%2$s" is not available for the current product options.', 'storelly-product-builder-for-woocommerce' ),
+                            'quantity_invalid'   => __( 'Enter a valid quantity (at least 1).', 'storelly-product-builder-for-woocommerce' ),
+                            'form_invalid_generic' => __( 'Please check invalid fields, quantity, or choose a different combination.', 'storelly-product-builder-for-woocommerce' ),
+                        ),
                     ));
                     wp_enqueue_script('spbwc-option-builder');
                 }
@@ -392,6 +412,9 @@ if (!class_exists('STORELLY_FRONTEND_OPTIONS')) {
                         }
                         if (isset($field['general']['attributes']['bg_type']) && $field['general']['attributes']['bg_type'] == 'i') {
                             foreach ($field['general']['attributes']['options'] as $op_index => $option) {
+                                if (!isset($option['bg_image']) || !is_array($option['bg_image'])) {
+                                    continue;
+                                }
                                 foreach ($option['bg_image'] as $bg_index => $bg) {
                                     $bg_obj = wp_get_attachment_url(absint($bg));
                                     $options['fields'][$key]['general']['attributes']['options'][$op_index]['bg_image_url'][$bg_index] = $bg_obj ? $bg_obj : SPBWC_PB_ASSETS_URL . 'images/placeholder.png';
@@ -895,7 +918,7 @@ if (!class_exists('STORELLY_FRONTEND_OPTIONS')) {
         }
         public function order_line_item($item, $cart_item_key, $values) {
             if (isset($values['pcpb_meta'])) {
-                $num_decimals = absint(wc_get_price_decimals());
+                $num_decimals = SPBWC_Storelly_PB_Util::spbwc_get_option_decimals();
                 foreach ($values['pcpb_meta']['option_price']['fields'] as $field) {
                     if (!isset($field['published']) || $field['published'] == 'y') {
                         $price = floatval($field['price']) >= 0 ? '+' . wc_price($field['price'], array('decimals' => $num_decimals)) : wc_price($field['price'], array('decimals' => $num_decimals));
@@ -969,7 +992,7 @@ if (!class_exists('STORELLY_FRONTEND_OPTIONS')) {
         }
         public function get_item_data($item_data, $cart_item) {
             if (isset($cart_item['pcpb_meta'])) {
-                $num_decimals = absint(wc_get_price_decimals());
+                $num_decimals = SPBWC_Storelly_PB_Util::spbwc_get_option_decimals();
                 foreach ($cart_item['pcpb_meta']['option_price']['fields'] as $field) {
                     if (!isset($field['published']) || $field['published'] == 'y') {
                         $price = floatval($field['price']) >= 0 ? '+' . wc_price($field['price'], array('decimals' =>  $num_decimals)) : wc_price($field['price'], array('decimals' => $num_decimals));
@@ -1031,7 +1054,7 @@ if (!class_exists('STORELLY_FRONTEND_OPTIONS')) {
             return $arr;
         }
         public function format_price($price) {
-            $num_decimals = absint(wc_get_price_decimals());
+            $num_decimals = SPBWC_Storelly_PB_Util::spbwc_get_option_decimals();
             $price = round($price, $num_decimals);
             return $price;
         }
