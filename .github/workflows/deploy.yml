@@ -1,0 +1,31 @@
+name: Deploy to WordPress.org
+
+# Chạy khi push Git tag dạng "1.2.6", "1.3.0"...
+on:
+  push:
+    tags:
+      - "[0-9]+.[0-9]+.[0-9]+"
+
+jobs:
+  release:
+    name: Deploy to WordPress.org SVN
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: WordPress.org Plugin Deploy
+        id: deploy
+        uses: 10up/action-wordpress-plugin-deploy@stable
+        with:
+          generate-zip: true
+        env:
+          SVN_USERNAME: ${{ secrets.SVN_USERNAME }}
+          SVN_PASSWORD: ${{ secrets.SVN_PASSWORD }}
+          SLUG: storelly-product-builder-for-woocommerce
+
+      - name: Upload release ZIP as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: storelly-${{ github.ref_name }}
+          path: ${{ github.workspace }}/${{ github.event.repository.name }}.zip

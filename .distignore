@@ -1,0 +1,23 @@
+# File/thư mục KHÔNG đẩy lên wordpress.org (chỉ phục vụ dev)
+.git
+.github
+.claude
+.distignore
+CLAUDE.md
+AUDIT-WPORG.md
+node_modules
+tests
+.editorconfig
+.gitignore
+phpcs.xml
+phpcs.xml.dist
+phpunit.xml
+phpunit.xml.dist
+composer.json
+composer.lock
+package.json
+package-lock.json
+webpack.config.js
+README.md
+*.map
+.DS_Store
