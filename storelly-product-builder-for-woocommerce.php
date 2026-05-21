@@ -86,6 +86,26 @@ require_once(SPBWC_PB_PLUGIN_DIR .  'includes/class-printcart-import-schema.php'
 require_once(SPBWC_PB_PLUGIN_DIR .  'includes/class-license-manager.php');
 require_once(SPBWC_PB_PLUGIN_DIR .  'includes/class-product-exporter.php');
 
+/* Designer marketplace module — adapted from pc-designer "launcher".
+ * Bridge loads first so its constant aliases and helper stubs are
+ * available when the launcher classes parse. Marketplace classes are
+ * always parsed (cheap; coexistence-guarded), but the launcher only
+ * attaches WP/WC hooks when get_option('spbwc_marketplace_enabled') === 'yes'. */
+require_once(SPBWC_PB_PLUGIN_DIR .  'includes/marketplace-bridge.php');
+require_once(SPBWC_PB_PLUGIN_DIR .  'includes/marketplace/class-marketplace-io.php');
+require_once(SPBWC_PB_PLUGIN_DIR .  'includes/marketplace/class-marketplace-design-store.php');
+require_once(SPBWC_PB_PLUGIN_DIR .  'includes/marketplace/class-marketplace-settings-adapter.php');
+require_once(SPBWC_PB_PLUGIN_DIR .  'includes/settings/launcher.php');
+require_once(SPBWC_PB_PLUGIN_DIR .  'includes/launcher/util.php');
+require_once(SPBWC_PB_PLUGIN_DIR .  'includes/launcher/class.designer.php');
+require_once(SPBWC_PB_PLUGIN_DIR .  'includes/launcher/class.withdraw.php');
+require_once(SPBWC_PB_PLUGIN_DIR .  'includes/launcher/class.design.php');
+require_once(SPBWC_PB_PLUGIN_DIR .  'includes/launcher/class.generate.preview.process.php');
+require_once(SPBWC_PB_PLUGIN_DIR .  'includes/launcher/class.launcher.php');
+if ( class_exists( 'SPBWC_Marketplace' ) ) {
+    SPBWC_Marketplace::get_instance()->init();
+}
+
 
 register_activation_hook(__FILE__, array('SPBWC_Storelly_Product_Builder_API', 'spbwc_generate_key'));
 
