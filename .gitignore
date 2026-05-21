@@ -1,0 +1,3 @@
+# Claude Code worktrees (used by parallel sub-agents during development).
+# Not part of the plugin package; never tracked.
+.claude/worktrees/
