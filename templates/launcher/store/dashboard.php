@@ -9,13 +9,13 @@
             </div>
             <div>
                 <div class="nbdl-dashboard-box">
-                    <span><?php esc_html_e('Total', 'storelly-product-builder-for-woocommerce'); ?></span> <span><?php echo( $designs['all'] ); ?></span>
+                    <span><?php esc_html_e('Total', 'storelly-product-builder-for-woocommerce'); ?></span> <span><?php echo esc_html( absint( $designs['all'] ) ); ?></span>
                 </div>
                 <div class="nbdl-dashboard-box">
-                    <span><?php esc_html_e('Approved', 'storelly-product-builder-for-woocommerce'); ?></span> <span><?php echo( $designs['approved'] ); ?></span>
+                    <span><?php esc_html_e('Approved', 'storelly-product-builder-for-woocommerce'); ?></span> <span><?php echo esc_html( absint( $designs['approved'] ) ); ?></span>
                 </div>
                 <div class="nbdl-dashboard-box">
-                    <span><?php esc_html_e('Pending', 'storelly-product-builder-for-woocommerce'); ?></span> <span><?php echo( $designs['pending'] ); ?></span>
+                    <span><?php esc_html_e('Pending', 'storelly-product-builder-for-woocommerce'); ?></span> <span><?php echo esc_html( absint( $designs['pending'] ) ); ?></span>
                 </div>
             </div>
         </div>
@@ -25,7 +25,7 @@
             </div>
             <div>
                 <div class="nbdl-dashboard-box">
-                    <span><?php esc_html_e('Total', 'storelly-product-builder-for-woocommerce'); ?></span> <span><?php echo( $sales ); ?></span>
+                    <span><?php esc_html_e('Total', 'storelly-product-builder-for-woocommerce'); ?></span> <span><?php echo esc_html( absint( $sales ) ); ?></span>
                 </div>
             </div>
         </div>
@@ -51,8 +51,8 @@
         var nbdlChart = new Chart(ctx, {
             type: 'line',
             data: {
-                labels: <?php echo json_encode( $report['labels'] ); ?>,
-                datasets: <?php echo json_encode( $report['datasets'] ); ?>
+                labels: <?php echo wp_json_encode( $report['labels'] ); ?>,
+                datasets: <?php echo wp_json_encode( $report['datasets'] ); ?>
             },
             options: {
                 responsive: true,

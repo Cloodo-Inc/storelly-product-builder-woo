@@ -27,12 +27,12 @@
     </div>
     <div class="woocommerce-pagination woocommerce-pagination--without-numbers woocommerce-Pagination">
         <?php if( $prev_page != '' ): ?>
-            <a class="woocommerce-button woocommerce-button--previous woocommerce-Button woocommerce-Button--previous button" href="<?php echo( $prev_page ); ?>" >
+            <a class="woocommerce-button woocommerce-button--previous woocommerce-Button woocommerce-Button--previous button" href="<?php echo esc_url( $prev_page ); ?>" >
                 <?php esc_html_e( 'Previous', 'storelly-product-builder-for-woocommerce' ); ?>
             </a>
         <?php endif; ?>
         <?php if( $next_page != '' ): ?>
-            <a class="woocommerce-button woocommerce-button--previous woocommerce-Button woocommerce-Button--next button" href="<?php echo( $next_page ); ?>" >
+            <a class="woocommerce-button woocommerce-button--previous woocommerce-Button woocommerce-Button--next button" href="<?php echo esc_url( $next_page ); ?>" >
                 <?php esc_html_e( 'Next', 'storelly-product-builder-for-woocommerce' ); ?>
             </a>
         <?php endif; ?>

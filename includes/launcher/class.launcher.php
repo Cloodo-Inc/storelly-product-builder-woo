@@ -563,9 +563,17 @@ class SPBWC_Marketplace{
         endif;
     }
     public function nbdl_update_designer_status(){
-        $user_id    = isset( $_POST['id'] ) ? absint( sanitize_text_field($_POST['id']) ) : 0;
-        $type       = isset( $_POST['type'] ) ? sanitize_text_field($_POST['type']) : '';
-        $value      = isset( $_POST['value'] ) ? sanitize_text_field($_POST['value']) : '';
+        // Permission: only admins can toggle designer status.
+        if ( ! current_user_can( 'manage_options' ) ) {
+            wp_send_json_error( array( 'message' => __( 'Permission denied.', 'storelly-product-builder-for-woocommerce' ) ), 403 );
+        }
+        $nonce = isset( $_REQUEST['_wpnonce'] ) ? sanitize_text_field( wp_unslash( $_REQUEST['_wpnonce'] ) ) : '';
+        if ( ! wp_verify_nonce( $nonce, 'wp_rest' ) ) {
+            wp_send_json_error( array( 'message' => __( 'Invalid nonce.', 'storelly-product-builder-for-woocommerce' ) ), 403 );
+        }
+        $user_id    = isset( $_POST['id'] ) ? absint( sanitize_text_field( wp_unslash( $_POST['id'] ) ) ) : 0;
+        $type       = isset( $_POST['type'] ) ? sanitize_text_field( wp_unslash( $_POST['type'] ) ) : '';
+        $value      = isset( $_POST['value'] ) ? sanitize_text_field( wp_unslash( $_POST['value'] ) ) : '';
         $result     = array(
             'flag'  => 0
         );

@@ -45,7 +45,7 @@
                             <?php esc_html_e('Accept extension: png, jpg( jpeg )', 'storelly-product-builder-for-woocommerce'); ?>
                         </div>
                         <div class="nbdl-uf-sidebar-section-upload __product-preview">
-                            <input type="file" data-check="product_preview" data-max-size="<?php echo( $max_upload_size ); ?>" accept=".png, .jpg, .jpeg" name="nbdl-preview"/>
+                            <input type="file" data-check="product_preview" data-max-size="<?php echo esc_attr( $max_upload_size ); ?>" accept=".png, .jpg, .jpeg" name="nbdl-preview"/>
                             <span class="nbdl-upload-warning"><?php esc_html_e('Please check file extension or file size!', 'storelly-product-builder-for-woocommerce'); ?></span>
                         </div>
                     </div>
@@ -58,7 +58,7 @@
                             <?php esc_html_e('Compress all necessary files( PSD, AI, SVG, fonts... ) in one ZIP file.', 'storelly-product-builder-for-woocommerce'); ?>
                         </div>
                         <div class="nbdl-uf-sidebar-section-upload __design">
-                            <input type="file" data-check="design" data-max-size="<?php echo( $max_upload_size ); ?>" accept=".zip" name="nbdl-design-file" />
+                            <input type="file" data-check="design" data-max-size="<?php echo esc_attr( $max_upload_size ); ?>" accept=".zip" name="nbdl-design-file" />
                             <span class="nbdl-upload-warning"><?php esc_html_e('Please check file extension or file size!', 'storelly-product-builder-for-woocommerce'); ?></span>
                         </div>
                     </div>
@@ -73,7 +73,7 @@
                         <div class="nbdl-uf-side-preview-upload">
                             <div class="nbdl-uf-side-preview-name"><?php esc_html_e('Side name', 'storelly-product-builder-for-woocommerce'); ?></div>
                             <div class="nbdl-uf-sidebar-section-upload">
-                                <input type="file" data-check="side_previews" data-max-size="<?php echo( $max_upload_size ); ?>" accept=".png, .jpg, .jpeg" name="nbdl-side-preview[]"/>
+                                <input type="file" data-check="side_previews" data-max-size="<?php echo esc_attr( $max_upload_size ); ?>" accept=".png, .jpg, .jpeg" name="nbdl-side-preview[]"/>
                                 <span class="nbdl-upload-warning"><?php esc_html_e('Please check file extension or file size or file dimension!', 'storelly-product-builder-for-woocommerce'); ?></span>
                             </div>
                         </div>
@@ -104,7 +104,7 @@
                             <?php else: ?>
                             <select name="nbdl-side-tags" id="nbdl-side-tags" multiple data-placeholder="<?php esc_html_e('Search tag name', 'storelly-product-builder-for-woocommerce'); ?>" >
                             <?php foreach( $tags as $tag ): ?>
-                                <option value="<?php echo( $tag['term_id'] ); ?>" ><?php echo( $tag['name'] ); ?></option>
+                                <option value="<?php echo esc_attr( $tag['term_id'] ); ?>" ><?php echo esc_html( $tag['name'] ); ?></option>
                             <?php endforeach; ?>
                             </select>
                             <?php endif; ?>
@@ -149,20 +149,20 @@
                         <div class="nbdl-stage-design-base-wrap">
                             <div class="nbdl-stage-design-base">
                                 <div class="nbdl-product-color-base"></div>
-                                <div class="nbdl-product-base default" data-default="<?php echo NBDESIGNER_PLUGIN_URL . 'assets/images/'; ?>g_template.png" >
-                                    <img src="<?php echo NBDESIGNER_PLUGIN_URL . 'assets/images/'; ?>g_template.png" class="nbdl-product-base-img"/>
-                                    <img src="<?php echo NBDESIGNER_PLUGIN_URL . 'assets/images/'; ?>spinner.svg" class="nbdl-product-base-loading"/>
+                                <div class="nbdl-product-base default" data-default="<?php echo esc_url( NBDESIGNER_PLUGIN_URL . 'assets/images/g_template.png' ); ?>" >
+                                    <img src="<?php echo esc_url( NBDESIGNER_PLUGIN_URL . 'assets/images/g_template.png' ); ?>" class="nbdl-product-base-img"/>
+                                    <img src="<?php echo esc_url( NBDESIGNER_PLUGIN_URL . 'assets/images/spinner.svg' ); ?>" class="nbdl-product-base-loading"/>
                                 </div>
                                 <div class="nbdl-content-design-area">
                                     <div class="nbdl-design-area-info">i
                                         <div class="nbdl-design-area-info-tip">
-                                            <?php esc_html_e('Design area', 'storelly-product-builder-for-woocommerce'); ?> <span class="nbdl-design-area-width"></span> &times; <span class="nbdl-design-area-height"></span> <?php echo( $unit ); ?>
+                                            <?php esc_html_e('Design area', 'storelly-product-builder-for-woocommerce'); ?> <span class="nbdl-design-area-width"></span> &times; <span class="nbdl-design-area-height"></span> <?php echo esc_html( $unit ); ?>
                                         </div>
                                     </div>
                                 </div>
                                 <div class="nbdl-product-overlay default">
-                                    <img src="<?php echo NBDESIGNER_PLUGIN_URL . 'assets/images/'; ?>g_template.png" class="nbdl-product-overlay-img"/>
-                                    <img src="<?php echo NBDESIGNER_PLUGIN_URL . 'assets/images/'; ?>spinner.svg" class="nbdl-product-overlay-loading"/>
+                                    <img src="<?php echo esc_url( NBDESIGNER_PLUGIN_URL . 'assets/images/g_template.png' ); ?>" class="nbdl-product-overlay-img"/>
+                                    <img src="<?php echo esc_url( NBDESIGNER_PLUGIN_URL . 'assets/images/spinner.svg' ); ?>" class="nbdl-product-overlay-loading"/>
                                 </div>
                             </div>
                         </div>
@@ -189,11 +189,11 @@
                                         <div class="nbdl-realated-product-preview">
                                             <div class="nbdl-realated-product-color-base"></div>
                                             <div class="nbdl-realated-product-base" >
-                                                <img src="<?php echo NBDESIGNER_PLUGIN_URL . 'assets/images/'; ?>spinner.svg" class="nbdl-realated-product-base-loading"/>
+                                                <img src="<?php echo esc_url( NBDESIGNER_PLUGIN_URL . 'assets/images/spinner.svg' ); ?>" class="nbdl-realated-product-base-loading"/>
                                             </div>
                                             <div class="nbdl-realated-content-design-area"></div>
                                             <div class="nbdl-realated-product-overlay">
-                                                <img src="<?php echo NBDESIGNER_PLUGIN_URL . 'assets/images/'; ?>spinner.svg" class="nbdl-realated-product-overlay-loading"/>
+                                                <img src="<?php echo esc_url( NBDESIGNER_PLUGIN_URL . 'assets/images/spinner.svg' ); ?>" class="nbdl-realated-product-overlay-loading"/>
                                             </div>
                                         </div>
                                     </div>
@@ -210,14 +210,14 @@
                         </div>
                     </div>
                     <div class="nbdl-related-loading" id="nbdl-related-loading">
-                        <img src="<?php echo NBDESIGNER_PLUGIN_URL . 'assets/images/'; ?>spinner.svg"/>
+                        <img src="<?php echo esc_url( NBDESIGNER_PLUGIN_URL . 'assets/images/spinner.svg' ); ?>"/>
                         <span><?php esc_html_e('Processing...', 'storelly-product-builder-for-woocommerce'); ?></span>
                     </div>
                 </div>
             </div>
         </div>
         <div class="nbdl-loading" id="nbdl-loading">
-            <img src="<?php echo NBDESIGNER_PLUGIN_URL . 'assets/images/'; ?>spinner.svg"/>
+            <img src="<?php echo esc_url( NBDESIGNER_PLUGIN_URL . 'assets/images/spinner.svg' ); ?>"/>
             <span><?php esc_html_e('Processing...', 'storelly-product-builder-for-woocommerce'); ?><span class="nbdl-submit-indicator"></span></span>
         </div>
     </div>

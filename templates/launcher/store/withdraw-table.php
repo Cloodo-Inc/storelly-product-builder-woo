@@ -14,7 +14,7 @@
         <tbody>
             <?php foreach ( $requests as $request ) { ?>
             <tr class="order">
-                <td data-title="<?php esc_html_e('Amount', 'storelly-product-builder-for-woocommerce'); ?>"><?php echo wc_price( $request->amount ); ?></td>
+                <td data-title="<?php esc_html_e('Amount', 'storelly-product-builder-for-woocommerce'); ?>"><?php echo wp_kses_post( wc_price( $request->amount ) ); ?></td>
                 <td data-title="<?php esc_html_e('Status', 'storelly-product-builder-for-woocommerce'); ?>">
                     <?php
                         if ( $request->status == 0 ) {
