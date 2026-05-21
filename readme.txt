@@ -4,8 +4,8 @@ Donate link: https://storelly.com/
 Tags: product builder, product customize, product customizer, woocommerce custom product
 Requires at least: 4.7
 Tested up to: 6.9.4
-Stable tag: 1.2.6
-Version: 1.2.6
+Stable tag: 1.2.7
+Version: 1.2.7
 Requires PHP: 7.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -70,7 +70,21 @@ This plugin connects to the following external services:
     - Terms of Service: https://app.storelly.com/terms
     - Privacy Policy: https://app.storelly.com/privacy
 
-- **Google Fonts API (`https://fonts.googleapis.com`)**  
+- **Storelly demo product data (`https://app.storelly.com/product-data/data/data.json`)**
+  - **What it is used for**: Used by the admin "Global Import" / demo product importer screen to fetch a sample catalogue (`data.json`) so the store owner can preview and import demo products into WooCommerce.
+  - **What data is sent and when**: When a logged-in administrator opens the Global Import page or clicks "Import demo products", the plugin issues an anonymous `GET` request to the URL above. No site URL, user account information, order data or PII is sent in the request body; the only identifying information is the standard HTTP headers (User-Agent, IP) that any outbound HTTP request includes.
+  - **Service owner and policies**: This service is operated by Storelly. Please review policies:
+    - Terms of Service: https://app.storelly.com/terms
+    - Privacy Policy: https://app.storelly.com/privacy
+
+- **Vue.js via unpkg CDN (`https://unpkg.com/vue@3.4.27/dist/vue.global.prod.js`)**
+  - **What it is used for**: The Vue.js 3 runtime is loaded from the public unpkg CDN to power the admin "Global Import" screen (`includes/class-global-import-admin.php`).
+  - **What data is sent and when**: When an administrator opens the Global Import admin page, their browser requests the Vue.js script from unpkg. This is a standard anonymous browser asset request — no user account information, order data, or PII is sent by the plugin. Only the request headers normally included by the browser (User-Agent, IP, Referer) are visible to the CDN.
+  - **Service owner and policies**: unpkg is a public open-source CDN operated by Cloudflare on behalf of the unpkg project. Please review policies:
+    - unpkg: https://unpkg.com/
+    - Vue.js (project home): https://vuejs.org/
+
+- **Google Fonts API (`https://fonts.googleapis.com`)**
   - **What it is used for**: Used to load custom web fonts for the admin interface styling.  
   - **What data is sent and when**: When admin users access the plugin settings pages, their browser automatically requests font files (Poppins font family) from Google's CDN. This is a standard browser request that may include the user's IP address and browser information as part of normal HTTP headers.  
   - **Service owner and policies**: This service is provided by Google LLC. Please review Google Fonts policies:
@@ -86,6 +100,11 @@ This plugin connects to the following external services:
 3. Storelly settings page with API keys and sync options
 
 == Changelog ==
+= 1.2.7 =
+* Compatibility: replace hardcoded Asia/Ho_Chi_Minh timezone with site-configured wp_timezone_string().
+* Compliance: declare unpkg.com (Vue.js CDN) and Storelly demo-data endpoint in External services.
+* Designer Marketplace module is bundled but disabled by default; enable via spbwc_marketplace_enabled option.
+
 = 1.2.6 =
 * Add Category-Based Options & Enhance Import Reliability
 
@@ -114,4 +133,8 @@ This plugin connects to the following external services:
 * Initial release.
 
 == Upgrade Notice ==
+= 1.2.7 =
+Replaces hardcoded timezone with the site's configured timezone and declares additional external services in readme.
+
+= 1.0.0 =
 First stable public version.

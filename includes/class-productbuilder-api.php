@@ -55,14 +55,20 @@ if (!class_exists('SPBWC_Storelly_Product_Builder_API')) {
                     "city" => get_user_meta($current_user->ID, 'billing_city', true) ? sanitize_text_field(get_user_meta($current_user->ID, 'billing_city', true)) : "city", 
                     "zip_code" => get_user_meta($current_user->ID, 'billing_postcode', true) ? sanitize_text_field(get_user_meta($current_user->ID, 'billing_postcode', true)) : '100000',
                     "landmark" => get_user_meta($current_user->ID, 'billing_address_1', true) ? sanitize_text_field(get_user_meta($current_user->ID, 'billing_address_1', true)) : 'address',
-                    "time_zone" => "Asia/Ho_Chi_Minh", 
+                    "time_zone" => wp_timezone_string(),
                     "surname" => get_user_meta($current_user->ID, 'billing_last_name', true) ? sanitize_text_field(get_user_meta($current_user->ID, 'billing_last_name', true)) : 'lastname',
                     "email" => sanitize_email($current_user->user_email),
                     "first_name" => get_user_meta($current_user->ID, 'billing_first_name', true) ? sanitize_text_field(get_user_meta($current_user->ID, 'billing_first_name', true)) : 'firstname',
                     "username" => $user_name,
                     "password" => $user_name,
                     "fy_start_month" => gmdate('n'),
-                    "accounting_method" => "phuong_phap_1", 
+                    /**
+                     * Filter the accounting method sent to the Storelly Dashboard on registration.
+                     *
+                     * @since 1.2.7
+                     * @param string $accounting_method Default 'standard'.
+                     */
+                    "accounting_method" => apply_filters( 'spbwc_storelly_accounting_method', 'standard' ),
                     "woocommerce_api_settings" => array(
                         "woocommerce_app_url" => esc_url(home_url()),
                         "woocommerce_consumer_key" => isset($option['consumer_key']) ? sanitize_text_field($option['consumer_key']) : '',
