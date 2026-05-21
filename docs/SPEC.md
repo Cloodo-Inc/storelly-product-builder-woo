@@ -7,7 +7,7 @@
 > **Prefix**: `spbwc_` / `SPBWC_`
 > **License**: GPL v2 or later
 
-This document is a comprehensive specification of the plugin: architecture, domain model, modules, APIs, integrations, security, and storage. It is intended as a reference for maintainers, integrators, and reviewers.
+Scope: architecture, domain model, AJAX/REST surface, external integrations, security, lifecycle, and on-disk storage layout. Audience: maintainers and integrators.
 
 ---
 
@@ -41,6 +41,8 @@ Responsibilities:
 7. Instantiate `SPBWC_Storelly_Product_Builder_Backend` and call `spbwc_init()` to dispatch admin/frontend wiring.
 
 ### 2.2 Module Map (`includes/`)
+
+All files below live in `includes/`. The bootstrap eagerly `require_once`'s most of them; `class-download-image.php` is loaded lazily inside `class-admin-options.php:216` when the AJAX image-download flow runs.
 
 | File | Class | Role |
 |------|-------|------|
@@ -85,28 +87,29 @@ Defined in the bootstrap file:
 
 | Entity | Storage | Notes |
 |--------|---------|-------|
-| **Pricing Option (Field Group)** | Custom table `wp_storelly_product_builder_options` | A reusable group of customizable fields linked to one or more products / categories. |
-| **Field** | JSON column inside Pricing Option | Typed (dropdown / radio / swatch / input / advanced-dropdown / label / xlabel) with attributes, price, validation. |
+| **Pricing Option** | Custom table `wp_storelly_product_builder_options` | A reusable group of customizable fields linked to one or more products / categories. |
+| **Field** | JSON serialized in the `fields` column of a Pricing Option | Typed (dropdown / radio / swatch / input / advanced-dropdown / label / xlabel) with attributes, price, validation. |
 | **Product** | Standard `wp_posts` (`product`) | Linked to a Pricing Option via post meta `_nbdesigner_option`. |
 | **Customer Design** | Folder under `wp-uploads/storelly-product-builder/designs/{folder_key}/` | Files: `config.json`, `design_output.json`, `used_font.json`, `frame_{n}_svg.svg`, generated PDFs in `customer-pdfs/`. |
-| **Cart/Order Item** | WC native + line-item meta | Meta keys: `_pcpb_folder` (design folder ID), `_pcpb_item_pb_key` (build session key). |
+| **Cart/Order Item** | WC native + line-item meta | Meta keys: `_pcpb_folder`, `_pcpb_options`, `_pcpb_field`, `_pcpb_option_price`, `_pcpb_original_price` (see §5.3). |
 | **Quote** | WC order with custom statuses (`wc-quote-pending`, `wc-quote-accepted`, …) | Created via Request-Quote form. |
 | **License** | `wp_options` → `spbwc_license_data` | Cached tier, limits, sync timestamp. |
 | **API Keys** | `wp_options` → `spbwc_connect_api_keys` | `consumer_key`, `consumer_secret` (WC REST), `unauth_token` (Storelly), `business_id`. |
 
 ### 3.2 Custom Table — `wp_storelly_product_builder_options`
 
-Created in `class-admin-options.php` on activation. Columns (typical):
+Created via `dbDelta` in `class-admin-options.php:347` whenever `SPBWC_PB_VERSION` differs from the stored `spbwc_version_plugin` option. Columns:
 
-- `id` BIGINT PK
-- `title` VARCHAR
-- `published` TINYINT
-- `apply_for` VARCHAR — scope: products / categories
-- `product_ids` LONGTEXT — serialized array of WC product IDs
-- `product_cats` LONGTEXT — serialized array of category term IDs
+- `id` BIGINT(20) UNSIGNED AUTO_INCREMENT PRIMARY KEY
+- `title` TEXT NOT NULL
+- `published` TINYINT(1) NOT NULL DEFAULT 1
+- `product_ids` TEXT NULL — serialized array of WC product IDs
+- `apply_for` VARCHAR(10) NOT NULL DEFAULT `'p'` — scope (`p` = products, `c` = categories)
+- `product_cats` TEXT NULL — serialized array of category term IDs
+- `created`, `modified` DATETIME NOT NULL
+- `created_by`, `modified_by` BIGINT(20) NULL — user IDs
 - `fields` LONGTEXT — serialized JSON of field definitions
-- `created`, `modified` DATETIME
-- `created_by`, `modified_by` BIGINT (user IDs)
+- `builder` TEXT NULL — builder configuration blob
 
 Legacy compatibility: `class-printcart-import-schema.php` may create `wp_nbdesigner_options`, `wp_nbdesigner_templates`, `wp_nbdesigner_mydesigns`, `wp_nbdesigner_user_designs` if a PrintCart import is run.
 
@@ -125,7 +128,7 @@ wp-uploads/storelly-product-builder/
 └── fonts/                       # custom-installed fonts
 ```
 
-`{folder_key}` is derived from an MD5 hash bound to the cart/build session and stored as `_pcpb_item_pb_key`.
+`{folder_key}` is derived from an MD5 hash bound to the cart/build session and persisted as the `_pcpb_folder` order-item meta value.
 
 ---
 
@@ -168,6 +171,8 @@ Top-level menu **Storelly Product Builder** with submenus:
 
 ## 5. Frontend Product Builder
 
+End-to-end flow on a designable WooCommerce product page: the plugin (1) renders the pricing-option fields and, where applicable, the Fabric.js design canvas; (2) captures the customer's selections and uploads; (3) persists a *design folder* on disk; (4) attaches a reference to that folder plus the option payload to the cart line item; (5) materialises the same data as order-item meta at checkout.
+
 ### 5.1 Rendering
 
 Hook: `woocommerce_before_single_product`. If the product is linked to a Pricing Option (`_nbdesigner_option` meta), the plugin renders:
@@ -201,7 +206,12 @@ Field properties (per `fields` JSON entry):
 - `woocommerce_add_to_cart_validation` → verify nonce `spbwc_add_to_cart_nonce`, required fields.
 - `woocommerce_add_cart_item_data` → attach selected option payload + design folder to the cart item.
 - `woocommerce_get_item_data` → display selections in cart/checkout.
-- `woocommerce_checkout_create_order_line_item` → persist `_pcpb_folder`, `_pcpb_item_pb_key`, option selections as order item meta.
+- `woocommerce_checkout_create_order_line_item` → persist the order-item meta keys (`class-frontend-options.php:947-951`):
+  - `_pcpb_folder` — design folder key.
+  - `_pcpb_options` — serialized selected field values (`wp_slash`-escaped JSON).
+  - `_pcpb_field` — option/field id for the line item.
+  - `_pcpb_option_price` — surcharge applied by the options.
+  - `_pcpb_original_price` — base product price before surcharges.
 - `woocommerce_cart_calculate_fees` → apply price modifiers (fixed/percentage).
 - `woocommerce_order_item_meta_end` and `woocommerce_spbwc_admin_order_item_thumbnail` → render design thumbnail in order views.
 
@@ -211,12 +221,25 @@ AJAX `wp_ajax_(nopriv_)spbwc_save_product_builder_design`:
 
 1. Verify nonce `spbwc_save_design_action`.
 2. Accept multipart files: `design` (preview), `config` (config.json), `used_font`, `design_output`, `frame_{n}` (per view in config.json).
-3. Validate each upload via `spbwc_sanitize_file_upload()` — MIME + content checks for JSON / SVG / image.
+3. Validate each upload via `spbwc_sanitize_file_upload()` (see §11.4) — MIME + content checks for JSON / SVG / image.
 4. Write to `SPBWC_PB_CUSTOMER_DIR/{key}/`.
 5. Generate a thumbnail preview.
 6. Return the folder key, which the frontend stores so it can be sent on add-to-cart.
 
 Customer asset upload: AJAX `spbwc_customer_upload` — same nonce, restricted MIME types (`image/jpeg`, `image/png`, `image/gif`, `image/svg+xml`), processed with `wp_handle_sideload`.
+
+### 5.5 JavaScript Architecture
+
+Frontend scripts are enqueued in `class-script-hook.php`. Key modules under `static/js/`:
+
+- `app-product-builder.js` — Fabric.js canvas editor (SVG layers, fonts, export).
+- `option-builder.js` — renders and reacts to Pricing Option field changes on the product page; drives price recalculation.
+- `storelly-general.js` — shared frontend utilities.
+- `admin-options.js` — admin Pricing Option editor (field CRUD, conditional logic).
+- `global-import-app.js` — global import workflow UI.
+- `manager-fonts.js` — admin font manager.
+
+Vendor libraries are split across `static/libs/` (Fabric.js, Snap.svg, FontFaceObserver, SweetAlert, builderproductag) and `static/js/` (Spectrum.js, jQuery TipTip).
 
 ---
 
@@ -241,11 +264,43 @@ Customer asset upload: AJAX `spbwc_customer_upload` — same nonce, restricted M
 | `spbwc_license_activate` | `manage_woocommerce` |
 | `spbwc_license_sync` | `manage_woocommerce` |
 | `spbwc_export_product_reference` | `manage_woocommerce` |
-| `spbwc_global_import_upload` / `_list` / `_row_ids` / `_run` / `_log` | `manage_woocommerce` |
+| `spbwc_global_import_upload` | `manage_woocommerce` |
+| `spbwc_global_import_list` | `manage_woocommerce` |
+| `spbwc_global_import_row_ids` | `manage_woocommerce` |
+| `spbwc_global_import_run` | `manage_woocommerce` |
+| `spbwc_global_import_log` | `manage_woocommerce` |
 
 ### 6.3 REST API
 
-`class-global-import.php` registers REST routes (namespace `storelly/v1` or similar) for the global import workflow: upload, list manifests, trigger import, fetch logs.
+`class-global-import.php` registers REST routes for the global import workflow: upload, list manifests, trigger import, fetch logs.
+
+### 6.4 Hooks for Integrators
+
+The plugin exposes its own actions and filters so themes/other plugins can extend behavior.
+
+**Filters** (in `class-frontend-options.php`):
+
+| Filter | Purpose |
+|--------|---------|
+| `storelly_adjusted_price` | Override the price applied to a customized cart item. |
+| `storelly_need_change_cart_item_price` | Decide whether to overwrite the cart item price. |
+| `storelly_cart_item_thumbnail` | Replace the cart/order item thumbnail with a design preview. |
+| `storelly_cart_item_name` | Override the cart item display name. |
+| `storelly_show_edit_option_link_in_cart` | Show/hide the "Edit options" link in the cart. |
+| `storelly_redirect_url` | Override the post-add-to-cart redirect URL. |
+| `spbwc_locate_template` | Template override resolver — themes may ship overrides in `pc-product-builder/` under the theme. |
+
+**Actions**:
+
+| Action | Fired when |
+|--------|-----------|
+| `spbwc_pb_menu` | Inside the admin menu registration — add custom submenus. |
+| `spbwc_before_save_product_builder_design` | Just before customer design files are written. |
+| `spbwc_after_save_product_builder_design` | After customer design files are written. |
+| `spbwc_global_import_product_saved` | After each product is created/updated during global import. |
+| `spbwc_create_tables` | During install/upgrade — extension point for adding custom tables. |
+| `spbwc_init_files_and_folders` | During install/upgrade — extension point for creating extra directories. |
+| `spbwc_enqueue_script_custom` | After plugin assets are enqueued — extension point for additional scripts. |
 
 ---
 
@@ -254,9 +309,14 @@ Customer asset upload: AJAX `spbwc_customer_upload` — same nonce, restricted M
 ### 7.1 Cloud2Print PDF API
 
 - Base: `https://api.cloud2print.net`
-- Trigger: admin export of an order's design, or post-order sync.
-- Payload: a public HTML URL (hosted on the WP site, dynamically built from the SVG + fonts + CSS for the design) plus base64-encoded settings.
-- Response: a PDF stored under the design's `customer-pdfs/` folder.
+- Trigger: admin export of an order's design, or post-order sync to Storelly.
+- Workflow (`class-export-pdf.php:236-282`):
+  1. Materialise a standalone HTML page under `{design_folder}/pdf-templates/{key}.html` containing the design SVG, Google Font `@font-face` rules for the fonts in `used_font.json`, and an optional background.
+  2. Build a Cloud2Print request URL combining the URL-encoded public HTML URL with a base64-encoded JSON of page dimensions / DPI.
+  3. Cloud2Print fetches the HTML over HTTPS, renders, and returns the PDF binary.
+  4. Plugin writes the PDF to `{design_folder}/customer-pdfs/`.
+- Cleanup of `pdf-templates/` is not automatic; entries accumulate until manually removed.
+- The WP site must be reachable from the public internet for Cloud2Print to fetch the HTML.
 
 ### 7.2 Storelly Dashboard API
 
@@ -275,11 +335,21 @@ Customer asset upload: AJAX `spbwc_customer_upload` — same nonce, restricted M
 
 ### 7.4 WooCommerce Hooks Consumed
 
-Front: `woocommerce_before_single_product`, `woocommerce_add_to_cart_validation`, `woocommerce_add_cart_item_data`, `woocommerce_get_item_data`, `woocommerce_checkout_create_order_line_item`, `woocommerce_cart_calculate_fees`, `woocommerce_order_item_meta_end`.
+**Frontend / cart:**
+- `woocommerce_before_single_product` — render builder UI.
+- `woocommerce_add_to_cart_validation` — verify nonce and required fields.
+- `woocommerce_add_cart_item_data` — attach option payload to cart item.
+- `woocommerce_get_item_data` — display selections in cart/checkout.
+- `woocommerce_checkout_create_order_line_item` — persist order-item meta.
+- `woocommerce_cart_calculate_fees` — apply option-based surcharges.
+- `woocommerce_order_item_meta_end` — display design preview in cart/order views.
 
-Order: `woocommerce_order_status_*`, `woocommerce_thankyou`, `woocommerce_new_order` (for Storelly sync).
+**Order lifecycle (for Storelly sync):**
+- `woocommerce_order_status_*` — status transitions.
+- `woocommerce_thankyou` — post-checkout confirmation.
+- `woocommerce_new_order` — initial order creation.
 
-HPOS: declared compatible with `custom_order_tables`.
+**Compatibility:** HPOS (`custom_order_tables`) declared compatible at bootstrap.
 
 ### 7.5 PrintCart Import
 
@@ -303,6 +373,17 @@ Operations:
 - `SPBWC_License_Manager::sync_from_api()` — GET license status, overwrite `spbwc_license_data`.
 - Enforcement: admin UI gates new Pricing Option creation when the free product limit is reached.
 
+### 8.1 Caching Strategy
+
+Beyond the license cache, the plugin maintains several other caches:
+
+- Object cache `spbwc_published_options` — published Pricing Options (15-minute TTL).
+- Transient `spbwc_product_builder_{product_id}` — per-product → Pricing Option linkage.
+- Transient `spbwc_packages` — Storelly package catalogue (1-hour TTL).
+- Transient `spbwc_overview_stats` — admin overview stats (1-hour TTL).
+
+Whenever a Pricing Option is saved, all `_transient_spbwc_product_builder_%` rows are bulk-deleted to invalidate stale linkage caches.
+
 ---
 
 ## 9. Import / Export
@@ -317,6 +398,7 @@ Operations:
   2. List bundles (`spbwc_global_import_list`) and rows (`spbwc_global_import_row_ids`).
   3. Run import (`spbwc_global_import_run`) — creates products + linked Pricing Options.
   4. Fetch logs (`spbwc_global_import_log`).
+- Logs are appended line-by-line to `wp-uploads/global-import-exports/logs/{job_id}.log` while a job runs; the AJAX log endpoint streams the latest lines back to the admin UI.
 
 ### 9.2 Product Exporter (`class-product-exporter.php`)
 
@@ -340,6 +422,7 @@ Used for migrations from the legacy nbdesigner/PrintCart plugin family — see �
 - Renders a "Get Quote" CTA + modal on the product page (first name, last name, email, phone, message, quantity). Form fields stored in option `spbwc_quote_form_fields`.
 - AJAX `spbwc_submit_quote`: nonce-validated, creates a WC order with `wc-quote-pending` status.
 - Adds a **Quotes** endpoint to *My Account* (account menu item + endpoint registration) listing the customer's quotes and a quote detail page.
+- **Email notifications** (`class-request-quote.php:275-299`): on submission and on status change (accepted/rejected) the plugin sends plain-text emails via `wp_mail()` — one to the admin recipient configured under `spbwc_quote_settings['admin_email']` (falls back to the site's `admin_email`), and one to the customer if an address was supplied. Bodies are hard-coded; only the admin recipient is configurable.
 
 ---
 
@@ -393,15 +476,17 @@ Generated directories (designs, import bundles, uploads) include `index.php` and
 
 ### 12.2 JavaScript Libraries
 
-Loaded by `class-script-hook.php`, sourced under `static/libs/`:
+Loaded by `class-script-hook.php`. Vendor assets split between `static/libs/` and `static/js/`/`static/css/`:
 
-- **Fabric.js** — canvas-based design editor.
-- **Snap.svg 0.3.0** — SVG manipulation.
-- **Spectrum.js** — color picker.
-- **FontFaceObserver** — async web-font loading detection.
-- **FPDI** — PDF post-processing (referenced via readme; used by export flow).
+- **Fabric.js** (`static/libs/`) — canvas-based design editor.
+- **Snap.svg 0.3.0** (`static/libs/`) — SVG manipulation.
+- **FontFaceObserver** (`static/libs/`) — async web-font loading detection.
+- **SweetAlert** (`static/libs/`) — UI notifications.
+- **builderproductag** (`static/libs/`) — internal tag helper.
+- **Spectrum.js / Spectrum.css** (`static/js/`, `static/css/`) — color picker.
+- **jQuery TipTip** (`static/js/`) — tooltips.
 - **Animate.css**, **normalize.css** — styling.
-- **SweetAlert** — UI notifications.
+- **FPDI** — listed in readme third-party credits; **not** currently `require`'d by any PHP file in `includes/`. PDF generation goes through Cloud2Print (see §7.1).
 
 ### 12.3 External Services
 
@@ -417,11 +502,16 @@ WordPress option keys created/used by the plugin:
 
 | Option key | Purpose |
 |------------|---------|
-| `spbwc_pb_settings` | Main settings array (`enable_api_sync`, decimal places, …). |
+| `spbwc_pb_settings` | Main settings array (`enable_api_sync`, …). |
 | `spbwc_connect_api_keys` | WC REST keys + Storelly `unauth_token`, `business_id`. |
 | `spbwc_license_data` | Cached license tier + limits. |
 | `spbwc_quote_form_fields` | Quote form field definitions. |
-| `spbwc_pb_db_version` | Schema version (for migrations in `class-install.php`). |
+| `spbwc_quote_settings` | Quote workflow settings (admin recipient, etc.). |
+| `spbwc_version_plugin` | Installed plugin version — drives schema/install upgrade checks. |
+| `spbwc_number_of_decimals` | Override for price decimal places (falls back to WC setting). |
+| `spbwc_hide_add_cart_until_form_filled` | Hide *Add to cart* until required options are filled. |
+| `spbwc_product_builder_page_id` | Post ID of the builder landing page created on install. |
+| `spbwc_global_import_sessions` | Tracks in-flight global-import job state. |
 
 ---
 
@@ -437,7 +527,7 @@ WordPress option keys created/used by the plugin:
 
 ### 14.2 Upgrade
 
-`class-install.php` compares `SPBWC_PB_NUMBER_VERSION` against `spbwc_pb_db_version` and runs migrations as needed.
+On every admin load, `class-admin-options.php` compares `SPBWC_PB_VERSION` against the stored `spbwc_version_plugin` option. When they differ, `dbDelta` is re-run against the `wp_storelly_product_builder_options` schema (`class-admin-options.php:345-364`) and the `spbwc_create_tables` / `spbwc_init_files_and_folders` action hooks fire so other modules can ensure their own tables and data directories exist. `class-install.php` itself currently holds bootstrap helpers (page creation, capability assignment) rather than versioned migrations.
 
 ### 14.3 Order Processing
 
@@ -453,7 +543,8 @@ WordPress option keys created/used by the plugin:
 - The free tier hard-caps customizable products to 5 (enforced via license cache).
 - Cloud2Print expects the WP site to be reachable from the public internet (it fetches the design HTML over HTTPS).
 - Some legacy code paths still reference the `nbdesigner_*` schema for backward compatibility with PrintCart migrations.
-- HPOS is declared compatible but custom order item meta still uses the legacy keys (`_pcpb_folder`, `_pcpb_item_pb_key`).
+- HPOS is declared compatible but custom order-item meta still uses legacy `_pcpb_*` keys.
+- The plugin does **not** register custom post types, taxonomies, shortcodes, or cron events — it relies entirely on WooCommerce's native product/order entities extended with post meta and the custom Pricing Options table.
 
 ---
 
@@ -461,7 +552,10 @@ WordPress option keys created/used by the plugin:
 
 - **Pricing Option** — a group of customizable fields, reusable across products.
 - **Field** — one configurable input within a Pricing Option (dropdown, radio, …).
-- **Design** — the customer's saved customization for one cart line item, materialized as a folder of SVG + JSON files.
+- **Design** — the customer's saved customization for one cart line item, materialised as a folder of SVG + JSON files under `wp-uploads/storelly-product-builder/designs/{folder_key}/`.
+- **Folder key** — the MD5-derived identifier of a Design folder; stored as the `_pcpb_folder` order-item meta value.
 - **Frame** — one view/page of a design (front, back, …).
+- **`_pcpb_folder`** — order-item meta carrying the Folder key.
+- **`_pcpb_options`** — order-item meta carrying the serialized selected field values.
 - **Unauth Token** — opaque Storelly token used as `X-STORLY` header for dashboard sync.
 - **HPOS** — WooCommerce High-Performance Order Storage (custom order tables).
