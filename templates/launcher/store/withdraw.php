@@ -5,11 +5,11 @@
 <div class="nbdl-current-balance">
     <div>
         <?php esc_html_e('Current Balance:', 'storelly-product-builder-for-woocommerce'); ?>
-        <?php echo( $balance_display ); ?>
+        <?php echo wp_kses_post( $balance_display ); ?>
     </div>
     <div>
         <?php esc_html_e('Minimum Withdraw amount:', 'storelly-product-builder-for-woocommerce'); ?>
-        <?php echo( $min_withdraw ); ?>
+        <?php echo wp_kses_post( $min_withdraw ); ?>
     </div>
 </div>
 <div class="nbdl-withdraw-wrap">

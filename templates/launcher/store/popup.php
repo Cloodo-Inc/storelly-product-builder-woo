@@ -11,17 +11,17 @@
                 <?php 
                     foreach( $products as $product ):
                 ?>
-                <div class="nbdl-product-wrapper" data-id="<?php echo( $product['product_id'] ); ?>" data-upload="<?php echo( $product['allow_upload_solid'] ); ?>">
+                <div class="nbdl-product-wrapper" data-id="<?php echo esc_attr( $product['product_id'] ); ?>" data-upload="<?php echo esc_attr( $product['allow_upload_solid'] ); ?>">
                     <a>
                         <div class="nbdl-product-image-container">
-                            <img class="nbdl-product-img" src="<?php echo esc_url( $product['src'] ); ?>" alt="<?php echo( $product['name'] ); ?>" />
+                            <img class="nbdl-product-img" src="<?php echo esc_url( $product['src'] ); ?>" alt="<?php echo esc_attr( $product['name'] ); ?>" />
                         </div>
                         <button class="button nbdl-start-this-btn">
                             <span><?php esc_html_e('Start with this', 'storelly-product-builder-for-woocommerce'); ?></span>
                         </button>
                     </a>
                     <div class="nbdl-product-text">
-                        <div class="nbdl-product-name"><?php echo( $product['name'] ); ?></div>
+                        <div class="nbdl-product-name"><?php echo esc_html( $product['name'] ); ?></div>
                     </div>
                 </div>
                 <?php endforeach; ?>

@@ -6,20 +6,20 @@ wp_enqueue_media();
 ?>
 <form method="post" id="nbd-artist-form"  action="" class="nbd-artist-form" style="margin-top: 15px;">
     <?php wp_nonce_field( 'nbd_artist_settings_nonce' ); ?>
-    <input type="hidden" value="<?php echo( $designer_id ); ?>" name="user_id"/>
-    <div class="nbd-banner" style="padding-bottom: <?php echo ( $banner_height / $banner_width * 100 ) . '%'; ?>;">
+    <input type="hidden" value="<?php echo esc_attr( $designer_id ); ?>" name="user_id"/>
+    <div class="nbd-banner" style="padding-bottom: <?php echo esc_attr( ( (int) $banner_height / max( 1, (int) $banner_width ) * 100 ) . '%' ); ?>;">
         <?php $banner = $user_info['nbd_artist_banner']; ?>
-        <div class="image-wrap<?php echo( $banner ? '' : ' nbd-hide' ); ?>">
+        <div class="image-wrap<?php echo esc_attr( $banner ? '' : ' nbd-hide' ); ?>">
             <?php $banner_url = $banner ? wp_get_attachment_url( $banner ) : ''; ?>
-            <input type="hidden" class="nbd-file-field" value="<?php echo( $banner ); ?>" name="nbd_artist_banner">
+            <input type="hidden" class="nbd-file-field" value="<?php echo esc_attr( $banner ); ?>" name="nbd_artist_banner">
             <img class="nbd-banner-img" src="<?php echo esc_url( $banner_url ); ?>">
             <a class="close nbd-remove-banner-image">&times;</a>
         </div>
-        <div class="button-area<?php echo( $banner ? ' nbd-hide' : '' ); ?>">
+        <div class="button-area<?php echo esc_attr( $banner ? ' nbd-hide' : '' ); ?>">
             <p><a href="#" class="nbd-banner-drag button button-primary"><?php esc_html_e( 'Upload banner', 'storelly-product-builder-for-woocommerce' ); ?></a></p>
             <p class="description">
                 <?php esc_html_e( 'Upload a banner for your design store.', 'storelly-product-builder-for-woocommerce' ); ?>
-                <span><?php esc_html_e( 'Size: ', 'storelly-product-builder-for-woocommerce' ); ?><?php echo( $banner_width ); ?> &times; <?php echo( $banner_height ); ?></span>
+                <span><?php esc_html_e( 'Size: ', 'storelly-product-builder-for-woocommerce' ); ?><?php echo (int) $banner_width; ?> &times; <?php echo (int) $banner_height; ?></span>
             </p>
         </div>
     </div>
@@ -27,7 +27,7 @@ wp_enqueue_media();
         <label for="nbd_artist_gravatar"><?php esc_html_e( 'Artist Avatar', 'storelly-product-builder-for-woocommerce' ); ?></label>
         <div class="nbd_artist_gravatar-right">
             <input type="hidden" id="nbd_artist_gravatar" name="gravatar_id" value="<?php echo esc_attr( $user_info['gravatar'] ); ?>"/>
-            <img src="<?php echo esc_attr( $user_info['gravatar_url'] ); ?>" class="nbd_gravatar"/>
+            <img src="<?php echo esc_url( $user_info['gravatar_url'] ); ?>" class="nbd_gravatar"/>
             <a class="nbd-chagne-avatar"><?php esc_html_e( 'Change avatar', 'storelly-product-builder-for-woocommerce' ); ?></a>
         </div>
     </div>
@@ -35,13 +35,13 @@ wp_enqueue_media();
         <label for="nbd_artist_name"><?php esc_html_e( 'Artist Name', 'storelly-product-builder-for-woocommerce' ); ?></label>
         <input class="regular-text" type="text" id="nbd_artist_name" name="nbd_artist_name"
             value="<?php echo esc_attr( $user_info['nbd_artist_name'] ); ?>"/>
-        <a href="<?php echo add_query_arg(array('id' => $designer_id), getUrlPageNBD('designer')); ?>">
+        <a href="<?php echo esc_url( add_query_arg( array( 'id' => $designer_id ), getUrlPageNBD( 'designer' ) ) ); ?>">
             <?php esc_html_e( 'View own design store', 'storelly-product-builder-for-woocommerce' ); ?>
         </a>
     </div>
     <div class="nbd-section nbd_artist_description">
         <label for="nbd_artist_description" ><?php esc_html_e( 'About the artist', 'storelly-product-builder-for-woocommerce' ); ?></label>
-        <textarea rows="5" cols="30" id="nbd_artist_description" name="nbd_artist_description" ><?php echo esc_attr( $user_info['nbd_artist_description'] ); ?></textarea>
+        <textarea rows="5" cols="30" id="nbd_artist_description" name="nbd_artist_description" ><?php echo esc_textarea( $user_info['nbd_artist_description'] ); ?></textarea>
     </div>
     <div class="nbd-section">
         <label for="nbd_artist_address"><?php esc_html_e( 'Address', 'storelly-product-builder-for-woocommerce' ); ?></label>
@@ -85,19 +85,19 @@ wp_enqueue_media();
     </div>
     <div class="nbd-section nbd_artist_description">
         <label for="nbd_payment"><?php esc_html_e( 'Payment infomation', 'storelly-product-builder-for-woocommerce' ); ?></label>
-        <textarea name="nbd_payment" rows="5" cols="30" placeholder="<?php esc_attr_e( 'Paypal: email&#x0a;Bank account', 'storelly-product-builder-for-woocommerce' ); ?>"><?php echo esc_attr( $user_info['nbd_payment'] ); ?></textarea>
+        <textarea name="nbd_payment" rows="5" cols="30" placeholder="<?php esc_attr_e( 'Paypal: email&#x0a;Bank account', 'storelly-product-builder-for-woocommerce' ); ?>"><?php echo esc_textarea( $user_info['nbd_payment'] ); ?></textarea>
     </div>
     <div class="nbd-section">
-        <input type="submit" value="<?php esc_html_e('Update informations', 'storelly-product-builder-for-woocommerce'); ?>" />
-        <img class="nbd-loading loaded" src="<?php echo NBDESIGNER_PLUGIN_URL.'assets/images/loading.gif' ?>" />
+        <input type="submit" value="<?php esc_attr_e('Update informations', 'storelly-product-builder-for-woocommerce'); ?>" />
+        <img class="nbd-loading loaded" src="<?php echo esc_url( NBDESIGNER_PLUGIN_URL . 'assets/images/loading.gif' ); ?>" />
     </div>
 </form>
 <?php  do_action( 'nbd_artist_info_after_form', $designer_id, $user_info ); ?>
 <!-- No inline scripts or styles unless dynamic. -->
 <script type="text/javascript">
     jQuery(function(){
-        var banner_width = parseInt( <?php echo( $banner_width ); ?> ),
-        banner_height = parseInt( <?php echo( $banner_height ); ?> );
+        var banner_width = parseInt( <?php echo (int) $banner_width; ?> ),
+        banner_height = parseInt( <?php echo (int) $banner_height; ?> );
         var nbdUploadMedia = function( width, height, callback ){
             var fileFrame;
 
