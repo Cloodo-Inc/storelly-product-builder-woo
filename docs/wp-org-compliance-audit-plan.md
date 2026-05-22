@@ -152,3 +152,23 @@ Manual fallback verification (không cần wp-cli):
 - React → PHP rewrite implementation
 - readme.txt update
 - Version bump / git tag
+
+## PR B status (update)
+
+PR A và PR C đã merge vào main. **PR B (React admin → PHP rewrite) đã triển khai**:
+
+- Xóa `views/launcher/dist/` (~788 KB) và `views/launcher/admin.php`.
+- Drop 2 `wp_enqueue_*` references trong `includes/launcher/class.launcher.php`. Method `admin_enqueue_scripts()` được giữ làm no-op để không vỡ chuỗi `add_action`.
+- Thêm `SPBWC_Marketplace_Admin` singleton (menu submenu dưới `SPBWC_PB_OVERVIEW_SLUG`, gated bởi `spbwc_marketplace_is_enabled()`).
+- 3 list tables PHP: designers / designs / withdraws (extends `WP_List_Table`, filters + bulk actions + inline row actions).
+- 6 view files trong `views/marketplace-admin/` (header, designers, designer-edit, designs, withdraws, report dashboard, settings link).
+- `SPBWC_Marketplace_Admin_Ajax` với 3 handler có nonce + cap: toggle designer status, approve/cancel withdraw, publish/unpublish/delete design.
+- Assets readable, không minified: `static/css/marketplace-admin.css`, `static/js/marketplace-admin.js`.
+- Chart.js v4.4.0 placeholder ở `static/libs/chartjs/` kèm README giải thích. Container bị block download CDN, nên cần thay bằng file thật trước khi ship (charts auto-skip nếu thiếu — admin vẫn hoạt động).
+- REST controller `nbdl/v1` giữ nguyên (external clients vẫn dùng được).
+
+Follow-up sau khi merge PR B:
+- Bundle Chart.js thật vào `static/libs/chartjs/Chart.min.js` (MIT, GPL-compatible).
+- Escape pass cho `templates/launcher/emails/*.php` (out of scope PR A).
+- Regenerate `.pot` (cần wp-cli).
+- Tag `1.2.7` → trigger auto-deploy SVN.

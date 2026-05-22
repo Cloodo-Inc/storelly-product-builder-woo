@@ -1,0 +1,118 @@
+/*
+ * Marketplace admin styles — companion to the PHP admin introduced in
+ * PR B. Tries to ride on top of WP admin defaults; only adds the
+ * specific decorations (status pills, stat cards, chart layout, design
+ * thumbnail sizing) that the new UI needs.
+ */
+
+.spbwc-marketplace-admin .nav-tab-wrapper {
+    margin-bottom: 16px;
+}
+
+/* Status / featured pills */
+.spbwc-pill {
+    display: inline-block;
+    padding: 2px 10px;
+    border-radius: 12px;
+    font-size: 12px;
+    line-height: 18px;
+    font-weight: 500;
+    border: 1px solid transparent;
+    text-decoration: none;
+}
+.spbwc-pill--ok {
+    background: #e6f4ea;
+    color: #1e7e34;
+    border-color: #c3e6cb;
+}
+.spbwc-pill--off {
+    background: #f1f3f5;
+    color: #6c757d;
+    border-color: #dee2e6;
+}
+.spbwc-pill--warn {
+    background: #fff3cd;
+    color: #856404;
+    border-color: #ffeeba;
+}
+
+/* Design thumbnail in the designs list table */
+.spbwc-design-thumb {
+    max-width: 64px;
+    max-height: 64px;
+    width: auto;
+    height: auto;
+    border: 1px solid #dcdcde;
+    border-radius: 3px;
+    background: #fff;
+    object-fit: contain;
+}
+
+/* Dashboard cards */
+.spbwc-mp-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 16px;
+    margin: 16px 0 24px;
+}
+.spbwc-mp-card {
+    background: #fff;
+    border: 1px solid #c3c4c7;
+    border-radius: 4px;
+    padding: 16px 18px;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 1px 1px rgba(0, 0, 0, 0.04);
+}
+.spbwc-mp-card__label {
+    font-size: 13px;
+    color: #50575e;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    margin-bottom: 6px;
+}
+.spbwc-mp-card__value {
+    font-size: 28px;
+    font-weight: 600;
+    color: #1d2327;
+    line-height: 1.1;
+}
+
+/* Charts */
+.spbwc-mp-charts {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
+    gap: 24px;
+    margin-top: 8px;
+}
+.spbwc-mp-chart {
+    background: #fff;
+    border: 1px solid #c3c4c7;
+    border-radius: 4px;
+    padding: 16px 18px;
+}
+.spbwc-mp-chart h3 {
+    margin: 0 0 12px;
+    font-size: 14px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: #50575e;
+}
+
+/* Designer edit form spacing */
+.spbwc-marketplace-admin .form-table h3 {
+    margin: 12px 0 0;
+    padding-top: 8px;
+    border-top: 1px solid #dcdcde;
+}
+
+/* Withdraw action buttons in row */
+.spbwc-withdraw-action {
+    margin-right: 4px;
+}
+
+/* Notice for in-flight AJAX calls */
+.spbwc-mp-busy {
+    opacity: 0.55;
+    pointer-events: none;
+}

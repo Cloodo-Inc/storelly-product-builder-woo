@@ -389,14 +389,15 @@ class SPBWC_Marketplace{
         $report_api->register_rest_routes();
     }
     public function add_sub_menu() {
-        if( current_user_can( 'manage_nbd_tool' ) ){
-            add_submenu_page(
-                'nbdesigner', esc_html__( 'Design Launcher', 'storelly-product-builder-for-woocommerce'), esc_html__( 'Design Launcher', 'storelly-product-builder-for-woocommerce' ), 'manage_nbd_tool', 'nbd_designers', array( $this, 'manage_designers' )
-            );
-        }
+        // React admin page removed in PR B. Marketplace admin is now registered
+        // by SPBWC_Marketplace_Admin (see includes/marketplace/admin/) and renders
+        // under the storelly Overview submenu instead of the legacy nbdesigner
+        // parent menu. This method is kept as a no-op for back-compat with the
+        // nbd_menu action; it can be removed once any third-party code dropping
+        // submenus into the legacy slot has been audited.
     }
     public function manage_designers(){
-        include_once( NBDESIGNER_PLUGIN_DIR . 'views/launcher/admin.php' );
+        // No-op. React admin removed in PR B; see SPBWC_Marketplace_Admin.
     }
     public function add_emails_classes( $emails ){
         $emails['SPBWC_Email_Designer_Enabled']        = include( NBDESIGNER_PLUGIN_DIR . 'includes/launcher/emails/designer_enabled.php' );
@@ -415,26 +416,9 @@ class SPBWC_Marketplace{
         return $actions;
     }
     public function admin_enqueue_scripts( $hook ) {
-        if( $hook == 'pc-designer_page_nbd_designers' ){
-            wp_enqueue_media();
-            wp_register_script( 'nbd-admin-launcher', NBDESIGNER_PLUGIN_URL . 'views/launcher/dist/app.js', array('jquery', 'wc-accounting', 'wc-enhanced-select'), NBDESIGNER_VERSION, true );
-            wp_enqueue_script( 'nbd-admin-launcher' );
-            wp_register_style( 'nbd-admin-launcher-css', NBDESIGNER_PLUGIN_URL . 'views/launcher/dist/style.css', array('woocommerce_admin_styles'), NBDESIGNER_VERSION );
-            wp_enqueue_style( array('nbd-admin-launcher-css') );
-            wp_localize_script( 'nbd-admin-launcher', 'nbdl', array(
-                'ajax_url'              => admin_url('admin-ajax.php'),
-                'rest_url'              => esc_url_raw( rest_url() ) . 'nbdl/v1/',
-                'nonce'                 => wp_create_nonce( 'wp_rest' ),
-                'designer_url'          => getUrlPageNBD('designer'),
-                'assets_images_url'     => NBDESIGNER_PLUGIN_URL . 'assets/images/',
-                'banner_width'          => nbdesigner_get_option( 'spbwc_marketplace_banner_width', 1050 ),
-                'banner_height'         => nbdesigner_get_option( 'spbwc_marketplace_banner_height', 200 ),
-                'langs'                 => $this->i18n(),
-                'edit_user_link'        => esc_url( add_query_arg('wp_http_referer', urlencode( wp_unslash( $_SERVER['REQUEST_URI'] ) ), self_admin_url( 'user-edit.php?user_id=replace_user_id' ) ) ),
-                'edit_design_link'      => esc_url( add_query_arg(array( 'rd' => 'admin_templates', 'design_type' => 'template', 'task' => 'edit'), getUrlPageNBD('create') ) ),
-                'download_design_link'  => NBDESIGNER_CUSTOMER_URL )
-            );
-        }
+        // React admin dist removed in PR B. The new PHP admin
+        // (SPBWC_Marketplace_Admin) enqueues its own assets on its own
+        // page-hook gate, so this method intentionally does nothing.
     }
     public function frontend_enqueue_scripts(){
         wp_register_style( 'nbd_launcher', NBDESIGNER_CSS_URL . 'launcher.css', array(), NBDESIGNER_VERSION );
