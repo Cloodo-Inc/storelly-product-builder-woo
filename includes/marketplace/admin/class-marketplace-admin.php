@@ -64,7 +64,7 @@ if ( ! class_exists( 'SPBWC_Marketplace_Admin' ) ) {
             );
             wp_register_script(
                 'spbwc-marketplace-chartjs',
-                SPBWC_PB_ASSETS_URL . 'libs/chartjs/Chart.min.js',
+                SPBWC_PB_ASSETS_URL . 'libs/chartjs/chart.umd.js',
                 array(),
                 '4.4.0',
                 true

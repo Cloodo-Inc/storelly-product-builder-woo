@@ -325,9 +325,13 @@ if (!class_exists('STORELLY_FRONTEND_OPTIONS')) {
                         'file_too_small'        => __('Sorry, file is too small, min size: ', 'storelly-product-builder-for-woocommerce'),
                         'file_type'             => __('Sorry, this file type is not permitted for security reasons. Only accept: ', 'storelly-product-builder-for-woocommerce'),
                         'nbo_validation_i18n'  => array(
+                            /* translators: %1$s: product option field label */
                             'field_required'     => __( '%1$s: This field is required.', 'storelly-product-builder-for-woocommerce' ),
+                            /* translators: 1: product option field label, 2: minimum character count */
                             'field_min_length'   => __( '%1$s: Enter at least %2$s characters.', 'storelly-product-builder-for-woocommerce' ),
+                            /* translators: 1: product option field label, 2: maximum character count */
                             'field_max_length'   => __( '%1$s: No more than %2$s characters.', 'storelly-product-builder-for-woocommerce' ),
+                            /* translators: 1: product option field label, 2: rejected choice label */
                             'option_unavailable'   => __( '%1$s: The choice "%2$s" is not available for the current product options.', 'storelly-product-builder-for-woocommerce' ),
                             'quantity_invalid'   => __( 'Enter a valid quantity (at least 1).', 'storelly-product-builder-for-woocommerce' ),
                             'form_invalid_generic' => __( 'Please check invalid fields, quantity, or choose a different combination.', 'storelly-product-builder-for-woocommerce' ),
