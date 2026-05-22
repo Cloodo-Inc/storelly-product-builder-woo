@@ -106,6 +106,18 @@ if ( class_exists( 'SPBWC_Marketplace' ) ) {
     SPBWC_Marketplace::get_instance()->init();
 }
 
+/* Marketplace admin (PHP rewrite of the old React SPA — see PR B).
+ * Loaded after the launcher so it can rely on its REST routes, helper
+ * functions, and the spbwc_marketplace_is_enabled() gate. */
+require_once(SPBWC_PB_PLUGIN_DIR .  'includes/marketplace/admin/class-marketplace-admin.php');
+require_once(SPBWC_PB_PLUGIN_DIR .  'includes/marketplace/admin/class-marketplace-admin-ajax.php');
+require_once(SPBWC_PB_PLUGIN_DIR .  'includes/marketplace/admin/class-designers-list-table.php');
+require_once(SPBWC_PB_PLUGIN_DIR .  'includes/marketplace/admin/class-designs-list-table.php');
+require_once(SPBWC_PB_PLUGIN_DIR .  'includes/marketplace/admin/class-withdraws-list-table.php');
+if ( class_exists( 'SPBWC_Marketplace_Admin' ) ) {
+    SPBWC_Marketplace_Admin::get_instance()->init();
+}
+
 
 register_activation_hook(__FILE__, array('SPBWC_Storelly_Product_Builder_API', 'spbwc_generate_key'));
 
