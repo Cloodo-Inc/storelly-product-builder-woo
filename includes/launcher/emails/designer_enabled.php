@@ -109,6 +109,7 @@ if ( !class_exists( 'SPBWC_Email_Designer_Enabled' ) ) {
                 'subject'    => array(
                     'title'       => esc_html__( 'Subject', 'storelly-product-builder-for-woocommerce' ),
                     'type'        => 'text',
+                    /* translators: %s: default email subject text, shown inside a <code> block */
                     'description' => sprintf( esc_html__( 'This field lets you modify the email subject line. Leave it blank to use the default subject text: <code>%s</code>. You can use {site_name} as a placeholder that will show the your site address.', 'storelly-product-builder-for-woocommerce' ), $this->subject ),
                     'placeholder' => $this->subject,
                     'default'     => ''
@@ -129,6 +130,7 @@ if ( !class_exists( 'SPBWC_Email_Designer_Enabled' ) ) {
                 'heading'    => array(
                     'title'       => esc_html__( 'Email Heading', 'storelly-product-builder-for-woocommerce' ),
                     'type'        => 'text',
+                    /* translators: %s: default email heading text, shown inside a <code> block */
                     'description' => sprintf( esc_html__( 'This field lets you change the main heading in email notification. Leave it blank to use default heading type: <code>%s</code>.', 'storelly-product-builder-for-woocommerce' ), $this->heading ),
                     'placeholder' => $this->heading,
                     'default'     => ''

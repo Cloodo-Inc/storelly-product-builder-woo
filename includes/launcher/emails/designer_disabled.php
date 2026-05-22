@@ -92,6 +92,7 @@ if ( !class_exists( 'SPBWC_Email_Designer_Disabled' ) ) {
                     'title'         => esc_html__( 'Subject', 'storelly-product-builder-for-woocommerce' ),
                     'type'          => 'text',
                     'desc_tip'      => true,
+                    /* translators: %s: comma-separated list of placeholder tokens like {title}, {site_name} */
                     'description'   => sprintf( esc_html__( 'Available placeholders: %s', 'storelly-product-builder-for-woocommerce' ), '<code>{title}, {message}, {site_name}</code>' ),
                     'placeholder'   => $this->get_default_subject(),
                     'default'       => '',
@@ -100,6 +101,7 @@ if ( !class_exists( 'SPBWC_Email_Designer_Disabled' ) ) {
                     'title'         => esc_html__( 'Email heading', 'storelly-product-builder-for-woocommerce' ),
                     'type'          => 'text',
                     'desc_tip'      => true,
+                    /* translators: %s: comma-separated list of placeholder tokens like {title}, {site_name} */
                     'description'   => sprintf( esc_html__( 'Available placeholders: %s', 'storelly-product-builder-for-woocommerce' ), '<code>{title}, {message}, {site_name}</code>' ),
                     'placeholder'   => $this->get_default_heading(),
                     'default'       => '',

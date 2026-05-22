@@ -639,6 +639,7 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
                                 ),
                                 admin_url( 'admin.php' )
                             );
+                            /* translators: %d: printing option ID */
                             $option_text = $option_id ? sprintf( __( 'Printing Option #%d', 'storelly-product-builder-for-woocommerce' ), $option_id ) : __( 'No printing option mapped', 'storelly-product-builder-for-woocommerce' );
                             ?>
                             <div class="spbwc-product-card">

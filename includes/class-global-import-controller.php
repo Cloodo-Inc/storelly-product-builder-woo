@@ -863,6 +863,7 @@ class SPBWC_Global_Import_Controller {
         $print_options_str = $this->adapter->file_get_contents_remote($print_options_url);
         if ('' === $print_options_str) {
             $warnings[] = sprintf(
+                /* translators: 1: row identifier from the import payload, 2: URL the print options were fetched from */
                 __('Row %1$s: unable to fetch print options from %2$s', 'storelly-product-builder-for-woocommerce'),
                 $row_id,
                 $print_options_url
@@ -887,6 +888,7 @@ class SPBWC_Global_Import_Controller {
         }
         if (empty($print_options_data)) {
             $warnings[] = sprintf(
+                /* translators: 1: row identifier from the import payload, 2: WooCommerce product ID */
                 __('Row %1$s: print options payload is invalid for product #%2$d', 'storelly-product-builder-for-woocommerce'),
                 $row_id,
                 $product_id
@@ -896,6 +898,7 @@ class SPBWC_Global_Import_Controller {
         $print_option_result = $this->adapter->create_or_update_print_option($product_id, $print_options_data);
         if (!is_array($print_option_result) || empty($print_option_result['success'])) {
             $warnings[] = sprintf(
+                /* translators: 1: row identifier, 2: WooCommerce product ID, 3: error message returned by the print-options save call */
                 __('Row %1$s: failed to save print options for product #%2$d. %3$s', 'storelly-product-builder-for-woocommerce'),
                 $row_id,
                 $product_id,
@@ -937,6 +940,7 @@ class SPBWC_Global_Import_Controller {
                 return array(
                     'success' => false,
                     'message' => sprintf(
+                        /* translators: %s: row identifier from the import payload */
                         __('Row %s: product settings payload is invalid', 'storelly-product-builder-for-woocommerce'),
                         $row['row_id']
                     ),

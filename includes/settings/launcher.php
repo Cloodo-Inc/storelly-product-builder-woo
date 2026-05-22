@@ -8,6 +8,7 @@ if( !class_exists('Nbdesigner_Launcher') ) {
                     array(
                         'title'         => esc_html__( 'Enable designer store', 'storelly-product-builder-for-woocommerce'),
                         'id'            => 'spbwc_marketplace_enabled',
+                        /* translators: %s: URL to the WordPress Permalink admin settings screen */
                         'description'   => sprintf(wp_kses(__( 'Allow customers become designers who create and sell their designs. After "Save options" go to <a target="_blank" href="%s">Permalink</a> choose pretty permalinks and "Save changes". Default permalinks will not work.', 'storelly-product-builder-for-woocommerce'), array( 'a' => array( 'href' => array(), 'target' => array() ))), esc_url(admin_url('options-permalink.php'))),
                         'default'       => 'no',
                         'type'          => 'radio',

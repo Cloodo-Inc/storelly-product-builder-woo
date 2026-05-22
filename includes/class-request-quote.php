@@ -206,13 +206,16 @@ if ( ! class_exists( 'SPBWC_Request_Quote' ) ) {
                 $value = isset( $fields[ $name ] ) ? $fields[ $name ] : '';
                 $required = isset( $f['required'] ) && '1' === (string) $f['required'];
                 if ( $required && '' === $value ) {
+                    /* translators: %s: form field label of the missing required input */
                     $errors[] = sprintf( esc_html__( '%s is required.', 'storelly-product-builder-for-woocommerce' ), isset( $f['label'] ) ? $f['label'] : $name );
                 }
                 $validation = isset( $f['validation'] ) ? sanitize_key( $f['validation'] ) : '';
                 if ( 'email' === $validation && '' !== $value && ! is_email( $value ) ) {
+                    /* translators: %s: form field label of the field that failed email validation */
                     $errors[] = sprintf( esc_html__( '%s is not a valid email.', 'storelly-product-builder-for-woocommerce' ), isset( $f['label'] ) ? $f['label'] : $name );
                 }
                 if ( 'phone' === $validation && '' !== $value && ! preg_match( '/^[0-9\-\+\(\)\s]{6,20}$/', $value ) ) {
+                    /* translators: %s: form field label of the field that failed phone validation */
                     $errors[] = sprintf( esc_html__( '%s is not a valid phone.', 'storelly-product-builder-for-woocommerce' ), isset( $f['label'] ) ? $f['label'] : $name );
                 }
             }
@@ -307,6 +310,7 @@ if ( ! class_exists( 'SPBWC_Request_Quote' ) ) {
                     'exclude_from_search'       => false,
                     'show_in_admin_all_list'    => true,
                     'show_in_admin_status_list' => true,
+                    /* translators: %s: number of new quote requests in the WC admin filter list */
                     'label_count'               => _n_noop( 'New Quote Request <span class="count">(%s)</span>', 'New Quote Requests <span class="count">(%s)</span>', 'storelly-product-builder-for-woocommerce' ),
                 )
             );
@@ -318,6 +322,7 @@ if ( ! class_exists( 'SPBWC_Request_Quote' ) ) {
                     'exclude_from_search'       => false,
                     'show_in_admin_all_list'    => true,
                     'show_in_admin_status_list' => true,
+                    /* translators: %s: number of accepted quotes in the WC admin filter list */
                     'label_count'               => _n_noop( 'Accepted Quote <span class="count">(%s)</span>', 'Accepted Quotes <span class="count">(%s)</span>', 'storelly-product-builder-for-woocommerce' ),
                 )
             );
@@ -329,6 +334,7 @@ if ( ! class_exists( 'SPBWC_Request_Quote' ) ) {
                     'exclude_from_search'       => false,
                     'show_in_admin_all_list'    => true,
                     'show_in_admin_status_list' => true,
+                    /* translators: %s: number of rejected quotes in the WC admin filter list */
                     'label_count'               => _n_noop( 'Rejected Quote <span class="count">(%s)</span>', 'Rejected Quotes <span class="count">(%s)</span>', 'storelly-product-builder-for-woocommerce' ),
                 )
             );
@@ -426,6 +432,7 @@ if ( ! class_exists( 'SPBWC_Request_Quote' ) ) {
                 ),
                 wc_get_endpoint_url( 'view-quote', $quote_id, wc_get_page_permalink( 'myaccount' ) )
             );
+            /* translators: %d: quote (WC order) ID */
             echo '<h2>' . esc_html( sprintf( __( 'Quote #%d', 'storelly-product-builder-for-woocommerce' ), $quote_id ) ) . '</h2>';
             echo '<p><strong>' . esc_html__( 'Status:', 'storelly-product-builder-for-woocommerce' ) . '</strong> ' . esc_html( wc_get_order_status_name( $order->get_status() ) ) . '</p>';
             echo '<p><strong>' . esc_html__( 'Message:', 'storelly-product-builder-for-woocommerce' ) . '</strong> ' . esc_html( (string) $order->get_meta( '_spbwc_quote_request' ) ) . '</p>';

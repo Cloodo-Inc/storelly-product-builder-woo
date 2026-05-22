@@ -1,29 +1,44 @@
 # Chart.js bundle
 
-Marketplace Report dashboard charts depend on Chart.js v4.x.
+Marketplace Report dashboard charts depend on Chart.js v4.
 
-This directory ships a **placeholder** `Chart.min.js` (a JS comment, no
-runtime code) because the build container's outbound network policy
-blocks downloads from CDNs at build time.
+## What ships here
 
-## To enable the charts
+| File | Origin | Notes |
+|---|---|---|
+| `chart.umd.js` | npm package `chart.js@4.4.0` (registry tarball, `dist/chart.umd.js`) | UMD bundle, **unminified**. Chart.js v4 dropped the pre-minified file from its npm package — bundlers minify on demand. We ship the readable UMD on purpose so wp.org reviewers can audit the source. |
+| `LICENSE.md` | npm package `chart.js@4.4.0` | MIT license text. Copied verbatim. |
 
-1. Download `chart.umd.min.js` from a Chart.js v4.x release:
-   - https://github.com/chartjs/Chart.js/releases (tag `v4.4.0`)
-   - Or `npm install chart.js@4.4.0` and copy `node_modules/chart.js/dist/chart.umd.min.js`
-2. Replace `static/libs/chartjs/Chart.min.js` with the downloaded file.
-3. Keep the filename as `Chart.min.js` (capital C) — `SPBWC_Marketplace_Admin::enqueue_assets()` registers exactly that path.
-4. Bump `static/libs/chartjs/README.md` to record the actual version + source URL of what was bundled.
+`SPBWC_Marketplace_Admin::enqueue_assets()` registers exactly the path
+`SPBWC_PB_ASSETS_URL . 'libs/chartjs/chart.umd.js'` and the script is
+loaded as a dependency of `spbwc-marketplace-admin` only on the
+marketplace admin page.
 
 ## License
 
-Chart.js is **MIT-licensed**, GPL-compatible. When you bundle the real
-library, declare it under "External services / bundled libraries" in
-`readme.txt` (or in the WordPress.org plugin Description) if reviewers
-flag the addition.
+Chart.js is **MIT-licensed**, GPL-compatible. The library is bundled
+with the plugin source for use on the marketplace admin Report tab;
+no outbound request is made.
+
+## Upgrading
+
+To bump Chart.js (e.g. v4.5.0):
+
+```bash
+curl -sSL https://registry.npmjs.org/chart.js/-/chart.js-4.5.0.tgz -o /tmp/chartjs.tgz
+mkdir -p /tmp/chartjs-extract && tar -xzf /tmp/chartjs.tgz -C /tmp/chartjs-extract
+cp /tmp/chartjs-extract/package/dist/chart.umd.js static/libs/chartjs/chart.umd.js
+cp /tmp/chartjs-extract/package/LICENSE.md       static/libs/chartjs/LICENSE.md
+```
+
+Then bump the registered version inside `wp_register_script(
+'spbwc-marketplace-chartjs', …, '4.5.0', true )` in
+`includes/marketplace/admin/class-marketplace-admin.php`.
 
 ## Without Chart.js
 
 The marketplace admin remains fully functional without Chart.js — only
 the two report-dashboard charts (designs over time, sales over time)
-silently skip rendering. The four stat cards still display.
+silently skip rendering because `static/js/marketplace-admin.js` guards
+on `typeof window.Chart === 'undefined'`. The four stat cards still
+display.

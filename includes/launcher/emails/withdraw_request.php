@@ -99,6 +99,7 @@ if ( ! class_exists( 'SPBWC_Email_Withdraw_Request' ) ) {
                 'recipient' => array(
                     'title'         => esc_html__( 'Recipient(s)', 'storelly-product-builder-for-woocommerce' ),
                     'type'          => 'text',
+                    /* translators: %s: site admin email address, shown inside a <code> block */
                     'description'   => sprintf( esc_html__( 'Enter recipients (comma separated) for this email. Defaults to %s.', 'storelly-product-builder-for-woocommerce' ), '<code>' . esc_attr( get_option( 'admin_email' ) ) . '</code>' ),
                     'placeholder'   => '',
                     'default'       => '',
