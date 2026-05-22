@@ -5,7 +5,10 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 do_action( 'woocommerce_email_header', $email_heading, $email ); ?>
 <p>
-    <?php printf( esc_html__( 'Hello %s', 'storelly-product-builder-for-woocommerce' ), $data['display_name'] ); ?>
+    <?php
+    /* translators: %s: designer display name */
+    printf( esc_html__( 'Hello %s', 'storelly-product-builder-for-woocommerce' ), esc_html( $data['display_name'] ) );
+    ?>
 </p>
 <p>
     <?php esc_html_e( 'Sorry, your designer account is deactivated.', 'storelly-product-builder-for-woocommerce' ); ?>
