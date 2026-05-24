@@ -392,6 +392,11 @@ button.spbwc-tl-apply:hover {
 	transform: translate(-50%, -50%);
 	margin: 0;
 	z-index: 160001;
+	/* Override browser default overflow:auto on <dialog> so that any
+	   overflow (e.g. Select2 dropdown appended inside the element) is
+	   not clipped.  Rounded corners are handled by .spbwc-tl-dialog-form
+	   (overflow:hidden), not by the <dialog> element itself. */
+	overflow: visible;
 }
 .spbwc-tl-dialog--wide {
 	width: min(1100px, 95vw);

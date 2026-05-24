@@ -667,7 +667,12 @@
 			allowClear: false,
 			minimumInputLength: 1,
 			width: '100%',
-			dropdownParent: $applyDialog,
+			// Append to <body> — NOT to the dialog.  The dialog has
+			// transform:translate(-50%,-50%) which breaks Select2's
+			// offsetTop/Left positioning when dropdownParent is inside
+			// a transformed element.  Body-level appending + z-index
+			// 160002 (set in CSS) keeps the dropdown above the dialog.
+			dropdownParent: $('body'),
 			ajax: {
 				url: L.ajaxUrl,
 				dataType: 'json',
@@ -700,7 +705,7 @@
 		$el[fn]({
 			placeholder: L.i18n.selectCategory,
 			width: '100%',
-			dropdownParent: $applyDialog
+			dropdownParent: $('body') // see note in initWcProductSearch
 		});
 	}
 
@@ -737,11 +742,22 @@
 				$submit.prop('disabled', false).text(L.i18n.apply);
 				return;
 			}
-			if (resp.data.edit_url) {
+			if (resp.data && resp.data.edit_url) {
+				// Redirect to the newly created option's edit page.
+				// Keep button in "loading" state so there's no flash of re-enabled state.
+				$submit.prop('disabled', true).text(L.i18n.applying);
 				window.location.href = resp.data.edit_url;
 			} else {
+				// Applied without a specific edit URL — close and show a WP-style
+				// success notice at the top of the page.
 				closeDialog($applyDialog);
 				$submit.prop('disabled', false).text(L.i18n.apply);
+				var $wrap = $('.spbwc-template-library');
+				$wrap.find('.spbwc-tl-apply-success').remove();
+				var $notice = $('<div class="notice notice-success is-dismissible spbwc-tl-apply-success">' +
+					'<p>' + esc(L.i18n.applySuccess || 'Template applied successfully.') + '</p></div>');
+				$wrap.prepend($notice);
+				setTimeout(function () { $notice.fadeOut(400, function () { $notice.remove(); }); }, 4000);
 			}
 		}).fail(function () {
 			$err.find('p').text(L.i18n.genericError);
@@ -758,6 +774,20 @@
 	// that are appended to <body>.  show() + a manual high-z-index backdrop
 	// gives us the same visual result without breaking Select2 autocomplete.
 	var $backdrop = $('#spbwc-tl-backdrop');
+
+	// Escape key: close whichever dialog is open.
+	// show() (non-modal) does NOT get the browser's native Esc handling.
+	$(document).on('keydown.spbwcdlg', function (e) {
+		if (e.key !== 'Escape') return;
+		// Apply dialog takes priority (it may have been opened from preview).
+		if ($applyDialog[0] && $applyDialog[0].open) {
+			e.preventDefault();
+			closeDialog($applyDialog);
+		} else if ($previewDialog[0] && $previewDialog[0].open) {
+			e.preventDefault();
+			closeDialog($previewDialog);
+		}
+	});
 
 	function openDialog($dlg) {
 		var el = $dlg[0];

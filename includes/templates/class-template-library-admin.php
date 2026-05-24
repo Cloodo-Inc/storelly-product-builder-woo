@@ -120,6 +120,7 @@ if ( ! class_exists( 'SPBWC_Template_Library_Admin' ) ) {
 						'inputTextarea'      => esc_html__( 'Long text', 'storelly-product-builder-for-woocommerce' ),
 						'inputNumber'        => esc_html__( 'Number', 'storelly-product-builder-for-woocommerce' ),
 						'previewApplyCTA'    => esc_html__( 'Apply this template', 'storelly-product-builder-for-woocommerce' ),
+						'applySuccess'       => esc_html__( 'Template applied successfully.', 'storelly-product-builder-for-woocommerce' ),
 					),
 				)
 			);
