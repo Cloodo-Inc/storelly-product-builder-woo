@@ -807,7 +807,23 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
             $form_fields = get_option( 'spbwc_quote_form_fields', $this->spbwc_get_default_quote_form_fields() );
             ?>
             <div class="wrap">
-                <h1><?php esc_html_e( 'Quotes', 'storelly-product-builder-for-woocommerce' ); ?></h1>
+                <header class="spbwc-page-hero">
+                    <div class="spbwc-page-hero__grid">
+                        <div class="spbwc-page-hero__body">
+                            <div class="spbwc-page-hero__eyebrow">
+                                <span class="dashicons dashicons-admin-plugins" aria-hidden="true"></span>
+                                <?php esc_html_e( 'Storelly Product Builder', 'storelly-product-builder-for-woocommerce' ); ?>
+                            </div>
+                            <h1 class="spbwc-page-hero__title">
+                                <span class="dashicons dashicons-email-alt" aria-hidden="true"></span>
+                                <?php esc_html_e( 'Quotes', 'storelly-product-builder-for-woocommerce' ); ?>
+                            </h1>
+                            <p class="spbwc-page-hero__subtitle">
+                                <?php esc_html_e( 'Configure Get Quote, build request forms, and review submitted quote requests.', 'storelly-product-builder-for-woocommerce' ); ?>
+                            </p>
+                        </div>
+                    </div>
+                </header>
                 <h2 class="nav-tab-wrapper">
                     <a href="<?php echo esc_url( add_query_arg( array( 'page' => SPBWC_PB_QUOTES_SLUG, 'tab' => 'get-quote' ), admin_url( 'admin.php' ) ) ); ?>" class="nav-tab <?php echo ( 'get-quote' === $tab ) ? 'nav-tab-active' : ''; ?>"><?php esc_html_e( 'Get Quote', 'storelly-product-builder-for-woocommerce' ); ?></a>
                     <a href="<?php echo esc_url( add_query_arg( array( 'page' => SPBWC_PB_QUOTES_SLUG, 'tab' => 'form-builder' ), admin_url( 'admin.php' ) ) ); ?>" class="nav-tab <?php echo ( 'form-builder' === $tab ) ? 'nav-tab-active' : ''; ?>"><?php esc_html_e( 'Form Builder', 'storelly-product-builder-for-woocommerce' ); ?></a>
@@ -838,15 +854,10 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
                                 </td>
                             </tr>
                         </table>
-                        <p><button class="button button-primary" type="submit" name="spbwc_save_quote_settings" value="1"><?php esc_html_e( 'Save changes', 'storelly-product-builder-for-woocommerce' ); ?></button></p>
+                        <p><button class="spbwc-cta-btn spbwc-cta-btn--solid" type="submit" name="spbwc_save_quote_settings" value="1"><span class="dashicons dashicons-saved" aria-hidden="true"></span><?php esc_html_e( 'Save changes', 'storelly-product-builder-for-woocommerce' ); ?></button></p>
                     </form>
                 <?php elseif ( 'form-builder' === $tab ) : ?>
-                    <style>
-                        .spbwc-qf-add{display:flex;gap:8px;align-items:center;margin:16px 0}
-                        .spbwc-qf-table th,.spbwc-qf-table td{vertical-align:middle}
-                        .spbwc-qf-table input[type="text"],.spbwc-qf-table select{width:100%}
-                    </style>
-                    <form method="post" style="margin-top:16px;">
+                    <form method="post" style="margin-top:var(--nbd-space-4);">
                         <?php wp_nonce_field( 'spbwc_quote_form_action', 'spbwc_quote_form_nonce' ); ?>
                         <h3><?php esc_html_e( 'Request quote form builder', 'storelly-product-builder-for-woocommerce' ); ?></h3>
                         <div class="spbwc-qf-add">
@@ -899,8 +910,8 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
                                 <?php endforeach; ?>
                             </tbody>
                         </table>
-                        <p style="margin-top:12px;">
-                            <button class="button button-primary" type="submit" name="spbwc_save_quote_form" value="1"><?php esc_html_e( 'Save changes', 'storelly-product-builder-for-woocommerce' ); ?></button>
+                        <p style="margin-top:var(--nbd-space-4);">
+                            <button class="spbwc-cta-btn spbwc-cta-btn--solid" type="submit" name="spbwc_save_quote_form" value="1"><span class="dashicons dashicons-saved" aria-hidden="true"></span><?php esc_html_e( 'Save changes', 'storelly-product-builder-for-woocommerce' ); ?></button>
                         </p>
                     </form>
                     <script>
@@ -1209,9 +1220,24 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
             );
             ?>
             <div class="wrap">
-                <h1><?php esc_html_e( 'Orders', 'storelly-product-builder-for-woocommerce' ); ?></h1>
-                <p><?php esc_html_e( 'Manage custom orders that contain pricing options.', 'storelly-product-builder-for-woocommerce' ); ?></p>
-                <form method="get" style="margin: 12px 0;">
+                <header class="spbwc-page-hero">
+                    <div class="spbwc-page-hero__grid">
+                        <div class="spbwc-page-hero__body">
+                            <div class="spbwc-page-hero__eyebrow">
+                                <span class="dashicons dashicons-admin-plugins" aria-hidden="true"></span>
+                                <?php esc_html_e( 'Storelly Product Builder', 'storelly-product-builder-for-woocommerce' ); ?>
+                            </div>
+                            <h1 class="spbwc-page-hero__title">
+                                <span class="dashicons dashicons-cart" aria-hidden="true"></span>
+                                <?php esc_html_e( 'Orders', 'storelly-product-builder-for-woocommerce' ); ?>
+                            </h1>
+                            <p class="spbwc-page-hero__subtitle">
+                                <?php esc_html_e( 'Manage custom orders that contain pricing options.', 'storelly-product-builder-for-woocommerce' ); ?>
+                            </p>
+                        </div>
+                    </div>
+                </header>
+                <form method="get" style="margin: var(--nbd-space-3) 0;">
                     <input type="hidden" name="page" value="<?php echo esc_attr( SPBWC_PB_ORDERS_SLUG ); ?>" />
                     <input type="search" name="s" value="<?php echo esc_attr( $search ); ?>" placeholder="<?php esc_attr_e( 'Search by order ID', 'storelly-product-builder-for-woocommerce' ); ?>" />
                     <button type="submit" class="button"><?php esc_html_e( 'Search', 'storelly-product-builder-for-woocommerce' ); ?></button>

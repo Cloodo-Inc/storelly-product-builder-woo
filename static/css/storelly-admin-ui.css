@@ -1183,6 +1183,20 @@
     .spbwc-page-hero { padding: var(--nbd-space-5) var(--nbd-space-6); }
 }
 
+/* ========================================================== */
+/* Quote form-builder tab                                      */
+/* ========================================================== */
+.spbwc-qf-add {
+    display: flex;
+    gap: var(--nbd-space-2);
+    align-items: center;
+    margin: var(--nbd-space-4) 0;
+}
+.spbwc-qf-table th,
+.spbwc-qf-table td { vertical-align: middle; }
+.spbwc-qf-table input[type="text"],
+.spbwc-qf-table select { width: 100%; }
+
 @media (max-width: 782px) {
     .spbwc-page-hero__grid { flex-direction: column; }
     .spbwc-page-hero__actions { width: 100%; }
