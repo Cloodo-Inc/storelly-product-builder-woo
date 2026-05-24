@@ -630,6 +630,7 @@ if ( ! in_array($spbwc_settings_tab, $spbwc_valid_tabs, true) ) {
             <!-- ━━━ INTEGRATION ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ -->
             <div class="spbwc-tab-panel" id="tab-integration"<?php echo ($spbwc_settings_tab !== 'integration') ? ' style="display:none;"' : ''; ?>>
 
+                <!-- ── Block 1: Integration feature toggles ─────── -->
                 <div class="spbwc-block">
                     <div class="spbwc-block__head">
                         <h3 class="spbwc-block__title">
@@ -637,10 +638,9 @@ if ( ! in_array($spbwc_settings_tab, $spbwc_valid_tabs, true) ) {
                             <?php esc_html_e('Storelly Integration', 'storelly-product-builder-for-woocommerce'); ?>
                         </h3>
                     </div>
-
-                    <!-- Integration toggles -->
                     <div class="spbwc-setting-rows">
-                        <!-- Enable cloud PDF -->
+
+                        <!-- Enable cloud PDF rendering -->
                         <div class="spbwc-setting-row">
                             <div class="spbwc-setting-row__label">
                                 <?php esc_html_e('Enable cloud PDF rendering', 'storelly-product-builder-for-woocommerce'); ?>
@@ -659,11 +659,12 @@ if ( ! in_array($spbwc_settings_tab, $spbwc_valid_tabs, true) ) {
                             </div>
                             <p class="spbwc-setting-row__hint"><?php esc_html_e('Activates the Storelly cloud engine to generate print-ready PDFs from customer orders. Required if you offer downloadable print files or send jobs to a print provider via Storelly.', 'storelly-product-builder-for-woocommerce'); ?></p>
                         </div>
-                        <!-- API sync opt-in -->
+
+                        <!-- Dashboard API sync opt-in -->
                         <?php
                         $spbwc_stt_yes_api_sync = isset($storelly_pb_settings['enable_api_sync']) && $storelly_pb_settings['enable_api_sync'] == 'yes' ? 'checked' : '';
-                        $spbwc_stt_no_api_sync = isset($storelly_pb_settings['enable_api_sync']) && $storelly_pb_settings['enable_api_sync'] == 'no' ? 'checked' : '';
-                        if (empty($spbwc_stt_yes_api_sync) && empty($spbwc_stt_no_api_sync)) {
+                        $spbwc_stt_no_api_sync  = isset($storelly_pb_settings['enable_api_sync']) && $storelly_pb_settings['enable_api_sync'] == 'no'  ? 'checked' : '';
+                        if ( empty( $spbwc_stt_yes_api_sync ) && empty( $spbwc_stt_no_api_sync ) ) {
                             $spbwc_stt_no_api_sync = 'checked';
                         }
                         ?>
@@ -683,47 +684,136 @@ if ( ! in_array($spbwc_settings_tab, $spbwc_valid_tabs, true) ) {
                                     </label>
                                 </div>
                             </div>
-                            <p class="spbwc-setting-row__hint"><?php esc_html_e('Opt-in to sync order data with Storelly Dashboard for centralised print job management. Disabled by default — no data leaves your store until you turn this on.', 'storelly-product-builder-for-woocommerce'); ?></p>
+                            <p class="spbwc-setting-row__hint"><?php esc_html_e('Opt-in to sync order data with Storelly Dashboard for centralised print job management. Disabled by default — no data leaves your store until you enable this.', 'storelly-product-builder-for-woocommerce'); ?></p>
                         </div>
-                    </div>
 
-                    <!-- API Keys sub-section (same block, visual divider) -->
-                    <div class="spbwc-block__sub-head">
-                        <span class="dashicons dashicons-admin-network" aria-hidden="true"></span>
-                        <?php esc_html_e('API Keys', 'storelly-product-builder-for-woocommerce'); ?>
-                    </div>
-                    <div class="spbwc-block__body">
-                        <div class="spbwc-form-row">
-                            <label class="spbwc-form-label"><?php esc_html_e('SID', 'storelly-product-builder-for-woocommerce'); ?></label>
-                            <input type="text" name="storelly_consumer_key" class="spbwc-input" placeholder="ck_xxxxx" value="<?php echo esc_attr($sid); ?>" style="max-width:380px;" />
-                            <span class="spbwc-form-hint"><?php esc_html_e('Your Store ID from Storelly Dashboard → Settings → API Keys. Required to enable cloud PDF rendering and order sync.', 'storelly-product-builder-for-woocommerce'); ?></span>
-                        </div>
-                        <div class="spbwc-form-row">
-                            <label class="spbwc-form-label"><?php esc_html_e('Secret', 'storelly-product-builder-for-woocommerce'); ?></label>
-                            <input type="text" name="storelly_consumer_secret" class="spbwc-input" placeholder="cs_xxxxx" value="<?php echo esc_attr($secret); ?>" style="max-width:380px;" />
-                            <span class="spbwc-form-hint"><?php esc_html_e('Your Store Secret key. Keep this private — never expose it in client-side code or share it publicly.', 'storelly-product-builder-for-woocommerce'); ?></span>
-                        </div>
-                        <div class="spbwc-form-row">
-                            <label class="spbwc-form-label"><?php esc_html_e('Unauth token', 'storelly-product-builder-for-woocommerce'); ?></label>
-                            <input type="text" class="spbwc-input spbwc-input-readonly" value="<?php echo esc_attr($unauth_token); ?>" readonly style="max-width:380px;" />
-                            <span class="spbwc-form-hint"><?php esc_html_e('Auto-generated after saving valid SID + Secret. Used for read-only API requests. Read-only — do not edit manually.', 'storelly-product-builder-for-woocommerce'); ?></span>
-                        </div>
-                        <?php if ($storelly_username) : ?>
-                        <div class="spbwc-form-row">
-                            <label class="spbwc-form-label"><?php esc_html_e('Username', 'storelly-product-builder-for-woocommerce'); ?></label>
-                            <input type="text" class="spbwc-input spbwc-input-readonly" value="<?php echo esc_attr($storelly_username); ?>" readonly style="max-width:380px;" />
-                        </div>
-                        <div class="spbwc-form-actions">
-                            <a href="https://app.storelly.com/login?redirect=woocomerce" class="spbwc-btn spbwc-btn-primary" target="_blank" rel="noopener"><?php esc_html_e('Login to Storelly', 'storelly-product-builder-for-woocommerce'); ?></a>
-                            <a href="<?php echo esc_url($url_new_product); ?>" class="spbwc-btn spbwc-btn-secondary"><?php esc_html_e('Create your first product', 'storelly-product-builder-for-woocommerce'); ?></a>
-                        </div>
-                        <?php endif; ?>
-                        <div class="spbwc-form-row spbwc-log-row">
-                            <label class="spbwc-form-label"><?php esc_html_e('Log', 'storelly-product-builder-for-woocommerce'); ?></label>
-                            <div class="spbwc-log-box"><code><?php echo esc_html($api_log); ?></code></div>
-                        </div>
                     </div>
                 </div>
+
+                <!-- ── Block 2: API Keys (independent card) ──────── -->
+                <div class="spbwc-block<?php echo $storelly_username ? ' spbwc-block--success' : ''; ?>" style="margin-top:var(--nbd-space-4);">
+                    <div class="spbwc-block__head">
+                        <h3 class="spbwc-block__title">
+                            <span class="dashicons dashicons-admin-network" aria-hidden="true"></span>
+                            <?php esc_html_e('API Keys', 'storelly-product-builder-for-woocommerce'); ?>
+                        </h3>
+                        <?php if ( $storelly_username ) : ?>
+                        <span class="spbwc-block__badge">
+                            <span class="dashicons dashicons-yes-alt" aria-hidden="true"></span>
+                            <?php esc_html_e('Connected', 'storelly-product-builder-for-woocommerce'); ?>
+                        </span>
+                        <?php else : ?>
+                        <span class="spbwc-block__badge spbwc-block__badge--muted">
+                            <span class="dashicons dashicons-minus" aria-hidden="true"></span>
+                            <?php esc_html_e('Not connected', 'storelly-product-builder-for-woocommerce'); ?>
+                        </span>
+                        <?php endif; ?>
+                    </div>
+
+                    <div class="spbwc-setting-rows">
+
+                        <!-- SID (Consumer Key) -->
+                        <div class="spbwc-setting-row">
+                            <div class="spbwc-setting-row__label">
+                                <label for="storelly_consumer_key"><?php esc_html_e('SID', 'storelly-product-builder-for-woocommerce'); ?></label>
+                            </div>
+                            <div class="spbwc-setting-row__control">
+                                <input id="storelly_consumer_key" type="text" name="storelly_consumer_key"
+                                       class="spbwc-input" placeholder="ck_xxxxx" style="width:300px;"
+                                       value="<?php echo esc_attr($sid); ?>" />
+                            </div>
+                            <p class="spbwc-setting-row__hint"><?php esc_html_e('Your Store ID (Consumer Key). Find it in Storelly Dashboard → Settings → API Keys. Paste the exact value — no extra spaces or line breaks.', 'storelly-product-builder-for-woocommerce'); ?></p>
+                        </div>
+
+                        <!-- Secret (Consumer Secret) -->
+                        <div class="spbwc-setting-row">
+                            <div class="spbwc-setting-row__label">
+                                <label for="storelly_consumer_secret"><?php esc_html_e('Secret', 'storelly-product-builder-for-woocommerce'); ?></label>
+                            </div>
+                            <div class="spbwc-setting-row__control">
+                                <input id="storelly_consumer_secret" type="text" name="storelly_consumer_secret"
+                                       class="spbwc-input" placeholder="cs_xxxxx" style="width:300px;"
+                                       value="<?php echo esc_attr($secret); ?>" />
+                            </div>
+                            <p class="spbwc-setting-row__hint"><?php esc_html_e('Your Store Secret key. Keep this private — never put it in client-side code or share it publicly. Rotate it in Storelly Dashboard → Settings → API Keys if compromised.', 'storelly-product-builder-for-woocommerce'); ?></p>
+                        </div>
+
+                        <!-- Unauth Token (read-only) -->
+                        <div class="spbwc-setting-row">
+                            <div class="spbwc-setting-row__label">
+                                <?php esc_html_e('Unauth Token', 'storelly-product-builder-for-woocommerce'); ?>
+                            </div>
+                            <div class="spbwc-setting-row__control">
+                                <input type="text" class="spbwc-input spbwc-input-readonly" style="width:300px;"
+                                       value="<?php echo esc_attr($unauth_token); ?>" readonly />
+                            </div>
+                            <p class="spbwc-setting-row__hint"><?php esc_html_e('Auto-generated after you save a valid SID + Secret pair. Used for unauthenticated (public) API calls. Read-only — do not edit manually.', 'storelly-product-builder-for-woocommerce'); ?></p>
+                        </div>
+
+                        <?php if ( $storelly_username ) : ?>
+
+                        <!-- Username (read-only, only when connected) -->
+                        <div class="spbwc-setting-row">
+                            <div class="spbwc-setting-row__label">
+                                <?php esc_html_e('Username', 'storelly-product-builder-for-woocommerce'); ?>
+                            </div>
+                            <div class="spbwc-setting-row__control">
+                                <input type="text" class="spbwc-input spbwc-input-readonly" style="width:300px;"
+                                       value="<?php echo esc_attr($storelly_username); ?>" readonly />
+                            </div>
+                            <p class="spbwc-setting-row__hint"><?php esc_html_e('Your Storelly account username linked to this store. Auto-populated when the API keys are validated successfully — you do not need to enter this manually.', 'storelly-product-builder-for-woocommerce'); ?></p>
+                        </div>
+
+                        <!-- Quick actions (only when connected) -->
+                        <div class="spbwc-setting-row">
+                            <div class="spbwc-setting-row__label">
+                                <?php esc_html_e('Quick actions', 'storelly-product-builder-for-woocommerce'); ?>
+                            </div>
+                            <div class="spbwc-setting-row__control">
+                                <div class="spbwc-action-btns">
+                                    <a href="https://app.storelly.com/login?redirect=woocomerce"
+                                       class="spbwc-btn spbwc-btn-primary"
+                                       target="_blank" rel="noopener noreferrer">
+                                        <span class="dashicons dashicons-external" aria-hidden="true"></span>
+                                        <?php esc_html_e('Login to Storelly', 'storelly-product-builder-for-woocommerce'); ?>
+                                    </a>
+                                    <a href="<?php echo esc_url($url_new_product); ?>"
+                                       class="spbwc-btn spbwc-btn-secondary">
+                                        <span class="dashicons dashicons-plus-alt2" aria-hidden="true"></span>
+                                        <?php esc_html_e('Create first product', 'storelly-product-builder-for-woocommerce'); ?>
+                                    </a>
+                                </div>
+                            </div>
+                            <div class="spbwc-setting-row__hint spbwc-hint-cta">
+                                <p class="spbwc-hint-cta__item">
+                                    <strong><?php esc_html_e('Login to Storelly', 'storelly-product-builder-for-woocommerce'); ?></strong>
+                                    <?php esc_html_e('— Open the Storelly Dashboard to manage print jobs, product templates, and customer orders.', 'storelly-product-builder-for-woocommerce'); ?>
+                                </p>
+                                <p class="spbwc-hint-cta__item">
+                                    <strong><?php esc_html_e('Create first product', 'storelly-product-builder-for-woocommerce'); ?></strong>
+                                    <?php esc_html_e('— Open WooCommerce Add Product. Attach a Storelly designer template to the product to enable the builder for your customers.', 'storelly-product-builder-for-woocommerce'); ?>
+                                </p>
+                            </div>
+                        </div>
+
+                        <?php endif; ?>
+
+                        <!-- Connection log -->
+                        <div class="spbwc-setting-row">
+                            <div class="spbwc-setting-row__label">
+                                <?php esc_html_e('Log', 'storelly-product-builder-for-woocommerce'); ?>
+                            </div>
+                            <div class="spbwc-setting-row__control">
+                                <div class="spbwc-log-box" style="width:300px;">
+                                    <code><?php echo esc_html($api_log); ?></code>
+                                </div>
+                            </div>
+                            <p class="spbwc-setting-row__hint"><?php esc_html_e('Last API response from Storelly. Use this to diagnose connection issues — look for error codes or an empty value if sync is not working.', 'storelly-product-builder-for-woocommerce'); ?></p>
+                        </div>
+
+                    </div>
+                </div>
+
             </div>
 
             <div class="spbwc-block" style="margin-top:var(--nbd-space-4);">
