@@ -74,12 +74,14 @@ if ( ! class_exists( 'SPBWC_Template_Catalog' ) ) {
 				'version'    => isset( $data['version'] ) ? (string) $data['version'] : '1',
 				'generated'  => isset( $data['generated'] ) ? (string) $data['generated'] : '',
 				'categories' => is_array( $data['categories'] ?? null ) ? $data['categories'] : array(),
-				'templates'  => array_values( array_filter(
-					array_map( array( $this, 'normalize_template_meta' ), $data['templates'] ),
-					function ( $tpl ) {
-						return ! empty( $tpl['slug'] );
-					}
-				) ),
+				'templates'  => array_values(
+					array_filter(
+						array_map( array( $this, 'normalize_template_meta' ), $data['templates'] ),
+						function ( $tpl ) {
+							return ! empty( $tpl['slug'] );
+						}
+					)
+				),
 			);
 
 			set_transient( $cache_key, $catalog, self::CACHE_TTL );

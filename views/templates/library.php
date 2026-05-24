@@ -13,8 +13,18 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-/** @var array $templates */
-/** @var array $categories */
+/**
+ * Catalog templates (normalized) passed from SPBWC_Template_Library_Admin::render_page().
+ *
+ * @var array
+ */
+// phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable -- passed via include.
+/**
+ * Catalog categories map passed from SPBWC_Template_Library_Admin::render_page().
+ *
+ * @var array
+ */
+// phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable -- passed via include.
 $catalog = SPBWC_Template_Catalog::instance();
 ?>
 <div class="wrap spbwc-template-library">
@@ -35,7 +45,7 @@ $catalog = SPBWC_Template_Catalog::instance();
 			</div>
 			<div class="spbwc-page-hero__actions">
 				<a href="https://storelly.com/docs/templates" target="_blank" rel="noopener noreferrer"
-				   class="spbwc-cta-btn spbwc-cta-btn--ghost">
+					class="spbwc-cta-btn spbwc-cta-btn--ghost">
 					<span class="dashicons dashicons-book-alt" aria-hidden="true"></span>
 					<?php esc_html_e( 'Template Docs', 'storelly-product-builder-for-woocommerce' ); ?>
 				</a>
@@ -58,9 +68,9 @@ $catalog = SPBWC_Template_Catalog::instance();
 
 			<select id="spbwc-tl-category-filter" class="spbwc-tl-toolbar__filter">
 				<option value=""><?php esc_html_e( 'All categories', 'storelly-product-builder-for-woocommerce' ); ?></option>
-				<?php foreach ( $categories as $cat_id => $labels ) : ?>
-					<option value="<?php echo esc_attr( $cat_id ); ?>">
-						<?php echo esc_html( $catalog->get_category_label( $cat_id ) ); ?>
+				<?php foreach ( $categories as $spbwc_cat_id => $spbwc_cat_labels ) : ?>
+					<option value="<?php echo esc_attr( $spbwc_cat_id ); ?>">
+						<?php echo esc_html( $catalog->get_category_label( $spbwc_cat_id ) ); ?>
 					</option>
 				<?php endforeach; ?>
 			</select>
@@ -74,16 +84,17 @@ $catalog = SPBWC_Template_Catalog::instance();
 		</div>
 
 		<div class="spbwc-tl-grid" id="spbwc-tl-grid">
-			<?php foreach ( $templates as $tpl ) :
-				$name   = $catalog->get_display_name( $tpl );
-				$cat_id = isset( $tpl['category'] ) ? $tpl['category'] : '';
-				$cat_lb = $catalog->get_category_label( $cat_id );
-			?>
+			<?php
+			foreach ( $templates as $tpl ) :
+				$name         = $catalog->get_display_name( $tpl );
+				$spbwc_cat_id = isset( $tpl['category'] ) ? $tpl['category'] : '';
+				$cat_lb       = $catalog->get_category_label( $spbwc_cat_id );
+				?>
 				<article class="spbwc-tl-card"
 					data-slug="<?php echo esc_attr( $tpl['slug'] ); ?>"
-					data-category="<?php echo esc_attr( $cat_id ); ?>"
+					data-category="<?php echo esc_attr( $spbwc_cat_id ); ?>"
 					data-name="<?php echo esc_attr( strtolower( $name ) ); ?>">
-					<div class="spbwc-tl-card-thumb spbwc-tl-card-thumb--<?php echo esc_attr( $cat_id ); ?>">
+					<div class="spbwc-tl-card-thumb spbwc-tl-card-thumb--<?php echo esc_attr( $spbwc_cat_id ); ?>">
 						<span class="dashicons dashicons-art" aria-hidden="true"></span>
 						<span class="spbwc-tl-card-thumb__cat"><?php echo esc_html( $cat_lb ); ?></span>
 					</div>
@@ -230,13 +241,18 @@ $catalog = SPBWC_Template_Catalog::instance();
 							class="spbwc-tl-select"
 							style="width:100%;">
 							<?php
-							$terms = get_terms( array( 'taxonomy' => 'product_cat', 'hide_empty' => false ) );
+							$terms = get_terms(
+								array(
+									'taxonomy'   => 'product_cat',
+									'hide_empty' => false,
+								)
+							);
 							if ( ! is_wp_error( $terms ) && is_array( $terms ) ) {
-								foreach ( $terms as $term ) {
+								foreach ( $terms as $wc_term ) {
 									printf(
 										'<option value="%d">%s</option>',
-										(int) $term->term_id,
-										esc_html( $term->name )
+										(int) $wc_term->term_id,
+										esc_html( $wc_term->name )
 									);
 								}
 							}

@@ -30,10 +30,10 @@ if ( ! class_exists( 'SPBWC_Template_Applier' ) ) {
 		/**
 		 * Fork a bundled template into a brand-new options row.
 		 *
-		 * @param string   $slug         template slug (matches catalog)
-		 * @param string   $apply_for    'p' (products) or 'c' (categories)
-		 * @param int[]    $scope_ids    product IDs (if 'p') OR category term IDs (if 'c')
-		 * @param string   $custom_title optional override; defaults to template's localized name
+		 * @param string $slug         template slug (matches catalog)
+		 * @param string $apply_for    'p' (products) or 'c' (categories)
+		 * @param int[]  $scope_ids    product IDs (if 'p') OR category term IDs (if 'c')
+		 * @param string $custom_title optional override; defaults to template's localized name
 		 *
 		 * @return array  ['success' => bool, 'option_id' => int, 'message' => string]
 		 */
@@ -79,7 +79,7 @@ if ( ! class_exists( 'SPBWC_Template_Applier' ) ) {
 			$now   = ( new DateTime() )->format( 'Y-m-d H:i:s' );
 			$uid   = wp_get_current_user()->ID;
 
-			$row = array(
+			$row     = array(
 				'title'            => $title,
 				'published'        => 1,
 				'product_ids'      => serialize( $product_ids ), // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.serialize_serialize -- Existing column shape uses PHP-serialized arrays.
@@ -125,14 +125,16 @@ if ( ! class_exists( 'SPBWC_Template_Applier' ) ) {
 				'success'   => true,
 				'option_id' => $option_id,
 				'message'   => __( 'Template applied successfully.', 'storelly-product-builder-for-woocommerce' ),
-				'edit_url'  => esc_url_raw( add_query_arg(
-					array(
-						'page'   => SPBWC_PB_BUILDER_SLUG,
-						'action' => 'edit',
-						'id'     => $option_id,
-					),
-					admin_url( 'admin.php' )
-				) ),
+				'edit_url'  => esc_url_raw(
+					add_query_arg(
+						array(
+							'page'   => SPBWC_PB_BUILDER_SLUG,
+							'action' => 'edit',
+							'id'     => $option_id,
+						),
+						admin_url( 'admin.php' )
+					)
+				),
 			);
 		}
 

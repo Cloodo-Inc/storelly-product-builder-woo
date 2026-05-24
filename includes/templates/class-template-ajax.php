@@ -30,12 +30,13 @@ if ( ! class_exists( 'SPBWC_Template_Ajax' ) ) {
 
 		public function init() {
 			add_action( 'wp_ajax_spbwc_template_preview', array( $this, 'ajax_preview' ) );
-			add_action( 'wp_ajax_spbwc_template_apply',   array( $this, 'ajax_apply' ) );
+			add_action( 'wp_ajax_spbwc_template_apply', array( $this, 'ajax_apply' ) );
 		}
 
 		public function ajax_preview() {
 			$this->verify_request();
 
+			// phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce verified in verify_request() called above.
 			$slug    = isset( $_POST['slug'] ) ? sanitize_text_field( wp_unslash( $_POST['slug'] ) ) : '';
 			$catalog = SPBWC_Template_Catalog::instance();
 			$meta    = $catalog->get_template_meta( $slug );
@@ -49,29 +50,35 @@ if ( ! class_exists( 'SPBWC_Template_Ajax' ) ) {
 
 			$render = $this->build_render_data( $data );
 
-			wp_send_json_success( array(
-				'meta'   => array(
-					'slug'             => $meta['slug'],
-					'name'             => $catalog->get_display_name( $meta ),
-					'category'         => $catalog->get_category_label( $meta['category'] ),
-					'field_count'      => $meta['field_count'],
-					'pricing_method'   => $meta['pricing_method'],
-					'pricing_source'   => $meta['pricing_source'],
-					'description'      => $meta['description'],
-					'template_version' => $meta['template_version'],
-				),
-				'render' => $render,
-			) );
+			wp_send_json_success(
+				array(
+					'meta'   => array(
+						'slug'             => $meta['slug'],
+						'name'             => $catalog->get_display_name( $meta ),
+						'category'         => $catalog->get_category_label( $meta['category'] ),
+						'field_count'      => $meta['field_count'],
+						'pricing_method'   => $meta['pricing_method'],
+						'pricing_source'   => $meta['pricing_source'],
+						'description'      => $meta['description'],
+						'template_version' => $meta['template_version'],
+					),
+					'render' => $render,
+				)
+			);
 		}
 
 		public function ajax_apply() {
 			$this->verify_request();
 
-			$slug         = isset( $_POST['slug'] ) ? sanitize_text_field( wp_unslash( $_POST['slug'] ) ) : '';
-			$apply_for    = isset( $_POST['apply_for'] ) ? sanitize_text_field( wp_unslash( $_POST['apply_for'] ) ) : 'p';
+			// phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce verified in verify_request() called above.
+			$slug = isset( $_POST['slug'] ) ? sanitize_text_field( wp_unslash( $_POST['slug'] ) ) : '';
+			// phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce verified in verify_request() called above.
+			$apply_for = isset( $_POST['apply_for'] ) ? sanitize_text_field( wp_unslash( $_POST['apply_for'] ) ) : 'p';
+			// phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce verified in verify_request() called above.
 			$custom_title = isset( $_POST['title'] ) ? sanitize_text_field( wp_unslash( $_POST['title'] ) ) : '';
-			$scope_raw    = isset( $_POST['scope_ids'] ) ? (array) wp_unslash( $_POST['scope_ids'] ) : array();
-			$scope_ids    = array_map( 'absint', $scope_raw );
+			// phpcs:ignore WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Nonce verified above; array values sanitized with absint on next line.
+			$scope_raw = isset( $_POST['scope_ids'] ) ? (array) wp_unslash( $_POST['scope_ids'] ) : array();
+			$scope_ids = array_map( 'absint', $scope_raw );
 
 			$result = SPBWC_Template_Applier::instance()->apply( $slug, $apply_for, $scope_ids, $custom_title );
 
@@ -115,7 +122,9 @@ if ( ! class_exists( 'SPBWC_Template_Ajax' ) ) {
 
 			if ( ! empty( $data['quantity_breaks'] ) && is_array( $data['quantity_breaks'] ) ) {
 				foreach ( $data['quantity_breaks'] as $qb ) {
-					if ( ! is_array( $qb ) ) continue;
+					if ( ! is_array( $qb ) ) {
+						continue;
+					}
 					$out['quantity_breaks'][] = array(
 						'val' => (string) ( $qb['val'] ?? '' ),
 						'dis' => (string) ( $qb['dis'] ?? '' ),
@@ -128,22 +137,26 @@ if ( ! class_exists( 'SPBWC_Template_Ajax' ) ) {
 			}
 
 			foreach ( $data['fields'] as $field ) {
-				if ( ! is_array( $field ) ) continue;
+				if ( ! is_array( $field ) ) {
+					continue;
+				}
 				$g = isset( $field['general'] ) && is_array( $field['general'] ) ? $field['general'] : array();
 				$a = isset( $field['appearance'] ) && is_array( $field['appearance'] ) ? $field['appearance'] : array();
 
-				$title       = (string) ( $g['title']['value']       ?? '' );
+				$title       = (string) ( $g['title']['value'] ?? '' );
 				$description = (string) ( $g['description']['value'] ?? '' );
 				$required    = 'y' === (string) ( $g['required']['value'] ?? 'n' );
 				$display     = (string) ( $a['display_type']['value'] ?? 'd' );
-				$data_type   = (string) ( $g['data_type']['value']    ?? 'm' );
-				$input_type  = (string) ( $g['input_type']['value']   ?? 't' );
-				$price_type  = (string) ( $g['price_type']['value']   ?? 'f' );
+				$data_type   = (string) ( $g['data_type']['value'] ?? 'm' );
+				$input_type  = (string) ( $g['input_type']['value'] ?? 't' );
+				$price_type  = (string) ( $g['price_type']['value'] ?? 'f' );
 
 				$attrs = array();
 				if ( ! empty( $g['attributes']['options'] ) && is_array( $g['attributes']['options'] ) ) {
 					foreach ( $g['attributes']['options'] as $opt ) {
-						if ( ! is_array( $opt ) ) continue;
+						if ( ! is_array( $opt ) ) {
+							continue;
+						}
 						$attrs[] = array(
 							'name'         => (string) ( $opt['name'] ?? '' ),
 							'des'          => (string) ( $opt['des'] ?? '' ),
