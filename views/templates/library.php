@@ -155,17 +155,13 @@ $catalog = SPBWC_Template_Catalog::instance();
 						<span class="spbwc-tl-dialog-header__sub" id="spbwc-tl-preview-subtitle"></span>
 					</div>
 					<nav class="spbwc-tl-tabs" role="tablist">
-						<button type="button" class="spbwc-tl-tab spbwc-tl-tab--active" data-tab="live"><?php esc_html_e( 'Live preview', 'storelly-product-builder-for-woocommerce' ); ?></button>
+						<button type="button" class="spbwc-tl-tab spbwc-tl-tab--active" data-tab="live"><?php esc_html_e( 'Preview', 'storelly-product-builder-for-woocommerce' ); ?></button>
 						<button type="button" class="spbwc-tl-tab" data-tab="fields"><?php esc_html_e( 'Fields', 'storelly-product-builder-for-woocommerce' ); ?></button>
 						<button type="button" class="spbwc-tl-tab" data-tab="about"><?php esc_html_e( 'About', 'storelly-product-builder-for-woocommerce' ); ?></button>
 					</nav>
 					<button type="button" class="spbwc-tl-dialog-close" data-close="preview" aria-label="<?php esc_attr_e( 'Close', 'storelly-product-builder-for-woocommerce' ); ?>">&times;</button>
 				</header>
 				<div class="spbwc-tl-dialog-body spbwc-tl-preview-body" id="spbwc-tl-preview-body">
-					<div class="spbwc-tl-preview-loading" id="spbwc-tl-preview-loading">
-						<span class="spinner is-active"></span>
-						<span><?php esc_html_e( 'Loading preview…', 'storelly-product-builder-for-woocommerce' ); ?></span>
-					</div>
 					<div class="spbwc-tl-tabpanel spbwc-tl-tabpanel--active" data-tabpanel="live" id="spbwc-tl-preview-live"></div>
 					<div class="spbwc-tl-tabpanel" data-tabpanel="fields" id="spbwc-tl-preview-fields"></div>
 					<div class="spbwc-tl-tabpanel" data-tabpanel="about" id="spbwc-tl-preview-about"></div>

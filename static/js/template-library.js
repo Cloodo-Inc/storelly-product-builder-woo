@@ -86,17 +86,27 @@
 
 	function openPreview(slug, name) {
 		currentTemplate = { slug: slug, name: name };
+
+		// Populate header immediately from card data — subtitle updated after load.
 		$('#spbwc-tl-preview-title').text(name);
-		$('#spbwc-tl-preview-subtitle').text(L.i18n.loadingPreview);
-		$('#spbwc-tl-preview-live').empty();
-		$('#spbwc-tl-preview-fields').empty();
-		$('#spbwc-tl-preview-about').empty();
-		// Reset to Live tab.
+		$('#spbwc-tl-preview-subtitle').text('');
+
+		// Reset to Preview tab and clear other panels.
 		$previewDialog.find('.spbwc-tl-tab').removeClass('spbwc-tl-tab--active');
 		$previewDialog.find('.spbwc-tl-tab[data-tab="live"]').addClass('spbwc-tl-tab--active');
 		$previewDialog.find('.spbwc-tl-tabpanel').removeClass('spbwc-tl-tabpanel--active');
 		$previewDialog.find('[data-tabpanel="live"]').addClass('spbwc-tl-tabpanel--active');
-		$('#spbwc-tl-preview-loading').prop('hidden', false);
+		$('#spbwc-tl-preview-fields').empty();
+		$('#spbwc-tl-preview-about').empty();
+
+		// Show inline skeleton inside the live panel; disable tabs until data arrives.
+		$('#spbwc-tl-preview-live').html(
+			'<div class="spbwc-tl-preview-skeleton">' +
+			'<span class="spinner is-active"></span>' +
+			'<span>' + esc(L.i18n.loadingPreview) + '</span>' +
+			'</div>'
+		);
+		$previewDialog.find('.spbwc-tl-tab').prop('disabled', true);
 
 		openDialog($previewDialog);
 
@@ -105,7 +115,7 @@
 			_ajax_nonce: L.nonce,
 			slug: slug
 		}).done(function (resp) {
-			$('#spbwc-tl-preview-loading').prop('hidden', true);
+			$previewDialog.find('.spbwc-tl-tab').prop('disabled', false);
 			if (!resp || !resp.success) {
 				$('#spbwc-tl-preview-live').html(errorBlock((resp && resp.data && resp.data.message) || L.i18n.previewFailed));
 				return;
@@ -115,30 +125,25 @@
 			renderPreviewAbout(resp.data);
 			$('#spbwc-tl-preview-subtitle').text(resp.data.meta.category + ' · ' + resp.data.meta.field_count + ' fields');
 		}).fail(function () {
-			$('#spbwc-tl-preview-loading').prop('hidden', true);
+			$previewDialog.find('.spbwc-tl-tab').prop('disabled', false);
 			$('#spbwc-tl-preview-live').html(errorBlock(L.i18n.previewFailed));
 		});
 	}
 
 	function renderPreviewLive(data) {
-		var meta   = data.meta;
 		var render = data.render || {};
 		var fields = render.fields || [];
 
+		// Render only the pricing-option fields — no fake product-page chrome
+		// (no gallery, breadcrumb, product title or h1).  The admin is previewing
+		// the option widget itself, not a product page.
 		var html = '<div class="spb-classic">';
-		html += '<div class="spb-classic__layout">';
-		html += '<div class="spb-classic__breadcrumb">Home / ' + esc(meta.category) + ' / <strong>' + esc(meta.name) + '</strong></div>';
 
-		html += '<div class="spb-classic__gallery"><span class="spb-classic__gallery-label">' + esc(meta.name) + '</span></div>';
-		html += '<div class="spb-classic__info">';
-		html += '<div class="spb-classic__category">' + esc(meta.category) + '</div>';
-		html += '<h1 class="spb-classic__title">' + esc(meta.name) + '</h1>';
-
-		// Price wrap (estimated from first attribute price if available).
+		// Estimated starting price (optional — only when attributes have prices).
 		var sample = sampleTotal(fields);
 		if (sample.value) {
 			html += '<div class="spb-classic__price-wrap">';
-			html += '<div class="spb-classic__price-label">Estimated total</div>';
+			html += '<div class="spb-classic__price-label">Estimated starting price</div>';
 			html += '<div class="spb-classic__price-value">' + esc(L.currencySymbol + sample.value);
 			if (sample.suffix) html += ' <small>' + esc(sample.suffix) + '</small>';
 			html += '</div>';
@@ -146,13 +151,11 @@
 			html += '</div>';
 		}
 
-		// Render fields.
+		// Fields.
 		if (!fields.length) {
 			html += '<div class="spb-classic__empty">This template has no configurable fields.</div>';
 		} else {
-			fields.forEach(function (f) {
-				html += renderClassicField(f);
-			});
+			fields.forEach(function (f) { html += renderClassicField(f); });
 		}
 
 		// Quantity breaks strip (if any).
@@ -160,10 +163,7 @@
 			html += renderQtyBreaks(render.quantity_breaks);
 		}
 
-		html += '</div>'; // info
-		html += '</div>'; // layout
-		html += '</div>'; // classic
-
+		html += '</div>';
 		$('#spbwc-tl-preview-live').html(html);
 	}
 
