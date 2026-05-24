@@ -8,6 +8,11 @@
 
 
 /* ── Clean underline tab strip ──────────────────────────────── */
+/*
+ * Use h2.spbwc-settings-tabs for specificity (0,1,1) to beat WP admin's
+ * h2.nav-tab-wrapper { margin: 0 } rule which would otherwise override ours.
+ */
+h2.spbwc-settings-tabs,
 .spbwc-settings-tabs {
     display: flex;
     flex-wrap: nowrap;
@@ -15,12 +20,18 @@
     align-items: flex-end;
     gap: 0;
     padding: 0;
-    margin: 0 0 28px;
+    margin: 0 0 0;          /* bottom spacing handled by the panels below */
     border-bottom: 2px solid var(--nbd-st-border-light);
     background: transparent;
     scrollbar-width: none;
 }
 .spbwc-settings-tabs::-webkit-scrollbar { display: none; }
+
+/* ── Gap between tab strip and the first panel/block ────────── */
+.spbwc-tab-panel,
+.spbwc-quotes-panel {
+    padding-top: 28px;
+}
 
 .spbwc-settings-tabs .nav-tab {
     display: inline-flex;
