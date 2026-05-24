@@ -48,6 +48,16 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
                 // License management AJAX actions
                 'spbwc_license_activate'         => false, // admin only
                 'spbwc_license_sync'             => false, // admin only
+                // Products page AJAX pagination
+                'spbwc_load_products'            => false, // admin only
+                // Pricing-option list page: re-render grid on filter/search/paginate
+                'spbwc_list_options_html'        => false, // admin only
+                // Pricing-option row actions
+                'spbwc_trash_option'             => false, // admin only
+                'spbwc_duplicate_option'         => false, // admin only
+                'spbwc_publish_option_ajax'      => false, // admin only — toggle published
+                // Edit-option page: save without full reload
+                'spbwc_save_option_ajax'         => false, // admin only
             );
             foreach ($ajax_events as $ajax_event => $nopriv) {
                 add_action('wp_ajax_' . $ajax_event, array($this, $ajax_event));
@@ -97,6 +107,17 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
                     '_transient_timeout_spbwc_product_builder_%'
                 )
             );
+        }
+        private function spbwc_get_mapped_product_ids() {
+            $mapped = array();
+            foreach ( (array) $this->spbwc_get_cached_published_options() as $opt ) {
+                if ( 'p' === ( isset( $opt['apply_for'] ) ? $opt['apply_for'] : 'p' ) ) {
+                    foreach ( $this->spbwc_extract_product_ids_from_option( $opt ) as $pid ) {
+                        $mapped[ $pid ] = true;
+                    }
+                }
+            }
+            return array_keys( $mapped );
         }
         protected function spbwc_get_cached_published_options() {
             $cache_key = 'spbwc_published_options';
@@ -394,6 +415,9 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
             wp_register_style('spbwc-admin-ui', SPBWC_PB_CSS_URL . 'storelly-admin-ui.css', array('spbwc-tokens', 'dashicons'), SPBWC_PB_VERSION);
 
             wp_register_style('spbwc-options-style', SPBWC_PB_CSS_URL . 'admin-options.css', array('spbwc-admin-ui', 'wp-color-picker', 'wp-jquery-ui-dialog'), filemtime( SPBWC_PB_PLUGIN_DIR . 'static/css/admin-options.css' ));
+            // v2 shell for the edit-option screen — scoped under .spbwc-edit-v2,
+            // does not affect the legacy list table or other screens.
+            wp_register_style('spbwc-options-v2-style', SPBWC_PB_CSS_URL . 'admin-options-v2.css', array('spbwc-options-style'), filemtime( SPBWC_PB_PLUGIN_DIR . 'static/css/admin-options-v2.css' ));
             wp_register_style('spbwc-general-css', SPBWC_PB_CSS_URL . 'storelly-general.css', array('spbwc-admin-ui'), SPBWC_PB_VERSION);
             wp_register_style('spbwc-sweetalert-css', SPBWC_PB_CSS_URL . 'sweetalert.css', array(), '5.6.10');
             wp_register_style('spbwc-manager-fonts', SPBWC_PB_CSS_URL . 'manager-fonts.css', array('spbwc-admin-ui', 'spbwc-sweetalert-css'), filemtime( SPBWC_PB_PLUGIN_DIR . 'static/css/manager-fonts.css' ));
@@ -429,7 +453,19 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
             wp_enqueue_style('spbwc-general-css');
             wp_enqueue_script('spbwc-general-js');
 
-            if ($hook === 'toplevel_page_' . SPBWC_PB_OPTIONS_SLUG || $hook === 'product-builder-options_page_' . SPBWC_PB_BUILDER_SLUG) {
+            // Hook suffix is {sanitize_title( top menu title )}_page_{ submenu slug }.
+            // Top menu is "Storelly Builder" → "storelly-builder_page_…".
+            // We also accept the legacy "product-builder-options_page_…" form for
+            // older WP versions where the menu title was different, and any hook
+            // that simply ends with `_page_<builder-slug>` so the editor never
+            // silently falls back to no-Angular mode again.
+            $spbwc_is_builder_hook = (
+                $hook === 'toplevel_page_' . SPBWC_PB_OPTIONS_SLUG
+                || $hook === 'storelly-builder_page_' . SPBWC_PB_BUILDER_SLUG
+                || $hook === 'product-builder-options_page_' . SPBWC_PB_BUILDER_SLUG
+                || ( is_string( $hook ) && substr( $hook, - ( strlen( SPBWC_PB_BUILDER_SLUG ) + 6 ) ) === '_page_' . SPBWC_PB_BUILDER_SLUG )
+            );
+            if ($spbwc_is_builder_hook) {
                 wp_register_script('spbwc-options-script', SPBWC_PB_JS_URL . 'admin-options.js', array('jquery', 'wpdialogs', 'jquery-ui-resizable', 'jquery-ui-draggable', 'jquery-ui-droppable', 'jquery-ui-sortable', 'jquery-ui-datepicker', 'jquery-ui-autocomplete', 'wp-color-picker', 'spbwc-ag', 'wc-enhanced-select', 'spbwc-snap-svg', 'spbwc-tiptip'), SPBWC_PB_VERSION, true);
                 wp_localize_script('spbwc-options-script', 'storelly_options', array(
                     'search_products_nonce'     => wp_create_nonce("search-products"),
@@ -437,6 +473,7 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
                     'storelly_options_lang'    => $this->spbwc_storelly_option_i18n(),
                 ));
                wp_enqueue_style('spbwc-options-style');
+               wp_enqueue_style('spbwc-options-v2-style');
                wp_enqueue_script('spbwc-options-script');
             }
             $spbwc_current_page = isset( $_GET['page'] ) ? sanitize_text_field( wp_unslash( $_GET['page'] ) ) : '';
@@ -565,7 +602,12 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
                         }
                     }
                     
-                    wp_register_script('spbwc_option_field_script', SPBWC_PB_JS_URL . 'admin-options.js', array(), SPBWC_PB_VERSION, true);
+                    // Must depend on Angular ('spbwc-ag') so {{ }} interpolation
+                    // and ng-controller="optionCtrl" inside edit-option.php bind
+                    // even when the global admin_enqueue_scripts hook check
+                    // misses (e.g. when the parent menu title changes and the
+                    // hook suffix no longer matches the legacy form).
+                    wp_register_script('spbwc_option_field_script', SPBWC_PB_JS_URL . 'admin-options.js', array('jquery', 'spbwc-ag'), SPBWC_PB_VERSION, true);
                     wp_localize_script('spbwc_option_field_script', 'storelly_option_variable', array(
                         'STORELLY_OPTIONS' =>  $options,
                         'STORELLY_OPTION_FIELD' => $default_field,
@@ -574,6 +616,25 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
                         'max_input_vars' => (int) SPBWC_Storelly_PB_Util::spbwc_get_max_input_var()
                     ));
                     wp_enqueue_script("spbwc_option_field_script");
+                    // Defensive enqueue — guarantees admin-options + v2 shell
+                    // styles render even if the global hook check at
+                    // admin_enqueue_scripts didn't fire for this hook suffix.
+                    if ( wp_style_is( 'spbwc-options-style', 'registered' ) ) {
+                        wp_enqueue_style( 'spbwc-options-style' );
+                    }
+                    if ( wp_style_is( 'spbwc-options-v2-style', 'registered' ) ) {
+                        wp_enqueue_style( 'spbwc-options-v2-style' );
+                    }
+                    // Also localize the `storelly_options` bag for legacy
+                    // i18n strings used by admin-options.js (used by
+                    // add_field -> field.general.title.value etc.).
+                    if ( ! wp_script_is( 'spbwc-options-script', 'enqueued' ) ) {
+                        wp_localize_script( 'spbwc_option_field_script', 'storelly_options', array(
+                            'search_products_nonce' => wp_create_nonce( 'search-products' ),
+                            'calendar_image'        => SPBWC_PB_ASSETS_URL . 'images/calendar.png',
+                            'storelly_options_lang' => $this->spbwc_storelly_option_i18n(),
+                        ) );
+                    }
                     include_once(SPBWC_PB_PLUGIN_DIR . 'views/options/edit-option.php');
                 } 
             } else {
@@ -600,19 +661,7 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
             $per_page = 20;
 
             // Collect product IDs with a mapped printing option for filter tabs + counts.
-            $spbwc_mapped_ids  = array();
-            $spbwc_all_options = $this->spbwc_get_cached_published_options();
-            if ( ! empty( $spbwc_all_options ) ) {
-                foreach ( $spbwc_all_options as $spbwc_opt ) {
-                    $spbwc_apply_for = isset( $spbwc_opt['apply_for'] ) ? $spbwc_opt['apply_for'] : 'p';
-                    if ( 'p' === $spbwc_apply_for ) {
-                        foreach ( $this->spbwc_extract_product_ids_from_option( $spbwc_opt ) as $spbwc_pid ) {
-                            $spbwc_mapped_ids[ $spbwc_pid ] = true;
-                        }
-                    }
-                }
-            }
-            $spbwc_mapped_ids = array_keys( $spbwc_mapped_ids );
+            $spbwc_mapped_ids = $this->spbwc_get_mapped_product_ids();
 
             // Count totals for filter tabs (no_found_rows=false needed for found_posts).
             $spbwc_count_query = new WP_Query( array(
@@ -642,8 +691,8 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
                 $count_unmapped = $count_all;
             }
 
-            // Main query — loads all products; filter is applied client-side via JS.
-            $products_query = new WP_Query( array(
+            // Main query — server-side option filter applied.
+            $spbwc_main_args = array(
                 'post_type'      => 'product',
                 'post_status'    => array( 'publish', 'draft', 'pending', 'private' ),
                 'posts_per_page' => $per_page,
@@ -651,7 +700,13 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
                 's'              => $search,
                 'orderby'        => 'date',
                 'order'          => 'DESC',
-            ) );
+            );
+            if ( 'mapped' === $filter && ! empty( $spbwc_mapped_ids ) ) {
+                $spbwc_main_args['post__in'] = $spbwc_mapped_ids;
+            } elseif ( 'unmapped' === $filter && ! empty( $spbwc_mapped_ids ) ) {
+                $spbwc_main_args['post__not_in'] = $spbwc_mapped_ids;
+            }
+            $products_query = new WP_Query( $spbwc_main_args );
 
             // Pre-fetch option ID + field count for each product on the current page.
             $spbwc_product_data = array();
@@ -680,8 +735,181 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
                 wp_reset_postdata();
             }
 
+            $product_categories = get_terms( array(
+                'taxonomy'   => 'product_cat',
+                'hide_empty' => false,
+                'orderby'    => 'name',
+                'order'      => 'ASC',
+            ) );
+            if ( is_wp_error( $product_categories ) ) {
+                $product_categories = array();
+            }
+
             include_once SPBWC_PB_PLUGIN_DIR . 'views/products.php';
         }
+
+        public function spbwc_load_products() {
+            check_ajax_referer( 'spbwc_load_products_nonce', 'nonce' );
+
+            if ( ! current_user_can( 'spbwc_manage_product_builder' ) ) {
+                wp_send_json_error( __( 'Permission denied.', 'storelly-product-builder-for-woocommerce' ) );
+            }
+
+            $paged         = isset( $_POST['paged'] ) ? max( 1, absint( wp_unslash( $_POST['paged'] ) ) ) : 1;
+            $search        = isset( $_POST['s'] ) ? sanitize_text_field( wp_unslash( $_POST['s'] ) ) : '';
+            $option_filter = isset( $_POST['option_filter'] ) ? sanitize_key( wp_unslash( $_POST['option_filter'] ) ) : 'all';
+            if ( ! in_array( $option_filter, array( 'all', 'mapped', 'unmapped' ), true ) ) {
+                $option_filter = 'all';
+            }
+            $ps_filter    = isset( $_POST['post_status_filter'] ) ? sanitize_key( wp_unslash( $_POST['post_status_filter'] ) ) : '';
+            $product_type = isset( $_POST['product_type'] ) ? sanitize_key( wp_unslash( $_POST['product_type'] ) ) : '';
+            $product_cat  = isset( $_POST['product_cat'] ) ? absint( wp_unslash( $_POST['product_cat'] ) ) : 0;
+            $stock_status = isset( $_POST['stock_status'] ) ? sanitize_key( wp_unslash( $_POST['stock_status'] ) ) : '';
+            $per_page     = 20;
+
+            $valid_statuses  = array( 'publish', 'draft', 'pending', 'private' );
+            $post_status_arg = ( in_array( $ps_filter, $valid_statuses, true ) )
+                ? array( $ps_filter )
+                : array( 'publish', 'draft', 'pending', 'private' );
+
+            // Build shared taxonomy + meta query args.
+            $tax_query  = array();
+            $meta_query = array();
+            if ( ! empty( $product_type ) ) {
+                $tax_query[] = array( 'taxonomy' => 'product_type', 'field' => 'slug', 'terms' => $product_type );
+            }
+            if ( $product_cat > 0 ) {
+                $tax_query[] = array( 'taxonomy' => 'product_cat', 'field' => 'term_id', 'terms' => $product_cat );
+            }
+            if ( count( $tax_query ) > 1 ) {
+                array_unshift( $tax_query, array( 'relation' => 'AND' ) );
+            }
+            if ( ! empty( $stock_status ) ) {
+                $meta_query[] = array( 'key' => '_stock_status', 'value' => $stock_status, 'compare' => '=' );
+            }
+
+            $shared = array(
+                'post_type'   => 'product',
+                'post_status' => $post_status_arg,
+                's'           => $search,
+            );
+            if ( ! empty( $tax_query ) )  { $shared['tax_query']  = $tax_query; }
+            if ( ! empty( $meta_query ) ) { $shared['meta_query'] = $meta_query; }
+
+            // Tab counts (reflect current search + extra filters, but not option_filter).
+            $spbwc_mapped_ids = $this->spbwc_get_mapped_product_ids();
+
+            $count_q  = new WP_Query( array_merge( $shared, array( 'posts_per_page' => -1, 'fields' => 'ids', 'no_found_rows' => false ) ) );
+            $count_all = (int) $count_q->found_posts;
+            if ( ! empty( $spbwc_mapped_ids ) ) {
+                $mapped_q     = new WP_Query( array_merge( $shared, array( 'posts_per_page' => -1, 'fields' => 'ids', 'no_found_rows' => false, 'post__in' => $spbwc_mapped_ids ) ) );
+                $count_mapped = (int) $mapped_q->found_posts;
+            } else {
+                $count_mapped = 0;
+            }
+            $count_unmapped = $count_all - $count_mapped;
+
+            // Main paginated query.
+            $main_args = array_merge( $shared, array(
+                'posts_per_page' => $per_page,
+                'paged'          => $paged,
+                'orderby'        => 'date',
+                'order'          => 'DESC',
+            ) );
+            if ( 'mapped' === $option_filter && ! empty( $spbwc_mapped_ids ) ) {
+                $main_args['post__in'] = $spbwc_mapped_ids;
+            } elseif ( 'unmapped' === $option_filter && ! empty( $spbwc_mapped_ids ) ) {
+                $main_args['post__not_in'] = $spbwc_mapped_ids;
+            }
+            $products_query = new WP_Query( $main_args );
+
+            // Pre-fetch option ID + field count.
+            $spbwc_product_data = array();
+            if ( $products_query->have_posts() ) {
+                while ( $products_query->have_posts() ) {
+                    $products_query->the_post();
+                    $spbwc_pid    = get_the_ID();
+                    $spbwc_opt_id = $this->spbwc_get_product_option( $spbwc_pid );
+                    $spbwc_fc     = 0;
+                    if ( $spbwc_opt_id ) {
+                        $spbwc_opt_row = $this->spbwc_get_option( $spbwc_opt_id );
+                        if ( ! empty( $spbwc_opt_row['fields'] ) ) {
+                            $spbwc_raw = maybe_unserialize( $spbwc_opt_row['fields'] );
+                            $spbwc_fc  = ( is_array( $spbwc_raw ) && isset( $spbwc_raw['fields'] ) )
+                                ? count( $spbwc_raw['fields'] ) : 0;
+                        }
+                    }
+                    $spbwc_product_data[ $spbwc_pid ] = array(
+                        'option_id'   => $spbwc_opt_id,
+                        'field_count' => $spbwc_fc,
+                        'is_mapped'   => ! empty( $spbwc_opt_id ),
+                    );
+                }
+                $products_query->rewind_posts();
+                wp_reset_postdata();
+            }
+
+            // Buffer card HTML.
+            ob_start();
+            if ( $products_query->have_posts() ) {
+                include SPBWC_PB_PLUGIN_DIR . 'views/_products-cards.php';
+            } else {
+                ?>
+                <div class="spbwc-products-ajax-empty">
+                    <div class="spbwc-empty-state">
+                        <div class="spbwc-empty-state__icon"><span class="dashicons dashicons-products" aria-hidden="true"></span></div>
+                        <h3 class="spbwc-empty-state__title"><?php esc_html_e( 'No products found', 'storelly-product-builder-for-woocommerce' ); ?></h3>
+                        <p class="spbwc-empty-state__text"><?php esc_html_e( 'Try adjusting your search or filters.', 'storelly-product-builder-for-woocommerce' ); ?></p>
+                    </div>
+                </div>
+                <?php
+            }
+            $cards_html = ob_get_clean();
+
+            // Pagination HTML.
+            $total_pages     = (int) $products_query->max_num_pages;
+            $found_posts     = (int) $products_query->found_posts;
+            $pagination_html = '';
+            if ( $total_pages > 1 ) {
+                $pagination_html = paginate_links( array(
+                    'base'      => add_query_arg( array( 'page' => SPBWC_PB_PRODUCTS_SLUG, 's' => $search, 'paged' => '%#%' ), admin_url( 'admin.php' ) ),
+                    'format'    => '',
+                    'prev_text' => '&laquo;',
+                    'next_text' => '&raquo;',
+                    'total'     => $total_pages,
+                    'current'   => $paged,
+                    'type'      => 'plain',
+                ) );
+            }
+
+            $from         = $found_posts > 0 ? ( ( $paged - 1 ) * $per_page ) + 1 : 0;
+            $to           = $found_posts > 0 ? min( $paged * $per_page, $found_posts ) : 0;
+            $summary_html = $found_posts > 0
+                ? sprintf(
+                    /* translators: 1: from, 2: to, 3: total */
+                    __( 'Showing %1$s–%2$s of %3$s products', 'storelly-product-builder-for-woocommerce' ),
+                    '<strong>' . absint( $from ) . '</strong>',
+                    '<strong>' . absint( $to ) . '</strong>',
+                    '<strong>' . absint( $found_posts ) . '</strong>'
+                )
+                : '';
+
+            wp_send_json_success( array(
+                'cards_html'      => $cards_html,
+                'pagination_html' => $pagination_html,
+                'summary_html'    => $summary_html,
+                'count_all'       => $count_all,
+                'count_mapped'    => $count_mapped,
+                'count_unmapped'  => $count_unmapped,
+                'option_filter'   => $option_filter,
+                'found_posts'     => $found_posts,
+                'total_pages'     => $total_pages,
+                'current_page'    => $paged,
+                'from'            => $from,
+                'to'              => $to,
+            ) );
+        }
+
         public function spbwc_designs_page() {
             if ( ! current_user_can( 'spbwc_manage_product_builder' ) ) {
                 wp_die( esc_html__( 'You do not have permission to access this page.', 'storelly-product-builder-for-woocommerce' ) );
@@ -1802,8 +2030,35 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
                 ),
             );
         }
+        /**
+         * Normalize a legacy build_config_* input.
+         *
+         * Older saved option blobs stored entire config arrays under the
+         * `general.{key}` slot (e.g. `general.title = array(title,value,type)`).
+         * Current code expects a scalar value here. This helper unwraps the
+         * nested `value` so re-builders receive the right shape regardless
+         * of which serialization the row was created with.
+         *
+         * @param mixed  $value   The value to normalize.
+         * @param string $default Fallback when value is missing.
+         * @return string|int|float|bool
+         */
+        private function spbwc_legacy_scalar( $value, $default = '' ) {
+            if ( is_array( $value ) && array_key_exists( 'value', $value ) ) {
+                $value = $value['value'];
+            }
+            if ( is_null( $value ) ) {
+                return $default;
+            }
+            if ( is_scalar( $value ) ) {
+                return $value;
+            }
+            return $default;
+        }
+
         public function build_config_general_title($value = null) {
-            if (is_null($value)) $value = __('Option name', 'storelly-product-builder-for-woocommerce');
+            $value = $this->spbwc_legacy_scalar($value, __('Option name', 'storelly-product-builder-for-woocommerce'));
+            if ($value === '') $value = __('Option name', 'storelly-product-builder-for-woocommerce');
             return array(
                 'title'         => __('Option name', 'storelly-product-builder-for-woocommerce'),
                 'description'   =>  '',
@@ -1812,7 +2067,7 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
             );
         }
         public function build_config_general_description($value = null) {
-            if (is_null($value)) $value = __('Option description', 'storelly-product-builder-for-woocommerce');
+            $value = $this->spbwc_legacy_scalar($value, __('Option description', 'storelly-product-builder-for-woocommerce'));
             return array(
                 'title'         => __('Description', 'storelly-product-builder-for-woocommerce'),
                 'description'   => '',
@@ -1821,7 +2076,8 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
             );
         }
         public function build_config_general_data_type($value = null) {
-            if (is_null($value)) $value = 'm';
+            $value = $this->spbwc_legacy_scalar($value, 'm');
+            if ($value === '') $value = 'm';
             return array(
                 'title'         => esc_html__('Data type', 'storelly-product-builder-for-woocommerce'),
                 'description'   => '',
@@ -1840,7 +2096,8 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
             );
         }
         public function build_config_general_input_type($value = null) {
-            if (is_null($value)) $value = 't';
+            $value = $this->spbwc_legacy_scalar($value, 't');
+            if ($value === '') $value = 't';
             return array(
                 'title'         => esc_html__('Input type', 'storelly-product-builder-for-woocommerce'),
                 'description'   =>  '',
@@ -1935,7 +2192,8 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
             );
         }
         public function build_config_general_enabled($value = null) {
-            if (is_null($value)) $value = 'y';
+            $value = $this->spbwc_legacy_scalar($value, 'y');
+            if ($value === '') $value = 'y';
             return array(
                 'title'         => __('Enabled', 'storelly-product-builder-for-woocommerce'),
                 'description'   => __('Choose whether the option is enabled or not.', 'storelly-product-builder-for-woocommerce'),
@@ -1954,7 +2212,8 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
             );
         }
         public function build_config_general_published($value = null) {
-            if (is_null($value)) $value = 'y';
+            $value = $this->spbwc_legacy_scalar($value, 'y');
+            if ($value === '') $value = 'y';
             return array(
                 'title'         => __('Published', 'storelly-product-builder-for-woocommerce'),
                 'description'   => __('Show in summary options or not.', 'storelly-product-builder-for-woocommerce'),
@@ -1973,7 +2232,8 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
             );
         }
         public function build_config_general_required($value = null) {
-            if (is_null($value)) $value = 'n';
+            $value = $this->spbwc_legacy_scalar($value, 'n');
+            if ($value === '') $value = 'n';
             return array(
                 'title'         => __('Required', 'storelly-product-builder-for-woocommerce'),
                 'description'   => __('Choose whether the option is required or not.', 'storelly-product-builder-for-woocommerce'),
@@ -2026,7 +2286,8 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
             );
         }
         public function build_config_general_price_type($value = null) {
-            if (is_null($value)) $value = 'f';
+            $value = $this->spbwc_legacy_scalar($value, 'f');
+            if ($value === '') $value = 'f';
             return array(
                 'title'         => esc_html__('Price type', 'storelly-product-builder-for-woocommerce'),
                 'description'   => esc_html__('Here you can choose how the price is calculated. Depending on the field there various types you can choose.', 'storelly-product-builder-for-woocommerce'),
@@ -2091,7 +2352,7 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
             );
         }
         public function build_config_general_price($value = null) {
-            if (is_null($value)) $value = '';
+            $value = $this->spbwc_legacy_scalar($value, '');
             return array(
                 'title'         => esc_html__('Additional Price', 'storelly-product-builder-for-woocommerce'),
                 'description'   => esc_html__('Enter the price for this field or leave it blank for no price.', 'storelly-product-builder-for-woocommerce'),
@@ -2989,6 +3250,290 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
                 'package_name' => $license['package_name'],
                 'status'       => $license['status'],
                 'expires_at'   => $license['expires_at'],
+            ) );
+        }
+
+        /**
+         * AJAX — render the pricing-option grid for the list page.
+         *
+         * Returns rendered HTML (card grid + pagination + count) so the
+         * JS can swap the DOM without a full reload. Used by toolbar tabs,
+         * search input (debounced) and paginator arrows.
+         */
+        public function spbwc_list_options_html() {
+            check_ajax_referer( 'spbwc_options_list_nonce', 'nonce' );
+            if ( ! current_user_can( 'manage_options' ) ) {
+                wp_send_json_error( array( 'msg' => esc_html__( 'Forbidden.', 'storelly-product-builder-for-woocommerce' ) ), 403 );
+            }
+
+            // Whitelisted inputs.
+            $paged         = isset( $_POST['paged'] ) ? max( 1, absint( $_POST['paged'] ) ) : 1;
+            $status_filter = isset( $_POST['status_filter'] ) ? sanitize_text_field( wp_unslash( $_POST['status_filter'] ) ) : '';
+            $search        = isset( $_POST['s'] ) ? sanitize_text_field( wp_unslash( $_POST['s'] ) ) : '';
+            $allowed_by    = array( 'id', 'title', 'modified', 'created' );
+            $raw_by        = isset( $_POST['orderby'] ) ? sanitize_key( wp_unslash( $_POST['orderby'] ) ) : 'modified';
+            $orderby       = in_array( $raw_by, $allowed_by, true ) ? $raw_by : 'modified';
+            $order         = ( isset( $_POST['order'] ) && strtoupper( sanitize_text_field( wp_unslash( $_POST['order'] ) ) ) === 'ASC' ) ? 'ASC' : 'DESC';
+
+            // Project these into $_REQUEST so the existing list-table query
+            // helpers (which read from $_REQUEST) honour them without further
+            // plumbing.
+            $_REQUEST['paged']         = $paged;
+            $_REQUEST['status_filter'] = $status_filter;
+            $_REQUEST['s']             = $search;
+            $_REQUEST['orderby']       = $orderby;
+            $_REQUEST['order']         = $order;
+            $_GET['paged']             = $paged;
+            $_GET['status_filter']     = $status_filter;
+            $_GET['s']                 = $search;
+            $_GET['orderby']           = $orderby;
+            $_GET['order']             = $order;
+
+            if ( ! class_exists( 'SPBWC_Storelly_Options_List_Table' ) ) {
+                require_once SPBWC_PB_PLUGIN_DIR . 'includes/options/fields-list-table.php';
+            }
+            $list = new SPBWC_Storelly_Options_List_Table();
+            $list->spbwc_prepare_items();
+
+            $per_page    = 10;
+            $total       = (int) SPBWC_Storelly_Options_List_Table::spbwc_record_count();
+            $total_pages = max( 1, (int) ceil( $total / $per_page ) );
+            $counts      = SPBWC_Storelly_Options_List_Table::spbwc_count_all_statuses();
+            $nonce       = wp_create_nonce( 'spbwc_options_nonce' );
+
+            ob_start();
+            if ( ! empty( $list->items ) ) {
+                echo '<div class="spbwc-options-grid" id="spbwc-options-grid">';
+                foreach ( $list->items as $row ) {
+                    $title  = $row['title'];
+                    $pub    = (int) $row['published'];
+                    $id_str = esc_attr( (string) absint( $row['id'] ) );
+                    $count  = SPBWC_Storelly_Options_List_Table::spbwc_count_fields( $row['fields'] );
+                    $thumb  = SPBWC_Storelly_PB_Util::spbwc_render_option_thumbnail( $row, 88 );
+
+                    // Category names (first 3).
+                    $cat_html = '';
+                    if ( ! empty( $row['product_cats'] ) ) {
+                        $cats      = maybe_unserialize( $row['product_cats'] );
+                        $cat_names = array();
+                        if ( is_array( $cats ) ) {
+                            foreach ( array_slice( $cats, 0, 3 ) as $cid ) {
+                                $term = get_term( absint( $cid ), 'product_cat' );
+                                if ( $term && ! is_wp_error( $term ) ) {
+                                    $cat_names[] = esc_html( $term->name );
+                                }
+                            }
+                        }
+                        if ( $cat_names ) {
+                            $cat_html = implode( ', ', $cat_names );
+                        }
+                    }
+
+                    $edit_url = esc_url( add_query_arg( array(
+                        'page'     => SPBWC_PB_BUILDER_SLUG,
+                        'action'   => 'edit',
+                        'id'       => absint( $row['id'] ),
+                        'paged'    => $paged,
+                        '_wpnonce' => $nonce,
+                    ), admin_url( 'admin.php' ) ) );
+                    ?>
+                    <article class="spbwc-option-card"
+                             data-title="<?php echo esc_attr( mb_strtolower( $title ) ); ?>"
+                             data-option-id="<?php echo $id_str; ?>"
+                             data-published="<?php echo $pub; ?>">
+                        <a href="<?php echo esc_url( $edit_url ); ?>"
+                           class="spbwc-option-card__thumb spbwc-option-card__thumb--svg"
+                           aria-label="<?php echo esc_attr( $title ); ?>">
+                            <?php echo $thumb; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- SVG escaped internally. ?>
+                        </a>
+                        <div class="spbwc-option-card__body">
+                            <div class="spbwc-option-card__header">
+                                <h3 class="spbwc-option-card__title">
+                                    <a href="<?php echo esc_url( $edit_url ); ?>"><?php echo esc_html( $title ); ?></a>
+                                </h3>
+                                <button type="button"
+                                        class="spbwc-publish-toggle<?php echo 1 === $pub ? ' is-published' : ''; ?>"
+                                        data-spbwc-action="toggle-publish"
+                                        data-id="<?php echo $id_str; ?>"
+                                        data-published="<?php echo $pub; ?>"
+                                        title="<?php echo 1 === $pub ? esc_attr__( 'Unpublish', 'storelly-product-builder-for-woocommerce' ) : esc_attr__( 'Publish', 'storelly-product-builder-for-woocommerce' ); ?>"
+                                        aria-pressed="<?php echo 1 === $pub ? 'true' : 'false'; ?>">
+                                    <span class="dashicons dashicons-<?php echo 1 === $pub ? 'visibility' : 'hidden'; ?>" aria-hidden="true"></span>
+                                    <span class="screen-reader-text"><?php echo 1 === $pub ? esc_html__( 'Unpublish', 'storelly-product-builder-for-woocommerce' ) : esc_html__( 'Publish', 'storelly-product-builder-for-woocommerce' ); ?></span>
+                                </button>
+                            </div>
+                            <div class="spbwc-option-card__meta">
+                                <?php if ( 1 === $pub ) : ?>
+                                    <span class="spbwc-badge spbwc-badge--published"><?php esc_html_e( 'Published', 'storelly-product-builder-for-woocommerce' ); ?></span>
+                                <?php else : ?>
+                                    <span class="spbwc-badge spbwc-badge--draft"><?php esc_html_e( 'Draft', 'storelly-product-builder-for-woocommerce' ); ?></span>
+                                <?php endif; ?>
+                                <span class="spbwc-field-count-badge">
+                                    <?php echo esc_html( sprintf( _n( '%d field', '%d fields', $count, 'storelly-product-builder-for-woocommerce' ), $count ) ); ?>
+                                </span>
+                            </div>
+                            <?php if ( $cat_html ) : ?>
+                            <div class="spbwc-option-card__cats">
+                                <span class="dashicons dashicons-category" aria-hidden="true"></span>
+                                <?php echo $cat_html; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- esc_html per item above. ?>
+                            </div>
+                            <?php endif; ?>
+                            <?php if ( ! empty( $row['modified'] ) ) : ?>
+                            <div class="spbwc-option-card__date">
+                                <span class="dashicons dashicons-clock" aria-hidden="true"></span>
+                                <?php
+                                /* translators: %s: time difference */
+                                echo esc_html( sprintf( __( 'Updated %s ago', 'storelly-product-builder-for-woocommerce' ), human_time_diff( strtotime( $row['modified'] ), current_time( 'timestamp' ) ) ) );
+                                ?>
+                            </div>
+                            <?php endif; ?>
+                            <div class="spbwc-option-card__actions">
+                                <a href="<?php echo esc_url( $edit_url ); ?>" class="spbwc-card-btn spbwc-card-btn--primary">
+                                    <span class="dashicons dashicons-edit" aria-hidden="true"></span>
+                                    <?php esc_html_e( 'Edit', 'storelly-product-builder-for-woocommerce' ); ?>
+                                </a>
+                                <button type="button"
+                                        class="spbwc-card-btn"
+                                        data-spbwc-action="duplicate"
+                                        data-id="<?php echo $id_str; ?>"
+                                        title="<?php esc_attr_e( 'Duplicate', 'storelly-product-builder-for-woocommerce' ); ?>">
+                                    <span class="dashicons dashicons-admin-page" aria-hidden="true"></span>
+                                </button>
+                                <button type="button"
+                                        class="spbwc-card-btn spbwc-card-btn--danger"
+                                        data-spbwc-action="trash"
+                                        data-id="<?php echo $id_str; ?>"
+                                        title="<?php esc_attr_e( 'Delete', 'storelly-product-builder-for-woocommerce' ); ?>">
+                                    <span class="dashicons dashicons-trash" aria-hidden="true"></span>
+                                </button>
+                            </div>
+                        </div>
+                    </article>
+                    <?php
+                }
+                echo '</div>';
+            } else {
+                echo '<div class="spbwc-block-empty">';
+                echo '<span class="dashicons dashicons-search" aria-hidden="true"></span>';
+                echo '<p>' . esc_html__( 'No options match your filters.', 'storelly-product-builder-for-woocommerce' ) . '</p>';
+                echo '</div>';
+            }
+            $grid_html = ob_get_clean();
+
+            wp_send_json_success( array(
+                'grid_html'   => $grid_html,
+                'total'       => $total,
+                'total_pages' => $total_pages,
+                'paged'       => $paged,
+                'counts'      => $counts,
+            ) );
+        }
+
+        /**
+         * AJAX — move a pricing option to trash (sets published=0 + flag).
+         */
+        public function spbwc_trash_option() {
+            check_ajax_referer( 'spbwc_options_list_nonce', 'nonce' );
+            if ( ! current_user_can( 'manage_options' ) ) {
+                wp_send_json_error( array( 'msg' => esc_html__( 'Forbidden.', 'storelly-product-builder-for-woocommerce' ) ), 403 );
+            }
+            $id = isset( $_POST['id'] ) ? absint( $_POST['id'] ) : 0;
+            if ( ! $id ) {
+                wp_send_json_error( array( 'msg' => esc_html__( 'Missing ID.', 'storelly-product-builder-for-woocommerce' ) ) );
+            }
+            $this->spbwc_unpublish_option( $id );
+            $this->spbwc_flush_option_caches( $id );
+            wp_send_json_success( array(
+                'msg'    => esc_html__( 'Option moved to trash.', 'storelly-product-builder-for-woocommerce' ),
+                'counts' => SPBWC_Storelly_Options_List_Table::spbwc_count_all_statuses(),
+            ) );
+        }
+
+        /**
+         * AJAX — toggle published flag (publish/unpublish).
+         */
+        public function spbwc_publish_option_ajax() {
+            check_ajax_referer( 'spbwc_options_list_nonce', 'nonce' );
+            if ( ! current_user_can( 'manage_options' ) ) {
+                wp_send_json_error( array( 'msg' => esc_html__( 'Forbidden.', 'storelly-product-builder-for-woocommerce' ) ), 403 );
+            }
+            $id    = isset( $_POST['id'] ) ? absint( $_POST['id'] ) : 0;
+            $state = isset( $_POST['published'] ) ? absint( $_POST['published'] ) : 1;
+            if ( ! $id ) {
+                wp_send_json_error( array( 'msg' => esc_html__( 'Missing ID.', 'storelly-product-builder-for-woocommerce' ) ) );
+            }
+            global $wpdb;
+            // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Admin toggle.
+            $wpdb->update( $wpdb->prefix . 'storelly_product_builder_options', array( 'published' => $state ? 1 : 0 ), array( 'id' => $id ), array( '%d' ), array( '%d' ) );
+            $this->spbwc_flush_option_caches( $id );
+            wp_send_json_success( array(
+                'published' => $state ? 1 : 0,
+                'counts'    => SPBWC_Storelly_Options_List_Table::spbwc_count_all_statuses(),
+            ) );
+        }
+
+        /**
+         * AJAX — duplicate a pricing option. Returns the new row id and
+         * pre-rendered card markup so the JS can insert it without a reload.
+         */
+        public function spbwc_duplicate_option() {
+            check_ajax_referer( 'spbwc_options_list_nonce', 'nonce' );
+            if ( ! current_user_can( 'manage_options' ) ) {
+                wp_send_json_error( array( 'msg' => esc_html__( 'Forbidden.', 'storelly-product-builder-for-woocommerce' ) ), 403 );
+            }
+            $id = isset( $_POST['id'] ) ? absint( $_POST['id'] ) : 0;
+            if ( ! $id ) {
+                wp_send_json_error( array( 'msg' => esc_html__( 'Missing ID.', 'storelly-product-builder-for-woocommerce' ) ) );
+            }
+
+            if ( ! class_exists( 'SPBWC_Storelly_Options_List_Table' ) ) {
+                require_once SPBWC_PB_PLUGIN_DIR . 'includes/options/fields-list-table.php';
+            }
+            $list   = new SPBWC_Storelly_Options_List_Table();
+            $new_id = $list->spbwc_copy_options( $id );
+            if ( ! $new_id ) {
+                wp_send_json_error( array( 'msg' => esc_html__( 'Could not duplicate the option.', 'storelly-product-builder-for-woocommerce' ) ) );
+            }
+
+            wp_send_json_success( array(
+                'new_id' => (int) $new_id,
+                'msg'    => esc_html__( 'Option duplicated.', 'storelly-product-builder-for-woocommerce' ),
+                'counts' => SPBWC_Storelly_Options_List_Table::spbwc_count_all_statuses(),
+            ) );
+        }
+
+        /**
+         * AJAX — save the option from the edit page without a full reload.
+         *
+         * Reuses spbwc_save_option() under the hood so server-side validation
+         * and storage stays in one place. The JS posts the same form fields
+         * as the legacy POST submit (title, product_ids[], options[…]),
+         * plus an `option_id` (0 for new) and the standard `_wpnonce`.
+         */
+        public function spbwc_save_option_ajax() {
+            // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Verified next.
+            $nonce = isset( $_POST['_wpnonce'] ) ? sanitize_text_field( wp_unslash( $_POST['_wpnonce'] ) ) : '';
+            if ( ! wp_verify_nonce( $nonce, 'spbwc_save_option_action' ) ) {
+                wp_send_json_error( array( 'msg' => esc_html__( 'Security check failed.', 'storelly-product-builder-for-woocommerce' ) ), 403 );
+            }
+            if ( ! current_user_can( 'manage_options' ) ) {
+                wp_send_json_error( array( 'msg' => esc_html__( 'Forbidden.', 'storelly-product-builder-for-woocommerce' ) ), 403 );
+            }
+            $id     = isset( $_POST['option_id'] ) ? absint( $_POST['option_id'] ) : 0;
+            $result = $this->spbwc_save_option( $id );
+            if ( ! is_array( $result ) || empty( $result['status'] ) ) {
+                wp_send_json_error( array( 'msg' => esc_html__( 'Save failed.', 'storelly-product-builder-for-woocommerce' ) ) );
+            }
+            $new_id = isset( $result['id'] ) ? absint( $result['id'] ) : $id;
+            $row    = $new_id ? $this->spbwc_get_option( $new_id ) : null;
+            $thumb  = $row ? SPBWC_Storelly_PB_Util::spbwc_render_option_thumbnail( (array) $row, 88 ) : '';
+
+            wp_send_json_success( array(
+                'id'        => $new_id,
+                'modified'  => $row && isset( $row['modified'] ) ? $row['modified'] : current_time( 'mysql' ),
+                'published' => $row && isset( $row['published'] ) ? (int) $row['published'] : 1,
+                'thumbnail' => $thumb,
+                'msg'       => esc_html__( 'Option saved.', 'storelly-product-builder-for-woocommerce' ),
             ) );
         }
     }

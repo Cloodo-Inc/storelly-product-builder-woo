@@ -2212,6 +2212,35 @@ label.view-config {
   box-shadow: var(--shadow-input-focus);
 }
 
+/* ── Sort select ─────────────────────────────────────────────────── */
+.spbwc-sort-select {
+  height: 34px;
+  padding: 0 24px 0 10px;
+  border: 1px solid var(--nbd-st-border-light);
+  border-radius: var(--nbd-radius);
+  background-color: var(--nbd-st-bg);
+  color: var(--nbd-st-text);
+  font-size: 12px;
+  cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%238c8f94' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 8px center;
+  transition: border-color 0.15s;
+  white-space: nowrap;
+}
+
+.spbwc-sort-select:hover {
+  border-color: var(--st-brand-soft);
+}
+
+.spbwc-sort-select:focus {
+  outline: none;
+  border-color: var(--st-brand);
+  box-shadow: var(--shadow-input-focus);
+}
+
 .spbwc-block-search__icon {
   color: var(--nbd-st-text-mute);
   font-size: 16px;
@@ -2317,15 +2346,27 @@ label.view-config {
 .spbwc-badge {
   display: inline-flex;
   align-items: center;
-  gap: 3px;
+  gap: 4px;
   font-size: 11px;
   font-weight: 600;
-  padding: 2px 9px;
+  padding: 3px 8px 3px 7px;
   border-radius: var(--nbd-radius-pill);
-  line-height: 1.6;
+  line-height: 1.4;
   white-space: nowrap;
   text-transform: uppercase;
-  letter-spacing: 0.4px;
+  letter-spacing: 0.04em;
+}
+
+/* Dot indicator */
+.spbwc-badge::before {
+  content: '';
+  display: inline-block;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  background: currentColor;
+  opacity: 0.7;
 }
 
 .spbwc-badge--published {
@@ -2411,6 +2452,21 @@ label.view-config {
   filter: brightness(0.94);
 }
 
+/* SVG thumbnail variant */
+.spbwc-option-card__thumb--svg {
+  background: var(--nbd-st-bg-soft);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.spbwc-option-card__thumb--svg svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
 .spbwc-option-card__initial {
   font-size: 52px;
   font-weight: 800;
@@ -2446,6 +2502,59 @@ label.view-config {
 
 .spbwc-option-card__title a:hover {
   color: var(--st-brand);
+}
+
+/* ── Card header (title + publish toggle) ────────────────────────── */
+.spbwc-option-card__header {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  justify-content: space-between;
+  margin-bottom: 2px;
+}
+
+.spbwc-option-card__header .spbwc-option-card__title {
+  margin: 0;
+  flex: 1;
+  min-width: 0;
+}
+
+/* ── Publish toggle button ───────────────────────────────────────── */
+.spbwc-publish-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border: none;
+  background: transparent;
+  border-radius: var(--nbd-radius-sm);
+  cursor: pointer;
+  color: var(--nbd-st-text-mute);
+  transition: var(--transition-fast);
+  padding: 0;
+  flex-shrink: 0;
+}
+
+.spbwc-publish-toggle:hover {
+  background: var(--nbd-st-bg-soft);
+  color: var(--nbd-st-text);
+}
+
+.spbwc-publish-toggle.is-published {
+  color: var(--nbd-color-success);
+}
+
+.spbwc-publish-toggle.is-published:hover {
+  background: var(--st-pill-active-bg);
+  color: var(--st-pill-active-text);
+}
+
+.spbwc-publish-toggle .dashicons {
+  font-size: 16px;
+  width: 16px;
+  height: 16px;
+  margin: 0;
 }
 
 /* Meta row: status badge + field-count pill */
@@ -2554,6 +2663,17 @@ label.view-config {
   background: var(--st-brand-pressed);
   border-color: var(--st-brand-pressed);
   color: #fff;
+}
+
+.spbwc-card-btn--danger {
+  color: var(--nbd-color-danger, #dc2626);
+  border-color: var(--nbd-st-border-light);
+}
+
+.spbwc-card-btn--danger:hover {
+  background: var(--st-pill-danger-bg);
+  border-color: var(--nbd-color-danger, #dc2626);
+  color: var(--st-pill-danger-text);
 }
 
 .spbwc-card-btn .dashicons {
@@ -2740,4 +2860,73 @@ label.view-config {
 /* ── Options page outer wrap ─────────────────────────────────────── */
 .spbwc-options-page .spbwc-block-view {
   padding-top: 0;
+}
+
+/* ── Block view inner wrapper ────────────────────────────────────── */
+.spbwc-block-view__inner {
+  transition: opacity 0.15s ease;
+}
+
+/* ── Loading overlay ─────────────────────────────────────────────── */
+.spbwc-loading-overlay {
+  position: fixed;
+  bottom: 60px;
+  right: 24px;
+  z-index: 9998;
+  background: var(--nbd-st-bg);
+  border: 1px solid var(--nbd-st-border-light);
+  border-radius: 50%;
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: var(--shadow-md);
+}
+
+.spbwc-loading-spin {
+  color: var(--st-brand);
+  font-size: 22px;
+  width: 22px;
+  height: 22px;
+  animation: spbwc-spin 0.75s linear infinite;
+  margin: 0;
+}
+
+@keyframes spbwc-spin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+/* ── Toast notification ──────────────────────────────────────────── */
+.spbwc-toast {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%) translateY(0);
+  z-index: 9999;
+  padding: 10px 18px;
+  border-radius: var(--nbd-radius-md);
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1.4;
+  color: var(--nbd-st-text-inverse);
+  background: var(--nbd-st-text);
+  box-shadow: var(--shadow-lg);
+  white-space: nowrap;
+  animation: spbwc-toast-in 0.22s ease;
+  pointer-events: none;
+}
+
+.spbwc-toast--success { background: #16a34a; }
+.spbwc-toast--error   { background: #dc2626; }
+
+@keyframes spbwc-toast-in {
+  from { transform: translateX(-50%) translateY(12px); opacity: 0; }
+  to   { transform: translateX(-50%) translateY(0);    opacity: 1; }
+}
+
+/* ── Block view relative position for overlay ────────────────────── */
+.spbwc-block-view {
+  position: relative;
 }
