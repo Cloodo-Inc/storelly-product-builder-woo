@@ -382,10 +382,10 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
             // .spbwc-license-hero, .spbwc-list, .spbwc-empty-state, etc.
             wp_register_style('spbwc-admin-ui', SPBWC_PB_CSS_URL . 'storelly-admin-ui.css', array('spbwc-tokens', 'dashicons'), SPBWC_PB_VERSION);
 
-            wp_register_style('spbwc-options-style', SPBWC_PB_CSS_URL . 'admin-options.css', array('spbwc-admin-ui', 'wp-color-picker', 'wp-jquery-ui-dialog'), SPBWC_PB_VERSION);
+            wp_register_style('spbwc-options-style', SPBWC_PB_CSS_URL . 'admin-options.css', array('spbwc-admin-ui', 'wp-color-picker', 'wp-jquery-ui-dialog'), filemtime( SPBWC_PB_PLUGIN_DIR . 'static/css/admin-options.css' ));
             wp_register_style('spbwc-general-css', SPBWC_PB_CSS_URL . 'storelly-general.css', array('spbwc-admin-ui'), SPBWC_PB_VERSION);
             wp_register_style('spbwc-sweetalert-css', SPBWC_PB_CSS_URL . 'sweetalert.css', array(), '5.6.10');
-            wp_register_style('spbwc-manager-fonts', SPBWC_PB_CSS_URL . 'manager-fonts.css', array('spbwc-admin-ui', 'spbwc-sweetalert-css'), SPBWC_PB_VERSION);
+            wp_register_style('spbwc-manager-fonts', SPBWC_PB_CSS_URL . 'manager-fonts.css', array('spbwc-admin-ui', 'spbwc-sweetalert-css'), filemtime( SPBWC_PB_PLUGIN_DIR . 'static/css/manager-fonts.css' ));
             wp_register_style('spbwc-overview-css', SPBWC_PB_CSS_URL . 'overview.css', array('spbwc-admin-ui'), SPBWC_PB_VERSION);
             wp_register_style('spbwc-license-css', SPBWC_PB_CSS_URL . 'license.css', array('spbwc-admin-ui'), SPBWC_PB_VERSION);
 
