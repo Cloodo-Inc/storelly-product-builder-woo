@@ -53,11 +53,24 @@ if ( ! class_exists( 'SPBWC_Template_Library_Admin' ) ) {
 			// WC admin styles bring Select2 visuals matching the rest of WP-admin.
 			wp_enqueue_style( 'woocommerce_admin_styles' );
 
+			// Ensure design-token base sheets are registered before we depend on them.
+			if ( ! wp_style_is( 'spbwc-tokens', 'registered' ) ) {
+				wp_register_style( 'spbwc-tokens', SPBWC_PB_CSS_URL . '_tokens.css', array(), SPBWC_PB_VERSION );
+			}
+			if ( ! wp_style_is( 'spbwc-admin-ui', 'registered' ) ) {
+				wp_register_style( 'spbwc-admin-ui', SPBWC_PB_CSS_URL . 'storelly-admin-ui.css', array( 'spbwc-tokens', 'dashicons' ), SPBWC_PB_VERSION );
+			}
+
+			// Use file mtime as version so dev changes are always reflected without a
+			// manual version bump (production builds pin version via SPBWC_PB_VERSION).
+			$css_file = SPBWC_PB_PLUGIN_DIR . 'static/css/template-library.css';
+			$css_ver  = file_exists( $css_file ) ? filemtime( $css_file ) : SPBWC_PB_VERSION;
+
 			wp_enqueue_style(
 				'spbwc-template-library',
 				SPBWC_PB_CSS_URL . 'template-library.css',
-				array( 'woocommerce_admin_styles' ),
-				SPBWC_PB_VERSION
+				array( 'woocommerce_admin_styles', 'spbwc-admin-ui' ),
+				$css_ver
 			);
 			wp_enqueue_script(
 				'spbwc-template-library',

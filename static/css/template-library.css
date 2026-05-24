@@ -291,49 +291,55 @@
 	border-top: 1px solid var(--nbd-st-border-subtle);
 	margin-top: auto;
 }
-/* Override WP's inline-block + line-height height control with flex */
-.spbwc-tl-card-actions .button {
+/* Override WP core button styles — .wp-admin prefix beats .wp-core-ui specificity */
+.wp-admin .spbwc-tl-card-actions .button,
+.wp-admin .spbwc-tl-card-actions .button:visited {
 	flex: 1;
-	display: flex !important;       /* override WP's inline-block */
+	display: flex !important;
 	align-items: center !important;
 	justify-content: center !important;
 	gap: 4px;
-	min-height: 34px;
-	height: auto;
+	height: 34px !important;
+	min-height: 0 !important;
 	font-size: 12px !important;
 	font-weight: 600 !important;
-	border-radius: var(--nbd-radius) !important;
-	transition: var(--transition-fast);
 	line-height: 1 !important;
 	padding: 0 10px !important;
-	text-align: center;
+	border-radius: 4px !important;
+	box-sizing: border-box !important;
 	vertical-align: middle;
+	text-decoration: none !important;
+	white-space: nowrap;
 }
-.spbwc-tl-card-actions .button .dashicons {
-	font-size: 14px; width: 14px; height: 14px; flex-shrink: 0;
+.wp-admin .spbwc-tl-card-actions .button .dashicons {
+	font-size: 14px !important; width: 14px !important; height: 14px !important; flex-shrink: 0;
 }
 /* Preview — ghost/outline */
-.spbwc-tl-card-actions .button-secondary {
+.wp-admin .spbwc-tl-card-actions .button.button-secondary,
+.wp-admin .spbwc-tl-card-actions .button.button-secondary:visited {
 	background: transparent !important;
-	border: 1px solid var(--nbd-st-border) !important;
-	color: var(--nbd-st-text-soft) !important;
+	border: 1px solid #c3c4c7 !important;
+	color: #50575e !important;
 	box-shadow: none !important;
 }
-.spbwc-tl-card-actions .button-secondary:hover {
-	border-color: var(--st-brand) !important;
-	color: var(--st-brand) !important;
-	background: var(--st-brand-tint) !important;
+.wp-admin .spbwc-tl-card-actions .button.button-secondary:hover {
+	border-color: #1d4ed8 !important;
+	color: #1d4ed8 !important;
+	background: #eff6ff !important;
+	box-shadow: none !important;
 }
 /* Apply — solid brand */
-.spbwc-tl-card-actions .button-primary {
-	background: var(--st-brand) !important;
-	border-color: var(--st-brand) !important;
+.wp-admin .spbwc-tl-card-actions .button.button-primary,
+.wp-admin .spbwc-tl-card-actions .button.button-primary:visited {
+	background: #1d4ed8 !important;
+	border-color: #1d4ed8 !important;
 	color: #fff !important;
 	box-shadow: none !important;
 }
-.spbwc-tl-card-actions .button-primary:hover {
-	background: var(--st-brand-pressed) !important;
-	border-color: var(--st-brand-pressed) !important;
+.wp-admin .spbwc-tl-card-actions .button.button-primary:hover {
+	background: #1e40af !important;
+	border-color: #1e40af !important;
+	box-shadow: none !important;
 }
 
 /* ── Empty search state ───────────────────────────────────────────── */
