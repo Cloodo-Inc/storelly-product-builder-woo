@@ -14,6 +14,67 @@
 	line-height: 1.5;
 }
 
+/* ── Stats row (3 cards above toolbar) ────────────────────────────── */
+.spbwc-tl-stats-row {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+	gap: 14px;
+	margin: 0 0 20px;
+}
+.spbwc-tl-stat-card {
+	background: var(--nbd-st-bg);
+	border: 1px solid var(--nbd-st-border-light);
+	border-radius: var(--nbd-radius-md);
+	padding: 16px 18px;
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+	box-shadow: var(--shadow-sm);
+}
+.spbwc-tl-stat-card__icon {
+	font-size: 20px;
+	width: 20px; height: 20px;
+	color: var(--st-brand);
+	margin-bottom: 6px;
+}
+.spbwc-tl-stat-card__value {
+	font-size: 28px;
+	font-weight: 700;
+	color: var(--nbd-st-text);
+	line-height: 1;
+	font-variant-numeric: tabular-nums;
+}
+.spbwc-tl-stat-card__label {
+	font-size: 13px;
+	font-weight: 600;
+	color: var(--nbd-st-text);
+}
+.spbwc-tl-stat-card__sub {
+	font-size: 12px;
+	color: var(--nbd-st-text-soft);
+	line-height: 1.4;
+}
+/* How-to card */
+.spbwc-tl-stat-card--guide {
+	background: var(--st-brand-tint);
+	border-color: var(--st-brand-soft);
+}
+.spbwc-tl-stat-card--guide .spbwc-tl-stat-card__label {
+	color: var(--st-brand-pressed);
+	font-size: 12px;
+	font-weight: 700;
+	text-transform: uppercase;
+	letter-spacing: .05em;
+}
+.spbwc-tl-stat-card--guide .spbwc-tl-stat-card__icon { color: var(--st-brand-pressed); }
+.spbwc-tl-stat-card__steps {
+	margin: 4px 0 0 16px;
+	padding: 0;
+	font-size: 12px;
+	color: var(--nbd-st-text-soft);
+	line-height: 1.7;
+}
+
 /* ── Toolbar ───────────────────────────────────────────────────────── */
 .spbwc-tl-toolbar {
 	display: flex;
@@ -196,6 +257,18 @@
 	background: var(--st-pill-danger-bg);
 	color: var(--st-pill-danger-text);
 }
+/* Template type — Pricing Scheme */
+.spbwc-tl-badge--scheme {
+	background: #d1fae5;
+	color: #065f46;
+	font-weight: 600;
+}
+/* Template type — Product Options */
+.spbwc-tl-badge--options {
+	background: #ede9fe;
+	color: #4c1d95;
+	font-weight: 600;
+}
 
 /* Description — 2-line clamp for consistent height */
 .spbwc-tl-card-desc {
@@ -294,7 +367,9 @@
 	display: flex;
 	flex-direction: column;
 	max-height: 90vh;
-	overflow: hidden;
+	/* overflow: visible so Select2 dropdown (appended to the dialog element)
+	   can extend beyond the form bounds and remain clickable. */
+	overflow: visible;
 }
 
 .spbwc-tl-dialog-header {
@@ -375,6 +450,7 @@
 	padding: 18px 20px;
 	overflow-y: auto;
 	flex: 1;
+	min-height: 0; /* Required for flex child to shrink and enable scrolling. */
 	background: var(--nbd-st-bg-soft);
 }
 .spbwc-tl-dialog-footer {

@@ -58,6 +58,47 @@ $catalog = SPBWC_Template_Catalog::instance();
 			<p><?php esc_html_e( 'No bundled templates found. Make sure storage/print-templates/catalog.json ships with the plugin.', 'storelly-product-builder-for-woocommerce' ); ?></p>
 		</div>
 	<?php else : ?>
+
+		<!-- ── Stats row ─────────────────────────────────────────────── -->
+		<?php
+		$spbwc_total_tpl = count( $templates );
+		$spbwc_total_cat = count( $categories );
+		$spbwc_cat_labels = array();
+		$spbwc_shown = 0;
+		foreach ( $categories as $spbwc_cat_id_s => $spbwc_unused ) {
+			if ( $spbwc_shown >= 4 ) break;
+			$spbwc_cat_labels[] = $catalog->get_category_label( $spbwc_cat_id_s );
+			$spbwc_shown++;
+		}
+		$spbwc_cats_str = implode( ' · ', $spbwc_cat_labels );
+		if ( $spbwc_total_cat > 4 ) {
+			$spbwc_cats_str .= ' …';
+		}
+		?>
+		<div class="spbwc-tl-stats-row">
+			<div class="spbwc-tl-stat-card">
+				<span class="spbwc-tl-stat-card__icon dashicons dashicons-layout" aria-hidden="true"></span>
+				<div class="spbwc-tl-stat-card__value"><?php echo esc_html( $spbwc_total_tpl ); ?></div>
+				<div class="spbwc-tl-stat-card__label"><?php esc_html_e( 'Ready-to-use templates', 'storelly-product-builder-for-woocommerce' ); ?></div>
+				<div class="spbwc-tl-stat-card__sub"><?php esc_html_e( 'Pricing schemes &amp; product option sets', 'storelly-product-builder-for-woocommerce' ); ?></div>
+			</div>
+			<div class="spbwc-tl-stat-card">
+				<span class="spbwc-tl-stat-card__icon dashicons dashicons-category" aria-hidden="true"></span>
+				<div class="spbwc-tl-stat-card__value"><?php echo esc_html( $spbwc_total_cat ); ?></div>
+				<div class="spbwc-tl-stat-card__label"><?php esc_html_e( 'Product categories', 'storelly-product-builder-for-woocommerce' ); ?></div>
+				<div class="spbwc-tl-stat-card__sub"><?php echo esc_html( $spbwc_cats_str ); ?></div>
+			</div>
+			<div class="spbwc-tl-stat-card spbwc-tl-stat-card--guide">
+				<span class="spbwc-tl-stat-card__icon dashicons dashicons-lightbulb" aria-hidden="true"></span>
+				<div class="spbwc-tl-stat-card__label"><?php esc_html_e( 'How to use', 'storelly-product-builder-for-woocommerce' ); ?></div>
+				<ol class="spbwc-tl-stat-card__steps">
+					<li><?php esc_html_e( 'Browse and preview templates', 'storelly-product-builder-for-woocommerce' ); ?></li>
+					<li><?php esc_html_e( 'Click Apply → choose products', 'storelly-product-builder-for-woocommerce' ); ?></li>
+					<li><?php esc_html_e( 'Edit your copy freely', 'storelly-product-builder-for-woocommerce' ); ?></li>
+				</ol>
+			</div>
+		</div>
+
 		<div class="spbwc-tl-toolbar">
 			<div class="spbwc-tl-toolbar__search">
 				<span class="dashicons dashicons-search" aria-hidden="true"></span>
@@ -108,15 +149,22 @@ $catalog = SPBWC_Template_Catalog::instance();
 					</div>
 					<div class="spbwc-tl-card-body">
 						<h3 class="spbwc-tl-card-title"><?php echo esc_html( $name ); ?></h3>
-						<div class="spbwc-tl-card-meta">
+						<?php
+					$spbwc_is_scheme  = ( 'fixed' === ( $tpl['pricing_method'] ?? 'fixed' ) );
+					$spbwc_type_label = $spbwc_is_scheme
+						? esc_html__( 'Pricing Scheme', 'storelly-product-builder-for-woocommerce' )
+						: esc_html__( 'Product Options', 'storelly-product-builder-for-woocommerce' );
+					$spbwc_type_cls   = $spbwc_is_scheme ? 'spbwc-tl-badge--scheme' : 'spbwc-tl-badge--options';
+					?>
+					<div class="spbwc-tl-card-meta">
 							<span class="spbwc-tl-badge spbwc-tl-badge--info">
 								<?php
 								/* translators: %d: number of fields in template */
 								echo esc_html( sprintf( _n( '%d field', '%d fields', (int) $tpl['field_count'], 'storelly-product-builder-for-woocommerce' ), (int) $tpl['field_count'] ) );
 								?>
 							</span>
-							<span class="spbwc-tl-badge spbwc-tl-badge--neutral">
-								<?php echo esc_html( str_replace( '_', ' ', $tpl['pricing_method'] ) ); ?>
+							<span class="spbwc-tl-badge <?php echo esc_attr( $spbwc_type_cls ); ?>">
+								<?php echo $spbwc_type_label; // already escaped above ?>
 							</span>
 						</div>
 						<?php if ( ! empty( $tpl['description'] ) ) : ?>

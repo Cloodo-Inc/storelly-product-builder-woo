@@ -610,6 +610,12 @@
 			$(this).closest('.spbwc-tl-radio-card').addClass('spbwc-tl-radio-card--active');
 			$applyDialog.find('.spbwc-tl-scope').prop('hidden', true);
 			$applyDialog.find('.spbwc-tl-scope--' + mode).prop('hidden', false);
+			// Lazy-init category Select2 the first time the category scope is shown.
+			// (Can't init while hidden — Select2 calculates width:0 on hidden elements.)
+			if (mode === 'c' && !catSelectInitialized) {
+				initCatSelect($('#spbwc-tl-categories'));
+				catSelectInitialized = true;
+			}
 		});
 
 		// Close.
@@ -635,17 +641,15 @@
 
 		openDialog($applyDialog);
 
-		// Lazy-init Select2 the first time the dialog is opened — the elements
-		// are inside a <dialog> that's display:none on page load, so WC's
-		// DOM-ready auto-init skips them.
+		// Lazy-init product search Select2 the first time the dialog is opened.
+		// WC may have auto-init'd .wc-product-search on DOM ready (while dialog
+		// was hidden) with wrong settings — destroy that instance first.
 		if (!productSearchInitialized) {
 			initWcProductSearch($('#spbwc-tl-products'));
 			productSearchInitialized = true;
 		}
-		if (!catSelectInitialized) {
-			initCatSelect($('#spbwc-tl-categories'));
-			catSelectInitialized = true;
-		}
+		// Category select is lazy-init'd in the radio change handler (not here)
+		// because initialising on a [hidden] element gives width:0 in Select2.
 	}
 
 	function initWcProductSearch($el) {
@@ -655,6 +659,8 @@
 			return;
 		}
 		var fn = $.fn.selectWoo ? 'selectWoo' : 'select2';
+		// Destroy any WC auto-init that ran on DOM ready with wrong settings.
+		try { if ($el.data(fn) || $el.hasClass('select2-hidden-accessible')) { $el[fn]('destroy'); } } catch (e) {}
 		var action = $el.data('action') || 'woocommerce_json_search_products_and_variations';
 		$el[fn]({
 			placeholder: $el.data('placeholder') || L.i18n.selectProduct,
