@@ -68,6 +68,133 @@ $manifest = [
         'name'        => 'Flyers (Letter / Legal)',
         'description' => 'Letter and legal size flyers with paper, color and quantity breaks.',
     ],
+    // ── additional templates ────────────────────────────────────────────
+    'brochures' => [
+        'source'      => 'printoptions_brochures.json',
+        'category'    => 'marketing',
+        'name'        => 'Brochures',
+        'description' => 'Tri-fold and bi-fold brochures with paper stock, color and fold options.',
+    ],
+    'flyers-small' => [
+        'source'      => 'printoptions_flyers_small_sizes.json',
+        'category'    => 'marketing',
+        'name'        => 'Flyers (Small Sizes)',
+        'description' => 'Half-sheet and quarter-sheet flyers with material and quantity tiers.',
+    ],
+    'door-hangers' => [
+        'source'      => 'printoptions_door_hangers.json',
+        'category'    => 'marketing',
+        'name'        => 'Door Hangers',
+        'description' => 'Door hangers with size, material and quantity pricing.',
+    ],
+    'letterhead' => [
+        'source'      => 'printoptions_letterhead.json',
+        'category'    => 'stationery',
+        'name'        => 'Letterhead',
+        'description' => 'Branded letterhead with paper weight and quantity options.',
+    ],
+    'pocket-folders' => [
+        'source'      => 'printoptions_pocket_folders_economy.json',
+        'category'    => 'stationery',
+        'name'        => 'Pocket Folders',
+        'description' => 'Economy pocket folders with pocket style and quantity breaks.',
+    ],
+    'custom-checks' => [
+        'source'      => 'printoptions_custom_checks.json',
+        'category'    => 'stationery',
+        'name'        => 'Custom Checks',
+        'description' => 'Personalized business checks with style, color and quantity pricing.',
+    ],
+    'envelopes-commercial' => [
+        'source'      => 'printoptions_envelopes_commercial.json',
+        'category'    => 'envelopes',
+        'name'        => 'Envelopes (Commercial)',
+        'description' => 'Commercial envelopes (#10 and others) with print color and quantity tiers.',
+    ],
+    'envelopes-in-house' => [
+        'source'      => 'printoptions_envelopes_in_house.json',
+        'category'    => 'envelopes',
+        'name'        => 'Envelopes (In-House)',
+        'description' => 'In-house printed envelopes with size and quantity options.',
+    ],
+    'banner-stands' => [
+        'source'      => 'printoptions_banner_stands_backdrops.json',
+        'category'    => 'large_format',
+        'name'        => 'Banner Stands & Backdrops',
+        'description' => 'Retractable banner stands and event backdrops with size and material options.',
+    ],
+    'wide-format-cad' => [
+        'source'      => 'printoptions_cad_printing_wide_format.json',
+        'category'    => 'large_format',
+        'name'        => 'Wide Format / CAD Prints',
+        'description' => 'Engineering and architectural wide-format prints with size matrix and media type.',
+    ],
+    'trade-show-displays' => [
+        'source'      => 'printoptions_trade_show_displays.json',
+        'category'    => 'large_format',
+        'name'        => 'Trade Show Displays',
+        'description' => 'Pop-up and tabletop trade show displays with graphic panel and size options.',
+    ],
+    'decals' => [
+        'source'      => 'printoptions_decals.json',
+        'category'    => 'promotional',
+        'name'        => 'Decals',
+        'description' => 'Custom decals and stickers with shape, size and material options.',
+    ],
+    'can-coolers' => [
+        'source'      => 'printoptions_can_coolers.json',
+        'category'    => 'promotional',
+        'name'        => 'Can Coolers',
+        'description' => 'Custom can coolers / koozies with color and quantity tiers.',
+    ],
+    'stamps' => [
+        'source'      => 'printoptions_stamps.json',
+        'category'    => 'promotional',
+        'name'        => 'Stamps',
+        'description' => 'Custom rubber and self-inking stamps with size and quantity options.',
+    ],
+    'table-throws' => [
+        'source'      => 'printoptions_table_throws.json',
+        'category'    => 'promotional',
+        'name'        => 'Table Throws',
+        'description' => 'Branded table throws / table covers with size and fabric options.',
+    ],
+    'wall-art' => [
+        'source'      => 'printoptions_wall_art_canvas_acrylic.json',
+        'category'    => 'promotional',
+        'name'        => 'Wall Art (Canvas & Acrylic)',
+        'description' => 'Canvas and acrylic wall art prints with size, wrap and finish options.',
+    ],
+    'coroplast-signs' => [
+        'source'      => 'printoptions_coroplast_signs.json',
+        'category'    => 'signage',
+        'name'        => 'Coroplast Signs',
+        'description' => 'Corrugated plastic yard and A-frame signs with size and quantity pricing.',
+    ],
+    'a-frames' => [
+        'source'      => 'printoptions_signicade_a_frames.json',
+        'category'    => 'signage',
+        'name'        => 'A-Frames / Signicade',
+        'description' => 'Portable A-frame sidewalk signs with size and graphic options.',
+    ],
+    'event-tents' => [
+        'source'      => 'printoptions_advertising_event_tents.json',
+        'category'    => 'signage',
+        'name'        => 'Event Tents',
+        'description' => 'Pop-up advertising event tents with size and print options.',
+    ],
+    'flags' => [
+        'source'      => 'printoptions_advertising_flags.json',
+        'category'    => 'signage',
+        'name'        => 'Advertising Flags',
+        'description' => 'Feather and teardrop advertising flags with size and quantity options.',
+    ],
+    'signage-materials' => [
+        'source'      => 'printoptions_signage_materials.json',
+        'category'    => 'signage',
+        'name'        => 'Signage Materials',
+        'description' => 'General signage with material type (foam board, PVC, aluminium) and size matrix.',
+    ],
 ];
 
 $categories = [

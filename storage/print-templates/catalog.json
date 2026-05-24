@@ -1,6 +1,6 @@
 {
     "version": "1",
-    "generated": "2026-05-23T12:42:15+00:00",
+    "generated": "2026-05-24T05:35:26+00:00",
     "categories": {
         "stationery": {
             "en_US": "Stationery",
@@ -97,6 +97,300 @@
             "template_version": "1.0.0",
             "pricing_source": "Reference pricing from a US print shop (2026). Adjust prices to your market before publishing.",
             "description": "Letter and legal size flyers with paper, color and quantity breaks."
+        },
+        {
+            "slug": "brochures",
+            "file": "templates/brochures.json",
+            "name": {
+                "en_US": "Brochures"
+            },
+            "category": "marketing",
+            "thumbnail": "thumbnails/brochures.webp",
+            "field_count": 3,
+            "pricing_method": "fixed",
+            "template_version": "1.0.0",
+            "pricing_source": "Reference pricing from a US print shop (2026). Adjust prices to your market before publishing.",
+            "description": "Tri-fold and bi-fold brochures with paper stock, color and fold options."
+        },
+        {
+            "slug": "flyers-small",
+            "file": "templates/flyers-small.json",
+            "name": {
+                "en_US": "Flyers (Small Sizes)"
+            },
+            "category": "marketing",
+            "thumbnail": "thumbnails/flyers-small.webp",
+            "field_count": 3,
+            "pricing_method": "fixed",
+            "template_version": "1.0.0",
+            "pricing_source": "Reference pricing from a US print shop (2026). Adjust prices to your market before publishing.",
+            "description": "Half-sheet and quarter-sheet flyers with material and quantity tiers."
+        },
+        {
+            "slug": "door-hangers",
+            "file": "templates/door-hangers.json",
+            "name": {
+                "en_US": "Door Hangers"
+            },
+            "category": "marketing",
+            "thumbnail": "thumbnails/door-hangers.webp",
+            "field_count": 3,
+            "pricing_method": "fixed",
+            "template_version": "1.0.0",
+            "pricing_source": "Reference pricing from a US print shop (2026). Adjust prices to your market before publishing.",
+            "description": "Door hangers with size, material and quantity pricing."
+        },
+        {
+            "slug": "letterhead",
+            "file": "templates/letterhead.json",
+            "name": {
+                "en_US": "Letterhead"
+            },
+            "category": "stationery",
+            "thumbnail": "thumbnails/letterhead.webp",
+            "field_count": 3,
+            "pricing_method": "fixed",
+            "template_version": "1.0.0",
+            "pricing_source": "Reference pricing from a US print shop (2026). Adjust prices to your market before publishing.",
+            "description": "Branded letterhead with paper weight and quantity options."
+        },
+        {
+            "slug": "pocket-folders",
+            "file": "templates/pocket-folders.json",
+            "name": {
+                "en_US": "Pocket Folders"
+            },
+            "category": "stationery",
+            "thumbnail": "thumbnails/pocket-folders.webp",
+            "field_count": 3,
+            "pricing_method": "fixed",
+            "template_version": "1.0.0",
+            "pricing_source": "Reference pricing from a US print shop (2026). Adjust prices to your market before publishing.",
+            "description": "Economy pocket folders with pocket style and quantity breaks."
+        },
+        {
+            "slug": "custom-checks",
+            "file": "templates/custom-checks.json",
+            "name": {
+                "en_US": "Custom Checks"
+            },
+            "category": "stationery",
+            "thumbnail": "thumbnails/custom-checks.webp",
+            "field_count": 4,
+            "pricing_method": "fixed",
+            "template_version": "1.0.0",
+            "pricing_source": "Reference pricing from a US print shop (2026). Adjust prices to your market before publishing.",
+            "description": "Personalized business checks with style, color and quantity pricing."
+        },
+        {
+            "slug": "envelopes-commercial",
+            "file": "templates/envelopes-commercial.json",
+            "name": {
+                "en_US": "Envelopes (Commercial)"
+            },
+            "category": "envelopes",
+            "thumbnail": "thumbnails/envelopes-commercial.webp",
+            "field_count": 3,
+            "pricing_method": "fixed",
+            "template_version": "1.0.0",
+            "pricing_source": "Reference pricing from a US print shop (2026). Adjust prices to your market before publishing.",
+            "description": "Commercial envelopes (#10 and others) with print color and quantity tiers."
+        },
+        {
+            "slug": "envelopes-in-house",
+            "file": "templates/envelopes-in-house.json",
+            "name": {
+                "en_US": "Envelopes (In-House)"
+            },
+            "category": "envelopes",
+            "thumbnail": "thumbnails/envelopes-in-house.webp",
+            "field_count": 3,
+            "pricing_method": "fixed",
+            "template_version": "1.0.0",
+            "pricing_source": "Reference pricing from a US print shop (2026). Adjust prices to your market before publishing.",
+            "description": "In-house printed envelopes with size and quantity options."
+        },
+        {
+            "slug": "banner-stands",
+            "file": "templates/banner-stands.json",
+            "name": {
+                "en_US": "Banner Stands & Backdrops"
+            },
+            "category": "large_format",
+            "thumbnail": "thumbnails/banner-stands.webp",
+            "field_count": 3,
+            "pricing_method": "fixed",
+            "template_version": "1.0.0",
+            "pricing_source": "Reference pricing from a US print shop (2026). Adjust prices to your market before publishing.",
+            "description": "Retractable banner stands and event backdrops with size and material options."
+        },
+        {
+            "slug": "wide-format-cad",
+            "file": "templates/wide-format-cad.json",
+            "name": {
+                "en_US": "Wide Format / CAD Prints"
+            },
+            "category": "large_format",
+            "thumbnail": "thumbnails/wide-format-cad.webp",
+            "field_count": 26,
+            "pricing_method": "fixed",
+            "template_version": "1.0.0",
+            "pricing_source": "Reference pricing from a US print shop (2026). Adjust prices to your market before publishing.",
+            "description": "Engineering and architectural wide-format prints with size matrix and media type."
+        },
+        {
+            "slug": "trade-show-displays",
+            "file": "templates/trade-show-displays.json",
+            "name": {
+                "en_US": "Trade Show Displays"
+            },
+            "category": "large_format",
+            "thumbnail": "thumbnails/trade-show-displays.webp",
+            "field_count": 3,
+            "pricing_method": "fixed",
+            "template_version": "1.0.0",
+            "pricing_source": "Reference pricing from a US print shop (2026). Adjust prices to your market before publishing.",
+            "description": "Pop-up and tabletop trade show displays with graphic panel and size options."
+        },
+        {
+            "slug": "decals",
+            "file": "templates/decals.json",
+            "name": {
+                "en_US": "Decals"
+            },
+            "category": "promotional",
+            "thumbnail": "thumbnails/decals.webp",
+            "field_count": 5,
+            "pricing_method": "fixed",
+            "template_version": "1.0.0",
+            "pricing_source": "Reference pricing from a US print shop (2026). Adjust prices to your market before publishing.",
+            "description": "Custom decals and stickers with shape, size and material options."
+        },
+        {
+            "slug": "can-coolers",
+            "file": "templates/can-coolers.json",
+            "name": {
+                "en_US": "Can Coolers"
+            },
+            "category": "promotional",
+            "thumbnail": "thumbnails/can-coolers.webp",
+            "field_count": 3,
+            "pricing_method": "fixed",
+            "template_version": "1.0.0",
+            "pricing_source": "Reference pricing from a US print shop (2026). Adjust prices to your market before publishing.",
+            "description": "Custom can coolers / koozies with color and quantity tiers."
+        },
+        {
+            "slug": "stamps",
+            "file": "templates/stamps.json",
+            "name": {
+                "en_US": "Stamps"
+            },
+            "category": "promotional",
+            "thumbnail": "thumbnails/stamps.webp",
+            "field_count": 4,
+            "pricing_method": "fixed",
+            "template_version": "1.0.0",
+            "pricing_source": "Reference pricing from a US print shop (2026). Adjust prices to your market before publishing.",
+            "description": "Custom rubber and self-inking stamps with size and quantity options."
+        },
+        {
+            "slug": "table-throws",
+            "file": "templates/table-throws.json",
+            "name": {
+                "en_US": "Table Throws"
+            },
+            "category": "promotional",
+            "thumbnail": "thumbnails/table-throws.webp",
+            "field_count": 3,
+            "pricing_method": "fixed",
+            "template_version": "1.0.0",
+            "pricing_source": "Reference pricing from a US print shop (2026). Adjust prices to your market before publishing.",
+            "description": "Branded table throws / table covers with size and fabric options."
+        },
+        {
+            "slug": "wall-art",
+            "file": "templates/wall-art.json",
+            "name": {
+                "en_US": "Wall Art (Canvas & Acrylic)"
+            },
+            "category": "promotional",
+            "thumbnail": "thumbnails/wall-art.webp",
+            "field_count": 6,
+            "pricing_method": "fixed",
+            "template_version": "1.0.0",
+            "pricing_source": "Reference pricing from a US print shop (2026). Adjust prices to your market before publishing.",
+            "description": "Canvas and acrylic wall art prints with size, wrap and finish options."
+        },
+        {
+            "slug": "coroplast-signs",
+            "file": "templates/coroplast-signs.json",
+            "name": {
+                "en_US": "Coroplast Signs"
+            },
+            "category": "signage",
+            "thumbnail": "thumbnails/coroplast-signs.webp",
+            "field_count": 4,
+            "pricing_method": "fixed",
+            "template_version": "1.0.0",
+            "pricing_source": "Reference pricing from a US print shop (2026). Adjust prices to your market before publishing.",
+            "description": "Corrugated plastic yard and A-frame signs with size and quantity pricing."
+        },
+        {
+            "slug": "a-frames",
+            "file": "templates/a-frames.json",
+            "name": {
+                "en_US": "A-Frames / Signicade"
+            },
+            "category": "signage",
+            "thumbnail": "thumbnails/a-frames.webp",
+            "field_count": 4,
+            "pricing_method": "fixed",
+            "template_version": "1.0.0",
+            "pricing_source": "Reference pricing from a US print shop (2026). Adjust prices to your market before publishing.",
+            "description": "Portable A-frame sidewalk signs with size and graphic options."
+        },
+        {
+            "slug": "event-tents",
+            "file": "templates/event-tents.json",
+            "name": {
+                "en_US": "Event Tents"
+            },
+            "category": "signage",
+            "thumbnail": "thumbnails/event-tents.webp",
+            "field_count": 3,
+            "pricing_method": "fixed",
+            "template_version": "1.0.0",
+            "pricing_source": "Reference pricing from a US print shop (2026). Adjust prices to your market before publishing.",
+            "description": "Pop-up advertising event tents with size and print options."
+        },
+        {
+            "slug": "flags",
+            "file": "templates/flags.json",
+            "name": {
+                "en_US": "Advertising Flags"
+            },
+            "category": "signage",
+            "thumbnail": "thumbnails/flags.webp",
+            "field_count": 3,
+            "pricing_method": "fixed",
+            "template_version": "1.0.0",
+            "pricing_source": "Reference pricing from a US print shop (2026). Adjust prices to your market before publishing.",
+            "description": "Feather and teardrop advertising flags with size and quantity options."
+        },
+        {
+            "slug": "signage-materials",
+            "file": "templates/signage-materials.json",
+            "name": {
+                "en_US": "Signage Materials"
+            },
+            "category": "signage",
+            "thumbnail": "thumbnails/signage-materials.webp",
+            "field_count": 9,
+            "pricing_method": "fixed",
+            "template_version": "1.0.0",
+            "pricing_source": "Reference pricing from a US print shop (2026). Adjust prices to your market before publishing.",
+            "description": "General signage with material type (foam board, PVC, aluminium) and size matrix."
         }
     ]
 }
