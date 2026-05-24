@@ -751,14 +751,27 @@
 	}
 
 	// ─── Dialog helpers ──────────────────────────────────────────────
+	// We use el.show() (non-modal) instead of el.showModal() to avoid the
+	// CSS top-layer stacking context that showModal() creates.  When showModal()
+	// is used, the <dialog> enters the browser top-layer which renders above
+	// ALL other elements regardless of z-index — including Select2 dropdowns
+	// that are appended to <body>.  show() + a manual high-z-index backdrop
+	// gives us the same visual result without breaking Select2 autocomplete.
+	var $backdrop = $('#spbwc-tl-backdrop');
+
 	function openDialog($dlg) {
 		var el = $dlg[0];
 		if (!el) return;
-		if (typeof el.showModal === 'function') {
-			try { el.showModal(); } catch (e) { $dlg.attr('open', 'open'); }
+		if (typeof el.show === 'function') {
+			try { el.show(); } catch (e) { $dlg.attr('open', 'open'); }
 		} else {
 			$dlg.attr('open', 'open');
 		}
+		$backdrop.addClass('is-active');
+		// Close on backdrop click (one-shot rebind to avoid stacking handlers).
+		$backdrop.off('click.spbwcdlg').on('click.spbwcdlg', function () {
+			closeDialog($dlg);
+		});
 	}
 	function closeDialog($dlg) {
 		var el = $dlg[0];
@@ -768,6 +781,7 @@
 		} else {
 			$dlg.removeAttr('open');
 		}
+		$backdrop.removeClass('is-active');
 	}
 
 	function esc(s) {

@@ -285,25 +285,32 @@
 /* ── Card actions ─────────────────────────────────────────────────── */
 .spbwc-tl-card-actions {
 	display: flex;
+	align-items: stretch; /* stretch both buttons to same height */
 	gap: 8px;
 	padding: 10px 16px 14px;
 	border-top: 1px solid var(--nbd-st-border-subtle);
 	margin-top: auto;
 }
+/* Override WP's inline-block + line-height height control with flex */
 .spbwc-tl-card-actions .button {
 	flex: 1;
-	display: inline-flex;
-	align-items: center;
-	justify-content: center;
+	display: flex !important;       /* override WP's inline-block */
+	align-items: center !important;
+	justify-content: center !important;
 	gap: 4px;
-	height: 34px;
-	font-size: 12px;
-	font-weight: 600;
-	border-radius: var(--nbd-radius);
+	min-height: 34px;
+	height: auto;
+	font-size: 12px !important;
+	font-weight: 600 !important;
+	border-radius: var(--nbd-radius) !important;
 	transition: var(--transition-fast);
+	line-height: 1 !important;
+	padding: 0 10px !important;
+	text-align: center;
+	vertical-align: middle;
 }
 .spbwc-tl-card-actions .button .dashicons {
-	font-size: 14px; width: 14px; height: 14px;
+	font-size: 14px; width: 14px; height: 14px; flex-shrink: 0;
 }
 /* Preview — ghost/outline */
 .spbwc-tl-card-actions .button-secondary {
@@ -347,6 +354,21 @@
    DIALOGS
    ════════════════════════════════════════════════════════════════════ */
 
+/* Manual backdrop — used with el.show() (not showModal()) so Select2
+   dropdowns appended to <body> remain visible above the dialog.
+   showModal() places <dialog> in the CSS top-layer; any element outside
+   the top-layer (e.g. Select2 dropdown at z-index 9999) appears BEHIND it
+   regardless of z-index — breaking autocomplete entirely. */
+.spbwc-tl-backdrop {
+	display: none;
+	position: fixed;
+	inset: 0;
+	background: rgba(15, 23, 42, .52);
+	backdrop-filter: blur(2px);
+	z-index: 160000; /* above WP admin bar (99999) and Thickbox (100100) */
+}
+.spbwc-tl-backdrop.is-active { display: block; }
+
 .spbwc-tl-dialog {
 	border: 0;
 	border-radius: var(--nbd-radius-lg);
@@ -355,21 +377,27 @@
 	max-height: 90vh;
 	box-shadow: var(--shadow-xl);
 	color: var(--nbd-st-text);
+	/* Positioned above backdrop; Select2 (z 160002) appears above dialog */
+	position: fixed;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+	margin: 0;
+	z-index: 160001;
 }
 .spbwc-tl-dialog--wide {
 	width: min(1100px, 95vw);
 }
-.spbwc-tl-dialog::backdrop {
-	background: rgba(15, 23, 42, .55);
-	backdrop-filter: blur(2px);
+/* Select2 / SelectWoo dropdowns must sit above the dialog */
+.spbwc-template-library .select2-container--open .select2-dropdown,
+.select2-container--open .select2-dropdown {
+	z-index: 160002 !important;
 }
 .spbwc-tl-dialog-form {
 	display: flex;
 	flex-direction: column;
 	max-height: 90vh;
-	/* overflow: visible so Select2 dropdown (appended to the dialog element)
-	   can extend beyond the form bounds and remain clickable. */
-	overflow: visible;
+	overflow: hidden; /* restored — no longer needed to be visible */
 }
 
 .spbwc-tl-dialog-header {

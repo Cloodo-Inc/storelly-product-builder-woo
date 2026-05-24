@@ -194,6 +194,9 @@ $catalog = SPBWC_Template_Catalog::instance();
 			<p><?php esc_html_e( 'No templates match your search.', 'storelly-product-builder-for-woocommerce' ); ?></p>
 		</div>
 
+		<!-- Backdrop overlay (used with el.show() — see template-library.js) -->
+		<div id="spbwc-tl-backdrop" class="spbwc-tl-backdrop" aria-hidden="true"></div>
+
 		<!-- ─────────────────  PREVIEW DIALOG  ───────────────── -->
 		<dialog id="spbwc-tl-preview-dialog" class="spbwc-tl-dialog spbwc-tl-dialog--wide">
 			<div class="spbwc-tl-dialog-form">
