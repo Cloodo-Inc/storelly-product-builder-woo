@@ -3359,10 +3359,7 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
                         : ( is_array( $row['fields'] ) ? $row['fields'] : array() );
 
                     $count = SPBWC_Storelly_Options_List_Table::spbwc_count_fields( $parsed_fields );
-                    // Pass already-parsed fields so the thumbnail function skips a second unserialize.
-                    $row_thumb         = $row;
-                    $row_thumb['fields'] = $parsed_fields;
-                    $thumb             = SPBWC_Storelly_PB_Util::spbwc_render_option_thumbnail( $row_thumb, 88 );
+                    $accent = SPBWC_Storelly_PB_Util::spbwc_option_color( $title );
 
                     // Category names — get_term() now hits the in-memory cache primed above.
                     $cat_html = '';
@@ -3394,15 +3391,11 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
                              data-title="<?php echo esc_attr( mb_strtolower( $title ) ); ?>"
                              data-option-id="<?php echo esc_attr( (string) $id_int ); ?>"
                              data-published="<?php echo esc_attr( (string) $pub ); ?>">
-                        <input type="checkbox"
-                               class="spbwc-option-card__checkbox"
-                               data-id="<?php echo esc_attr( (string) $id_int ); ?>"
-                               aria-label="<?php echo esc_attr( sprintf( __( 'Select %s', 'storelly-product-builder-for-woocommerce' ), $title ) ); ?>"
-                               tabindex="-1">
                         <a href="<?php echo esc_url( $edit_url ); ?>"
-                           class="spbwc-option-card__thumb spbwc-option-card__thumb--svg"
+                           class="spbwc-option-card__thumb spbwc-option-card__thumb--name"
+                           style="background:<?php echo esc_attr( $accent ); ?>;"
                            aria-label="<?php echo esc_attr( $title ); ?>">
-                            <?php echo $thumb; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- SVG escaped internally. ?>
+                            <span class="spbwc-option-card__thumb-name"><?php echo esc_html( $title ); ?></span>
                         </a>
                         <div class="spbwc-option-card__body">
                             <div class="spbwc-option-card__header">

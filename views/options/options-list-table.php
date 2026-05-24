@@ -171,17 +171,9 @@ $_current_page_n = isset( $_GET['paged'] ) ? max( 1, absint( $_GET['paged'] ) ) 
 			        aria-label="<?php esc_attr_e( 'Sort by', 'storelly-product-builder-for-woocommerce' ); ?>">
 				<option value="modified-DESC"><?php esc_html_e( 'Newest first', 'storelly-product-builder-for-woocommerce' ); ?></option>
 				<option value="modified-ASC"><?php esc_html_e( 'Oldest first', 'storelly-product-builder-for-woocommerce' ); ?></option>
-				<option value="title-ASC"><?php esc_html_e( 'Name A\xe2\x86\x92Z', 'storelly-product-builder-for-woocommerce' ); ?></option>
-				<option value="title-DESC"><?php esc_html_e( 'Name Z\xe2\x86\x92A', 'storelly-product-builder-for-woocommerce' ); ?></option>
+				<option value="title-ASC"><?php esc_html_e( 'Name A → Z', 'storelly-product-builder-for-woocommerce' ); ?></option>
+				<option value="title-DESC"><?php esc_html_e( 'Name Z → A', 'storelly-product-builder-for-woocommerce' ); ?></option>
 			</select>
-			<button type="button"
-			        class="spbwc-sort-reset"
-			        id="spbwc-sort-reset"
-			        title="<?php esc_attr_e( 'Reset to default sort', 'storelly-product-builder-for-woocommerce' ); ?>"
-			        aria-label="<?php esc_attr_e( 'Reset sort order', 'storelly-product-builder-for-woocommerce' ); ?>"
-			        hidden>
-				<span class="dashicons dashicons-dismiss" aria-hidden="true"></span>
-			</button>
 
 			<!-- Live count -->
 			<span class="spbwc-list-count" id="spbwc-options-count" aria-live="polite">
@@ -193,16 +185,6 @@ $_current_page_n = isset( $_GET['paged'] ) ? max( 1, absint( $_GET['paged'] ) ) 
 				) );
 				?>
 			</span>
-
-			<!-- Select mode toggle -->
-			<button type="button"
-			        class="spbwc-view-btn spbwc-select-toggle"
-			        id="spbwc-select-toggle"
-			        title="<?php esc_attr_e( 'Select multiple', 'storelly-product-builder-for-woocommerce' ); ?>"
-			        aria-pressed="false">
-				<span class="dashicons dashicons-yes-alt" aria-hidden="true"></span>
-				<span class="screen-reader-text"><?php esc_html_e( 'Select multiple', 'storelly-product-builder-for-woocommerce' ); ?></span>
-			</button>
 
 			<!-- View toggle -->
 			<div class="spbwc-view-toggle" role="group"
@@ -237,30 +219,6 @@ $_current_page_n = isset( $_GET['paged'] ) ? max( 1, absint( $_GET['paged'] ) ) 
 	<!-- ── Card / grid view ──────────────────────────────────────────── -->
 	<div id="spbwc-block-view" class="spbwc-block-view" hidden>
 
-		<!-- Bulk action bar (shows when select mode is active) -->
-		<div id="spbwc-bulk-bar" class="spbwc-bulk-bar" hidden>
-			<span id="spbwc-selected-count" class="spbwc-bulk-bar__count">
-				<?php esc_html_e( '0 selected', 'storelly-product-builder-for-woocommerce' ); ?>
-			</span>
-			<div class="spbwc-bulk-bar__actions">
-				<button type="button" class="spbwc-bulk-btn" data-bulk-action="publish" disabled>
-					<span class="dashicons dashicons-visibility" aria-hidden="true"></span>
-					<?php esc_html_e( 'Publish', 'storelly-product-builder-for-woocommerce' ); ?>
-				</button>
-				<button type="button" class="spbwc-bulk-btn" data-bulk-action="draft" disabled>
-					<span class="dashicons dashicons-hidden" aria-hidden="true"></span>
-					<?php esc_html_e( 'Set Draft', 'storelly-product-builder-for-woocommerce' ); ?>
-				</button>
-				<button type="button" class="spbwc-bulk-btn spbwc-bulk-btn--danger" data-bulk-action="trash" disabled>
-					<span class="dashicons dashicons-trash" aria-hidden="true"></span>
-					<?php esc_html_e( 'Delete selected', 'storelly-product-builder-for-woocommerce' ); ?>
-				</button>
-			</div>
-			<button type="button" id="spbwc-bulk-cancel" class="spbwc-bulk-bar__cancel">
-				<?php esc_html_e( 'Cancel', 'storelly-product-builder-for-woocommerce' ); ?>
-			</button>
-		</div>
-
 		<div class="spbwc-block-view__inner" id="spbwc-block-view-inner">
 
 			<?php if ( ! empty( $spbwc_options->items ) ) : ?>
@@ -270,7 +228,7 @@ $_current_page_n = isset( $_GET['paged'] ) ? max( 1, absint( $_GET['paged'] ) ) 
 					$spbwc_pub     = (int) $spbwc_item['published'];
 					$spbwc_id_str  = esc_attr( (string) absint( $spbwc_item['id'] ) );
 					$spbwc_count   = SPBWC_Storelly_Options_List_Table::spbwc_count_fields( $spbwc_item['fields'] );
-					$spbwc_thumb   = SPBWC_Storelly_PB_Util::spbwc_render_option_thumbnail( $spbwc_item, 88 );
+					$spbwc_accent  = SPBWC_Storelly_PB_Util::spbwc_option_color( $spbwc_title );
 
 					$spbwc_edit_url = esc_url( add_query_arg(
 						array(
@@ -305,15 +263,11 @@ $_current_page_n = isset( $_GET['paged'] ) ? max( 1, absint( $_GET['paged'] ) ) 
 				         data-title="<?php echo esc_attr( mb_strtolower( $spbwc_title ) ); ?>"
 				         data-option-id="<?php echo $spbwc_id_str; ?>"
 				         data-published="<?php echo $spbwc_pub; ?>">
-					<input type="checkbox"
-					       class="spbwc-option-card__checkbox"
-					       data-id="<?php echo $spbwc_id_str; ?>"
-					       aria-label="<?php echo esc_attr( sprintf( __( 'Select %s', 'storelly-product-builder-for-woocommerce' ), $spbwc_title ) ); ?>"
-					       tabindex="-1">
 					<a href="<?php echo $spbwc_edit_url; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- already esc_url'd above ?>"
-					   class="spbwc-option-card__thumb spbwc-option-card__thumb--svg"
+					   class="spbwc-option-card__thumb spbwc-option-card__thumb--name"
+					   style="background:<?php echo esc_attr( $spbwc_accent ); ?>;"
 					   aria-label="<?php echo esc_attr( $spbwc_title ); ?>">
-						<?php echo $spbwc_thumb; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- SVG escaped internally. ?>
+						<span class="spbwc-option-card__thumb-name"><?php echo esc_html( $spbwc_title ); ?></span>
 					</a>
 					<div class="spbwc-option-card__body">
 						<div class="spbwc-option-card__header">
@@ -508,10 +462,6 @@ $_current_page_n = isset( $_GET['paged'] ) ? max( 1, absint( $_GET['paged'] ) ) 
 
 	var fetchTimer = null;
 
-	// Bulk selection state
-	var selectedIds = [];
-	var selectMode  = false;
-
 	// ── Loading overlay ───────────────────────────────────────────────
 	function setLoading( on ) {
 		var overlay = document.getElementById( 'spbwc-loading-overlay' );
@@ -586,40 +536,6 @@ $_current_page_n = isset( $_GET['paged'] ) ? max( 1, absint( $_GET['paged'] ) ) 
 		_deleteModalPending = null;
 	}
 
-	// ── Bulk select helpers ───────────────────────────────────────────
-	function syncBulkBar() {
-		var bar    = document.getElementById( 'spbwc-bulk-bar' );
-		var countEl = document.getElementById( 'spbwc-selected-count' );
-		var btns   = document.querySelectorAll( '.spbwc-bulk-btn' );
-		if ( ! bar ) { return; }
-		bar.hidden = ! selectMode;
-		if ( countEl ) {
-			var n = selectedIds.length;
-			countEl.textContent = n + ' <?php echo esc_js( _x( 'selected', 'bulk selection count', 'storelly-product-builder-for-woocommerce' ) ); ?>';
-		}
-		btns.forEach( function ( b ) { b.disabled = selectedIds.length === 0; } );
-	}
-
-	function toggleSelectMode( on ) {
-		selectMode = on;
-		var grid   = document.getElementById( 'spbwc-block-view' );
-		var toggle = document.getElementById( 'spbwc-select-toggle' );
-		if ( grid )   { grid.classList.toggle( 'is-select-mode', on ); }
-		if ( toggle ) {
-			toggle.classList.toggle( 'is-active', on );
-			toggle.setAttribute( 'aria-pressed', on ? 'true' : 'false' );
-		}
-		if ( ! on ) {
-			selectedIds = [];
-			document.querySelectorAll( '.spbwc-option-card__checkbox' ).forEach( function ( cb ) {
-				cb.checked = false;
-				var card = cb.closest( '.spbwc-option-card' );
-				if ( card ) { card.classList.remove( 'is-selected' ); }
-			} );
-		}
-		syncBulkBar();
-	}
-
 	// ── Skeleton loading placeholders ─────────────────────────────────
 	function renderSkeletons( count ) {
 		var html = '<div class="spbwc-options-grid">';
@@ -675,9 +591,6 @@ $_current_page_n = isset( $_GET['paged'] ) ? max( 1, absint( $_GET['paged'] ) ) 
 				updateCount( d.total );
 				updateTabCounts( d.counts );
 				bindCardActions();
-
-				// Reset bulk selection after grid refresh.
-				if ( selectMode ) { selectedIds = []; syncBulkBar(); }
 
 				// Inject "Clear search" CTA when search returns nothing.
 				if ( d.total === 0 && state.s && inner ) {
@@ -871,9 +784,8 @@ $_current_page_n = isset( $_GET['paged'] ) ? max( 1, absint( $_GET['paged'] ) ) 
 			} );
 		} );
 
-		// Attach inline-rename and checkbox handlers to newly rendered cards.
+		// Attach inline-rename handlers to newly rendered cards.
 		bindInlineRename();
-		bindCheckboxes();
 	}
 
 	// ── Inline rename: double-click card title ────────────────────────
@@ -881,7 +793,6 @@ $_current_page_n = isset( $_GET['paged'] ) ? max( 1, absint( $_GET['paged'] ) ) 
 		document.querySelectorAll( '.spbwc-option-card__title a:not([data-rename-bound])' ).forEach( function ( link ) {
 			link.setAttribute( 'data-rename-bound', '1' );
 			link.addEventListener( 'dblclick', function ( e ) {
-				if ( selectMode ) { return; }
 				e.preventDefault();
 				var card   = this.closest( '.spbwc-option-card' );
 				var id     = card ? card.dataset.optionId : null;
@@ -928,36 +839,6 @@ $_current_page_n = isset( $_GET['paged'] ) ? max( 1, absint( $_GET['paged'] ) ) 
 		} );
 	}
 
-	// ── Bulk checkboxes ───────────────────────────────────────────────
-	function bindCheckboxes() {
-		document.querySelectorAll( '.spbwc-option-card__checkbox:not([data-bound])' ).forEach( function ( cb ) {
-			cb.setAttribute( 'data-bound', '1' );
-			cb.addEventListener( 'change', function () {
-				var id   = this.dataset.id;
-				var card = this.closest( '.spbwc-option-card' );
-				if ( this.checked ) {
-					if ( selectedIds.indexOf( id ) === -1 ) { selectedIds.push( id ); }
-					if ( card ) { card.classList.add( 'is-selected' ); }
-				} else {
-					selectedIds = selectedIds.filter( function ( i ) { return i !== id; } );
-					if ( card ) { card.classList.remove( 'is-selected' ); }
-				}
-				syncBulkBar();
-			} );
-		} );
-
-		// Click anywhere on card body (outside buttons) selects in select mode.
-		document.querySelectorAll( '.spbwc-option-card:not([data-click-bound])' ).forEach( function ( card ) {
-			card.setAttribute( 'data-click-bound', '1' );
-			card.addEventListener( 'click', function ( e ) {
-				if ( ! selectMode ) { return; }
-				if ( e.target.closest( 'a, button, input[type="checkbox"]' ) ) { return; }
-				var cb = card.querySelector( '.spbwc-option-card__checkbox' );
-				if ( cb ) { cb.checked = ! cb.checked; cb.dispatchEvent( new Event( 'change' ) ); }
-			} );
-		} );
-	}
-
 	// ── View switch ───────────────────────────────────────────────────
 	function setView( view ) {
 		var listView  = document.getElementById( 'spbwc-list-view' );
@@ -997,63 +878,6 @@ $_current_page_n = isset( $_GET['paged'] ) ? max( 1, absint( $_GET['paged'] ) ) 
 
 		// Bind initial card actions (server-rendered on first load)
 		bindCardActions();
-
-		// ── Select-mode toggle button ─────────────────────────────────
-		var selectToggleBtn = document.getElementById( 'spbwc-select-toggle' );
-		if ( selectToggleBtn ) {
-			selectToggleBtn.addEventListener( 'click', function () {
-				toggleSelectMode( ! selectMode );
-				// If entering select mode, ensure block view is active.
-				if ( selectMode ) { setView( 'block' ); }
-			} );
-		}
-
-		// ── Bulk cancel ───────────────────────────────────────────────
-		var bulkCancelBtn = document.getElementById( 'spbwc-bulk-cancel' );
-		if ( bulkCancelBtn ) {
-			bulkCancelBtn.addEventListener( 'click', function () {
-				toggleSelectMode( false );
-			} );
-		}
-
-		// ── Bulk action buttons ───────────────────────────────────────
-		document.querySelectorAll( '.spbwc-bulk-btn' ).forEach( function ( btn ) {
-			btn.addEventListener( 'click', function () {
-				if ( selectedIds.length === 0 ) { return; }
-				var bulkAction = this.dataset.bulkAction;
-				var ids        = selectedIds.slice(); // snapshot
-
-				var doAction = function () {
-					setLoading( true );
-					var fd = new FormData();
-					fd.append( 'action',      'spbwc_bulk_options' );
-					fd.append( 'nonce',       NONCE );
-					fd.append( 'ids',         ids.join( ',' ) );
-					fd.append( 'bulk_action', bulkAction );
-					fetch( AJAX_URL, { method: 'POST', credentials: 'same-origin', body: fd } )
-						.then( function ( r ) { return r.json(); } )
-						.then( function ( res ) {
-							if ( res && res.success ) {
-								showToast( res.data.msg || '<?php echo esc_js( __( 'Done.', 'storelly-product-builder-for-woocommerce' ) ); ?>', 'success' );
-								if ( res.data.counts ) { updateTabCounts( res.data.counts ); }
-								toggleSelectMode( false );
-								fetchList( false );
-							} else {
-								showToast( ( res && res.data && res.data.msg ) || ERR_GENERIC, 'error' );
-							}
-						} )
-						.catch( function () { showToast( ERR_GENERIC, 'error' ); } )
-						.finally( function () { setLoading( false ); } );
-				};
-
-				if ( 'trash' === bulkAction ) {
-					var bulkTitle = ids.length + ' <?php echo esc_js( _x( 'options', 'plural item count', 'storelly-product-builder-for-woocommerce' ) ); ?>';
-					showDeleteModal( null, bulkTitle, null, doAction );
-				} else {
-					doAction();
-				}
-			} );
-		} );
 
 		// View toggle buttons (skip buttons that have no data-view, e.g. the select toggle)
 		document.querySelectorAll( '.spbwc-view-btn[data-view]' ).forEach( function ( btn ) {
@@ -1110,15 +934,8 @@ $_current_page_n = isset( $_GET['paged'] ) ? max( 1, absint( $_GET['paged'] ) ) 
 			} );
 		}
 
-		// ── Sort dropdown + reset button ──────────────────────────────
-		var sortEl    = document.getElementById( 'spbwc-sort-select' );
-		var sortReset = document.getElementById( 'spbwc-sort-reset' );
-
-		function syncSortReset() {
-			var isDefault = state.orderby === 'modified' && state.order === 'DESC';
-			if ( sortEl )    { sortEl.classList.toggle( 'is-sorted', ! isDefault ); }
-			if ( sortReset ) { sortReset.hidden = isDefault; }
-		}
+		// ── Sort dropdown ─────────────────────────────────────────────
+		var sortEl = document.getElementById( 'spbwc-sort-select' );
 
 		if ( sortEl ) {
 			sortEl.addEventListener( 'change', function () {
@@ -1126,17 +943,6 @@ $_current_page_n = isset( $_GET['paged'] ) ? max( 1, absint( $_GET['paged'] ) ) 
 				// Handle 'modified-DESC', 'title-ASC' — join tail in case value ever has extra '-'
 				state.orderby = parts[0] || 'modified';
 				state.order   = ( parts.slice( 1 ).join( '-' ) || 'DESC' ).toUpperCase();
-				syncSortReset();
-				fetchList( true );
-			} );
-		}
-
-		if ( sortReset ) {
-			sortReset.addEventListener( 'click', function () {
-				state.orderby = 'modified';
-				state.order   = 'DESC';
-				if ( sortEl ) { sortEl.value = 'modified-DESC'; }
-				syncSortReset();
 				fetchList( true );
 			} );
 		}
