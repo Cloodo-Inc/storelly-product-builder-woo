@@ -291,55 +291,57 @@
 	border-top: 1px solid var(--nbd-st-border-subtle);
 	margin-top: auto;
 }
-/* Override WP core button styles — .wp-admin prefix beats .wp-core-ui specificity */
-.wp-admin .spbwc-tl-card-actions .button,
-.wp-admin .spbwc-tl-card-actions .button:visited {
-	flex: 1;
+/* Target plugin-specific button classes directly — avoids all WP/WC .button conflicts */
+button.spbwc-tl-preview,
+button.spbwc-tl-apply {
 	display: flex !important;
 	align-items: center !important;
 	justify-content: center !important;
-	gap: 4px;
+	gap: 5px !important;
+	flex: 1 !important;
 	height: 34px !important;
 	min-height: 0 !important;
+	padding: 0 12px !important;
 	font-size: 12px !important;
 	font-weight: 600 !important;
 	line-height: 1 !important;
-	padding: 0 10px !important;
 	border-radius: 4px !important;
 	box-sizing: border-box !important;
-	vertical-align: middle;
+	cursor: pointer !important;
+	white-space: nowrap !important;
 	text-decoration: none !important;
-	white-space: nowrap;
+	outline: none !important;
 }
-.wp-admin .spbwc-tl-card-actions .button .dashicons {
-	font-size: 14px !important; width: 14px !important; height: 14px !important; flex-shrink: 0;
+button.spbwc-tl-preview .dashicons,
+button.spbwc-tl-apply .dashicons {
+	font-size: 14px !important;
+	width: 14px !important;
+	height: 14px !important;
+	line-height: 1 !important;
+	flex-shrink: 0 !important;
 }
-/* Preview — ghost/outline */
-.wp-admin .spbwc-tl-card-actions .button.button-secondary,
-.wp-admin .spbwc-tl-card-actions .button.button-secondary:visited {
-	background: transparent !important;
+/* Preview — ghost outline */
+button.spbwc-tl-preview {
+	background: #fff !important;
 	border: 1px solid #c3c4c7 !important;
 	color: #50575e !important;
 	box-shadow: none !important;
 }
-.wp-admin .spbwc-tl-card-actions .button.button-secondary:hover {
+button.spbwc-tl-preview:hover {
 	border-color: #1d4ed8 !important;
 	color: #1d4ed8 !important;
 	background: #eff6ff !important;
-	box-shadow: none !important;
 }
-/* Apply — solid brand */
-.wp-admin .spbwc-tl-card-actions .button.button-primary,
-.wp-admin .spbwc-tl-card-actions .button.button-primary:visited {
+/* Apply — solid brand blue */
+button.spbwc-tl-apply {
 	background: #1d4ed8 !important;
-	border-color: #1d4ed8 !important;
+	border: 1px solid #1d4ed8 !important;
 	color: #fff !important;
 	box-shadow: none !important;
 }
-.wp-admin .spbwc-tl-card-actions .button.button-primary:hover {
+button.spbwc-tl-apply:hover {
 	background: #1e40af !important;
 	border-color: #1e40af !important;
-	box-shadow: none !important;
 }
 
 /* ── Empty search state ───────────────────────────────────────────── */
