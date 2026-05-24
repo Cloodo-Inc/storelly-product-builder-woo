@@ -2930,3 +2930,280 @@ label.view-config {
 .spbwc-block-view {
   position: relative;
 }
+
+/* ════════════════════════════════════════════════════════════════════
+   UX Improvements — Phase 3
+   ════════════════════════════════════════════════════════════════════ */
+
+/* ── Stat cards: clickable filter shortcut ───────────────────────── */
+.spbwc-stat-card--clickable {
+  cursor: pointer;
+  transition: var(--transition-card);
+  user-select: none;
+}
+.spbwc-stat-card--clickable:hover {
+  border-color: var(--st-brand);
+  box-shadow: var(--shadow-card-hover);
+  transform: translateY(-2px);
+}
+.spbwc-stat-card--clickable:active {
+  transform: translateY(0);
+  box-shadow: var(--shadow-sm);
+}
+.spbwc-stat-card--clickable:focus-visible {
+  outline: 2px solid var(--st-brand);
+  outline-offset: 2px;
+}
+
+/* ── Search: clear (✕) button ────────────────────────────────────── */
+.spbwc-search-clear {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--nbd-st-text-mute);
+  cursor: pointer;
+  padding: 0;
+  margin-left: 4px;
+  transition: var(--transition-fast);
+}
+.spbwc-search-clear:hover {
+  background: var(--nbd-st-bg-soft);
+  color: var(--nbd-st-text);
+}
+.spbwc-search-clear .dashicons {
+  font-size: 14px;
+  width: 14px;
+  height: 14px;
+  line-height: 1;
+  margin: 0;
+}
+
+/* ── Sort: active indicator + reset button ───────────────────────── */
+.spbwc-sort-select.is-sorted {
+  border-color: var(--st-brand);
+  color: var(--st-brand-pressed);
+}
+
+.spbwc-sort-reset {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 34px;
+  border: 1px solid var(--nbd-st-border-light);
+  background: var(--nbd-st-bg-soft);
+  border-radius: var(--nbd-radius-sm);
+  cursor: pointer;
+  color: var(--nbd-st-text-mute);
+  padding: 0;
+  flex-shrink: 0;
+  transition: var(--transition-fast);
+}
+.spbwc-sort-reset:hover {
+  border-color: var(--nbd-color-danger, #dc2626);
+  background: var(--st-pill-danger-bg);
+  color: var(--nbd-color-danger, #dc2626);
+}
+.spbwc-sort-reset .dashicons {
+  font-size: 16px;
+  width: 16px;
+  height: 16px;
+  margin: 0;
+}
+
+/* ── Custom delete confirm modal ─────────────────────────────────── */
+.spbwc-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.52);
+  z-index: 100000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  animation: spbwc-overlay-in 0.15s ease;
+}
+.spbwc-modal-overlay[hidden] { display: none; }
+
+@keyframes spbwc-overlay-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.spbwc-modal {
+  background: var(--nbd-st-bg);
+  border-radius: var(--nbd-radius-lg);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.28);
+  padding: 32px 28px 24px;
+  max-width: 360px;
+  width: 100%;
+  text-align: center;
+  animation: spbwc-modal-in 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes spbwc-modal-in {
+  from { transform: scale(0.88); opacity: 0; }
+  to   { transform: scale(1);    opacity: 1; }
+}
+
+.spbwc-modal__icon {
+  width: 52px;
+  height: 52px;
+  background: var(--st-pill-danger-bg);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 18px;
+}
+.spbwc-modal__icon .dashicons {
+  font-size: 24px;
+  width: 24px;
+  height: 24px;
+  color: var(--nbd-color-danger, #dc2626);
+  margin: 0;
+}
+
+.spbwc-modal__title {
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--nbd-st-text);
+  margin: 0 0 8px;
+  line-height: 1.3;
+}
+
+.spbwc-modal__desc {
+  font-size: 13px;
+  color: var(--nbd-st-text-soft);
+  margin: 0 0 24px;
+  line-height: 1.6;
+  word-break: break-word;
+}
+
+.spbwc-modal__actions {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+}
+
+.spbwc-modal-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  height: 38px;
+  padding: 0 22px;
+  border-radius: var(--nbd-radius-sm);
+  border: 1px solid var(--nbd-st-border);
+  background: var(--nbd-st-bg);
+  color: var(--nbd-st-text);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: var(--transition-fast);
+  white-space: nowrap;
+  line-height: 1;
+}
+.spbwc-modal-btn:hover {
+  background: var(--nbd-st-bg-soft);
+  border-color: var(--nbd-st-border);
+}
+.spbwc-modal-btn--danger {
+  background: var(--nbd-color-danger, #dc2626);
+  border-color: var(--nbd-color-danger, #dc2626);
+  color: #fff;
+}
+.spbwc-modal-btn--danger:hover {
+  background: #b91c1c;
+  border-color: #b91c1c;
+  color: #fff;
+}
+.spbwc-modal-btn .dashicons {
+  font-size: 15px;
+  width: 15px;
+  height: 15px;
+  margin: 0;
+}
+
+/* ── Toast: undo button + flex layout ───────────────────────────── */
+.spbwc-toast:not([hidden]) {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+}
+
+.spbwc-toast__undo {
+  display: inline-flex;
+  align-items: center;
+  height: 24px;
+  padding: 0 8px;
+  margin-left: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  border-radius: var(--nbd-radius-sm);
+  background: transparent;
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background 0.15s;
+}
+.spbwc-toast__undo:hover { background: rgba(255, 255, 255, 0.22); }
+
+/* ── Skeleton loading cards ──────────────────────────────────────── */
+.spbwc-option-card--skeleton {
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.spbwc-skeleton__thumb {
+  height: 152px;
+  background: linear-gradient(
+    90deg,
+    var(--nbd-st-bg-soft) 25%,
+    var(--nbd-st-bg-canvas) 50%,
+    var(--nbd-st-bg-soft) 75%
+  );
+  background-size: 200% 100%;
+  animation: spbwc-shimmer 1.4s ease-in-out infinite;
+}
+
+.spbwc-skeleton__line {
+  height: 14px;
+  border-radius: var(--nbd-radius-sm);
+  margin-bottom: 10px;
+  background: linear-gradient(
+    90deg,
+    var(--nbd-st-bg-soft) 25%,
+    var(--nbd-st-bg-canvas) 50%,
+    var(--nbd-st-bg-soft) 75%
+  );
+  background-size: 200% 100%;
+  animation: spbwc-shimmer 1.4s ease-in-out infinite;
+}
+
+.spbwc-skeleton__line--sm { height: 11px; }
+
+@keyframes spbwc-shimmer {
+  0%   { background-position:  200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* ── Card actions: hover / focus-within reveal ───────────────────── */
+.spbwc-option-card__actions {
+  opacity: 0;
+  transition: opacity 0.18s;
+}
+.spbwc-option-card:hover .spbwc-option-card__actions,
+.spbwc-option-card:focus-within .spbwc-option-card__actions {
+  opacity: 1;
+}

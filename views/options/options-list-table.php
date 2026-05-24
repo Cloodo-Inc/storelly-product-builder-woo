@@ -67,24 +67,37 @@ $_current_page_n = isset( $_GET['paged'] ) ? max( 1, absint( $_GET['paged'] ) ) 
 
 	<!-- ── Stats overview row ────────────────────────────────────────── -->
 	<div class="spbwc-options-stats">
-		<div class="spbwc-stat-card">
+		<div class="spbwc-stat-card spbwc-stat-card--clickable"
+		     data-filter=""
+		     role="button" tabindex="0"
+		     title="<?php esc_attr_e( 'Show all options', 'storelly-product-builder-for-woocommerce' ); ?>"
+		     aria-label="<?php esc_attr_e( 'Filter: all options', 'storelly-product-builder-for-woocommerce' ); ?>">
 			<span class="dashicons dashicons-tickets-alt spbwc-stat-card__icon" aria-hidden="true"></span>
 			<div class="spbwc-stat-card__value"><?php echo esc_html( number_format_i18n( $_status_counts['all'] ) ); ?></div>
 			<div class="spbwc-stat-card__label"><?php esc_html_e( 'Total Options', 'storelly-product-builder-for-woocommerce' ); ?></div>
 			<div class="spbwc-stat-card__sub"><?php esc_html_e( 'All pricing option groups', 'storelly-product-builder-for-woocommerce' ); ?></div>
 		</div>
-		<div class="spbwc-stat-card">
+		<div class="spbwc-stat-card spbwc-stat-card--clickable"
+		     data-filter="1"
+		     role="button" tabindex="0"
+		     title="<?php esc_attr_e( 'Show published options', 'storelly-product-builder-for-woocommerce' ); ?>"
+		     aria-label="<?php esc_attr_e( 'Filter: published options', 'storelly-product-builder-for-woocommerce' ); ?>">
 			<span class="dashicons dashicons-yes-alt spbwc-stat-card__icon" aria-hidden="true" style="color:var(--nbd-color-success)"></span>
 			<div class="spbwc-stat-card__value"><?php echo esc_html( number_format_i18n( $_status_counts['published'] ) ); ?></div>
 			<div class="spbwc-stat-card__label"><?php esc_html_e( 'Published', 'storelly-product-builder-for-woocommerce' ); ?></div>
 			<div class="spbwc-stat-card__sub"><?php esc_html_e( 'Active on your store', 'storelly-product-builder-for-woocommerce' ); ?></div>
 		</div>
-		<div class="spbwc-stat-card">
+		<div class="spbwc-stat-card spbwc-stat-card--clickable"
+		     data-filter="0"
+		     role="button" tabindex="0"
+		     title="<?php esc_attr_e( 'Show draft options', 'storelly-product-builder-for-woocommerce' ); ?>"
+		     aria-label="<?php esc_attr_e( 'Filter: draft options', 'storelly-product-builder-for-woocommerce' ); ?>">
 			<span class="dashicons dashicons-edit spbwc-stat-card__icon" aria-hidden="true"></span>
 			<div class="spbwc-stat-card__value"><?php echo esc_html( number_format_i18n( $_status_counts['draft'] ) ); ?></div>
 			<div class="spbwc-stat-card__label"><?php esc_html_e( 'Drafts', 'storelly-product-builder-for-woocommerce' ); ?></div>
 			<div class="spbwc-stat-card__sub"><?php esc_html_e( 'Not yet visible to customers', 'storelly-product-builder-for-woocommerce' ); ?></div>
 		</div>
+		<?php if ( 0 === $_total_items_n ) : ?>
 		<div class="spbwc-stat-card spbwc-stat-card--guide">
 			<span class="dashicons dashicons-lightbulb spbwc-stat-card__icon" aria-hidden="true"></span>
 			<div class="spbwc-stat-card__label"><?php esc_html_e( 'How to use', 'storelly-product-builder-for-woocommerce' ); ?></div>
@@ -94,6 +107,7 @@ $_current_page_n = isset( $_GET['paged'] ) ? max( 1, absint( $_GET['paged'] ) ) 
 				<li><?php esc_html_e( 'Assign to products or categories', 'storelly-product-builder-for-woocommerce' ); ?></li>
 			</ol>
 		</div>
+		<?php endif; ?>
 	</div>
 
 	<!-- ── Toolbar: tabs + search + sort + count + view toggle ───────── -->
@@ -143,6 +157,13 @@ $_current_page_n = isset( $_GET['paged'] ) ? max( 1, absint( $_GET['paged'] ) ) 
 				       value="<?php echo esc_attr( $_search_term ); ?>"
 				       placeholder="<?php esc_attr_e( 'Search options\xe2\x80\xa6', 'storelly-product-builder-for-woocommerce' ); ?>"
 				       aria-label="<?php esc_attr_e( 'Search options', 'storelly-product-builder-for-woocommerce' ); ?>">
+				<button type="button"
+				        class="spbwc-search-clear"
+				        id="spbwc-search-clear"
+				        aria-label="<?php esc_attr_e( 'Clear search', 'storelly-product-builder-for-woocommerce' ); ?>"
+				        hidden>
+					<span class="dashicons dashicons-no-alt" aria-hidden="true"></span>
+				</button>
 			</div>
 
 			<!-- Sort by -->
@@ -153,6 +174,14 @@ $_current_page_n = isset( $_GET['paged'] ) ? max( 1, absint( $_GET['paged'] ) ) 
 				<option value="title-ASC"><?php esc_html_e( 'Name A\xe2\x86\x92Z', 'storelly-product-builder-for-woocommerce' ); ?></option>
 				<option value="title-DESC"><?php esc_html_e( 'Name Z\xe2\x86\x92A', 'storelly-product-builder-for-woocommerce' ); ?></option>
 			</select>
+			<button type="button"
+			        class="spbwc-sort-reset"
+			        id="spbwc-sort-reset"
+			        title="<?php esc_attr_e( 'Reset to default sort', 'storelly-product-builder-for-woocommerce' ); ?>"
+			        aria-label="<?php esc_attr_e( 'Reset sort order', 'storelly-product-builder-for-woocommerce' ); ?>"
+			        hidden>
+				<span class="dashicons dashicons-dismiss" aria-hidden="true"></span>
+			</button>
 
 			<!-- Live count -->
 			<span class="spbwc-list-count" id="spbwc-options-count" aria-live="polite">
@@ -381,10 +410,41 @@ $_current_page_n = isset( $_GET['paged'] ) ? max( 1, absint( $_GET['paged'] ) ) 
 		<span class="spbwc-loading-spin dashicons dashicons-update-alt" aria-hidden="true"></span>
 	</div>
 
+	<!-- ── Delete confirm modal ──────────────────────────────────────── -->
+	<div id="spbwc-delete-modal" class="spbwc-modal-overlay" hidden
+	     role="dialog" aria-modal="true" aria-hidden="true"
+	     aria-labelledby="spbwc-delete-modal-title">
+		<div class="spbwc-modal">
+			<div class="spbwc-modal__icon" aria-hidden="true">
+				<span class="dashicons dashicons-trash"></span>
+			</div>
+			<h3 id="spbwc-delete-modal-title" class="spbwc-modal__title">
+				<?php esc_html_e( 'Delete option?', 'storelly-product-builder-for-woocommerce' ); ?>
+			</h3>
+			<p id="spbwc-delete-modal-desc" class="spbwc-modal__desc">
+				<?php esc_html_e( 'This cannot be undone.', 'storelly-product-builder-for-woocommerce' ); ?>
+			</p>
+			<div class="spbwc-modal__actions">
+				<button type="button" id="spbwc-delete-cancel" class="spbwc-modal-btn">
+					<?php esc_html_e( 'Cancel', 'storelly-product-builder-for-woocommerce' ); ?>
+				</button>
+				<button type="button" id="spbwc-delete-confirm" class="spbwc-modal-btn spbwc-modal-btn--danger">
+					<span class="dashicons dashicons-trash" aria-hidden="true"></span>
+					<?php esc_html_e( 'Delete', 'storelly-product-builder-for-woocommerce' ); ?>
+				</button>
+			</div>
+		</div>
+	</div>
+
 </div><!-- .wrap -->
 
-<!-- Toast notification -->
-<div id="spbwc-toast" class="spbwc-toast" hidden role="status" aria-live="polite"></div>
+<!-- Toast notification (flex layout for inline Undo button) -->
+<div id="spbwc-toast" class="spbwc-toast" hidden role="status" aria-live="polite">
+	<span id="spbwc-toast-msg"></span>
+	<button type="button" id="spbwc-toast-undo" class="spbwc-toast__undo" hidden>
+		<?php esc_html_e( 'Undo', 'storelly-product-builder-for-woocommerce' ); ?>
+	</button>
+</div>
 
 <script>
 (function () {
@@ -395,7 +455,6 @@ $_current_page_n = isset( $_GET['paged'] ) ? max( 1, absint( $_GET['paged'] ) ) 
 	var STORAGE_KEY = 'spbwc_options_view';
 	var SINGULAR    = '<?php echo esc_js( _x( 'option', 'singular item count', 'storelly-product-builder-for-woocommerce' ) ); ?>';
 	var PLURAL      = '<?php echo esc_js( _x( 'options', 'plural item count', 'storelly-product-builder-for-woocommerce' ) ); ?>';
-	var CONFIRM_DEL = '<?php echo esc_js( __( 'Delete this option? This cannot be undone.', 'storelly-product-builder-for-woocommerce' ) ); ?>';
 	var ERR_GENERIC = '<?php echo esc_js( __( 'Something went wrong. Please try again.', 'storelly-product-builder-for-woocommerce' ) ); ?>';
 
 	/** Current filter state */
@@ -420,20 +479,84 @@ $_current_page_n = isset( $_GET['paged'] ) ? max( 1, absint( $_GET['paged'] ) ) 
 		}
 	}
 
-	// ── Toast ─────────────────────────────────────────────────────────
-	function showToast( msg, type ) {
-		var toast = document.getElementById( 'spbwc-toast' );
-		if ( ! toast ) { return; }
-		toast.textContent = msg;
+	// ── Toast (supports optional Undo callback) ───────────────────────
+	function showToast( msg, type, undoCallback ) {
+		var toast   = document.getElementById( 'spbwc-toast' );
+		var msgEl   = document.getElementById( 'spbwc-toast-msg' );
+		var undoBtn = document.getElementById( 'spbwc-toast-undo' );
+		if ( ! toast || ! msgEl ) { return; }
+		msgEl.textContent = msg;
 		toast.className   = 'spbwc-toast spbwc-toast--' + ( type || 'success' );
-		toast.hidden      = false;
+		if ( undoCallback && undoBtn ) {
+			undoBtn.hidden = false;
+			// Clone to remove any previous click listener.
+			var fresh = undoBtn.cloneNode( true );
+			undoBtn.parentNode.replaceChild( fresh, undoBtn );
+			fresh.addEventListener( 'click', function () {
+				toast.hidden = true;
+				clearTimeout( toast._timer );
+				undoCallback();
+			} );
+		} else if ( undoBtn ) {
+			undoBtn.hidden = true;
+		}
+		toast.hidden = false;
 		clearTimeout( toast._timer );
-		toast._timer = setTimeout( function () { toast.hidden = true; }, 3200 );
+		toast._timer = setTimeout( function () { toast.hidden = true; }, undoCallback ? 5000 : 3200 );
 	}
 
 	// ── Count label ───────────────────────────────────────────────────
 	function countLabel( n ) {
 		return n + ' ' + ( 1 === n ? SINGULAR : PLURAL );
+	}
+
+	// ── Delete confirm modal ──────────────────────────────────────────
+	var _deleteModalPending = null; // { id, prevPub, onConfirm }
+
+	function showDeleteModal( id, title, prevPub, onConfirm ) {
+		var overlay = document.getElementById( 'spbwc-delete-modal' );
+		var desc    = document.getElementById( 'spbwc-delete-modal-desc' );
+		if ( ! overlay ) { return; }
+		if ( desc ) {
+			var cannotUndo = '<?php echo esc_js( __( 'This cannot be undone.', 'storelly-product-builder-for-woocommerce' ) ); ?>';
+			desc.textContent = title
+				? '“' + title + '” — ' + cannotUndo
+				: cannotUndo;
+		}
+		_deleteModalPending = { id: id, prevPub: prevPub, onConfirm: onConfirm };
+		overlay.hidden = false;
+		overlay.removeAttribute( 'aria-hidden' );
+		// Defer focus so the element is visible first.
+		setTimeout( function () {
+			var btn = document.getElementById( 'spbwc-delete-confirm' );
+			if ( btn ) { btn.focus(); }
+		}, 50 );
+	}
+
+	function closeDeleteModal() {
+		var overlay = document.getElementById( 'spbwc-delete-modal' );
+		if ( overlay ) {
+			overlay.hidden = true;
+			overlay.setAttribute( 'aria-hidden', 'true' );
+		}
+		_deleteModalPending = null;
+	}
+
+	// ── Skeleton loading placeholders ─────────────────────────────────
+	function renderSkeletons( count ) {
+		var html = '<div class="spbwc-options-grid">';
+		for ( var i = 0; i < count; i++ ) {
+			html += '<div class="spbwc-option-card spbwc-option-card--skeleton" aria-hidden="true">'
+			      + '<div class="spbwc-skeleton__thumb"></div>'
+			      + '<div class="spbwc-option-card__body">'
+			      + '<div class="spbwc-skeleton__line" style="width:68%"></div>'
+			      + '<div class="spbwc-skeleton__line spbwc-skeleton__line--sm" style="width:42%"></div>'
+			      + '<div class="spbwc-skeleton__line spbwc-skeleton__line--sm" style="width:55%"></div>'
+			      + '</div>'
+			      + '</div>';
+		}
+		html += '</div>';
+		return html;
 	}
 
 	// ── Fetch grid via AJAX ───────────────────────────────────────────
@@ -449,6 +572,9 @@ $_current_page_n = isset( $_GET['paged'] ) ? max( 1, absint( $_GET['paged'] ) ) 
 		fd.append( 'orderby',       state.orderby );
 		fd.append( 'order',         state.order );
 
+		// Show skeletons immediately; real cards replace them on resolve.
+		var inner = document.getElementById( 'spbwc-block-view-inner' );
+		if ( inner ) { inner.innerHTML = renderSkeletons( 6 ); }
 		setLoading( true );
 
 		fetch( AJAX_URL, { method: 'POST', credentials: 'same-origin', body: fd } )
@@ -458,8 +584,7 @@ $_current_page_n = isset( $_GET['paged'] ) ? max( 1, absint( $_GET['paged'] ) ) 
 					showToast( ( res && res.data && res.data.msg ) || ERR_GENERIC, 'error' );
 					return;
 				}
-				var d     = res.data;
-				var inner = document.getElementById( 'spbwc-block-view-inner' );
+				var d = res.data;
 				if ( inner ) {
 					inner.innerHTML = d.grid_html;
 					// Re-attach pagination nav (it lives outside inner)
@@ -544,23 +669,37 @@ $_current_page_n = isset( $_GET['paged'] ) ? max( 1, absint( $_GET['paged'] ) ) 
 
 	// ── Bind card action buttons (called after each grid re-render) ───
 	function bindCardActions() {
-		// Trash
+		// Trash — uses custom modal + 5-second Undo toast
 		document.querySelectorAll( '[data-spbwc-action="trash"]:not([data-bound])' ).forEach( function ( btn ) {
 			btn.setAttribute( 'data-bound', '1' );
 			btn.addEventListener( 'click', function () {
-				// eslint-disable-next-line no-alert
-				if ( ! window.confirm( CONFIRM_DEL ) ) { return; }
-				var id   = this.dataset.id;
-				var card = this.closest( '.spbwc-option-card' );
-				if ( card ) {
-					card.style.opacity       = '0.4';
-					card.style.pointerEvents = 'none';
-				}
-				setLoading( true );
-				doPost( 'spbwc_trash_option', { id: id }, function ( data ) {
-					showToast( data.msg || 'Deleted', 'success' );
-					updateTabCounts( data.counts );
-					fetchList( false );
+				var id      = this.dataset.id;
+				var card    = this.closest( '.spbwc-option-card' );
+				var titleEl = card ? card.querySelector( '.spbwc-option-card__title a' ) : null;
+				var title   = titleEl ? titleEl.textContent.trim() : '';
+				var prevPub = card ? ( parseInt( card.dataset.published, 10 ) || 0 ) : 0;
+
+				showDeleteModal( id, title, prevPub, function () {
+					if ( card ) {
+						card.style.opacity       = '0.4';
+						card.style.pointerEvents = 'none';
+					}
+					setLoading( true );
+					doPost( 'spbwc_trash_option', { id: id }, function ( data ) {
+						// Undo restores the item to its previous published state.
+						var undoFn = function () {
+							doPost( 'spbwc_publish_option_ajax', { id: id, published: prevPub }, function () {
+								fetchList( false );
+							} );
+						};
+						showToast(
+							data.msg || '<?php echo esc_js( __( 'Option deleted.', 'storelly-product-builder-for-woocommerce' ) ); ?>',
+							'success',
+							undoFn
+						);
+						updateTabCounts( data.counts );
+						fetchList( false );
+					} );
 				} );
 			} );
 		} );
@@ -647,6 +786,21 @@ $_current_page_n = isset( $_GET['paged'] ) ? max( 1, absint( $_GET['paged'] ) ) 
 		try { saved = localStorage.getItem( STORAGE_KEY ) || 'block'; } catch ( e ) { /* storage unavailable */ }
 		setView( saved );
 
+		// ── Stat cards → click to filter ─────────────────────────────
+		document.querySelectorAll( '.spbwc-stat-card--clickable' ).forEach( function ( card ) {
+			var activate = function () {
+				state.status_filter = card.dataset.filter !== undefined ? card.dataset.filter : '';
+				setView( 'block' );
+				fetchList( true );
+				var grid = document.getElementById( 'spbwc-block-view' );
+				if ( grid ) { grid.scrollIntoView( { behavior: 'smooth', block: 'start' } ); }
+			};
+			card.addEventListener( 'click', activate );
+			card.addEventListener( 'keydown', function ( e ) {
+				if ( 'Enter' === e.key || ' ' === e.key ) { e.preventDefault(); activate(); }
+			} );
+		} );
+
 		// Bind initial card actions (server-rendered on first load)
 		bindCardActions();
 
@@ -665,12 +819,20 @@ $_current_page_n = isset( $_GET['paged'] ) ? max( 1, absint( $_GET['paged'] ) ) 
 			} );
 		} );
 
-		// Search — debounced 300 ms, fires AJAX in card view
-		var search = document.getElementById( 'spbwc-unified-search' );
+		// ── Search — debounced 300 ms + clear button ──────────────────
+		var search   = document.getElementById( 'spbwc-unified-search' );
+		var clearBtn = document.getElementById( 'spbwc-search-clear' );
+
+		function syncClearBtn() {
+			if ( clearBtn ) { clearBtn.hidden = ! ( search && search.value.trim() ); }
+		}
+
 		if ( search ) {
+			syncClearBtn(); // reflect any server-rendered initial value
 			search.addEventListener( 'input', function () {
 				clearTimeout( fetchTimer );
 				state.s = this.value.trim();
+				syncClearBtn();
 				var blockView = document.getElementById( 'spbwc-block-view' );
 				if ( blockView && ! blockView.hidden ) {
 					fetchTimer = setTimeout( function () { fetchList( true ); }, 300 );
@@ -686,18 +848,77 @@ $_current_page_n = isset( $_GET['paged'] ) ? max( 1, absint( $_GET['paged'] ) ) 
 			} );
 		}
 
-		// Sort dropdown
-		var sortEl = document.getElementById( 'spbwc-sort-select' );
-		if ( sortEl ) {
-			sortEl.addEventListener( 'change', function () {
-				var parts     = this.value.split( '-' );
-				state.orderby = parts[0] || 'modified';
-				state.order   = parts[1] || 'DESC';
+		if ( clearBtn && search ) {
+			clearBtn.addEventListener( 'click', function () {
+				search.value = '';
+				state.s      = '';
+				syncClearBtn();
+				search.focus();
+				setView( 'block' );
 				fetchList( true );
 			} );
 		}
 
-		// Pagination buttons (event delegation — works after AJAX re-render too)
+		// ── Sort dropdown + reset button ──────────────────────────────
+		var sortEl    = document.getElementById( 'spbwc-sort-select' );
+		var sortReset = document.getElementById( 'spbwc-sort-reset' );
+
+		function syncSortReset() {
+			var isDefault = state.orderby === 'modified' && state.order === 'DESC';
+			if ( sortEl )    { sortEl.classList.toggle( 'is-sorted', ! isDefault ); }
+			if ( sortReset ) { sortReset.hidden = isDefault; }
+		}
+
+		if ( sortEl ) {
+			sortEl.addEventListener( 'change', function () {
+				var parts     = this.value.split( '-' );
+				// Handle 'modified-DESC', 'title-ASC' — join tail in case value ever has extra '-'
+				state.orderby = parts[0] || 'modified';
+				state.order   = ( parts.slice( 1 ).join( '-' ) || 'DESC' ).toUpperCase();
+				syncSortReset();
+				fetchList( true );
+			} );
+		}
+
+		if ( sortReset ) {
+			sortReset.addEventListener( 'click', function () {
+				state.orderby = 'modified';
+				state.order   = 'DESC';
+				if ( sortEl ) { sortEl.value = 'modified-DESC'; }
+				syncSortReset();
+				fetchList( true );
+			} );
+		}
+
+		// ── Delete confirm modal buttons ──────────────────────────────
+		var delCancel  = document.getElementById( 'spbwc-delete-cancel' );
+		var delConfirm = document.getElementById( 'spbwc-delete-confirm' );
+		var delOverlay = document.getElementById( 'spbwc-delete-modal' );
+
+		if ( delCancel ) {
+			delCancel.addEventListener( 'click', closeDeleteModal );
+		}
+		if ( delOverlay ) {
+			// Click outside modal box closes it.
+			delOverlay.addEventListener( 'click', function ( e ) {
+				if ( e.target === delOverlay ) { closeDeleteModal(); }
+			} );
+		}
+		if ( delConfirm ) {
+			delConfirm.addEventListener( 'click', function () {
+				if ( ! _deleteModalPending ) { return; }
+				var cb = _deleteModalPending.onConfirm;
+				closeDeleteModal();
+				if ( cb ) { cb(); }
+			} );
+		}
+
+		// Escape key closes modal (global, low cost).
+		document.addEventListener( 'keydown', function ( e ) {
+			if ( 'Escape' === e.key ) { closeDeleteModal(); }
+		} );
+
+		// ── Pagination (event delegation — survives AJAX re-render) ───
 		document.addEventListener( 'click', function ( e ) {
 			var btn = e.target.closest( '[data-spbwc-page]' );
 			if ( ! btn || btn.classList.contains( 'is-disabled' ) ) { return; }
