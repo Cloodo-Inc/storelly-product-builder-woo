@@ -267,8 +267,10 @@ fontApp.directive("fontOnLoad", [
 (function ($) {
   "use strict";
 
+  // Wait until the localized variable is available (it is inlined before this script)
   var vars    = (typeof storelly_manager_fonts_variable !== "undefined") ? storelly_manager_fonts_variable : {};
   var i18n    = vars.i18n    || {};
+  // ajax_url injected via wp_localize_script; fall back to WordPress global
   var ajaxUrl = vars.ajax_url || (typeof ajaxurl !== "undefined" ? ajaxurl : "");
   var nonce   = vars.upload_nonce || "";
 
@@ -428,6 +430,7 @@ fontApp.directive("fontOnLoad", [
       data:        formData,
       processData: false,
       contentType: false,
+      dataType:    "json",
     })
       .done(function (response) {
         if (response && response.success && response.data && response.data.font) {
@@ -473,8 +476,9 @@ fontApp.directive("fontOnLoad", [
     if (!confirmed) return;
 
     $.ajax({
-      url:    ajaxUrl,
-      method: "POST",
+      url:      ajaxUrl,
+      method:   "POST",
+      dataType: "json",
       data: {
         action:  "spbwc_delete_custom_font",
         nonce:   nonce,

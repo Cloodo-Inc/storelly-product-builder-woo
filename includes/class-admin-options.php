@@ -442,13 +442,8 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
             $spbwc_current_page = isset( $_GET['page'] ) ? sanitize_text_field( wp_unslash( $_GET['page'] ) ) : '';
             if ( $hook === 'product-builder-options_page_' . SPBWC_PB_OPTIONS_SLUG . '/manager-fonts'
                  || $spbwc_current_page === SPBWC_PB_OPTIONS_SLUG . '/manager-fonts' ) {
-                wp_register_script('spbwc-manager-fonts-script', SPBWC_PB_JS_URL . 'manager-fonts.js', array('spbwc-fontfaceobserver', 'spbwc-sweetalert-js', 'spbwc-ag'), SPBWC_PB_VERSION, true);
-                wp_localize_script('spbwc-manager-fonts-script', 'storelly_pb_fonts', array(
-                    'url'       => admin_url('admin-ajax.php'),
-                    'nonce'     => wp_create_nonce('spbwc_update_fonts'),
-                    'complete'  => esc_html__('Complete!', 'storelly-product-builder-for-woocommerce'),
-                ));
-                wp_enqueue_script('spbwc-manager-fonts-script');
+                // CSS only — JS is registered and enqueued by spbwc_manager_fonts() page callback
+                // to avoid loading manager-fonts.js twice with different handles.
                 wp_enqueue_style('spbwc-manager-fonts');
             }
 
@@ -596,177 +591,76 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
             $search = isset( $_GET['s'] ) ? sanitize_text_field( wp_unslash( $_GET['s'] ) ) : '';
             // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only pagination value.
             $paged = isset( $_GET['paged'] ) ? max( 1, absint( wp_unslash( $_GET['paged'] ) ) ) : 1;
+            // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only filter.
+            $filter = isset( $_GET['filter'] ) ? sanitize_key( wp_unslash( $_GET['filter'] ) ) : 'all';
+            if ( ! in_array( $filter, array( 'all', 'mapped', 'unmapped' ), true ) ) {
+                $filter = 'all';
+            }
+
             $per_page = 20;
 
-            $products_query = new WP_Query(
-                array(
+            // Collect product IDs with a mapped printing option for filter tabs + counts.
+            $spbwc_mapped_ids  = array();
+            $spbwc_all_options = $this->spbwc_get_cached_published_options();
+            if ( ! empty( $spbwc_all_options ) ) {
+                foreach ( $spbwc_all_options as $spbwc_opt ) {
+                    $spbwc_apply_for = isset( $spbwc_opt['apply_for'] ) ? $spbwc_opt['apply_for'] : 'p';
+                    if ( 'p' === $spbwc_apply_for ) {
+                        foreach ( $this->spbwc_extract_product_ids_from_option( $spbwc_opt ) as $spbwc_pid ) {
+                            $spbwc_mapped_ids[ $spbwc_pid ] = true;
+                        }
+                    }
+                }
+            }
+            $spbwc_mapped_ids = array_keys( $spbwc_mapped_ids );
+
+            // Count totals for filter tabs (no_found_rows=false needed for found_posts).
+            $spbwc_count_query = new WP_Query( array(
+                'post_type'      => 'product',
+                'post_status'    => array( 'publish', 'draft', 'pending', 'private' ),
+                'posts_per_page' => -1,
+                's'              => $search,
+                'fields'         => 'ids',
+                'no_found_rows'  => false,
+            ) );
+            $count_all = (int) $spbwc_count_query->found_posts;
+
+            if ( ! empty( $spbwc_mapped_ids ) ) {
+                $spbwc_mapped_count_query = new WP_Query( array(
                     'post_type'      => 'product',
                     'post_status'    => array( 'publish', 'draft', 'pending', 'private' ),
-                    'posts_per_page' => $per_page,
-                    'paged'          => $paged,
+                    'posts_per_page' => -1,
                     's'              => $search,
-                    'orderby'        => 'date',
-                    'order'          => 'DESC',
-                )
+                    'post__in'       => $spbwc_mapped_ids,
+                    'fields'         => 'ids',
+                    'no_found_rows'  => false,
+                ) );
+                $count_mapped   = (int) $spbwc_mapped_count_query->found_posts;
+                $count_unmapped = $count_all - $count_mapped;
+            } else {
+                $count_mapped   = 0;
+                $count_unmapped = $count_all;
+            }
+
+            // Build main query args based on active filter.
+            $spbwc_query_args = array(
+                'post_type'      => 'product',
+                'post_status'    => array( 'publish', 'draft', 'pending', 'private' ),
+                'posts_per_page' => $per_page,
+                'paged'          => $paged,
+                's'              => $search,
+                'orderby'        => 'date',
+                'order'          => 'DESC',
             );
-            ?>
-            <div class="wrap">
-                <h1><?php esc_html_e( 'Products', 'storelly-product-builder-for-woocommerce' ); ?></h1>
-                <p><?php esc_html_e( 'Manage products with card view. Template actions are removed and replaced by printing option actions.', 'storelly-product-builder-for-woocommerce' ); ?></p>
-                <form method="get" style="margin: 12px 0;">
-                    <input type="hidden" name="page" value="<?php echo esc_attr( SPBWC_PB_PRODUCTS_SLUG ); ?>" />
-                    <input type="search" name="s" value="<?php echo esc_attr( $search ); ?>" placeholder="<?php esc_attr_e( 'Search products', 'storelly-product-builder-for-woocommerce' ); ?>" />
-                    <button type="submit" class="button"><?php esc_html_e( 'Search', 'storelly-product-builder-for-woocommerce' ); ?></button>
-                </form>
-                <style>
-                    .spbwc-product-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:16px}
-                    .spbwc-product-card{background:#fff;border:1px solid #e0e4ea;box-shadow:0 2px 8px #e9e9f3;border-radius:12px;overflow:hidden;transition:box-shadow .2s}
-                    .spbwc-product-card:hover{box-shadow:0 6px 24px #d1d1e6;transform:translateY(-2px)}
-                    .spbwc-product-thumb{display:block;position:relative;aspect-ratio:1/1;background:#f6f7f7}
-                    .spbwc-product-thumb img{width:100%;height:100%;object-fit:cover;border-radius:8px 8px 0 0}
-                    .spbwc-product-body{padding:16px}
-                    .spbwc-product-title{font-weight:700;line-height:1.35;margin:0 0 8px;font-size:1.1em;color:#1d2327}
-                    .spbwc-product-meta{font-size:12px;color:#6c7280;margin-bottom:10px}
-                    .spbwc-product-actions{display:flex;gap:8px;align-items:center;margin-top:8px}
-                    .spbwc-product-actions .dashicons{font-size:18px;line-height:18px}
-                    .spbwc-action-icon{display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;border:1px solid #dcdcde;border-radius:6px;color:#1d2327;text-decoration:none;background:#f7f8fa;transition:background .2s,border .2s}
-                    .spbwc-action-icon:hover{background:#e6f0fa;border-color:#339af0;color:#1971c2}
-                    .spbwc-product-actions .button-primary{background:#339af0;border:none;box-shadow:none;font-weight:600;transition:background .2s}
-                    .spbwc-product-actions .button-primary:hover{background:#1971c2}
-                    /* Pagination styles */
-                    .spbwc-pagination {
-                        display: flex;
-                        justify-content: center;
-                        align-items: center;
-                        margin: 40px 0 20px;
-                        gap: 8px;
-                    }
-                    .spbwc-pagination .page-numbers {
-                        display: inline-flex;
-                        align-items: center;
-                        justify-content: center;
-                        min-width: 40px;
-                        height: 40px;
-                        padding: 0 8px;
-                        border-radius: 10px;
-                        background: #fff;
-                        color: #4a5568;
-                        text-decoration: none;
-                        transition: all 0.25s ease;
-                        font-weight: 600;
-                        font-size: 14px;
-                        border: 1px solid #e2e8f0;
-                        box-shadow: 0 1px 2px rgba(0,0,0,0.05);
-                    }
-                    .spbwc-pagination .page-numbers:hover:not(.dots):not(.current) {
-                        background: #f7fafc;
-                        border-color: #cbd5e0;
-                        color: #3182ce;
-                        transform: translateY(-1px);
-                        box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-                    }
-                    .spbwc-pagination .page-numbers.current {
-                        background: #3182ce;
-                        color: #fff;
-                        border-color: #3182ce;
-                        box-shadow: 0 4px 12px rgba(49, 130, 206, 0.3);
-                    }
-                    .spbwc-pagination .page-numbers.dots {
-                        background: none;
-                        color: #a0aec0;
-                        border: none;
-                        box-shadow: none;
-                        cursor: default;
-                    }
-                    .spbwc-pagination .prev.page-numbers,
-                    .spbwc-pagination .next.page-numbers {
-                        font-size: 18px;
-                        padding-bottom: 2px;
-                    }
-                </style>
-                <?php if ( $products_query->have_posts() ) : ?>
-                    <div class="spbwc-product-grid">
-                        <?php while ( $products_query->have_posts() ) : $products_query->the_post(); ?>
-                            <?php
-                            $product_id       = get_the_ID();
-                            $product          = wc_get_product( $product_id );
-                            $thumb_id         = get_post_thumbnail_id( $product_id );
-                            $thumb_url        = $thumb_id ? wp_get_attachment_image_url( $thumb_id, 'medium' ) : wc_placeholder_img_src();
-                            $option_id        = $this->spbwc_get_product_option( $product_id );
-                            $edit_option_link = add_query_arg(
-                                array(
-                                    'page'       => SPBWC_PB_BUILDER_SLUG,
-                                    'action'     => ( $option_id ? 'edit' : 'create' ),
-                                    'id'         => absint( $option_id ),
-                                    'product_id' => $product_id,
-                                    'paged'      => 1,
-                                ),
-                                admin_url( 'admin.php' )
-                            );
-                            /* translators: %d: printing option ID */
-                            $option_text = $option_id ? sprintf( __( 'Printing Option #%d', 'storelly-product-builder-for-woocommerce' ), $option_id ) : __( 'No printing option mapped', 'storelly-product-builder-for-woocommerce' );
-                            ?>
-                            <div class="spbwc-product-card">
-                                <a class="spbwc-product-thumb" href="<?php echo esc_url( $product ? $product->get_permalink() : '#' ); ?>" target="_blank" rel="noopener">
-                                    <img src="<?php echo esc_url( $thumb_url ); ?>" alt="<?php echo esc_attr( get_the_title() ); ?>" />
-                                </a>
-                                <div class="spbwc-product-body">
-                                    <p class="spbwc-product-title"><?php echo esc_html( get_the_title() ); ?></p>
-                                    <p class="spbwc-product-meta">
-                                        <?php echo esc_html( $option_text ); ?><br/>
-                                        <code>#<?php echo esc_html( (string) $product_id ); ?></code>
-                                    </p>
-                                    <div class="spbwc-product-actions">
-                                        <a class="spbwc-action-icon" href="<?php echo esc_url( get_edit_post_link( $product_id ) ); ?>" title="<?php esc_attr_e( 'Edit product', 'storelly-product-builder-for-woocommerce' ); ?>">
-                                            <span class="dashicons dashicons-edit"></span>
-                                        </a>
-                                        <?php if ( $product ) : ?>
-                                            <a class="spbwc-action-icon" href="<?php echo esc_url( $product->get_permalink() ); ?>" target="_blank" rel="noopener" title="<?php esc_attr_e( 'View product', 'storelly-product-builder-for-woocommerce' ); ?>">
-                                                <span class="dashicons dashicons-visibility"></span>
-                                            </a>
-                                        <?php endif; ?>
-                                        <a class="button button-small button-primary" href="<?php echo esc_url( $edit_option_link ); ?>" target="_blank" rel="noopener">
-                                            <?php echo $option_id ? esc_html__( 'Edit Printing Option', 'storelly-product-builder-for-woocommerce' ) : esc_html__( 'Create Printing Option', 'storelly-product-builder-for-woocommerce' ); ?>
-                                        </a>
-                                        <button class="button button-small spbwc-export-ref" data-id="<?php echo esc_attr( $product_id ); ?>" title="<?php esc_attr_e( 'Export product reference data', 'storelly-product-builder-for-woocommerce' ); ?>" style="display: none;">
-                                            <span class="dashicons dashicons-download" style="vertical-align: middle;"></span>
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                        <?php endwhile; ?>
-                    </div>
-                <?php else : ?>
-                    <p><?php esc_html_e( 'No products found.', 'storelly-product-builder-for-woocommerce' ); ?></p>
-                <?php endif; ?>
-                <?php
-                $total_pages = (int) $products_query->max_num_pages;
-                if ( $total_pages > 1 ) {
-                    echo '<div class="spbwc-pagination">';
-                    echo paginate_links(
-                        array(
-                            'base'      => add_query_arg(
-                                array(
-                                    'page'  => SPBWC_PB_PRODUCTS_SLUG,
-                                    's'     => rawurlencode( $search ),
-                                    'paged' => '%#%',
-                                ),
-                                admin_url( 'admin.php' )
-                            ),
-                            'format'    => '',
-                            'prev_text' => '&laquo;',
-                            'next_text' => '&raquo;',
-                            'total'     => $total_pages,
-                            'current'   => $paged,
-                            'type'      => 'plain',
-                        )
-                    );
-                    echo '</div>';
-                }
-                wp_reset_postdata();
-                ?>
-            </div>
-            <?php
+            if ( 'mapped' === $filter ) {
+                $spbwc_query_args['post__in'] = ! empty( $spbwc_mapped_ids ) ? $spbwc_mapped_ids : array( 0 );
+            } elseif ( 'unmapped' === $filter && ! empty( $spbwc_mapped_ids ) ) {
+                $spbwc_query_args['post__not_in'] = $spbwc_mapped_ids;
+            }
+
+            $products_query = new WP_Query( $spbwc_query_args );
+
+            include_once SPBWC_PB_PLUGIN_DIR . 'views/products.php';
         }
         public function spbwc_designs_page() {
             if ( ! current_user_can( 'spbwc_manage_product_builder' ) ) {
@@ -2538,6 +2432,8 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
 
         /**
          * AJAX: Upload a custom font file (TTF / OTF / WOFF / WOFF2).
+         * Uses move_uploaded_file() directly (bypasses wp_handle_upload MIME
+         * restrictions that reject font files in WordPress 5.8+).
          * Stores font metadata in wp_options key spbwc_custom_fonts.
          */
         public function spbwc_upload_custom_font() {
@@ -2550,45 +2446,65 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
                 wp_send_json_error( array( 'message' => esc_html__( 'Security check failed.', 'storelly-product-builder-for-woocommerce' ) ) );
             }
 
-            if ( empty( $_FILES['font_file'] ) || ! isset( $_FILES['font_file']['tmp_name'] ) ) {
-                wp_send_json_error( array( 'message' => esc_html__( 'No file uploaded.', 'storelly-product-builder-for-woocommerce' ) ) );
+            // Validate file present
+            if ( empty( $_FILES['font_file'] ) ||
+                 empty( $_FILES['font_file']['tmp_name'] ) ||
+                 ! is_uploaded_file( $_FILES['font_file']['tmp_name'] ) ) {
+                wp_send_json_error( array( 'message' => esc_html__( 'No file received. Please try again.', 'storelly-product-builder-for-woocommerce' ) ) );
             }
 
+            // Check for PHP upload errors
+            if ( UPLOAD_ERR_OK !== (int) $_FILES['font_file']['error'] ) {
+                wp_send_json_error( array( 'message' => esc_html__( 'Upload error. Check PHP upload_max_filesize / post_max_size.', 'storelly-product-builder-for-woocommerce' ) ) );
+            }
+
+            // Validate extension (whitelist only — no MIME sniffing needed for fonts)
             $allowed_ext = array( 'ttf', 'otf', 'woff', 'woff2' );
-            // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- sanitized immediately via pathinfo + strtolower.
-            $raw_name = isset( $_FILES['font_file']['name'] ) ? $_FILES['font_file']['name'] : '';
-            $ext      = strtolower( pathinfo( sanitize_file_name( $raw_name ), PATHINFO_EXTENSION ) );
+            // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+            $raw_name = isset( $_FILES['font_file']['name'] ) ? $_FILES['font_file']['name'] : 'font';
+            $safe_name_base = sanitize_file_name( $raw_name );
+            $ext = strtolower( pathinfo( $safe_name_base, PATHINFO_EXTENSION ) );
 
             if ( ! in_array( $ext, $allowed_ext, true ) ) {
                 wp_send_json_error( array( 'message' => esc_html__( 'Invalid file type. Allowed: TTF, OTF, WOFF, WOFF2.', 'storelly-product-builder-for-woocommerce' ) ) );
             }
 
-            // Temporarily allow font MIME types for wp_handle_upload.
-            add_filter( 'upload_mimes', array( $this, 'spbwc_allow_font_mimes' ) );
-            add_filter( 'wp_check_filetype_and_ext', array( $this, 'spbwc_allow_font_filetype' ), 10, 4 );
+            // Prepare upload directory: wp-content/uploads/storelly-fonts/
+            $upload_dir = wp_upload_dir();
+            $fonts_dir  = trailingslashit( $upload_dir['basedir'] ) . 'storelly-fonts/';
+            $fonts_url  = trailingslashit( $upload_dir['baseurl'] ) . 'storelly-fonts/';
 
-            require_once ABSPATH . 'wp-admin/includes/file.php';
-            $movefile = wp_handle_upload( $_FILES['font_file'], array( 'test_form' => false ) ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- passed directly to wp_handle_upload which handles validation.
-
-            remove_filter( 'upload_mimes', array( $this, 'spbwc_allow_font_mimes' ) );
-            remove_filter( 'wp_check_filetype_and_ext', array( $this, 'spbwc_allow_font_filetype' ) );
-
-            if ( ! $movefile || isset( $movefile['error'] ) ) {
-                $err = isset( $movefile['error'] ) ? $movefile['error'] : esc_html__( 'Upload failed.', 'storelly-product-builder-for-woocommerce' );
-                wp_send_json_error( array( 'message' => $err ) );
+            if ( ! file_exists( $fonts_dir ) ) {
+                if ( ! wp_mkdir_p( $fonts_dir ) ) {
+                    wp_send_json_error( array( 'message' => esc_html__( 'Could not create upload directory.', 'storelly-product-builder-for-woocommerce' ) ) );
+                }
+                // Protect directory with a blank index
+                file_put_contents( $fonts_dir . 'index.php', '<?php // Silence is golden.' ); // phpcs:ignore WordPress.WP.AlternativeFunctions
             }
 
+            // Generate unique filename and move the file
+            require_once ABSPATH . 'wp-admin/includes/file.php';
+            $unique_name = wp_unique_filename( $fonts_dir, $safe_name_base );
+            $target_path = $fonts_dir . $unique_name;
+
+            // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+            if ( ! move_uploaded_file( $_FILES['font_file']['tmp_name'], $target_path ) ) {
+                wp_send_json_error( array( 'message' => esc_html__( 'Failed to save file. Check server write permissions.', 'storelly-product-builder-for-woocommerce' ) ) );
+            }
+
+            // Sanitize metadata
             $font_name = isset( $_POST['font_name'] ) ? sanitize_text_field( wp_unslash( $_POST['font_name'] ) ) : '';
             if ( empty( $font_name ) ) {
-                $font_name = ucwords( str_replace( array( '-', '_' ), ' ', pathinfo( sanitize_file_name( $raw_name ), PATHINFO_FILENAME ) ) );
+                $font_name = ucwords( str_replace( array( '-', '_' ), ' ', pathinfo( $safe_name_base, PATHINFO_FILENAME ) ) );
             }
 
-            $allowed_cat  = array( 'serif', 'sans-serif', 'display', 'handwriting', 'monospace' );
-            $category     = isset( $_POST['category'] ) ? sanitize_text_field( wp_unslash( $_POST['category'] ) ) : 'sans-serif';
+            $allowed_cat = array( 'serif', 'sans-serif', 'display', 'handwriting', 'monospace' );
+            $category    = isset( $_POST['category'] ) ? sanitize_text_field( wp_unslash( $_POST['category'] ) ) : 'sans-serif';
             if ( ! in_array( $category, $allowed_cat, true ) ) {
                 $category = 'sans-serif';
             }
 
+            // Persist
             $custom_fonts = get_option( 'spbwc_custom_fonts', array() );
             if ( ! is_array( $custom_fonts ) ) {
                 $custom_fonts = array();
@@ -2596,7 +2512,7 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
             $new_font = array(
                 'id'       => 'cf_' . uniqid(),
                 'name'     => $font_name,
-                'url'      => esc_url_raw( $movefile['url'] ),
+                'url'      => esc_url_raw( $fonts_url . $unique_name ),
                 'format'   => $ext,
                 'category' => $category,
             );
@@ -2607,31 +2523,6 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
                 'font'    => $new_font,
                 'message' => esc_html__( 'Font uploaded successfully!', 'storelly-product-builder-for-woocommerce' ),
             ) );
-        }
-
-        /** Helper: allow font MIME types during upload. */
-        public function spbwc_allow_font_mimes( $mimes ) {
-            $mimes['ttf']   = 'font/ttf';
-            $mimes['otf']   = 'font/otf';
-            $mimes['woff']  = 'font/woff';
-            $mimes['woff2'] = 'font/woff2';
-            return $mimes;
-        }
-
-        /** Helper: bypass real-file MIME check for fonts (wp_check_filetype_and_ext). */
-        public function spbwc_allow_font_filetype( $data, $file, $filename, $mimes ) {
-            $ext = strtolower( pathinfo( sanitize_file_name( $filename ), PATHINFO_EXTENSION ) );
-            $font_types = array(
-                'ttf'   => 'font/ttf',
-                'otf'   => 'font/otf',
-                'woff'  => 'font/woff',
-                'woff2' => 'font/woff2',
-            );
-            if ( isset( $font_types[ $ext ] ) ) {
-                $data['ext']  = $ext;
-                $data['type'] = $font_types[ $ext ];
-            }
-            return $data;
         }
 
         /**
@@ -2697,6 +2588,12 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
             }
 
             wp_register_script('storelly_manager_fonts_script', SPBWC_PB_JS_URL . 'manager-fonts.js', array('spbwc-fontfaceobserver', 'spbwc-sweetalert-js', 'spbwc-ag'), SPBWC_PB_VERSION, true);
+            // storelly_pb_fonts: used by updateGoogleFont() in the Angular controller.
+            wp_localize_script('storelly_manager_fonts_script', 'storelly_pb_fonts', array(
+                'url'      => admin_url( 'admin-ajax.php' ),
+                'nonce'    => wp_create_nonce( 'spbwc_update_fonts' ),
+                'complete' => esc_html__( 'Complete!', 'storelly-product-builder-for-woocommerce' ),
+            ));
             wp_localize_script('storelly_manager_fonts_script', 'storelly_manager_fonts_variable', array(
                 'selected_fonts'  => $selected_fonts,
                 'ggFonts'         => $google_fonts_ttf,
