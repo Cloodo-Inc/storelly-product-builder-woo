@@ -14,6 +14,24 @@ $link_create_option = add_query_arg(
 $_nonce_block = wp_create_nonce('spbwc_options_nonce');
 // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Readonly page slug from request.
 $_page_slug = isset($_REQUEST['page']) ? sanitize_text_field(wp_unslash($_REQUEST['page'])) : SPBWC_PB_BUILDER_SLUG;
+
+// Toolbar: status filter state.
+// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+$_status_filter  = isset($_REQUEST['status_filter']) && strlen($_REQUEST['status_filter'])
+    ? sanitize_text_field(wp_unslash($_REQUEST['status_filter'])) : '';
+// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+$_search_term    = isset($_REQUEST['s']) ? sanitize_text_field(wp_unslash($_REQUEST['s'])) : '';
+$_status_counts  = SPBWC_Storelly_Options_List_Table::spbwc_count_all_statuses();
+$_base_tab_url   = admin_url('admin.php?page=' . $_page_slug);
+if ($_search_term) {
+    $_base_tab_url = add_query_arg('s', $_search_term, $_base_tab_url);
+}
+$_pager_base     = $_status_filter !== '' ? add_query_arg('status_filter', $_status_filter, $_base_tab_url) : $_base_tab_url;
+$_per_page_n     = 10;
+$_total_items_n  = SPBWC_Storelly_Options_List_Table::spbwc_record_count();
+$_total_pages_n  = max(1, (int) ceil($_total_items_n / $_per_page_n));
+// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+$_current_page_n = isset($_GET['paged']) ? max(1, absint($_GET['paged'])) : 1;
 ?>
 <div class="wrap">
     <header class="spbwc-page-hero">
@@ -41,21 +59,67 @@ $_page_slug = isset($_REQUEST['page']) ? sanitize_text_field(wp_unslash($_REQUES
         </div>
     </header>
 
-    <!-- View mode controls -->
-    <div class="spbwc-list-controls">
-        <div class="spbwc-view-toggle" role="group" aria-label="<?php esc_attr_e('Switch view', 'storelly-product-builder-for-woocommerce'); ?>">
-            <button type="button" class="spbwc-view-btn" data-view="list"
-                    title="<?php esc_attr_e('List view', 'storelly-product-builder-for-woocommerce'); ?>"
-                    aria-pressed="true">
-                <span class="dashicons dashicons-list-view" aria-hidden="true"></span>
-                <span class="screen-reader-text"><?php esc_html_e('List view', 'storelly-product-builder-for-woocommerce'); ?></span>
-            </button>
-            <button type="button" class="spbwc-view-btn" data-view="block"
-                    title="<?php esc_attr_e('Block view', 'storelly-product-builder-for-woocommerce'); ?>"
-                    aria-pressed="false">
-                <span class="dashicons dashicons-screenoptions" aria-hidden="true"></span>
-                <span class="screen-reader-text"><?php esc_html_e('Block view', 'storelly-product-builder-for-woocommerce'); ?></span>
-            </button>
+    <!-- Unified toolbar: status tabs + block search + view toggle -->
+    <div class="spbwc-list-toolbar">
+        <div class="spbwc-status-tabs" role="tablist">
+            <?php
+            $spbwc_tabs = array(
+                array(
+                    'label' => esc_html__('All', 'storelly-product-builder-for-woocommerce'),
+                    'value' => '',
+                    'count' => $_status_counts['all'],
+                ),
+                array(
+                    'label' => esc_html__('Published', 'storelly-product-builder-for-woocommerce'),
+                    'value' => '1',
+                    'count' => $_status_counts['published'],
+                ),
+                array(
+                    'label' => esc_html__('Draft', 'storelly-product-builder-for-woocommerce'),
+                    'value' => '0',
+                    'count' => $_status_counts['draft'],
+                ),
+            );
+            foreach ($spbwc_tabs as $spbwc_tab) :
+                $spbwc_tab_active = ($_status_filter === $spbwc_tab['value']);
+                $spbwc_tab_url    = $spbwc_tab['value'] !== ''
+                    ? add_query_arg('status_filter', $spbwc_tab['value'], $_base_tab_url)
+                    : $_base_tab_url;
+            ?>
+            <a class="spbwc-status-tab<?php echo $spbwc_tab_active ? ' is-active' : ''; ?>"
+               href="<?php echo esc_url($spbwc_tab_url); ?>"
+               aria-current="<?php echo $spbwc_tab_active ? 'page' : 'false'; ?>">
+                <?php echo esc_html($spbwc_tab['label']); ?>
+                <span class="spbwc-status-tab__count"><?php echo esc_html(number_format_i18n($spbwc_tab['count'])); ?></span>
+            </a>
+            <?php endforeach; ?>
+        </div>
+
+        <div class="spbwc-list-toolbar__right">
+            <!-- Block-view live search (shown only in block view by JS) -->
+            <div class="spbwc-block-search" id="spbwc-block-search-wrap" hidden>
+                <span class="dashicons dashicons-search spbwc-block-search__icon" aria-hidden="true"></span>
+                <input type="search" id="spbwc-block-search"
+                       class="spbwc-block-search__input"
+                       placeholder="<?php esc_attr_e('Filter by name…', 'storelly-product-builder-for-woocommerce'); ?>"
+                       aria-label="<?php esc_attr_e('Filter options by name', 'storelly-product-builder-for-woocommerce'); ?>">
+            </div>
+
+            <!-- View toggle -->
+            <div class="spbwc-view-toggle" role="group" aria-label="<?php esc_attr_e('Switch view', 'storelly-product-builder-for-woocommerce'); ?>">
+                <button type="button" class="spbwc-view-btn" data-view="list"
+                        title="<?php esc_attr_e('List view', 'storelly-product-builder-for-woocommerce'); ?>"
+                        aria-pressed="true">
+                    <span class="dashicons dashicons-list-view" aria-hidden="true"></span>
+                    <span class="screen-reader-text"><?php esc_html_e('List view', 'storelly-product-builder-for-woocommerce'); ?></span>
+                </button>
+                <button type="button" class="spbwc-view-btn" data-view="block"
+                        title="<?php esc_attr_e('Block view', 'storelly-product-builder-for-woocommerce'); ?>"
+                        aria-pressed="false">
+                    <span class="dashicons dashicons-screenoptions" aria-hidden="true"></span>
+                    <span class="screen-reader-text"><?php esc_html_e('Block view', 'storelly-product-builder-for-woocommerce'); ?></span>
+                </button>
+            </div>
         </div>
     </div>
 
@@ -119,7 +183,7 @@ $_page_slug = isset($_REQUEST['page']) ? sanitize_text_field(wp_unslash($_REQUES
                                     }
                                 }
                             ?>
-                            <article class="spbwc-option-card">
+                            <article class="spbwc-option-card" data-title="<?php echo esc_attr(mb_strtolower($spbwc_title)); ?>">
                                 <a href="<?php echo $spbwc_edit_url; ?>" class="spbwc-option-card__thumb" aria-label="<?php echo esc_attr($spbwc_title); ?>" style="background-color:<?php echo esc_attr($spbwc_color); ?>">
                                     <span class="spbwc-option-card__initial" aria-hidden="true"><?php echo esc_html($spbwc_initial); ?></span>
                                 </a>
@@ -149,20 +213,85 @@ $_page_slug = isset($_REQUEST['page']) ? sanitize_text_field(wp_unslash($_REQUES
                                         <?php echo $spbwc_cat_html; ?>
                                     </div>
                                     <?php endif; ?>
+                                    <?php if (!empty($spbwc_item['modified'])) : ?>
+                                    <div class="spbwc-option-card__date">
+                                        <span class="dashicons dashicons-clock" aria-hidden="true"></span>
+                                        <?php
+                                        echo esc_html(sprintf(
+                                            /* translators: %s: human time diff */
+                                            __('Updated %s ago', 'storelly-product-builder-for-woocommerce'),
+                                            human_time_diff(strtotime($spbwc_item['modified']), current_time('timestamp'))
+                                        ));
+                                        ?>
+                                    </div>
+                                    <?php endif; ?>
                                     <div class="spbwc-option-card__actions">
-                                        <a href="<?php echo $spbwc_edit_url; ?>" class="button button-small"><?php esc_html_e('Edit', 'storelly-product-builder-for-woocommerce'); ?></a>
-                                        <a href="<?php echo $spbwc_copy_url; ?>" class="button button-small"><?php esc_html_e('Copy', 'storelly-product-builder-for-woocommerce'); ?></a>
+                                        <a href="<?php echo $spbwc_edit_url; ?>" class="spbwc-card-btn spbwc-card-btn--primary">
+                                            <span class="dashicons dashicons-edit" aria-hidden="true"></span>
+                                            <?php esc_html_e('Edit', 'storelly-product-builder-for-woocommerce'); ?>
+                                        </a>
+                                        <a href="<?php echo $spbwc_copy_url; ?>" class="spbwc-card-btn" title="<?php esc_attr_e('Duplicate this option group', 'storelly-product-builder-for-woocommerce'); ?>">
+                                            <span class="dashicons dashicons-admin-page" aria-hidden="true"></span>
+                                        </a>
                                     </div>
                                 </div>
                             </article>
                             <?php endforeach; ?>
                         </div>
                         <?php else : ?>
-                        <div class="spbwc-block-empty">
+                        <div class="spbwc-block-empty" id="spbwc-block-empty-default">
                             <span class="dashicons dashicons-tickets-alt" aria-hidden="true"></span>
-                            <p><?php esc_html_e('No options available.', 'storelly-product-builder-for-woocommerce'); ?></p>
+                            <p><?php esc_html_e('No options yet.', 'storelly-product-builder-for-woocommerce'); ?></p>
+                            <a href="<?php echo esc_url($link_create_option); ?>" class="spbwc-cta-btn spbwc-cta-btn--solid" style="margin-top:12px;">
+                                <span class="dashicons dashicons-plus-alt2" aria-hidden="true"></span>
+                                <?php esc_html_e('Create your first option', 'storelly-product-builder-for-woocommerce'); ?>
+                            </a>
                         </div>
                         <?php endif; ?>
+                        <!-- Shown by JS when live search yields 0 matches -->
+                        <div class="spbwc-block-empty" id="spbwc-block-empty-search" hidden>
+                            <span class="dashicons dashicons-search" aria-hidden="true"></span>
+                            <p><?php esc_html_e('No options match your search.', 'storelly-product-builder-for-woocommerce'); ?></p>
+                        </div>
+
+                    <?php if ($_total_pages_n > 1) : ?>
+                    <nav class="spbwc-block-pagination" aria-label="<?php esc_attr_e('Pages', 'storelly-product-builder-for-woocommerce'); ?>">
+                        <?php if ($_current_page_n > 1) : ?>
+                        <a class="spbwc-page-btn"
+                           href="<?php echo esc_url(add_query_arg('paged', $_current_page_n - 1, $_pager_base)); ?>"
+                           aria-label="<?php esc_attr_e('Previous page', 'storelly-product-builder-for-woocommerce'); ?>">
+                            <span class="dashicons dashicons-arrow-left-alt2" aria-hidden="true"></span>
+                        </a>
+                        <?php else : ?>
+                        <span class="spbwc-page-btn is-disabled" aria-hidden="true">
+                            <span class="dashicons dashicons-arrow-left-alt2"></span>
+                        </span>
+                        <?php endif; ?>
+
+                        <span class="spbwc-page-info">
+                            <?php
+                            printf(
+                                /* translators: 1: current page number, 2: total pages */
+                                esc_html__('Page %1$d of %2$d', 'storelly-product-builder-for-woocommerce'),
+                                $_current_page_n,
+                                $_total_pages_n
+                            );
+                            ?>
+                        </span>
+
+                        <?php if ($_current_page_n < $_total_pages_n) : ?>
+                        <a class="spbwc-page-btn"
+                           href="<?php echo esc_url(add_query_arg('paged', $_current_page_n + 1, $_pager_base)); ?>"
+                           aria-label="<?php esc_attr_e('Next page', 'storelly-product-builder-for-woocommerce'); ?>">
+                            <span class="dashicons dashicons-arrow-right-alt2" aria-hidden="true"></span>
+                        </a>
+                        <?php else : ?>
+                        <span class="spbwc-page-btn is-disabled" aria-hidden="true">
+                            <span class="dashicons dashicons-arrow-right-alt2"></span>
+                        </span>
+                        <?php endif; ?>
+                    </nav>
+                    <?php endif; ?>
                     </div><!-- #spbwc-block-view -->
                 </div>
             </div>
@@ -176,53 +305,77 @@ $_page_slug = isset($_REQUEST['page']) ? sanitize_text_field(wp_unslash($_REQUES
     'use strict';
     var STORAGE_KEY = 'spbwc_options_view';
 
+    function filterBlockView(q) {
+        var cards       = document.querySelectorAll('.spbwc-option-card');
+        var emptySearch = document.getElementById('spbwc-block-empty-search');
+        var emptyDefault = document.getElementById('spbwc-block-empty-default');
+        var visible     = 0;
+
+        cards.forEach(function (card) {
+            var title = card.dataset.title || '';
+            var show  = !q || title.indexOf(q) !== -1;
+            card.style.display = show ? '' : 'none';
+            if (show) { visible++; }
+        });
+
+        if (emptySearch)  { emptySearch.hidden  = (visible > 0 || cards.length === 0); }
+        if (emptyDefault) { emptyDefault.hidden  = (cards.length > 0); }
+    }
+
     function setView(view) {
-        var form      = document.getElementById('spbwc-options-list-form');
-        var blockView = document.getElementById('spbwc-block-view');
-        var btns      = document.querySelectorAll('.spbwc-view-btn');
+        var form        = document.getElementById('spbwc-options-list-form');
+        var blockView   = document.getElementById('spbwc-block-view');
+        var searchWrap  = document.getElementById('spbwc-block-search-wrap');
+        var searchInput = document.getElementById('spbwc-block-search');
+        var btns        = document.querySelectorAll('.spbwc-view-btn');
 
-        if (!form || !blockView) return;
+        if (!form || !blockView) { return; }
 
-        var table = form.querySelector('table.wp-list-table');
+        var table    = form.querySelector('table.wp-list-table');
+        var tabnav   = form.querySelectorAll('.tablenav');
+        var searchBox = form.querySelector('.search-box');
 
         if ('block' === view) {
-            if (table)      table.style.display = 'none';
+            if (table)    { table.style.display = 'none'; }
+            tabnav.forEach(function (el) { el.style.display = 'none'; });
+            if (searchBox) { searchBox.style.display = 'none'; }
             blockView.style.display = '';
             blockView.removeAttribute('aria-hidden');
+            if (searchWrap) { searchWrap.removeAttribute('hidden'); }
         } else {
-            if (table)      table.style.display = '';
+            if (table)    { table.style.display = ''; }
+            tabnav.forEach(function (el) { el.style.display = ''; });
+            if (searchBox) { searchBox.style.display = ''; }
             blockView.style.display = 'none';
             blockView.setAttribute('aria-hidden', 'true');
+            if (searchWrap)  { searchWrap.setAttribute('hidden', ''); }
+            if (searchInput) { searchInput.value = ''; filterBlockView(''); }
         }
 
         btns.forEach(function (btn) {
             var isActive = btn.getAttribute('data-view') === view;
             btn.setAttribute('aria-pressed', isActive ? 'true' : 'false');
-            if (isActive) {
-                btn.classList.add('active');
-            } else {
-                btn.classList.remove('active');
-            }
+            btn.classList.toggle('active', isActive);
         });
 
-        try {
-            localStorage.setItem(STORAGE_KEY, view);
-        } catch (e) { /* storage unavailable */ }
+        try { localStorage.setItem(STORAGE_KEY, view); } catch (e) { /* unavailable */ }
     }
 
     document.addEventListener('DOMContentLoaded', function () {
         var saved = 'list';
-        try {
-            saved = localStorage.getItem(STORAGE_KEY) || 'list';
-        } catch (e) { /* storage unavailable */ }
-
+        try { saved = localStorage.getItem(STORAGE_KEY) || 'list'; } catch (e) { /* unavailable */ }
         setView(saved);
 
         document.querySelectorAll('.spbwc-view-btn').forEach(function (btn) {
-            btn.addEventListener('click', function () {
-                setView(this.getAttribute('data-view'));
-            });
+            btn.addEventListener('click', function () { setView(this.getAttribute('data-view')); });
         });
+
+        var blockSearch = document.getElementById('spbwc-block-search');
+        if (blockSearch) {
+            blockSearch.addEventListener('input', function () {
+                filterBlockView(this.value.toLowerCase().trim());
+            });
+        }
     });
 }());
 </script>
