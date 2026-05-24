@@ -236,169 +236,375 @@ if ( ! in_array($spbwc_settings_tab, $spbwc_valid_tabs, true) ) {
             </div>
             <?php elseif ($spbwc_settings_tab === 'display') : ?>
             <div class="spbwc-tab-panel" id="tab-display">
-                <h3 class="spbwc-tab-title"><?php esc_html_e('Display', 'storelly-product-builder-for-woocommerce'); ?></h3>
-                <table class="form-table pc-table">
-                    <tbody>
-                        <tr valign="top">
-                            <th class="titledesc"><label><?php esc_html_e('Hide summary options', 'storelly-product-builder-for-woocommerce'); ?></label></th>
-                            <td>
-                                <p class="row"><label><input type="radio" name="spbwc_hide_summary_options" value="yes" <?php checked($po['hide_summary_options'], 'yes'); ?> /> <?php esc_html_e('Yes', 'storelly-product-builder-for-woocommerce'); ?></label></p>
-                                <p class="row"><label><input type="radio" name="spbwc_hide_summary_options" value="no" <?php checked($po['hide_summary_options'], 'no'); ?> /> <?php esc_html_e('No', 'storelly-product-builder-for-woocommerce'); ?></label></p>
-                                <p class="description"><?php esc_html_e('Hide summary options in product detail page.', 'storelly-product-builder-for-woocommerce'); ?></p>
-                            </td>
-                        </tr>
-                        <tr valign="top">
-                            <th class="titledesc"><label><?php esc_html_e('Float summary options', 'storelly-product-builder-for-woocommerce'); ?></label></th>
-                            <td>
-                                <p class="row"><label><input type="radio" name="spbwc_float_summary_options" value="yes" <?php checked($po['float_summary_options'], 'yes'); ?> /> <?php esc_html_e('Yes', 'storelly-product-builder-for-woocommerce'); ?></label></p>
-                                <p class="row"><label><input type="radio" name="spbwc_float_summary_options" value="no" <?php checked($po['float_summary_options'], 'no'); ?> /> <?php esc_html_e('No', 'storelly-product-builder-for-woocommerce'); ?></label></p>
-                            </td>
-                        </tr>
-                        <tr valign="top">
-                            <th class="titledesc"><label><?php esc_html_e('Hide option swatch description', 'storelly-product-builder-for-woocommerce'); ?></label></th>
-                            <td>
-                                <p class="row"><label><input type="radio" name="spbwc_hide_option_swatch_label" value="yes" <?php checked($po['hide_option_swatch_label'], 'yes'); ?> /> <?php esc_html_e('Yes', 'storelly-product-builder-for-woocommerce'); ?></label></p>
-                                <p class="row"><label><input type="radio" name="spbwc_hide_option_swatch_label" value="no" <?php checked($po['hide_option_swatch_label'], 'no'); ?> /> <?php esc_html_e('No', 'storelly-product-builder-for-woocommerce'); ?></label></p>
-                                <p class="description"><?php esc_html_e('Hide option swatch description in product detail page.', 'storelly-product-builder-for-woocommerce'); ?></p>
-                            </td>
-                        </tr>
-                        <tr valign="top">
-                            <th class="titledesc"><label><?php esc_html_e('Option description tooltip position', 'storelly-product-builder-for-woocommerce'); ?></label></th>
-                            <td>
-                                <p class="row"><label><input type="radio" name="spbwc_tooltip_position" value="top" <?php checked($po['tooltip_position'], 'top'); ?> /> <?php esc_html_e('Top', 'storelly-product-builder-for-woocommerce'); ?></label></p>
-                                <p class="row"><label><input type="radio" name="spbwc_tooltip_position" value="right" <?php checked($po['tooltip_position'], 'right'); ?> /> <?php esc_html_e('Right', 'storelly-product-builder-for-woocommerce'); ?></label></p>
-                                <p class="row"><label><input type="radio" name="spbwc_tooltip_position" value="bottom" <?php checked($po['tooltip_position'], 'bottom'); ?> /> <?php esc_html_e('Bottom', 'storelly-product-builder-for-woocommerce'); ?></label></p>
-                                <p class="row"><label><input type="radio" name="spbwc_tooltip_position" value="left" <?php checked($po['tooltip_position'], 'left'); ?> /> <?php esc_html_e('Left', 'storelly-product-builder-for-woocommerce'); ?></label></p>
-                            </td>
-                        </tr>
-                        <tr valign="top">
-                            <th class="titledesc"><label><?php esc_html_e('Advanced dropdown sub list position', 'storelly-product-builder-for-woocommerce'); ?></label></th>
-                            <td>
-                                <p class="row"><label><input type="radio" name="spbwc_ad_sublist_position" value="b" <?php checked($po['ad_sublist_position'], 'b'); ?> /> <?php esc_html_e('Below', 'storelly-product-builder-for-woocommerce'); ?></label></p>
-                                <p class="row"><label><input type="radio" name="spbwc_ad_sublist_position" value="r" <?php checked($po['ad_sublist_position'], 'r'); ?> /> <?php esc_html_e('Right', 'storelly-product-builder-for-woocommerce'); ?></label></p>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
+                <div class="spbwc-block">
+                    <div class="spbwc-block__head">
+                        <h3 class="spbwc-block__title">
+                            <span class="dashicons dashicons-visibility" aria-hidden="true"></span>
+                            <?php esc_html_e('Display', 'storelly-product-builder-for-woocommerce'); ?>
+                        </h3>
+                    </div>
+                    <div class="spbwc-setting-rows">
+                        <!-- Hide summary options -->
+                        <div class="spbwc-setting-row">
+                            <div class="spbwc-setting-row__label">
+                                <?php esc_html_e('Hide summary options', 'storelly-product-builder-for-woocommerce'); ?>
+                                <p class="spbwc-setting-row__hint"><?php esc_html_e('Hide summary options in product detail page.', 'storelly-product-builder-for-woocommerce'); ?></p>
+                            </div>
+                            <div class="spbwc-setting-row__control">
+                                <div class="spbwc-radio-group">
+                                    <label class="spbwc-radio-group__option">
+                                        <input type="radio" name="spbwc_hide_summary_options" value="yes" <?php checked($po['hide_summary_options'], 'yes'); ?> />
+                                        <span class="spbwc-radio-group__lbl"><?php esc_html_e('Yes', 'storelly-product-builder-for-woocommerce'); ?></span>
+                                    </label>
+                                    <label class="spbwc-radio-group__option">
+                                        <input type="radio" name="spbwc_hide_summary_options" value="no" <?php checked($po['hide_summary_options'], 'no'); ?> />
+                                        <span class="spbwc-radio-group__lbl"><?php esc_html_e('No', 'storelly-product-builder-for-woocommerce'); ?></span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Float summary options -->
+                        <div class="spbwc-setting-row">
+                            <div class="spbwc-setting-row__label">
+                                <?php esc_html_e('Float summary options', 'storelly-product-builder-for-woocommerce'); ?>
+                            </div>
+                            <div class="spbwc-setting-row__control">
+                                <div class="spbwc-radio-group">
+                                    <label class="spbwc-radio-group__option">
+                                        <input type="radio" name="spbwc_float_summary_options" value="yes" <?php checked($po['float_summary_options'], 'yes'); ?> />
+                                        <span class="spbwc-radio-group__lbl"><?php esc_html_e('Yes', 'storelly-product-builder-for-woocommerce'); ?></span>
+                                    </label>
+                                    <label class="spbwc-radio-group__option">
+                                        <input type="radio" name="spbwc_float_summary_options" value="no" <?php checked($po['float_summary_options'], 'no'); ?> />
+                                        <span class="spbwc-radio-group__lbl"><?php esc_html_e('No', 'storelly-product-builder-for-woocommerce'); ?></span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Hide option swatch description -->
+                        <div class="spbwc-setting-row">
+                            <div class="spbwc-setting-row__label">
+                                <?php esc_html_e('Hide option swatch description', 'storelly-product-builder-for-woocommerce'); ?>
+                                <p class="spbwc-setting-row__hint"><?php esc_html_e('Hide option swatch description in product detail page.', 'storelly-product-builder-for-woocommerce'); ?></p>
+                            </div>
+                            <div class="spbwc-setting-row__control">
+                                <div class="spbwc-radio-group">
+                                    <label class="spbwc-radio-group__option">
+                                        <input type="radio" name="spbwc_hide_option_swatch_label" value="yes" <?php checked($po['hide_option_swatch_label'], 'yes'); ?> />
+                                        <span class="spbwc-radio-group__lbl"><?php esc_html_e('Yes', 'storelly-product-builder-for-woocommerce'); ?></span>
+                                    </label>
+                                    <label class="spbwc-radio-group__option">
+                                        <input type="radio" name="spbwc_hide_option_swatch_label" value="no" <?php checked($po['hide_option_swatch_label'], 'no'); ?> />
+                                        <span class="spbwc-radio-group__lbl"><?php esc_html_e('No', 'storelly-product-builder-for-woocommerce'); ?></span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Tooltip position -->
+                        <div class="spbwc-setting-row">
+                            <div class="spbwc-setting-row__label">
+                                <?php esc_html_e('Option description tooltip position', 'storelly-product-builder-for-woocommerce'); ?>
+                            </div>
+                            <div class="spbwc-setting-row__control">
+                                <div class="spbwc-radio-group">
+                                    <?php foreach ( array( 'top' => __('Top','storelly-product-builder-for-woocommerce'), 'right' => __('Right','storelly-product-builder-for-woocommerce'), 'bottom' => __('Bottom','storelly-product-builder-for-woocommerce'), 'left' => __('Left','storelly-product-builder-for-woocommerce') ) as $val => $lbl ) : ?>
+                                    <label class="spbwc-radio-group__option">
+                                        <input type="radio" name="spbwc_tooltip_position" value="<?php echo esc_attr($val); ?>" <?php checked($po['tooltip_position'], $val); ?> />
+                                        <span class="spbwc-radio-group__lbl"><?php echo esc_html($lbl); ?></span>
+                                    </label>
+                                    <?php endforeach; ?>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Advanced dropdown sub list position -->
+                        <div class="spbwc-setting-row">
+                            <div class="spbwc-setting-row__label">
+                                <?php esc_html_e('Advanced dropdown sub list position', 'storelly-product-builder-for-woocommerce'); ?>
+                            </div>
+                            <div class="spbwc-setting-row__control">
+                                <div class="spbwc-radio-group">
+                                    <label class="spbwc-radio-group__option">
+                                        <input type="radio" name="spbwc_ad_sublist_position" value="b" <?php checked($po['ad_sublist_position'], 'b'); ?> />
+                                        <span class="spbwc-radio-group__lbl"><?php esc_html_e('Below', 'storelly-product-builder-for-woocommerce'); ?></span>
+                                    </label>
+                                    <label class="spbwc-radio-group__option">
+                                        <input type="radio" name="spbwc_ad_sublist_position" value="r" <?php checked($po['ad_sublist_position'], 'r'); ?> />
+                                        <span class="spbwc-radio-group__lbl"><?php esc_html_e('Right', 'storelly-product-builder-for-woocommerce'); ?></span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
+
             <?php elseif ($spbwc_settings_tab === 'pricing') : ?>
             <div class="spbwc-tab-panel" id="tab-pricing">
-                <h3 class="spbwc-tab-title"><?php esc_html_e('Pricing', 'storelly-product-builder-for-woocommerce'); ?></h3>
-                <table class="form-table pc-table">
-                    <tbody>
-                        <tr valign="top">
-                            <th class="titledesc"><label><?php esc_html_e('Hide table pricing', 'storelly-product-builder-for-woocommerce'); ?></label></th>
-                            <td>
-                                <p class="row"><label><input type="radio" name="spbwc_hide_table_pricing" value="yes" <?php checked($po['hide_table_pricing'], 'yes'); ?> /> <?php esc_html_e('Yes', 'storelly-product-builder-for-woocommerce'); ?></label></p>
-                                <p class="row"><label><input type="radio" name="spbwc_hide_table_pricing" value="no" <?php checked($po['hide_table_pricing'], 'no'); ?> /> <?php esc_html_e('No', 'storelly-product-builder-for-woocommerce'); ?></label></p>
-                                <p class="description"><?php esc_html_e('Hide table pricing in product detail page.', 'storelly-product-builder-for-woocommerce'); ?></p>
-                            </td>
-                        </tr>
-                        <tr valign="top">
-                            <th class="titledesc"><label><?php esc_html_e('Table pricing type', 'storelly-product-builder-for-woocommerce'); ?></label></th>
-                            <td>
-                                <p class="row"><label><input type="radio" name="spbwc_table_pricing_type" value="1" <?php checked($po['table_pricing_type'], '1'); ?> /> <?php esc_html_e('Quantity range', 'storelly-product-builder-for-woocommerce'); ?></label></p>
-                                <p class="row"><label><input type="radio" name="spbwc_table_pricing_type" value="2" <?php checked($po['table_pricing_type'], '2'); ?> /> <?php esc_html_e('Quantity breaks', 'storelly-product-builder-for-woocommerce'); ?></label></p>
-                            </td>
-                        </tr>
-                        <tr valign="top">
-                            <th class="titledesc"><label><?php esc_html_e('Change original product price', 'storelly-product-builder-for-woocommerce'); ?></label></th>
-                            <td>
-                                <p class="row"><label><input type="radio" name="spbwc_change_base_price_html" value="yes" <?php checked($po['change_base_price_html'], 'yes'); ?> /> <?php esc_html_e('Yes', 'storelly-product-builder-for-woocommerce'); ?></label></p>
-                                <p class="row"><label><input type="radio" name="spbwc_change_base_price_html" value="no" <?php checked($po['change_base_price_html'], 'no'); ?> /> <?php esc_html_e('No', 'storelly-product-builder-for-woocommerce'); ?></label></p>
-                                <p class="description"><?php esc_html_e('Overwrite the original product price when options are changing.', 'storelly-product-builder-for-woocommerce'); ?></p>
-                            </td>
-                        </tr>
-                        <tr valign="top">
-                            <th class="titledesc"><label><?php esc_html_e('Auto hide price if zero', 'storelly-product-builder-for-woocommerce'); ?></label></th>
-                            <td>
-                                <p class="row"><label><input type="radio" name="spbwc_hide_zero_price" value="yes" <?php checked($po['hide_zero_price'], 'yes'); ?> /> <?php esc_html_e('Yes', 'storelly-product-builder-for-woocommerce'); ?></label></p>
-                                <p class="row"><label><input type="radio" name="spbwc_hide_zero_price" value="no" <?php checked($po['hide_zero_price'], 'no'); ?> /> <?php esc_html_e('No', 'storelly-product-builder-for-woocommerce'); ?></label></p>
-                                <p class="description"><?php esc_html_e('Hide the option price display if it is zero.', 'storelly-product-builder-for-woocommerce'); ?></p>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
+                <div class="spbwc-block">
+                    <div class="spbwc-block__head">
+                        <h3 class="spbwc-block__title">
+                            <span class="dashicons dashicons-tag" aria-hidden="true"></span>
+                            <?php esc_html_e('Pricing', 'storelly-product-builder-for-woocommerce'); ?>
+                        </h3>
+                    </div>
+                    <div class="spbwc-setting-rows">
+                        <!-- Hide table pricing -->
+                        <div class="spbwc-setting-row">
+                            <div class="spbwc-setting-row__label">
+                                <?php esc_html_e('Hide table pricing', 'storelly-product-builder-for-woocommerce'); ?>
+                                <p class="spbwc-setting-row__hint"><?php esc_html_e('Hide table pricing in product detail page.', 'storelly-product-builder-for-woocommerce'); ?></p>
+                            </div>
+                            <div class="spbwc-setting-row__control">
+                                <div class="spbwc-radio-group">
+                                    <label class="spbwc-radio-group__option">
+                                        <input type="radio" name="spbwc_hide_table_pricing" value="yes" <?php checked($po['hide_table_pricing'], 'yes'); ?> />
+                                        <span class="spbwc-radio-group__lbl"><?php esc_html_e('Yes', 'storelly-product-builder-for-woocommerce'); ?></span>
+                                    </label>
+                                    <label class="spbwc-radio-group__option">
+                                        <input type="radio" name="spbwc_hide_table_pricing" value="no" <?php checked($po['hide_table_pricing'], 'no'); ?> />
+                                        <span class="spbwc-radio-group__lbl"><?php esc_html_e('No', 'storelly-product-builder-for-woocommerce'); ?></span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Table pricing type -->
+                        <div class="spbwc-setting-row">
+                            <div class="spbwc-setting-row__label">
+                                <?php esc_html_e('Table pricing type', 'storelly-product-builder-for-woocommerce'); ?>
+                            </div>
+                            <div class="spbwc-setting-row__control">
+                                <div class="spbwc-radio-group">
+                                    <label class="spbwc-radio-group__option">
+                                        <input type="radio" name="spbwc_table_pricing_type" value="1" <?php checked($po['table_pricing_type'], '1'); ?> />
+                                        <span class="spbwc-radio-group__lbl"><?php esc_html_e('Quantity range', 'storelly-product-builder-for-woocommerce'); ?></span>
+                                    </label>
+                                    <label class="spbwc-radio-group__option">
+                                        <input type="radio" name="spbwc_table_pricing_type" value="2" <?php checked($po['table_pricing_type'], '2'); ?> />
+                                        <span class="spbwc-radio-group__lbl"><?php esc_html_e('Quantity breaks', 'storelly-product-builder-for-woocommerce'); ?></span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Change original product price -->
+                        <div class="spbwc-setting-row">
+                            <div class="spbwc-setting-row__label">
+                                <?php esc_html_e('Change original product price', 'storelly-product-builder-for-woocommerce'); ?>
+                                <p class="spbwc-setting-row__hint"><?php esc_html_e('Overwrite the original product price when options are changing.', 'storelly-product-builder-for-woocommerce'); ?></p>
+                            </div>
+                            <div class="spbwc-setting-row__control">
+                                <div class="spbwc-radio-group">
+                                    <label class="spbwc-radio-group__option">
+                                        <input type="radio" name="spbwc_change_base_price_html" value="yes" <?php checked($po['change_base_price_html'], 'yes'); ?> />
+                                        <span class="spbwc-radio-group__lbl"><?php esc_html_e('Yes', 'storelly-product-builder-for-woocommerce'); ?></span>
+                                    </label>
+                                    <label class="spbwc-radio-group__option">
+                                        <input type="radio" name="spbwc_change_base_price_html" value="no" <?php checked($po['change_base_price_html'], 'no'); ?> />
+                                        <span class="spbwc-radio-group__lbl"><?php esc_html_e('No', 'storelly-product-builder-for-woocommerce'); ?></span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Auto hide price if zero -->
+                        <div class="spbwc-setting-row">
+                            <div class="spbwc-setting-row__label">
+                                <?php esc_html_e('Auto hide price if zero', 'storelly-product-builder-for-woocommerce'); ?>
+                                <p class="spbwc-setting-row__hint"><?php esc_html_e('Hide the option price display if it is zero.', 'storelly-product-builder-for-woocommerce'); ?></p>
+                            </div>
+                            <div class="spbwc-setting-row__control">
+                                <div class="spbwc-radio-group">
+                                    <label class="spbwc-radio-group__option">
+                                        <input type="radio" name="spbwc_hide_zero_price" value="yes" <?php checked($po['hide_zero_price'], 'yes'); ?> />
+                                        <span class="spbwc-radio-group__lbl"><?php esc_html_e('Yes', 'storelly-product-builder-for-woocommerce'); ?></span>
+                                    </label>
+                                    <label class="spbwc-radio-group__option">
+                                        <input type="radio" name="spbwc_hide_zero_price" value="no" <?php checked($po['hide_zero_price'], 'no'); ?> />
+                                        <span class="spbwc-radio-group__lbl"><?php esc_html_e('No', 'storelly-product-builder-for-woocommerce'); ?></span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
+
             <?php elseif ($spbwc_settings_tab === 'catalog') : ?>
             <div class="spbwc-tab-panel" id="tab-catalog">
-                <h3 class="spbwc-tab-title"><?php esc_html_e('Catalog', 'storelly-product-builder-for-woocommerce'); ?></h3>
-                <table class="form-table pc-table">
-                    <tbody>
-                        <tr valign="top">
-                            <th class="titledesc"><label><?php esc_html_e('Force Select Options', 'storelly-product-builder-for-woocommerce'); ?></label></th>
-                            <td>
-                                <p class="row"><label><input type="radio" name="spbwc_force_select_options" value="yes" <?php checked($po['force_select_options'], 'yes'); ?> /> <?php esc_html_e('Yes', 'storelly-product-builder-for-woocommerce'); ?></label></p>
-                                <p class="row"><label><input type="radio" name="spbwc_force_select_options" value="no" <?php checked($po['force_select_options'], 'no'); ?> /> <?php esc_html_e('No', 'storelly-product-builder-for-woocommerce'); ?></label></p>
-                                <p class="description"><?php esc_html_e('This changes the add to cart button on shop and archive pages to display select options when the product has extra product options.', 'storelly-product-builder-for-woocommerce'); ?></p>
-                            </td>
-                        </tr>
-                        <tr valign="top">
-                            <th class="titledesc"><label><?php esc_html_e('Show options in archive shop pages', 'storelly-product-builder-for-woocommerce'); ?></label></th>
-                            <td>
-                                <p class="row"><label><input type="radio" name="spbwc_show_options_in_archive_pages" value="yes" <?php checked($po['show_options_in_archive_pages'], 'yes'); ?> /> <?php esc_html_e('Yes', 'storelly-product-builder-for-woocommerce'); ?></label></p>
-                                <p class="row"><label><input type="radio" name="spbwc_show_options_in_archive_pages" value="no" <?php checked($po['show_options_in_archive_pages'], 'no'); ?> /> <?php esc_html_e('No', 'storelly-product-builder-for-woocommerce'); ?></label></p>
-                                <p class="description"><?php esc_html_e('Choose to show options selection in archive shop pages as swatches.', 'storelly-product-builder-for-woocommerce'); ?></p>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
+                <div class="spbwc-block">
+                    <div class="spbwc-block__head">
+                        <h3 class="spbwc-block__title">
+                            <span class="dashicons dashicons-store" aria-hidden="true"></span>
+                            <?php esc_html_e('Catalog', 'storelly-product-builder-for-woocommerce'); ?>
+                        </h3>
+                    </div>
+                    <div class="spbwc-setting-rows">
+                        <!-- Force Select Options -->
+                        <div class="spbwc-setting-row">
+                            <div class="spbwc-setting-row__label">
+                                <?php esc_html_e('Force Select Options', 'storelly-product-builder-for-woocommerce'); ?>
+                                <p class="spbwc-setting-row__hint"><?php esc_html_e('Changes the add to cart button on shop/archive pages to "Select options" when the product has extra options.', 'storelly-product-builder-for-woocommerce'); ?></p>
+                            </div>
+                            <div class="spbwc-setting-row__control">
+                                <div class="spbwc-radio-group">
+                                    <label class="spbwc-radio-group__option">
+                                        <input type="radio" name="spbwc_force_select_options" value="yes" <?php checked($po['force_select_options'], 'yes'); ?> />
+                                        <span class="spbwc-radio-group__lbl"><?php esc_html_e('Yes', 'storelly-product-builder-for-woocommerce'); ?></span>
+                                    </label>
+                                    <label class="spbwc-radio-group__option">
+                                        <input type="radio" name="spbwc_force_select_options" value="no" <?php checked($po['force_select_options'], 'no'); ?> />
+                                        <span class="spbwc-radio-group__lbl"><?php esc_html_e('No', 'storelly-product-builder-for-woocommerce'); ?></span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Show options in archive pages -->
+                        <div class="spbwc-setting-row">
+                            <div class="spbwc-setting-row__label">
+                                <?php esc_html_e('Show options in archive shop pages', 'storelly-product-builder-for-woocommerce'); ?>
+                                <p class="spbwc-setting-row__hint"><?php esc_html_e('Show option selection as swatches in archive shop pages.', 'storelly-product-builder-for-woocommerce'); ?></p>
+                            </div>
+                            <div class="spbwc-setting-row__control">
+                                <div class="spbwc-radio-group">
+                                    <label class="spbwc-radio-group__option">
+                                        <input type="radio" name="spbwc_show_options_in_archive_pages" value="yes" <?php checked($po['show_options_in_archive_pages'], 'yes'); ?> />
+                                        <span class="spbwc-radio-group__lbl"><?php esc_html_e('Yes', 'storelly-product-builder-for-woocommerce'); ?></span>
+                                    </label>
+                                    <label class="spbwc-radio-group__option">
+                                        <input type="radio" name="spbwc_show_options_in_archive_pages" value="no" <?php checked($po['show_options_in_archive_pages'], 'no'); ?> />
+                                        <span class="spbwc-radio-group__lbl"><?php esc_html_e('No', 'storelly-product-builder-for-woocommerce'); ?></span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
+
             <?php elseif ($spbwc_settings_tab === 'cart') : ?>
             <div class="spbwc-tab-panel" id="tab-cart">
-                <h3 class="spbwc-tab-title"><?php esc_html_e('Cart & Order', 'storelly-product-builder-for-woocommerce'); ?></h3>
-                <table class="form-table pc-table">
-                    <tbody>
-                        <tr valign="top">
-                            <th class="titledesc"><label><?php esc_html_e('Ajax cart', 'storelly-product-builder-for-woocommerce'); ?></label></th>
-                            <td>
-                                <p class="row"><label><input type="radio" name="spbwc_enable_ajax_cart" value="yes" <?php checked($po['enable_ajax_cart'], 'yes'); ?> /> <?php esc_html_e('Yes', 'storelly-product-builder-for-woocommerce'); ?></label></p>
-                                <p class="row"><label><input type="radio" name="spbwc_enable_ajax_cart" value="no" <?php checked($po['enable_ajax_cart'], 'no'); ?> /> <?php esc_html_e('No', 'storelly-product-builder-for-woocommerce'); ?></label></p>
-                                <p class="description"><?php esc_html_e('Enable ajax add to cart in the product detail page.', 'storelly-product-builder-for-woocommerce'); ?></p>
-                            </td>
-                        </tr>
-                        <tr valign="top">
-                            <th class="titledesc"><label><?php esc_html_e('Turn off persistent cart', 'storelly-product-builder-for-woocommerce'); ?></label></th>
-                            <td>
-                                <p class="row"><label><input type="radio" name="spbwc_turn_off_persistent_cart" value="yes" <?php checked($po['turn_off_persistent_cart'], 'yes'); ?> /> <?php esc_html_e('Yes', 'storelly-product-builder-for-woocommerce'); ?></label></p>
-                                <p class="row"><label><input type="radio" name="spbwc_turn_off_persistent_cart" value="no" <?php checked($po['turn_off_persistent_cart'], 'no'); ?> /> <?php esc_html_e('No', 'storelly-product-builder-for-woocommerce'); ?></label></p>
-                                <p class="description"><?php esc_html_e('Enable this if the product has a lot of options.', 'storelly-product-builder-for-woocommerce'); ?></p>
-                            </td>
-                        </tr>
-                        <tr valign="top">
-                            <th class="titledesc"><label><?php esc_html_e('Clear cart button', 'storelly-product-builder-for-woocommerce'); ?></label></th>
-                            <td>
-                                <p class="row"><label><input type="radio" name="spbwc_enable_clear_cart_button" value="yes" <?php checked($po['enable_clear_cart_button'], 'yes'); ?> /> <?php esc_html_e('Yes', 'storelly-product-builder-for-woocommerce'); ?></label></p>
-                                <p class="row"><label><input type="radio" name="spbwc_enable_clear_cart_button" value="no" <?php checked($po['enable_clear_cart_button'], 'no'); ?> /> <?php esc_html_e('No', 'storelly-product-builder-for-woocommerce'); ?></label></p>
-                                <p class="description"><?php esc_html_e('Enables or disables the clear cart button.', 'storelly-product-builder-for-woocommerce'); ?></p>
-                            </td>
-                        </tr>
-                        <tr valign="top">
-                            <th class="titledesc"><label><?php esc_html_e('Hide options in cart', 'storelly-product-builder-for-woocommerce'); ?></label></th>
-                            <td>
-                                <p class="row"><label><input type="radio" name="spbwc_hide_options_in_cart" value="yes" <?php checked($po['hide_options_in_cart'], 'yes'); ?> /> <?php esc_html_e('Yes', 'storelly-product-builder-for-woocommerce'); ?></label></p>
-                                <p class="row"><label><input type="radio" name="spbwc_hide_options_in_cart" value="no" <?php checked($po['hide_options_in_cart'], 'no'); ?> /> <?php esc_html_e('No', 'storelly-product-builder-for-woocommerce'); ?></label></p>
-                                <p class="description"><?php esc_html_e('Enables or disables the display of options in cart.', 'storelly-product-builder-for-woocommerce'); ?></p>
-                            </td>
-                        </tr>
-                        <tr valign="top">
-                            <th class="titledesc"><label><?php esc_html_e('Hide option price in the cart', 'storelly-product-builder-for-woocommerce'); ?></label></th>
-                            <td>
-                                <p class="row"><label><input type="radio" name="spbwc_hide_option_price_in_cart" value="yes" <?php checked($po['hide_option_price_in_cart'], 'yes'); ?> /> <?php esc_html_e('Yes', 'storelly-product-builder-for-woocommerce'); ?></label></p>
-                                <p class="row"><label><input type="radio" name="spbwc_hide_option_price_in_cart" value="no" <?php checked($po['hide_option_price_in_cart'], 'no'); ?> /> <?php esc_html_e('No', 'storelly-product-builder-for-woocommerce'); ?></label></p>
-                                <p class="description"><?php esc_html_e('Enables or disables the display of option price in the cart.', 'storelly-product-builder-for-woocommerce'); ?></p>
-                            </td>
-                        </tr>
-                        <tr valign="top">
-                            <th class="titledesc"><label><?php esc_html_e('Hide option price in the order', 'storelly-product-builder-for-woocommerce'); ?></label></th>
-                            <td>
-                                <p class="row"><label><input type="radio" name="spbwc_hide_option_price_in_order" value="yes" <?php checked($po['hide_option_price_in_order'], 'yes'); ?> /> <?php esc_html_e('Yes', 'storelly-product-builder-for-woocommerce'); ?></label></p>
-                                <p class="row"><label><input type="radio" name="spbwc_hide_option_price_in_order" value="no" <?php checked($po['hide_option_price_in_order'], 'no'); ?> /> <?php esc_html_e('No', 'storelly-product-builder-for-woocommerce'); ?></label></p>
-                                <p class="description"><?php esc_html_e('Enables or disables the display of option price in the order, email, invoice.', 'storelly-product-builder-for-woocommerce'); ?></p>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
+                <div class="spbwc-block">
+                    <div class="spbwc-block__head">
+                        <h3 class="spbwc-block__title">
+                            <span class="dashicons dashicons-cart" aria-hidden="true"></span>
+                            <?php esc_html_e('Cart &amp; Order', 'storelly-product-builder-for-woocommerce'); ?>
+                        </h3>
+                    </div>
+                    <div class="spbwc-setting-rows">
+                        <!-- Ajax cart -->
+                        <div class="spbwc-setting-row">
+                            <div class="spbwc-setting-row__label">
+                                <?php esc_html_e('Ajax cart', 'storelly-product-builder-for-woocommerce'); ?>
+                                <p class="spbwc-setting-row__hint"><?php esc_html_e('Enable ajax add to cart in the product detail page.', 'storelly-product-builder-for-woocommerce'); ?></p>
+                            </div>
+                            <div class="spbwc-setting-row__control">
+                                <div class="spbwc-radio-group">
+                                    <label class="spbwc-radio-group__option">
+                                        <input type="radio" name="spbwc_enable_ajax_cart" value="yes" <?php checked($po['enable_ajax_cart'], 'yes'); ?> />
+                                        <span class="spbwc-radio-group__lbl"><?php esc_html_e('Yes', 'storelly-product-builder-for-woocommerce'); ?></span>
+                                    </label>
+                                    <label class="spbwc-radio-group__option">
+                                        <input type="radio" name="spbwc_enable_ajax_cart" value="no" <?php checked($po['enable_ajax_cart'], 'no'); ?> />
+                                        <span class="spbwc-radio-group__lbl"><?php esc_html_e('No', 'storelly-product-builder-for-woocommerce'); ?></span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Turn off persistent cart -->
+                        <div class="spbwc-setting-row">
+                            <div class="spbwc-setting-row__label">
+                                <?php esc_html_e('Turn off persistent cart', 'storelly-product-builder-for-woocommerce'); ?>
+                                <p class="spbwc-setting-row__hint"><?php esc_html_e('Enable this if the product has a lot of options.', 'storelly-product-builder-for-woocommerce'); ?></p>
+                            </div>
+                            <div class="spbwc-setting-row__control">
+                                <div class="spbwc-radio-group">
+                                    <label class="spbwc-radio-group__option">
+                                        <input type="radio" name="spbwc_turn_off_persistent_cart" value="yes" <?php checked($po['turn_off_persistent_cart'], 'yes'); ?> />
+                                        <span class="spbwc-radio-group__lbl"><?php esc_html_e('Yes', 'storelly-product-builder-for-woocommerce'); ?></span>
+                                    </label>
+                                    <label class="spbwc-radio-group__option">
+                                        <input type="radio" name="spbwc_turn_off_persistent_cart" value="no" <?php checked($po['turn_off_persistent_cart'], 'no'); ?> />
+                                        <span class="spbwc-radio-group__lbl"><?php esc_html_e('No', 'storelly-product-builder-for-woocommerce'); ?></span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Clear cart button -->
+                        <div class="spbwc-setting-row">
+                            <div class="spbwc-setting-row__label">
+                                <?php esc_html_e('Clear cart button', 'storelly-product-builder-for-woocommerce'); ?>
+                                <p class="spbwc-setting-row__hint"><?php esc_html_e('Enables or disables the clear cart button.', 'storelly-product-builder-for-woocommerce'); ?></p>
+                            </div>
+                            <div class="spbwc-setting-row__control">
+                                <div class="spbwc-radio-group">
+                                    <label class="spbwc-radio-group__option">
+                                        <input type="radio" name="spbwc_enable_clear_cart_button" value="yes" <?php checked($po['enable_clear_cart_button'], 'yes'); ?> />
+                                        <span class="spbwc-radio-group__lbl"><?php esc_html_e('Yes', 'storelly-product-builder-for-woocommerce'); ?></span>
+                                    </label>
+                                    <label class="spbwc-radio-group__option">
+                                        <input type="radio" name="spbwc_enable_clear_cart_button" value="no" <?php checked($po['enable_clear_cart_button'], 'no'); ?> />
+                                        <span class="spbwc-radio-group__lbl"><?php esc_html_e('No', 'storelly-product-builder-for-woocommerce'); ?></span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Hide options in cart -->
+                        <div class="spbwc-setting-row">
+                            <div class="spbwc-setting-row__label">
+                                <?php esc_html_e('Hide options in cart', 'storelly-product-builder-for-woocommerce'); ?>
+                                <p class="spbwc-setting-row__hint"><?php esc_html_e('Enables or disables the display of options in cart.', 'storelly-product-builder-for-woocommerce'); ?></p>
+                            </div>
+                            <div class="spbwc-setting-row__control">
+                                <div class="spbwc-radio-group">
+                                    <label class="spbwc-radio-group__option">
+                                        <input type="radio" name="spbwc_hide_options_in_cart" value="yes" <?php checked($po['hide_options_in_cart'], 'yes'); ?> />
+                                        <span class="spbwc-radio-group__lbl"><?php esc_html_e('Yes', 'storelly-product-builder-for-woocommerce'); ?></span>
+                                    </label>
+                                    <label class="spbwc-radio-group__option">
+                                        <input type="radio" name="spbwc_hide_options_in_cart" value="no" <?php checked($po['hide_options_in_cart'], 'no'); ?> />
+                                        <span class="spbwc-radio-group__lbl"><?php esc_html_e('No', 'storelly-product-builder-for-woocommerce'); ?></span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Hide option price in cart -->
+                        <div class="spbwc-setting-row">
+                            <div class="spbwc-setting-row__label">
+                                <?php esc_html_e('Hide option price in the cart', 'storelly-product-builder-for-woocommerce'); ?>
+                                <p class="spbwc-setting-row__hint"><?php esc_html_e('Enables or disables the display of option price in the cart.', 'storelly-product-builder-for-woocommerce'); ?></p>
+                            </div>
+                            <div class="spbwc-setting-row__control">
+                                <div class="spbwc-radio-group">
+                                    <label class="spbwc-radio-group__option">
+                                        <input type="radio" name="spbwc_hide_option_price_in_cart" value="yes" <?php checked($po['hide_option_price_in_cart'], 'yes'); ?> />
+                                        <span class="spbwc-radio-group__lbl"><?php esc_html_e('Yes', 'storelly-product-builder-for-woocommerce'); ?></span>
+                                    </label>
+                                    <label class="spbwc-radio-group__option">
+                                        <input type="radio" name="spbwc_hide_option_price_in_cart" value="no" <?php checked($po['hide_option_price_in_cart'], 'no'); ?> />
+                                        <span class="spbwc-radio-group__lbl"><?php esc_html_e('No', 'storelly-product-builder-for-woocommerce'); ?></span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Hide option price in order -->
+                        <div class="spbwc-setting-row">
+                            <div class="spbwc-setting-row__label">
+                                <?php esc_html_e('Hide option price in the order', 'storelly-product-builder-for-woocommerce'); ?>
+                                <p class="spbwc-setting-row__hint"><?php esc_html_e('Enables or disables the display of option price in the order, email, invoice.', 'storelly-product-builder-for-woocommerce'); ?></p>
+                            </div>
+                            <div class="spbwc-setting-row__control">
+                                <div class="spbwc-radio-group">
+                                    <label class="spbwc-radio-group__option">
+                                        <input type="radio" name="spbwc_hide_option_price_in_order" value="yes" <?php checked($po['hide_option_price_in_order'], 'yes'); ?> />
+                                        <span class="spbwc-radio-group__lbl"><?php esc_html_e('Yes', 'storelly-product-builder-for-woocommerce'); ?></span>
+                                    </label>
+                                    <label class="spbwc-radio-group__option">
+                                        <input type="radio" name="spbwc_hide_option_price_in_order" value="no" <?php checked($po['hide_option_price_in_order'], 'no'); ?> />
+                                        <span class="spbwc-radio-group__lbl"><?php esc_html_e('No', 'storelly-product-builder-for-woocommerce'); ?></span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
             <?php endif; ?>
 
