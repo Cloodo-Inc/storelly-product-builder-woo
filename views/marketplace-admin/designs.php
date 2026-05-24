@@ -19,6 +19,16 @@ $designer = isset( $_REQUEST['filter_designer'] ) ? absint( wp_unslash( $_REQUES
 $table = new SPBWC_Designs_List_Table();
 $table->prepare_items();
 ?>
+<div class="spbwc-section__header" style="margin-bottom:var(--nbd-space-4);">
+    <h2 class="spbwc-section__title">
+        <span class="dashicons dashicons-art" aria-hidden="true"></span>
+        <?php esc_html_e( 'Designs', 'storelly-product-builder-for-woocommerce' ); ?>
+    </h2>
+    <p class="spbwc-section__subtitle">
+        <?php esc_html_e( 'Review, approve or reject designer submissions.', 'storelly-product-builder-for-woocommerce' ); ?>
+    </p>
+</div>
+
 <form method="get">
     <input type="hidden" name="page" value="<?php echo esc_attr( SPBWC_Marketplace_Admin::MENU_SLUG ); ?>" />
     <input type="hidden" name="tab" value="designs" />

@@ -630,7 +630,13 @@
 /* ========================================================== */
 .spbwc-section { margin-bottom: var(--nbd-space-8); }
 
-.spbwc-section__header { margin-bottom: var(--nbd-space-4); }
+.spbwc-section__header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: var(--nbd-space-4);
+    margin-bottom: var(--nbd-space-4);
+}
 
 .spbwc-section__title {
     font-size: var(--text-xl);

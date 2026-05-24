@@ -34,18 +34,50 @@ $link_create_pre_builder = add_query_arg(array(
 ), SPBWC_Storelly_PB_Util::spbwc_get_url_page('product_builder'));
 ?>
 <div class="wrap">
-    <h2>
-        <?php 
-        // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Template variable.
-        $current_id = isset($options['id']) ? $options['id'] : 0; 
-        if ($current_id == 0) {
-            esc_html_e('Create New Option', 'storelly-product-builder-for-woocommerce'); 
-        } else {
-            esc_html_e('Edit Options', 'storelly-product-builder-for-woocommerce');      
-        }
-        ?>
-        <a class="nbd-page-title-action" href="<?php echo esc_url($link_create_option); ?>"><?php esc_html_e('Add new', 'storelly-product-builder-for-woocommerce'); ?></a>
-    </h2>
+    <?php
+    // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Template variable.
+    $current_id   = isset($options['id']) ? $options['id'] : 0;
+    $is_new_option = ( $current_id == 0 );
+    ?>
+    <header class="spbwc-page-hero">
+        <div class="spbwc-page-hero__grid">
+            <div class="spbwc-page-hero__body">
+                <div class="spbwc-page-hero__eyebrow">
+                    <span class="dashicons dashicons-admin-plugins" aria-hidden="true"></span>
+                    <?php esc_html_e( 'Pricing Options', 'storelly-product-builder-for-woocommerce' ); ?>
+                </div>
+                <h1 class="spbwc-page-hero__title">
+                    <span class="dashicons dashicons-<?php echo $is_new_option ? 'plus-alt2' : 'edit'; ?>" aria-hidden="true"></span>
+                    <?php if ( $is_new_option ) {
+                        esc_html_e( 'Create New Option', 'storelly-product-builder-for-woocommerce' );
+                    } else {
+                        esc_html_e( 'Edit Option', 'storelly-product-builder-for-woocommerce' );
+                    } ?>
+                </h1>
+                <p class="spbwc-page-hero__subtitle">
+                    <?php if ( $is_new_option ) {
+                        esc_html_e( 'Build a new printing option group with fields, pricing rules and product assignments.', 'storelly-product-builder-for-woocommerce' );
+                    } else {
+                        printf(
+                            /* translators: %s: option ID */
+                            esc_html__( 'Editing option #%s — update fields, pricing and product assignments then save.', 'storelly-product-builder-for-woocommerce' ),
+                            esc_html( (string) $current_id )
+                        );
+                    } ?>
+                </p>
+            </div>
+            <div class="spbwc-page-hero__actions">
+                <a href="<?php echo esc_url( $link ); ?>" class="spbwc-cta-btn spbwc-cta-btn--ghost">
+                    <span class="dashicons dashicons-arrow-left-alt" aria-hidden="true"></span>
+                    <?php esc_html_e( 'Back to list', 'storelly-product-builder-for-woocommerce' ); ?>
+                </a>
+                <a href="<?php echo esc_url( $link_create_option ); ?>" class="spbwc-cta-btn spbwc-cta-btn--solid">
+                    <span class="dashicons dashicons-plus-alt2" aria-hidden="true"></span>
+                    <?php esc_html_e( 'Add new', 'storelly-product-builder-for-woocommerce' ); ?>
+                </a>
+            </div>
+        </div>
+    </header>
 </div>
 <div class="message">
     <?php if (isset($message['flag'])) {

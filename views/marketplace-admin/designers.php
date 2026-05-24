@@ -20,6 +20,16 @@ $search   = isset( $_REQUEST['s'] ) ? sanitize_text_field( wp_unslash( $_REQUEST
 $table = new SPBWC_Designers_List_Table();
 $table->prepare_items();
 ?>
+<div class="spbwc-section__header" style="margin-bottom:var(--nbd-space-4);">
+    <h2 class="spbwc-section__title">
+        <span class="dashicons dashicons-businessman" aria-hidden="true"></span>
+        <?php esc_html_e( 'Designers', 'storelly-product-builder-for-woocommerce' ); ?>
+    </h2>
+    <p class="spbwc-section__subtitle">
+        <?php esc_html_e( 'Manage registered designers — enable, disable or feature their profiles.', 'storelly-product-builder-for-woocommerce' ); ?>
+    </p>
+</div>
+
 <form method="get">
     <input type="hidden" name="page" value="<?php echo esc_attr( SPBWC_Marketplace_Admin::MENU_SLUG ); ?>" />
     <input type="hidden" name="tab" value="designers" />

@@ -19,6 +19,16 @@ $status = ( '' === $status ) ? '' : (string) (int) $status;
 $table = new SPBWC_Withdraws_List_Table();
 $table->prepare_items();
 ?>
+<div class="spbwc-section__header" style="margin-bottom:var(--nbd-space-4);">
+    <h2 class="spbwc-section__title">
+        <span class="dashicons dashicons-money-alt" aria-hidden="true"></span>
+        <?php esc_html_e( 'Withdraw Requests', 'storelly-product-builder-for-woocommerce' ); ?>
+    </h2>
+    <p class="spbwc-section__subtitle">
+        <?php esc_html_e( 'Review and process designer payout requests.', 'storelly-product-builder-for-woocommerce' ); ?>
+    </p>
+</div>
+
 <form method="get">
     <input type="hidden" name="page" value="<?php echo esc_attr( SPBWC_Marketplace_Admin::MENU_SLUG ); ?>" />
     <input type="hidden" name="tab" value="withdraws" />

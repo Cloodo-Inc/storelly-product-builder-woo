@@ -76,8 +76,37 @@ $commission_type = $get( 'nbd_artist_commission_type', 'percentage' );
 <?php if ( '' !== $notice ) : ?>
     <div class="notice notice-success is-dismissible"><p><?php echo esc_html( $notice ); ?></p></div>
 <?php endif; ?>
-<h2><?php echo esc_html( sprintf( /* translators: %s: designer display name */ __( 'Edit designer: %s', 'storelly-product-builder-for-woocommerce' ), $user->display_name ) ); ?></h2>
-<p><a href="<?php echo esc_url( $back_url ); ?>">&larr; <?php esc_html_e( 'Back to designers', 'storelly-product-builder-for-woocommerce' ); ?></a></p>
+<div class="spbwc-section__header" style="margin-bottom:var(--nbd-space-4);">
+    <div>
+        <h2 class="spbwc-section__title">
+            <span class="dashicons dashicons-admin-users" aria-hidden="true"></span>
+            <?php
+            echo esc_html(
+                sprintf(
+                    /* translators: %s: designer display name */
+                    __( 'Edit designer: %s', 'storelly-product-builder-for-woocommerce' ),
+                    $user->display_name
+                )
+            );
+            ?>
+        </h2>
+        <p class="spbwc-section__subtitle">
+            <?php
+            echo esc_html(
+                sprintf(
+                    /* translators: %s: designer WordPress user login */
+                    __( '@%s — update profile, commission rates and permissions.', 'storelly-product-builder-for-woocommerce' ),
+                    $user->user_login
+                )
+            );
+            ?>
+        </p>
+    </div>
+    <a href="<?php echo esc_url( $back_url ); ?>" class="spbwc-cta-btn spbwc-cta-btn--ghost">
+        <span class="dashicons dashicons-arrow-left-alt" aria-hidden="true"></span>
+        <?php esc_html_e( 'Back to designers', 'storelly-product-builder-for-woocommerce' ); ?>
+    </a>
+</div>
 
 <form method="post">
     <?php wp_nonce_field( 'spbwc_marketplace_save_designer_' . $designer_id ); ?>
