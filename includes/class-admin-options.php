@@ -430,7 +430,9 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
                wp_enqueue_style('spbwc-options-style');
                wp_enqueue_script('spbwc-options-script');
             }
-            if ($hook === 'product-builder-options_page_' . SPBWC_PB_OPTIONS_SLUG . '/manager-fonts') {
+            $spbwc_current_page = isset( $_GET['page'] ) ? sanitize_text_field( wp_unslash( $_GET['page'] ) ) : '';
+            if ( $hook === 'product-builder-options_page_' . SPBWC_PB_OPTIONS_SLUG . '/manager-fonts'
+                 || $spbwc_current_page === SPBWC_PB_OPTIONS_SLUG . '/manager-fonts' ) {
                 wp_register_script('spbwc-manager-fonts-script', SPBWC_PB_JS_URL . 'manager-fonts.js', array('spbwc-fontfaceobserver', 'spbwc-sweetalert-js', 'spbwc-ag'), SPBWC_PB_VERSION, true);
                 wp_localize_script('spbwc-manager-fonts-script', 'storelly_pb_fonts', array(
                     'url'       => admin_url('admin-ajax.php'),
