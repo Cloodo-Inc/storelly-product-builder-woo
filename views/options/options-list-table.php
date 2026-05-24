@@ -194,6 +194,16 @@ $_current_page_n = isset( $_GET['paged'] ) ? max( 1, absint( $_GET['paged'] ) ) 
 				?>
 			</span>
 
+			<!-- Select mode toggle -->
+			<button type="button"
+			        class="spbwc-view-btn spbwc-select-toggle"
+			        id="spbwc-select-toggle"
+			        title="<?php esc_attr_e( 'Select multiple', 'storelly-product-builder-for-woocommerce' ); ?>"
+			        aria-pressed="false">
+				<span class="dashicons dashicons-yes-alt" aria-hidden="true"></span>
+				<span class="screen-reader-text"><?php esc_html_e( 'Select multiple', 'storelly-product-builder-for-woocommerce' ); ?></span>
+			</button>
+
 			<!-- View toggle -->
 			<div class="spbwc-view-toggle" role="group"
 			     aria-label="<?php esc_attr_e( 'Switch view', 'storelly-product-builder-for-woocommerce' ); ?>">
@@ -226,6 +236,31 @@ $_current_page_n = isset( $_GET['paged'] ) ? max( 1, absint( $_GET['paged'] ) ) 
 
 	<!-- ── Card / grid view ──────────────────────────────────────────── -->
 	<div id="spbwc-block-view" class="spbwc-block-view" hidden>
+
+		<!-- Bulk action bar (shows when select mode is active) -->
+		<div id="spbwc-bulk-bar" class="spbwc-bulk-bar" hidden>
+			<span id="spbwc-selected-count" class="spbwc-bulk-bar__count">
+				<?php esc_html_e( '0 selected', 'storelly-product-builder-for-woocommerce' ); ?>
+			</span>
+			<div class="spbwc-bulk-bar__actions">
+				<button type="button" class="spbwc-bulk-btn" data-bulk-action="publish" disabled>
+					<span class="dashicons dashicons-visibility" aria-hidden="true"></span>
+					<?php esc_html_e( 'Publish', 'storelly-product-builder-for-woocommerce' ); ?>
+				</button>
+				<button type="button" class="spbwc-bulk-btn" data-bulk-action="draft" disabled>
+					<span class="dashicons dashicons-hidden" aria-hidden="true"></span>
+					<?php esc_html_e( 'Set Draft', 'storelly-product-builder-for-woocommerce' ); ?>
+				</button>
+				<button type="button" class="spbwc-bulk-btn spbwc-bulk-btn--danger" data-bulk-action="trash" disabled>
+					<span class="dashicons dashicons-trash" aria-hidden="true"></span>
+					<?php esc_html_e( 'Delete selected', 'storelly-product-builder-for-woocommerce' ); ?>
+				</button>
+			</div>
+			<button type="button" id="spbwc-bulk-cancel" class="spbwc-bulk-bar__cancel">
+				<?php esc_html_e( 'Cancel', 'storelly-product-builder-for-woocommerce' ); ?>
+			</button>
+		</div>
+
 		<div class="spbwc-block-view__inner" id="spbwc-block-view-inner">
 
 			<?php if ( ! empty( $spbwc_options->items ) ) : ?>
@@ -270,6 +305,11 @@ $_current_page_n = isset( $_GET['paged'] ) ? max( 1, absint( $_GET['paged'] ) ) 
 				         data-title="<?php echo esc_attr( mb_strtolower( $spbwc_title ) ); ?>"
 				         data-option-id="<?php echo $spbwc_id_str; ?>"
 				         data-published="<?php echo $spbwc_pub; ?>">
+					<input type="checkbox"
+					       class="spbwc-option-card__checkbox"
+					       data-id="<?php echo $spbwc_id_str; ?>"
+					       aria-label="<?php echo esc_attr( sprintf( __( 'Select %s', 'storelly-product-builder-for-woocommerce' ), $spbwc_title ) ); ?>"
+					       tabindex="-1">
 					<a href="<?php echo $spbwc_edit_url; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- already esc_url'd above ?>"
 					   class="spbwc-option-card__thumb spbwc-option-card__thumb--svg"
 					   aria-label="<?php echo esc_attr( $spbwc_title ); ?>">
@@ -468,6 +508,10 @@ $_current_page_n = isset( $_GET['paged'] ) ? max( 1, absint( $_GET['paged'] ) ) 
 
 	var fetchTimer = null;
 
+	// Bulk selection state
+	var selectedIds = [];
+	var selectMode  = false;
+
 	// ── Loading overlay ───────────────────────────────────────────────
 	function setLoading( on ) {
 		var overlay = document.getElementById( 'spbwc-loading-overlay' );
@@ -542,6 +586,40 @@ $_current_page_n = isset( $_GET['paged'] ) ? max( 1, absint( $_GET['paged'] ) ) 
 		_deleteModalPending = null;
 	}
 
+	// ── Bulk select helpers ───────────────────────────────────────────
+	function syncBulkBar() {
+		var bar    = document.getElementById( 'spbwc-bulk-bar' );
+		var countEl = document.getElementById( 'spbwc-selected-count' );
+		var btns   = document.querySelectorAll( '.spbwc-bulk-btn' );
+		if ( ! bar ) { return; }
+		bar.hidden = ! selectMode;
+		if ( countEl ) {
+			var n = selectedIds.length;
+			countEl.textContent = n + ' <?php echo esc_js( _x( 'selected', 'bulk selection count', 'storelly-product-builder-for-woocommerce' ) ); ?>';
+		}
+		btns.forEach( function ( b ) { b.disabled = selectedIds.length === 0; } );
+	}
+
+	function toggleSelectMode( on ) {
+		selectMode = on;
+		var grid   = document.getElementById( 'spbwc-block-view' );
+		var toggle = document.getElementById( 'spbwc-select-toggle' );
+		if ( grid )   { grid.classList.toggle( 'is-select-mode', on ); }
+		if ( toggle ) {
+			toggle.classList.toggle( 'is-active', on );
+			toggle.setAttribute( 'aria-pressed', on ? 'true' : 'false' );
+		}
+		if ( ! on ) {
+			selectedIds = [];
+			document.querySelectorAll( '.spbwc-option-card__checkbox' ).forEach( function ( cb ) {
+				cb.checked = false;
+				var card = cb.closest( '.spbwc-option-card' );
+				if ( card ) { card.classList.remove( 'is-selected' ); }
+			} );
+		}
+		syncBulkBar();
+	}
+
 	// ── Skeleton loading placeholders ─────────────────────────────────
 	function renderSkeletons( count ) {
 		var html = '<div class="spbwc-options-grid">';
@@ -595,6 +673,30 @@ $_current_page_n = isset( $_GET['paged'] ) ? max( 1, absint( $_GET['paged'] ) ) 
 				updateCount( d.total );
 				updateTabCounts( d.counts );
 				bindCardActions();
+
+				// Reset bulk selection after grid refresh.
+				if ( selectMode ) { selectedIds = []; syncBulkBar(); }
+
+				// Inject "Clear search" CTA when search returns nothing.
+				if ( d.total === 0 && state.s && inner ) {
+					var emptyEl = inner.querySelector( '.spbwc-block-empty' );
+					if ( emptyEl ) {
+						var clearSearchBtn = document.createElement( 'button' );
+						clearSearchBtn.type      = 'button';
+						clearSearchBtn.className = 'spbwc-cta-btn';
+						clearSearchBtn.style.marginTop = '12px';
+						clearSearchBtn.textContent = '<?php echo esc_js( __( 'Clear search', 'storelly-product-builder-for-woocommerce' ) ); ?>';
+						clearSearchBtn.addEventListener( 'click', function () {
+							var searchEl = document.getElementById( 'spbwc-unified-search' );
+							if ( searchEl ) { searchEl.value = ''; }
+							state.s = '';
+							var clearBtnEl = document.getElementById( 'spbwc-search-clear' );
+							if ( clearBtnEl ) { clearBtnEl.hidden = true; }
+							fetchList( true );
+						} );
+						emptyEl.appendChild( clearSearchBtn );
+					}
+				}
 			} )
 			.catch( function () { showToast( ERR_GENERIC, 'error' ); } )
 			.finally( function () { setLoading( false ); } );
@@ -762,6 +864,92 @@ $_current_page_n = isset( $_GET['paged'] ) ? max( 1, absint( $_GET['paged'] ) ) 
 				} );
 			} );
 		} );
+
+		// Attach inline-rename and checkbox handlers to newly rendered cards.
+		bindInlineRename();
+		bindCheckboxes();
+	}
+
+	// ── Inline rename: double-click card title ────────────────────────
+	function bindInlineRename() {
+		document.querySelectorAll( '.spbwc-option-card__title a:not([data-rename-bound])' ).forEach( function ( link ) {
+			link.setAttribute( 'data-rename-bound', '1' );
+			link.addEventListener( 'dblclick', function ( e ) {
+				if ( selectMode ) { return; }
+				e.preventDefault();
+				var card   = this.closest( '.spbwc-option-card' );
+				var id     = card ? card.dataset.optionId : null;
+				var anchor = this;
+				if ( ! id || card.querySelector( '.spbwc-rename-input' ) ) { return; }
+
+				var current  = anchor.textContent.trim();
+				var input    = document.createElement( 'input' );
+				input.type      = 'text';
+				input.value     = current;
+				input.className = 'spbwc-rename-input';
+				input.setAttribute( 'aria-label', '<?php echo esc_js( __( 'Rename option', 'storelly-product-builder-for-woocommerce' ) ); ?>' );
+
+				anchor.style.display = 'none';
+				anchor.parentNode.insertBefore( input, anchor );
+				input.select();
+
+				var cancelled = false;
+				var cancel = function () {
+					cancelled = true;
+					if ( input.parentNode ) { input.parentNode.removeChild( input ); }
+					anchor.style.display = '';
+				};
+				var save = function () {
+					if ( cancelled ) { return; }
+					var newTitle = input.value.trim();
+					if ( ! newTitle || newTitle === current ) { cancel(); return; }
+					input.disabled = true;
+					doPost( 'spbwc_rename_option', { id: id, title: newTitle }, function ( data ) {
+						anchor.textContent = data.title || newTitle;
+						if ( card ) { card.dataset.title = ( data.title || newTitle ).toLowerCase(); }
+						cancel();
+						showToast( data.msg || '<?php echo esc_js( __( 'Renamed.', 'storelly-product-builder-for-woocommerce' ) ); ?>', 'success' );
+					} );
+				};
+				input.addEventListener( 'keydown', function ( ev ) {
+					if ( 'Enter'  === ev.key ) { ev.preventDefault(); save(); }
+					if ( 'Escape' === ev.key ) { ev.preventDefault(); cancel(); }
+				} );
+				input.addEventListener( 'blur', function () {
+					setTimeout( function () { if ( ! cancelled ) { save(); } }, 120 );
+				} );
+			} );
+		} );
+	}
+
+	// ── Bulk checkboxes ───────────────────────────────────────────────
+	function bindCheckboxes() {
+		document.querySelectorAll( '.spbwc-option-card__checkbox:not([data-bound])' ).forEach( function ( cb ) {
+			cb.setAttribute( 'data-bound', '1' );
+			cb.addEventListener( 'change', function () {
+				var id   = this.dataset.id;
+				var card = this.closest( '.spbwc-option-card' );
+				if ( this.checked ) {
+					if ( selectedIds.indexOf( id ) === -1 ) { selectedIds.push( id ); }
+					if ( card ) { card.classList.add( 'is-selected' ); }
+				} else {
+					selectedIds = selectedIds.filter( function ( i ) { return i !== id; } );
+					if ( card ) { card.classList.remove( 'is-selected' ); }
+				}
+				syncBulkBar();
+			} );
+		} );
+
+		// Click anywhere on card body (outside buttons) selects in select mode.
+		document.querySelectorAll( '.spbwc-option-card:not([data-click-bound])' ).forEach( function ( card ) {
+			card.setAttribute( 'data-click-bound', '1' );
+			card.addEventListener( 'click', function ( e ) {
+				if ( ! selectMode ) { return; }
+				if ( e.target.closest( 'a, button, input[type="checkbox"]' ) ) { return; }
+				var cb = card.querySelector( '.spbwc-option-card__checkbox' );
+				if ( cb ) { cb.checked = ! cb.checked; cb.dispatchEvent( new Event( 'change' ) ); }
+			} );
+		} );
 	}
 
 	// ── View switch ───────────────────────────────────────────────────
@@ -803,6 +991,63 @@ $_current_page_n = isset( $_GET['paged'] ) ? max( 1, absint( $_GET['paged'] ) ) 
 
 		// Bind initial card actions (server-rendered on first load)
 		bindCardActions();
+
+		// ── Select-mode toggle button ─────────────────────────────────
+		var selectToggleBtn = document.getElementById( 'spbwc-select-toggle' );
+		if ( selectToggleBtn ) {
+			selectToggleBtn.addEventListener( 'click', function () {
+				toggleSelectMode( ! selectMode );
+				// If entering select mode, ensure block view is active.
+				if ( selectMode ) { setView( 'block' ); }
+			} );
+		}
+
+		// ── Bulk cancel ───────────────────────────────────────────────
+		var bulkCancelBtn = document.getElementById( 'spbwc-bulk-cancel' );
+		if ( bulkCancelBtn ) {
+			bulkCancelBtn.addEventListener( 'click', function () {
+				toggleSelectMode( false );
+			} );
+		}
+
+		// ── Bulk action buttons ───────────────────────────────────────
+		document.querySelectorAll( '.spbwc-bulk-btn' ).forEach( function ( btn ) {
+			btn.addEventListener( 'click', function () {
+				if ( selectedIds.length === 0 ) { return; }
+				var bulkAction = this.dataset.bulkAction;
+				var ids        = selectedIds.slice(); // snapshot
+
+				var doAction = function () {
+					setLoading( true );
+					var fd = new FormData();
+					fd.append( 'action',      'spbwc_bulk_options' );
+					fd.append( 'nonce',       NONCE );
+					fd.append( 'ids',         ids.join( ',' ) );
+					fd.append( 'bulk_action', bulkAction );
+					fetch( AJAX_URL, { method: 'POST', credentials: 'same-origin', body: fd } )
+						.then( function ( r ) { return r.json(); } )
+						.then( function ( res ) {
+							if ( res && res.success ) {
+								showToast( res.data.msg || '<?php echo esc_js( __( 'Done.', 'storelly-product-builder-for-woocommerce' ) ); ?>', 'success' );
+								if ( res.data.counts ) { updateTabCounts( res.data.counts ); }
+								toggleSelectMode( false );
+								fetchList( false );
+							} else {
+								showToast( ( res && res.data && res.data.msg ) || ERR_GENERIC, 'error' );
+							}
+						} )
+						.catch( function () { showToast( ERR_GENERIC, 'error' ); } )
+						.finally( function () { setLoading( false ); } );
+				};
+
+				if ( 'trash' === bulkAction ) {
+					var bulkTitle = ids.length + ' <?php echo esc_js( _x( 'options', 'plural item count', 'storelly-product-builder-for-woocommerce' ) ); ?>';
+					showDeleteModal( null, bulkTitle, null, doAction );
+				} else {
+					doAction();
+				}
+			} );
+		} );
 
 		// View toggle buttons
 		document.querySelectorAll( '.spbwc-view-btn' ).forEach( function ( btn ) {
@@ -913,9 +1158,32 @@ $_current_page_n = isset( $_GET['paged'] ) ? max( 1, absint( $_GET['paged'] ) ) 
 			} );
 		}
 
-		// Escape key closes modal (global, low cost).
+		// ── Keyboard shortcuts ────────────────────────────────────────
+		// N = new option | / = focus search | 1/2/3 = filter tabs
+		// Skip when an input/textarea/select/contenteditable is focused.
 		document.addEventListener( 'keydown', function ( e ) {
-			if ( 'Escape' === e.key ) { closeDeleteModal(); }
+			var tag    = e.target.tagName.toLowerCase();
+			var inText = ( 'input' === tag || 'textarea' === tag || 'select' === tag )
+			           || e.target.isContentEditable;
+			if ( inText || e.ctrlKey || e.metaKey || e.altKey ) { return; }
+
+			var tabMap = { '1': '', '2': '1', '3': '0' };
+
+			if ( 'n' === e.key || 'N' === e.key ) {
+				e.preventDefault();
+				window.location.href = '<?php echo esc_js( $link_create_option ); ?>';
+			} else if ( '/' === e.key ) {
+				e.preventDefault();
+				var searchEl = document.getElementById( 'spbwc-unified-search' );
+				if ( searchEl ) { searchEl.focus(); searchEl.select(); }
+			} else if ( tabMap.hasOwnProperty( e.key ) ) {
+				e.preventDefault();
+				state.status_filter = tabMap[ e.key ];
+				setView( 'block' );
+				fetchList( true );
+			} else if ( 'Escape' === e.key ) {
+				closeDeleteModal();
+			}
 		} );
 
 		// ── Pagination (event delegation — survives AJAX re-render) ───

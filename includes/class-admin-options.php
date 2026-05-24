@@ -58,6 +58,9 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
                 'spbwc_publish_option_ajax'      => false, // admin only — toggle published
                 // Edit-option page: save without full reload
                 'spbwc_save_option_ajax'         => false, // admin only
+                // List page: inline rename + bulk operations
+                'spbwc_rename_option'            => false, // admin only
+                'spbwc_bulk_options'             => false, // admin only
             );
             foreach ($ajax_events as $ajax_event => $nopriv) {
                 add_action('wp_ajax_' . $ajax_event, array($this, $ajax_event));
@@ -3307,7 +3310,7 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
                 foreach ( $list->items as $row ) {
                     $title  = $row['title'];
                     $pub    = (int) $row['published'];
-                    $id_str = esc_attr( (string) absint( $row['id'] ) );
+                    $id_int = absint( $row['id'] );
                     $count  = SPBWC_Storelly_Options_List_Table::spbwc_count_fields( $row['fields'] );
                     $thumb  = SPBWC_Storelly_PB_Util::spbwc_render_option_thumbnail( $row, 88 );
 
@@ -3339,8 +3342,13 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
                     ?>
                     <article class="spbwc-option-card"
                              data-title="<?php echo esc_attr( mb_strtolower( $title ) ); ?>"
-                             data-option-id="<?php echo $id_str; ?>"
-                             data-published="<?php echo $pub; ?>">
+                             data-option-id="<?php echo esc_attr( (string) $id_int ); ?>"
+                             data-published="<?php echo esc_attr( (string) $pub ); ?>">
+                        <input type="checkbox"
+                               class="spbwc-option-card__checkbox"
+                               data-id="<?php echo esc_attr( (string) $id_int ); ?>"
+                               aria-label="<?php echo esc_attr( sprintf( __( 'Select %s', 'storelly-product-builder-for-woocommerce' ), $title ) ); ?>"
+                               tabindex="-1">
                         <a href="<?php echo esc_url( $edit_url ); ?>"
                            class="spbwc-option-card__thumb spbwc-option-card__thumb--svg"
                            aria-label="<?php echo esc_attr( $title ); ?>">
@@ -3354,8 +3362,8 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
                                 <button type="button"
                                         class="spbwc-publish-toggle<?php echo 1 === $pub ? ' is-published' : ''; ?>"
                                         data-spbwc-action="toggle-publish"
-                                        data-id="<?php echo $id_str; ?>"
-                                        data-published="<?php echo $pub; ?>"
+                                        data-id="<?php echo esc_attr( (string) $id_int ); ?>"
+                                        data-published="<?php echo esc_attr( (string) $pub ); ?>"
                                         title="<?php echo 1 === $pub ? esc_attr__( 'Unpublish', 'storelly-product-builder-for-woocommerce' ) : esc_attr__( 'Publish', 'storelly-product-builder-for-woocommerce' ); ?>"
                                         aria-pressed="<?php echo 1 === $pub ? 'true' : 'false'; ?>">
                                     <span class="dashicons dashicons-<?php echo 1 === $pub ? 'visibility' : 'hidden'; ?>" aria-hidden="true"></span>
@@ -3395,14 +3403,14 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
                                 <button type="button"
                                         class="spbwc-card-btn"
                                         data-spbwc-action="duplicate"
-                                        data-id="<?php echo $id_str; ?>"
+                                        data-id="<?php echo esc_attr( (string) $id_int ); ?>"
                                         title="<?php esc_attr_e( 'Duplicate', 'storelly-product-builder-for-woocommerce' ); ?>">
                                     <span class="dashicons dashicons-admin-page" aria-hidden="true"></span>
                                 </button>
                                 <button type="button"
                                         class="spbwc-card-btn spbwc-card-btn--danger"
                                         data-spbwc-action="trash"
-                                        data-id="<?php echo $id_str; ?>"
+                                        data-id="<?php echo esc_attr( (string) $id_int ); ?>"
                                         title="<?php esc_attr_e( 'Delete', 'storelly-product-builder-for-woocommerce' ); ?>">
                                     <span class="dashicons dashicons-trash" aria-hidden="true"></span>
                                 </button>
@@ -3503,6 +3511,87 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
         }
 
         /**
+         * AJAX — rename a pricing option (inline title edit on the list page).
+         */
+        public function spbwc_rename_option() {
+            check_ajax_referer( 'spbwc_options_list_nonce', 'nonce' );
+            if ( ! current_user_can( 'manage_options' ) ) {
+                wp_send_json_error( array( 'msg' => esc_html__( 'Forbidden.', 'storelly-product-builder-for-woocommerce' ) ), 403 );
+            }
+            $id    = isset( $_POST['id'] ) ? absint( $_POST['id'] ) : 0;
+            $title = isset( $_POST['title'] ) ? sanitize_text_field( wp_unslash( $_POST['title'] ) ) : '';
+            if ( ! $id || '' === $title ) {
+                wp_send_json_error( array( 'msg' => esc_html__( 'Invalid data.', 'storelly-product-builder-for-woocommerce' ) ) );
+            }
+            global $wpdb;
+            // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Admin inline rename.
+            $wpdb->update(
+                $wpdb->prefix . 'storelly_product_builder_options',
+                array( 'title' => $title ),
+                array( 'id'    => $id ),
+                array( '%s' ),
+                array( '%d' )
+            );
+            $this->spbwc_flush_option_caches( $id );
+            wp_send_json_success( array(
+                'title' => $title,
+                'msg'   => esc_html__( 'Renamed.', 'storelly-product-builder-for-woocommerce' ),
+            ) );
+        }
+
+        /**
+         * AJAX — bulk action on multiple pricing options.
+         *
+         * Supported bulk_action values: publish | draft | trash
+         * Expects POST[ids] as comma-separated integer IDs.
+         */
+        public function spbwc_bulk_options() {
+            check_ajax_referer( 'spbwc_options_list_nonce', 'nonce' );
+            if ( ! current_user_can( 'manage_options' ) ) {
+                wp_send_json_error( array( 'msg' => esc_html__( 'Forbidden.', 'storelly-product-builder-for-woocommerce' ) ), 403 );
+            }
+            $raw_ids     = isset( $_POST['ids'] ) ? sanitize_text_field( wp_unslash( $_POST['ids'] ) ) : '';
+            $ids         = array_filter( array_map( 'absint', explode( ',', $raw_ids ) ) );
+            $bulk_action = isset( $_POST['bulk_action'] ) ? sanitize_key( wp_unslash( $_POST['bulk_action'] ) ) : '';
+
+            if ( empty( $ids ) ) {
+                wp_send_json_error( array( 'msg' => esc_html__( 'No items selected.', 'storelly-product-builder-for-woocommerce' ) ) );
+            }
+            if ( ! in_array( $bulk_action, array( 'publish', 'draft', 'trash' ), true ) ) {
+                wp_send_json_error( array( 'msg' => esc_html__( 'Invalid action.', 'storelly-product-builder-for-woocommerce' ) ) );
+            }
+
+            global $wpdb;
+            $count        = count( $ids );
+            $placeholders = implode( ',', array_fill( 0, $count, '%d' ) );
+
+            if ( 'trash' === $bulk_action ) {
+                foreach ( $ids as $id ) {
+                    $this->spbwc_unpublish_option( $id );
+                    $this->spbwc_flush_option_caches( $id );
+                }
+            } else {
+                $pub = ( 'publish' === $bulk_action ) ? 1 : 0;
+                // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+                $wpdb->query(
+                    $wpdb->prepare(
+                        "UPDATE {$wpdb->prefix}storelly_product_builder_options SET published = %d WHERE id IN ($placeholders)", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+                        array_merge( array( $pub ), array_values( $ids ) )
+                    )
+                );
+                foreach ( $ids as $id ) {
+                    $this->spbwc_flush_option_caches( $id );
+                }
+            }
+
+            wp_send_json_success( array(
+                /* translators: %d: number of option groups updated */
+                'msg'    => esc_html( sprintf( _n( '%d option updated.', '%d options updated.', $count, 'storelly-product-builder-for-woocommerce' ), $count ) ),
+                'counts' => SPBWC_Storelly_Options_List_Table::spbwc_count_all_statuses(),
+            ) );
+        }
+
+        /**
          * AJAX — save the option from the edit page without a full reload.
          *
          * Reuses spbwc_save_option() under the hood so server-side validation
@@ -3516,7 +3605,10 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
             if ( ! wp_verify_nonce( $nonce, 'spbwc_save_option_action' ) ) {
                 wp_send_json_error( array( 'msg' => esc_html__( 'Security check failed.', 'storelly-product-builder-for-woocommerce' ) ), 403 );
             }
-            if ( ! current_user_can( 'manage_options' ) ) {
+            // Match the legacy POST flow which requires the plugin-specific
+            // capability spbwc_manage_product_builder (granted to admins by
+            // class-install.php). manage_options alone is not sufficient.
+            if ( ! current_user_can( 'spbwc_manage_product_builder' ) && ! current_user_can( 'manage_options' ) ) {
                 wp_send_json_error( array( 'msg' => esc_html__( 'Forbidden.', 'storelly-product-builder-for-woocommerce' ) ), 403 );
             }
             $id     = isset( $_POST['option_id'] ) ? absint( $_POST['option_id'] ) : 0;
