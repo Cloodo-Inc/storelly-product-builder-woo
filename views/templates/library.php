@@ -366,7 +366,7 @@ $catalog = SPBWC_Template_Catalog::instance();
 						<?php esc_html_e( 'Cancel', 'storelly-product-builder-for-woocommerce' ); ?>
 					</button>
 					<button type="submit" class="button button-primary" id="spbwc-tl-apply-submit">
-						<span class="dashicons dashicons-yes-alt" aria-hidden="true"></span>
+						<span class="dashicons dashicons-edit" aria-hidden="true"></span>
 						<?php esc_html_e( 'Apply &amp; Edit', 'storelly-product-builder-for-woocommerce' ); ?>
 					</button>
 				</footer>

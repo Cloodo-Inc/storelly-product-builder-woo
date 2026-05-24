@@ -503,12 +503,18 @@ button.spbwc-tl-apply:hover {
 	background: var(--nbd-st-bg);
 }
 .spbwc-tl-dialog-footer .button {
-	display: inline-flex;
-	align-items: center;
-	gap: 4px;
+	display: inline-flex !important;
+	align-items: center !important;
+	gap: 5px !important;
+	line-height: 1 !important;   /* WP .button has line-height:2.15 — reset so icon doesn't push layout */
+	vertical-align: middle;
 }
 .spbwc-tl-dialog-footer .button .dashicons {
-	font-size: 16px; width: 16px; height: 16px;
+	font-size: 15px !important;
+	width: 15px !important;
+	height: 15px !important;
+	line-height: 1 !important;
+	flex-shrink: 0;
 }
 
 /* Apply dialog — wider than the default 560px to accommodate multi-select */
