@@ -660,6 +660,8 @@ $_current_page_n = isset( $_GET['paged'] ) ? max( 1, absint( $_GET['paged'] ) ) 
 			.then( function ( res ) {
 				if ( ! res || ! res.success ) {
 					showToast( ( res && res.data && res.data.msg ) || ERR_GENERIC, 'error' );
+					// Clear stuck skeletons so the grid is not left in a loading state.
+					if ( inner ) { inner.innerHTML = ''; }
 					return;
 				}
 				var d = res.data;
@@ -698,7 +700,11 @@ $_current_page_n = isset( $_GET['paged'] ) ? max( 1, absint( $_GET['paged'] ) ) 
 					}
 				}
 			} )
-			.catch( function () { showToast( ERR_GENERIC, 'error' ); } )
+			.catch( function () {
+				showToast( ERR_GENERIC, 'error' );
+				// Clear stuck skeletons on network / parse errors.
+				if ( inner ) { inner.innerHTML = ''; }
+			} )
 			.finally( function () { setLoading( false ); } );
 	}
 

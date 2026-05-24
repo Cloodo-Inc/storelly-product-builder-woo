@@ -177,6 +177,14 @@ class SPBWC_Storelly_Options_List_Table extends WP_List_Table
 
     public function spbwc_process_bulk_action()
     {
+        // Skip during AJAX requests — the 'action' key in $_REQUEST is the AJAX
+        // action name (e.g. 'spbwc_list_options_html'), not a list-table bulk action.
+        // Without this guard, spbwc_current_action() returns the AJAX action name,
+        // the nonce check fails, and wp_die() kills the AJAX response.
+        if ( wp_doing_ajax() ) {
+            return;
+        }
+
         // 1. SECURITY: Check Permissions first
         if (!current_user_can('manage_options')) {
             wp_die(esc_html__('You do not have permission to manage these options.', 'storelly-product-builder-for-woocommerce'));
@@ -383,9 +391,7 @@ class SPBWC_Storelly_Options_List_Table extends WP_List_Table
 
     function column_title($item)
     {
-        $title   = $item['title'];
-        $initial = mb_strtoupper(mb_substr($title, 0, 1));
-        $color   = $this->spbwc_get_color_for_title($title);
+        $title = $item['title'];
 
         $_nonce = wp_create_nonce('spbwc_options_nonce');
         // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Readonly page slug from request.
@@ -412,11 +418,11 @@ class SPBWC_Storelly_Options_List_Table extends WP_List_Table
             ),
         );
 
-        $thumb = sprintf(
-            '<span class="spbwc-option-thumb" aria-hidden="true" style="background-color:%s">%s</span>',
-            esc_attr($color),
-            esc_html($initial)
-        );
+        // Composite SVG thumbnail derived from the option's first multi-choice
+        // field's attribute swatches. Keeps list and card views in visual sync.
+        $thumb = '<span class="spbwc-option-thumb spbwc-option-thumb--svg" aria-hidden="true">'
+            . SPBWC_Storelly_PB_Util::spbwc_render_option_thumbnail($item, 40)
+            . '</span>';
 
         $title_link = sprintf('<a href="%s" class="spbwc-title-link">%s</a>', $edit_url, esc_html($title));
 
