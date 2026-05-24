@@ -77,11 +77,87 @@
 		});
 
 		// Viewport switcher inside live panel (delegated — content replaced on each open).
-		$('#spbwc-tl-preview-live').on('click', '.preview-segment__btn[data-pv]', function () {
+		var $live = $('#spbwc-tl-preview-live');
+
+		$live.on('click', '.preview-segment__btn[data-pv]', function () {
 			var vp = $(this).data('pv');
 			$(this).siblings('.preview-segment__btn').removeClass('preview-segment__btn--active');
 			$(this).addClass('preview-segment__btn--active');
 			$(this).closest('.std-classic-wrap').find('.viewport-frame').attr('data-viewport', vp);
+		});
+
+		// ── Interactive field controls ─────────────────────────────────
+
+		// Swatch click: activate selected, deactivate siblings, update chosen.
+		$live.on('click', '.std-classic-wrap .swatch', function () {
+			var $s = $(this);
+			$s.closest('.swatch-grid').find('.swatch').removeClass('swatch--active');
+			$s.addClass('swatch--active');
+			var name = $s.find('.swatch__name').text();
+			$s.closest('.po-section').find('.po-section__chosen strong').text(name);
+		});
+
+		// Radio click.
+		$live.on('click', '.std-classic-wrap .po-radio', function () {
+			var $r = $(this);
+			$r.closest('.po-radios').find('.po-radio').removeClass('po-radio--active');
+			$r.addClass('po-radio--active');
+			var name = $r.find('span:not(.po-radio__icon)').first().text().split(' · ')[0];
+			$r.closest('.po-section').find('.po-section__chosen strong').text(name);
+		});
+
+		// Qty-break click.
+		$live.on('click', '.std-classic-wrap .qty-break', function () {
+			$(this).closest('.qty-breaks').find('.qty-break').removeClass('qty-break--active');
+			$(this).addClass('qty-break--active');
+		});
+
+		// Fake-select: toggle dropdown open/close.
+		$live.on('click', '.std-classic-wrap .po-select__display', function (e) {
+			e.stopPropagation();
+			var $sel = $(this).closest('.po-select');
+			var $dd  = $sel.find('.po-select__dropdown');
+			var opening = $dd.prop('hidden');
+			// Close all dropdowns first.
+			$live.find('.po-select__dropdown').prop('hidden', true);
+			$live.find('.po-select').removeClass('po-select--open');
+			if (opening) {
+				$dd.prop('hidden', false);
+				$sel.addClass('po-select--open');
+			}
+		});
+
+		// Fake-select: option pick.
+		$live.on('click', '.std-classic-wrap .po-select__option', function (e) {
+			e.stopPropagation();
+			var $opt = $(this);
+			var $dd  = $opt.closest('.po-select__dropdown');
+			var $sel = $opt.closest('.po-select');
+			$dd.find('.po-select__option').removeClass('po-select__option--active');
+			$opt.addClass('po-select__option--active');
+			$sel.find('.po-select__text').text($opt.text());
+			$dd.prop('hidden', true);
+			$sel.removeClass('po-select--open');
+			$sel.closest('.po-section').find('.po-section__chosen strong').text($opt.data('name'));
+		});
+
+		// Fake-select keyboard: Enter/Space open; Escape close.
+		$live.on('keydown', '.std-classic-wrap .po-select__display', function (e) {
+			if (e.key === 'Enter' || e.key === ' ') {
+				e.preventDefault();
+				$(this).trigger('click');
+			} else if (e.key === 'Escape') {
+				$(this).closest('.po-select').find('.po-select__dropdown').prop('hidden', true);
+				$(this).closest('.po-select').removeClass('po-select--open');
+			}
+		});
+
+		// Close any open dropdown when clicking elsewhere in the live panel.
+		$live.on('click.po-select-close', function (e) {
+			if (!$(e.target).closest('.po-select').length) {
+				$live.find('.po-select__dropdown').prop('hidden', true);
+				$live.find('.po-select').removeClass('po-select--open');
+			}
 		});
 
 		// "Apply this template" CTA from preview footer.
@@ -335,15 +411,31 @@
 		if (!f.attributes || !f.attributes.length) {
 			return '<div class="po-section__desc">No options configured.</div>';
 		}
-		// Use a fake-select div — native <select disabled> is overridden by WP admin
-		// CSS which injects a repeating background-image arrow, causing visual glitches.
-		var sel  = f.attributes.find(function (a) { return a.selected; }) || f.attributes[0];
+		// Fake-select — avoids WP admin native <select> CSS conflicts.
+		// Dropdown panel holds all options; JS handles open/close + selection.
+		var selIdx = 0;
+		f.attributes.forEach(function (a, i) { if (a.selected) selIdx = i; });
+		var sel   = f.attributes[selIdx];
 		var label = sel ? sel.name || '—' : '—';
 		var price = sel && !priceIsFree(sel.price) ? ' · ' + formatPrice(sel.price, f.price_type) : '';
+
 		var html = '<div class="po-select">';
-		html += '<div class="po-select__display">';
+		// Display row (trigger)
+		html += '<div class="po-select__display" role="button" tabindex="0" aria-haspopup="listbox">';
 		html += '<span class="po-select__text">' + esc(label + price) + '</span>';
 		html += '<span class="po-select__chevron">▾</span>';
+		html += '</div>';
+		// Dropdown panel
+		html += '<div class="po-select__dropdown" hidden role="listbox">';
+		f.attributes.forEach(function (a, i) {
+			var optLabel = a.name || '—';
+			var optPrice = !priceIsFree(a.price) ? ' · ' + formatPrice(a.price, f.price_type) : '';
+			html += '<div class="po-select__option' + (i === selIdx ? ' po-select__option--active' : '') + '"';
+			html += ' role="option" aria-selected="' + (i === selIdx ? 'true' : 'false') + '"';
+			html += ' data-name="' + esc(optLabel) + '">';
+			html += esc(optLabel + optPrice);
+			html += '</div>';
+		});
 		html += '</div>';
 		html += '</div>';
 		return html;
