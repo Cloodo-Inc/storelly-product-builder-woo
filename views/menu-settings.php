@@ -129,7 +129,7 @@ if ( ! in_array($spbwc_settings_tab, $spbwc_valid_tabs, true) ) {
             <div class="spbwc-tab-panel" id="tab-general"<?php echo ($spbwc_settings_tab !== 'general') ? ' style="display:none;"' : ''; ?>>
 
                 <!-- Storelly Integration + API Keys — single block -->
-                <div class="spbwc-block" style="margin-bottom:var(--nbd-space-4);">
+                <div class="spbwc-block">
                     <div class="spbwc-block__head">
                         <h3 class="spbwc-block__title">
                             <span class="dashicons dashicons-admin-generic" aria-hidden="true"></span>
