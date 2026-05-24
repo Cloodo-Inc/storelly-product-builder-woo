@@ -2665,6 +2665,7 @@ label.view-config {
   background: var(--st-brand);
   border-color: var(--st-brand);
   color: #fff;
+  justify-content: flex-start;
 }
 
 .spbwc-card-btn--primary:hover {

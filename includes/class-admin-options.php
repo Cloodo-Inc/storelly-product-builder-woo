@@ -3295,6 +3295,20 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
             $orderby       = in_array( $raw_by, $allowed_by, true ) ? $raw_by : 'modified';
             $order         = ( isset( $_POST['order'] ) && strtoupper( sanitize_text_field( wp_unslash( $_POST['order'] ) ) ) === 'ASC' ) ? 'ASC' : 'DESC';
 
+            // ── Transient cache ───────────────────────────────────────────────
+            // Key is user-specific (nonces in HTML are per-user) and includes all
+            // filter params so different views are cached independently.
+            // The spbwc_flush_option_caches() method deletes every transient whose
+            // name starts with spbwc_product_builder_ so this cache is always
+            // invalidated on any write (publish, trash, rename, duplicate…).
+            $cache_key = 'spbwc_product_builder_grid_u' . get_current_user_id()
+                       . '_' . substr( md5( $paged . $status_filter . $search . $orderby . $order ), 0, 16 );
+            $cached = get_transient( $cache_key );
+            if ( false !== $cached ) {
+                wp_send_json_success( $cached );
+                return;
+            }
+
             // Project these into $_REQUEST so the existing list-table query
             // helpers (which read from $_REQUEST) honour them without further
             // plumbing.
@@ -3471,13 +3485,19 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
             }
             $grid_html = ob_get_clean();
 
-            wp_send_json_success( array(
+            $response = array(
                 'grid_html'   => $grid_html,
                 'total'       => $total,
                 'total_pages' => $total_pages,
                 'paged'       => $paged,
                 'counts'      => $counts,
-            ) );
+            );
+
+            // Store in transient for 2 minutes. Invalidated automatically by
+            // spbwc_flush_option_caches() on any write operation.
+            set_transient( $cache_key, $response, 120 );
+
+            wp_send_json_success( $response );
         }
 
         /**
