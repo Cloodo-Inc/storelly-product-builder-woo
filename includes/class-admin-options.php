@@ -826,14 +826,16 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
                         </div>
                     </div>
                 </header>
-                <h2 class="nav-tab-wrapper">
+                <div class="storelly-box spbwc-settings-box">
+                <h2 class="nav-tab-wrapper spbwc-settings-tabs">
                     <a href="<?php echo esc_url( add_query_arg( array( 'page' => SPBWC_PB_QUOTES_SLUG, 'tab' => 'get-quote' ), admin_url( 'admin.php' ) ) ); ?>" class="nav-tab <?php echo ( 'get-quote' === $tab ) ? 'nav-tab-active' : ''; ?>"><?php esc_html_e( 'Get Quote', 'storelly-product-builder-for-woocommerce' ); ?></a>
                     <a href="<?php echo esc_url( add_query_arg( array( 'page' => SPBWC_PB_QUOTES_SLUG, 'tab' => 'form-builder' ), admin_url( 'admin.php' ) ) ); ?>" class="nav-tab <?php echo ( 'form-builder' === $tab ) ? 'nav-tab-active' : ''; ?>"><?php esc_html_e( 'Form Builder', 'storelly-product-builder-for-woocommerce' ); ?></a>
                     <a href="<?php echo esc_url( add_query_arg( array( 'page' => SPBWC_PB_QUOTES_SLUG, 'tab' => 'history' ), admin_url( 'admin.php' ) ) ); ?>" class="nav-tab <?php echo ( 'history' === $tab ) ? 'nav-tab-active' : ''; ?>"><?php esc_html_e( 'Request History', 'storelly-product-builder-for-woocommerce' ); ?></a>
                 </h2>
+                <div class="spbwc-settings-content">
                 <?php if ( 'get-quote' === $tab ) : ?>
                     <!-- ── Get Quote Settings ──────────────────────────── -->
-                    <div class="spbwc-block" style="margin-top:var(--nbd-space-4);">
+                    <div class="spbwc-block spbwc-block--flat">
                         <div class="spbwc-block__head">
                             <h3 class="spbwc-block__title">
                                 <span class="dashicons dashicons-email-alt" aria-hidden="true"></span>
@@ -847,7 +849,6 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
                                 <div class="spbwc-setting-row">
                                     <div class="spbwc-setting-row__label">
                                         <?php esc_html_e( 'Enable Get Quote', 'storelly-product-builder-for-woocommerce' ); ?>
-                                        <p class="spbwc-setting-row__hint"><?php esc_html_e( 'Allow customers to request a quote instead of buying directly.', 'storelly-product-builder-for-woocommerce' ); ?></p>
                                     </div>
                                     <div class="spbwc-setting-row__control">
                                         <div class="spbwc-radio-group">
@@ -861,6 +862,7 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
                                             </label>
                                         </div>
                                     </div>
+                                    <p class="spbwc-setting-row__hint"><?php esc_html_e( 'Allow customers to request a quote instead of buying directly. When enabled, a "Get Quote" button appears on product pages.', 'storelly-product-builder-for-woocommerce' ); ?></p>
                                 </div>
                                 <!-- Notification Email -->
                                 <div class="spbwc-setting-row">
@@ -868,13 +870,13 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
                                         <label for="spbwc_quote_admin_email">
                                             <?php esc_html_e( 'Notification Email', 'storelly-product-builder-for-woocommerce' ); ?>
                                         </label>
-                                        <p class="spbwc-setting-row__hint"><?php esc_html_e( 'Send quote request notifications to this email.', 'storelly-product-builder-for-woocommerce' ); ?></p>
                                     </div>
                                     <div class="spbwc-setting-row__control">
                                         <input id="spbwc_quote_admin_email" type="email" name="admin_email"
                                             value="<?php echo esc_attr( $admin_email ); ?>"
                                             class="spbwc-input" style="max-width:380px;" />
                                     </div>
+                                    <p class="spbwc-setting-row__hint"><?php esc_html_e( 'New quote requests are sent to this address. Defaults to the site admin email if left unchanged.', 'storelly-product-builder-for-woocommerce' ); ?></p>
                                 </div>
                                 <!-- Success Message -->
                                 <div class="spbwc-setting-row">
@@ -882,16 +884,16 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
                                         <label for="spbwc_quote_success_message">
                                             <?php esc_html_e( 'Success Message', 'storelly-product-builder-for-woocommerce' ); ?>
                                         </label>
-                                        <p class="spbwc-setting-row__hint"><?php esc_html_e( 'Shown to the customer after a quote request is submitted.', 'storelly-product-builder-for-woocommerce' ); ?></p>
                                     </div>
                                     <div class="spbwc-setting-row__control">
                                         <textarea id="spbwc_quote_success_message" name="success_message"
                                             rows="4" class="spbwc-input" style="resize:vertical;"><?php echo esc_textarea( $success_message ); ?></textarea>
                                     </div>
+                                    <p class="spbwc-setting-row__hint"><?php esc_html_e( 'Displayed on screen after the customer submits a quote request. Keep it short and reassuring.', 'storelly-product-builder-for-woocommerce' ); ?></p>
                                 </div>
                             </div>
-                            <div class="spbwc-block__foot">
-                                <button class="spbwc-cta-btn spbwc-cta-btn--solid" type="submit" name="spbwc_save_quote_settings" value="1">
+                            <div class="spbwc-sticky-save-bar">
+                                <button class="spbwc-save-btn" type="submit" name="spbwc_save_quote_settings" value="1">
                                     <span class="dashicons dashicons-saved" aria-hidden="true"></span>
                                     <?php esc_html_e( 'Save changes', 'storelly-product-builder-for-woocommerce' ); ?>
                                 </button>
@@ -901,7 +903,7 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
 
                 <?php elseif ( 'form-builder' === $tab ) : ?>
                     <!-- ── Form Builder ────────────────────────────────── -->
-                    <div class="spbwc-block" style="margin-top:var(--nbd-space-4);">
+                    <div class="spbwc-block spbwc-block--flat">
                         <div class="spbwc-block__head">
                             <h3 class="spbwc-block__title">
                                 <span class="dashicons dashicons-feedback" aria-hidden="true"></span>
@@ -970,8 +972,8 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
                                     </tbody>
                                 </table>
                             </div>
-                            <div class="spbwc-block__foot">
-                                <button class="spbwc-cta-btn spbwc-cta-btn--solid" type="submit" name="spbwc_save_quote_form" value="1">
+                            <div class="spbwc-sticky-save-bar">
+                                <button class="spbwc-save-btn" type="submit" name="spbwc_save_quote_form" value="1">
                                     <span class="dashicons dashicons-saved" aria-hidden="true"></span>
                                     <?php esc_html_e( 'Save changes', 'storelly-product-builder-for-woocommerce' ); ?>
                                 </button>
@@ -1041,7 +1043,7 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
                     $orders    = isset( $quote_orders->orders ) ? $quote_orders->orders : array();
                     $max_pages = isset( $quote_orders->max_num_pages ) ? (int) $quote_orders->max_num_pages : 1;
                     ?>
-                    <div class="spbwc-block" style="margin-top:var(--nbd-space-4);">
+                    <div class="spbwc-block spbwc-block--flat">
                         <!-- Toolbar: search + count -->
                         <form method="get" class="spbwc-list-toolbar" role="search">
                             <input type="hidden" name="page" value="<?php echo esc_attr( SPBWC_PB_QUOTES_SLUG ); ?>" />
@@ -1171,6 +1173,8 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
                         <?php endif; ?>
                     </div><!-- .spbwc-block -->
                 <?php endif; ?>
+                </div><!-- .spbwc-settings-content -->
+                </div><!-- .storelly-box -->
             </div>
             <?php
         }
