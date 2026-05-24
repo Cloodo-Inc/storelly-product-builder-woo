@@ -33,6 +33,105 @@
 	line-height: 1.5;
 }
 
+/* ── Page Hero ─────────────────────────────────────────────────────── */
+.spbwc-page-hero {
+	background: var(--spb-color-surface);
+	border: 1px solid var(--spb-color-border);
+	border-radius: var(--spb-radius-lg);
+	padding: 28px 32px;
+	margin: 16px 0 20px;
+	box-shadow: var(--spb-shadow-sm);
+}
+.spbwc-page-hero__grid {
+	display: flex;
+	align-items: flex-start;
+	justify-content: space-between;
+	gap: 24px;
+	flex-wrap: wrap;
+}
+.spbwc-page-hero__body { flex: 1 1 400px; min-width: 0; }
+
+.spbwc-page-hero__eyebrow {
+	display: inline-flex;
+	align-items: center;
+	gap: 5px;
+	font-size: 11px;
+	font-weight: 600;
+	text-transform: uppercase;
+	letter-spacing: .06em;
+	color: var(--spb-color-primary);
+	margin-bottom: 10px;
+}
+.spbwc-page-hero__eyebrow .dashicons {
+	font-size: 14px;
+	width: 14px;
+	height: 14px;
+}
+
+.spbwc-page-hero__title {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	margin: 0 0 10px;
+	font-size: 24px;
+	font-weight: 700;
+	color: var(--spb-color-text);
+	line-height: 1.2;
+}
+.spbwc-page-hero__title .dashicons {
+	font-size: 24px;
+	width: 24px;
+	height: 24px;
+	color: var(--spb-color-primary);
+}
+
+.spbwc-page-hero__subtitle {
+	margin: 0;
+	font-size: 13px;
+	color: var(--spb-color-text-soft);
+	line-height: 1.6;
+	max-width: 600px;
+}
+
+.spbwc-page-hero__actions {
+	display: flex;
+	align-items: flex-start;
+	gap: 8px;
+	flex-shrink: 0;
+	padding-top: 6px;
+}
+
+/* ── CTA Buttons ───────────────────────────────────────────────────── */
+.spbwc-cta-btn {
+	display: inline-flex;
+	align-items: center;
+	gap: 5px;
+	padding: 8px 16px;
+	border-radius: var(--spb-radius-md);
+	font-size: 13px;
+	font-weight: 600;
+	cursor: pointer;
+	text-decoration: none;
+	transition: border-color .13s, color .13s, background .13s;
+	line-height: 1.4;
+}
+.spbwc-cta-btn--ghost {
+	background: transparent;
+	border: 1.5px solid var(--spb-color-border);
+	color: var(--spb-color-text-soft);
+}
+.spbwc-cta-btn--ghost:hover {
+	border-color: var(--spb-color-primary);
+	color: var(--spb-color-primary);
+	background: var(--spb-color-primary-soft);
+	text-decoration: none;
+}
+.spbwc-cta-btn--ghost .dashicons {
+	font-size: 15px;
+	width: 15px;
+	height: 15px;
+}
+
 /* ── Toolbar ───────────────────────────────────────────────────────── */
 .spbwc-tl-toolbar {
 	display: flex;
