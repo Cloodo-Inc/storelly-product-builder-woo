@@ -1,0 +1,197 @@
+/**
+ * Template Library — base styles. Step 4 will polish (design tokens, motion).
+ */
+
+.spbwc-template-library .spbwc-tl-subtitle {
+	color: #50575e;
+	max-width: 720px;
+	margin: 6px 0 18px;
+}
+
+.spbwc-tl-toolbar {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 12px;
+	align-items: center;
+	margin: 16px 0 20px;
+	padding: 12px 14px;
+	background: #fff;
+	border: 1px solid #dcdcde;
+	border-radius: 4px;
+}
+.spbwc-tl-toolbar .spbwc-tl-count {
+	margin-left: auto;
+	color: #646970;
+	font-size: 12px;
+}
+
+.spbwc-tl-grid {
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+	gap: 16px;
+}
+
+.spbwc-tl-card {
+	background: #fff;
+	border: 1px solid #dcdcde;
+	border-radius: 6px;
+	display: flex;
+	flex-direction: column;
+	overflow: hidden;
+	transition: box-shadow .15s, border-color .15s;
+}
+.spbwc-tl-card:hover {
+	border-color: #c3c4c7;
+	box-shadow: 0 2px 6px rgba(0,0,0,.06);
+}
+.spbwc-tl-card[hidden] {
+	display: none !important;
+}
+
+.spbwc-tl-card-thumb {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	height: 96px;
+	background: linear-gradient(135deg, #f0f0f1 0%, #fafafa 100%);
+	color: #2271b1;
+}
+.spbwc-tl-card-thumb .dashicons {
+	font-size: 40px;
+	width: 40px;
+	height: 40px;
+}
+
+.spbwc-tl-card-body {
+	flex: 1;
+	padding: 12px 14px 0;
+}
+.spbwc-tl-card-title {
+	margin: 0 0 6px;
+	font-size: 15px;
+	font-weight: 600;
+}
+.spbwc-tl-card-meta {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 4px;
+	margin-bottom: 8px;
+}
+.spbwc-tl-badge {
+	font-size: 11px;
+	padding: 2px 6px;
+	border-radius: 10px;
+	background: #f0f0f1;
+	color: #50575e;
+	text-transform: capitalize;
+}
+.spbwc-tl-badge--category {
+	background: #ecf3fb;
+	color: #2271b1;
+}
+.spbwc-tl-badge--info {
+	background: #edfaef;
+	color: #00a32a;
+}
+.spbwc-tl-badge--neutral {
+	background: #f0f0f1;
+	color: #50575e;
+}
+.spbwc-tl-card-desc {
+	margin: 0 0 6px;
+	font-size: 12px;
+	color: #50575e;
+	line-height: 1.4;
+}
+.spbwc-tl-card-note {
+	margin: 0 0 10px;
+	font-size: 11px;
+	color: #8c8f94;
+	display: flex;
+	gap: 4px;
+	align-items: flex-start;
+	line-height: 1.4;
+}
+.spbwc-tl-card-note .dashicons {
+	font-size: 14px;
+	width: 14px;
+	height: 14px;
+	flex-shrink: 0;
+}
+
+.spbwc-tl-card-actions {
+	display: flex;
+	gap: 6px;
+	padding: 10px 14px 12px;
+	border-top: 1px solid #f0f0f1;
+}
+.spbwc-tl-card-actions .button {
+	flex: 1;
+	text-align: center;
+}
+
+/* Dialog */
+.spbwc-tl-dialog {
+	border: 1px solid #c3c4c7;
+	border-radius: 6px;
+	padding: 0;
+	width: min(560px, 92vw);
+	max-height: 80vh;
+}
+.spbwc-tl-dialog::backdrop {
+	background: rgba(0, 0, 0, .35);
+}
+.spbwc-tl-dialog-form {
+	display: flex;
+	flex-direction: column;
+	max-height: 80vh;
+}
+.spbwc-tl-dialog header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	padding: 12px 16px;
+	border-bottom: 1px solid #f0f0f1;
+}
+.spbwc-tl-dialog header h2 {
+	margin: 0;
+	font-size: 16px;
+}
+.spbwc-tl-dialog-close {
+	background: none;
+	border: 0;
+	font-size: 22px;
+	line-height: 1;
+	cursor: pointer;
+	color: #646970;
+	padding: 4px 8px;
+}
+.spbwc-tl-dialog-body {
+	padding: 14px 16px;
+	overflow-y: auto;
+}
+.spbwc-tl-dialog-footer {
+	display: flex;
+	gap: 8px;
+	justify-content: flex-end;
+	padding: 12px 16px;
+	border-top: 1px solid #f0f0f1;
+}
+.spbwc-tl-fieldset {
+	border: 0;
+	padding: 0;
+	margin: 12px 0;
+	display: flex;
+	gap: 16px;
+}
+.spbwc-tl-fieldset legend {
+	font-weight: 600;
+	margin-bottom: 6px;
+}
+.spbwc-tl-apply-error {
+	margin: 0 16px 12px;
+	padding: 8px 12px;
+	background: #fcf0f1;
+	border-left: 4px solid #d63638;
+	color: #82181a;
+}

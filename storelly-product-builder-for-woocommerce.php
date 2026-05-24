@@ -50,6 +50,7 @@ define('SPBWC_PB_ORDERS_SLUG',              'storelly-product-builder-for-woocom
 define('SPBWC_PB_QUOTES_SLUG',              'storelly-product-builder-for-woocommerce-quotes');
 define('SPBWC_PB_LICENSE_SLUG',             'storelly-product-builder-for-woocommerce-license');
 define('SPBWC_PB_OVERVIEW_SLUG',            'storelly-product-builder-for-woocommerce-overview');
+define('SPBWC_PB_TEMPLATE_LIBRARY_SLUG',    'storelly-product-builder-for-woocommerce-templates');
 
 
 // check if woocommerce works
@@ -86,6 +87,14 @@ require_once(SPBWC_PB_PLUGIN_DIR .  'includes/class-printcart-import-schema.php'
 require_once(SPBWC_PB_PLUGIN_DIR .  'includes/class-license-manager.php');
 require_once(SPBWC_PB_PLUGIN_DIR .  'includes/class-product-exporter.php');
 
+/* Bundled printing-option template library — read-only catalog shipped under
+ * storage/print-templates/. Admin browses, applies (fork) into the options
+ * table; global JSON files stay untouched. */
+require_once(SPBWC_PB_PLUGIN_DIR .  'includes/templates/class-template-catalog.php');
+require_once(SPBWC_PB_PLUGIN_DIR .  'includes/templates/class-template-applier.php');
+require_once(SPBWC_PB_PLUGIN_DIR .  'includes/templates/class-template-library-admin.php');
+require_once(SPBWC_PB_PLUGIN_DIR .  'includes/templates/class-template-ajax.php');
+
 /* Designer marketplace module — adapted from pc-designer "launcher".
  * Bridge loads first so its constant aliases and helper stubs are
  * available when the launcher classes parse. Marketplace classes are
@@ -116,6 +125,14 @@ require_once(SPBWC_PB_PLUGIN_DIR .  'includes/marketplace/admin/class-designs-li
 require_once(SPBWC_PB_PLUGIN_DIR .  'includes/marketplace/admin/class-withdraws-list-table.php');
 if ( class_exists( 'SPBWC_Marketplace_Admin' ) ) {
     SPBWC_Marketplace_Admin::get_instance()->init();
+}
+
+/* Template Library module — admin submenu, idempotent column migration, AJAX. */
+if ( class_exists( 'SPBWC_Template_Library_Admin' ) ) {
+    SPBWC_Template_Library_Admin::instance()->init();
+}
+if ( class_exists( 'SPBWC_Template_Ajax' ) ) {
+    SPBWC_Template_Ajax::instance()->init();
 }
 
 
