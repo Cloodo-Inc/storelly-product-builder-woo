@@ -66,6 +66,129 @@ if (!class_exists('SPBWC_Storelly_PB_Util')) {
             }
             return $image_url;
         }
+
+        /**
+         * Deterministic accent color for an option title.
+         *
+         * Uses a small Storelly-aligned palette and indexes by char code so
+         * the same title always renders the same color across list rows and
+         * the edit-page hero.
+         *
+         * @param string $seed Any string (title, slug…).
+         * @return string `#rrggbb`.
+         */
+        public static function spbwc_option_color($seed)
+        {
+            $palette = array('#1d4ed8', '#8b5cf6', '#ec4899', '#f97316', '#16a34a', '#0ea5e9', '#f59e0b', '#6366f1');
+            $seed    = is_string($seed) ? $seed : '';
+            $code    = $seed !== '' ? ord(mb_substr($seed, 0, 1)) : 0;
+            return $palette[$code % count($palette)];
+        }
+
+        /**
+         * Generate a deterministic inline SVG thumbnail for a pricing option.
+         *
+         * Pulls the first multi-choice field with attributes and renders up
+         * to 4 swatches in a 2x2 grid. If no swatch data is available, falls
+         * back to a brand-color tile with the title initial.
+         *
+         * Output is a self-contained SVG (no remote URLs). Safe to echo with
+         * wp_kses on an SVG-friendly whitelist or print raw inside admin pages.
+         *
+         * @param array $option_row Row from `{$wpdb->prefix}storelly_product_builder_options`.
+         *                          Expects keys: `title`, `fields` (serialized).
+         * @param int   $size       Pixel size for the rendered SVG box. Default 64.
+         * @return string SVG markup.
+         */
+        public static function spbwc_render_option_thumbnail($option_row, $size = 64)
+        {
+            $size  = max(32, absint($size));
+            $title = isset($option_row['title']) && is_string($option_row['title']) ? $option_row['title'] : '';
+
+            $swatches = array();
+            // Accept fields as either a serialized string (from DB) or a pre-parsed
+            // array (when the caller already unserialized to avoid a second round-trip).
+            if ( isset( $option_row['fields'] ) ) {
+                // @codingStandardsIgnoreLine PHPCS does not understand maybe_unserialize on row blobs.
+                $raw = is_string( $option_row['fields'] )
+                    ? maybe_unserialize( $option_row['fields'] )
+                    : $option_row['fields'];
+                if (is_array($raw) && isset($raw['fields']) && is_array($raw['fields'])) {
+                    foreach ($raw['fields'] as $field) {
+                        if (!is_array($field) || empty($field['general']['data_type']['value'])) {
+                            continue;
+                        }
+                        if ($field['general']['data_type']['value'] !== 'm') {
+                            continue;
+                        }
+                        $attrs = isset($field['general']['attributes']['value']) ? $field['general']['attributes']['value'] : null;
+                        if (!is_array($attrs)) {
+                            continue;
+                        }
+                        foreach ($attrs as $attr) {
+                            if (count($swatches) >= 4) {
+                                break 2;
+                            }
+                            $color = isset($attr['color']) ? $attr['color'] : '';
+                            $image = isset($attr['image_url']) ? $attr['image_url'] : '';
+                            // Skip empty white placeholders unless we have nothing
+                            if ($color === '#ffffff' && empty($image)) {
+                                $color = '';
+                            }
+                            if ($color === '' && empty($image) && empty($attr['name'])) {
+                                continue;
+                            }
+                            $swatches[] = array(
+                                'color' => $color,
+                                'image' => $image,
+                                'name'  => isset($attr['name']) ? $attr['name'] : '',
+                            );
+                        }
+                    }
+                }
+            }
+
+            $accent  = self::spbwc_option_color($title);
+            $initial = $title !== '' ? mb_strtoupper(mb_substr($title, 0, 1)) : '?';
+
+            $svg  = '<svg xmlns="http://www.w3.org/2000/svg" width="' . esc_attr((string) $size) . '" height="' . esc_attr((string) $size) . '" viewBox="0 0 64 64" role="img" aria-label="' . esc_attr($title) . '">';
+            $svg .= '<rect width="64" height="64" rx="10" fill="' . esc_attr($accent) . '" opacity="0.12"/>';
+
+            if (count($swatches) === 0) {
+                // Fallback — brand tile + initial.
+                $svg .= '<rect x="6" y="6" width="52" height="52" rx="8" fill="' . esc_attr($accent) . '"/>';
+                $svg .= '<text x="32" y="40" font-family="-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,sans-serif" font-size="26" font-weight="700" text-anchor="middle" fill="#ffffff">' . esc_html($initial) . '</text>';
+            } else {
+                // 2x2 grid; cells default to brand tint if attribute lacks a color.
+                $cells = 4;
+                $positions = array(
+                    array(6, 6),
+                    array(33, 6),
+                    array(6, 33),
+                    array(33, 33),
+                );
+                for ($i = 0; $i < $cells; $i++) {
+                    list($x, $y) = $positions[$i];
+                    if (isset($swatches[$i])) {
+                        $s     = $swatches[$i];
+                        $color = $s['color'] !== '' ? $s['color'] : $accent;
+                        if ($s['image'] !== '') {
+                            $svg .= '<defs><pattern id="spbwc-thumb-img-' . esc_attr((string) $i) . '" patternUnits="userSpaceOnUse" x="' . esc_attr((string) $x) . '" y="' . esc_attr((string) $y) . '" width="25" height="25">';
+                            $svg .= '<image href="' . esc_url($s['image']) . '" x="0" y="0" width="25" height="25" preserveAspectRatio="xMidYMid slice"/>';
+                            $svg .= '</pattern></defs>';
+                            $svg .= '<rect x="' . esc_attr((string) $x) . '" y="' . esc_attr((string) $y) . '" width="25" height="25" rx="3" fill="url(#spbwc-thumb-img-' . esc_attr((string) $i) . ')"/>';
+                        } else {
+                            $svg .= '<rect x="' . esc_attr((string) $x) . '" y="' . esc_attr((string) $y) . '" width="25" height="25" rx="3" fill="' . esc_attr($color) . '"/>';
+                        }
+                    } else {
+                        $svg .= '<rect x="' . esc_attr((string) $x) . '" y="' . esc_attr((string) $y) . '" width="25" height="25" rx="3" fill="' . esc_attr($accent) . '" opacity="0.18"/>';
+                    }
+                }
+            }
+
+            $svg .= '</svg>';
+            return $svg;
+        }
         public static function spbwc_custom_notices($command, $mes = '')
         {
             switch ($command) {

@@ -1944,6 +1944,23 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
                     )
                 );
             }
+            // Option-level quantity-break defaults — exposed to AngularJS so
+            // the admin UI can bind ng-model without touching the saved blob.
+            // Schema mirrors the legacy storage format (val/dis/default).
+            if ( ! isset( $options['quantity_enable'] ) )        { $options['quantity_enable']        = 'n'; }
+            if ( ! isset( $options['quantity_type'] ) )          { $options['quantity_type']          = 'r'; }
+            if ( ! isset( $options['quantity_min'] ) )           { $options['quantity_min']           = 1;   }
+            if ( ! isset( $options['quantity_max'] ) )           { $options['quantity_max']           = 100; }
+            if ( ! isset( $options['quantity_step'] ) )          { $options['quantity_step']          = 1;   }
+            if ( ! isset( $options['quantity_discount_type'] ) ) { $options['quantity_discount_type'] = 'p'; }
+            if ( ! isset( $options['quantity_breaks'] ) || ! is_array( $options['quantity_breaks'] ) ) {
+                $options['quantity_breaks'] = array();
+            }
+            // Frontend display mode — controls how the option group renders
+            // on the product page (Sections list, Matrix grid, or Stepper wizard).
+            if ( ! isset( $options['display_mode'] ) || ! in_array( $options['display_mode'], array( 'sections', 'matrix', 'stepper' ), true ) ) {
+                $options['display_mode'] = 'sections';
+            }
             $options['fields'] = $this->spbwc_recursive_stripslashes($options['fields']);
             foreach ($options['fields'] as $f_key => $field) {
                 $field = array_replace_recursive($this->spbwc_clear_transients(), $field);
@@ -3298,11 +3315,33 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
             $list = new SPBWC_Storelly_Options_List_Table();
             $list->spbwc_prepare_items();
 
-            $per_page    = 10;
-            $total       = (int) SPBWC_Storelly_Options_List_Table::spbwc_record_count();
+            $per_page = 10;
+            // Re-use the count already computed inside spbwc_prepare_items() to avoid a
+            // second SELECT COUNT query.
+            $total       = isset( $list->_pagination_args['total_items'] )
+                ? (int) $list->_pagination_args['total_items']
+                : (int) SPBWC_Storelly_Options_List_Table::spbwc_record_count();
             $total_pages = max( 1, (int) ceil( $total / $per_page ) );
             $counts      = SPBWC_Storelly_Options_List_Table::spbwc_count_all_statuses();
             $nonce       = wp_create_nonce( 'spbwc_options_nonce' );
+
+            // ── Performance: prime the WP term object-cache for every category used
+            // across all rows in a single SQL query.  Without this, get_term() fires
+            // one DB round-trip per category per card (N+1 problem).
+            $all_cat_ids = array();
+            foreach ( $list->items as $_row ) {
+                if ( ! empty( $_row['product_cats'] ) ) {
+                    $_cats = maybe_unserialize( $_row['product_cats'] );
+                    if ( is_array( $_cats ) ) {
+                        foreach ( array_slice( $_cats, 0, 3 ) as $_cid ) {
+                            $all_cat_ids[] = absint( $_cid );
+                        }
+                    }
+                }
+            }
+            if ( $all_cat_ids ) {
+                _prime_term_caches( array_unique( $all_cat_ids ) );
+            }
 
             ob_start();
             if ( ! empty( $list->items ) ) {
@@ -3311,10 +3350,21 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
                     $title  = $row['title'];
                     $pub    = (int) $row['published'];
                     $id_int = absint( $row['id'] );
-                    $count  = SPBWC_Storelly_Options_List_Table::spbwc_count_fields( $row['fields'] );
-                    $thumb  = SPBWC_Storelly_PB_Util::spbwc_render_option_thumbnail( $row, 88 );
 
-                    // Category names (first 3).
+                    // ── Performance: deserialize the fields blob once, share between
+                    // spbwc_count_fields() and spbwc_render_option_thumbnail() so
+                    // maybe_unserialize() is only called once per card instead of twice.
+                    $parsed_fields = ! empty( $row['fields'] ) && is_string( $row['fields'] )
+                        ? maybe_unserialize( $row['fields'] )
+                        : ( is_array( $row['fields'] ) ? $row['fields'] : array() );
+
+                    $count = SPBWC_Storelly_Options_List_Table::spbwc_count_fields( $parsed_fields );
+                    // Pass already-parsed fields so the thumbnail function skips a second unserialize.
+                    $row_thumb         = $row;
+                    $row_thumb['fields'] = $parsed_fields;
+                    $thumb             = SPBWC_Storelly_PB_Util::spbwc_render_option_thumbnail( $row_thumb, 88 );
+
+                    // Category names — get_term() now hits the in-memory cache primed above.
                     $cat_html = '';
                     if ( ! empty( $row['product_cats'] ) ) {
                         $cats      = maybe_unserialize( $row['product_cats'] );
