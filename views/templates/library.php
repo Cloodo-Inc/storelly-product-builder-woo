@@ -95,7 +95,15 @@ $catalog = SPBWC_Template_Catalog::instance();
 					data-category="<?php echo esc_attr( $spbwc_cat_id ); ?>"
 					data-name="<?php echo esc_attr( strtolower( $name ) ); ?>">
 					<div class="spbwc-tl-card-thumb spbwc-tl-card-thumb--<?php echo esc_attr( $spbwc_cat_id ); ?>">
-						<span class="dashicons dashicons-art" aria-hidden="true"></span>
+						<?php if ( ! empty( $tpl['thumbnail'] ) ) : ?>
+							<img class="spbwc-tl-card-thumb__img"
+								src="<?php echo esc_url( SPBWC_PB_PLUGIN_URL . 'storage/print-templates/' . $tpl['thumbnail'] ); ?>"
+								alt="<?php echo esc_attr( $name ); ?>"
+								width="400" height="240"
+								loading="lazy" />
+						<?php else : ?>
+							<span class="dashicons dashicons-art" aria-hidden="true"></span>
+						<?php endif; ?>
 						<span class="spbwc-tl-card-thumb__cat"><?php echo esc_html( $cat_lb ); ?></span>
 					</div>
 					<div class="spbwc-tl-card-body">

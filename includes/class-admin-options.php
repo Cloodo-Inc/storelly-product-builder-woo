@@ -357,6 +357,8 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
                     modified_by BIGINT(20) NULL,
                     fields longtext,
                     builder text NULL,
+                    template_slug VARCHAR(100) NULL,
+                    template_version VARCHAR(20) NULL,
                     PRIMARY KEY  (id)
                     ) $collate;
                 ";

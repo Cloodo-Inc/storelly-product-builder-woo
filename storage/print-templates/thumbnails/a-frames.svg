@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="400" height="240" viewBox="0 0 400 240">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#991b1b"/>
+      <stop offset="100%" stop-color="#f87171"/>
+    </linearGradient>
+    <filter id="noise" x="0%" y="0%" width="100%" height="100%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.65" numOctaves="3" stitchTiles="stitch"/>
+      <feColorMatrix type="saturate" values="0"/>
+      <feBlend in="SourceGraphic" mode="overlay" result="blend"/>
+      <feComposite in="blend" in2="SourceGraphic" operator="in"/>
+    </filter>
+  </defs>
+  <!-- Background -->
+  <rect width="400" height="240" fill="url(#bg)"/>
+  <!-- Subtle diagonal lines texture -->
+  <rect width="400" height="240" fill="none" stroke="rgba(255,255,255,0.04)" stroke-width="12"
+        stroke-dasharray="1,18" transform="rotate(-30 200 120)"/>
+  <!-- Icon -->
+  <g transform="translate(200,105)" opacity="0.88">
+    <!-- left leg -->
+    <line x1="-65" y1="68" x2="0" y2="-65" stroke="rgba(255,255,255,0.50)" stroke-width="6" stroke-linecap="round"/>
+    <!-- right leg -->
+    <line x1="65"  y1="68" x2="0" y2="-65" stroke="rgba(255,255,255,0.50)" stroke-width="6" stroke-linecap="round"/>
+    <!-- cross brace -->
+    <line x1="-25" y1="15" x2="25" y2="15" stroke="rgba(255,255,255,0.40)" stroke-width="3" stroke-linecap="round"/>
+    <!-- left sign panel -->
+    <polygon points="-58,58 -5,-55 0,-58 0,18 -55,65" fill="rgba(255,255,255,0.32)"/>
+    <!-- right sign panel -->
+    <polygon points="58,58 5,-55 0,-58 0,18 55,65" fill="rgba(255,255,255,0.22)"/>
+    <!-- text lines on left panel -->
+    <rect x="-42" y="-25" width="35" height="5"  rx="2" fill="rgba(255,255,255,0.65)" transform="rotate(-30 -25 -22)"/>
+    <rect x="-40" y="-10" width="28" height="3"  rx="2" fill="rgba(255,255,255,0.42)" transform="rotate(-30 -26 -8)"/>
+  </g>
+  <!-- Bottom gradient fade for text legibility -->
+  <rect x="0" y="170" width="400" height="70" fill="rgba(0,0,0,0.28)"/>
+  <!-- Label -->
+<text x="200" y="219" font-family="system-ui,-apple-system,sans-serif" font-size="14" font-weight="600" fill="rgba(255,255,255,0.92)" text-anchor="middle" letter-spacing="0.01em">A-Frames / Signicade</text>
+
+</svg>

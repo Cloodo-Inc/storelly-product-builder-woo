@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="400" height="240" viewBox="0 0 400 240">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#4338ca"/>
+      <stop offset="100%" stop-color="#818cf8"/>
+    </linearGradient>
+    <filter id="noise" x="0%" y="0%" width="100%" height="100%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.65" numOctaves="3" stitchTiles="stitch"/>
+      <feColorMatrix type="saturate" values="0"/>
+      <feBlend in="SourceGraphic" mode="overlay" result="blend"/>
+      <feComposite in="blend" in2="SourceGraphic" operator="in"/>
+    </filter>
+  </defs>
+  <!-- Background -->
+  <rect width="400" height="240" fill="url(#bg)"/>
+  <!-- Subtle diagonal lines texture -->
+  <rect width="400" height="240" fill="none" stroke="rgba(255,255,255,0.04)" stroke-width="12"
+        stroke-dasharray="1,18" transform="rotate(-30 200 120)"/>
+  <!-- Icon -->
+  <g transform="translate(200,105)" opacity="0.88">
+    <!-- card stack: 3 overlapping rectangles -->
+    <rect x="-75" y="-38" width="110" height="68" rx="4" fill="rgba(255,255,255,0.18)"/>
+    <rect x="-60" y="-48" width="110" height="68" rx="4" fill="rgba(255,255,255,0.28)"/>
+    <rect x="-45" y="-58" width="110" height="68" rx="4" fill="rgba(255,255,255,0.42)"/>
+    <!-- text lines on top card -->
+    <rect x="-30" y="-45" width="70" height="5" rx="2" fill="rgba(255,255,255,0.75)"/>
+    <rect x="-30" y="-34" width="50" height="4" rx="2" fill="rgba(255,255,255,0.50)"/>
+    <rect x="-30" y="-23" width="40" height="3" rx="2" fill="rgba(255,255,255,0.40)"/>
+    <rect x="-30" y="-13" width="55" height="3" rx="2" fill="rgba(255,255,255,0.40)"/>
+  </g>
+  <!-- Bottom gradient fade for text legibility -->
+  <rect x="0" y="170" width="400" height="70" fill="rgba(0,0,0,0.28)"/>
+  <!-- Label -->
+<text x="200" y="219" font-family="system-ui,-apple-system,sans-serif" font-size="14" font-weight="600" fill="rgba(255,255,255,0.92)" text-anchor="middle" letter-spacing="0.01em">Business Cards</text>
+
+</svg>

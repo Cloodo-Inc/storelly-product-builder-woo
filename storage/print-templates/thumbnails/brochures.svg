@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="400" height="240" viewBox="0 0 400 240">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#92400e"/>
+      <stop offset="100%" stop-color="#d97706"/>
+    </linearGradient>
+    <filter id="noise" x="0%" y="0%" width="100%" height="100%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.65" numOctaves="3" stitchTiles="stitch"/>
+      <feColorMatrix type="saturate" values="0"/>
+      <feBlend in="SourceGraphic" mode="overlay" result="blend"/>
+      <feComposite in="blend" in2="SourceGraphic" operator="in"/>
+    </filter>
+  </defs>
+  <!-- Background -->
+  <rect width="400" height="240" fill="url(#bg)"/>
+  <!-- Subtle diagonal lines texture -->
+  <rect width="400" height="240" fill="none" stroke="rgba(255,255,255,0.04)" stroke-width="12"
+        stroke-dasharray="1,18" transform="rotate(-30 200 120)"/>
+  <!-- Icon -->
+  <g transform="translate(200,105)" opacity="0.88">
+    <!-- tri-fold: three panels side by side -->
+    <rect x="-80" y="-55" width="45" height="105" rx="2" fill="rgba(255,255,255,0.28)"/>
+    <rect x="-30" y="-55" width="45" height="105" rx="2" fill="rgba(255,255,255,0.42)"/>
+    <rect x="20"  y="-55" width="45" height="105" rx="2" fill="rgba(255,255,255,0.55)"/>
+    <!-- fold lines -->
+    <line x1="-30" y1="-55" x2="-30" y2="50" stroke="rgba(255,255,255,0.60)" stroke-width="1"/>
+    <line x1="20"  y1="-55" x2="20"  y2="50" stroke="rgba(255,255,255,0.60)" stroke-width="1"/>
+    <!-- content lines on front panel -->
+    <rect x="28" y="-42" width="30" height="5"  rx="2" fill="rgba(255,255,255,0.75)"/>
+    <rect x="28" y="-30" width="28" height="3"  rx="2" fill="rgba(255,255,255,0.50)"/>
+    <rect x="28" y="-21" width="32" height="3"  rx="2" fill="rgba(255,255,255,0.50)"/>
+    <!-- cover image area on middle panel -->
+    <rect x="-22" y="-42" width="30" height="30" rx="2" fill="rgba(255,255,255,0.25)"/>
+  </g>
+  <!-- Bottom gradient fade for text legibility -->
+  <rect x="0" y="170" width="400" height="70" fill="rgba(0,0,0,0.28)"/>
+  <!-- Label -->
+<text x="200" y="219" font-family="system-ui,-apple-system,sans-serif" font-size="14" font-weight="600" fill="rgba(255,255,255,0.92)" text-anchor="middle" letter-spacing="0.01em">Brochures</text>
+
+</svg>
