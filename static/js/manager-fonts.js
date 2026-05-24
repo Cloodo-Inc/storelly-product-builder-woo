@@ -260,3 +260,317 @@ fontApp.directive("fontOnLoad", [
     };
   },
 ]);
+
+/* ═══════════════════════════════════════════════════════════════
+   Custom Font Upload — jQuery (independent of AngularJS app)
+   ═══════════════════════════════════════════════════════════════ */
+(function ($) {
+  "use strict";
+
+  var vars    = (typeof storelly_manager_fonts_variable !== "undefined") ? storelly_manager_fonts_variable : {};
+  var i18n    = vars.i18n    || {};
+  var ajaxUrl = vars.ajax_url || (typeof ajaxurl !== "undefined" ? ajaxurl : "");
+  var nonce   = vars.upload_nonce || "";
+
+  // Selected file object
+  var selectedFile = null;
+  // Temp font name used for live preview
+  var previewFontName = "__spbwc_preview__";
+
+  /* ── Helpers ── */
+
+  function slugify(str) {
+    return str.replace(/[^a-z0-9]/gi, "-").replace(/-+/g, "-").toLowerCase();
+  }
+
+  function nameFromFile(filename) {
+    var base = filename.replace(/\.[^/.]+$/, "");
+    return base.replace(/[-_]/g, " ").replace(/\b\w/g, function (c) { return c.toUpperCase(); });
+  }
+
+  function buildCard(font) {
+    var cat  = font.category || "sans-serif";
+    var name = font.name     || "";
+    var id   = font.id       || "";
+    var url  = font.url      || "";
+    var fmt  = font.format   || "woff2";
+
+    // Inject @font-face for the new card
+    var styleId = "spbwc-cf-" + slugify(id);
+    if (!$("#" + styleId).length) {
+      $("head").append(
+        '<style id="' + styleId + '">' +
+        "@font-face{font-family:'" + name.replace(/'/g, "\\'") + "';" +
+        "src:url('" + url + "') format('" + fmt + "')}" +
+        "</style>"
+      );
+    }
+
+    return $(
+      '<div class="spbwc-custom-card" data-font-id="' + id + '">' +
+        '<div class="spbwc-custom-card__inner">' +
+          '<p class="spbwc-custom-card__name" title="' + name + '">' + name + "</p>" +
+          '<p class="spbwc-custom-card__sample" style="font-family:\'' + name + "',sans-serif\">Abc Xyz 123</p>" +
+        "</div>" +
+        '<div class="spbwc-custom-card__footer">' +
+          '<span class="spbwc-custom-card__category">' + cat + "</span>" +
+          '<button type="button" class="spbwc-custom-card__delete" data-font-id="' + id + '" aria-label="Delete font">' +
+            '<span class="dashicons dashicons-trash" aria-hidden="true"></span>' +
+          "</button>" +
+        "</div>" +
+      "</div>"
+    );
+  }
+
+  function updateCount() {
+    var count = $("#spbwc-custom-grid .spbwc-custom-card").length;
+    $("#spbwc-custom-count").text(count);
+  }
+
+  function showError(msg) {
+    if (typeof swal === "function") {
+      swal("Error", msg, "error");
+    } else {
+      alert(msg);
+    }
+  }
+
+  function showSuccess(msg) {
+    if (typeof swal === "function") {
+      swal("", msg, "success");
+    } else {
+      alert(msg);
+    }
+  }
+
+  function resetUploadPanel() {
+    selectedFile = null;
+    $("#spbwc-font-file").val("");
+    $("#spbwc-upload-form").attr("hidden", true);
+    $("#spbwc-drop-zone").show();
+    $("#spbwc-upload-progress").attr("hidden", true);
+    $("#spbwc-font-name").val("");
+    $("#spbwc-preview-text").css("font-family", "inherit");
+    $("#spbwc-selected-filename").text("");
+  }
+
+  /* ── Live preview via FontFace API ── */
+
+  function loadPreviewFont(file) {
+    if (!file || typeof FontFace === "undefined") return;
+    var reader = new FileReader();
+    reader.onload = function (e) {
+      try {
+        var face = new FontFace(previewFontName, e.target.result);
+        face.load().then(function (loadedFace) {
+          document.fonts.add(loadedFace);
+          $("#spbwc-preview-text").css("font-family", "'" + previewFontName + "', sans-serif");
+        });
+      } catch (err) { /* silent — preview is non-critical */ }
+    };
+    reader.readAsArrayBuffer(file);
+  }
+
+  /* ── File selection (input OR drop) ── */
+
+  function onFileSelected(file) {
+    if (!file) return;
+
+    // Validate extension client-side
+    var ext = file.name.split(".").pop().toLowerCase();
+    var allowed = ["ttf", "otf", "woff", "woff2"];
+    if (allowed.indexOf(ext) === -1) {
+      showError(i18n.error_filetype || "Invalid file type. Allowed: TTF, OTF, WOFF, WOFF2.");
+      return;
+    }
+
+    selectedFile = file;
+
+    // Auto-fill font name
+    var suggestedName = nameFromFile(file.name);
+    $("#spbwc-font-name").val(suggestedName);
+    $("#spbwc-selected-filename").text(file.name + " (" + (file.size / 1024).toFixed(1) + " KB)");
+
+    // Show step 2 form
+    $("#spbwc-drop-zone").hide();
+    $("#spbwc-upload-form").removeAttr("hidden");
+
+    // Live preview
+    loadPreviewFont(file);
+  }
+
+  /* ── Upload to server ── */
+
+  function doUpload() {
+    if (!selectedFile) return;
+
+    var fontName = $.trim($("#spbwc-font-name").val());
+    if (!fontName) {
+      $("#spbwc-font-name").focus();
+      return;
+    }
+    var category = $("#spbwc-font-category").val();
+
+    var formData = new FormData();
+    formData.append("action",     "spbwc_upload_custom_font");
+    formData.append("nonce",      nonce);
+    formData.append("font_file",  selectedFile);
+    formData.append("font_name",  fontName);
+    formData.append("category",   category);
+
+    // Show progress
+    $("#spbwc-upload-form").attr("hidden", true);
+    $("#spbwc-upload-progress").removeAttr("hidden");
+
+    $.ajax({
+      url:         ajaxUrl,
+      method:      "POST",
+      data:        formData,
+      processData: false,
+      contentType: false,
+    })
+      .done(function (response) {
+        if (response && response.success && response.data && response.data.font) {
+          // Inject card
+          var $grid  = $("#spbwc-custom-grid");
+          var $empty = $grid.find("#spbwc-custom-empty");
+          $empty.remove();
+
+          var $card = buildCard(response.data.font);
+          $grid.append($card);
+          updateCount();
+
+          // Collapse panel + reset
+          $("#spbwc-upload-panel").attr("hidden", true);
+          $("#spbwc-toggle-upload")
+            .find(".dashicons")
+            .removeClass("dashicons-minus")
+            .addClass("dashicons-plus-alt2");
+          resetUploadPanel();
+
+          showSuccess(i18n.upload_success || "Font uploaded successfully!");
+        } else {
+          var msg = (response && response.data && response.data.message)
+            ? response.data.message
+            : (i18n.error_generic || "An error occurred.");
+          showError(msg);
+          // Back to form
+          $("#spbwc-upload-progress").attr("hidden", true);
+          $("#spbwc-upload-form").removeAttr("hidden");
+        }
+      })
+      .fail(function () {
+        showError(i18n.error_generic || "An error occurred. Please try again.");
+        $("#spbwc-upload-progress").attr("hidden", true);
+        $("#spbwc-upload-form").removeAttr("hidden");
+      });
+  }
+
+  /* ── Delete ── */
+
+  function doDelete(fontId, $card) {
+    var confirmed = window.confirm(i18n.delete_confirm || "Delete this font? This cannot be undone.");
+    if (!confirmed) return;
+
+    $.ajax({
+      url:    ajaxUrl,
+      method: "POST",
+      data: {
+        action:  "spbwc_delete_custom_font",
+        nonce:   nonce,
+        font_id: fontId,
+      },
+    })
+      .done(function (response) {
+        if (response && response.success) {
+          $card.remove();
+          updateCount();
+          // Show empty state if no cards left
+          if ($("#spbwc-custom-grid .spbwc-custom-card").length === 0) {
+            $("#spbwc-custom-grid").append(
+              '<div class="spbwc-custom-empty" id="spbwc-custom-empty">' +
+              '<span class="dashicons dashicons-media-default spbwc-custom-empty__icon" aria-hidden="true"></span>' +
+              '<p>No custom fonts yet. Click "Upload Font" to add your first one.</p>' +
+              "</div>"
+            );
+          }
+        } else {
+          var msg = (response && response.data && response.data.message)
+            ? response.data.message
+            : (i18n.error_generic || "An error occurred.");
+          showError(msg);
+        }
+      })
+      .fail(function () {
+        showError(i18n.error_generic || "An error occurred. Please try again.");
+      });
+  }
+
+  /* ── DOM event bindings ── */
+
+  $(function () {
+
+    // Toggle upload panel
+    $("#spbwc-toggle-upload").on("click", function () {
+      var $panel = $("#spbwc-upload-panel");
+      var $icon  = $(this).find(".dashicons");
+      if ($panel.attr("hidden") !== undefined) {
+        $panel.removeAttr("hidden");
+        $icon.removeClass("dashicons-plus-alt2").addClass("dashicons-minus");
+      } else {
+        $panel.attr("hidden", true);
+        $icon.removeClass("dashicons-minus").addClass("dashicons-plus-alt2");
+        resetUploadPanel();
+      }
+    });
+
+    // File input change
+    $("#spbwc-font-file").on("change", function () {
+      var file = this.files && this.files[0];
+      onFileSelected(file);
+    });
+
+    // Drag & drop
+    var $dropZone = $("#spbwc-drop-zone");
+
+    $dropZone.on("dragover dragenter", function (e) {
+      e.preventDefault();
+      e.stopPropagation();
+      $dropZone.addClass("is-dragover");
+    });
+
+    $dropZone.on("dragleave dragend drop", function (e) {
+      e.preventDefault();
+      e.stopPropagation();
+      $dropZone.removeClass("is-dragover");
+    });
+
+    $dropZone.on("drop", function (e) {
+      var dt = e.originalEvent.dataTransfer;
+      var file = dt && dt.files && dt.files[0];
+      onFileSelected(file);
+    });
+
+    // Submit upload
+    $("#spbwc-submit-font").on("click", function () {
+      doUpload();
+    });
+
+    // Cancel upload
+    $("#spbwc-cancel-upload").on("click", function () {
+      resetUploadPanel();
+      $("#spbwc-drop-zone").show();
+      $("#spbwc-upload-form").attr("hidden", true);
+    });
+
+    // Delete font (delegated — cards added dynamically)
+    $("#spbwc-custom-grid").on("click", ".spbwc-custom-card__delete", function (e) {
+      e.stopPropagation();
+      var fontId = $(this).data("font-id");
+      var $card  = $(this).closest(".spbwc-custom-card");
+      doDelete(fontId, $card);
+    });
+
+  });
+
+}(jQuery));

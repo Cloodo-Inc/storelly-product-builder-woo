@@ -1,4 +1,10 @@
-<?php if (!defined('ABSPATH')) exit; // Exit if accessed directly ?>
+<?php if (!defined('ABSPATH')) exit; // Exit if accessed directly
+/**
+ * Font Manager view.
+ * Variables available: $subsets, $current_subset, $custom_fonts
+ */
+$custom_fonts = isset( $custom_fonts ) && is_array( $custom_fonts ) ? $custom_fonts : array();
+?>
 <div class="wrap storelly-container spbwc-fonts-wrap">
 
     <!-- ── Page hero ── -->
@@ -14,7 +20,7 @@
                     <?php esc_html_e( 'Font Manager', 'storelly-product-builder-for-woocommerce' ); ?>
                 </h1>
                 <p class="spbwc-page-hero__subtitle">
-                    <?php esc_html_e( 'Select Google Fonts available in the design editor. Remove unused fonts to keep the editor fast.', 'storelly-product-builder-for-woocommerce' ); ?>
+                    <?php esc_html_e( 'Manage Google Fonts and upload custom font files for the design editor.', 'storelly-product-builder-for-woocommerce' ); ?>
                 </p>
             </div>
             <div class="spbwc-page-hero__actions">
@@ -27,7 +33,156 @@
         </div>
     </header>
 
-    <!-- ── AngularJS app root ── -->
+    <!-- ════════════════════════════════════════════════════
+         Custom Fonts — standalone section (jQuery, no Angular)
+         ════════════════════════════════════════════════════ -->
+    <div class="spbwc-custom-fonts" id="spbwc-custom-fonts-section">
+
+        <!-- Section header -->
+        <div class="spbwc-custom-fonts__header">
+            <div class="spbwc-custom-fonts__title">
+                <span class="dashicons dashicons-media-default" aria-hidden="true"></span>
+                <span><?php esc_html_e( 'Custom Fonts', 'storelly-product-builder-for-woocommerce' ); ?></span>
+                <span class="spbwc-custom-fonts__badge" id="spbwc-custom-count"><?php echo count( $custom_fonts ); ?></span>
+            </div>
+            <button type="button" class="spbwc-cta-btn spbwc-cta-btn--ghost" id="spbwc-toggle-upload">
+                <span class="dashicons dashicons-plus-alt2" aria-hidden="true"></span>
+                <?php esc_html_e( 'Upload Font', 'storelly-product-builder-for-woocommerce' ); ?>
+            </button>
+        </div>
+
+        <!-- Upload panel (hidden by default) -->
+        <div class="spbwc-upload-panel" id="spbwc-upload-panel" hidden>
+
+            <!-- Step 1: Drop zone -->
+            <div class="spbwc-drop-zone" id="spbwc-drop-zone">
+                <span class="dashicons dashicons-upload spbwc-drop-zone__icon" aria-hidden="true"></span>
+                <p class="spbwc-drop-zone__primary">
+                    <?php esc_html_e( 'Drag & drop your font file here', 'storelly-product-builder-for-woocommerce' ); ?>
+                </p>
+                <p class="spbwc-drop-zone__secondary">
+                    <?php esc_html_e( 'or', 'storelly-product-builder-for-woocommerce' ); ?>
+                    <label class="spbwc-drop-zone__browse" for="spbwc-font-file">
+                        <?php esc_html_e( 'browse to upload', 'storelly-product-builder-for-woocommerce' ); ?>
+                    </label>
+                </p>
+                <p class="spbwc-drop-zone__hint">TTF &middot; OTF &middot; WOFF &middot; WOFF2</p>
+                <input type="file" id="spbwc-font-file"
+                       accept=".ttf,.otf,.woff,.woff2"
+                       class="spbwc-file-input"
+                       aria-label="<?php esc_attr_e( 'Select font file', 'storelly-product-builder-for-woocommerce' ); ?>">
+            </div>
+
+            <!-- Step 2: Preview + form (shown after file selected) -->
+            <div class="spbwc-upload-form" id="spbwc-upload-form" hidden>
+                <div class="spbwc-upload-preview">
+                    <p class="spbwc-upload-preview__label"><?php esc_html_e( 'Preview', 'storelly-product-builder-for-woocommerce' ); ?></p>
+                    <p class="spbwc-upload-preview__text" id="spbwc-preview-text">
+                        The quick brown fox jumps over the lazy dog
+                    </p>
+                    <span class="spbwc-upload-preview__file" id="spbwc-selected-filename"></span>
+                </div>
+
+                <div class="spbwc-upload-fields">
+                    <div class="spbwc-upload-field">
+                        <label class="spbwc-upload-field__label" for="spbwc-font-name">
+                            <?php esc_html_e( 'Font name', 'storelly-product-builder-for-woocommerce' ); ?>
+                        </label>
+                        <input type="text" id="spbwc-font-name"
+                               class="spbwc-upload-input"
+                               placeholder="<?php esc_attr_e( 'e.g. My Custom Font', 'storelly-product-builder-for-woocommerce' ); ?>">
+                    </div>
+                    <div class="spbwc-upload-field">
+                        <label class="spbwc-upload-field__label" for="spbwc-font-category">
+                            <?php esc_html_e( 'Category', 'storelly-product-builder-for-woocommerce' ); ?>
+                        </label>
+                        <select id="spbwc-font-category" class="spbwc-font-select">
+                            <option value="sans-serif"><?php esc_html_e( 'Sans Serif', 'storelly-product-builder-for-woocommerce' ); ?></option>
+                            <option value="serif">Serif</option>
+                            <option value="display">Display</option>
+                            <option value="handwriting">Handwriting</option>
+                            <option value="monospace">Monospace</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="spbwc-upload-actions">
+                    <button type="button" class="spbwc-cta-btn spbwc-cta-btn--solid" id="spbwc-submit-font">
+                        <span class="dashicons dashicons-upload" aria-hidden="true"></span>
+                        <?php esc_html_e( 'Upload Font', 'storelly-product-builder-for-woocommerce' ); ?>
+                    </button>
+                    <button type="button" class="spbwc-font-action-btn" id="spbwc-cancel-upload">
+                        <?php esc_html_e( 'Cancel', 'storelly-product-builder-for-woocommerce' ); ?>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Upload progress bar -->
+            <div class="spbwc-upload-progress" id="spbwc-upload-progress" hidden>
+                <div class="spbwc-upload-progress__bar" id="spbwc-upload-progress-bar"></div>
+                <span class="spbwc-upload-progress__label"><?php esc_html_e( 'Uploading…', 'storelly-product-builder-for-woocommerce' ); ?></span>
+            </div>
+        </div><!-- .spbwc-upload-panel -->
+
+        <!-- Custom fonts grid -->
+        <div class="spbwc-custom-grid" id="spbwc-custom-grid">
+
+            <?php if ( empty( $custom_fonts ) ) : ?>
+            <div class="spbwc-custom-empty" id="spbwc-custom-empty">
+                <span class="dashicons dashicons-media-default spbwc-custom-empty__icon" aria-hidden="true"></span>
+                <p><?php esc_html_e( 'No custom fonts yet. Click "Upload Font" to add your first one.', 'storelly-product-builder-for-woocommerce' ); ?></p>
+            </div>
+            <?php else : ?>
+            <?php foreach ( $custom_fonts as $cf ) :
+                if ( empty( $cf['id'] ) || empty( $cf['name'] ) || empty( $cf['url'] ) ) continue;
+                $cf_id  = esc_attr( $cf['id'] );
+                $cf_url = esc_url( $cf['url'] );
+                $cf_fmt = isset( $cf['format'] ) ? esc_attr( $cf['format'] ) : 'woff2';
+                $cf_cat = isset( $cf['category'] ) ? esc_html( $cf['category'] ) : 'sans-serif';
+            ?>
+            <style>
+                @font-face {
+                    font-family: '<?php echo esc_js( $cf['name'] ); ?>';
+                    src: url('<?php echo $cf_url; ?>') format('<?php echo $cf_fmt; ?>');
+                }
+            </style>
+            <div class="spbwc-custom-card" data-font-id="<?php echo $cf_id; ?>">
+                <div class="spbwc-custom-card__inner">
+                    <p class="spbwc-custom-card__name" title="<?php echo esc_attr( $cf['name'] ); ?>">
+                        <?php echo esc_html( $cf['name'] ); ?>
+                    </p>
+                    <p class="spbwc-custom-card__sample"
+                       style="font-family: '<?php echo esc_attr( $cf['name'] ); ?>',sans-serif">
+                        Abc Xyz 123
+                    </p>
+                </div>
+                <div class="spbwc-custom-card__footer">
+                    <span class="spbwc-custom-card__category"><?php echo $cf_cat; ?></span>
+                    <button type="button"
+                            class="spbwc-custom-card__delete"
+                            data-font-id="<?php echo $cf_id; ?>"
+                            aria-label="<?php esc_attr_e( 'Delete font', 'storelly-product-builder-for-woocommerce' ); ?>">
+                        <span class="dashicons dashicons-trash" aria-hidden="true"></span>
+                    </button>
+                </div>
+            </div>
+            <?php endforeach; ?>
+            <?php endif; ?>
+
+        </div><!-- .spbwc-custom-grid -->
+    </div><!-- .spbwc-custom-fonts -->
+
+    <!-- ── Divider between Custom and Google Fonts ── -->
+    <div class="spbwc-section-divider">
+        <span class="spbwc-section-divider__label">
+            <span class="dashicons dashicons-google" aria-hidden="true"></span>
+            <?php esc_html_e( 'Google Fonts', 'storelly-product-builder-for-woocommerce' ); ?>
+        </span>
+    </div>
+
+    <!-- ════════════════════════════════════════════════════
+         Google Fonts — AngularJS app
+         ════════════════════════════════════════════════════ -->
     <div class="spbwc-font-manager" ng-app="font-app" ng-controller="fontCtrl" ng-cloak>
 
         <!-- Loading overlay — JS targets .showbox via jQuery -->

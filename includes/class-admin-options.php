@@ -399,6 +399,7 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
             wp_register_style('spbwc-manager-fonts', SPBWC_PB_CSS_URL . 'manager-fonts.css', array('spbwc-admin-ui', 'spbwc-sweetalert-css'), filemtime( SPBWC_PB_PLUGIN_DIR . 'static/css/manager-fonts.css' ));
             wp_register_style('spbwc-overview-css', SPBWC_PB_CSS_URL . 'overview.css', array('spbwc-admin-ui'), SPBWC_PB_VERSION);
             wp_register_style('spbwc-license-css', SPBWC_PB_CSS_URL . 'license.css', array('spbwc-admin-ui'), SPBWC_PB_VERSION);
+            wp_register_style('spbwc-products-css', SPBWC_PB_CSS_URL . 'products.css', array('spbwc-admin-ui', 'dashicons'), filemtime( SPBWC_PB_PLUGIN_DIR . 'static/css/products.css' ));
 
             // style menu setting
             wp_enqueue_style('spbwc-menu-setting',  SPBWC_PB_CSS_URL . '/menu-setting.css', array('spbwc-admin-ui'), SPBWC_PB_VERSION, 'all');
@@ -414,6 +415,11 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
             // License page styles — match hook by slug suffix (works regardless of parent slug format).
             if ( defined('SPBWC_PB_LICENSE_SLUG') && false !== strpos( $hook, SPBWC_PB_LICENSE_SLUG ) ) {
                 wp_enqueue_style('spbwc-license-css');
+            }
+
+            // Products page styles.
+            if ( defined('SPBWC_PB_PRODUCTS_SLUG') && false !== strpos( $hook, SPBWC_PB_PRODUCTS_SLUG ) ) {
+                wp_enqueue_style('spbwc-products-css');
             }
 
             wp_localize_script('spbwc-general-js', 'storelly_admin', array(
