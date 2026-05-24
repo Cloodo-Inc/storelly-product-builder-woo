@@ -128,7 +128,7 @@ if ( ! in_array($spbwc_settings_tab, $spbwc_valid_tabs, true) ) {
             <!-- ━━━ GENERAL ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ -->
             <div class="spbwc-tab-panel" id="tab-general"<?php echo ($spbwc_settings_tab !== 'general') ? ' style="display:none;"' : ''; ?>>
 
-                <!-- Storelly Integration block -->
+                <!-- Storelly Integration + API Keys — single block -->
                 <div class="spbwc-block" style="margin-bottom:var(--nbd-space-4);">
                     <div class="spbwc-block__head">
                         <h3 class="spbwc-block__title">
@@ -136,6 +136,8 @@ if ( ! in_array($spbwc_settings_tab, $spbwc_valid_tabs, true) ) {
                             <?php esc_html_e('Storelly Integration', 'storelly-product-builder-for-woocommerce'); ?>
                         </h3>
                     </div>
+
+                    <!-- Integration toggles -->
                     <div class="spbwc-setting-rows">
                         <!-- Enable cloud PDF -->
                         <div class="spbwc-setting-row">
@@ -183,15 +185,11 @@ if ( ! in_array($spbwc_settings_tab, $spbwc_valid_tabs, true) ) {
                             <p class="spbwc-setting-row__hint"><?php esc_html_e('Opt-in to sync order data with Storelly Dashboard for centralised print job management. Disabled by default — no data leaves your store until you turn this on.', 'storelly-product-builder-for-woocommerce'); ?></p>
                         </div>
                     </div>
-                </div>
 
-                <!-- API Keys block -->
-                <div class="spbwc-block" style="margin-bottom:var(--nbd-space-4);">
-                    <div class="spbwc-block__head">
-                        <h3 class="spbwc-block__title">
-                            <span class="dashicons dashicons-admin-network" aria-hidden="true"></span>
-                            <?php esc_html_e('API Keys', 'storelly-product-builder-for-woocommerce'); ?>
-                        </h3>
+                    <!-- API Keys sub-section (same block, visual divider) -->
+                    <div class="spbwc-block__sub-head">
+                        <span class="dashicons dashicons-admin-network" aria-hidden="true"></span>
+                        <?php esc_html_e('API Keys', 'storelly-product-builder-for-woocommerce'); ?>
                     </div>
                     <div class="spbwc-block__body">
                         <div class="spbwc-form-row">

@@ -971,6 +971,24 @@
 
 .spbwc-block__foot-meta { font-size: var(--text-sm); color: var(--nbd-st-text-mute); }
 
+/* Sub-section divider inside a block — small uppercase label row */
+.spbwc-block__sub-head {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    padding: var(--nbd-space-2) var(--nbd-space-5);
+    border-top: 1px solid var(--nbd-st-border-subtle);
+    border-bottom: 1px solid var(--nbd-st-border-subtle);
+    background: var(--nbd-st-bg-soft);
+    font-size: var(--text-sm);
+    font-weight: var(--font-semibold);
+    color: var(--nbd-st-text-soft);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.spbwc-block__sub-head .dashicons { font-size: 13px; width: 13px; height: 13px; color: var(--nbd-st-text-mute); }
+
 /* ========================================================== */
 /* List items (inside .spbwc-block__body)                      */
 /* ========================================================== */
