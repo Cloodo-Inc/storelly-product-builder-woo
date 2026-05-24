@@ -1,7 +1,31 @@
-<?php if (!defined('ABSPATH')) exit; // Exit if accessed directly  
-?>
-<h2><?php esc_html_e('Google Fonts', 'storelly-product-builder-for-woocommerce'); ?></h2>
-<div class="wrap storelly-container">
+<?php if (!defined('ABSPATH')) exit; // Exit if accessed directly ?>
+<div class="wrap storelly-container spbwc-fonts-wrap">
+
+    <!-- ── Page hero ── -->
+    <header class="spbwc-page-hero">
+        <div class="spbwc-page-hero__grid">
+            <div class="spbwc-page-hero__body">
+                <div class="spbwc-page-hero__eyebrow">
+                    <span class="dashicons dashicons-admin-plugins" aria-hidden="true"></span>
+                    <?php esc_html_e( 'Storelly Product Builder', 'storelly-product-builder-for-woocommerce' ); ?>
+                </div>
+                <h1 class="spbwc-page-hero__title">
+                    <span class="dashicons dashicons-editor-textcolor" aria-hidden="true"></span>
+                    <?php esc_html_e( 'Font Manager', 'storelly-product-builder-for-woocommerce' ); ?>
+                </h1>
+                <p class="spbwc-page-hero__subtitle">
+                    <?php esc_html_e( 'Select Google Fonts available in the design editor. Remove unused fonts to keep the editor fast.', 'storelly-product-builder-for-woocommerce' ); ?>
+                </p>
+            </div>
+            <div class="spbwc-page-hero__actions">
+                <a href="https://fonts.google.com" target="_blank" rel="noopener noreferrer"
+                   class="spbwc-cta-btn spbwc-cta-btn--ghost">
+                    <span class="dashicons dashicons-external" aria-hidden="true"></span>
+                    <?php esc_html_e( 'Google Fonts', 'storelly-product-builder-for-woocommerce' ); ?>
+                </a>
+            </div>
+        </div>
+    </header>
     <div class="postbox" ng-app="font-app" ng-controller="fontCtrl" ng-cloak>
         <div class="inside">
             <div class="showbox" style="display: none;">
@@ -71,4 +95,5 @@
             <div class="gg-font-pagination" font-pagination data-filter-font="filterFont" data-total="fonts.length"></div>
         </div>
     </div>
-</div>
+</div><!-- .postbox -->
+</div><!-- .spbwc-fonts-wrap -->

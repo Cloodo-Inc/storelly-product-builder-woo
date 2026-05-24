@@ -24,10 +24,13 @@ if (!class_exists('SPBWC_Global_Import_Admin')) {
             if (strpos($hook, $global_import_page_needle) === false) {
                 return;
             }
+            wp_register_style('spbwc-tokens', SPBWC_PB_CSS_URL . '_tokens.css', array(), SPBWC_PB_VERSION);
+            // Register shared admin UI in case this page loads without the main enqueue hook.
+            wp_register_style('spbwc-admin-ui', SPBWC_PB_CSS_URL . 'storelly-admin-ui.css', array('spbwc-tokens', 'dashicons'), SPBWC_PB_VERSION);
             wp_enqueue_style(
                 'spbwc-global-import-admin',
                 SPBWC_PB_CSS_URL . 'global-import-app.css',
-                array(),
+                array('spbwc-admin-ui'),
                 SPBWC_PB_VERSION
             );
             wp_enqueue_script(
@@ -70,9 +73,35 @@ if (!class_exists('SPBWC_Global_Import_Admin')) {
         }
         
         public function render_global_import_page() {
-            echo '<div class="wrap spbwc-global-import-wrap">';
-            echo '<div id="spbwc-global-import-app"></div>';
-            echo '</div>';
+            ?>
+            <div class="wrap spbwc-global-import-wrap">
+                <header class="spbwc-page-hero">
+                    <div class="spbwc-page-hero__grid">
+                        <div class="spbwc-page-hero__body">
+                            <div class="spbwc-page-hero__eyebrow">
+                                <span class="dashicons dashicons-admin-plugins" aria-hidden="true"></span>
+                                <?php esc_html_e( 'Storelly Product Builder', 'storelly-product-builder-for-woocommerce' ); ?>
+                            </div>
+                            <h1 class="spbwc-page-hero__title">
+                                <span class="dashicons dashicons-upload" aria-hidden="true"></span>
+                                <?php esc_html_e( 'Global Import', 'storelly-product-builder-for-woocommerce' ); ?>
+                            </h1>
+                            <p class="spbwc-page-hero__subtitle">
+                                <?php esc_html_e( 'Bulk-import product configurations, upload design files and export sessions for migration or backup.', 'storelly-product-builder-for-woocommerce' ); ?>
+                            </p>
+                        </div>
+                        <div class="spbwc-page-hero__actions">
+                            <a href="https://storelly.com/docs/import" target="_blank" rel="noopener noreferrer"
+                               class="spbwc-cta-btn spbwc-cta-btn--ghost">
+                                <span class="dashicons dashicons-book-alt" aria-hidden="true"></span>
+                                <?php esc_html_e( 'Import Guide', 'storelly-product-builder-for-woocommerce' ); ?>
+                            </a>
+                        </div>
+                    </div>
+                </header>
+                <div id="spbwc-global-import-app"></div>
+            </div>
+            <?php
         }
     }
 }

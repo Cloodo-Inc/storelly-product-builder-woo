@@ -18,13 +18,29 @@ if ( ! defined( 'ABSPATH' ) ) {
 $catalog = SPBWC_Template_Catalog::instance();
 ?>
 <div class="wrap spbwc-template-library">
-	<header class="spbwc-tl-page-header">
-		<h1 class="wp-heading-inline">
-			<?php esc_html_e( 'Template Library', 'storelly-product-builder-for-woocommerce' ); ?>
-		</h1>
-		<p class="spbwc-tl-subtitle">
-			<?php esc_html_e( 'Pick a pre-built printing option, apply it to your products or categories, then customize freely. Global templates here stay read-only — your applied copy is yours to edit.', 'storelly-product-builder-for-woocommerce' ); ?>
-		</p>
+	<header class="spbwc-page-hero">
+		<div class="spbwc-page-hero__grid">
+			<div class="spbwc-page-hero__body">
+				<div class="spbwc-page-hero__eyebrow">
+					<span class="dashicons dashicons-admin-plugins" aria-hidden="true"></span>
+					<?php esc_html_e( 'Storelly Product Builder', 'storelly-product-builder-for-woocommerce' ); ?>
+				</div>
+				<h1 class="spbwc-page-hero__title">
+					<span class="dashicons dashicons-layout" aria-hidden="true"></span>
+					<?php esc_html_e( 'Template Library', 'storelly-product-builder-for-woocommerce' ); ?>
+				</h1>
+				<p class="spbwc-page-hero__subtitle">
+					<?php esc_html_e( 'Pick a pre-built printing option, apply it to your products or categories, then customize freely. Global templates stay read-only — your applied copy is yours to edit.', 'storelly-product-builder-for-woocommerce' ); ?>
+				</p>
+			</div>
+			<div class="spbwc-page-hero__actions">
+				<a href="https://storelly.com/docs/templates" target="_blank" rel="noopener noreferrer"
+				   class="spbwc-cta-btn spbwc-cta-btn--ghost">
+					<span class="dashicons dashicons-book-alt" aria-hidden="true"></span>
+					<?php esc_html_e( 'Template Docs', 'storelly-product-builder-for-woocommerce' ); ?>
+				</a>
+			</div>
+		</div>
 	</header>
 
 	<?php if ( empty( $templates ) ) : ?>

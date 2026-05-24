@@ -1,0 +1,195 @@
+/**
+ * Storelly Product Builder — Design Tokens (Admin)
+ *
+ * Source of truth for color, spacing, typography, radius, shadow values
+ * used across the WP admin surface of the plugin.
+ *
+ * Specification: claude-storelly/storelly-product-builder-woo-design-tokens.md
+ *
+ * Naming:
+ *   --st-*        Storelly-owned brand surfaces (CTAs, hero, dropzone active state)
+ *   --nbd-st-*    Semantic / WP-blending surfaces (chrome, text, borders, bg)
+ *   --gi-*        Legacy aliases for global-import-app.css backward compat
+ *
+ * Load order: enqueue this file BEFORE any other Storelly admin stylesheet
+ * so var() references resolve. Frontend tokens (Part 2/3 of the spec) are
+ * not included here — they live in a separate frontend tokens file (TBD).
+ */
+
+:root {
+    /* === Storelly brand (primary) ============================== */
+    /* Corporate blue — modern enterprise SaaS feel (Stripe / Linear */
+    /* / IBM Carbon / Vercel territory). Slightly deeper than WP    */
+    /* admin blue (#2271b1) to differentiate Storelly chrome from   */
+    /* WP host chrome.                                              */
+    /*                                                              */
+    /* WCAG AA contrast on white: 5.7:1 — safe for body + UI text.  */
+    --st-brand:               #1d4ed8;
+    --st-brand-pressed:       #1e40af;
+    --st-brand-soft:          #dbeafe;
+    --st-brand-tint:          #eff6ff;   /* even softer — for hero bg */
+    --st-brand-gradient:      linear-gradient(135deg, #1d4ed8 0%, #1e40af 100%);
+
+    /* === Secondary / legacy slate ============================== */
+    --st-secondary:           #404762;
+    --st-secondary-soft:      #eef0f5;
+
+    /* === Accent (amber — Pro / AI emphasis) ==================== */
+    --st-accent:              #f59e0b;
+    --st-accent-soft:         #fef3c7;
+    --st-accent-pressed:      #d97706;
+
+    /* === Premium / royal gold ================================== */
+    /* For paid license badge, premium plan hero, luxury surfaces. */
+    /* Inspired by AmEx Gold / classic royal heraldry — warm,      */
+    /* deep, NOT cartoon-yellow.                                    */
+    --st-gold:                #B8860B;   /* DarkGoldenrod — base royal gold */
+    --st-gold-pressed:        #7C5A0A;
+    --st-gold-soft:           #f4e8c4;
+    --st-gold-dark:           #5D4709;   /* deepest stop for gradients */
+    --st-gold-gradient:       linear-gradient(135deg, #C9A227 0%, #8B6914 55%, #5D4709 100%);
+    --st-gold-text-on:        #2d1f00;   /* very dark brown — text on gold bg */
+
+    /* === WooCommerce blend (only inside WC-native screens) ===== */
+    --st-wc-purple:           #7f54b3;
+    --st-wc-purple-soft:      #f4eef9;
+
+    /* === WP-native chrome (primary blue) ======================= */
+    --nbd-st-primary:         #2271b1;
+    --nbd-st-primary-pressed: #135e96;
+    --nbd-st-primary-soft:    #e6f0f7;
+
+    --wp-topbar-bg:           #1d2327;
+    --wp-topbar-text:         #f0f0f1;
+    --wp-sidebar-bg:          #1d2327;
+    --wp-sidebar-active:      #2271b1;
+    --wp-sidebar-hover:       #2c3338;
+
+    /* === Semantic ============================================== */
+    --nbd-color-success:      #16a34a;
+    --nbd-color-warning:      #f59e0b;
+    --nbd-color-danger:       #dc2626;
+    --nbd-color-info:         #2271b1;
+
+    /* === Backgrounds =========================================== */
+    --nbd-st-bg:              #ffffff;
+    --nbd-st-bg-soft:         #f6f7f7;
+    --nbd-st-bg-canvas:       #f0f0f1;
+    --nbd-st-bg-input:        #ffffff;
+    --nbd-st-bg-brand:        #f8fafc;
+
+    /* === Text ================================================== */
+    --nbd-st-text:            #1d2327;
+    --nbd-st-text-soft:       #50575e;
+    --nbd-st-text-mute:       #8c8f94;
+    --nbd-st-text-inverse:    #ffffff;
+    --nbd-st-text-brand:      #1e40af;
+
+    /* === Borders =============================================== */
+    --nbd-st-border:          #c3c4c7;
+    --nbd-st-border-light:    #dcdcde;
+    --nbd-st-border-subtle:   #f0f0f1;
+    --nbd-st-border-brand:    #bfdbfe;
+
+    /* === Status pill palette =================================== */
+    --st-pill-active-bg:      #dcfce7;
+    --st-pill-active-text:    #14532d;
+    --st-pill-pending-bg:     #fef3c7;
+    --st-pill-pending-text:   #92400e;
+    --st-pill-warning-bg:     #fed7aa;
+    --st-pill-warning-text:   #9a3412;
+    --st-pill-danger-bg:      #fee2e2;
+    --st-pill-danger-text:    #991b1b;
+    --st-pill-draft-bg:       #f3f4f6;
+    --st-pill-draft-text:     #4b5563;
+    --st-pill-featured-bg:    #dbeafe;
+    --st-pill-featured-text:  #1e40af;
+
+    /* === Spacing scale ========================================= */
+    --nbd-space-1:            4px;
+    --nbd-space-2:            8px;
+    --nbd-space-3:            12px;
+    --nbd-space-4:            16px;
+    --nbd-space-5:            20px;
+    --nbd-space-6:            24px;
+    --nbd-space-8:            32px;
+    --nbd-space-10:           40px;
+
+    /* === Layout dimensions ===================================== */
+    --wp-topbar-height:       32px;
+    --wp-sidebar-width:       160px;
+    --wp-content-padding:     24px;
+    --st-canvas-toolbar-h:    48px;
+    --st-canvas-rail-w:       280px;
+
+    /* === Border radius ========================================= */
+    --nbd-radius-sm:          4px;
+    --nbd-radius:             6px;
+    --nbd-radius-md:          8px;
+    --nbd-radius-lg:          12px;
+    --nbd-radius-xl:          16px;
+    --nbd-radius-pill:        9999px;
+
+    /* === Typography ============================================ */
+    --st-font-sans:           -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+                              Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+
+    --text-xs:                10px;
+    --text-sm:                11px;
+    --text-base:              12px;
+    --text-md:                13px;
+    --text-lg:                14px;
+    --text-xl:                16px;
+    --text-2xl:               18px;
+    --text-3xl:               20px;
+    --text-4xl:               24px;
+    --text-5xl:               28px;
+    --text-6xl:               36px;
+
+    --font-normal:            400;
+    --font-medium:            500;
+    --font-semibold:          600;
+    --font-bold:              700;
+    --font-extrabold:         800;
+
+    /* === Shadows =============================================== */
+    /* Single-layer (legacy, kept for compat) */
+    --shadow-sm:              0 1px 2px rgba(0, 0, 0, 0.04);
+    --shadow:                 0 2px 8px rgba(0, 0, 0, 0.06);
+    --shadow-md:              0 4px 12px rgba(0, 0, 0, 0.08);
+    --shadow-lg:              0 8px 24px rgba(0, 0, 0, 0.12);
+    --shadow-xl:              0 12px 32px rgba(0, 0, 0, 0.14);
+    --shadow-gi:              0 6px 20px rgba(15, 23, 42, 0.08);
+
+    /* Multi-layer (corporate / professional — Stripe/Linear-style) */
+    --shadow-card:            0 1px 2px rgba(16, 24, 40, 0.04),
+                              0 6px 16px rgba(16, 24, 40, 0.06);
+    --shadow-card-hover:      0 2px 4px rgba(16, 24, 40, 0.05),
+                              0 12px 28px rgba(16, 24, 40, 0.10);
+    --shadow-hero:            0 4px 8px rgba(16, 24, 40, 0.04),
+                              0 16px 40px rgba(29, 78, 216, 0.18);
+
+    /* Inset shadows for form fields (Printcart pattern — sunken feel) */
+    --shadow-input-inset:     inset 0 1px 2px rgba(16, 24, 40, 0.07);
+    --shadow-input-inset-md:  inset 0 2px 4px rgba(16, 24, 40, 0.08);
+    --shadow-input-focus:     inset 0 1px 2px rgba(16, 24, 40, 0.04),
+                              0 0 0 3px var(--st-brand-soft);
+
+    /* === Transitions =========================================== */
+    --transition-fast:        all 0.15s ease;
+    --transition-card:        box-shadow 0.18s, border-color 0.18s, transform 0.18s;
+    --transition-modal:       opacity 0.2s, transform 0.2s;
+
+    /* === Legacy --gi-* aliases ================================= */
+    /* Backward-compat for global-import-app.css and any other     */
+    /* file still referencing the original --gi-* variable names.  */
+    --gi-primary:             var(--st-brand);
+    --gi-primary-dark:        var(--st-brand-pressed);
+    --gi-bg:                  var(--nbd-st-bg-brand);
+    --gi-text:                #0f172a;
+    --gi-muted:               var(--nbd-st-text-soft);
+    --gi-border:              var(--nbd-st-border-light);
+    --gi-shadow:              var(--shadow-gi);
+    --gi-radius:              var(--nbd-radius-lg);
+    --gi-gap:                 var(--nbd-space-4);
+}

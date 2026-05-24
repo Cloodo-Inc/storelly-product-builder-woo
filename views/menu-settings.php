@@ -59,6 +59,33 @@ if ( ! in_array($spbwc_settings_tab, $spbwc_valid_tabs, true) ) {
 ?>
 
 <div class="spbwc-settings-wrap">
+
+    <!-- ── Page hero ── -->
+    <header class="spbwc-page-hero">
+        <div class="spbwc-page-hero__grid">
+            <div class="spbwc-page-hero__body">
+                <div class="spbwc-page-hero__eyebrow">
+                    <span class="dashicons dashicons-admin-plugins" aria-hidden="true"></span>
+                    <?php esc_html_e( 'Storelly Product Builder', 'storelly-product-builder-for-woocommerce' ); ?>
+                </div>
+                <h1 class="spbwc-page-hero__title">
+                    <span class="dashicons dashicons-admin-settings" aria-hidden="true"></span>
+                    <?php esc_html_e( 'Settings', 'storelly-product-builder-for-woocommerce' ); ?>
+                </h1>
+                <p class="spbwc-page-hero__subtitle">
+                    <?php esc_html_e( 'Configure display, pricing, cart and API integration settings for Storelly Product Builder.', 'storelly-product-builder-for-woocommerce' ); ?>
+                </p>
+            </div>
+            <div class="spbwc-page-hero__actions">
+                <a href="https://storelly.com/docs" target="_blank" rel="noopener noreferrer"
+                   class="spbwc-cta-btn spbwc-cta-btn--ghost">
+                    <span class="dashicons dashicons-book-alt" aria-hidden="true"></span>
+                    <?php esc_html_e( 'Documentation', 'storelly-product-builder-for-woocommerce' ); ?>
+                </a>
+            </div>
+        </div>
+    </header>
+
     <?php if ($message && $status) : ?>
     <div id="message" class="notice notice-<?php echo esc_attr($status === 'updated' ? 'success' : 'error'); ?> is-dismissible"><p><strong><?php echo esc_html($message); ?></strong></p></div>
     <?php endif; ?>

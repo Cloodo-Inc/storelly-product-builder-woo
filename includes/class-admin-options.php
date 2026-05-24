@@ -344,21 +344,21 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
             require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
             if (SPBWC_PB_VERSION != get_option("spbwc_version_plugin")) {
                 $tables =  "
-                    CREATE TABLE {$wpdb->prefix}storelly_product_builder_options ( 
+                    CREATE TABLE {$wpdb->prefix}storelly_product_builder_options (
                     id bigint(20) unsigned NOT NULL auto_increment,
                     title text NOT NULL,
                     published  TINYINT(1) NOT NULL default 1,
-                    product_ids text NULL, 
+                    product_ids text NULL,
                     apply_for varchar(10) NOT NULL default 'p',
                     product_cats text NULL,
                     created datetime NOT NULL default '0000-00-00 00:00:00',
-                    modified datetime NOT NULL default '0000-00-00 00:00:00', 
-                    created_by BIGINT(20) NULL, 
-                    modified_by BIGINT(20) NULL,  
+                    modified datetime NOT NULL default '0000-00-00 00:00:00',
+                    created_by BIGINT(20) NULL,
+                    modified_by BIGINT(20) NULL,
                     fields longtext,
                     builder text NULL,
                     PRIMARY KEY  (id)
-                    ) $collate; 
+                    ) $collate;
                 ";
                 @dbDelta($tables);
             }
@@ -371,13 +371,37 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
             wp_register_script('spbwc-sweetalert-js', SPBWC_PB_ASSETS_URL . 'libs/sweetalert.min.js', array(), '5.6.10', true);
             wp_register_script('spbwc-general-js', SPBWC_PB_ASSETS_URL . 'js/storelly-general.js', array('jquery'), SPBWC_PB_VERSION, true);
 
-            wp_register_style('spbwc-options-style', SPBWC_PB_CSS_URL . 'admin-options.css', array('wp-color-picker', 'wp-jquery-ui-dialog'), SPBWC_PB_VERSION);
-            wp_register_style('spbwc-general-css', SPBWC_PB_CSS_URL . 'storelly-general.css', array('dashicons'), SPBWC_PB_VERSION);
+            // Design tokens — must load before any other Storelly admin
+            // stylesheet so var(--st-*, --nbd-st-*, --gi-*) resolves.
+            wp_register_style('spbwc-tokens', SPBWC_PB_CSS_URL . '_tokens.css', array(), SPBWC_PB_VERSION);
+
+            // Shared Admin UI component library — loads on every Storelly page.
+            // Contains: .spbwc-page-hero, .spbwc-block, .spbwc-cta-btn, .spbwc-input,
+            // .spbwc-license-hero, .spbwc-list, .spbwc-empty-state, etc.
+            wp_register_style('spbwc-admin-ui', SPBWC_PB_CSS_URL . 'storelly-admin-ui.css', array('spbwc-tokens', 'dashicons'), SPBWC_PB_VERSION);
+
+            wp_register_style('spbwc-options-style', SPBWC_PB_CSS_URL . 'admin-options.css', array('spbwc-admin-ui', 'wp-color-picker', 'wp-jquery-ui-dialog'), SPBWC_PB_VERSION);
+            wp_register_style('spbwc-general-css', SPBWC_PB_CSS_URL . 'storelly-general.css', array('spbwc-admin-ui'), SPBWC_PB_VERSION);
             wp_register_style('spbwc-sweetalert-css', SPBWC_PB_CSS_URL . 'sweetalert.css', array(), '5.6.10');
-            wp_register_style('spbwc-manager-fonts', SPBWC_PB_CSS_URL . 'manager-fonts.css', array('spbwc-sweetalert-css'), SPBWC_PB_VERSION);
+            wp_register_style('spbwc-manager-fonts', SPBWC_PB_CSS_URL . 'manager-fonts.css', array('spbwc-admin-ui', 'spbwc-sweetalert-css'), SPBWC_PB_VERSION);
+            wp_register_style('spbwc-overview-css', SPBWC_PB_CSS_URL . 'overview.css', array('spbwc-admin-ui'), SPBWC_PB_VERSION);
+            wp_register_style('spbwc-license-css', SPBWC_PB_CSS_URL . 'license.css', array('spbwc-admin-ui'), SPBWC_PB_VERSION);
 
             // style menu setting
-            wp_enqueue_style('spbwc-menu-setting',  SPBWC_PB_CSS_URL . '/menu-setting.css', array(), SPBWC_PB_VERSION, 'all');
+            wp_enqueue_style('spbwc-menu-setting',  SPBWC_PB_CSS_URL . '/menu-setting.css', array('spbwc-admin-ui'), SPBWC_PB_VERSION, 'all');
+
+            // Shared Admin UI — enqueue on every Storelly admin page.
+            wp_enqueue_style('spbwc-admin-ui');
+
+            // Overview page styles — only on the top-level Overview page.
+            if ( $hook === 'toplevel_page_' . SPBWC_PB_OVERVIEW_SLUG ) {
+                wp_enqueue_style('spbwc-overview-css');
+            }
+
+            // License page styles — match hook by slug suffix (works regardless of parent slug format).
+            if ( defined('SPBWC_PB_LICENSE_SLUG') && false !== strpos( $hook, SPBWC_PB_LICENSE_SLUG ) ) {
+                wp_enqueue_style('spbwc-license-css');
+            }
 
             wp_localize_script('spbwc-general-js', 'storelly_admin', array(
                 'url'       => admin_url('admin-ajax.php'),

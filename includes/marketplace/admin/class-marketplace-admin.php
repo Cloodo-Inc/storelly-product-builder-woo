@@ -56,10 +56,13 @@ if ( ! class_exists( 'SPBWC_Marketplace_Admin' ) ) {
                 return;
             }
             wp_enqueue_media();
+            wp_register_style( 'spbwc-tokens', SPBWC_PB_CSS_URL . '_tokens.css', array(), SPBWC_PB_VERSION );
+            // Register shared admin UI in case this loads without the main enqueue hook.
+            wp_register_style( 'spbwc-admin-ui', SPBWC_PB_CSS_URL . 'storelly-admin-ui.css', array( 'spbwc-tokens', 'dashicons' ), SPBWC_PB_VERSION );
             wp_enqueue_style(
                 'spbwc-marketplace-admin',
                 SPBWC_PB_CSS_URL . 'marketplace-admin.css',
-                array(),
+                array( 'spbwc-admin-ui' ),
                 SPBWC_PB_VERSION
             );
             wp_register_script(

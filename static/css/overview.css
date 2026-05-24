@@ -1,0 +1,69 @@
+/**
+ * Storelly — Overview page — page-specific overrides
+ *
+ * Shared components (.spbwc-page-hero, .spbwc-block, .spbwc-cta-btn etc.)
+ * are defined in storelly-admin-ui.css which loads first.
+ *
+ * This file only adds the overview wrapper + scoped input rules.
+ */
+
+/* === Page wrap ============================================ */
+.spbwc-overview-wrap {
+    max-width: 1280px;
+    font-family: var(--st-font-sans);
+    color: var(--nbd-st-text);
+}
+
+/* === Scoped form-field inset-shadow (overview content area) = */
+/* These mirror .spbwc-input but apply to native WP inputs       */
+/* inside the overview wrap, without touching global WP UI.      */
+.spbwc-overview-wrap input[type="text"],
+.spbwc-overview-wrap input[type="email"],
+.spbwc-overview-wrap input[type="url"],
+.spbwc-overview-wrap input[type="number"],
+.spbwc-overview-wrap input[type="search"],
+.spbwc-overview-wrap input[type="password"],
+.spbwc-overview-wrap select,
+.spbwc-overview-wrap textarea {
+    width: 100%;
+    padding: 9px 12px;
+    background: var(--nbd-st-bg-input);
+    border: 1px solid var(--nbd-st-border);
+    border-radius: var(--nbd-radius);
+    font-size: var(--text-md);
+    color: var(--nbd-st-text);
+    line-height: 1.4;
+    box-shadow: var(--shadow-input-inset);
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.spbwc-overview-wrap input[type="text"]:hover,
+.spbwc-overview-wrap input[type="email"]:hover,
+.spbwc-overview-wrap input[type="url"]:hover,
+.spbwc-overview-wrap input[type="number"]:hover,
+.spbwc-overview-wrap input[type="search"]:hover,
+.spbwc-overview-wrap input[type="password"]:hover,
+.spbwc-overview-wrap select:hover,
+.spbwc-overview-wrap textarea:hover {
+    border-color: var(--st-brand-soft);
+}
+
+.spbwc-overview-wrap input[type="text"]:focus,
+.spbwc-overview-wrap input[type="email"]:focus,
+.spbwc-overview-wrap input[type="url"]:focus,
+.spbwc-overview-wrap input[type="number"]:focus,
+.spbwc-overview-wrap input[type="search"]:focus,
+.spbwc-overview-wrap input[type="password"]:focus,
+.spbwc-overview-wrap select:focus,
+.spbwc-overview-wrap textarea:focus {
+    outline: none;
+    border-color: var(--st-brand);
+    box-shadow: var(--shadow-input-focus);
+}
+
+/* Legacy keyframe alias — kept so any existing JS/CSS that      */
+/* references spbwc-overview-spin still works.                   */
+@keyframes spbwc-overview-spin {
+    from { transform: rotate(0deg); }
+    to   { transform: rotate(360deg); }
+}
