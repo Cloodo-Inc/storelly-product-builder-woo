@@ -254,7 +254,8 @@
 		html += '<div class="po-section__label"><span>' + esc(f.title || '(untitled)') + '</span>';
 		if (f.required) html += '<span class="po-section__required">*</span>';
 		html += '</div>';
-		var chosen = pickChosen(f);
+		// Don't show chosen-value badge for free-text / upload input fields.
+		var chosen = (f.data_type !== 'i') ? pickChosen(f) : '';
 		if (chosen) html += '<div class="po-section__chosen"><strong>' + esc(chosen) + '</strong></div>';
 		html += '</div>';
 
@@ -334,12 +335,17 @@
 		if (!f.attributes || !f.attributes.length) {
 			return '<div class="po-section__desc">No options configured.</div>';
 		}
-		var html = '<div class="po-select"><select class="po-select__input" disabled>';
-		f.attributes.forEach(function (a) {
-			var pricePart = !priceIsFree(a.price) ? ' (' + formatPrice(a.price, f.price_type) + ')' : '';
-			html += '<option' + (a.selected ? ' selected' : '') + '>' + esc((a.name || '—') + pricePart) + '</option>';
-		});
-		html += '</select></div>';
+		// Use a fake-select div — native <select disabled> is overridden by WP admin
+		// CSS which injects a repeating background-image arrow, causing visual glitches.
+		var sel  = f.attributes.find(function (a) { return a.selected; }) || f.attributes[0];
+		var label = sel ? sel.name || '—' : '—';
+		var price = sel && !priceIsFree(sel.price) ? ' · ' + formatPrice(sel.price, f.price_type) : '';
+		var html = '<div class="po-select">';
+		html += '<div class="po-select__display">';
+		html += '<span class="po-select__text">' + esc(label + price) + '</span>';
+		html += '<span class="po-select__chevron">▾</span>';
+		html += '</div>';
+		html += '</div>';
 		return html;
 	}
 
