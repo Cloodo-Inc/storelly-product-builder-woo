@@ -76,6 +76,14 @@
 			closeDialog($previewDialog);
 		});
 
+		// Viewport switcher inside live panel (delegated — content replaced on each open).
+		$('#spbwc-tl-preview-live').on('click', '.preview-segment__btn[data-pv]', function () {
+			var vp = $(this).data('pv');
+			$(this).siblings('.preview-segment__btn').removeClass('preview-segment__btn--active');
+			$(this).addClass('preview-segment__btn--active');
+			$(this).closest('.std-classic-wrap').find('.viewport-frame').attr('data-viewport', vp);
+		});
+
 		// "Apply this template" CTA from preview footer.
 		$('#spbwc-tl-preview-apply-cta').on('click', function () {
 			if (!currentTemplate) return;
@@ -131,47 +139,120 @@
 	}
 
 	function renderPreviewLive(data) {
-		var render = data.render || {};
-		var fields = render.fields || [];
+		var render  = data.render || {};
+		var fields  = render.fields || [];
+		var meta    = data.meta || {};
+		var name    = meta.name || (currentTemplate && currentTemplate.name) || '';
+		var cat     = (meta.category || '').replace(/_/g, ' ');
+		var catLabel = cat.charAt(0).toUpperCase() + cat.slice(1);
+		var desc    = meta.description || '';
 
-		// Render only the pricing-option fields — no fake product-page chrome
-		// (no gallery, breadcrumb, product title or h1).  The admin is previewing
-		// the option widget itself, not a product page.
-		var html = '<div class="spb-classic">';
+		// Gallery gradient per category.
+		var gradients = {
+			stationery:   'linear-gradient(135deg,#6366f1 0%,#4f46e5 100%)',
+			marketing:    'linear-gradient(135deg,#f59e0b 0%,#d97706 100%)',
+			large_format: 'linear-gradient(135deg,#10b981 0%,#059669 100%)',
+			promotional:  'linear-gradient(135deg,#ec4899 0%,#be185d 100%)',
+			signage:      'linear-gradient(135deg,#ef4444 0%,#b91c1c 100%)',
+			envelopes:    'linear-gradient(135deg,#78716c 0%,#57534e 100%)'
+		};
+		var galleryBg = gradients[meta.category] || 'linear-gradient(135deg,#3b82f6 0%,#2563eb 100%)';
 
-		// Estimated starting price (optional — only when attributes have prices).
 		var sample = sampleTotal(fields);
+
+		var html = '<div class="std-classic-wrap">';
+
+		// ── Preview shell ──────────────────────────────────────────────
+		html += '<div class="preview-shell">';
+		html += '<div class="preview-shell__inner">';
+		html += '<div class="preview-shell__title">📐 Customer View — Template Preview</div>';
+		html += '<div class="preview-segment" role="group" aria-label="Viewport">';
+		html += '<button class="preview-segment__btn preview-segment__btn--active" data-pv="desktop">🖥 Desktop</button>';
+		html += '<button class="preview-segment__btn" data-pv="tablet">⊞ Tablet</button>';
+		html += '<button class="preview-segment__btn" data-pv="mobile">📱 Mobile</button>';
+		html += '</div>';
+		html += '</div></div>';
+
+		// ── Viewport frame ─────────────────────────────────────────────
+		html += '<div class="viewport-frame" data-viewport="desktop">';
+
+		// Breadcrumb
+		html += '<div class="breadcrumb">';
+		html += 'Home › <span>' + esc(catLabel || 'Products') + '</span> › <strong>' + esc(name) + '</strong>';
+		html += '</div>';
+
+		// Product detail grid
+		html += '<div class="product-detail">';
+
+		// ── Gallery (left) ─────────────────────────────────────────────
+		html += '<section class="gallery">';
+		html += '<div class="gallery__main">';
+		html += '<span class="gallery__badge">★ Preview</span>';
+		html += '<div class="gallery__product" style="background:' + galleryBg + '">';
+		html += '<div class="gallery__product-text">';
+		html += '<strong>' + esc(name) + '</strong><span>Template Preview</span>';
+		html += '</div></div></div>';
+		html += '<div class="gallery__thumbs">';
+		html += '<button class="gallery__thumb gallery__thumb--active">Front</button>';
+		html += '<button class="gallery__thumb">Back</button>';
+		html += '<button class="gallery__thumb">Detail</button>';
+		html += '</div>';
+		html += '</section>';
+
+		// ── Product info (right) ───────────────────────────────────────
+		html += '<section class="product-info">';
+		if (catLabel) {
+			html += '<div class="product-info__category">' + esc(catLabel) + '</div>';
+		}
+		html += '<h1 class="product-info__title">' + esc(name) + '</h1>';
+		html += '<div class="product-info__rating">';
+		html += '<span class="product-info__stars">★★★★★</span>';
+		html += '<span><strong>5.0</strong></span><span>· Template preview</span>';
+		html += '</div>';
+
 		if (sample.value) {
-			html += '<div class="spb-classic__price-wrap">';
-			html += '<div class="spb-classic__price-label">Estimated starting price</div>';
-			html += '<div class="spb-classic__price-value">' + esc(L.currencySymbol + sample.value);
-			if (sample.suffix) html += ' <small>' + esc(sample.suffix) + '</small>';
-			html += '</div>';
-			if (sample.note) html += '<div class="spb-classic__price-note">' + esc(sample.note) + '</div>';
+			html += '<div class="product-info__price-wrap">';
+			html += '<div class="product-info__total-label">Starting from</div>';
+			html += '<div class="product-info__total">' + esc(L.currencySymbol + sample.value);
+			html += '<span class="product-info__total-unit">/ item (est.)</span></div>';
+			html += '<div class="product-info__price-note">Estimated using default selections — actual price varies.</div>';
 			html += '</div>';
 		}
 
-		// Fields.
+		if (desc) {
+			html += '<p class="product-info__desc">' + esc(desc) + '</p>';
+		}
+
+		// Fields
 		if (!fields.length) {
-			html += '<div class="spb-classic__empty">This template has no configurable fields.</div>';
+			html += '<div class="preview-empty">This template has no configurable fields.</div>';
 		} else {
 			fields.forEach(function (f) { html += renderClassicField(f); });
 		}
 
-		// Quantity breaks strip (if any).
+		// Quantity breaks
 		if (render.quantity_breaks && render.quantity_breaks.length > 1) {
 			html += renderQtyBreaks(render.quantity_breaks);
 		}
 
+		// Add to cart (disabled — preview only)
+		html += '<div>';
+		html += '<button class="std-btn std-btn--primary" disabled>🛒 Add to cart — preview only</button>';
 		html += '</div>';
+
+		html += '</section>';
+		html += '</div>'; // product-detail
+		html += '</div>'; // viewport-frame
+		html += '</div>'; // std-classic-wrap
+
 		$('#spbwc-tl-preview-live').html(html);
 	}
 
 	function renderClassicField(f) {
 		var html = '<div class="po-section">';
 		html += '<div class="po-section__heading">';
-		html += '<div class="po-section__label">' + esc(f.title || '(untitled)');
-		if (f.required) html += ' <span class="po-section__required">*</span>';
+		html += '<div class="po-section__label"><span>' + esc(f.title || '(untitled)') + '</span>';
+		if (f.required) html += '<span class="po-section__required">*</span>';
 		html += '</div>';
 		var chosen = pickChosen(f);
 		if (chosen) html += '<div class="po-section__chosen"><strong>' + esc(chosen) + '</strong></div>';
@@ -199,17 +280,29 @@
 		if (!f.attributes || !f.attributes.length) {
 			return '<div class="po-section__desc">No options configured.</div>';
 		}
+		var textures = ['matte', 'glossy', 'soft', 'linen', 'metallic', 'recycled'];
+		var hasSelected = f.attributes.some(function (x) { return x.selected; });
 		var html = '<div class="swatch-grid">';
 		f.attributes.forEach(function (a, i) {
-			var active = a.selected || (i === 0 && !f.attributes.some(function (x) { return x.selected; }));
-			var visualStyle = a.preview_type === 'c' && a.color
-				? ' style="background:' + esc(a.color) + ';"'
-				: '';
+			var active  = a.selected || (!hasSelected && i === 0);
+			var popular = active && i === 0;
+
+			// Visual: solid color if preview_type === 'c' + color; else cycle textures.
+			var visualClass = '', visualStyle = '';
+			if (a.preview_type === 'c' && a.color) {
+				visualStyle = ' style="background:' + esc(a.color) + ';"';
+			} else {
+				visualClass = ' swatch__visual--' + textures[i % textures.length];
+			}
+
 			html += '<div class="swatch' + (active ? ' swatch--active' : '') + '">';
-			html += '<div class="swatch__visual"' + visualStyle + '></div>';
+			html += '<div class="swatch__visual' + visualClass + '"' + visualStyle + '>';
+			if (popular) html += '<span class="swatch__popular">Popular</span>';
+			html += '</div>';
+			html += '<div class="swatch__body">';
 			html += '<div class="swatch__name">' + esc(a.name || '—') + '</div>';
 			html += '<div class="swatch__price' + (priceIsFree(a.price) ? ' swatch__price--free' : '') + '">' + esc(formatPrice(a.price, f.price_type)) + '</div>';
-			html += '</div>';
+			html += '</div></div>';
 		});
 		html += '</div>';
 		return html;
@@ -219,12 +312,19 @@
 		if (!f.attributes || !f.attributes.length) {
 			return '<div class="po-section__desc">No options configured.</div>';
 		}
+		// Orientation icon hints for common option names.
+		var icons = { landscape: '▭', portrait: '▯', horizontal: '▭', vertical: '▯', square: '⬜' };
+		var hasSelected = f.attributes.some(function (x) { return x.selected; });
 		var html = '<div class="po-radios">';
 		f.attributes.forEach(function (a, i) {
-			var active = a.selected || (i === 0 && !f.attributes.some(function (x) { return x.selected; }));
-			var label = (a.name || '—');
-			var pricePart = a.price ? ' · ' + formatPrice(a.price, f.price_type) : '';
-			html += '<button type="button" class="po-radio' + (active ? ' po-radio--active' : '') + '">' + esc(label + pricePart) + '</button>';
+			var active     = a.selected || (!hasSelected && i === 0);
+			var label      = a.name || '—';
+			var pricePart  = !priceIsFree(a.price) ? ' · ' + formatPrice(a.price, f.price_type) : '';
+			var icon       = icons[label.toLowerCase()];
+			html += '<button type="button" class="po-radio' + (active ? ' po-radio--active' : '') + '">';
+			if (icon) html += '<span class="po-radio__icon">' + icon + '</span>';
+			html += '<span>' + esc(label + pricePart) + '</span>';
+			html += '</button>';
 		});
 		html += '</div>';
 		return html;
@@ -234,9 +334,9 @@
 		if (!f.attributes || !f.attributes.length) {
 			return '<div class="po-section__desc">No options configured.</div>';
 		}
-		var html = '<div class="po-select"><select disabled>';
+		var html = '<div class="po-select"><select class="po-select__input" disabled>';
 		f.attributes.forEach(function (a) {
-			var pricePart = a.price ? ' (' + formatPrice(a.price, f.price_type) + ')' : '';
+			var pricePart = !priceIsFree(a.price) ? ' (' + formatPrice(a.price, f.price_type) + ')' : '';
 			html += '<option' + (a.selected ? ' selected' : '') + '>' + esc((a.name || '—') + pricePart) + '</option>';
 		});
 		html += '</select></div>';
@@ -259,14 +359,17 @@
 	}
 
 	function renderQtyBreaks(breaks) {
-		var html = '<div class="po-section"><div class="po-section__heading"><div class="po-section__label">Quantity</div></div>';
+		var html = '<div class="po-section">';
+		html += '<div class="po-section__heading">';
+		html += '<div class="po-section__label"><span>Quantity</span><span class="po-section__required">*</span></div>';
+		html += '</div>';
 		html += '<div class="qty-breaks">';
 		breaks.forEach(function (b, i) {
-			var save = b.dis && b.dis !== '0' && b.dis !== '' ? '-' + esc(b.dis) + '%' : '';
-			html += '<div class="qty-break' + (i === 0 ? ' qty-break--active' : '') + '">';
-			html += '<div class="qty-break__count">' + esc(b.val) + '</div>';
-			if (save) html += '<div class="qty-break__save">' + save + '</div>';
-			html += '</div>';
+			var hasSave = b.dis && b.dis !== '0' && b.dis !== '';
+			html += '<button class="qty-break' + (i === 0 ? ' qty-break--active' : '') + '">';
+			html += '<div class="qty-break__count"><strong>' + esc(b.val) + '</strong> units</div>';
+			if (hasSave) html += '<span class="qty-break__save">Save ' + esc(b.dis) + '%</span>';
+			html += '</button>';
 		});
 		html += '</div></div>';
 		return html;
