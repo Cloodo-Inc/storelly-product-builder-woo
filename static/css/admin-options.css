@@ -2878,10 +2878,13 @@ label.view-config {
   border-radius: 50%;
   width: 44px;
   height: 44px;
-  display: flex;
   align-items: center;
   justify-content: center;
   box-shadow: var(--shadow-md);
+}
+/* Use :not([hidden]) so the hidden attribute is never overridden by display:flex */
+.spbwc-loading-overlay:not([hidden]) {
+  display: flex;
 }
 
 .spbwc-loading-spin {
@@ -3198,13 +3201,8 @@ label.view-config {
   100% { background-position: -200% 0; }
 }
 
-/* ── Card actions: hover / focus-within reveal ───────────────────── */
+/* ── Card actions: always visible (no hover-reveal) ─────────────── */
 .spbwc-option-card__actions {
-  opacity: 0;
-  transition: opacity 0.18s;
-}
-.spbwc-option-card:hover .spbwc-option-card__actions,
-.spbwc-option-card:focus-within .spbwc-option-card__actions {
   opacity: 1;
 }
 

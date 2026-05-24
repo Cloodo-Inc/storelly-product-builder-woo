@@ -1049,8 +1049,8 @@ $_current_page_n = isset( $_GET['paged'] ) ? max( 1, absint( $_GET['paged'] ) ) 
 			} );
 		} );
 
-		// View toggle buttons
-		document.querySelectorAll( '.spbwc-view-btn' ).forEach( function ( btn ) {
+		// View toggle buttons (skip buttons that have no data-view, e.g. the select toggle)
+		document.querySelectorAll( '.spbwc-view-btn[data-view]' ).forEach( function ( btn ) {
 			btn.addEventListener( 'click', function () { setView( this.dataset.view ); } );
 		} );
 
