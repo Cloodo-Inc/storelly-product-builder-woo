@@ -642,8 +642,8 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
                 $count_unmapped = $count_all;
             }
 
-            // Build main query args based on active filter.
-            $spbwc_query_args = array(
+            // Main query — loads all products; filter is applied client-side via JS.
+            $products_query = new WP_Query( array(
                 'post_type'      => 'product',
                 'post_status'    => array( 'publish', 'draft', 'pending', 'private' ),
                 'posts_per_page' => $per_page,
@@ -651,14 +651,34 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
                 's'              => $search,
                 'orderby'        => 'date',
                 'order'          => 'DESC',
-            );
-            if ( 'mapped' === $filter ) {
-                $spbwc_query_args['post__in'] = ! empty( $spbwc_mapped_ids ) ? $spbwc_mapped_ids : array( 0 );
-            } elseif ( 'unmapped' === $filter && ! empty( $spbwc_mapped_ids ) ) {
-                $spbwc_query_args['post__not_in'] = $spbwc_mapped_ids;
-            }
+            ) );
 
-            $products_query = new WP_Query( $spbwc_query_args );
+            // Pre-fetch option ID + field count for each product on the current page.
+            $spbwc_product_data = array();
+            if ( $products_query->have_posts() ) {
+                while ( $products_query->have_posts() ) {
+                    $products_query->the_post();
+                    $spbwc_pid    = get_the_ID();
+                    $spbwc_opt_id = $this->spbwc_get_product_option( $spbwc_pid );
+                    $spbwc_fc     = 0;
+                    if ( $spbwc_opt_id ) {
+                        $spbwc_opt_row = $this->spbwc_get_option( $spbwc_opt_id );
+                        if ( ! empty( $spbwc_opt_row['fields'] ) ) {
+                            $spbwc_raw = maybe_unserialize( $spbwc_opt_row['fields'] );
+                            $spbwc_fc  = ( is_array( $spbwc_raw ) && isset( $spbwc_raw['fields'] ) )
+                                ? count( $spbwc_raw['fields'] )
+                                : 0;
+                        }
+                    }
+                    $spbwc_product_data[ $spbwc_pid ] = array(
+                        'option_id'   => $spbwc_opt_id,
+                        'field_count' => $spbwc_fc,
+                        'is_mapped'   => ! empty( $spbwc_opt_id ),
+                    );
+                }
+                $products_query->rewind_posts();
+                wp_reset_postdata();
+            }
 
             include_once SPBWC_PB_PLUGIN_DIR . 'views/products.php';
         }
@@ -775,7 +795,7 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
             $success_message = isset( $settings['success_message'] ) ? $settings['success_message'] : __( 'Your quote request has been sent successfully.', 'storelly-product-builder-for-woocommerce' );
             $form_fields = get_option( 'spbwc_quote_form_fields', $this->spbwc_get_default_quote_form_fields() );
             ?>
-            <div class="wrap">
+            <div class="wrap spbwc-settings-wrap">
                 <header class="spbwc-page-hero">
                     <div class="spbwc-page-hero__grid">
                         <div class="spbwc-page-hero__body">
@@ -793,10 +813,24 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
                         </div>
                     </div>
                 </header>
+
+                <!-- Tab navigation — switching is JS-powered (no reload) -->
                 <h2 class="nav-tab-wrapper spbwc-settings-tabs" id="spbwc-quotes-nav">
-                    <a href="<?php echo esc_url( add_query_arg( array( 'page' => SPBWC_PB_QUOTES_SLUG, 'tab' => 'get-quote' ), admin_url( 'admin.php' ) ) ); ?>" data-tab="get-quote" class="nav-tab <?php echo ( 'get-quote' === $tab ) ? 'nav-tab-active' : ''; ?>"><span class="dashicons dashicons-email-alt" aria-hidden="true"></span><?php esc_html_e( 'Get Quote', 'storelly-product-builder-for-woocommerce' ); ?></a>
-                    <a href="<?php echo esc_url( add_query_arg( array( 'page' => SPBWC_PB_QUOTES_SLUG, 'tab' => 'form-builder' ), admin_url( 'admin.php' ) ) ); ?>" data-tab="form-builder" class="nav-tab <?php echo ( 'form-builder' === $tab ) ? 'nav-tab-active' : ''; ?>"><span class="dashicons dashicons-feedback" aria-hidden="true"></span><?php esc_html_e( 'Form Builder', 'storelly-product-builder-for-woocommerce' ); ?></a>
-                    <a href="<?php echo esc_url( add_query_arg( array( 'page' => SPBWC_PB_QUOTES_SLUG, 'tab' => 'history' ), admin_url( 'admin.php' ) ) ); ?>" data-tab="history" class="nav-tab <?php echo ( 'history' === $tab ) ? 'nav-tab-active' : ''; ?>"><span class="dashicons dashicons-list-view" aria-hidden="true"></span><?php esc_html_e( 'Request History', 'storelly-product-builder-for-woocommerce' ); ?></a>
+                    <a href="<?php echo esc_url( add_query_arg( array( 'page' => SPBWC_PB_QUOTES_SLUG, 'tab' => 'get-quote' ), admin_url( 'admin.php' ) ) ); ?>"
+                       data-tab="get-quote" class="nav-tab <?php echo ( 'get-quote' === $tab ) ? 'nav-tab-active' : ''; ?>">
+                        <span class="dashicons dashicons-email-alt" aria-hidden="true"></span>
+                        <?php esc_html_e( 'Get Quote', 'storelly-product-builder-for-woocommerce' ); ?>
+                    </a>
+                    <a href="<?php echo esc_url( add_query_arg( array( 'page' => SPBWC_PB_QUOTES_SLUG, 'tab' => 'form-builder' ), admin_url( 'admin.php' ) ) ); ?>"
+                       data-tab="form-builder" class="nav-tab <?php echo ( 'form-builder' === $tab ) ? 'nav-tab-active' : ''; ?>">
+                        <span class="dashicons dashicons-feedback" aria-hidden="true"></span>
+                        <?php esc_html_e( 'Form Builder', 'storelly-product-builder-for-woocommerce' ); ?>
+                    </a>
+                    <a href="<?php echo esc_url( add_query_arg( array( 'page' => SPBWC_PB_QUOTES_SLUG, 'tab' => 'history' ), admin_url( 'admin.php' ) ) ); ?>"
+                       data-tab="history" class="nav-tab <?php echo ( 'history' === $tab ) ? 'nav-tab-active' : ''; ?>">
+                        <span class="dashicons dashicons-list-view" aria-hidden="true"></span>
+                        <?php esc_html_e( 'Request History', 'storelly-product-builder-for-woocommerce' ); ?>
+                    </a>
                 </h2>
                     <!-- ── Get Quote Settings ──────────────────────────── -->
                     <div class="spbwc-quotes-panel" data-panel="get-quote"<?php echo ( 'get-quote' !== $tab ) ? ' style="display:none;"' : ''; ?>>
@@ -839,7 +873,7 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
                                     <div class="spbwc-setting-row__control">
                                         <input id="spbwc_quote_admin_email" type="email" name="admin_email"
                                             value="<?php echo esc_attr( $admin_email ); ?>"
-                                            class="spbwc-input" style="max-width:380px;" />
+                                            class="spbwc-input" style="width:300px;" />
                                     </div>
                                     <p class="spbwc-setting-row__hint"><?php esc_html_e( 'New quote requests are sent to this address. Defaults to the site admin email if left unchanged.', 'storelly-product-builder-for-woocommerce' ); ?></p>
                                 </div>
@@ -852,7 +886,7 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
                                     </div>
                                     <div class="spbwc-setting-row__control">
                                         <textarea id="spbwc_quote_success_message" name="success_message"
-                                            rows="4" class="spbwc-input" style="resize:vertical;"><?php echo esc_textarea( $success_message ); ?></textarea>
+                                            rows="4" class="spbwc-input" style="width:420px;resize:vertical;"><?php echo esc_textarea( $success_message ); ?></textarea>
                                     </div>
                                     <p class="spbwc-setting-row__hint"><?php esc_html_e( 'Displayed on screen after the customer submits a quote request. Keep it short and reassuring.', 'storelly-product-builder-for-woocommerce' ); ?></p>
                                 </div>
@@ -905,9 +939,9 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
                                         <?php foreach ( (array) $form_fields as $field ) : ?>
                                             <tr>
                                                 <td><span class="dashicons dashicons-menu" style="cursor:move;color:var(--nbd-st-text-mute);" aria-hidden="true"></span></td>
-                                                <td><input type="text" name="field_name[]" value="<?php echo esc_attr( isset( $field['name'] ) ? $field['name'] : '' ); ?>" /></td>
+                                                <td><input type="text" name="field_name[]" class="spbwc-qf-input" value="<?php echo esc_attr( isset( $field['name'] ) ? $field['name'] : '' ); ?>" /></td>
                                                 <td>
-                                                    <select name="field_type[]">
+                                                    <select name="field_type[]" class="spbwc-qf-select">
                                                         <option value="text"     <?php selected( isset( $field['type'] ) ? $field['type'] : '', 'text' ); ?>><?php esc_html_e( 'Text', 'storelly-product-builder-for-woocommerce' ); ?></option>
                                                         <option value="email"    <?php selected( isset( $field['type'] ) ? $field['type'] : '', 'email' ); ?>><?php esc_html_e( 'Email', 'storelly-product-builder-for-woocommerce' ); ?></option>
                                                         <option value="tel"      <?php selected( isset( $field['type'] ) ? $field['type'] : '', 'tel' ); ?>><?php esc_html_e( 'Phone', 'storelly-product-builder-for-woocommerce' ); ?></option>
@@ -915,10 +949,10 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
                                                         <option value="select"   <?php selected( isset( $field['type'] ) ? $field['type'] : '', 'select' ); ?>><?php esc_html_e( 'Select', 'storelly-product-builder-for-woocommerce' ); ?></option>
                                                     </select>
                                                 </td>
-                                                <td><input type="text" name="field_label[]" value="<?php echo esc_attr( isset( $field['label'] ) ? $field['label'] : '' ); ?>" /></td>
-                                                <td><input type="text" name="field_placeholder[]" value="<?php echo esc_attr( isset( $field['placeholder'] ) ? $field['placeholder'] : '' ); ?>" /></td>
+                                                <td><input type="text" name="field_label[]" class="spbwc-qf-input" value="<?php echo esc_attr( isset( $field['label'] ) ? $field['label'] : '' ); ?>" /></td>
+                                                <td><input type="text" name="field_placeholder[]" class="spbwc-qf-input" value="<?php echo esc_attr( isset( $field['placeholder'] ) ? $field['placeholder'] : '' ); ?>" /></td>
                                                 <td>
-                                                    <select name="field_validation[]">
+                                                    <select name="field_validation[]" class="spbwc-qf-select">
                                                         <option value=""      <?php selected( isset( $field['validation'] ) ? $field['validation'] : '', '' ); ?>><?php esc_html_e( 'None', 'storelly-product-builder-for-woocommerce' ); ?></option>
                                                         <option value="email" <?php selected( isset( $field['validation'] ) ? $field['validation'] : '', 'email' ); ?>><?php esc_html_e( 'Email', 'storelly-product-builder-for-woocommerce' ); ?></option>
                                                         <option value="phone" <?php selected( isset( $field['validation'] ) ? $field['validation'] : '', 'phone' ); ?>><?php esc_html_e( 'Phone', 'storelly-product-builder-for-woocommerce' ); ?></option>
@@ -954,11 +988,11 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
                                 var label = name ? name.replace(/_/g, ' ').replace(/\b\w/g, function(l){ return l.toUpperCase(); }) : '';
                                 return '<tr>'
                                     + '<td><span class="dashicons dashicons-menu" style="cursor:move;color:var(--nbd-st-text-mute);"></span></td>'
-                                    + '<td><input type="text" name="field_name[]" value="'+ (name || '') +'" /></td>'
-                                    + '<td><select name="field_type[]"><option value="text">Text</option><option value="email">Email</option><option value="tel">Phone</option><option value="textarea">Textarea</option><option value="select">Select</option></select></td>'
-                                    + '<td><input type="text" name="field_label[]" value="'+ label +'" /></td>'
-                                    + '<td><input type="text" name="field_placeholder[]" value="" /></td>'
-                                    + '<td><select name="field_validation[]"><option value="">None</option><option value="email">Email</option><option value="phone">Phone</option></select></td>'
+                                    + '<td><input type="text" name="field_name[]" class="spbwc-qf-input" value="'+ (name || '') +'" /></td>'
+                                    + '<td><select name="field_type[]" class="spbwc-qf-select"><option value="text">Text</option><option value="email">Email</option><option value="tel">Phone</option><option value="textarea">Textarea</option><option value="select">Select</option></select></td>'
+                                    + '<td><input type="text" name="field_label[]" class="spbwc-qf-input" value="'+ label +'" /></td>'
+                                    + '<td><input type="text" name="field_placeholder[]" class="spbwc-qf-input" value="" /></td>'
+                                    + '<td><select name="field_validation[]" class="spbwc-qf-select"><option value="">None</option><option value="email">Email</option><option value="phone">Phone</option></select></td>'
                                     + '<td style="text-align:center;"><input type="checkbox" name="field_required[]" value="'+ idx +'" /></td>'
                                     + '<td style="text-align:center;"><input type="checkbox" name="field_enabled[]" value="'+ idx +'" checked /></td>'
                                     + '<td><button type="button" class="spbwc-cta-btn spbwc-cta-btn--ghost spbwc-cta-btn--sm spbwc-remove-field"><span class="dashicons dashicons-trash"></span></button></td>'

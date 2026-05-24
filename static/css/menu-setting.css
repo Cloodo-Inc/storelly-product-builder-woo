@@ -440,6 +440,59 @@
     outline: none;
 }
 
+/* ── Quote Form Builder table — compact token-styled inputs ── */
+.spbwc-qf-input {
+    width: 100%;
+    min-width: 80px;
+    padding: 6px 10px;
+    font-size: 12.5px;
+    line-height: 1.4;
+    border: 1px solid var(--nbd-st-border);
+    border-radius: 5px;
+    background: #fff;
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.08);
+    transition: border-color 0.15s, box-shadow 0.15s;
+    color: var(--nbd-st-text);
+}
+.spbwc-qf-input:focus {
+    border-color: var(--nbd-st-primary);
+    box-shadow: 0 0 0 2px rgba(34, 113, 177, 0.12), inset 0 1px 2px rgba(0, 0, 0, 0.05);
+    outline: none;
+}
+
+.spbwc-qf-select {
+    padding: 6px 28px 6px 10px;
+    font-size: 12.5px;
+    line-height: 1.4;
+    border: 1px solid var(--nbd-st-border);
+    border-radius: 5px;
+    background: #fff;
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.08);
+    transition: border-color 0.15s, box-shadow 0.15s;
+    color: var(--nbd-st-text);
+    appearance: auto;
+    cursor: pointer;
+}
+.spbwc-qf-select:focus {
+    border-color: var(--nbd-st-primary);
+    box-shadow: 0 0 0 2px rgba(34, 113, 177, 0.12), inset 0 1px 2px rgba(0, 0, 0, 0.05);
+    outline: none;
+}
+
+/* Table cells tighter for form builder */
+.spbwc-qf-table td {
+    padding: 8px 10px;
+    vertical-align: middle;
+}
+.spbwc-qf-table thead th {
+    padding: 10px 10px;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--nbd-st-text-mute);
+}
+
 .form-table td {
     vertical-align: top;
     padding: 15px 10px;
