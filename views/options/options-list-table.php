@@ -59,6 +59,25 @@ $_current_page_n = isset($_GET['paged']) ? max(1, absint($_GET['paged'])) : 1;
         </div>
     </header>
 
+    <!-- Stats overview row -->
+    <div class="spbwc-options-stats">
+        <div class="spbwc-stat-card">
+            <span class="dashicons dashicons-tickets-alt spbwc-stat-card__icon" aria-hidden="true"></span>
+            <span class="spbwc-stat-card__value"><?php echo esc_html(number_format_i18n($_status_counts['all'])); ?></span>
+            <span class="spbwc-stat-card__label"><?php esc_html_e('Total Options', 'storelly-product-builder-for-woocommerce'); ?></span>
+        </div>
+        <div class="spbwc-stat-card">
+            <span class="dashicons dashicons-yes-alt spbwc-stat-card__icon" aria-hidden="true" style="color:var(--nbd-color-success)"></span>
+            <span class="spbwc-stat-card__value"><?php echo esc_html(number_format_i18n($_status_counts['published'])); ?></span>
+            <span class="spbwc-stat-card__label"><?php esc_html_e('Published', 'storelly-product-builder-for-woocommerce'); ?></span>
+        </div>
+        <div class="spbwc-stat-card">
+            <span class="dashicons dashicons-edit spbwc-stat-card__icon" aria-hidden="true"></span>
+            <span class="spbwc-stat-card__value"><?php echo esc_html(number_format_i18n($_status_counts['draft'])); ?></span>
+            <span class="spbwc-stat-card__label"><?php esc_html_e('Drafts', 'storelly-product-builder-for-woocommerce'); ?></span>
+        </div>
+    </div>
+
     <!-- Unified toolbar: status tabs + block search + view toggle -->
     <div class="spbwc-list-toolbar">
         <div class="spbwc-status-tabs" role="tablist">

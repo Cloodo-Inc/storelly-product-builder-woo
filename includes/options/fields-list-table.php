@@ -113,6 +113,46 @@ class SPBWC_Storelly_Options_List_Table extends WP_List_Table
         return $counts;
     }
 
+    /**
+     * Return counts grouped by published status, optionally scoped by search term.
+     * Returns: array{ all: int, published: int, draft: int }
+     *
+     * @return array
+     */
+    public static function spbwc_count_all_statuses()
+    {
+        global $wpdb; // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Global variable $wpdb.
+        $table_name = $wpdb->prefix . 'storelly_product_builder_options';
+
+        // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only display filter, no state mutation.
+        $search = isset($_REQUEST['s']) ? sanitize_text_field(wp_unslash($_REQUEST['s'])) : '';
+
+        $where = 'WHERE 1 = 1';
+        if ($search) {
+            $where .= $wpdb->prepare(' AND title LIKE %s', '%' . $wpdb->esc_like($search) . '%');
+        }
+
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared -- Admin-only grouped count query.
+        $rows = $wpdb->get_results(
+            "SELECT published, COUNT(*) AS cnt FROM {$table_name} {$where} GROUP BY published",
+            ARRAY_A
+        );
+
+        $counts = array('all' => 0, 'published' => 0, 'draft' => 0);
+        if (is_array($rows)) {
+            foreach ($rows as $row) {
+                $n = (int) $row['cnt'];
+                $counts['all'] += $n;
+                if (1 === (int) $row['published']) {
+                    $counts['published'] += $n;
+                } else {
+                    $counts['draft'] += $n;
+                }
+            }
+        }
+        return $counts;
+    }
+
     public static function spbwc_record_count()
     {
         global $wpdb; // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Global variable $wpdb.
