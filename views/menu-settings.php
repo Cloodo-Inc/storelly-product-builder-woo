@@ -90,7 +90,6 @@ if ( ! in_array($spbwc_settings_tab, $spbwc_valid_tabs, true) ) {
     <div id="message" class="notice notice-<?php echo esc_attr($status === 'updated' ? 'success' : 'error'); ?> is-dismissible"><p><strong><?php echo esc_html($message); ?></strong></p></div>
     <?php endif; ?>
 
-    <div class="storelly-box spbwc-settings-box">
         <!-- Tab navigation — switching is JS-powered (no reload) -->
         <h2 class="nav-tab-wrapper spbwc-settings-tabs" id="spbwc-settings-nav">
             <a href="<?php echo esc_url(admin_url('admin.php?page=' . SPBWC_PB_OPTIONS_SLUG . '&tab=general')); ?>"
@@ -123,13 +122,12 @@ if ( ! in_array($spbwc_settings_tab, $spbwc_valid_tabs, true) ) {
         <form class="storelly-form" method="post" id="spbwc-settings-form"
               action="<?php echo esc_url(admin_url('admin.php?page=' . SPBWC_PB_OPTIONS_SLUG . '&tab=' . $spbwc_settings_tab)); ?>"
               enctype="multipart/form-data">
-            <div class="spbwc-settings-content">
 
             <!-- ━━━ GENERAL ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ -->
             <div class="spbwc-tab-panel" id="tab-general"<?php echo ($spbwc_settings_tab !== 'general') ? ' style="display:none;"' : ''; ?>>
 
                 <!-- Storelly Integration + API Keys — single block -->
-                <div class="spbwc-block spbwc-block--flat">
+                <div class="spbwc-block">
                     <div class="spbwc-block__head">
                         <h3 class="spbwc-block__title">
                             <span class="dashicons dashicons-admin-generic" aria-hidden="true"></span>
@@ -225,7 +223,7 @@ if ( ! in_array($spbwc_settings_tab, $spbwc_valid_tabs, true) ) {
                 </div>
 
                 <!-- Printing Options block -->
-                <div class="spbwc-block spbwc-block--flat">
+                <div class="spbwc-block">
                     <div class="spbwc-block__head">
                         <h3 class="spbwc-block__title">
                             <span class="dashicons dashicons-edit" aria-hidden="true"></span>
@@ -346,7 +344,7 @@ if ( ! in_array($spbwc_settings_tab, $spbwc_valid_tabs, true) ) {
             </div>
             <!-- ━━━ DISPLAY ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ -->
             <div class="spbwc-tab-panel" id="tab-display"<?php echo ($spbwc_settings_tab !== 'display') ? ' style="display:none;"' : ''; ?>>
-                <div class="spbwc-block spbwc-block--flat">
+                <div class="spbwc-block">
                     <div class="spbwc-block__head">
                         <h3 class="spbwc-block__title">
                             <span class="dashicons dashicons-visibility" aria-hidden="true"></span>
@@ -453,7 +451,7 @@ if ( ! in_array($spbwc_settings_tab, $spbwc_valid_tabs, true) ) {
 
             <!-- ━━━ PRICING ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ -->
             <div class="spbwc-tab-panel" id="tab-pricing"<?php echo ($spbwc_settings_tab !== 'pricing') ? ' style="display:none;"' : ''; ?>>
-                <div class="spbwc-block spbwc-block--flat">
+                <div class="spbwc-block">
                     <div class="spbwc-block__head">
                         <h3 class="spbwc-block__title">
                             <span class="dashicons dashicons-tag" aria-hidden="true"></span>
@@ -543,7 +541,7 @@ if ( ! in_array($spbwc_settings_tab, $spbwc_valid_tabs, true) ) {
 
             <!-- ━━━ CATALOG ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ -->
             <div class="spbwc-tab-panel" id="tab-catalog"<?php echo ($spbwc_settings_tab !== 'catalog') ? ' style="display:none;"' : ''; ?>>
-                <div class="spbwc-block spbwc-block--flat">
+                <div class="spbwc-block">
                     <div class="spbwc-block__head">
                         <h3 class="spbwc-block__title">
                             <span class="dashicons dashicons-store" aria-hidden="true"></span>
@@ -595,7 +593,7 @@ if ( ! in_array($spbwc_settings_tab, $spbwc_valid_tabs, true) ) {
 
             <!-- ━━━ CART & ORDER ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ -->
             <div class="spbwc-tab-panel" id="tab-cart"<?php echo ($spbwc_settings_tab !== 'cart') ? ' style="display:none;"' : ''; ?>>
-                <div class="spbwc-block spbwc-block--flat">
+                <div class="spbwc-block">
                     <div class="spbwc-block__head">
                         <h3 class="spbwc-block__title">
                             <span class="dashicons dashicons-cart" aria-hidden="true"></span>
@@ -721,11 +719,10 @@ if ( ! in_array($spbwc_settings_tab, $spbwc_valid_tabs, true) ) {
                 </div>
             </div>
 
-            </div>
-            <div class="spbwc-sticky-save-bar">
-                <div class="spbwc-sticky-save-inner">
-                    <button name="save" class="spbwc-save-btn" type="submit" value="Save changes">
-                        <span class="dashicons dashicons-saved"></span>
+            <div class="spbwc-block" style="margin-top:var(--nbd-space-4);">
+                <div class="spbwc-block__foot">
+                    <button name="save" class="spbwc-cta-btn spbwc-cta-btn--solid" type="submit" value="Save changes">
+                        <span class="dashicons dashicons-saved" aria-hidden="true"></span>
                         <?php esc_html_e('Save changes', 'storelly-product-builder-for-woocommerce'); ?>
                     </button>
                     <input type="hidden" name="_action_storelly_settings" value="submit">
@@ -733,7 +730,6 @@ if ( ! in_array($spbwc_settings_tab, $spbwc_valid_tabs, true) ) {
                 </div>
             </div>
         </form>
-    </div>
 </div>
 <script>
 (function () {

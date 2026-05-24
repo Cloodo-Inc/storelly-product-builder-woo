@@ -6,45 +6,56 @@
     max-width: 1200px;
 }
 
-.spbwc-settings-box {
-    margin: 0;
-    background: #fff;
-    border-radius: 12px;
-    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
-    overflow: hidden;
-}
 
+/* ── Professional pill-style tabs ──────────────────────────── */
 .spbwc-settings-tabs {
-    margin: 0;
-    padding: 0 24px;
-    border-bottom: 2px solid var(--nbd-st-border-light);
-    background: var(--nbd-st-bg-soft);
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 4px;
+    padding: 0 0 20px;
+    margin: 0 0 4px;
+    border-bottom: none;
+    background: transparent;
 }
 
 .spbwc-settings-tabs .nav-tab {
-    margin-bottom: -2px;
-    border: none;
-    border-bottom: 3px solid transparent;
-    background: transparent;
-    padding: 14px 20px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin: 0;
+    padding: 8px 16px;
+    border: 1.5px solid var(--nbd-st-border-light);
+    border-radius: 6px;
+    background: #fff;
+    font-size: 13px;
     font-weight: 500;
     color: var(--nbd-st-text-soft);
-    transition: all 0.2s ease;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+    transition: all 0.15s ease;
+    text-decoration: none;
+    cursor: pointer;
 }
 
 .spbwc-settings-tabs .nav-tab:hover {
-    color: var(--nbd-st-text);
-}
-
-.spbwc-settings-tabs .nav-tab-active {
+    border-color: var(--nbd-st-primary);
     color: var(--nbd-st-primary);
-    border-bottom-color: var(--nbd-st-primary);
-    background: #fff;
+    box-shadow: 0 2px 6px rgba(34, 113, 177, 0.15);
 }
 
-.spbwc-settings-content {
-    padding: 24px 32px 40px;
-    background: #fff;
+.spbwc-settings-tabs .nav-tab-active,
+.spbwc-settings-tabs .nav-tab-active:hover {
+    background: var(--nbd-st-primary);
+    border-color: var(--nbd-st-primary);
+    color: #fff;
+    box-shadow: 0 2px 8px rgba(34, 113, 177, 0.30);
+}
+
+.spbwc-settings-tabs .nav-tab .dashicons {
+    font-size: 15px;
+    width: 15px;
+    height: 15px;
+    line-height: 1;
 }
 
 
@@ -134,6 +145,7 @@
     border: 1px solid var(--nbd-st-border);
     border-radius: 6px;
     background: #fff;
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.06);
     transition: border-color 0.2s, box-shadow 0.2s;
 }
 
@@ -267,85 +279,6 @@
     cursor: pointer;
 }
 
-/* Sticky Save Bar - Always visible at bottom */
-.spbwc-sticky-save-bar {
-    position: fixed;
-    bottom: 0;
-    left: var(--wp-sidebar-width);
-    right: 0;
-    z-index: 99999;
-    background: #fff;
-    border-top: 1px solid var(--nbd-st-border);
-    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.08);
-    padding: 16px 24px;
-}
-
-.spbwc-sticky-save-inner {
-    max-width: 1200px;
-    margin: 0 auto;
-    display: flex;
-    align-items: center;
-}
-
-.spbwc-save-btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    padding: 12px 28px;
-    font-size: 14px;
-    font-weight: 600;
-    color: #fff;
-    background: linear-gradient(135deg, var(--nbd-st-primary) 0%, var(--nbd-st-primary-pressed) 100%);
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
-    box-shadow: 0 2px 8px rgba(34, 113, 177, 0.35);
-    transition: all 0.2s ease;
-}
-
-.spbwc-save-btn:hover {
-    background: linear-gradient(135deg, var(--nbd-st-primary-pressed) 0%, #0d4b7a 100%);
-    box-shadow: 0 4px 12px rgba(34, 113, 177, 0.4);
-    transform: translateY(-1px);
-}
-
-.spbwc-save-btn:active {
-    transform: translateY(0);
-}
-
-.spbwc-save-btn .dashicons {
-    font-size: 18px;
-    width: 18px;
-    height: 18px;
-}
-
-/* Add bottom padding so content isn't hidden behind sticky bar */
-.spbwc-settings-wrap .storelly-form {
-    padding-bottom: 80px;
-}
-
-/* WordPress admin menu folded state */
-body.folded .spbwc-sticky-save-bar {
-    left: 36px;
-}
-
-@media screen and (max-width: 960px) {
-    .spbwc-sticky-save-bar {
-        left: 36px;
-    }
-}
-
-@media screen and (max-width: 782px) {
-    .spbwc-sticky-save-bar {
-        left: 0;
-        padding: 12px 16px;
-    }
-    
-    .spbwc-save-btn {
-        padding: 10px 20px;
-        font-size: 13px;
-    }
-}
 
 @media (max-width: 782px) {
     .spbwc-settings-grid {
@@ -354,10 +287,6 @@ body.folded .spbwc-sticky-save-bar {
     
     .spbwc-settings-wrap {
         padding: 0 16px 24px;
-    }
-    
-    .spbwc-settings-content {
-        padding: 24px 20px 32px;
     }
 }
 

@@ -826,16 +826,14 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
                         </div>
                     </div>
                 </header>
-                <div class="storelly-box spbwc-settings-box">
-                <h2 class="nav-tab-wrapper spbwc-settings-tabs">
-                    <a href="<?php echo esc_url( add_query_arg( array( 'page' => SPBWC_PB_QUOTES_SLUG, 'tab' => 'get-quote' ), admin_url( 'admin.php' ) ) ); ?>" class="nav-tab <?php echo ( 'get-quote' === $tab ) ? 'nav-tab-active' : ''; ?>"><?php esc_html_e( 'Get Quote', 'storelly-product-builder-for-woocommerce' ); ?></a>
-                    <a href="<?php echo esc_url( add_query_arg( array( 'page' => SPBWC_PB_QUOTES_SLUG, 'tab' => 'form-builder' ), admin_url( 'admin.php' ) ) ); ?>" class="nav-tab <?php echo ( 'form-builder' === $tab ) ? 'nav-tab-active' : ''; ?>"><?php esc_html_e( 'Form Builder', 'storelly-product-builder-for-woocommerce' ); ?></a>
-                    <a href="<?php echo esc_url( add_query_arg( array( 'page' => SPBWC_PB_QUOTES_SLUG, 'tab' => 'history' ), admin_url( 'admin.php' ) ) ); ?>" class="nav-tab <?php echo ( 'history' === $tab ) ? 'nav-tab-active' : ''; ?>"><?php esc_html_e( 'Request History', 'storelly-product-builder-for-woocommerce' ); ?></a>
+                <h2 class="nav-tab-wrapper spbwc-settings-tabs" id="spbwc-quotes-nav">
+                    <a href="<?php echo esc_url( add_query_arg( array( 'page' => SPBWC_PB_QUOTES_SLUG, 'tab' => 'get-quote' ), admin_url( 'admin.php' ) ) ); ?>" data-tab="get-quote" class="nav-tab <?php echo ( 'get-quote' === $tab ) ? 'nav-tab-active' : ''; ?>"><span class="dashicons dashicons-email-alt" aria-hidden="true"></span><?php esc_html_e( 'Get Quote', 'storelly-product-builder-for-woocommerce' ); ?></a>
+                    <a href="<?php echo esc_url( add_query_arg( array( 'page' => SPBWC_PB_QUOTES_SLUG, 'tab' => 'form-builder' ), admin_url( 'admin.php' ) ) ); ?>" data-tab="form-builder" class="nav-tab <?php echo ( 'form-builder' === $tab ) ? 'nav-tab-active' : ''; ?>"><span class="dashicons dashicons-feedback" aria-hidden="true"></span><?php esc_html_e( 'Form Builder', 'storelly-product-builder-for-woocommerce' ); ?></a>
+                    <a href="<?php echo esc_url( add_query_arg( array( 'page' => SPBWC_PB_QUOTES_SLUG, 'tab' => 'history' ), admin_url( 'admin.php' ) ) ); ?>" data-tab="history" class="nav-tab <?php echo ( 'history' === $tab ) ? 'nav-tab-active' : ''; ?>"><span class="dashicons dashicons-list-view" aria-hidden="true"></span><?php esc_html_e( 'Request History', 'storelly-product-builder-for-woocommerce' ); ?></a>
                 </h2>
-                <div class="spbwc-settings-content">
-                <?php if ( 'get-quote' === $tab ) : ?>
                     <!-- ── Get Quote Settings ──────────────────────────── -->
-                    <div class="spbwc-block spbwc-block--flat">
+                    <div class="spbwc-quotes-panel" data-panel="get-quote"<?php echo ( 'get-quote' !== $tab ) ? ' style="display:none;"' : ''; ?>>
+                    <div class="spbwc-block">
                         <div class="spbwc-block__head">
                             <h3 class="spbwc-block__title">
                                 <span class="dashicons dashicons-email-alt" aria-hidden="true"></span>
@@ -892,18 +890,18 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
                                     <p class="spbwc-setting-row__hint"><?php esc_html_e( 'Displayed on screen after the customer submits a quote request. Keep it short and reassuring.', 'storelly-product-builder-for-woocommerce' ); ?></p>
                                 </div>
                             </div>
-                            <div class="spbwc-sticky-save-bar">
-                                <button class="spbwc-save-btn" type="submit" name="spbwc_save_quote_settings" value="1">
+                            <div class="spbwc-block__foot">
+                                <button class="spbwc-cta-btn spbwc-cta-btn--solid" type="submit" name="spbwc_save_quote_settings" value="1">
                                     <span class="dashicons dashicons-saved" aria-hidden="true"></span>
                                     <?php esc_html_e( 'Save changes', 'storelly-product-builder-for-woocommerce' ); ?>
                                 </button>
                             </div>
                         </form>
                     </div>
-
-                <?php elseif ( 'form-builder' === $tab ) : ?>
+                    </div><!-- .spbwc-quotes-panel (get-quote) -->
                     <!-- ── Form Builder ────────────────────────────────── -->
-                    <div class="spbwc-block spbwc-block--flat">
+                    <div class="spbwc-quotes-panel" data-panel="form-builder"<?php echo ( 'form-builder' !== $tab ) ? ' style="display:none;"' : ''; ?>>
+                    <div class="spbwc-block">
                         <div class="spbwc-block__head">
                             <h3 class="spbwc-block__title">
                                 <span class="dashicons dashicons-feedback" aria-hidden="true"></span>
@@ -972,14 +970,15 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
                                     </tbody>
                                 </table>
                             </div>
-                            <div class="spbwc-sticky-save-bar">
-                                <button class="spbwc-save-btn" type="submit" name="spbwc_save_quote_form" value="1">
+                            <div class="spbwc-block__foot">
+                                <button class="spbwc-cta-btn spbwc-cta-btn--solid" type="submit" name="spbwc_save_quote_form" value="1">
                                     <span class="dashicons dashicons-saved" aria-hidden="true"></span>
                                     <?php esc_html_e( 'Save changes', 'storelly-product-builder-for-woocommerce' ); ?>
                                 </button>
                             </div>
                         </form>
                     </div>
+                    </div><!-- .spbwc-quotes-panel (form-builder) -->
                     <script>
                         (function($){
                             function nextIndex(){ return $('#spbwc-quote-fields-table tbody tr').length; }
@@ -1010,8 +1009,8 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
                         })(jQuery);
                     </script>
 
-                <?php else : ?>
                     <!-- ── Request History ─────────────────────────────── -->
+                    <div class="spbwc-quotes-panel" data-panel="history"<?php echo ( 'history' !== $tab ) ? ' style="display:none;"' : ''; ?>>
                     <?php
                     // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only search filter.
                     $search = isset( $_GET['s'] ) ? sanitize_text_field( wp_unslash( $_GET['s'] ) ) : '';
@@ -1043,7 +1042,7 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
                     $orders    = isset( $quote_orders->orders ) ? $quote_orders->orders : array();
                     $max_pages = isset( $quote_orders->max_num_pages ) ? (int) $quote_orders->max_num_pages : 1;
                     ?>
-                    <div class="spbwc-block spbwc-block--flat">
+                    <div class="spbwc-block">
                         <!-- Toolbar: search + count -->
                         <form method="get" class="spbwc-list-toolbar" role="search">
                             <input type="hidden" name="page" value="<?php echo esc_attr( SPBWC_PB_QUOTES_SLUG ); ?>" />
@@ -1172,10 +1171,32 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
                         </div>
                         <?php endif; ?>
                     </div><!-- .spbwc-block -->
-                <?php endif; ?>
-                </div><!-- .spbwc-settings-content -->
-                </div><!-- .storelly-box -->
+                    </div><!-- .spbwc-quotes-panel (history) -->
             </div>
+            <script>
+            (function () {
+                'use strict';
+                var nav = document.getElementById( 'spbwc-quotes-nav' );
+                if ( ! nav ) { return; }
+                nav.addEventListener( 'click', function ( e ) {
+                    var link = e.target.closest( '[data-tab]' );
+                    if ( ! link ) { return; }
+                    e.preventDefault();
+                    var target = link.getAttribute( 'data-tab' );
+                    nav.querySelectorAll( '.nav-tab' ).forEach( function ( t ) {
+                        t.classList.toggle( 'nav-tab-active', t === link );
+                    } );
+                    document.querySelectorAll( '.spbwc-quotes-panel' ).forEach( function ( p ) {
+                        p.style.display = ( p.dataset.panel === target ) ? '' : 'none';
+                    } );
+                    if ( history.replaceState ) {
+                        var url = new URL( location.href );
+                        url.searchParams.set( 'tab', target );
+                        history.replaceState( null, '', url.toString() );
+                    }
+                } );
+            }());
+            </script>
             <?php
         }
         private function spbwc_get_default_quote_form_fields() {
