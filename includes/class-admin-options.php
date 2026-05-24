@@ -292,7 +292,15 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
                     SPBWC_PB_QUOTES_SLUG,
                     array($this, 'spbwc_quotes_manager')
                 );
-                // License submenu – placed right after Quotes
+                add_submenu_page(
+                    SPBWC_PB_OVERVIEW_SLUG,
+                    esc_html__('Designs', 'storelly-product-builder-for-woocommerce'),
+                    esc_html__('Designs', 'storelly-product-builder-for-woocommerce'),
+                    'manage_options',
+                    SPBWC_PB_DESIGNS_SLUG,
+                    array($this, 'spbwc_designs_page')
+                );
+                // License submenu – placed right after Designs
                 add_submenu_page(
                     SPBWC_PB_OVERVIEW_SLUG,
                     esc_html__('License', 'storelly-product-builder-for-woocommerce'),
@@ -431,6 +439,25 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
                 ));
                 wp_enqueue_script('spbwc-manager-fonts-script');
                 wp_enqueue_style('spbwc-manager-fonts');
+            }
+
+            // Designs page — reuse marketplace-admin styles + JS for pill/card/toggle logic.
+            if ( defined( 'SPBWC_PB_DESIGNS_SLUG' ) && false !== strpos( $hook, SPBWC_PB_DESIGNS_SLUG ) ) {
+                wp_enqueue_style( 'spbwc-marketplace-admin', SPBWC_PB_CSS_URL . 'marketplace-admin.css', array( 'spbwc-admin-ui' ), SPBWC_PB_VERSION );
+                wp_register_script( 'spbwc-marketplace-chartjs', SPBWC_PB_ASSETS_URL . 'libs/chartjs/chart.umd.js', array(), '4.4.0', true );
+                wp_register_script( 'spbwc-marketplace-admin', SPBWC_PB_JS_URL . 'marketplace-admin.js', array( 'jquery', 'spbwc-marketplace-chartjs' ), SPBWC_PB_VERSION, true );
+                wp_enqueue_script( 'spbwc-marketplace-admin' );
+                wp_localize_script( 'spbwc-marketplace-admin', 'spbwcMarketplaceAdmin', array(
+                    'ajaxUrl' => admin_url( 'admin-ajax.php' ),
+                    'nonce'   => wp_create_nonce( 'spbwc_marketplace_admin' ),
+                    'i18n'    => array(
+                        'confirmDelete'  => __( 'Are you sure you want to delete this design?', 'storelly-product-builder-for-woocommerce' ),
+                        'confirmApprove' => __( 'Approve this request?', 'storelly-product-builder-for-woocommerce' ),
+                        'confirmCancel'  => __( 'Cancel this request?', 'storelly-product-builder-for-woocommerce' ),
+                        'processing'     => __( 'Processing…', 'storelly-product-builder-for-woocommerce' ),
+                        'failed'         => __( 'Action failed. Please try again.', 'storelly-product-builder-for-woocommerce' ),
+                    ),
+                ) );
             }
         }
         public function spbwc_product_builder_options() {
@@ -730,6 +757,41 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
             </div>
             <?php
         }
+        public function spbwc_designs_page() {
+            if ( ! current_user_can( 'spbwc_manage_product_builder' ) ) {
+                wp_die( esc_html__( 'You do not have permission to access this page.', 'storelly-product-builder-for-woocommerce' ) );
+            }
+
+            // Handle bulk actions before output.
+            $action = '';
+            if ( isset( $_REQUEST['action'] ) && '-1' !== $_REQUEST['action'] ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+                $action = sanitize_key( wp_unslash( $_REQUEST['action'] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+            } elseif ( isset( $_REQUEST['action2'] ) && '-1' !== $_REQUEST['action2'] ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+                $action = sanitize_key( wp_unslash( $_REQUEST['action2'] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+            }
+
+            if ( ! empty( $action ) && in_array( $action, array( 'publish', 'unpublish', 'delete' ), true ) && ! empty( $_REQUEST['design_ids'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+                check_admin_referer( 'bulk-designs' );
+                global $wpdb; // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals
+                $table      = $wpdb->prefix . 'storelly_marketplace_designs';
+                $design_ids = array_map( 'absint', (array) wp_unslash( $_REQUEST['design_ids'] ) );
+                foreach ( $design_ids as $did ) {
+                    if ( $did < 1 ) {
+                        continue;
+                    }
+                    if ( 'delete' === $action ) {
+                        $wpdb->delete( $table, array( 'id' => $did ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery
+                    } else {
+                        $wpdb->update( $table, array( 'publish' => ( 'publish' === $action ) ? 1 : 0 ), array( 'id' => $did ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery
+                    }
+                }
+                wp_safe_redirect( add_query_arg( array( 'page' => SPBWC_PB_DESIGNS_SLUG, 'bulk_done' => $action ), admin_url( 'admin.php' ) ) );
+                exit;
+            }
+
+            require_once SPBWC_PB_PLUGIN_DIR . 'views/designs.php';
+        }
+
         public function spbwc_quotes_manager() {
             if ( ! current_user_can( 'spbwc_manage_product_builder' ) ) {
                 wp_die( esc_html__( 'You do not have permission to access this page.', 'storelly-product-builder-for-woocommerce' ) );
@@ -1176,25 +1238,105 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
             <script>
             (function () {
                 'use strict';
-                var nav = document.getElementById( 'spbwc-quotes-nav' );
-                if ( ! nav ) { return; }
-                nav.addEventListener( 'click', function ( e ) {
-                    var link = e.target.closest( '[data-tab]' );
-                    if ( ! link ) { return; }
-                    e.preventDefault();
-                    var target = link.getAttribute( 'data-tab' );
-                    nav.querySelectorAll( '.nav-tab' ).forEach( function ( t ) {
-                        t.classList.toggle( 'nav-tab-active', t === link );
+
+                /* ── i18n ─────────────────────────────────────────────── */
+                var i18n = {
+                    saving:  <?php echo wp_json_encode( __( 'Saving…', 'storelly-product-builder-for-woocommerce' ) ); ?>,
+                    saved:   <?php echo wp_json_encode( __( 'Saved successfully.', 'storelly-product-builder-for-woocommerce' ) ); ?>,
+                    failed:  <?php echo wp_json_encode( __( 'Save failed. Please try again.', 'storelly-product-builder-for-woocommerce' ) ); ?>,
+                    network: <?php echo wp_json_encode( __( 'Network error. Please check your connection.', 'storelly-product-builder-for-woocommerce' ) ); ?>
+                };
+
+                /* ── Toast ────────────────────────────────────────────── */
+                function spbwcToast( type, msg ) {
+                    var prev = document.getElementById( 'spbwc-toast' );
+                    if ( prev ) { clearTimeout( prev._t ); prev.remove(); }
+                    var el = document.createElement( 'div' );
+                    el.id = 'spbwc-toast';
+                    el.className = 'spbwc-toast spbwc-toast--' + type;
+                    el.innerHTML =
+                        '<span class="dashicons ' +
+                        ( type === 'success' ? 'dashicons-yes-alt' : 'dashicons-warning' ) +
+                        ' spbwc-toast__icon" aria-hidden="true"></span>' +
+                        '<span>' + msg + '</span>' +
+                        '<button class="spbwc-toast__close" aria-label="Close">×</button>';
+                    document.body.appendChild( el );
+                    el.querySelector( '.spbwc-toast__close' ).onclick = function () { dismiss( el ); };
+                    requestAnimationFrame( function () {
+                        requestAnimationFrame( function () { el.classList.add( 'is-visible' ); } );
                     } );
-                    document.querySelectorAll( '.spbwc-quotes-panel' ).forEach( function ( p ) {
-                        p.style.display = ( p.dataset.panel === target ) ? '' : 'none';
+                    el._t = setTimeout( function () { dismiss( el ); }, 4500 );
+                }
+
+                function dismiss( el ) {
+                    el.classList.remove( 'is-visible' );
+                    setTimeout( function () { if ( el.parentNode ) { el.remove(); } }, 400 );
+                }
+
+                /* ── AJAX save ────────────────────────────────────────── */
+                function spbwcAjaxSave( form, btn ) {
+                    var origHTML = btn.innerHTML;
+                    btn.classList.add( 'is-saving' );
+                    btn.innerHTML = '<span class="dashicons dashicons-update"></span> ' + i18n.saving;
+
+                    fetch( window.location.href, {
+                        method: 'POST',
+                        body: new FormData( form ),
+                        credentials: 'same-origin'
+                    } )
+                    .then( function ( r ) { return r.text(); } )
+                    .then( function ( html ) {
+                        btn.classList.remove( 'is-saving' );
+                        btn.innerHTML = origHTML;
+                        var doc = ( new DOMParser() ).parseFromString( html, 'text/html' );
+                        if ( doc.querySelector( '.notice-error, .error' ) ) {
+                            var errEl = doc.querySelector( '.notice-error p, .error p' );
+                            spbwcToast( 'error', errEl ? errEl.textContent.trim() : i18n.failed );
+                        } else {
+                            spbwcToast( 'success', i18n.saved );
+                        }
+                    } )
+                    .catch( function () {
+                        btn.classList.remove( 'is-saving' );
+                        btn.innerHTML = origHTML;
+                        spbwcToast( 'error', i18n.network );
                     } );
-                    if ( history.replaceState ) {
-                        var url = new URL( location.href );
-                        url.searchParams.set( 'tab', target );
-                        history.replaceState( null, '', url.toString() );
-                    }
+                }
+
+                /* ── Attach AJAX save to quote forms ──────────────────── */
+                [ 'spbwc_save_quote_settings', 'spbwc_save_quote_form' ].forEach( function ( btnName ) {
+                    var submitBtn = document.querySelector( 'button[name="' + btnName + '"]' );
+                    if ( ! submitBtn ) { return; }
+                    var form = submitBtn.closest( 'form' );
+                    if ( ! form ) { return; }
+                    form.addEventListener( 'submit', function ( e ) {
+                        e.preventDefault();
+                        spbwcAjaxSave( form, submitBtn );
+                    } );
                 } );
+
+                /* ── Tab switching ────────────────────────────────────── */
+                var nav = document.getElementById( 'spbwc-quotes-nav' );
+                if ( nav ) {
+                    nav.addEventListener( 'click', function ( e ) {
+                        var link = e.target.closest( '[data-tab]' );
+                        if ( ! link ) { return; }
+                        e.preventDefault();
+                        var target = link.getAttribute( 'data-tab' );
+                        nav.querySelectorAll( '.nav-tab' ).forEach( function ( t ) {
+                            t.classList.toggle( 'nav-tab-active', t === link );
+                        } );
+                        document.querySelectorAll( '.spbwc-quotes-panel' ).forEach( function ( p ) {
+                            p.style.display = ( p.dataset.panel === target ) ? '' : 'none';
+                        } );
+                        if ( history.replaceState ) {
+                            var url = new URL( location.href );
+                            url.searchParams.set( 'tab', target );
+                            history.replaceState( null, '', url.toString() );
+                        }
+                    } );
+                }
+
             }());
             </script>
             <?php

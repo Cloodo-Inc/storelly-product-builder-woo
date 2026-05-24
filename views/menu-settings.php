@@ -734,39 +734,108 @@ if ( ! in_array($spbwc_settings_tab, $spbwc_valid_tabs, true) ) {
 <script>
 (function () {
     'use strict';
+
+    /* ── i18n ─────────────────────────────────────────────────── */
+    var i18n = {
+        saving:  <?php echo wp_json_encode( __( 'Saving…', 'storelly-product-builder-for-woocommerce' ) ); ?>,
+        saved:   <?php echo wp_json_encode( __( 'Settings saved successfully.', 'storelly-product-builder-for-woocommerce' ) ); ?>,
+        failed:  <?php echo wp_json_encode( __( 'Save failed. Please try again.', 'storelly-product-builder-for-woocommerce' ) ); ?>,
+        network: <?php echo wp_json_encode( __( 'Network error. Please check your connection.', 'storelly-product-builder-for-woocommerce' ) ); ?>
+    };
+
+    /* ── Toast ────────────────────────────────────────────────── */
+    function spbwcToast( type, msg ) {
+        var prev = document.getElementById( 'spbwc-toast' );
+        if ( prev ) { clearTimeout( prev._t ); prev.remove(); }
+
+        var el = document.createElement( 'div' );
+        el.id = 'spbwc-toast';
+        el.className = 'spbwc-toast spbwc-toast--' + type;
+        el.innerHTML =
+            '<span class="dashicons ' +
+            ( type === 'success' ? 'dashicons-yes-alt' : 'dashicons-warning' ) +
+            ' spbwc-toast__icon" aria-hidden="true"></span>' +
+            '<span>' + msg + '</span>' +
+            '<button class="spbwc-toast__close" aria-label="Close">×</button>';
+
+        document.body.appendChild( el );
+        el.querySelector( '.spbwc-toast__close' ).onclick = function () { spbwcDismiss( el ); };
+        requestAnimationFrame( function () {
+            requestAnimationFrame( function () { el.classList.add( 'is-visible' ); } );
+        } );
+        el._t = setTimeout( function () { spbwcDismiss( el ); }, 4500 );
+    }
+
+    function spbwcDismiss( el ) {
+        el.classList.remove( 'is-visible' );
+        setTimeout( function () { if ( el.parentNode ) { el.remove(); } }, 400 );
+    }
+
+    /* ── AJAX save ────────────────────────────────────────────── */
+    function spbwcAjaxSave( form, btn ) {
+        var origHTML = btn.innerHTML;
+        btn.classList.add( 'is-saving' );
+        btn.innerHTML = '<span class="dashicons dashicons-update"></span> ' + i18n.saving;
+
+        fetch( form.getAttribute( 'action' ) || window.location.href, {
+            method: 'POST',
+            body: new FormData( form ),
+            credentials: 'same-origin'
+        } )
+        .then( function ( r ) { return r.text(); } )
+        .then( function ( html ) {
+            btn.classList.remove( 'is-saving' );
+            btn.innerHTML = origHTML;
+            var doc = ( new DOMParser() ).parseFromString( html, 'text/html' );
+            if ( doc.querySelector( '.notice-error, .error' ) ) {
+                var errEl = doc.querySelector( '.notice-error p, .error p' );
+                spbwcToast( 'error', errEl ? errEl.textContent.trim() : i18n.failed );
+            } else {
+                spbwcToast( 'success', i18n.saved );
+            }
+        } )
+        .catch( function () {
+            btn.classList.remove( 'is-saving' );
+            btn.innerHTML = origHTML;
+            spbwcToast( 'error', i18n.network );
+        } );
+    }
+
+    /* ── Attach AJAX save ─────────────────────────────────────── */
+    var settingsForm = document.getElementById( 'spbwc-settings-form' );
+    if ( settingsForm ) {
+        settingsForm.addEventListener( 'submit', function ( e ) {
+            e.preventDefault();
+            spbwcAjaxSave( settingsForm, settingsForm.querySelector( 'button[type="submit"]' ) );
+        } );
+    }
+
+    /* ── Tab switching ────────────────────────────────────────── */
     var nav = document.getElementById( 'spbwc-settings-nav' );
-    if ( ! nav ) { return; }
+    if ( nav ) {
+        nav.addEventListener( 'click', function ( e ) {
+            var link = e.target.closest( '[data-tab]' );
+            if ( ! link ) { return; }
+            e.preventDefault();
+            var target = link.getAttribute( 'data-tab' );
 
-    nav.addEventListener( 'click', function ( e ) {
-        var link = e.target.closest( '[data-tab]' );
-        if ( ! link ) { return; }
-        e.preventDefault();
-
-        var target = link.getAttribute( 'data-tab' );
-
-        /* Update active tab link */
-        nav.querySelectorAll( '.nav-tab' ).forEach( function ( t ) {
-            t.classList.toggle( 'nav-tab-active', t === link );
+            nav.querySelectorAll( '.nav-tab' ).forEach( function ( t ) {
+                t.classList.toggle( 'nav-tab-active', t === link );
+            } );
+            document.querySelectorAll( '.spbwc-tab-panel' ).forEach( function ( p ) {
+                p.style.display = ( p.id === 'tab-' + target ) ? '' : 'none';
+            } );
+            if ( settingsForm ) {
+                var action = settingsForm.getAttribute( 'action' );
+                settingsForm.setAttribute( 'action', action.replace( /([?&]tab=)[^&]+/, '$1' + target ) );
+            }
+            if ( history.replaceState ) {
+                var url = new URL( location.href );
+                url.searchParams.set( 'tab', target );
+                history.replaceState( null, '', url.toString() );
+            }
         } );
+    }
 
-        /* Show / hide tab panels */
-        document.querySelectorAll( '.spbwc-tab-panel' ).forEach( function ( p ) {
-            p.style.display = ( p.id === 'tab-' + target ) ? '' : 'none';
-        } );
-
-        /* Keep the form action in sync so Save lands on the right tab */
-        var form = document.getElementById( 'spbwc-settings-form' );
-        if ( form ) {
-            var action = form.getAttribute( 'action' );
-            form.setAttribute( 'action', action.replace( /([?&]tab=)[^&]+/, '$1' + target ) );
-        }
-
-        /* Update browser URL without page reload */
-        if ( history.replaceState ) {
-            var url = new URL( location.href );
-            url.searchParams.set( 'tab', target );
-            history.replaceState( null, '', url.toString() );
-        }
-    } );
 }());
 </script>

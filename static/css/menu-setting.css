@@ -7,55 +7,144 @@
 }
 
 
-/* ── Professional pill-style tabs ──────────────────────────── */
+/* ── Clean underline tab strip ──────────────────────────────── */
 .spbwc-settings-tabs {
     display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 4px;
-    padding: 0 0 20px;
-    margin: 0 0 4px;
-    border-bottom: none;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    align-items: flex-end;
+    gap: 0;
+    padding: 0;
+    margin: 0 0 28px;
+    border-bottom: 2px solid var(--nbd-st-border-light);
     background: transparent;
+    scrollbar-width: none;
 }
+.spbwc-settings-tabs::-webkit-scrollbar { display: none; }
 
 .spbwc-settings-tabs .nav-tab {
     display: inline-flex;
     align-items: center;
     gap: 6px;
-    margin: 0;
-    padding: 8px 16px;
-    border: 1.5px solid var(--nbd-st-border-light);
-    border-radius: 6px;
-    background: #fff;
+    flex-shrink: 0;
+    margin: 0 0 -2px;
+    padding: 10px 18px;
+    border: none;
+    border-bottom: 2px solid transparent;
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
     font-size: 13px;
     font-weight: 500;
-    color: var(--nbd-st-text-soft);
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
-    transition: all 0.15s ease;
+    color: var(--nbd-st-text-mute);
+    transition: color 0.15s, border-color 0.15s;
     text-decoration: none;
     cursor: pointer;
+    white-space: nowrap;
 }
 
 .spbwc-settings-tabs .nav-tab:hover {
-    border-color: var(--nbd-st-primary);
-    color: var(--nbd-st-primary);
-    box-shadow: 0 2px 6px rgba(34, 113, 177, 0.15);
+    color: var(--nbd-st-text);
+    background: transparent;
+    border-bottom-color: var(--nbd-st-border);
+    box-shadow: none;
 }
 
 .spbwc-settings-tabs .nav-tab-active,
 .spbwc-settings-tabs .nav-tab-active:hover {
-    background: var(--nbd-st-primary);
-    border-color: var(--nbd-st-primary);
-    color: #fff;
-    box-shadow: 0 2px 8px rgba(34, 113, 177, 0.30);
+    color: var(--nbd-st-primary);
+    border-bottom-color: var(--nbd-st-primary);
+    background: transparent;
+    font-weight: 600;
+    box-shadow: none;
 }
 
 .spbwc-settings-tabs .nav-tab .dashicons {
-    font-size: 15px;
-    width: 15px;
-    height: 15px;
+    font-size: 14px;
+    width: 14px;
+    height: 14px;
     line-height: 1;
+    opacity: 0.65;
+}
+.spbwc-settings-tabs .nav-tab-active .dashicons,
+.spbwc-settings-tabs .nav-tab:hover .dashicons {
+    opacity: 1;
+}
+
+/* ── Toast notification ─────────────────────────────────────── */
+.spbwc-toast {
+    position: fixed;
+    top: 48px;
+    right: 24px;
+    z-index: 999999;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 13px 16px;
+    min-width: 260px;
+    max-width: 380px;
+    border-radius: 8px;
+    font-size: 13.5px;
+    font-weight: 500;
+    line-height: 1.4;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.13);
+    transform: translateX(calc(100% + 40px));
+    opacity: 0;
+    transition: transform 0.32s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.18s ease;
+    pointer-events: none;
+}
+.spbwc-toast.is-visible {
+    transform: translateX(0);
+    opacity: 1;
+    pointer-events: auto;
+}
+.spbwc-toast--success {
+    background: #f0fdf4;
+    border: 1px solid #bbf7d0;
+    border-left: 4px solid #22c55e;
+    color: #166534;
+}
+.spbwc-toast--error {
+    background: #fff1f2;
+    border: 1px solid #fecdd3;
+    border-left: 4px solid #ef4444;
+    color: #991b1b;
+}
+.spbwc-toast__icon {
+    flex-shrink: 0;
+    font-size: 18px !important;
+    width: 18px !important;
+    height: 18px !important;
+}
+.spbwc-toast--success .spbwc-toast__icon { color: #16a34a; }
+.spbwc-toast--error   .spbwc-toast__icon { color: #dc2626; }
+.spbwc-toast__close {
+    margin-left: auto;
+    flex-shrink: 0;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: inherit;
+    opacity: 0.45;
+    padding: 0 2px;
+    font-size: 16px;
+    line-height: 1;
+    font-weight: 400;
+    transition: opacity 0.15s;
+}
+.spbwc-toast__close:hover { opacity: 1; }
+
+/* ── Save button loading state ──────────────────────────────── */
+@keyframes spbwc-spin {
+    from { transform: rotate(0deg); }
+    to   { transform: rotate(360deg); }
+}
+.spbwc-cta-btn.is-saving {
+    opacity: 0.70;
+    pointer-events: none;
+}
+.spbwc-cta-btn.is-saving .dashicons {
+    animation: spbwc-spin 0.75s linear infinite;
 }
 
 
