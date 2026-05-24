@@ -42,6 +42,9 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
                 'spbwc_get_media_full_size_url'  => true,
                 'spbwc_add_google_font'          => true,
                 'spbwc_download_order_designs'   => true,
+                // Custom font upload/delete (admin only)
+                'spbwc_upload_custom_font'       => false,
+                'spbwc_delete_custom_font'       => false,
                 // License management AJAX actions
                 'spbwc_license_activate'         => false, // admin only
                 'spbwc_license_sync'             => false, // admin only
@@ -2526,6 +2529,135 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
             echo wp_json_encode($data);
             wp_die();
         }
+
+        /**
+         * AJAX: Upload a custom font file (TTF / OTF / WOFF / WOFF2).
+         * Stores font metadata in wp_options key spbwc_custom_fonts.
+         */
+        public function spbwc_upload_custom_font() {
+            if ( ! current_user_can( 'manage_options' ) ) {
+                wp_send_json_error( array( 'message' => esc_html__( 'Permission denied.', 'storelly-product-builder-for-woocommerce' ) ) );
+            }
+
+            $nonce = isset( $_POST['nonce'] ) ? sanitize_text_field( wp_unslash( $_POST['nonce'] ) ) : '';
+            if ( ! $nonce || ! wp_verify_nonce( $nonce, 'spbwc_custom_font_upload' ) ) {
+                wp_send_json_error( array( 'message' => esc_html__( 'Security check failed.', 'storelly-product-builder-for-woocommerce' ) ) );
+            }
+
+            if ( empty( $_FILES['font_file'] ) || ! isset( $_FILES['font_file']['tmp_name'] ) ) {
+                wp_send_json_error( array( 'message' => esc_html__( 'No file uploaded.', 'storelly-product-builder-for-woocommerce' ) ) );
+            }
+
+            $allowed_ext = array( 'ttf', 'otf', 'woff', 'woff2' );
+            // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- sanitized immediately via pathinfo + strtolower.
+            $raw_name = isset( $_FILES['font_file']['name'] ) ? $_FILES['font_file']['name'] : '';
+            $ext      = strtolower( pathinfo( sanitize_file_name( $raw_name ), PATHINFO_EXTENSION ) );
+
+            if ( ! in_array( $ext, $allowed_ext, true ) ) {
+                wp_send_json_error( array( 'message' => esc_html__( 'Invalid file type. Allowed: TTF, OTF, WOFF, WOFF2.', 'storelly-product-builder-for-woocommerce' ) ) );
+            }
+
+            // Temporarily allow font MIME types for wp_handle_upload.
+            add_filter( 'upload_mimes', array( $this, 'spbwc_allow_font_mimes' ) );
+            add_filter( 'wp_check_filetype_and_ext', array( $this, 'spbwc_allow_font_filetype' ), 10, 4 );
+
+            require_once ABSPATH . 'wp-admin/includes/file.php';
+            $movefile = wp_handle_upload( $_FILES['font_file'], array( 'test_form' => false ) ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- passed directly to wp_handle_upload which handles validation.
+
+            remove_filter( 'upload_mimes', array( $this, 'spbwc_allow_font_mimes' ) );
+            remove_filter( 'wp_check_filetype_and_ext', array( $this, 'spbwc_allow_font_filetype' ) );
+
+            if ( ! $movefile || isset( $movefile['error'] ) ) {
+                $err = isset( $movefile['error'] ) ? $movefile['error'] : esc_html__( 'Upload failed.', 'storelly-product-builder-for-woocommerce' );
+                wp_send_json_error( array( 'message' => $err ) );
+            }
+
+            $font_name = isset( $_POST['font_name'] ) ? sanitize_text_field( wp_unslash( $_POST['font_name'] ) ) : '';
+            if ( empty( $font_name ) ) {
+                $font_name = ucwords( str_replace( array( '-', '_' ), ' ', pathinfo( sanitize_file_name( $raw_name ), PATHINFO_FILENAME ) ) );
+            }
+
+            $allowed_cat  = array( 'serif', 'sans-serif', 'display', 'handwriting', 'monospace' );
+            $category     = isset( $_POST['category'] ) ? sanitize_text_field( wp_unslash( $_POST['category'] ) ) : 'sans-serif';
+            if ( ! in_array( $category, $allowed_cat, true ) ) {
+                $category = 'sans-serif';
+            }
+
+            $custom_fonts = get_option( 'spbwc_custom_fonts', array() );
+            if ( ! is_array( $custom_fonts ) ) {
+                $custom_fonts = array();
+            }
+            $new_font = array(
+                'id'       => 'cf_' . uniqid(),
+                'name'     => $font_name,
+                'url'      => esc_url_raw( $movefile['url'] ),
+                'format'   => $ext,
+                'category' => $category,
+            );
+            $custom_fonts[] = $new_font;
+            update_option( 'spbwc_custom_fonts', $custom_fonts );
+
+            wp_send_json_success( array(
+                'font'    => $new_font,
+                'message' => esc_html__( 'Font uploaded successfully!', 'storelly-product-builder-for-woocommerce' ),
+            ) );
+        }
+
+        /** Helper: allow font MIME types during upload. */
+        public function spbwc_allow_font_mimes( $mimes ) {
+            $mimes['ttf']   = 'font/ttf';
+            $mimes['otf']   = 'font/otf';
+            $mimes['woff']  = 'font/woff';
+            $mimes['woff2'] = 'font/woff2';
+            return $mimes;
+        }
+
+        /** Helper: bypass real-file MIME check for fonts (wp_check_filetype_and_ext). */
+        public function spbwc_allow_font_filetype( $data, $file, $filename, $mimes ) {
+            $ext = strtolower( pathinfo( sanitize_file_name( $filename ), PATHINFO_EXTENSION ) );
+            $font_types = array(
+                'ttf'   => 'font/ttf',
+                'otf'   => 'font/otf',
+                'woff'  => 'font/woff',
+                'woff2' => 'font/woff2',
+            );
+            if ( isset( $font_types[ $ext ] ) ) {
+                $data['ext']  = $ext;
+                $data['type'] = $font_types[ $ext ];
+            }
+            return $data;
+        }
+
+        /**
+         * AJAX: Delete a custom font by ID.
+         */
+        public function spbwc_delete_custom_font() {
+            if ( ! current_user_can( 'manage_options' ) ) {
+                wp_send_json_error( array( 'message' => esc_html__( 'Permission denied.', 'storelly-product-builder-for-woocommerce' ) ) );
+            }
+
+            $nonce = isset( $_POST['nonce'] ) ? sanitize_text_field( wp_unslash( $_POST['nonce'] ) ) : '';
+            if ( ! $nonce || ! wp_verify_nonce( $nonce, 'spbwc_custom_font_upload' ) ) {
+                wp_send_json_error( array( 'message' => esc_html__( 'Security check failed.', 'storelly-product-builder-for-woocommerce' ) ) );
+            }
+
+            $font_id = isset( $_POST['font_id'] ) ? sanitize_text_field( wp_unslash( $_POST['font_id'] ) ) : '';
+            if ( empty( $font_id ) ) {
+                wp_send_json_error( array( 'message' => esc_html__( 'Invalid font ID.', 'storelly-product-builder-for-woocommerce' ) ) );
+            }
+
+            $custom_fonts = get_option( 'spbwc_custom_fonts', array() );
+            if ( ! is_array( $custom_fonts ) ) {
+                $custom_fonts = array();
+            }
+            $custom_fonts = array_values( array_filter( $custom_fonts, function( $font ) use ( $font_id ) {
+                return isset( $font['id'] ) && $font['id'] !== $font_id;
+            } ) );
+            update_option( 'spbwc_custom_fonts', $custom_fonts );
+
+            wp_send_json_success( array( 'message' => esc_html__( 'Font deleted.', 'storelly-product-builder-for-woocommerce' ) ) );
+        }
+
         public function spbwc_manager_fonts() {
             // CORRECT PATTERN: Verify nonce and parameters BEFORE processing.
             // This method is read-only (displays/filters fonts), but we verify nonce when cat_id is provided for consistency.
@@ -2553,11 +2685,28 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
             }
             $google_fonts_ttf_json = SPBWC_Storelly_IO::spbwc_get_local_file_contents(SPBWC_PB_DATA_CONFIG_DIR . 'google-fonts-ttf.json');
             $google_fonts_ttf = (false !== $google_fonts_ttf_json) ? json_decode($google_fonts_ttf_json, true) : array();
+            $custom_fonts = get_option( 'spbwc_custom_fonts', array() );
+            if ( ! is_array( $custom_fonts ) ) {
+                $custom_fonts = array();
+            }
+
             wp_register_script('storelly_manager_fonts_script', SPBWC_PB_JS_URL . 'manager-fonts.js', array('spbwc-fontfaceobserver', 'spbwc-sweetalert-js', 'spbwc-ag'), SPBWC_PB_VERSION, true);
             wp_localize_script('storelly_manager_fonts_script', 'storelly_manager_fonts_variable', array(
-                'selected_fonts' =>  $selected_fonts,
-                'ggFonts' => $google_fonts_ttf,
-                'fSubsets' => $subsets
+                'selected_fonts'  => $selected_fonts,
+                'ggFonts'         => $google_fonts_ttf,
+                'fSubsets'        => $subsets,
+                'custom_fonts'    => $custom_fonts,
+                'upload_nonce'    => wp_create_nonce( 'spbwc_custom_font_upload' ),
+                'ajax_url'        => admin_url( 'admin-ajax.php' ),
+                'i18n'            => array(
+                    'upload_success'   => esc_html__( 'Font uploaded successfully!', 'storelly-product-builder-for-woocommerce' ),
+                    'delete_confirm'   => esc_html__( 'Delete this font? This cannot be undone.', 'storelly-product-builder-for-woocommerce' ),
+                    'delete_success'   => esc_html__( 'Font deleted.', 'storelly-product-builder-for-woocommerce' ),
+                    'error_filetype'   => esc_html__( 'Invalid file type. Allowed: TTF, OTF, WOFF, WOFF2.', 'storelly-product-builder-for-woocommerce' ),
+                    'error_generic'    => esc_html__( 'An error occurred. Please try again.', 'storelly-product-builder-for-woocommerce' ),
+                    'drop_hint'        => esc_html__( 'Drop font file here', 'storelly-product-builder-for-woocommerce' ),
+                    'uploading'        => esc_html__( 'Uploading…', 'storelly-product-builder-for-woocommerce' ),
+                ),
             ));
             wp_enqueue_script("storelly_manager_fonts_script");
             include_once(SPBWC_PB_PLUGIN_DIR . 'views/manager-fonts.php');

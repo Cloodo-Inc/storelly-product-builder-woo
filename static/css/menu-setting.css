@@ -54,7 +54,7 @@
 .spbwc-settings-tabs .nav-tab-active:hover {
     color: var(--nbd-st-primary);
     border-bottom-color: var(--nbd-st-primary);
-    background: transparent;
+    background: rgba(34, 113, 177, 0.07);
     font-weight: 600;
     box-shadow: none;
 }
@@ -234,7 +234,7 @@
     border: 1px solid var(--nbd-st-border);
     border-radius: 6px;
     background: #fff;
-    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.06);
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.09);
     transition: border-color 0.2s, box-shadow 0.2s;
 }
 
@@ -377,6 +377,30 @@
     .spbwc-settings-wrap {
         padding: 0 16px 24px;
     }
+}
+
+/* ── Inner-shadow form fields across the settings page ────── */
+.spbwc-settings-wrap input[type="text"],
+.spbwc-settings-wrap input[type="email"],
+.spbwc-settings-wrap input[type="number"],
+.spbwc-settings-wrap input[type="tel"],
+.spbwc-settings-wrap textarea,
+.spbwc-settings-wrap select {
+    border: 1px solid var(--nbd-st-border);
+    border-radius: 6px;
+    background: #fff;
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.09);
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+.spbwc-settings-wrap input[type="text"]:focus,
+.spbwc-settings-wrap input[type="email"]:focus,
+.spbwc-settings-wrap input[type="number"]:focus,
+.spbwc-settings-wrap input[type="tel"]:focus,
+.spbwc-settings-wrap textarea:focus,
+.spbwc-settings-wrap select:focus {
+    border-color: var(--nbd-st-primary);
+    box-shadow: 0 0 0 2px rgba(34, 113, 177, 0.15), inset 0 1px 3px rgba(0, 0, 0, 0.06);
+    outline: none;
 }
 
 .form-table td {
