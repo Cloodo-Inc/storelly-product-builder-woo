@@ -127,80 +127,107 @@ if ( ! in_array($spbwc_settings_tab, $spbwc_valid_tabs, true) ) {
 
             <!-- ━━━ GENERAL ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ -->
             <div class="spbwc-tab-panel" id="tab-general"<?php echo ($spbwc_settings_tab !== 'general') ? ' style="display:none;"' : ''; ?>>
-                <!-- Storelly Integration - First-time setup -->
-                <div class="spbwc-settings-section spbwc-section-storelly">
-                    <h3 class="spbwc-section-title">
-                        <span class="dashicons dashicons-admin-generic"></span>
-                        <?php esc_html_e('Storelly Integration', 'storelly-product-builder-for-woocommerce'); ?>
-                    </h3>
-                    <p class="spbwc-section-desc"><?php esc_html_e('Connect your store with Storelly to enable PDF creation and sync. Required for first-time setup.', 'storelly-product-builder-for-woocommerce'); ?></p>
-                    <div class="spbwc-settings-grid">
-                        <div class="spbwc-settings-card">
-                            <h4 class="spbwc-card-title"><?php esc_html_e('API & Sync', 'storelly-product-builder-for-woocommerce'); ?></h4>
-                            <table class="form-table pc-table">
-                                <tbody>
-                                    <tr>
-                                        <th scope="row"><label><?php esc_html_e('Enable Storelly cloud API to create PDF', 'storelly-product-builder-for-woocommerce'); ?></label></th>
-                                        <td>
-                                            <label class="spbwc-radio-inline"><input type="radio" name="storelly_enable_cloud2print_api" value="yes" <?php echo esc_attr($stt_yes_cloud2print_api); ?> /> <?php esc_html_e('Yes', 'storelly-product-builder-for-woocommerce'); ?></label>
-                                            <label class="spbwc-radio-inline"><input type="radio" name="storelly_enable_cloud2print_api" value="no" <?php echo esc_attr($stt_no_cloud2print_api); ?> /> <?php esc_html_e('No', 'storelly-product-builder-for-woocommerce'); ?></label>
-                                        </td>
-                                    </tr>
-                                    <?php
-                                    $spbwc_stt_yes_api_sync = isset($storelly_pb_settings['enable_api_sync']) && $storelly_pb_settings['enable_api_sync'] == 'yes' ? 'checked' : '';
-                                    $spbwc_stt_no_api_sync = isset($storelly_pb_settings['enable_api_sync']) && $storelly_pb_settings['enable_api_sync'] == 'no' ? 'checked' : '';
-                                    if (empty($spbwc_stt_yes_api_sync) && empty($spbwc_stt_no_api_sync)) {
-                                        $spbwc_stt_no_api_sync = 'checked';
-                                    }
-                                    ?>
-                                    <tr>
-                                        <th scope="row"><label><?php esc_html_e('Enable Storelly Dashboard API sync (opt-in)', 'storelly-product-builder-for-woocommerce'); ?></label></th>
-                                        <td>
-                                            <label class="spbwc-radio-inline"><input type="radio" name="storelly_enable_api_sync" value="yes" <?php echo esc_attr($spbwc_stt_yes_api_sync); ?> /> <?php esc_html_e('Yes', 'storelly-product-builder-for-woocommerce'); ?></label>
-                                            <label class="spbwc-radio-inline"><input type="radio" name="storelly_enable_api_sync" value="no" <?php echo esc_attr($spbwc_stt_no_api_sync); ?> /> <?php esc_html_e('No', 'storelly-product-builder-for-woocommerce'); ?></label>
-                                            <p class="description"><?php esc_html_e('When enabled, order data will be synchronized with Storelly Dashboard. OFF by default.', 'storelly-product-builder-for-woocommerce'); ?></p>
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
+
+                <!-- Storelly Integration block -->
+                <div class="spbwc-block" style="margin-bottom:var(--nbd-space-4);">
+                    <div class="spbwc-block__head">
+                        <h3 class="spbwc-block__title">
+                            <span class="dashicons dashicons-admin-generic" aria-hidden="true"></span>
+                            <?php esc_html_e('Storelly Integration', 'storelly-product-builder-for-woocommerce'); ?>
+                        </h3>
+                    </div>
+                    <div class="spbwc-setting-rows">
+                        <!-- Enable cloud PDF -->
+                        <div class="spbwc-setting-row">
+                            <div class="spbwc-setting-row__label">
+                                <?php esc_html_e('Enable cloud PDF rendering', 'storelly-product-builder-for-woocommerce'); ?>
+                            </div>
+                            <div class="spbwc-setting-row__control">
+                                <div class="spbwc-radio-group">
+                                    <label class="spbwc-radio-group__option">
+                                        <input type="radio" name="storelly_enable_cloud2print_api" value="yes" <?php echo esc_attr($stt_yes_cloud2print_api); ?> />
+                                        <span class="spbwc-radio-group__lbl"><?php esc_html_e('Yes', 'storelly-product-builder-for-woocommerce'); ?></span>
+                                    </label>
+                                    <label class="spbwc-radio-group__option">
+                                        <input type="radio" name="storelly_enable_cloud2print_api" value="no" <?php echo esc_attr($stt_no_cloud2print_api); ?> />
+                                        <span class="spbwc-radio-group__lbl"><?php esc_html_e('No', 'storelly-product-builder-for-woocommerce'); ?></span>
+                                    </label>
+                                </div>
+                            </div>
+                            <p class="spbwc-setting-row__hint"><?php esc_html_e('Activates the Storelly cloud engine to generate print-ready PDFs from customer orders. Required if you offer downloadable print files or send jobs to a print provider via Storelly.', 'storelly-product-builder-for-woocommerce'); ?></p>
                         </div>
-                        <div class="spbwc-settings-card spbwc-card-api">
-                            <h4 class="spbwc-card-title"><?php esc_html_e('API Keys', 'storelly-product-builder-for-woocommerce'); ?></h4>
-                            <div class="spbwc-form-row">
-                                <label class="spbwc-form-label"><?php esc_html_e('SID', 'storelly-product-builder-for-woocommerce'); ?></label>
-                                <input type="text" name="storelly_consumer_key" class="spbwc-input" placeholder="ck_xxxxx" value="<?php echo esc_attr($sid); ?>" />
-                                <span class="spbwc-form-hint"><?php esc_html_e('Enter your Storelly SID API Key', 'storelly-product-builder-for-woocommerce'); ?></span>
+                        <!-- API sync opt-in -->
+                        <?php
+                        $spbwc_stt_yes_api_sync = isset($storelly_pb_settings['enable_api_sync']) && $storelly_pb_settings['enable_api_sync'] == 'yes' ? 'checked' : '';
+                        $spbwc_stt_no_api_sync = isset($storelly_pb_settings['enable_api_sync']) && $storelly_pb_settings['enable_api_sync'] == 'no' ? 'checked' : '';
+                        if (empty($spbwc_stt_yes_api_sync) && empty($spbwc_stt_no_api_sync)) {
+                            $spbwc_stt_no_api_sync = 'checked';
+                        }
+                        ?>
+                        <div class="spbwc-setting-row">
+                            <div class="spbwc-setting-row__label">
+                                <?php esc_html_e('Enable Dashboard API sync', 'storelly-product-builder-for-woocommerce'); ?>
                             </div>
-                            <div class="spbwc-form-row">
-                                <label class="spbwc-form-label"><?php esc_html_e('Secret', 'storelly-product-builder-for-woocommerce'); ?></label>
-                                <input type="text" name="storelly_consumer_secret" class="spbwc-input" placeholder="cs_xxxxx" value="<?php echo esc_attr($secret); ?>" />
-                                <span class="spbwc-form-hint"><?php esc_html_e('Enter your Storelly Secret API Key', 'storelly-product-builder-for-woocommerce'); ?></span>
+                            <div class="spbwc-setting-row__control">
+                                <div class="spbwc-radio-group">
+                                    <label class="spbwc-radio-group__option">
+                                        <input type="radio" name="storelly_enable_api_sync" value="yes" <?php echo esc_attr($spbwc_stt_yes_api_sync); ?> />
+                                        <span class="spbwc-radio-group__lbl"><?php esc_html_e('Yes', 'storelly-product-builder-for-woocommerce'); ?></span>
+                                    </label>
+                                    <label class="spbwc-radio-group__option">
+                                        <input type="radio" name="storelly_enable_api_sync" value="no" <?php echo esc_attr($spbwc_stt_no_api_sync); ?> />
+                                        <span class="spbwc-radio-group__lbl"><?php esc_html_e('No', 'storelly-product-builder-for-woocommerce'); ?></span>
+                                    </label>
+                                </div>
                             </div>
-                            <div class="spbwc-form-row">
-                                <label class="spbwc-form-label"><?php esc_html_e('Unauth token', 'storelly-product-builder-for-woocommerce'); ?></label>
-                                <input type="text" class="spbwc-input spbwc-input-readonly" value="<?php echo esc_attr($unauth_token); ?>" readonly />
-                                <span class="spbwc-form-hint"><?php esc_html_e('Auto-generated when you enter SID and Secret', 'storelly-product-builder-for-woocommerce'); ?></span>
-                            </div>
-                            <?php if ($storelly_username) : ?>
-                            <div class="spbwc-form-row">
-                                <label class="spbwc-form-label"><?php esc_html_e('Username', 'storelly-product-builder-for-woocommerce'); ?></label>
-                                <input type="text" class="spbwc-input spbwc-input-readonly" value="<?php echo esc_attr($storelly_username); ?>" readonly />
-                            </div>
-                            <div class="spbwc-form-actions">
-                                <a href="https://app.storelly.com/login?redirect=woocomerce" class="spbwc-btn spbwc-btn-primary" target="_blank" rel="noopener"><?php esc_html_e('Login to Storelly', 'storelly-product-builder-for-woocommerce'); ?></a>
-                                <a href="<?php echo esc_url($url_new_product); ?>" class="spbwc-btn spbwc-btn-secondary"><?php esc_html_e('Create your first product', 'storelly-product-builder-for-woocommerce'); ?></a>
-                            </div>
-                            <?php endif; ?>
-                            <div class="spbwc-form-row spbwc-log-row">
-                                <label class="spbwc-form-label"><?php esc_html_e('Log', 'storelly-product-builder-for-woocommerce'); ?></label>
-                                <div class="spbwc-log-box"><code><?php echo esc_html($api_log); ?></code></div>
-                            </div>
+                            <p class="spbwc-setting-row__hint"><?php esc_html_e('Opt-in to sync order data with Storelly Dashboard for centralised print job management. Disabled by default — no data leaves your store until you turn this on.', 'storelly-product-builder-for-woocommerce'); ?></p>
                         </div>
                     </div>
                 </div>
 
-                <!-- Printing Options block — upgraded to setting-rows -->
-                <div class="spbwc-block" style="margin-top:var(--nbd-space-4);">
+                <!-- API Keys block -->
+                <div class="spbwc-block" style="margin-bottom:var(--nbd-space-4);">
+                    <div class="spbwc-block__head">
+                        <h3 class="spbwc-block__title">
+                            <span class="dashicons dashicons-admin-network" aria-hidden="true"></span>
+                            <?php esc_html_e('API Keys', 'storelly-product-builder-for-woocommerce'); ?>
+                        </h3>
+                    </div>
+                    <div class="spbwc-block__body">
+                        <div class="spbwc-form-row">
+                            <label class="spbwc-form-label"><?php esc_html_e('SID', 'storelly-product-builder-for-woocommerce'); ?></label>
+                            <input type="text" name="storelly_consumer_key" class="spbwc-input" placeholder="ck_xxxxx" value="<?php echo esc_attr($sid); ?>" style="max-width:380px;" />
+                            <span class="spbwc-form-hint"><?php esc_html_e('Enter your Storelly SID API Key', 'storelly-product-builder-for-woocommerce'); ?></span>
+                        </div>
+                        <div class="spbwc-form-row">
+                            <label class="spbwc-form-label"><?php esc_html_e('Secret', 'storelly-product-builder-for-woocommerce'); ?></label>
+                            <input type="text" name="storelly_consumer_secret" class="spbwc-input" placeholder="cs_xxxxx" value="<?php echo esc_attr($secret); ?>" style="max-width:380px;" />
+                            <span class="spbwc-form-hint"><?php esc_html_e('Enter your Storelly Secret API Key', 'storelly-product-builder-for-woocommerce'); ?></span>
+                        </div>
+                        <div class="spbwc-form-row">
+                            <label class="spbwc-form-label"><?php esc_html_e('Unauth token', 'storelly-product-builder-for-woocommerce'); ?></label>
+                            <input type="text" class="spbwc-input spbwc-input-readonly" value="<?php echo esc_attr($unauth_token); ?>" readonly style="max-width:380px;" />
+                            <span class="spbwc-form-hint"><?php esc_html_e('Auto-generated when you enter SID and Secret', 'storelly-product-builder-for-woocommerce'); ?></span>
+                        </div>
+                        <?php if ($storelly_username) : ?>
+                        <div class="spbwc-form-row">
+                            <label class="spbwc-form-label"><?php esc_html_e('Username', 'storelly-product-builder-for-woocommerce'); ?></label>
+                            <input type="text" class="spbwc-input spbwc-input-readonly" value="<?php echo esc_attr($storelly_username); ?>" readonly style="max-width:380px;" />
+                        </div>
+                        <div class="spbwc-form-actions">
+                            <a href="https://app.storelly.com/login?redirect=woocomerce" class="spbwc-btn spbwc-btn-primary" target="_blank" rel="noopener"><?php esc_html_e('Login to Storelly', 'storelly-product-builder-for-woocommerce'); ?></a>
+                            <a href="<?php echo esc_url($url_new_product); ?>" class="spbwc-btn spbwc-btn-secondary"><?php esc_html_e('Create your first product', 'storelly-product-builder-for-woocommerce'); ?></a>
+                        </div>
+                        <?php endif; ?>
+                        <div class="spbwc-form-row spbwc-log-row">
+                            <label class="spbwc-form-label"><?php esc_html_e('Log', 'storelly-product-builder-for-woocommerce'); ?></label>
+                            <div class="spbwc-log-box"><code><?php echo esc_html($api_log); ?></code></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Printing Options block -->
+                <div class="spbwc-block">
                     <div class="spbwc-block__head">
                         <h3 class="spbwc-block__title">
                             <span class="dashicons dashicons-edit" aria-hidden="true"></span>
@@ -213,20 +240,19 @@ if ( ! in_array($spbwc_settings_tab, $spbwc_valid_tabs, true) ) {
                         <div class="spbwc-setting-row">
                             <div class="spbwc-setting-row__label">
                                 <label for="spbwc_number_of_decimals"><?php esc_html_e('Number of decimals', 'storelly-product-builder-for-woocommerce'); ?></label>
-                                <p class="spbwc-setting-row__hint"><?php esc_html_e('How many decimal places appear in option prices on the product page (e.g. +$2 vs +$2.00). Defaults to your WooCommerce global setting.', 'storelly-product-builder-for-woocommerce'); ?></p>
                             </div>
                             <div class="spbwc-setting-row__control">
                                 <input id="spbwc_number_of_decimals" type="number" name="spbwc_number_of_decimals"
                                     value="<?php echo esc_attr($po['number_of_decimals']); ?>" min="0" max="6"
                                     style="width:72px;" class="small-text" />
                             </div>
+                            <p class="spbwc-setting-row__hint"><?php esc_html_e('How many decimal places appear in option prices on the product page (e.g. +$2 vs +$2.00). Defaults to your WooCommerce global setting.', 'storelly-product-builder-for-woocommerce'); ?></p>
                         </div>
 
                         <!-- Rich snippet price -->
                         <div class="spbwc-setting-row">
                             <div class="spbwc-setting-row__label">
                                 <?php esc_html_e('Enable rich snippet price', 'storelly-product-builder-for-woocommerce'); ?>
-                                <p class="spbwc-setting-row__hint"><?php esc_html_e('When your base product starts at $0, search engines may display "$0" in results. Enable this so structured data reflects the true configurable price — improves SEO click-through rate.', 'storelly-product-builder-for-woocommerce'); ?></p>
                             </div>
                             <div class="spbwc-setting-row__control">
                                 <div class="spbwc-radio-group">
@@ -240,13 +266,13 @@ if ( ! in_array($spbwc_settings_tab, $spbwc_valid_tabs, true) ) {
                                     </label>
                                 </div>
                             </div>
+                            <p class="spbwc-setting-row__hint"><?php esc_html_e('When your base product starts at $0, search engines may display "$0" in results. Enable this so structured data reflects the true configurable price — improves SEO click-through rate.', 'storelly-product-builder-for-woocommerce'); ?></p>
                         </div>
 
                         <!-- Options display style -->
                         <div class="spbwc-setting-row">
                             <div class="spbwc-setting-row__label">
                                 <?php esc_html_e('Options display style', 'storelly-product-builder-for-woocommerce'); ?>
-                                <p class="spbwc-setting-row__hint"><?php esc_html_e('Sections: options stacked vertically as a form — best for 5+ distinct choices. Table: compact grid — best for simpler products with fewer options.', 'storelly-product-builder-for-woocommerce'); ?></p>
                             </div>
                             <div class="spbwc-setting-row__control">
                                 <div class="spbwc-radio-group">
@@ -260,13 +286,13 @@ if ( ! in_array($spbwc_settings_tab, $spbwc_valid_tabs, true) ) {
                                     </label>
                                 </div>
                             </div>
+                            <p class="spbwc-setting-row__hint"><?php esc_html_e('Sections: options stacked vertically as a form — best for 5+ distinct choices. Table: compact grid — best for simpler products with fewer options.', 'storelly-product-builder-for-woocommerce'); ?></p>
                         </div>
 
                         <!-- Hide Add to cart until form filled -->
                         <div class="spbwc-setting-row">
                             <div class="spbwc-setting-row__label">
                                 <?php esc_html_e('Hide Add to cart until all required options are selected', 'storelly-product-builder-for-woocommerce'); ?>
-                                <p class="spbwc-setting-row__hint"><?php esc_html_e('Hides the "Add to cart" button until every required option has a value. Reduces incomplete or incorrect orders — strongly recommended for print-on-demand products.', 'storelly-product-builder-for-woocommerce'); ?></p>
                             </div>
                             <div class="spbwc-setting-row__control">
                                 <div class="spbwc-radio-group">
@@ -280,13 +306,13 @@ if ( ! in_array($spbwc_settings_tab, $spbwc_valid_tabs, true) ) {
                                     </label>
                                 </div>
                             </div>
+                            <p class="spbwc-setting-row__hint"><?php esc_html_e('Hides the "Add to cart" button until every required option has a value. Reduces incomplete or incorrect orders — strongly recommended for print-on-demand products.', 'storelly-product-builder-for-woocommerce'); ?></p>
                         </div>
 
                         <!-- Display product options on -->
                         <div class="spbwc-setting-row">
                             <div class="spbwc-setting-row__label">
                                 <?php esc_html_e('Display product options on', 'storelly-product-builder-for-woocommerce'); ?>
-                                <p class="spbwc-setting-row__hint"><?php esc_html_e('Popup: options open in a modal overlay on top of the product image. Product Tab: options appear inline below the product description as a dedicated tab.', 'storelly-product-builder-for-woocommerce'); ?></p>
                             </div>
                             <div class="spbwc-setting-row__control">
                                 <div class="spbwc-radio-group">
@@ -300,20 +326,21 @@ if ( ! in_array($spbwc_settings_tab, $spbwc_valid_tabs, true) ) {
                                     </label>
                                 </div>
                             </div>
+                            <p class="spbwc-setting-row__hint"><?php esc_html_e('Popup: options open in a modal overlay on top of the product image. Product Tab: options appear inline below the product description as a dedicated tab.', 'storelly-product-builder-for-woocommerce'); ?></p>
                         </div>
 
                         <!-- jQuery selector for qty buttons -->
                         <div class="spbwc-setting-row">
                             <div class="spbwc-setting-row__label">
                                 <label for="spbwc_selector_increase_qty_btn"><?php esc_html_e('Quantity button CSS selector', 'storelly-product-builder-for-woocommerce'); ?></label>
-                                <p class="spbwc-setting-row__hint"><?php esc_html_e('Advanced — only needed if your theme uses custom +/− quantity buttons. Enter their CSS selector (e.g. .qty-plus, .qty-minus) so volume pricing recalculates correctly when quantity changes.', 'storelly-product-builder-for-woocommerce'); ?></p>
                             </div>
                             <div class="spbwc-setting-row__control">
                                 <input id="spbwc_selector_increase_qty_btn" type="text" name="spbwc_selector_increase_qty_btn"
-                                    class="spbwc-input" style="max-width:360px;"
+                                    class="spbwc-input" style="max-width:260px;"
                                     placeholder=".quantity-plus, .quantity-minus"
                                     value="<?php echo esc_attr($po['selector_increase_qty_btn']); ?>" />
                             </div>
+                            <p class="spbwc-setting-row__hint"><?php esc_html_e('Advanced — only needed if your theme uses custom +/− quantity buttons. Enter their CSS selector (e.g. .qty-plus, .qty-minus) so volume pricing recalculates correctly when quantity changes.', 'storelly-product-builder-for-woocommerce'); ?></p>
                         </div>
 
                     </div>
@@ -329,11 +356,10 @@ if ( ! in_array($spbwc_settings_tab, $spbwc_valid_tabs, true) ) {
                         </h3>
                     </div>
                     <div class="spbwc-setting-rows">
-                        <!-- Hide summary options -->
+                        <!-- Hide selection summary -->
                         <div class="spbwc-setting-row">
                             <div class="spbwc-setting-row__label">
                                 <?php esc_html_e('Hide selection summary', 'storelly-product-builder-for-woocommerce'); ?>
-                                <p class="spbwc-setting-row__hint"><?php esc_html_e('The summary panel shows buyers a recap of every option they selected before adding to cart. Keep visible to reduce confusion; hide for very simple, self-explanatory products.', 'storelly-product-builder-for-woocommerce'); ?></p>
                             </div>
                             <div class="spbwc-setting-row__control">
                                 <div class="spbwc-radio-group">
@@ -347,12 +373,12 @@ if ( ! in_array($spbwc_settings_tab, $spbwc_valid_tabs, true) ) {
                                     </label>
                                 </div>
                             </div>
+                            <p class="spbwc-setting-row__hint"><?php esc_html_e('The summary panel shows buyers a recap of every option they selected before adding to cart. Keep visible to reduce confusion; hide for very simple, self-explanatory products.', 'storelly-product-builder-for-woocommerce'); ?></p>
                         </div>
-                        <!-- Float summary options -->
+                        <!-- Float summary panel -->
                         <div class="spbwc-setting-row">
                             <div class="spbwc-setting-row__label">
                                 <?php esc_html_e('Float summary panel', 'storelly-product-builder-for-woocommerce'); ?>
-                                <p class="spbwc-setting-row__hint"><?php esc_html_e('When Yes, the summary sidebar scrolls with the buyer as they configure options — keeping their selections always visible. Recommended for products with long option forms.', 'storelly-product-builder-for-woocommerce'); ?></p>
                             </div>
                             <div class="spbwc-setting-row__control">
                                 <div class="spbwc-radio-group">
@@ -366,12 +392,12 @@ if ( ! in_array($spbwc_settings_tab, $spbwc_valid_tabs, true) ) {
                                     </label>
                                 </div>
                             </div>
+                            <p class="spbwc-setting-row__hint"><?php esc_html_e('When Yes, the summary sidebar scrolls with the buyer as they configure options — keeping their selections always visible. Recommended for products with long option forms.', 'storelly-product-builder-for-woocommerce'); ?></p>
                         </div>
-                        <!-- Hide option swatch description -->
+                        <!-- Hide swatch caption labels -->
                         <div class="spbwc-setting-row">
                             <div class="spbwc-setting-row__label">
                                 <?php esc_html_e('Hide swatch caption labels', 'storelly-product-builder-for-woocommerce'); ?>
-                                <p class="spbwc-setting-row__hint"><?php esc_html_e('Swatch buttons (colour/image squares) display a text caption underneath. Hide captions if your swatch images are self-explanatory — gives a cleaner, more visual layout.', 'storelly-product-builder-for-woocommerce'); ?></p>
                             </div>
                             <div class="spbwc-setting-row__control">
                                 <div class="spbwc-radio-group">
@@ -385,12 +411,12 @@ if ( ! in_array($spbwc_settings_tab, $spbwc_valid_tabs, true) ) {
                                     </label>
                                 </div>
                             </div>
+                            <p class="spbwc-setting-row__hint"><?php esc_html_e('Swatch buttons (colour/image squares) display a text caption underneath. Hide captions if your swatch images are self-explanatory — gives a cleaner, more visual layout.', 'storelly-product-builder-for-woocommerce'); ?></p>
                         </div>
                         <!-- Tooltip position -->
                         <div class="spbwc-setting-row">
                             <div class="spbwc-setting-row__label">
                                 <?php esc_html_e('Tooltip position', 'storelly-product-builder-for-woocommerce'); ?>
-                                <p class="spbwc-setting-row__hint"><?php esc_html_e('When an option has a "?" help icon, a tooltip appears on hover. Controls which side it pops out — pick based on your layout to avoid the tooltip being clipped off-screen.', 'storelly-product-builder-for-woocommerce'); ?></p>
                             </div>
                             <div class="spbwc-setting-row__control">
                                 <div class="spbwc-radio-group">
@@ -402,12 +428,12 @@ if ( ! in_array($spbwc_settings_tab, $spbwc_valid_tabs, true) ) {
                                     <?php endforeach; ?>
                                 </div>
                             </div>
+                            <p class="spbwc-setting-row__hint"><?php esc_html_e('When an option has a "?" help icon, a tooltip appears on hover. Controls which side it pops out — pick based on your layout to avoid the tooltip being clipped off-screen.', 'storelly-product-builder-for-woocommerce'); ?></p>
                         </div>
-                        <!-- Advanced dropdown sub list position -->
+                        <!-- Dropdown sub-list direction -->
                         <div class="spbwc-setting-row">
                             <div class="spbwc-setting-row__label">
                                 <?php esc_html_e('Dropdown sub-list direction', 'storelly-product-builder-for-woocommerce'); ?>
-                                <p class="spbwc-setting-row__hint"><?php esc_html_e('For advanced dropdown fields with nested sub-options: "Below" opens the child list directly under the parent row; "Right" opens it as a side flyout. Choose based on your available page width.', 'storelly-product-builder-for-woocommerce'); ?></p>
                             </div>
                             <div class="spbwc-setting-row__control">
                                 <div class="spbwc-radio-group">
@@ -421,6 +447,7 @@ if ( ! in_array($spbwc_settings_tab, $spbwc_valid_tabs, true) ) {
                                     </label>
                                 </div>
                             </div>
+                            <p class="spbwc-setting-row__hint"><?php esc_html_e('For advanced dropdown fields with nested sub-options: "Below" opens the child list directly under the parent row; "Right" opens it as a side flyout. Choose based on your available page width.', 'storelly-product-builder-for-woocommerce'); ?></p>
                         </div>
                     </div>
                 </div>
@@ -436,11 +463,10 @@ if ( ! in_array($spbwc_settings_tab, $spbwc_valid_tabs, true) ) {
                         </h3>
                     </div>
                     <div class="spbwc-setting-rows">
-                        <!-- Hide table pricing -->
+                        <!-- Hide volume pricing table -->
                         <div class="spbwc-setting-row">
                             <div class="spbwc-setting-row__label">
                                 <?php esc_html_e('Hide volume pricing table', 'storelly-product-builder-for-woocommerce'); ?>
-                                <p class="spbwc-setting-row__hint"><?php esc_html_e('Volume pricing tables show tiered discounts (e.g. 10 pcs = $5 each, 50 pcs = $4 each) to motivate larger orders. Hide if you do not use quantity-based pricing on this store.', 'storelly-product-builder-for-woocommerce'); ?></p>
                             </div>
                             <div class="spbwc-setting-row__control">
                                 <div class="spbwc-radio-group">
@@ -454,12 +480,12 @@ if ( ! in_array($spbwc_settings_tab, $spbwc_valid_tabs, true) ) {
                                     </label>
                                 </div>
                             </div>
+                            <p class="spbwc-setting-row__hint"><?php esc_html_e('Volume pricing tables show tiered discounts (e.g. 10 pcs = $5 each, 50 pcs = $4 each) to motivate larger orders. Hide if you do not use quantity-based pricing on this store.', 'storelly-product-builder-for-woocommerce'); ?></p>
                         </div>
-                        <!-- Table pricing type -->
+                        <!-- Volume pricing table style -->
                         <div class="spbwc-setting-row">
                             <div class="spbwc-setting-row__label">
                                 <?php esc_html_e('Volume pricing table style', 'storelly-product-builder-for-woocommerce'); ?>
-                                <p class="spbwc-setting-row__hint"><?php esc_html_e('Quantity range: shows a span (e.g. "10–49 units → $5 each"). Quantity breaks: shows a minimum threshold (e.g. "10+ units → $5 each"). Both display the per-unit discounted price.', 'storelly-product-builder-for-woocommerce'); ?></p>
                             </div>
                             <div class="spbwc-setting-row__control">
                                 <div class="spbwc-radio-group">
@@ -473,12 +499,12 @@ if ( ! in_array($spbwc_settings_tab, $spbwc_valid_tabs, true) ) {
                                     </label>
                                 </div>
                             </div>
+                            <p class="spbwc-setting-row__hint"><?php esc_html_e('Quantity range: shows a span (e.g. "10–49 units → $5 each"). Quantity breaks: shows a minimum threshold (e.g. "10+ units → $5 each"). Both display the per-unit discounted price.', 'storelly-product-builder-for-woocommerce'); ?></p>
                         </div>
-                        <!-- Change original product price -->
+                        <!-- Live-update displayed product price -->
                         <div class="spbwc-setting-row">
                             <div class="spbwc-setting-row__label">
                                 <?php esc_html_e('Live-update displayed product price', 'storelly-product-builder-for-woocommerce'); ?>
-                                <p class="spbwc-setting-row__hint"><?php esc_html_e('Yes: the product\'s main price display updates live as buyers pick options — they always see the full total. No: only the add-on price shows separately below the base price.', 'storelly-product-builder-for-woocommerce'); ?></p>
                             </div>
                             <div class="spbwc-setting-row__control">
                                 <div class="spbwc-radio-group">
@@ -492,12 +518,12 @@ if ( ! in_array($spbwc_settings_tab, $spbwc_valid_tabs, true) ) {
                                     </label>
                                 </div>
                             </div>
+                            <p class="spbwc-setting-row__hint"><?php esc_html_e('Yes: the product\'s main price display updates live as buyers pick options — they always see the full total. No: only the add-on price shows separately below the base price.', 'storelly-product-builder-for-woocommerce'); ?></p>
                         </div>
-                        <!-- Auto hide price if zero -->
+                        <!-- Hide zero-value option prices -->
                         <div class="spbwc-setting-row">
                             <div class="spbwc-setting-row__label">
                                 <?php esc_html_e('Hide zero-value option prices', 'storelly-product-builder-for-woocommerce'); ?>
-                                <p class="spbwc-setting-row__hint"><?php esc_html_e('When an option adds +$0.00, that line still appears in the price breakdown. Enable this to hide zero-value lines and keep the summary clean — especially useful when many options are included by default.', 'storelly-product-builder-for-woocommerce'); ?></p>
                             </div>
                             <div class="spbwc-setting-row__control">
                                 <div class="spbwc-radio-group">
@@ -511,6 +537,7 @@ if ( ! in_array($spbwc_settings_tab, $spbwc_valid_tabs, true) ) {
                                     </label>
                                 </div>
                             </div>
+                            <p class="spbwc-setting-row__hint"><?php esc_html_e('When an option adds +$0.00, that line still appears in the price breakdown. Enable this to hide zero-value lines and keep the summary clean — especially useful when many options are included by default.', 'storelly-product-builder-for-woocommerce'); ?></p>
                         </div>
                     </div>
                 </div>
@@ -526,11 +553,10 @@ if ( ! in_array($spbwc_settings_tab, $spbwc_valid_tabs, true) ) {
                         </h3>
                     </div>
                     <div class="spbwc-setting-rows">
-                        <!-- Force Select Options -->
+                        <!-- Force "Select options" on product cards -->
                         <div class="spbwc-setting-row">
                             <div class="spbwc-setting-row__label">
                                 <?php esc_html_e('Force "Select options" on product cards', 'storelly-product-builder-for-woocommerce'); ?>
-                                <p class="spbwc-setting-row__hint"><?php esc_html_e('Replaces "Add to cart" with "Select options" on shop/category listing pages for products that have required options. Prevents buyers from bypassing the option form directly from the grid view.', 'storelly-product-builder-for-woocommerce'); ?></p>
                             </div>
                             <div class="spbwc-setting-row__control">
                                 <div class="spbwc-radio-group">
@@ -544,12 +570,12 @@ if ( ! in_array($spbwc_settings_tab, $spbwc_valid_tabs, true) ) {
                                     </label>
                                 </div>
                             </div>
+                            <p class="spbwc-setting-row__hint"><?php esc_html_e('Replaces "Add to cart" with "Select options" on shop/category listing pages for products that have required options. Prevents buyers from bypassing the option form directly from the grid view.', 'storelly-product-builder-for-woocommerce'); ?></p>
                         </div>
-                        <!-- Show options in archive pages -->
+                        <!-- Show option swatches on shop grid -->
                         <div class="spbwc-setting-row">
                             <div class="spbwc-setting-row__label">
                                 <?php esc_html_e('Show option swatches on shop grid', 'storelly-product-builder-for-woocommerce'); ?>
-                                <p class="spbwc-setting-row__hint"><?php esc_html_e('Renders option swatches (colour/material pickers) directly on product cards in the shop grid. Buyers can pre-select variants before clicking through to the product page — improves engagement and conversion.', 'storelly-product-builder-for-woocommerce'); ?></p>
                             </div>
                             <div class="spbwc-setting-row__control">
                                 <div class="spbwc-radio-group">
@@ -563,6 +589,7 @@ if ( ! in_array($spbwc_settings_tab, $spbwc_valid_tabs, true) ) {
                                     </label>
                                 </div>
                             </div>
+                            <p class="spbwc-setting-row__hint"><?php esc_html_e('Renders option swatches (colour/material pickers) directly on product cards in the shop grid. Buyers can pre-select variants before clicking through to the product page — improves engagement and conversion.', 'storelly-product-builder-for-woocommerce'); ?></p>
                         </div>
                     </div>
                 </div>
@@ -578,11 +605,10 @@ if ( ! in_array($spbwc_settings_tab, $spbwc_valid_tabs, true) ) {
                         </h3>
                     </div>
                     <div class="spbwc-setting-rows">
-                        <!-- Ajax cart -->
+                        <!-- AJAX add to cart -->
                         <div class="spbwc-setting-row">
                             <div class="spbwc-setting-row__label">
                                 <?php esc_html_e('AJAX add to cart', 'storelly-product-builder-for-woocommerce'); ?>
-                                <p class="spbwc-setting-row__hint"><?php esc_html_e('Adds to cart without a full page reload — faster, smoother buyer experience. Disable only if your theme or another plugin conflicts with the cart counter when using AJAX.', 'storelly-product-builder-for-woocommerce'); ?></p>
                             </div>
                             <div class="spbwc-setting-row__control">
                                 <div class="spbwc-radio-group">
@@ -596,12 +622,12 @@ if ( ! in_array($spbwc_settings_tab, $spbwc_valid_tabs, true) ) {
                                     </label>
                                 </div>
                             </div>
+                            <p class="spbwc-setting-row__hint"><?php esc_html_e('Adds to cart without a full page reload — faster, smoother buyer experience. Disable only if your theme or another plugin conflicts with the cart counter when using AJAX.', 'storelly-product-builder-for-woocommerce'); ?></p>
                         </div>
-                        <!-- Turn off persistent cart -->
+                        <!-- Disable persistent cart storage -->
                         <div class="spbwc-setting-row">
                             <div class="spbwc-setting-row__label">
                                 <?php esc_html_e('Disable persistent cart storage', 'storelly-product-builder-for-woocommerce'); ?>
-                                <p class="spbwc-setting-row__hint"><?php esc_html_e('WooCommerce saves cart contents to the database for logged-in users. For products with hundreds of custom options, this cart data can grow very large. Enable to skip database storage and reduce load — recommended for complex print products.', 'storelly-product-builder-for-woocommerce'); ?></p>
                             </div>
                             <div class="spbwc-setting-row__control">
                                 <div class="spbwc-radio-group">
@@ -615,12 +641,12 @@ if ( ! in_array($spbwc_settings_tab, $spbwc_valid_tabs, true) ) {
                                     </label>
                                 </div>
                             </div>
+                            <p class="spbwc-setting-row__hint"><?php esc_html_e('WooCommerce saves cart contents to the database for logged-in users. For products with hundreds of custom options, this cart data can grow very large. Enable to skip database storage and reduce load — recommended for complex print products.', 'storelly-product-builder-for-woocommerce'); ?></p>
                         </div>
-                        <!-- Clear cart button -->
+                        <!-- Show "Clear cart" button -->
                         <div class="spbwc-setting-row">
                             <div class="spbwc-setting-row__label">
                                 <?php esc_html_e('Show "Clear cart" button', 'storelly-product-builder-for-woocommerce'); ?>
-                                <p class="spbwc-setting-row__hint"><?php esc_html_e('Adds a one-click "Clear cart" button to the cart page so buyers can start fresh without removing items one by one. Especially helpful for print-on-demand stores where customers frequently rebuild their order from scratch.', 'storelly-product-builder-for-woocommerce'); ?></p>
                             </div>
                             <div class="spbwc-setting-row__control">
                                 <div class="spbwc-radio-group">
@@ -634,12 +660,12 @@ if ( ! in_array($spbwc_settings_tab, $spbwc_valid_tabs, true) ) {
                                     </label>
                                 </div>
                             </div>
+                            <p class="spbwc-setting-row__hint"><?php esc_html_e('Adds a one-click "Clear cart" button to the cart page so buyers can start fresh without removing items one by one. Especially helpful for print-on-demand stores where customers frequently rebuild their order from scratch.', 'storelly-product-builder-for-woocommerce'); ?></p>
                         </div>
-                        <!-- Hide options in cart -->
+                        <!-- Hide option details in cart -->
                         <div class="spbwc-setting-row">
                             <div class="spbwc-setting-row__label">
                                 <?php esc_html_e('Hide option details in cart', 'storelly-product-builder-for-woocommerce'); ?>
-                                <p class="spbwc-setting-row__hint"><?php esc_html_e('By default, the cart shows each chosen option beneath the product name (e.g. "Paper: Matte, Size: A4"). Hide when option names are technical or internal and not meaningful to the buyer — keeps the cart line items clean and readable.', 'storelly-product-builder-for-woocommerce'); ?></p>
                             </div>
                             <div class="spbwc-setting-row__control">
                                 <div class="spbwc-radio-group">
@@ -653,12 +679,12 @@ if ( ! in_array($spbwc_settings_tab, $spbwc_valid_tabs, true) ) {
                                     </label>
                                 </div>
                             </div>
+                            <p class="spbwc-setting-row__hint"><?php esc_html_e('By default, the cart shows each chosen option beneath the product name (e.g. "Paper: Matte, Size: A4"). Hide when option names are technical or internal and not meaningful to the buyer — keeps cart line items clean and readable.', 'storelly-product-builder-for-woocommerce'); ?></p>
                         </div>
-                        <!-- Hide option price in cart -->
+                        <!-- Hide option add-on prices in cart -->
                         <div class="spbwc-setting-row">
                             <div class="spbwc-setting-row__label">
                                 <?php esc_html_e('Hide option add-on prices in cart', 'storelly-product-builder-for-woocommerce'); ?>
-                                <p class="spbwc-setting-row__hint"><?php esc_html_e('Hides the per-option price breakdown in the cart (e.g. "+$2.00 for Matte finish" disappears). The line item total and order total still include all costs — only the individual add-on amounts are hidden. Useful when showing a breakdown could confuse buyers or reveal internal pricing logic.', 'storelly-product-builder-for-woocommerce'); ?></p>
                             </div>
                             <div class="spbwc-setting-row__control">
                                 <div class="spbwc-radio-group">
@@ -672,12 +698,12 @@ if ( ! in_array($spbwc_settings_tab, $spbwc_valid_tabs, true) ) {
                                     </label>
                                 </div>
                             </div>
+                            <p class="spbwc-setting-row__hint"><?php esc_html_e('Hides the per-option price breakdown in the cart (e.g. "+$2.00 for Matte finish" disappears). The line item total and order total still include all costs — only the individual add-on amounts are hidden. Useful when showing a breakdown could confuse buyers or reveal internal pricing logic.', 'storelly-product-builder-for-woocommerce'); ?></p>
                         </div>
-                        <!-- Hide option price in order -->
+                        <!-- Hide option add-on prices in orders & emails -->
                         <div class="spbwc-setting-row">
                             <div class="spbwc-setting-row__label">
                                 <?php esc_html_e('Hide option add-on prices in orders &amp; emails', 'storelly-product-builder-for-woocommerce'); ?>
-                                <p class="spbwc-setting-row__hint"><?php esc_html_e('Hides per-option pricing from order confirmation pages, customer emails, and PDF invoices. The order total remains accurate — only the breakdown by option is hidden. Recommended for quote-based workflows or when add-on pricing is internal-only and should not appear on customer-facing documents.', 'storelly-product-builder-for-woocommerce'); ?></p>
                             </div>
                             <div class="spbwc-setting-row__control">
                                 <div class="spbwc-radio-group">
@@ -691,6 +717,7 @@ if ( ! in_array($spbwc_settings_tab, $spbwc_valid_tabs, true) ) {
                                     </label>
                                 </div>
                             </div>
+                            <p class="spbwc-setting-row__hint"><?php esc_html_e('Hides per-option pricing from order confirmation pages, customer emails, and PDF invoices. The order total remains accurate — only the breakdown by option is hidden. Recommended for quote-based workflows or when add-on pricing is internal-only and should not appear on customer-facing documents.', 'storelly-product-builder-for-woocommerce'); ?></p>
                         </div>
                     </div>
                 </div>

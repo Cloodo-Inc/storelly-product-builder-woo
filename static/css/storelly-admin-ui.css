@@ -1427,10 +1427,11 @@
 
 .spbwc-setting-row {
     display: grid;
-    grid-template-columns: 220px 1fr;
-    gap: var(--nbd-space-2) var(--nbd-space-6);
-    align-items: start;
-    padding: var(--nbd-space-4) var(--nbd-space-5);
+    /* col 1: field name | col 2: action control (auto-fit) | col 3: usage advice */
+    grid-template-columns: 200px auto 1fr;
+    column-gap: var(--nbd-space-5);
+    align-items: center;
+    padding: var(--nbd-space-3) var(--nbd-space-5);
     border-bottom: 1px solid var(--nbd-st-border-subtle);
 }
 
@@ -1440,16 +1441,19 @@
     font-size: var(--text-md);
     font-weight: var(--font-semibold);
     color: var(--nbd-st-text);
-    padding-top: 7px;
     line-height: 1.4;
 }
 
+/* hint is the 3rd grid column — stretches into the previously-empty right space */
 .spbwc-setting-row__hint {
-    margin-top: 4px;
+    margin: 0;
+    padding-left: var(--nbd-space-4);
+    border-left: 2px solid var(--nbd-st-border-subtle);
     font-size: var(--text-sm);
-    color: var(--nbd-st-text-soft);
+    color: var(--nbd-st-text-mute);
     font-weight: var(--font-normal);
-    line-height: 1.5;
+    line-height: 1.55;
+    font-style: italic;
 }
 
 .spbwc-setting-row__control {
@@ -1522,10 +1526,33 @@
     box-shadow: 0 0 0 3px var(--st-brand-soft);
 }
 
+@media (max-width: 960px) {
+    /* On mid-width screens collapse to 2-col: name | control, hint below control */
+    .spbwc-setting-row {
+        grid-template-columns: 180px auto;
+        row-gap: var(--nbd-space-1);
+    }
+    .spbwc-setting-row__hint {
+        grid-column: 2;
+        border-left: none;
+        padding-left: 0;
+        padding-top: var(--nbd-space-2);
+        border-top: 1px solid var(--nbd-st-border-subtle);
+        margin-top: var(--nbd-space-1);
+    }
+}
+
 @media (max-width: 782px) {
     .spbwc-setting-row {
         grid-template-columns: 1fr;
-        gap: var(--nbd-space-2);
+        row-gap: var(--nbd-space-2);
+    }
+    .spbwc-setting-row__hint {
+        grid-column: 1;
+        border-left: none;
+        padding-left: 0;
+        padding-top: var(--nbd-space-2);
+        border-top: 1px solid var(--nbd-st-border-subtle);
     }
     .spbwc-search-bar { max-width: 100%; }
     .spbwc-list-toolbar { flex-direction: column; align-items: stretch; }
