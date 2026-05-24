@@ -890,6 +890,26 @@
     text-decoration: none;
 }
 
+/* --flat: strip card chrome — use inside an existing container (e.g. settings page) */
+.spbwc-block--flat,
+.spbwc-block--flat:hover {
+    border: none;
+    border-radius: 0;
+    box-shadow: none;
+    background: transparent;
+}
+
+.spbwc-block--flat .spbwc-block__head {
+    border-radius: 0;
+}
+
+/* Divider between consecutive flat blocks */
+.spbwc-block--flat + .spbwc-block--flat {
+    border-top: 1px solid var(--nbd-st-border-subtle);
+    margin-top: var(--nbd-space-5);
+    padding-top: var(--nbd-space-3);
+}
+
 /* Block head color variants */
 .spbwc-block--brand .spbwc-block__head { background: var(--st-brand-soft); border-bottom-color: var(--st-brand-soft); }
 .spbwc-block--brand .spbwc-block__title { color: var(--st-brand-pressed); }

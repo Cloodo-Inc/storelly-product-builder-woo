@@ -129,7 +129,7 @@ if ( ! in_array($spbwc_settings_tab, $spbwc_valid_tabs, true) ) {
             <div class="spbwc-tab-panel" id="tab-general"<?php echo ($spbwc_settings_tab !== 'general') ? ' style="display:none;"' : ''; ?>>
 
                 <!-- Storelly Integration + API Keys — single block -->
-                <div class="spbwc-block">
+                <div class="spbwc-block spbwc-block--flat">
                     <div class="spbwc-block__head">
                         <h3 class="spbwc-block__title">
                             <span class="dashicons dashicons-admin-generic" aria-hidden="true"></span>
@@ -225,7 +225,7 @@ if ( ! in_array($spbwc_settings_tab, $spbwc_valid_tabs, true) ) {
                 </div>
 
                 <!-- Printing Options block -->
-                <div class="spbwc-block">
+                <div class="spbwc-block spbwc-block--flat">
                     <div class="spbwc-block__head">
                         <h3 class="spbwc-block__title">
                             <span class="dashicons dashicons-edit" aria-hidden="true"></span>
@@ -346,7 +346,7 @@ if ( ! in_array($spbwc_settings_tab, $spbwc_valid_tabs, true) ) {
             </div>
             <!-- ━━━ DISPLAY ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ -->
             <div class="spbwc-tab-panel" id="tab-display"<?php echo ($spbwc_settings_tab !== 'display') ? ' style="display:none;"' : ''; ?>>
-                <div class="spbwc-block">
+                <div class="spbwc-block spbwc-block--flat">
                     <div class="spbwc-block__head">
                         <h3 class="spbwc-block__title">
                             <span class="dashicons dashicons-visibility" aria-hidden="true"></span>
@@ -453,7 +453,7 @@ if ( ! in_array($spbwc_settings_tab, $spbwc_valid_tabs, true) ) {
 
             <!-- ━━━ PRICING ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ -->
             <div class="spbwc-tab-panel" id="tab-pricing"<?php echo ($spbwc_settings_tab !== 'pricing') ? ' style="display:none;"' : ''; ?>>
-                <div class="spbwc-block">
+                <div class="spbwc-block spbwc-block--flat">
                     <div class="spbwc-block__head">
                         <h3 class="spbwc-block__title">
                             <span class="dashicons dashicons-tag" aria-hidden="true"></span>
@@ -543,7 +543,7 @@ if ( ! in_array($spbwc_settings_tab, $spbwc_valid_tabs, true) ) {
 
             <!-- ━━━ CATALOG ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ -->
             <div class="spbwc-tab-panel" id="tab-catalog"<?php echo ($spbwc_settings_tab !== 'catalog') ? ' style="display:none;"' : ''; ?>>
-                <div class="spbwc-block">
+                <div class="spbwc-block spbwc-block--flat">
                     <div class="spbwc-block__head">
                         <h3 class="spbwc-block__title">
                             <span class="dashicons dashicons-store" aria-hidden="true"></span>
@@ -595,7 +595,7 @@ if ( ! in_array($spbwc_settings_tab, $spbwc_valid_tabs, true) ) {
 
             <!-- ━━━ CART & ORDER ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ -->
             <div class="spbwc-tab-panel" id="tab-cart"<?php echo ($spbwc_settings_tab !== 'cart') ? ' style="display:none;"' : ''; ?>>
-                <div class="spbwc-block">
+                <div class="spbwc-block spbwc-block--flat">
                     <div class="spbwc-block__head">
                         <h3 class="spbwc-block__title">
                             <span class="dashicons dashicons-cart" aria-hidden="true"></span>

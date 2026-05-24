@@ -47,34 +47,6 @@
     background: #fff;
 }
 
-/* ── Blocks inside settings are flat sections, NOT nested cards ──
-   The outer .storelly-box already provides the one visible border.
-   Strip card chrome from every .spbwc-block inside here.          */
-.spbwc-settings-content .spbwc-block {
-    border: none !important;
-    border-radius: 0 !important;
-    box-shadow: none !important;
-    background: transparent !important;
-    margin-bottom: 0 !important;
-}
-.spbwc-settings-content .spbwc-block:hover {
-    box-shadow: none !important;
-}
-/* Separate sibling blocks with a thin divider line */
-.spbwc-settings-content .spbwc-block + .spbwc-block {
-    border-top: 1px solid var(--nbd-st-border-subtle) !important;
-    margin-top: var(--nbd-space-4) !important;
-    padding-top: var(--nbd-space-2) !important;
-}
-/* Block head: keep bg tint + bottom border, remove card rounding */
-.spbwc-settings-content .spbwc-block__head {
-    border-radius: 0;
-}
-/* Sub-section divider: inherit the flat look */
-.spbwc-settings-content .spbwc-block__sub-head {
-    margin-left: 0;
-    margin-right: 0;
-}
 
 .spbwc-settings-section {
     margin-bottom: 40px;
