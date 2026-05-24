@@ -269,24 +269,27 @@ $catalog = SPBWC_Template_Catalog::instance();
 						</div>
 
 						<div class="spbwc-tl-field">
-							<span class="spbwc-tl-field__label"><?php esc_html_e( 'Apply to', 'storelly-product-builder-for-woocommerce' ); ?></span>
+							<span class="spbwc-tl-field__label">
+								<?php esc_html_e( 'Apply to', 'storelly-product-builder-for-woocommerce' ); ?>
+								<span class="spbwc-tl-field__label-optional"><?php esc_html_e( '(optional)', 'storelly-product-builder-for-woocommerce' ); ?></span>
+							</span>
 							<div class="spbwc-tl-radio-cards">
 								<label class="spbwc-tl-radio-card spbwc-tl-radio-card--active">
 									<input type="radio" name="apply_for" value="p" checked>
 									<span class="spbwc-tl-radio-card__icon dashicons dashicons-products"></span>
 									<span class="spbwc-tl-radio-card__title"><?php esc_html_e( 'Specific products', 'storelly-product-builder-for-woocommerce' ); ?></span>
-									<span class="spbwc-tl-radio-card__hint"><?php esc_html_e( 'Search and pick one or more products', 'storelly-product-builder-for-woocommerce' ); ?></span>
+									<span class="spbwc-tl-radio-card__hint"><?php esc_html_e( 'Only products without an existing Pricing Option', 'storelly-product-builder-for-woocommerce' ); ?></span>
 								</label>
 								<label class="spbwc-tl-radio-card">
 									<input type="radio" name="apply_for" value="c">
 									<span class="spbwc-tl-radio-card__icon dashicons dashicons-category"></span>
 									<span class="spbwc-tl-radio-card__title"><?php esc_html_e( 'Product categories', 'storelly-product-builder-for-woocommerce' ); ?></span>
-									<span class="spbwc-tl-radio-card__hint"><?php esc_html_e( 'Applies to every product in those categories', 'storelly-product-builder-for-woocommerce' ); ?></span>
+									<span class="spbwc-tl-radio-card__hint"><?php esc_html_e( 'Applied to every product in the selected categories', 'storelly-product-builder-for-woocommerce' ); ?></span>
 								</label>
 							</div>
 							<p class="spbwc-tl-field__hint" style="margin-top:8px;">
-								<span class="dashicons dashicons-update-alt" style="font-size:13px;width:13px;height:13px;vertical-align:middle;" aria-hidden="true"></span>
-								<?php esc_html_e( 'You can reassign products or categories later from Pricing Options.', 'storelly-product-builder-for-woocommerce' ); ?>
+								<span class="dashicons dashicons-info" style="font-size:13px;width:13px;height:13px;vertical-align:middle;color:var(--st-brand);" aria-hidden="true"></span>
+								<?php esc_html_e( 'Selection is optional — you can skip and assign products or categories later from Pricing Options.', 'storelly-product-builder-for-woocommerce' ); ?>
 							</p>
 						</div>
 
@@ -303,7 +306,7 @@ $catalog = SPBWC_Template_Catalog::instance();
 								data-placeholder="<?php esc_attr_e( 'Type a product name or SKU to search…', 'storelly-product-builder-for-woocommerce' ); ?>"
 								data-action="woocommerce_json_search_products_and_variations"></select>
 							<p class="spbwc-tl-field__hint">
-								<?php esc_html_e( 'Search and select as many products as you like — each gets its own copy of this template.', 'storelly-product-builder-for-woocommerce' ); ?>
+								<?php esc_html_e( 'Search and select as many products as you like. Only products without an existing Pricing Option are recommended.', 'storelly-product-builder-for-woocommerce' ); ?>
 							</p>
 						</div>
 
@@ -335,7 +338,7 @@ $catalog = SPBWC_Template_Catalog::instance();
 								?>
 							</select>
 							<p class="spbwc-tl-field__hint">
-								<?php esc_html_e( 'Select one or more categories — the template will be available on every product within them.', 'storelly-product-builder-for-woocommerce' ); ?>
+								<?php esc_html_e( 'Select one or more categories — the template applies to every product within them.', 'storelly-product-builder-for-woocommerce' ); ?>
 							</p>
 						</div>
 
@@ -363,8 +366,8 @@ $catalog = SPBWC_Template_Catalog::instance();
 						<?php esc_html_e( 'Cancel', 'storelly-product-builder-for-woocommerce' ); ?>
 					</button>
 					<button type="submit" class="button button-primary" id="spbwc-tl-apply-submit">
-						<span class="dashicons dashicons-plus-alt2" aria-hidden="true"></span>
-						<?php esc_html_e( 'Apply template', 'storelly-product-builder-for-woocommerce' ); ?>
+						<span class="dashicons dashicons-yes-alt" aria-hidden="true"></span>
+						<?php esc_html_e( 'Apply &amp; Edit', 'storelly-product-builder-for-woocommerce' ); ?>
 					</button>
 				</footer>
 			</form>

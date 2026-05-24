@@ -597,8 +597,12 @@
 	// ─── Apply dialog ────────────────────────────────────────────────
 	var productSearchInitialized = false;
 	var catSelectInitialized     = false;
+	// Cache the submit button's initial HTML (set by PHP) so we can restore
+	// it after error/fail without duplicating the icon + label in JS.
+	var applySubmitHtml = '';
 
 	function initApply() {
+		applySubmitHtml = $('#spbwc-tl-apply-submit').html();
 		$(document).on('click', '.spbwc-tl-apply', function () {
 			openApply($(this).data('slug'), $(this).data('name'));
 		});
@@ -653,7 +657,7 @@
 		}
 		if (catSelectInitialized) $('#spbwc-tl-categories').val(null).trigger('change');
 		$('#spbwc-tl-apply-submit').prop('disabled', false).html(
-			'<span class="dashicons dashicons-plus-alt2" aria-hidden="true"></span> ' + esc(L.i18n.apply)
+			applySubmitHtml
 		);
 
 		openDialog($applyDialog);
@@ -746,12 +750,10 @@
 		var scope = mode === 'p'
 			? ($('#spbwc-tl-products').val() || [])
 			: ($('#spbwc-tl-categories').val() || []);
-
-		if (!scope.length) {
-			$err.find('p').text(mode === 'p' ? L.i18n.noProductSelected : L.i18n.noCategorySelected);
-			$err.prop('hidden', false);
-			return;
-		}
+		// Product/category selection is OPTIONAL: user can apply the template
+		// without assigning it to any product or category and configure the
+		// assignment later from the Pricing Options screen.
+		// (No validation block here — empty scope_ids is a valid submission.)
 
 		$submit.prop('disabled', true).text(L.i18n.applying);
 
@@ -767,7 +769,7 @@
 				$err.find('p').text((resp && resp.data && resp.data.message) || L.i18n.genericError);
 				$err.prop('hidden', false);
 				$submit.prop('disabled', false).html(
-					'<span class="dashicons dashicons-plus-alt2" aria-hidden="true"></span> ' + esc(L.i18n.apply)
+					applySubmitHtml
 				);
 				return;
 			}
@@ -784,7 +786,7 @@
 				// Applied without a specific edit URL — close dialog and show page notice.
 				closeDialog($applyDialog);
 				$submit.prop('disabled', false).html(
-					'<span class="dashicons dashicons-plus-alt2" aria-hidden="true"></span> ' + esc(L.i18n.apply)
+					applySubmitHtml
 				);
 				var $wrap = $('.spbwc-template-library');
 				$wrap.find('.spbwc-tl-apply-success-notice').remove();
@@ -797,7 +799,7 @@
 			$err.find('p').text(L.i18n.genericError);
 			$err.prop('hidden', false);
 			$submit.prop('disabled', false).html(
-				'<span class="dashicons dashicons-plus-alt2" aria-hidden="true"></span> ' + esc(L.i18n.apply)
+				applySubmitHtml
 			);
 		});
 	}

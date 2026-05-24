@@ -575,8 +575,17 @@ button.spbwc-tl-apply:hover {
 	padding: 0 5px;
 	border-radius: 9px;
 }
+.spbwc-tl-field__label-optional {
+	font-size: 11px;
+	font-weight: 400;
+	color: var(--nbd-st-text-soft);
+	margin-left: 2px;
+}
 
 /* ── Success state ─────────────────────────────────────────────────── */
+/* IMPORTANT: display:flex overrides the browser UA [hidden]{display:none}.
+   The [hidden] rule MUST come first so the attribute wins over the flex. */
+.spbwc-tl-apply-success-state[hidden] { display: none !important; }
 .spbwc-tl-apply-success-state {
 	display: flex;
 	flex-direction: column;
