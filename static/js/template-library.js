@@ -618,6 +618,12 @@
 			}
 		});
 
+		// Live product count badge — update whenever product selection changes.
+		$applyDialog.on('change', '#spbwc-tl-products', function () {
+			var selected = $(this).val() || [];
+			updateProductBadge(selected.length);
+		});
+
 		// Close.
 		$applyDialog.on('click', '[data-close="apply"]', function () {
 			closeDialog($applyDialog);
@@ -628,16 +634,27 @@
 	}
 
 	function openApply(slug, name) {
+		// Restore form view in case the dialog previously showed the success state.
+		$('#spbwc-tl-apply-body-content').prop('hidden', false);
+		$('#spbwc-tl-apply-success').prop('hidden', true);
+		$('#spbwc-tl-apply-footer').show();
+
 		$('#spbwc-tl-apply-error').prop('hidden', true).find('p').text('');
 		$('#spbwc-tl-apply-slug').val(slug);
 		$('#spbwc-tl-apply-title').val(name);
 		$('#spbwc-tl-apply-subtitle').text(name);
-		// Reset scope.
+
+		// Reset scope to products mode.
 		$applyDialog.find('input[name="apply_for"][value="p"]').prop('checked', true).trigger('change');
-		// Clear selections.
-		if (productSearchInitialized) $('#spbwc-tl-products').val(null).trigger('change');
-		if (catSelectInitialized)     $('#spbwc-tl-categories').val(null).trigger('change');
-		$('#spbwc-tl-apply-submit').prop('disabled', false).text(L.i18n.apply);
+		// Clear previous selections and badge.
+		if (productSearchInitialized) {
+			$('#spbwc-tl-products').val(null).trigger('change');
+			updateProductBadge(0);
+		}
+		if (catSelectInitialized) $('#spbwc-tl-categories').val(null).trigger('change');
+		$('#spbwc-tl-apply-submit').prop('disabled', false).html(
+			'<span class="dashicons dashicons-plus-alt2" aria-hidden="true"></span> ' + esc(L.i18n.apply)
+		);
 
 		openDialog($applyDialog);
 
@@ -650,6 +667,16 @@
 		}
 		// Category select is lazy-init'd in the radio change handler (not here)
 		// because initialising on a [hidden] element gives width:0 in Select2.
+	}
+
+	// Update the "N selected" badge next to the Products label.
+	function updateProductBadge(count) {
+		var $badge = $('#spbwc-tl-products-count');
+		if (count > 0) {
+			$badge.text(count).prop('hidden', false);
+		} else {
+			$badge.prop('hidden', true);
+		}
 	}
 
 	function initWcProductSearch($el) {
@@ -739,30 +766,39 @@
 			if (!resp || !resp.success) {
 				$err.find('p').text((resp && resp.data && resp.data.message) || L.i18n.genericError);
 				$err.prop('hidden', false);
-				$submit.prop('disabled', false).text(L.i18n.apply);
+				$submit.prop('disabled', false).html(
+					'<span class="dashicons dashicons-plus-alt2" aria-hidden="true"></span> ' + esc(L.i18n.apply)
+				);
 				return;
 			}
 			if (resp.data && resp.data.edit_url) {
-				// Redirect to the newly created option's edit page.
-				// Keep button in "loading" state so there's no flash of re-enabled state.
-				$submit.prop('disabled', true).text(L.i18n.applying);
-				window.location.href = resp.data.edit_url;
+				// Show inline success state — hide form, show checkmark + spinner.
+				$('#spbwc-tl-apply-body-content').prop('hidden', true);
+				$('#spbwc-tl-apply-footer').hide();
+				$('#spbwc-tl-apply-success').prop('hidden', false);
+				// Redirect after a short pause so the user sees the confirmation.
+				setTimeout(function () {
+					window.location.href = resp.data.edit_url;
+				}, 1400);
 			} else {
-				// Applied without a specific edit URL — close and show a WP-style
-				// success notice at the top of the page.
+				// Applied without a specific edit URL — close dialog and show page notice.
 				closeDialog($applyDialog);
-				$submit.prop('disabled', false).text(L.i18n.apply);
+				$submit.prop('disabled', false).html(
+					'<span class="dashicons dashicons-plus-alt2" aria-hidden="true"></span> ' + esc(L.i18n.apply)
+				);
 				var $wrap = $('.spbwc-template-library');
-				$wrap.find('.spbwc-tl-apply-success').remove();
-				var $notice = $('<div class="notice notice-success is-dismissible spbwc-tl-apply-success">' +
+				$wrap.find('.spbwc-tl-apply-success-notice').remove();
+				var $notice = $('<div class="notice notice-success is-dismissible spbwc-tl-apply-success-notice">' +
 					'<p>' + esc(L.i18n.applySuccess || 'Template applied successfully.') + '</p></div>');
 				$wrap.prepend($notice);
-				setTimeout(function () { $notice.fadeOut(400, function () { $notice.remove(); }); }, 4000);
+				setTimeout(function () { $notice.fadeOut(400, function () { $notice.remove(); }); }, 5000);
 			}
 		}).fail(function () {
 			$err.find('p').text(L.i18n.genericError);
 			$err.prop('hidden', false);
-			$submit.prop('disabled', false).text(L.i18n.apply);
+			$submit.prop('disabled', false).html(
+				'<span class="dashicons dashicons-plus-alt2" aria-hidden="true"></span> ' + esc(L.i18n.apply)
+			);
 		});
 	}
 

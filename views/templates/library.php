@@ -228,101 +228,142 @@ $catalog = SPBWC_Template_Catalog::instance();
 		</dialog>
 
 		<!-- ─────────────────  APPLY DIALOG  ───────────────── -->
-		<dialog id="spbwc-tl-apply-dialog" class="spbwc-tl-dialog">
+		<dialog id="spbwc-tl-apply-dialog" class="spbwc-tl-dialog spbwc-tl-dialog--apply">
 			<form id="spbwc-tl-apply-form" class="spbwc-tl-dialog-form">
 				<header class="spbwc-tl-dialog-header">
 					<div class="spbwc-tl-dialog-header__title">
 						<h2><?php esc_html_e( 'Apply template', 'storelly-product-builder-for-woocommerce' ); ?></h2>
 						<span class="spbwc-tl-dialog-header__sub" id="spbwc-tl-apply-subtitle"></span>
 					</div>
-					<button type="button" class="spbwc-tl-dialog-close" data-close="apply" aria-label="<?php esc_attr_e( 'Close', 'storelly-product-builder-for-woocommerce' ); ?>">&times;</button>
+					<button type="button" class="spbwc-tl-dialog-close" data-close="apply"
+						aria-label="<?php esc_attr_e( 'Close', 'storelly-product-builder-for-woocommerce' ); ?>">&times;</button>
 				</header>
 
 				<div class="spbwc-tl-dialog-body">
-					<input type="hidden" name="slug" id="spbwc-tl-apply-slug" />
 
-					<div class="spbwc-tl-field">
-						<label for="spbwc-tl-apply-title" class="spbwc-tl-field__label">
-							<?php esc_html_e( 'Option title', 'storelly-product-builder-for-woocommerce' ); ?>
-						</label>
-						<input type="text"
-							id="spbwc-tl-apply-title"
-							name="title"
-							class="spbwc-tl-field__input"
-							required />
-						<p class="spbwc-tl-field__hint">
-							<?php esc_html_e( 'Shown in the Pricing Options list. You can rename it later.', 'storelly-product-builder-for-woocommerce' ); ?>
-						</p>
-					</div>
+					<!-- ── Form fields (swapped out when success state shows) ── -->
+					<div id="spbwc-tl-apply-body-content">
+						<input type="hidden" name="slug" id="spbwc-tl-apply-slug" />
 
-					<div class="spbwc-tl-field">
-						<span class="spbwc-tl-field__label"><?php esc_html_e( 'Apply this template to', 'storelly-product-builder-for-woocommerce' ); ?></span>
-						<div class="spbwc-tl-radio-cards">
-							<label class="spbwc-tl-radio-card spbwc-tl-radio-card--active">
-								<input type="radio" name="apply_for" value="p" checked>
-								<span class="spbwc-tl-radio-card__icon dashicons dashicons-products"></span>
-								<span class="spbwc-tl-radio-card__title"><?php esc_html_e( 'Specific products', 'storelly-product-builder-for-woocommerce' ); ?></span>
-								<span class="spbwc-tl-radio-card__hint"><?php esc_html_e( 'Pick one or more products', 'storelly-product-builder-for-woocommerce' ); ?></span>
-							</label>
-							<label class="spbwc-tl-radio-card">
-								<input type="radio" name="apply_for" value="c">
-								<span class="spbwc-tl-radio-card__icon dashicons dashicons-category"></span>
-								<span class="spbwc-tl-radio-card__title"><?php esc_html_e( 'Product categories', 'storelly-product-builder-for-woocommerce' ); ?></span>
-								<span class="spbwc-tl-radio-card__hint"><?php esc_html_e( 'Apply to all products in those categories', 'storelly-product-builder-for-woocommerce' ); ?></span>
-							</label>
+						<!-- Global-template info note -->
+						<div class="spbwc-tl-info-box spbwc-tl-info-box--note">
+							<span class="dashicons dashicons-info-outline spbwc-tl-info-box__icon" aria-hidden="true"></span>
+							<div class="spbwc-tl-info-box__body">
+								<strong><?php esc_html_e( 'Global template — you get your own editable copy', 'storelly-product-builder-for-woocommerce' ); ?></strong>
+								<p><?php esc_html_e( 'Storelly creates a private copy of this template on your store. The original stays read-only and shared. You can rename fields, adjust prices, and change which products or categories use it at any time from the Pricing Options screen.', 'storelly-product-builder-for-woocommerce' ); ?></p>
+							</div>
 						</div>
-					</div>
 
-					<div class="spbwc-tl-field spbwc-tl-scope spbwc-tl-scope--p">
-						<label for="spbwc-tl-products" class="spbwc-tl-field__label">
-							<?php esc_html_e( 'Products', 'storelly-product-builder-for-woocommerce' ); ?>
-						</label>
-						<select id="spbwc-tl-products"
-							name="scope_ids_p[]"
-							multiple="multiple"
-							class="spbwc-tl-select wc-product-search"
-							style="width:100%;"
-							data-placeholder="<?php esc_attr_e( 'Search for a product…', 'storelly-product-builder-for-woocommerce' ); ?>"
-							data-action="woocommerce_json_search_products_and_variations"></select>
-					</div>
+						<div class="spbwc-tl-field">
+							<label for="spbwc-tl-apply-title" class="spbwc-tl-field__label">
+								<?php esc_html_e( 'Name for your copy', 'storelly-product-builder-for-woocommerce' ); ?>
+							</label>
+							<input type="text"
+								id="spbwc-tl-apply-title"
+								name="title"
+								class="spbwc-tl-field__input"
+								required />
+							<p class="spbwc-tl-field__hint">
+								<?php esc_html_e( 'Shown in your Pricing Options list — you can rename it any time.', 'storelly-product-builder-for-woocommerce' ); ?>
+							</p>
+						</div>
 
-					<div class="spbwc-tl-field spbwc-tl-scope spbwc-tl-scope--c" hidden>
-						<label for="spbwc-tl-categories" class="spbwc-tl-field__label">
-							<?php esc_html_e( 'Categories', 'storelly-product-builder-for-woocommerce' ); ?>
-						</label>
-						<select id="spbwc-tl-categories"
-							name="scope_ids_c[]"
-							multiple="multiple"
-							class="spbwc-tl-select"
-							style="width:100%;">
-							<?php
-							$terms = get_terms(
-								array(
-									'taxonomy'   => 'product_cat',
-									'hide_empty' => false,
-								)
-							);
-							if ( ! is_wp_error( $terms ) && is_array( $terms ) ) {
-								foreach ( $terms as $wc_term ) {
-									printf(
-										'<option value="%d">%s</option>',
-										(int) $wc_term->term_id,
-										esc_html( $wc_term->name )
-									);
+						<div class="spbwc-tl-field">
+							<span class="spbwc-tl-field__label"><?php esc_html_e( 'Apply to', 'storelly-product-builder-for-woocommerce' ); ?></span>
+							<div class="spbwc-tl-radio-cards">
+								<label class="spbwc-tl-radio-card spbwc-tl-radio-card--active">
+									<input type="radio" name="apply_for" value="p" checked>
+									<span class="spbwc-tl-radio-card__icon dashicons dashicons-products"></span>
+									<span class="spbwc-tl-radio-card__title"><?php esc_html_e( 'Specific products', 'storelly-product-builder-for-woocommerce' ); ?></span>
+									<span class="spbwc-tl-radio-card__hint"><?php esc_html_e( 'Search and pick one or more products', 'storelly-product-builder-for-woocommerce' ); ?></span>
+								</label>
+								<label class="spbwc-tl-radio-card">
+									<input type="radio" name="apply_for" value="c">
+									<span class="spbwc-tl-radio-card__icon dashicons dashicons-category"></span>
+									<span class="spbwc-tl-radio-card__title"><?php esc_html_e( 'Product categories', 'storelly-product-builder-for-woocommerce' ); ?></span>
+									<span class="spbwc-tl-radio-card__hint"><?php esc_html_e( 'Applies to every product in those categories', 'storelly-product-builder-for-woocommerce' ); ?></span>
+								</label>
+							</div>
+							<p class="spbwc-tl-field__hint" style="margin-top:8px;">
+								<span class="dashicons dashicons-update-alt" style="font-size:13px;width:13px;height:13px;vertical-align:middle;" aria-hidden="true"></span>
+								<?php esc_html_e( 'You can reassign products or categories later from Pricing Options.', 'storelly-product-builder-for-woocommerce' ); ?>
+							</p>
+						</div>
+
+						<div class="spbwc-tl-field spbwc-tl-scope spbwc-tl-scope--p">
+							<label for="spbwc-tl-products" class="spbwc-tl-field__label">
+								<?php esc_html_e( 'Products', 'storelly-product-builder-for-woocommerce' ); ?>
+								<span class="spbwc-tl-field__label-badge" id="spbwc-tl-products-count" hidden></span>
+							</label>
+							<select id="spbwc-tl-products"
+								name="scope_ids_p[]"
+								multiple="multiple"
+								class="spbwc-tl-select wc-product-search"
+								style="width:100%;"
+								data-placeholder="<?php esc_attr_e( 'Type a product name or SKU to search…', 'storelly-product-builder-for-woocommerce' ); ?>"
+								data-action="woocommerce_json_search_products_and_variations"></select>
+							<p class="spbwc-tl-field__hint">
+								<?php esc_html_e( 'Search and select as many products as you like — each gets its own copy of this template.', 'storelly-product-builder-for-woocommerce' ); ?>
+							</p>
+						</div>
+
+						<div class="spbwc-tl-field spbwc-tl-scope spbwc-tl-scope--c" hidden>
+							<label for="spbwc-tl-categories" class="spbwc-tl-field__label">
+								<?php esc_html_e( 'Categories', 'storelly-product-builder-for-woocommerce' ); ?>
+							</label>
+							<select id="spbwc-tl-categories"
+								name="scope_ids_c[]"
+								multiple="multiple"
+								class="spbwc-tl-select"
+								style="width:100%;">
+								<?php
+								$terms = get_terms(
+									array(
+										'taxonomy'   => 'product_cat',
+										'hide_empty' => false,
+									)
+								);
+								if ( ! is_wp_error( $terms ) && is_array( $terms ) ) {
+									foreach ( $terms as $wc_term ) {
+										printf(
+											'<option value="%d">%s</option>',
+											(int) $wc_term->term_id,
+											esc_html( $wc_term->name )
+										);
+									}
 								}
-							}
-							?>
-						</select>
+								?>
+							</select>
+							<p class="spbwc-tl-field__hint">
+								<?php esc_html_e( 'Select one or more categories — the template will be available on every product within them.', 'storelly-product-builder-for-woocommerce' ); ?>
+							</p>
+						</div>
+
+						<div class="spbwc-tl-apply-error notice notice-error inline" id="spbwc-tl-apply-error" hidden>
+							<p></p>
+						</div>
+					</div><!-- #spbwc-tl-apply-body-content -->
+
+					<!-- ── Success state (visible after apply while browser redirects) ── -->
+					<div id="spbwc-tl-apply-success" class="spbwc-tl-apply-success-state" hidden aria-live="assertive">
+						<span class="dashicons dashicons-yes-alt spbwc-tl-apply-success-state__icon" aria-hidden="true"></span>
+						<p class="spbwc-tl-apply-success-state__title">
+							<?php esc_html_e( 'Template applied!', 'storelly-product-builder-for-woocommerce' ); ?>
+						</p>
+						<p class="spbwc-tl-apply-success-state__sub">
+							<?php esc_html_e( 'Opening the editor…', 'storelly-product-builder-for-woocommerce' ); ?>
+						</p>
+						<span class="spinner is-active" style="float:none;margin:4px 0 0;" aria-hidden="true"></span>
 					</div>
 
-					<div class="spbwc-tl-apply-error notice notice-error inline" id="spbwc-tl-apply-error" hidden>
-						<p></p>
-					</div>
-				</div>
+				</div><!-- .spbwc-tl-dialog-body -->
 
-				<footer class="spbwc-tl-dialog-footer">
-					<button type="button" class="button" data-close="apply"><?php esc_html_e( 'Cancel', 'storelly-product-builder-for-woocommerce' ); ?></button>
+				<footer class="spbwc-tl-dialog-footer" id="spbwc-tl-apply-footer">
+					<button type="button" class="button" data-close="apply">
+						<?php esc_html_e( 'Cancel', 'storelly-product-builder-for-woocommerce' ); ?>
+					</button>
 					<button type="submit" class="button button-primary" id="spbwc-tl-apply-submit">
+						<span class="dashicons dashicons-plus-alt2" aria-hidden="true"></span>
 						<?php esc_html_e( 'Apply template', 'storelly-product-builder-for-woocommerce' ); ?>
 					</button>
 				</footer>

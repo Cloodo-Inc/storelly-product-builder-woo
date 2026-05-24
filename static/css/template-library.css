@@ -511,15 +511,105 @@ button.spbwc-tl-apply:hover {
 	font-size: 16px; width: 16px; height: 16px;
 }
 
-/* ── Apply form ────────────────────────────────────────────────────── */
-.spbwc-tl-field { margin-bottom: 16px; }
-.spbwc-tl-field__label {
+/* Apply dialog — wider than the default 560px to accommodate multi-select */
+.spbwc-tl-dialog--apply {
+	width: min(680px, 96vw);
+}
+
+/* ── Info note box ─────────────────────────────────────────────────── */
+.spbwc-tl-info-box {
+	display: flex;
+	gap: 12px;
+	padding: 12px 14px;
+	border-radius: var(--nbd-radius);
+	margin-bottom: 20px;
+}
+.spbwc-tl-info-box--note {
+	background: var(--st-brand-tint);
+	border: 1px solid var(--st-brand-soft);
+}
+.spbwc-tl-info-box__icon {
+	color: var(--st-brand);
+	flex-shrink: 0;
+	margin-top: 1px;
+}
+.spbwc-tl-info-box__body {
+	flex: 1;
+	min-width: 0;
+}
+.spbwc-tl-info-box__body strong {
 	display: block;
+	font-size: 13px;
+	font-weight: 600;
+	color: var(--st-brand-pressed);
+	margin-bottom: 4px;
+}
+.spbwc-tl-info-box__body p {
+	margin: 0;
+	font-size: 12px;
+	color: var(--nbd-st-text-soft);
+	line-height: 1.55;
+}
+
+/* ── Field label (shared across all apply-form fields) ──────────────── */
+.spbwc-tl-field__label {
+	display: flex;
+	align-items: center;
+	gap: 6px;
 	font-weight: 600;
 	font-size: 13px;
 	margin-bottom: 6px;
 	color: var(--nbd-st-text);
 }
+.spbwc-tl-field__label-badge {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	background: var(--st-brand);
+	color: #fff;
+	font-size: 10px;
+	font-weight: 700;
+	line-height: 1;
+	min-width: 18px;
+	height: 18px;
+	padding: 0 5px;
+	border-radius: 9px;
+}
+
+/* ── Success state ─────────────────────────────────────────────────── */
+.spbwc-tl-apply-success-state {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	padding: 56px 24px;
+	gap: 10px;
+	text-align: center;
+}
+.spbwc-tl-apply-success-state__icon {
+	font-size: 56px;
+	width: 56px;
+	height: 56px;
+	color: #10b981;
+	line-height: 1;
+	display: block;
+	margin-bottom: 4px;
+}
+.spbwc-tl-apply-success-state__title {
+	margin: 0;
+	font-size: 20px;
+	font-weight: 700;
+	color: var(--nbd-st-text);
+	line-height: 1.3;
+}
+.spbwc-tl-apply-success-state__sub {
+	margin: 0;
+	font-size: 13px;
+	color: var(--nbd-st-text-soft);
+}
+
+/* ── Apply form ────────────────────────────────────────────────────── */
+.spbwc-tl-field { margin-bottom: 16px; }
 .spbwc-tl-field__hint {
 	margin: 4px 0 0;
 	font-size: 12px;
