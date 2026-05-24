@@ -50,29 +50,59 @@ if ( ! class_exists( 'SPBWC_Template_Library_Admin' ) ) {
 			if ( 'storelly-builder_page_' . SPBWC_PB_TEMPLATE_LIBRARY_SLUG !== $hook ) {
 				return;
 			}
+			// WC admin styles bring Select2 visuals matching the rest of WP-admin.
+			wp_enqueue_style( 'woocommerce_admin_styles' );
+
 			wp_enqueue_style(
 				'spbwc-template-library',
 				SPBWC_PB_CSS_URL . 'template-library.css',
-				array(),
+				array( 'woocommerce_admin_styles' ),
 				SPBWC_PB_VERSION
 			);
 			wp_enqueue_script(
 				'spbwc-template-library',
 				SPBWC_PB_JS_URL . 'template-library.js',
-				array( 'jquery', 'wc-enhanced-select' ),
+				array( 'jquery', 'wc-enhanced-select', 'selectWoo' ),
 				SPBWC_PB_VERSION,
 				true
 			);
+
+			// Build a currency string used by the classic preview render.
+			$currency_symbol = function_exists( 'get_woocommerce_currency_symbol' )
+				? get_woocommerce_currency_symbol()
+				: '$';
+
 			wp_localize_script( 'spbwc-template-library', 'spbwcTemplateLibrary', array(
-				'ajaxUrl'         => admin_url( 'admin-ajax.php' ),
-				'nonce'           => wp_create_nonce( 'spbwc_template_library' ),
+				'ajaxUrl'             => admin_url( 'admin-ajax.php' ),
+				'nonce'               => wp_create_nonce( 'spbwc_template_library' ),
 				'searchProductsNonce' => wp_create_nonce( 'search-products' ),
-				'i18n'            => array(
-					'applying'      => esc_html__( 'Applying…', 'storelly-product-builder-for-woocommerce' ),
-					'apply'         => esc_html__( 'Apply', 'storelly-product-builder-for-woocommerce' ),
-					'genericError'  => esc_html__( 'Something went wrong. Please try again.', 'storelly-product-builder-for-woocommerce' ),
-					'selectProduct' => esc_html__( 'Select one or more products…', 'storelly-product-builder-for-woocommerce' ),
-					'selectCategory'=> esc_html__( 'Select one or more categories…', 'storelly-product-builder-for-woocommerce' ),
+				'currencySymbol'      => $currency_symbol,
+				'i18n'                => array(
+					'applying'        => esc_html__( 'Applying…', 'storelly-product-builder-for-woocommerce' ),
+					'apply'           => esc_html__( 'Apply template', 'storelly-product-builder-for-woocommerce' ),
+					'genericError'    => esc_html__( 'Something went wrong. Please try again.', 'storelly-product-builder-for-woocommerce' ),
+					'selectProduct'   => esc_html__( 'Search for a product…', 'storelly-product-builder-for-woocommerce' ),
+					'selectCategory'  => esc_html__( 'Select categories…', 'storelly-product-builder-for-woocommerce' ),
+					'noProductSelected'  => esc_html__( 'Please select at least one product.', 'storelly-product-builder-for-woocommerce' ),
+					'noCategorySelected' => esc_html__( 'Please select at least one category.', 'storelly-product-builder-for-woocommerce' ),
+					'loadingPreview'  => esc_html__( 'Loading preview…', 'storelly-product-builder-for-woocommerce' ),
+					'previewFailed'   => esc_html__( 'Failed to load preview.', 'storelly-product-builder-for-woocommerce' ),
+					'fieldsTab'       => esc_html__( 'Fields', 'storelly-product-builder-for-woocommerce' ),
+					'aboutTab'        => esc_html__( 'About', 'storelly-product-builder-for-woocommerce' ),
+					'previewTab'      => esc_html__( 'Live preview', 'storelly-product-builder-for-woocommerce' ),
+					'optionsCount'    => esc_html__( '%d options', 'storelly-product-builder-for-woocommerce' ),
+					'required'        => esc_html__( 'Required', 'storelly-product-builder-for-woocommerce' ),
+					'free'            => esc_html__( 'Free', 'storelly-product-builder-for-woocommerce' ),
+					'popular'         => esc_html__( 'Popular', 'storelly-product-builder-for-woocommerce' ),
+					'displayDropdown' => esc_html__( 'Dropdown', 'storelly-product-builder-for-woocommerce' ),
+					'displayRadio'    => esc_html__( 'Radio', 'storelly-product-builder-for-woocommerce' ),
+					'displaySwatch'   => esc_html__( 'Swatch', 'storelly-product-builder-for-woocommerce' ),
+					'displayLabel'    => esc_html__( 'Label', 'storelly-product-builder-for-woocommerce' ),
+					'inputText'       => esc_html__( 'Text input', 'storelly-product-builder-for-woocommerce' ),
+					'inputUpload'     => esc_html__( 'File upload', 'storelly-product-builder-for-woocommerce' ),
+					'inputTextarea'   => esc_html__( 'Long text', 'storelly-product-builder-for-woocommerce' ),
+					'inputNumber'     => esc_html__( 'Number', 'storelly-product-builder-for-woocommerce' ),
+					'previewApplyCTA' => esc_html__( 'Apply this template', 'storelly-product-builder-for-woocommerce' ),
 				),
 			) );
 		}

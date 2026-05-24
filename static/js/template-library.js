@@ -1,8 +1,10 @@
 /**
- * Template Library — search/filter, preview & apply.
+ * Template Library — search/filter, Preview dialog (classic mockup, fields,
+ * about) and Apply dialog (radio cards + Select2 product/category picker).
  *
- * Depends on jQuery, wc-enhanced-select (for Select2) and the localized
- * `spbwcTemplateLibrary` object.
+ * Note on Select2: WooCommerce auto-inits `.wc-product-search` on DOM ready,
+ * but our product picker sits inside a <dialog> that is `display:none` until
+ * opened — so we manually init it the first time the apply dialog opens.
  */
 (function ($) {
 	'use strict';
@@ -11,197 +13,559 @@
 		return;
 	}
 	var L = window.spbwcTemplateLibrary;
+	var $previewDialog, $applyDialog, $cards, currentTemplate = null;
 
 	$(function () {
+		$previewDialog = $('#spbwc-tl-preview-dialog');
+		$applyDialog   = $('#spbwc-tl-apply-dialog');
+		$cards         = $('#spbwc-tl-grid .spbwc-tl-card');
+
 		initFilters();
 		initPreview();
 		initApply();
 	});
 
+	// ─── Filters ─────────────────────────────────────────────────────
 	function initFilters() {
-		var $search = $('#spbwc-tl-search');
-		var $cat = $('#spbwc-tl-category-filter');
-		var $cards = $('#spbwc-tl-grid .spbwc-tl-card');
+		var $search  = $('#spbwc-tl-search');
+		var $cat     = $('#spbwc-tl-category-filter');
+		var $count   = $('#spbwc-tl-count');
+		var $empty   = $('#spbwc-tl-empty-search');
+		var totalLbl = $count.text();
 
-		function apply() {
-			var q = ($search.val() || '').toLowerCase().trim();
+		function applyFilter() {
+			var q   = ($search.val() || '').toLowerCase().trim();
 			var cat = $cat.val() || '';
+			var visible = 0;
 			$cards.each(function () {
 				var $c = $(this);
-				var matchText = !q || ($c.data('name') || '').indexOf(q) !== -1;
-				var matchCat = !cat || $c.data('category') === cat;
-				$c.prop('hidden', !(matchText && matchCat));
+				var matchText = !q || ($c.data('name') + '').indexOf(q) !== -1;
+				var matchCat  = !cat || $c.data('category') === cat;
+				var show = matchText && matchCat;
+				$c.prop('hidden', !show);
+				if (show) visible++;
 			});
+			$empty.prop('hidden', visible !== 0);
+			$count.text(visible === $cards.length
+				? totalLbl
+				: visible + ' / ' + $cards.length);
 		}
-
-		$search.on('input', apply);
-		$cat.on('change', apply);
+		$search.on('input', applyFilter);
+		$cat.on('change', applyFilter);
 	}
 
+	// ─── Preview dialog ──────────────────────────────────────────────
 	function initPreview() {
-		var $dialog = $('#spbwc-tl-preview-dialog');
-		var $title = $('#spbwc-tl-preview-title');
-		var $body = $('#spbwc-tl-preview-body');
-
 		$(document).on('click', '.spbwc-tl-preview', function () {
 			var slug = $(this).data('slug');
-			$title.text('Loading…');
-			$body.html('<p>Loading template details…</p>');
-			openDialog($dialog);
+			var name = $(this).data('name');
+			openPreview(slug, name);
+		});
 
-			$.post(L.ajaxUrl, {
-				action: 'spbwc_template_preview',
-				_ajax_nonce: L.nonce,
-				slug: slug
-			}).done(function (resp) {
-				if (!resp || !resp.success) {
-					$body.html('<p>' + escapeHtml((resp && resp.data && resp.data.message) || L.i18n.genericError) + '</p>');
-					return;
-				}
-				$title.text(resp.data.meta.name);
-				$body.html(renderPreview(resp.data));
-			}).fail(function () {
-				$body.html('<p>' + escapeHtml(L.i18n.genericError) + '</p>');
-			});
+		// Tab switching.
+		$previewDialog.on('click', '.spbwc-tl-tab', function () {
+			var tab = $(this).data('tab');
+			$previewDialog.find('.spbwc-tl-tab').removeClass('spbwc-tl-tab--active');
+			$(this).addClass('spbwc-tl-tab--active');
+			$previewDialog.find('.spbwc-tl-tabpanel').removeClass('spbwc-tl-tabpanel--active');
+			$previewDialog.find('[data-tabpanel="' + tab + '"]').addClass('spbwc-tl-tabpanel--active');
+		});
+
+		// Close handlers.
+		$previewDialog.on('click', '[data-close="preview"]', function () {
+			closeDialog($previewDialog);
+		});
+
+		// "Apply this template" CTA from preview footer.
+		$('#spbwc-tl-preview-apply-cta').on('click', function () {
+			if (!currentTemplate) return;
+			closeDialog($previewDialog);
+			openApply(currentTemplate.slug, currentTemplate.name);
 		});
 	}
 
-	function renderPreview(data) {
-		var meta = data.meta;
-		var summary = data.summary || [];
-		var html = '<div class="spbwc-tl-preview-meta">';
-		html += '<p><strong>Category:</strong> ' + escapeHtml(meta.category) + '</p>';
-		html += '<p><strong>Fields:</strong> ' + meta.field_count + ' &middot; <strong>Pricing:</strong> ' + escapeHtml((meta.pricing_method || '').replace(/_/g, ' ')) + '</p>';
-		if (meta.description) {
-			html += '<p>' + escapeHtml(meta.description) + '</p>';
+	function openPreview(slug, name) {
+		currentTemplate = { slug: slug, name: name };
+		$('#spbwc-tl-preview-title').text(name);
+		$('#spbwc-tl-preview-subtitle').text(L.i18n.loadingPreview);
+		$('#spbwc-tl-preview-live').empty();
+		$('#spbwc-tl-preview-fields').empty();
+		$('#spbwc-tl-preview-about').empty();
+		// Reset to Live tab.
+		$previewDialog.find('.spbwc-tl-tab').removeClass('spbwc-tl-tab--active');
+		$previewDialog.find('.spbwc-tl-tab[data-tab="live"]').addClass('spbwc-tl-tab--active');
+		$previewDialog.find('.spbwc-tl-tabpanel').removeClass('spbwc-tl-tabpanel--active');
+		$previewDialog.find('[data-tabpanel="live"]').addClass('spbwc-tl-tabpanel--active');
+		$('#spbwc-tl-preview-loading').prop('hidden', false);
+
+		openDialog($previewDialog);
+
+		$.post(L.ajaxUrl, {
+			action: 'spbwc_template_preview',
+			_ajax_nonce: L.nonce,
+			slug: slug
+		}).done(function (resp) {
+			$('#spbwc-tl-preview-loading').prop('hidden', true);
+			if (!resp || !resp.success) {
+				$('#spbwc-tl-preview-live').html(errorBlock((resp && resp.data && resp.data.message) || L.i18n.previewFailed));
+				return;
+			}
+			renderPreviewLive(resp.data);
+			renderPreviewFields(resp.data);
+			renderPreviewAbout(resp.data);
+			$('#spbwc-tl-preview-subtitle').text(resp.data.meta.category + ' · ' + resp.data.meta.field_count + ' fields');
+		}).fail(function () {
+			$('#spbwc-tl-preview-loading').prop('hidden', true);
+			$('#spbwc-tl-preview-live').html(errorBlock(L.i18n.previewFailed));
+		});
+	}
+
+	function renderPreviewLive(data) {
+		var meta   = data.meta;
+		var render = data.render || {};
+		var fields = render.fields || [];
+
+		var html = '<div class="spb-classic">';
+		html += '<div class="spb-classic__layout">';
+		html += '<div class="spb-classic__breadcrumb">Home / ' + esc(meta.category) + ' / <strong>' + esc(meta.name) + '</strong></div>';
+
+		html += '<div class="spb-classic__gallery"><span class="spb-classic__gallery-label">' + esc(meta.name) + '</span></div>';
+		html += '<div class="spb-classic__info">';
+		html += '<div class="spb-classic__category">' + esc(meta.category) + '</div>';
+		html += '<h1 class="spb-classic__title">' + esc(meta.name) + '</h1>';
+
+		// Price wrap (estimated from first attribute price if available).
+		var sample = sampleTotal(fields);
+		if (sample.value) {
+			html += '<div class="spb-classic__price-wrap">';
+			html += '<div class="spb-classic__price-label">Estimated total</div>';
+			html += '<div class="spb-classic__price-value">' + esc(L.currencySymbol + sample.value);
+			if (sample.suffix) html += ' <small>' + esc(sample.suffix) + '</small>';
+			html += '</div>';
+			if (sample.note) html += '<div class="spb-classic__price-note">' + esc(sample.note) + '</div>';
+			html += '</div>';
 		}
-		if (meta.pricing_source) {
-			html += '<p class="description"><em>' + escapeHtml(meta.pricing_source) + '</em></p>';
+
+		// Render fields.
+		if (!fields.length) {
+			html += '<div class="spb-classic__empty">This template has no configurable fields.</div>';
+		} else {
+			fields.forEach(function (f) {
+				html += renderClassicField(f);
+			});
 		}
+
+		// Quantity breaks strip (if any).
+		if (render.quantity_breaks && render.quantity_breaks.length > 1) {
+			html += renderQtyBreaks(render.quantity_breaks);
+		}
+
+		html += '</div>'; // info
+		html += '</div>'; // layout
+		html += '</div>'; // classic
+
+		$('#spbwc-tl-preview-live').html(html);
+	}
+
+	function renderClassicField(f) {
+		var html = '<div class="po-section">';
+		html += '<div class="po-section__heading">';
+		html += '<div class="po-section__label">' + esc(f.title || '(untitled)');
+		if (f.required) html += ' <span class="po-section__required">*</span>';
+		html += '</div>';
+		var chosen = pickChosen(f);
+		if (chosen) html += '<div class="po-section__chosen"><strong>' + esc(chosen) + '</strong></div>';
 		html += '</div>';
 
-		if (summary.length) {
-			html += '<h3 style="margin-top:16px">Fields in this template</h3>';
-			html += '<ul class="spbwc-tl-preview-fields">';
-			summary.forEach(function (f) {
-				html += '<li>';
-				html += '<strong>' + escapeHtml(f.title || '(untitled)') + '</strong>';
-				if (f.nbd_type) html += ' <span class="spbwc-tl-badge spbwc-tl-badge--neutral">' + escapeHtml(f.nbd_type) + '</span>';
-				if (f.display_type) html += ' <span class="spbwc-tl-badge spbwc-tl-badge--info">' + escapeHtml(f.display_type) + '</span>';
-				if (f.attr_count) html += ' &middot; ' + f.attr_count + ' options';
-				html += '</li>';
-			});
-			html += '</ul>';
+		if (f.description) {
+			html += '<div class="po-section__desc">' + esc(f.description) + '</div>';
 		}
+
+		if (f.data_type === 'i') {
+			html += renderInputField(f);
+		} else if (f.display === 's') {
+			html += renderSwatch(f);
+		} else if (f.display === 'd' || f.display === 'ad') {
+			html += renderSelect(f);
+		} else {
+			html += renderRadios(f);
+		}
+
+		html += '</div>';
 		return html;
 	}
 
-	function initApply() {
-		var $dialog = $('#spbwc-tl-apply-dialog');
-		var $form = $('#spbwc-tl-apply-form');
-		var $slug = $('#spbwc-tl-apply-slug');
-		var $title = $('#spbwc-tl-apply-title');
-		var $error = $('#spbwc-tl-apply-error');
-		var $submit = $('#spbwc-tl-apply-submit');
-
-		// Init Select2 on category picker if available.
-		if ($.fn.select2) {
-			$('#spbwc-tl-categories').select2({
-				placeholder: L.i18n.selectCategory,
-				width: '100%'
-			});
+	function renderSwatch(f) {
+		if (!f.attributes || !f.attributes.length) {
+			return '<div class="po-section__desc">No options configured.</div>';
 		}
-
-		$(document).on('click', '.spbwc-tl-apply', function () {
-			$error.hide().text('');
-			$slug.val($(this).data('slug'));
-			$title.val($(this).data('name'));
-			$form[0].reset();
-			$slug.val($(this).data('slug'));
-			$title.val($(this).data('name'));
-			$form.find('input[name="apply_for"][value="p"]').prop('checked', true).trigger('change');
-			openDialog($dialog);
+		var html = '<div class="swatch-grid">';
+		f.attributes.forEach(function (a, i) {
+			var active = a.selected || (i === 0 && !f.attributes.some(function (x) { return x.selected; }));
+			var visualStyle = a.preview_type === 'c' && a.color
+				? ' style="background:' + esc(a.color) + ';"'
+				: '';
+			html += '<div class="swatch' + (active ? ' swatch--active' : '') + '">';
+			html += '<div class="swatch__visual"' + visualStyle + '></div>';
+			html += '<div class="swatch__name">' + esc(a.name || '—') + '</div>';
+			html += '<div class="swatch__price' + (priceIsFree(a.price) ? ' swatch__price--free' : '') + '">' + esc(formatPrice(a.price, f.price_type)) + '</div>';
+			html += '</div>';
 		});
+		html += '</div>';
+		return html;
+	}
 
-		$(document).on('change', 'input[name="apply_for"]', function () {
-			var mode = $(this).val();
-			$('.spbwc-tl-scope').hide();
-			$('.spbwc-tl-scope--' + mode).show();
+	function renderRadios(f) {
+		if (!f.attributes || !f.attributes.length) {
+			return '<div class="po-section__desc">No options configured.</div>';
+		}
+		var html = '<div class="po-radios">';
+		f.attributes.forEach(function (a, i) {
+			var active = a.selected || (i === 0 && !f.attributes.some(function (x) { return x.selected; }));
+			var label = (a.name || '—');
+			var pricePart = a.price ? ' · ' + formatPrice(a.price, f.price_type) : '';
+			html += '<button type="button" class="po-radio' + (active ? ' po-radio--active' : '') + '">' + esc(label + pricePart) + '</button>';
 		});
+		html += '</div>';
+		return html;
+	}
 
-		$(document).on('click', '[data-close="apply"]', function () {
-			closeDialog($dialog);
+	function renderSelect(f) {
+		if (!f.attributes || !f.attributes.length) {
+			return '<div class="po-section__desc">No options configured.</div>';
+		}
+		var html = '<div class="po-select"><select disabled>';
+		f.attributes.forEach(function (a) {
+			var pricePart = a.price ? ' (' + formatPrice(a.price, f.price_type) + ')' : '';
+			html += '<option' + (a.selected ? ' selected' : '') + '>' + esc((a.name || '—') + pricePart) + '</option>';
 		});
+		html += '</select></div>';
+		return html;
+	}
 
-		$form.on('submit', function (e) {
-			e.preventDefault();
-			$error.hide().text('');
+	function renderInputField(f) {
+		var html = '<div class="po-input">';
+		if (f.input_type === 'u') {
+			html += '<div class="po-upload">📎 ' + esc(L.i18n.inputUpload) + '</div>';
+		} else if (f.input_type === 'a') {
+			html += '<textarea placeholder="' + esc(L.i18n.inputTextarea) + '" disabled></textarea>';
+		} else if (f.input_type === 'n' || f.input_type === 'r') {
+			html += '<input type="number" placeholder="' + esc(L.i18n.inputNumber) + '" disabled />';
+		} else {
+			html += '<input type="text" placeholder="' + esc(L.i18n.inputText) + '" disabled />';
+		}
+		html += '</div>';
+		return html;
+	}
 
-			var mode = $form.find('input[name="apply_for"]:checked').val();
-			var scope = mode === 'p'
-				? ($('#spbwc-tl-products').val() || [])
-				: ($('#spbwc-tl-categories').val() || []);
+	function renderQtyBreaks(breaks) {
+		var html = '<div class="po-section"><div class="po-section__heading"><div class="po-section__label">Quantity</div></div>';
+		html += '<div class="qty-breaks">';
+		breaks.forEach(function (b, i) {
+			var save = b.dis && b.dis !== '0' && b.dis !== '' ? '-' + esc(b.dis) + '%' : '';
+			html += '<div class="qty-break' + (i === 0 ? ' qty-break--active' : '') + '">';
+			html += '<div class="qty-break__count">' + esc(b.val) + '</div>';
+			if (save) html += '<div class="qty-break__save">' + save + '</div>';
+			html += '</div>';
+		});
+		html += '</div></div>';
+		return html;
+	}
 
-			if (!scope.length) {
-				$error.text('Please select at least one ' + (mode === 'p' ? 'product' : 'category') + '.').show();
-				return;
+	function pickChosen(f) {
+		if (!f.attributes || !f.attributes.length) return '';
+		var sel = f.attributes.find(function (a) { return a.selected; });
+		return (sel || f.attributes[0]).name || '';
+	}
+
+	function sampleTotal(fields) {
+		// Sum first non-empty attribute price across fields as a rough estimate.
+		var total = 0;
+		var hasAny = false;
+		(fields || []).forEach(function (f) {
+			if (!f.attributes || !f.attributes.length) return;
+			var pick = f.attributes.find(function (a) { return a.selected; }) || f.attributes[0];
+			var p = parseFloat(pick.price);
+			if (!isNaN(p)) { total += p; hasAny = true; }
+		});
+		if (!hasAny) return { value: '', suffix: '', note: '' };
+		return {
+			value: total.toFixed(2),
+			suffix: 'per item (est.)',
+			note: 'Estimated using default selections — actual price varies by quantity and chosen options.'
+		};
+	}
+
+	function formatPrice(p, priceType) {
+		if (p === '' || p == null || p === '0') return L.i18n.free;
+		var sign = '+';
+		if (priceType === 'p' || priceType === 'p+') {
+			return sign + p + '%';
+		}
+		return sign + L.currencySymbol + p;
+	}
+
+	function priceIsFree(p) {
+		return p === '' || p == null || p === '0' || parseFloat(p) === 0;
+	}
+
+	function renderPreviewFields(data) {
+		var render = data.render || {};
+		var fields = render.fields || [];
+		if (!fields.length) {
+			$('#spbwc-tl-preview-fields').html('<p>No fields in this template.</p>');
+			return;
+		}
+		var html = '<table class="spbwc-tl-fields-table"><thead><tr>';
+		html += '<th>Field</th><th>Type</th><th>Display</th><th>Required</th><th>Options</th>';
+		html += '</tr></thead><tbody>';
+		fields.forEach(function (f) {
+			html += '<tr>';
+			html += '<td><strong>' + esc(f.title || '(untitled)') + '</strong>';
+			if (f.description) html += '<br><small>' + esc(f.description) + '</small>';
+			html += '</td>';
+			html += '<td>' + esc(displayLabel(f)) + '</td>';
+			html += '<td>' + esc(displayTypeLabel(f.display)) + '</td>';
+			html += '<td>' + (f.required ? '<span class="spbwc-tl-badge spbwc-tl-badge--required">' + L.i18n.required + '</span>' : '—') + '</td>';
+			html += '<td>';
+			if (f.attributes && f.attributes.length) {
+				html += '<div class="attr-chips">';
+				f.attributes.slice(0, 8).forEach(function (a) {
+					html += '<span class="attr-chip">' + esc(a.name || '—') + '</span>';
+				});
+				if (f.attributes.length > 8) html += '<span class="attr-chip">+' + (f.attributes.length - 8) + '</span>';
+				html += '</div>';
+			} else {
+				html += '<em>' + esc(displayLabel(f)) + '</em>';
 			}
+			html += '</td>';
+			html += '</tr>';
+		});
+		html += '</tbody></table>';
+		$('#spbwc-tl-preview-fields').html(html);
+	}
 
-			$submit.prop('disabled', true).text(L.i18n.applying);
+	function displayLabel(f) {
+		if (f.data_type === 'i') {
+			switch (f.input_type) {
+				case 'u': return L.i18n.inputUpload;
+				case 'a': return L.i18n.inputTextarea;
+				case 'n': case 'r': return L.i18n.inputNumber;
+				default:  return L.i18n.inputText;
+			}
+		}
+		return f.nbd_type || 'multiple';
+	}
 
-			$.post(L.ajaxUrl, {
-				action: 'spbwc_template_apply',
-				_ajax_nonce: L.nonce,
-				slug: $slug.val(),
-				title: $title.val(),
-				apply_for: mode,
-				scope_ids: scope
-			}).done(function (resp) {
-				if (!resp || !resp.success) {
-					$error.text((resp && resp.data && resp.data.message) || L.i18n.genericError).show();
-					$submit.prop('disabled', false).text(L.i18n.apply);
-					return;
+	function displayTypeLabel(d) {
+		switch (d) {
+			case 'd': case 'ad': return L.i18n.displayDropdown;
+			case 'r': return L.i18n.displayRadio;
+			case 's': return L.i18n.displaySwatch;
+			case 'l': case 'xl': return L.i18n.displayLabel;
+			default:  return d || '—';
+		}
+	}
+
+	function renderPreviewAbout(data) {
+		var m = data.meta;
+		var html = '<div class="spbwc-tl-about">';
+		html += aboutRow('Template slug', '<code>' + esc(m.slug) + '</code>');
+		html += aboutRow('Category', esc(m.category));
+		html += aboutRow('Field count', m.field_count);
+		html += aboutRow('Pricing method', esc((m.pricing_method || '').replace(/_/g, ' ')));
+		html += aboutRow('Template version', esc(m.template_version));
+		if (m.description) html += aboutRow('Description', esc(m.description));
+		if (m.pricing_source) {
+			html += '<div class="spbwc-tl-about__row spbwc-tl-about__pricing-note">';
+			html += '<dt>⚠ Pricing source</dt><dd>' + esc(m.pricing_source) + '</dd>';
+			html += '</div>';
+		}
+		html += '</div>';
+		$('#spbwc-tl-preview-about').html(html);
+	}
+
+	function aboutRow(label, value) {
+		return '<div class="spbwc-tl-about__row"><dt>' + esc(label) + '</dt><dd>' + value + '</dd></div>';
+	}
+
+	function errorBlock(msg) {
+		return '<div class="notice notice-error inline" style="margin:20px"><p>' + esc(msg) + '</p></div>';
+	}
+
+	// ─── Apply dialog ────────────────────────────────────────────────
+	var productSearchInitialized = false;
+	var catSelectInitialized     = false;
+
+	function initApply() {
+		$(document).on('click', '.spbwc-tl-apply', function () {
+			openApply($(this).data('slug'), $(this).data('name'));
+		});
+
+		// Radio cards toggle.
+		$applyDialog.on('change', 'input[name="apply_for"]', function () {
+			var mode = $(this).val();
+			$applyDialog.find('.spbwc-tl-radio-card').removeClass('spbwc-tl-radio-card--active');
+			$(this).closest('.spbwc-tl-radio-card').addClass('spbwc-tl-radio-card--active');
+			$applyDialog.find('.spbwc-tl-scope').prop('hidden', true);
+			$applyDialog.find('.spbwc-tl-scope--' + mode).prop('hidden', false);
+		});
+
+		// Close.
+		$applyDialog.on('click', '[data-close="apply"]', function () {
+			closeDialog($applyDialog);
+		});
+
+		// Submit.
+		$('#spbwc-tl-apply-form').on('submit', submitApply);
+	}
+
+	function openApply(slug, name) {
+		$('#spbwc-tl-apply-error').prop('hidden', true).find('p').text('');
+		$('#spbwc-tl-apply-slug').val(slug);
+		$('#spbwc-tl-apply-title').val(name);
+		$('#spbwc-tl-apply-subtitle').text(name);
+		// Reset scope.
+		$applyDialog.find('input[name="apply_for"][value="p"]').prop('checked', true).trigger('change');
+		// Clear selections.
+		if (productSearchInitialized) $('#spbwc-tl-products').val(null).trigger('change');
+		if (catSelectInitialized)     $('#spbwc-tl-categories').val(null).trigger('change');
+		$('#spbwc-tl-apply-submit').prop('disabled', false).text(L.i18n.apply);
+
+		openDialog($applyDialog);
+
+		// Lazy-init Select2 the first time the dialog is opened — the elements
+		// are inside a <dialog> that's display:none on page load, so WC's
+		// DOM-ready auto-init skips them.
+		if (!productSearchInitialized) {
+			initWcProductSearch($('#spbwc-tl-products'));
+			productSearchInitialized = true;
+		}
+		if (!catSelectInitialized) {
+			initCatSelect($('#spbwc-tl-categories'));
+			catSelectInitialized = true;
+		}
+	}
+
+	function initWcProductSearch($el) {
+		if (!$.fn.selectWoo && !$.fn.select2) {
+			// Fallback: make the native select usable.
+			$el.attr('size', 6);
+			return;
+		}
+		var fn = $.fn.selectWoo ? 'selectWoo' : 'select2';
+		var action = $el.data('action') || 'woocommerce_json_search_products_and_variations';
+		$el[fn]({
+			placeholder: $el.data('placeholder') || L.i18n.selectProduct,
+			allowClear: false,
+			minimumInputLength: 1,
+			width: '100%',
+			dropdownParent: $applyDialog,
+			ajax: {
+				url: L.ajaxUrl,
+				dataType: 'json',
+				delay: 250,
+				cache: true,
+				data: function (params) {
+					return {
+						term: params.term,
+						action: action,
+						security: L.searchProductsNonce
+					};
+				},
+				processResults: function (data) {
+					var results = [];
+					if (data && typeof data === 'object') {
+						$.each(data, function (id, txt) {
+							results.push({ id: id, text: txt });
+						});
+					}
+					return { results: results };
 				}
-				if (resp.data.edit_url) {
-					window.location.href = resp.data.edit_url;
-				} else {
-					closeDialog($dialog);
-					$submit.prop('disabled', false).text(L.i18n.apply);
-				}
-			}).fail(function () {
-				$error.text(L.i18n.genericError).show();
-				$submit.prop('disabled', false).text(L.i18n.apply);
-			});
+			},
+			escapeMarkup: function (m) { return m; }
 		});
 	}
 
+	function initCatSelect($el) {
+		if (!$.fn.selectWoo && !$.fn.select2) return;
+		var fn = $.fn.selectWoo ? 'selectWoo' : 'select2';
+		$el[fn]({
+			placeholder: L.i18n.selectCategory,
+			width: '100%',
+			dropdownParent: $applyDialog
+		});
+	}
+
+	function submitApply(e) {
+		e.preventDefault();
+		var $err    = $('#spbwc-tl-apply-error');
+		var $submit = $('#spbwc-tl-apply-submit');
+		$err.prop('hidden', true).find('p').text('');
+
+		var mode  = $('#spbwc-tl-apply-form').find('input[name="apply_for"]:checked').val();
+		var scope = mode === 'p'
+			? ($('#spbwc-tl-products').val() || [])
+			: ($('#spbwc-tl-categories').val() || []);
+
+		if (!scope.length) {
+			$err.find('p').text(mode === 'p' ? L.i18n.noProductSelected : L.i18n.noCategorySelected);
+			$err.prop('hidden', false);
+			return;
+		}
+
+		$submit.prop('disabled', true).text(L.i18n.applying);
+
+		$.post(L.ajaxUrl, {
+			action: 'spbwc_template_apply',
+			_ajax_nonce: L.nonce,
+			slug: $('#spbwc-tl-apply-slug').val(),
+			title: $('#spbwc-tl-apply-title').val(),
+			apply_for: mode,
+			scope_ids: scope
+		}).done(function (resp) {
+			if (!resp || !resp.success) {
+				$err.find('p').text((resp && resp.data && resp.data.message) || L.i18n.genericError);
+				$err.prop('hidden', false);
+				$submit.prop('disabled', false).text(L.i18n.apply);
+				return;
+			}
+			if (resp.data.edit_url) {
+				window.location.href = resp.data.edit_url;
+			} else {
+				closeDialog($applyDialog);
+				$submit.prop('disabled', false).text(L.i18n.apply);
+			}
+		}).fail(function () {
+			$err.find('p').text(L.i18n.genericError);
+			$err.prop('hidden', false);
+			$submit.prop('disabled', false).text(L.i18n.apply);
+		});
+	}
+
+	// ─── Dialog helpers ──────────────────────────────────────────────
 	function openDialog($dlg) {
 		var el = $dlg[0];
 		if (!el) return;
 		if (typeof el.showModal === 'function') {
-			el.showModal();
+			try { el.showModal(); } catch (e) { $dlg.attr('open', 'open'); }
 		} else {
 			$dlg.attr('open', 'open');
 		}
 	}
-
 	function closeDialog($dlg) {
 		var el = $dlg[0];
 		if (!el) return;
 		if (typeof el.close === 'function') {
-			el.close();
+			try { el.close(); } catch (e) { $dlg.removeAttr('open'); }
 		} else {
 			$dlg.removeAttr('open');
 		}
 	}
 
-	function escapeHtml(s) {
+	function esc(s) {
 		if (s == null) return '';
-		return String(s)
-			.replace(/&/g, '&amp;')
-			.replace(/</g, '&lt;')
-			.replace(/>/g, '&gt;')
-			.replace(/"/g, '&quot;');
+		return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 	}
 
 })(jQuery);

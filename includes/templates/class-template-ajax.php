@@ -47,10 +47,10 @@ if ( ! class_exists( 'SPBWC_Template_Ajax' ) ) {
 				wp_send_json_error( array( 'message' => __( 'Template body unreadable.', 'storelly-product-builder-for-woocommerce' ) ), 500 );
 			}
 
-			$summary = $this->summarize_fields( $data );
+			$render = $this->build_render_data( $data );
 
 			wp_send_json_success( array(
-				'meta'    => array(
+				'meta'   => array(
 					'slug'             => $meta['slug'],
 					'name'             => $catalog->get_display_name( $meta ),
 					'category'         => $catalog->get_category_label( $meta['category'] ),
@@ -60,7 +60,7 @@ if ( ! class_exists( 'SPBWC_Template_Ajax' ) ) {
 					'description'      => $meta['description'],
 					'template_version' => $meta['template_version'],
 				),
-				'summary' => $summary,
+				'render' => $render,
 			) );
 		}
 
@@ -92,35 +92,95 @@ if ( ! class_exists( 'SPBWC_Template_Ajax' ) ) {
 		}
 
 		/**
-		 * Build a compact field summary for the preview modal — title, display
-		 * type, attribute count. Avoids dumping the full ~80KB JSON to the wire.
+		 * Build render-ready field data for the classic preview mockup —
+		 * shrunk-down version of the JSON optimized for client rendering
+		 * (drops conditional rules, raw price arrays, sub_attributes, etc.).
+		 *
+		 * Output per field:
+		 *   title, description, required, display, data_type, input_type,
+		 *   nbd_type, price_type, attributes[] (name, color, preview_type,
+		 *   price_label, selected, popular)
 		 *
 		 * @param array $data
 		 * @return array
 		 */
-		protected function summarize_fields( $data ) {
-			$out = array();
+		protected function build_render_data( $data ) {
+			$out = array(
+				'title'           => (string) ( $data['title'] ?? '' ),
+				'display_type'    => (string) ( $data['display_type'] ?? '4' ),
+				'quantity_enable' => (string) ( $data['quantity_enable'] ?? 'n' ),
+				'quantity_breaks' => array(),
+				'fields'          => array(),
+			);
+
+			if ( ! empty( $data['quantity_breaks'] ) && is_array( $data['quantity_breaks'] ) ) {
+				foreach ( $data['quantity_breaks'] as $qb ) {
+					if ( ! is_array( $qb ) ) continue;
+					$out['quantity_breaks'][] = array(
+						'val' => (string) ( $qb['val'] ?? '' ),
+						'dis' => (string) ( $qb['dis'] ?? '' ),
+					);
+				}
+			}
+
 			if ( empty( $data['fields'] ) || ! is_array( $data['fields'] ) ) {
 				return $out;
 			}
+
 			foreach ( $data['fields'] as $field ) {
-				if ( ! is_array( $field ) ) {
-					continue;
+				if ( ! is_array( $field ) ) continue;
+				$g = isset( $field['general'] ) && is_array( $field['general'] ) ? $field['general'] : array();
+				$a = isset( $field['appearance'] ) && is_array( $field['appearance'] ) ? $field['appearance'] : array();
+
+				$title       = (string) ( $g['title']['value']       ?? '' );
+				$description = (string) ( $g['description']['value'] ?? '' );
+				$required    = 'y' === (string) ( $g['required']['value'] ?? 'n' );
+				$display     = (string) ( $a['display_type']['value'] ?? 'd' );
+				$data_type   = (string) ( $g['data_type']['value']    ?? 'm' );
+				$input_type  = (string) ( $g['input_type']['value']   ?? 't' );
+				$price_type  = (string) ( $g['price_type']['value']   ?? 'f' );
+
+				$attrs = array();
+				if ( ! empty( $g['attributes']['options'] ) && is_array( $g['attributes']['options'] ) ) {
+					foreach ( $g['attributes']['options'] as $opt ) {
+						if ( ! is_array( $opt ) ) continue;
+						$attrs[] = array(
+							'name'         => (string) ( $opt['name'] ?? '' ),
+							'des'          => (string) ( $opt['des'] ?? '' ),
+							'preview_type' => (string) ( $opt['preview_type'] ?? 'l' ),
+							'color'        => (string) ( $opt['color'] ?? '' ),
+							'price'        => $this->first_nonempty_price( $opt['price'] ?? array() ),
+							'selected'     => isset( $opt['selected'] ) && 'on' === $opt['selected'],
+						);
+					}
 				}
-				$title    = isset( $field['general']['title']['value'] ) ? (string) $field['general']['title']['value'] : '';
-				$dtype    = isset( $field['appearance']['display_type']['value'] ) ? (string) $field['appearance']['display_type']['value'] : '';
-				$nbd_type = isset( $field['nbd_type'] ) ? (string) $field['nbd_type'] : '';
-				$attrs    = isset( $field['general']['attributes']['options'] ) && is_array( $field['general']['attributes']['options'] )
-					? count( $field['general']['attributes']['options'] )
-					: 0;
-				$out[] = array(
-					'title'        => $title,
-					'nbd_type'     => $nbd_type,
-					'display_type' => $dtype,
-					'attr_count'   => $attrs,
+
+				$out['fields'][] = array(
+					'title'       => $title,
+					'description' => $description,
+					'required'    => $required,
+					'display'     => $display,
+					'data_type'   => $data_type,
+					'input_type'  => $input_type,
+					'nbd_type'    => (string) ( $field['nbd_type'] ?? '' ),
+					'price_type'  => $price_type,
+					'attributes'  => $attrs,
 				);
 			}
+
 			return $out;
+		}
+
+		protected function first_nonempty_price( $prices ) {
+			if ( ! is_array( $prices ) ) {
+				return '';
+			}
+			foreach ( $prices as $p ) {
+				if ( '' !== $p && null !== $p && '0' !== $p ) {
+					return (string) $p;
+				}
+			}
+			return '';
 		}
 	}
 }
