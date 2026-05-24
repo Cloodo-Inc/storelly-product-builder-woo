@@ -80,40 +80,6 @@ class SPBWC_Storelly_Options_List_Table extends WP_List_Table
     }
 
     /**
-     * Return option counts split by published status, filtered by the active search term.
-     *
-     * @return array{all: int, published: int, draft: int}
-     */
-    public static function spbwc_count_all_statuses() {
-        global $wpdb; // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound
-        $table_name = $wpdb->prefix . 'storelly_product_builder_options';
-        // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-        $search = isset( $_REQUEST['s'] ) ? sanitize_text_field( wp_unslash( $_REQUEST['s'] ) ) : '';
-
-        $sql = "SELECT published, COUNT(*) AS cnt FROM {$table_name} WHERE 1 = 1";
-        if ( $search ) {
-            $sql .= $wpdb->prepare( ' AND title LIKE %s', '%' . $wpdb->esc_like( $search ) . '%' );
-        }
-        $sql .= ' GROUP BY published';
-
-        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared
-        $rows   = $wpdb->get_results( $sql, ARRAY_A );
-        $counts = array( 'all' => 0, 'published' => 0, 'draft' => 0 );
-        if ( $rows ) {
-            foreach ( $rows as $row ) {
-                $cnt = (int) $row['cnt'];
-                $counts['all'] += $cnt;
-                if ( '1' === (string) $row['published'] ) {
-                    $counts['published'] = $cnt;
-                } else {
-                    $counts['draft'] = $cnt;
-                }
-            }
-        }
-        return $counts;
-    }
-
-    /**
      * Return counts grouped by published status, optionally scoped by search term.
      * Returns: array{ all: int, published: int, draft: int }
      *
