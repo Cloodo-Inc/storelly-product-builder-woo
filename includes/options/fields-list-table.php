@@ -513,25 +513,9 @@ class SPBWC_Storelly_Options_List_Table extends WP_List_Table
         return sprintf('<input type="checkbox" name="bulk-delete[]" value="%s" />', absint($item['id']));
     }
 
-    function extra_tablenav($which)
+    function extra_tablenav($which) // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.Found
     {
-        if ('top' !== $which) {
-            return;
-        }
-        // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only display filter, no state mutation.
-        $status = isset($_REQUEST['status_filter']) ? sanitize_text_field(wp_unslash($_REQUEST['status_filter'])) : '';
-        ?>
-        <div class="alignleft actions spbwc-filter-bar">
-            <label for="spbwc-status-filter" class="screen-reader-text">
-                <?php esc_html_e('Filter by status', 'storelly-product-builder-for-woocommerce'); ?>
-            </label>
-            <select name="status_filter" id="spbwc-status-filter">
-                <option value=""><?php esc_html_e('All Statuses', 'storelly-product-builder-for-woocommerce'); ?></option>
-                <option value="1" <?php selected($status, '1'); ?>><?php esc_html_e('Published', 'storelly-product-builder-for-woocommerce'); ?></option>
-                <option value="0" <?php selected($status, '0'); ?>><?php esc_html_e('Draft', 'storelly-product-builder-for-woocommerce'); ?></option>
-            </select>
-            <input type="submit" name="filter_action" class="button" value="<?php esc_attr_e('Filter', 'storelly-product-builder-for-woocommerce'); ?>">
-        </div>
-        <?php
+        // Status filtering is handled by the toolbar tabs in the view template (GET-based navigation).
+        // No additional tablenav controls needed here.
     }
 }
