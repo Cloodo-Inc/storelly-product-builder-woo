@@ -2113,7 +2113,9 @@ label.view-config {
 }
 
 /* ── Unified list toolbar ────────────────────────────────────────── */
-.spbwc-list-toolbar {
+/* Scoped under .spbwc-options-page (specificity 0,2,0) to win over  */
+/* the generic .spbwc-list-toolbar in storelly-admin-ui.css (0,1,0). */
+.spbwc-options-page .spbwc-list-toolbar {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -2122,12 +2124,14 @@ label.view-config {
   padding: 10px 14px;
   background: var(--nbd-st-bg);
   border: 1px solid var(--nbd-st-border-light);
+  border-bottom-color: var(--nbd-st-border-light); /* reset storelly-admin-ui border-bottom */
   border-radius: var(--nbd-radius);
   box-shadow: var(--shadow-sm);
   flex-wrap: wrap;
+  flex-direction: row; /* explicit — overrides any column from shared stylesheet */
 }
 
-.spbwc-list-toolbar__right {
+.spbwc-options-page .spbwc-list-toolbar__right {
   display: flex;
   align-items: center;
   gap: 10px;
@@ -2135,14 +2139,14 @@ label.view-config {
 }
 
 /* ── Status filter tabs  (All · Published · Draft) ───────────────── */
-.spbwc-status-tabs {
+.spbwc-options-page .spbwc-status-tabs {
   display: flex;
   align-items: center;
   gap: 2px;
   flex-wrap: wrap;
 }
 
-.spbwc-status-tab {
+.spbwc-options-page .spbwc-status-tab {
   display: inline-flex;
   align-items: center;
   gap: 5px;
@@ -2157,13 +2161,13 @@ label.view-config {
   white-space: nowrap;
 }
 
-.spbwc-status-tab:hover {
+.spbwc-options-page .spbwc-status-tab:hover {
   background: var(--nbd-st-bg-soft);
   color: var(--nbd-st-text);
   border-color: var(--nbd-st-border-light);
 }
 
-.spbwc-status-tab.is-active {
+.spbwc-options-page .spbwc-status-tab.is-active {
   background: var(--nbd-st-bg);
   color: var(--nbd-st-text);
   border-color: var(--nbd-st-border);
@@ -2171,7 +2175,7 @@ label.view-config {
   box-shadow: var(--shadow-sm);
 }
 
-.spbwc-status-tab__count {
+.spbwc-options-page .spbwc-status-tab__count {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -2186,7 +2190,7 @@ label.view-config {
   line-height: 1;
 }
 
-.spbwc-status-tab.is-active .spbwc-status-tab__count {
+.spbwc-options-page .spbwc-status-tab.is-active .spbwc-status-tab__count {
   background: var(--st-brand);
   color: var(--nbd-st-text-inverse);
 }
@@ -2638,18 +2642,19 @@ label.view-config {
   }
 }
 
-@media (max-width: 780px) {
-  .spbwc-list-toolbar {
+@media (max-width: 783px) {
+  /* 783px > 782px → overrides storelly-admin-ui.css @media(max-width:782px) rule */
+  .spbwc-options-page .spbwc-list-toolbar {
     flex-direction: column;
     align-items: flex-start;
   }
 
-  .spbwc-list-toolbar__right {
+  .spbwc-options-page .spbwc-list-toolbar__right {
     width: 100%;
     justify-content: space-between;
   }
 
-  .spbwc-block-search__input {
+  .spbwc-options-page .spbwc-block-search__input {
     width: 140px;
   }
 }
@@ -2709,11 +2714,17 @@ label.view-config {
 }
 
 /* ── Item count label (toolbar right) ────────────────────────────── */
-.spbwc-list-count {
+/* Scoped to reset margin-left: auto from storelly-admin-ui.css       */
+.spbwc-options-page .spbwc-list-count {
   font-size: 12px;
   color: var(--nbd-st-text-mute);
   white-space: nowrap;
   flex-shrink: 0;
+  margin-left: 0;     /* reset margin-left: auto from storelly-admin-ui.css */
+  padding: 0;
+  background: transparent;
+  border: none;
+  border-radius: 0;
 }
 
 /* ── List view wrapper (replaces #poststuff) ─────────────────────── */
