@@ -1,0 +1,2016 @@
+{
+    "version": "120",
+    "quantity_enable": "n",
+    "quantity_type": "d",
+    "quantity_min": "1",
+    "quantity_max": "25",
+    "quantity_step": "1",
+    "quantity_discount_type": "f",
+    "quantity_breaks": [
+        {
+            "val": "1",
+            "dis": "",
+            "default": "on"
+        },
+        {
+            "val": "2",
+            "dis": ""
+        },
+        {
+            "val": "3",
+            "dis": ""
+        },
+        {
+            "val": "4",
+            "dis": ""
+        },
+        {
+            "val": "5",
+            "dis": ""
+        },
+        {
+            "val": "6",
+            "dis": ""
+        },
+        {
+            "val": "7",
+            "dis": ""
+        },
+        {
+            "val": "8",
+            "dis": ""
+        },
+        {
+            "val": "9",
+            "dis": ""
+        },
+        {
+            "val": "10",
+            "dis": ""
+        },
+        {
+            "val": "11",
+            "dis": ""
+        },
+        {
+            "val": "12",
+            "dis": ""
+        },
+        {
+            "val": "13",
+            "dis": ""
+        },
+        {
+            "val": "14",
+            "dis": ""
+        },
+        {
+            "val": "15",
+            "dis": ""
+        },
+        {
+            "val": "16",
+            "dis": ""
+        },
+        {
+            "val": "17",
+            "dis": ""
+        },
+        {
+            "val": "18",
+            "dis": ""
+        },
+        {
+            "val": "19",
+            "dis": ""
+        },
+        {
+            "val": "20",
+            "dis": ""
+        },
+        {
+            "val": "21",
+            "dis": ""
+        },
+        {
+            "val": "22",
+            "dis": ""
+        },
+        {
+            "val": "23",
+            "dis": ""
+        },
+        {
+            "val": "24",
+            "dis": ""
+        },
+        {
+            "val": "25",
+            "dis": ""
+        }
+    ],
+    "fields": [
+        {
+            "id": "f1000000000027",
+            "general": {
+                "title": {
+                    "title": "Option name",
+                    "description": "",
+                    "value": "Product Specification / Price Matrix",
+                    "type": "text"
+                },
+                "description": {
+                    "title": "Description",
+                    "description": "",
+                    "value": "Pricing includes basic resize/bleed setup. Design fees not included.",
+                    "type": "textarea"
+                },
+                "data_type": {
+                    "title": "Data type",
+                    "description": "",
+                    "value": "m",
+                    "type": "dropdown",
+                    "options": [
+                        {
+                            "key": "i",
+                            "text": "Custom input"
+                        },
+                        {
+                            "key": "m",
+                            "text": "Multiple options"
+                        }
+                    ]
+                },
+                "input_type": {
+                    "title": "Input type",
+                    "description": "",
+                    "value": "t",
+                    "type": "dropdown",
+                    "depend": [
+                        {
+                            "field": "data_type",
+                            "operator": "=",
+                            "value": "i"
+                        }
+                    ],
+                    "options": [
+                        {
+                            "key": "t",
+                            "text": "Text"
+                        },
+                        {
+                            "key": "n",
+                            "text": "Number"
+                        },
+                        {
+                            "key": "r",
+                            "text": "Number range"
+                        },
+                        {
+                            "key": "u",
+                            "text": "Upload"
+                        },
+                        {
+                            "key": "a",
+                            "text": "Textarea"
+                        }
+                    ]
+                },
+                "input_option": {
+                    "title": "Input option",
+                    "description": "",
+                    "value": {
+                        "min": "1",
+                        "max": "100",
+                        "step": "1",
+                        "default": "1"
+                    },
+                    "type": "table",
+                    "depend": [
+                        {
+                            "field": "data_type",
+                            "operator": "=",
+                            "value": "i"
+                        },
+                        {
+                            "field": "input_type",
+                            "operator": "#",
+                            "value": "t"
+                        },
+                        {
+                            "field": "input_type",
+                            "operator": "#",
+                            "value": "u"
+                        },
+                        {
+                            "field": "input_type",
+                            "operator": "#",
+                            "value": "a"
+                        }
+                    ]
+                },
+                "text_option": {
+                    "title": "Text input option",
+                    "description": "",
+                    "value": {
+                        "min": "0",
+                        "max": "999"
+                    },
+                    "type": "table",
+                    "depend": [
+                        {
+                            "field": "data_type",
+                            "operator": "=",
+                            "value": "i"
+                        },
+                        {
+                            "field": "input_type",
+                            "operator": "=",
+                            "value": "t,a"
+                        }
+                    ]
+                },
+                "placeholder": {
+                    "title": "Placeholder",
+                    "description": "",
+                    "value": "",
+                    "type": "text",
+                    "depend": [
+                        {
+                            "field": "data_type",
+                            "operator": "=",
+                            "value": "i"
+                        },
+                        {
+                            "field": "input_type",
+                            "operator": "=",
+                            "value": "t,a"
+                        }
+                    ]
+                },
+                "upload_option": {
+                    "title": "Upload file option",
+                    "description": "",
+                    "value": {
+                        "min_size": "0",
+                        "max_size": "256",
+                        "allow_type": "png,jpg,jpeg"
+                    },
+                    "type": "table",
+                    "depend": [
+                        {
+                            "field": "data_type",
+                            "operator": "=",
+                            "value": "i"
+                        },
+                        {
+                            "field": "input_type",
+                            "operator": "=",
+                            "value": "u"
+                        }
+                    ]
+                },
+                "enabled": {
+                    "title": "Enabled",
+                    "description": "Choose whether the option is enabled or not.",
+                    "value": "y",
+                    "type": "dropdown",
+                    "options": [
+                        {
+                            "key": "y",
+                            "text": "Yes"
+                        },
+                        {
+                            "key": "n",
+                            "text": "No"
+                        }
+                    ]
+                },
+                "published": {
+                    "title": "Published",
+                    "description": "Show in summary options or not.",
+                    "value": "y",
+                    "type": "dropdown",
+                    "options": [
+                        {
+                            "key": "y",
+                            "text": "Yes"
+                        },
+                        {
+                            "key": "n",
+                            "text": "No"
+                        }
+                    ]
+                },
+                "required": {
+                    "title": "Required",
+                    "description": "Choose whether the option is required or not.",
+                    "value": "y",
+                    "type": "dropdown",
+                    "options": [
+                        {
+                            "key": "y",
+                            "text": "Yes"
+                        },
+                        {
+                            "key": "n",
+                            "text": "No"
+                        }
+                    ],
+                    "depend": [
+                        {
+                            "field": "published",
+                            "operator": "#",
+                            "value": "n"
+                        }
+                    ]
+                },
+                "price_type": {
+                    "title": "Price type",
+                    "description": "Here you can choose how the price is calculated. Depending on the field there various types you can choose.",
+                    "value": "f",
+                    "type": "dropdown",
+                    "options": [
+                        {
+                            "key": "f",
+                            "text": "Fixed amount"
+                        },
+                        {
+                            "key": "p",
+                            "text": "Percent of the original price"
+                        },
+                        {
+                            "key": "p+",
+                            "text": "Percent of the original price + options"
+                        },
+                        {
+                            "key": "c",
+                            "text": "Current value * price",
+                            "depend": [
+                                {
+                                    "field": "data_type",
+                                    "operator": "=",
+                                    "value": "i"
+                                },
+                                {
+                                    "field": "input_type",
+                                    "operator": "#",
+                                    "value": "u"
+                                },
+                                {
+                                    "field": "input_type",
+                                    "operator": "#",
+                                    "value": "t"
+                                },
+                                {
+                                    "field": "input_type",
+                                    "operator": "#",
+                                    "value": "a"
+                                }
+                            ]
+                        },
+                        {
+                            "key": "cp",
+                            "text": "Price per char",
+                            "depend": [
+                                {
+                                    "field": "data_type",
+                                    "operator": "=",
+                                    "value": "i"
+                                },
+                                {
+                                    "field": "input_type",
+                                    "operator": "=",
+                                    "value": "t"
+                                }
+                            ]
+                        },
+                        {
+                            "key": "mf",
+                            "text": "Math formula"
+                        }
+                    ]
+                },
+                "depend_qty": {
+                    "title": "Depend quantity",
+                    "description": "If choose No, the additional price will be apply for cart item independently with the quantity.",
+                    "value": "y",
+                    "type": "dropdown",
+                    "options": [
+                        {
+                            "key": "y",
+                            "text": "Yes"
+                        },
+                        {
+                            "key": "n",
+                            "text": "No, the additional price is cart item fee"
+                        },
+                        {
+                            "key": "n2",
+                            "text": "No, the additional price is fixed amount for all items"
+                        }
+                    ]
+                },
+                "depend_quantity": {
+                    "title": "Depend quantity breaks",
+                    "description": "",
+                    "value": "n",
+                    "type": "dropdown",
+                    "options": [
+                        {
+                            "key": "y",
+                            "text": "Yes"
+                        },
+                        {
+                            "key": "n",
+                            "text": "No"
+                        }
+                    ]
+                },
+                "price": {
+                    "title": "Additional Price",
+                    "description": "Enter the price for this field or leave it blank for no price.",
+                    "value": "",
+                    "depend": [
+                        {
+                            "field": "depend_quantity",
+                            "operator": "#",
+                            "value": "y"
+                        },
+                        {
+                            "field": "data_type",
+                            "operator": "=",
+                            "value": "i"
+                        }
+                    ],
+                    "type": "number"
+                },
+                "price_breaks": {
+                    "title": "Price depend quantity breaks",
+                    "depend": [
+                        {
+                            "field": "depend_quantity",
+                            "operator": "=",
+                            "value": "y"
+                        },
+                        {
+                            "field": "data_type",
+                            "operator": "=",
+                            "value": "i"
+                        }
+                    ],
+                    "description": "",
+                    "value": [
+                        "",
+                        "",
+                        "",
+                        "",
+                        "",
+                        "",
+                        "",
+                        "",
+                        "",
+                        "",
+                        "",
+                        "",
+                        "",
+                        "",
+                        "",
+                        "",
+                        "",
+                        "",
+                        "",
+                        "",
+                        "",
+                        "",
+                        "",
+                        "",
+                        ""
+                    ],
+                    "type": "single_quantity_depend"
+                },
+                "attributes": {
+                    "title": "Attributes",
+                    "description": "Attributes let you define extra product data, such as size or color.",
+                    "type": "attributes",
+                    "same_size": "y",
+                    "bg_type": "i",
+                    "show_as_pt": "n",
+                    "number_of_sides": 2,
+                    "depend": [
+                        {
+                            "field": "data_type",
+                            "operator": "=",
+                            "value": "m"
+                        }
+                    ],
+                    "options": [
+                        {
+                            "preview_type": "i",
+                            "image": "0",
+                            "color": "#ffffff",
+                            "name": "2.5 x 3.5 Photo Copy",
+                            "des": "",
+                            "price": [
+                                "4.94",
+                                "6.94",
+                                "8.19",
+                                "10.69",
+                                "11.19",
+                                "11.69",
+                                "13.19",
+                                "13.69",
+                                "14.07",
+                                "14.63",
+                                "15.13",
+                                "15.63",
+                                "16.9",
+                                "17.63",
+                                "18.13",
+                                "18.63",
+                                "19.07",
+                                "19.57",
+                                "20.71",
+                                "21.57",
+                                "22.07",
+                                "22.57",
+                                "23.07",
+                                "23.57",
+                                "24.48"
+                            ],
+                            "implicit_value": "",
+                            "enable_subattr": 0,
+                            "sub_attributes": [],
+                            "sattr_display_type": "s",
+                            "enable_con": 0,
+                            "con_show": "n",
+                            "con_logic": "a",
+                            "depend": [
+                                {
+                                    "id": "",
+                                    "operator": "i",
+                                    "val": "",
+                                    "subval": ""
+                                }
+                            ],
+                            "image_url": "",
+                            "isExpand": false,
+                            "selected": "on"
+                        },
+                        {
+                            "preview_type": "i",
+                            "image": "0",
+                            "color": "#ffffff",
+                            "name": "4 x 6 Photo Copy",
+                            "des": "",
+                            "price": [
+                                "4.94",
+                                "6.94",
+                                "9.13",
+                                "9.88",
+                                "11.57",
+                                "12.32",
+                                "13.73",
+                                "14.48",
+                                "16.1",
+                                "16.85",
+                                "18.22",
+                                "18.72",
+                                "20.09",
+                                "20.59",
+                                "21.96",
+                                "22.46",
+                                "23.08",
+                                "23.58",
+                                "25.3",
+                                "25.8",
+                                "27.12",
+                                "27.62",
+                                "28.12",
+                                "28.62",
+                                "29.12"
+                            ],
+                            "implicit_value": "",
+                            "enable_subattr": 0,
+                            "sub_attributes": [],
+                            "sattr_display_type": "s",
+                            "enable_con": 0,
+                            "con_show": "n",
+                            "con_logic": "a",
+                            "depend": [
+                                {
+                                    "id": "",
+                                    "operator": "i",
+                                    "val": "",
+                                    "subval": ""
+                                }
+                            ],
+                            "image_url": "",
+                            "isExpand": false
+                        },
+                        {
+                            "preview_type": "i",
+                            "image": "0",
+                            "color": "#ffffff",
+                            "name": "5 x 7 Photo Copy",
+                            "des": "",
+                            "price": [
+                                "4.94",
+                                "6.94",
+                                "9.13",
+                                "9.88",
+                                "11.57",
+                                "12.32",
+                                "13.73",
+                                "14.48",
+                                "16.1",
+                                "16.85",
+                                "18.22",
+                                "18.72",
+                                "20.09",
+                                "20.59",
+                                "21.96",
+                                "22.46",
+                                "23.83",
+                                "24.33",
+                                "25.3",
+                                "25.8",
+                                "27.13",
+                                "27.63",
+                                "28.96",
+                                "30.1",
+                                "30.79"
+                            ],
+                            "implicit_value": "",
+                            "enable_subattr": 0,
+                            "sub_attributes": [],
+                            "sattr_display_type": "s",
+                            "enable_con": 0,
+                            "con_show": "n",
+                            "con_logic": "a",
+                            "depend": [
+                                {
+                                    "id": "",
+                                    "operator": "i",
+                                    "val": "",
+                                    "subval": ""
+                                }
+                            ],
+                            "image_url": "",
+                            "isExpand": false
+                        },
+                        {
+                            "preview_type": "i",
+                            "image": "0",
+                            "color": "#ffffff",
+                            "name": "8 x 10 Photo Copy",
+                            "des": "",
+                            "price": [
+                                "4.94",
+                                "7.38",
+                                "9.07",
+                                "10.48",
+                                "12.1",
+                                "13.72",
+                                "15.34",
+                                "16.96",
+                                "18.58",
+                                "19.8",
+                                "21.13",
+                                "22.46",
+                                "23.79",
+                                "25.12",
+                                "26.45",
+                                "27.78",
+                                "29.11",
+                                "30.44",
+                                "31.77",
+                                "33.1",
+                                "34.43",
+                                "35.76",
+                                "37.09",
+                                "38.42",
+                                "39"
+                            ],
+                            "implicit_value": "",
+                            "enable_subattr": 0,
+                            "sub_attributes": [],
+                            "sattr_display_type": "s",
+                            "enable_con": 0,
+                            "con_show": "n",
+                            "con_logic": "a",
+                            "depend": [
+                                {
+                                    "id": "",
+                                    "operator": "i",
+                                    "val": "",
+                                    "subval": ""
+                                }
+                            ],
+                            "image_url": "",
+                            "isExpand": false
+                        }
+                    ]
+                }
+            },
+            "conditional": {
+                "enable": "n",
+                "show": "n",
+                "logic": "a",
+                "depend": [
+                    {
+                        "id": "",
+                        "operator": "i",
+                        "val": ""
+                    }
+                ]
+            },
+            "appearance": {
+                "display_type": {
+                    "title": "Display type",
+                    "description": "",
+                    "value": "ad",
+                    "type": "dropdown",
+                    "options": [
+                        {
+                            "key": "d",
+                            "text": "Dropdown"
+                        },
+                        {
+                            "key": "r",
+                            "text": "Radio button"
+                        },
+                        {
+                            "key": "s",
+                            "text": "Swatch"
+                        },
+                        {
+                            "key": "l",
+                            "text": "Label"
+                        },
+                        {
+                            "key": "ad",
+                            "text": "Advanced Dropdown"
+                        },
+                        {
+                            "key": "xl",
+                            "text": "Large label"
+                        }
+                    ]
+                },
+                "change_image_product": {
+                    "title": "Changes product image",
+                    "description": "Choose whether to change the product image.",
+                    "type": "dropdown",
+                    "value": "n",
+                    "options": [
+                        {
+                            "key": "y",
+                            "text": "Yes"
+                        },
+                        {
+                            "key": "n",
+                            "text": "No"
+                        }
+                    ]
+                },
+                "show_in_archives": {
+                    "title": "Show in archive pages",
+                    "description": "Show option in archive pages as swatch.",
+                    "type": "dropdown",
+                    "value": "n",
+                    "options": [
+                        {
+                            "key": "y",
+                            "text": "Yes"
+                        },
+                        {
+                            "key": "n",
+                            "text": "No"
+                        }
+                    ]
+                },
+                "css_class": {
+                    "title": "CSS Class",
+                    "description": "",
+                    "type": "text",
+                    "value": ""
+                }
+            },
+            "isExpand": false
+        },
+        {
+            "id": "f1000000000028",
+            "general": {
+                "title": {
+                    "title": "Option name",
+                    "description": "",
+                    "value": "Artwork / Design Option",
+                    "type": "text"
+                },
+                "description": {
+                    "title": "Description",
+                    "description": "",
+                    "value": "",
+                    "type": "textarea"
+                },
+                "data_type": {
+                    "title": "Data type",
+                    "description": "",
+                    "value": "m",
+                    "type": "dropdown",
+                    "options": [
+                        {
+                            "key": "i",
+                            "text": "Custom input"
+                        },
+                        {
+                            "key": "m",
+                            "text": "Multiple options"
+                        }
+                    ]
+                },
+                "input_type": {
+                    "title": "Input type",
+                    "description": "",
+                    "value": "t",
+                    "type": "dropdown",
+                    "depend": [
+                        {
+                            "field": "data_type",
+                            "operator": "=",
+                            "value": "i"
+                        }
+                    ],
+                    "options": [
+                        {
+                            "key": "t",
+                            "text": "Text"
+                        },
+                        {
+                            "key": "n",
+                            "text": "Number"
+                        },
+                        {
+                            "key": "r",
+                            "text": "Number range"
+                        },
+                        {
+                            "key": "u",
+                            "text": "Upload"
+                        },
+                        {
+                            "key": "a",
+                            "text": "Textarea"
+                        }
+                    ]
+                },
+                "input_option": {
+                    "title": "Input option",
+                    "description": "",
+                    "value": {
+                        "min": "1",
+                        "max": "100",
+                        "step": "1",
+                        "default": "1"
+                    },
+                    "type": "table",
+                    "depend": [
+                        {
+                            "field": "data_type",
+                            "operator": "=",
+                            "value": "i"
+                        },
+                        {
+                            "field": "input_type",
+                            "operator": "#",
+                            "value": "t"
+                        },
+                        {
+                            "field": "input_type",
+                            "operator": "#",
+                            "value": "u"
+                        },
+                        {
+                            "field": "input_type",
+                            "operator": "#",
+                            "value": "a"
+                        }
+                    ]
+                },
+                "text_option": {
+                    "title": "Text input option",
+                    "description": "",
+                    "value": {
+                        "min": "0",
+                        "max": "999"
+                    },
+                    "type": "table",
+                    "depend": [
+                        {
+                            "field": "data_type",
+                            "operator": "=",
+                            "value": "i"
+                        },
+                        {
+                            "field": "input_type",
+                            "operator": "=",
+                            "value": "t,a"
+                        }
+                    ]
+                },
+                "placeholder": {
+                    "title": "Placeholder",
+                    "description": "",
+                    "value": "",
+                    "type": "text",
+                    "depend": [
+                        {
+                            "field": "data_type",
+                            "operator": "=",
+                            "value": "i"
+                        },
+                        {
+                            "field": "input_type",
+                            "operator": "=",
+                            "value": "t,a"
+                        }
+                    ]
+                },
+                "upload_option": {
+                    "title": "Upload file option",
+                    "description": "",
+                    "value": {
+                        "min_size": "0",
+                        "max_size": "256",
+                        "allow_type": "png,jpg,jpeg"
+                    },
+                    "type": "table",
+                    "depend": [
+                        {
+                            "field": "data_type",
+                            "operator": "=",
+                            "value": "i"
+                        },
+                        {
+                            "field": "input_type",
+                            "operator": "=",
+                            "value": "u"
+                        }
+                    ]
+                },
+                "enabled": {
+                    "title": "Enabled",
+                    "description": "Choose whether the option is enabled or not.",
+                    "value": "y",
+                    "type": "dropdown",
+                    "options": [
+                        {
+                            "key": "y",
+                            "text": "Yes"
+                        },
+                        {
+                            "key": "n",
+                            "text": "No"
+                        }
+                    ]
+                },
+                "published": {
+                    "title": "Published",
+                    "description": "Show in summary options or not.",
+                    "value": "y",
+                    "type": "dropdown",
+                    "options": [
+                        {
+                            "key": "y",
+                            "text": "Yes"
+                        },
+                        {
+                            "key": "n",
+                            "text": "No"
+                        }
+                    ]
+                },
+                "required": {
+                    "title": "Required",
+                    "description": "Choose whether the option is required or not.",
+                    "value": "y",
+                    "type": "dropdown",
+                    "options": [
+                        {
+                            "key": "y",
+                            "text": "Yes"
+                        },
+                        {
+                            "key": "n",
+                            "text": "No"
+                        }
+                    ],
+                    "depend": [
+                        {
+                            "field": "published",
+                            "operator": "#",
+                            "value": "n"
+                        }
+                    ]
+                },
+                "price_type": {
+                    "title": "Price type",
+                    "description": "Here you can choose how the price is calculated. Depending on the field there various types you can choose.",
+                    "value": "f",
+                    "type": "dropdown",
+                    "options": [
+                        {
+                            "key": "f",
+                            "text": "Fixed amount"
+                        },
+                        {
+                            "key": "p",
+                            "text": "Percent of the original price"
+                        },
+                        {
+                            "key": "p+",
+                            "text": "Percent of the original price + options"
+                        },
+                        {
+                            "key": "c",
+                            "text": "Current value * price",
+                            "depend": [
+                                {
+                                    "field": "data_type",
+                                    "operator": "=",
+                                    "value": "i"
+                                },
+                                {
+                                    "field": "input_type",
+                                    "operator": "#",
+                                    "value": "u"
+                                },
+                                {
+                                    "field": "input_type",
+                                    "operator": "#",
+                                    "value": "t"
+                                },
+                                {
+                                    "field": "input_type",
+                                    "operator": "#",
+                                    "value": "a"
+                                }
+                            ]
+                        },
+                        {
+                            "key": "cp",
+                            "text": "Price per char",
+                            "depend": [
+                                {
+                                    "field": "data_type",
+                                    "operator": "=",
+                                    "value": "i"
+                                },
+                                {
+                                    "field": "input_type",
+                                    "operator": "=",
+                                    "value": "t"
+                                }
+                            ]
+                        },
+                        {
+                            "key": "mf",
+                            "text": "Math formula"
+                        }
+                    ]
+                },
+                "depend_qty": {
+                    "title": "Depend quantity",
+                    "description": "If choose No, the additional price will be apply for cart item independently with the quantity.",
+                    "value": "n2",
+                    "type": "dropdown",
+                    "options": [
+                        {
+                            "key": "y",
+                            "text": "Yes"
+                        },
+                        {
+                            "key": "n",
+                            "text": "No, the additional price is cart item fee"
+                        },
+                        {
+                            "key": "n2",
+                            "text": "No, the additional price is fixed amount for all items"
+                        }
+                    ]
+                },
+                "depend_quantity": {
+                    "title": "Depend quantity breaks",
+                    "description": "",
+                    "value": "n",
+                    "type": "dropdown",
+                    "options": [
+                        {
+                            "key": "y",
+                            "text": "Yes"
+                        },
+                        {
+                            "key": "n",
+                            "text": "No"
+                        }
+                    ]
+                },
+                "price": {
+                    "title": "Additional Price",
+                    "description": "Enter the price for this field or leave it blank for no price.",
+                    "value": "",
+                    "depend": [
+                        {
+                            "field": "depend_quantity",
+                            "operator": "#",
+                            "value": "y"
+                        },
+                        {
+                            "field": "data_type",
+                            "operator": "=",
+                            "value": "i"
+                        }
+                    ],
+                    "type": "number"
+                },
+                "price_breaks": {
+                    "title": "Price depend quantity breaks",
+                    "depend": [
+                        {
+                            "field": "depend_quantity",
+                            "operator": "=",
+                            "value": "y"
+                        },
+                        {
+                            "field": "data_type",
+                            "operator": "=",
+                            "value": "i"
+                        }
+                    ],
+                    "description": "",
+                    "value": [
+                        "",
+                        "",
+                        "",
+                        "",
+                        "",
+                        "",
+                        "",
+                        "",
+                        "",
+                        "",
+                        "",
+                        "",
+                        "",
+                        "",
+                        "",
+                        "",
+                        "",
+                        "",
+                        "",
+                        "",
+                        "",
+                        "",
+                        "",
+                        "",
+                        ""
+                    ],
+                    "type": "single_quantity_depend"
+                },
+                "attributes": {
+                    "title": "Attributes",
+                    "description": "Attributes let you define extra product data, such as size or color.",
+                    "type": "attributes",
+                    "same_size": "y",
+                    "bg_type": "i",
+                    "show_as_pt": "n",
+                    "number_of_sides": 2,
+                    "depend": [
+                        {
+                            "field": "data_type",
+                            "operator": "=",
+                            "value": "m"
+                        }
+                    ],
+                    "options": [
+                        {
+                            "preview_type": "i",
+                            "image": "0",
+                            "color": "#ffffff",
+                            "name": "Upload print-ready file / file review",
+                            "des": "",
+                            "price": [
+                                "",
+                                "",
+                                "",
+                                "",
+                                "",
+                                "",
+                                "",
+                                "",
+                                "",
+                                "",
+                                "",
+                                "",
+                                "",
+                                "",
+                                "",
+                                "",
+                                "",
+                                "",
+                                "",
+                                "",
+                                "",
+                                "",
+                                "",
+                                "",
+                                ""
+                            ],
+                            "implicit_value": "",
+                            "enable_subattr": 0,
+                            "sub_attributes": [],
+                            "sattr_display_type": "s",
+                            "enable_con": 0,
+                            "con_show": "n",
+                            "con_logic": "a",
+                            "depend": [
+                                {
+                                    "id": "",
+                                    "operator": "i",
+                                    "val": "",
+                                    "subval": ""
+                                }
+                            ],
+                            "image_url": "",
+                            "isExpand": false,
+                            "selected": "on",
+                            "action": "u"
+                        },
+                        {
+                            "preview_type": "i",
+                            "image": "0",
+                            "color": "#ffffff",
+                            "name": "Create design online",
+                            "des": "",
+                            "price": [
+                                "",
+                                "",
+                                "",
+                                "",
+                                "",
+                                "",
+                                "",
+                                "",
+                                "",
+                                "",
+                                "",
+                                "",
+                                "",
+                                "",
+                                "",
+                                "",
+                                "",
+                                "",
+                                "",
+                                "",
+                                "",
+                                "",
+                                "",
+                                "",
+                                ""
+                            ],
+                            "implicit_value": "",
+                            "enable_subattr": 0,
+                            "sub_attributes": [],
+                            "sattr_display_type": "s",
+                            "enable_con": 0,
+                            "con_show": "n",
+                            "con_logic": "a",
+                            "depend": [
+                                {
+                                    "id": "",
+                                    "operator": "i",
+                                    "val": "",
+                                    "subval": ""
+                                }
+                            ],
+                            "image_url": "",
+                            "isExpand": false,
+                            "action": "c"
+                        },
+                        {
+                            "preview_type": "i",
+                            "image": "0",
+                            "color": "#ffffff",
+                            "name": "Request expert design service - custom quote",
+                            "des": "",
+                            "price": [
+                                "",
+                                "",
+                                "",
+                                "",
+                                "",
+                                "",
+                                "",
+                                "",
+                                "",
+                                "",
+                                "",
+                                "",
+                                "",
+                                "",
+                                "",
+                                "",
+                                "",
+                                "",
+                                "",
+                                "",
+                                "",
+                                "",
+                                "",
+                                "",
+                                ""
+                            ],
+                            "implicit_value": "",
+                            "enable_subattr": 0,
+                            "sub_attributes": [],
+                            "sattr_display_type": "s",
+                            "enable_con": 0,
+                            "con_show": "n",
+                            "con_logic": "a",
+                            "depend": [
+                                {
+                                    "id": "",
+                                    "operator": "i",
+                                    "val": "",
+                                    "subval": ""
+                                }
+                            ],
+                            "image_url": "",
+                            "isExpand": false,
+                            "action": "h"
+                        }
+                    ]
+                }
+            },
+            "conditional": {
+                "enable": "n",
+                "show": "n",
+                "logic": "a",
+                "depend": [
+                    {
+                        "id": "",
+                        "operator": "i",
+                        "val": ""
+                    }
+                ]
+            },
+            "appearance": {
+                "display_type": {
+                    "title": "Display type",
+                    "description": "",
+                    "value": "d",
+                    "type": "dropdown",
+                    "options": [
+                        {
+                            "key": "d",
+                            "text": "Dropdown"
+                        },
+                        {
+                            "key": "r",
+                            "text": "Radio button"
+                        },
+                        {
+                            "key": "s",
+                            "text": "Swatch"
+                        },
+                        {
+                            "key": "l",
+                            "text": "Label"
+                        },
+                        {
+                            "key": "ad",
+                            "text": "Advanced Dropdown"
+                        },
+                        {
+                            "key": "xl",
+                            "text": "Large label"
+                        }
+                    ]
+                },
+                "change_image_product": {
+                    "title": "Changes product image",
+                    "description": "Choose whether to change the product image.",
+                    "type": "dropdown",
+                    "value": "n",
+                    "options": [
+                        {
+                            "key": "y",
+                            "text": "Yes"
+                        },
+                        {
+                            "key": "n",
+                            "text": "No"
+                        }
+                    ]
+                },
+                "show_in_archives": {
+                    "title": "Show in archive pages",
+                    "description": "Show option in archive pages as swatch.",
+                    "type": "dropdown",
+                    "value": "n",
+                    "options": [
+                        {
+                            "key": "y",
+                            "text": "Yes"
+                        },
+                        {
+                            "key": "n",
+                            "text": "No"
+                        }
+                    ]
+                },
+                "css_class": {
+                    "title": "CSS Class",
+                    "description": "",
+                    "type": "text",
+                    "value": ""
+                }
+            },
+            "isExpand": false,
+            "nbd_template": "nbd.actions",
+            "nbe_type": "actions"
+        },
+        {
+            "id": "f1000000000029",
+            "general": {
+                "title": {
+                    "title": "Option name",
+                    "description": "",
+                    "value": "Production Note",
+                    "type": "text"
+                },
+                "description": {
+                    "title": "Description",
+                    "description": "",
+                    "value": "",
+                    "type": "textarea"
+                },
+                "data_type": {
+                    "title": "Data type",
+                    "description": "",
+                    "value": "i",
+                    "type": "dropdown",
+                    "options": [
+                        {
+                            "key": "i",
+                            "text": "Custom input"
+                        },
+                        {
+                            "key": "m",
+                            "text": "Multiple options"
+                        }
+                    ],
+                    "hidden": true
+                },
+                "input_type": {
+                    "title": "Input type",
+                    "description": "",
+                    "value": "a",
+                    "type": "dropdown",
+                    "depend": [
+                        {
+                            "field": "data_type",
+                            "operator": "=",
+                            "value": "i"
+                        }
+                    ],
+                    "options": [
+                        {
+                            "key": "t",
+                            "text": "Text"
+                        },
+                        {
+                            "key": "n",
+                            "text": "Number"
+                        },
+                        {
+                            "key": "r",
+                            "text": "Number range"
+                        },
+                        {
+                            "key": "u",
+                            "text": "Upload"
+                        },
+                        {
+                            "key": "a",
+                            "text": "Textarea"
+                        }
+                    ],
+                    "hidden": true
+                },
+                "input_option": {
+                    "title": "Input option",
+                    "description": "",
+                    "value": {
+                        "min": "1",
+                        "max": "100",
+                        "step": "1",
+                        "default": "1"
+                    },
+                    "type": "table",
+                    "depend": [
+                        {
+                            "field": "data_type",
+                            "operator": "=",
+                            "value": "i"
+                        },
+                        {
+                            "field": "input_type",
+                            "operator": "#",
+                            "value": "t"
+                        },
+                        {
+                            "field": "input_type",
+                            "operator": "#",
+                            "value": "u"
+                        },
+                        {
+                            "field": "input_type",
+                            "operator": "#",
+                            "value": "a"
+                        }
+                    ]
+                },
+                "text_option": {
+                    "title": "Text input option",
+                    "description": "",
+                    "value": {
+                        "min": "0",
+                        "max": "999"
+                    },
+                    "type": "table",
+                    "depend": [
+                        {
+                            "field": "data_type",
+                            "operator": "=",
+                            "value": "i"
+                        },
+                        {
+                            "field": "input_type",
+                            "operator": "=",
+                            "value": "t,a"
+                        }
+                    ],
+                    "hidden": true
+                },
+                "placeholder": {
+                    "title": "Placeholder",
+                    "description": "",
+                    "value": "Add special cutting, finishing, shipping or internal production notes here.",
+                    "type": "text",
+                    "depend": [
+                        {
+                            "field": "data_type",
+                            "operator": "=",
+                            "value": "i"
+                        },
+                        {
+                            "field": "input_type",
+                            "operator": "=",
+                            "value": "t,a"
+                        }
+                    ]
+                },
+                "upload_option": {
+                    "title": "Upload file option",
+                    "description": "",
+                    "value": {
+                        "min_size": "0",
+                        "max_size": "256",
+                        "allow_type": "png,jpg,jpeg"
+                    },
+                    "type": "table",
+                    "depend": [
+                        {
+                            "field": "data_type",
+                            "operator": "=",
+                            "value": "i"
+                        },
+                        {
+                            "field": "input_type",
+                            "operator": "=",
+                            "value": "u"
+                        }
+                    ]
+                },
+                "enabled": {
+                    "title": "Enabled",
+                    "description": "Choose whether the option is enabled or not.",
+                    "value": "y",
+                    "type": "dropdown",
+                    "options": [
+                        {
+                            "key": "y",
+                            "text": "Yes"
+                        },
+                        {
+                            "key": "n",
+                            "text": "No"
+                        }
+                    ]
+                },
+                "published": {
+                    "title": "Published",
+                    "description": "Show in summary options or not.",
+                    "value": "y",
+                    "type": "dropdown",
+                    "options": [
+                        {
+                            "key": "y",
+                            "text": "Yes"
+                        },
+                        {
+                            "key": "n",
+                            "text": "No"
+                        }
+                    ]
+                },
+                "required": {
+                    "title": "Required",
+                    "description": "Choose whether the option is required or not.",
+                    "value": "n",
+                    "type": "dropdown",
+                    "options": [
+                        {
+                            "key": "y",
+                            "text": "Yes"
+                        },
+                        {
+                            "key": "n",
+                            "text": "No"
+                        }
+                    ],
+                    "depend": [
+                        {
+                            "field": "published",
+                            "operator": "#",
+                            "value": "n"
+                        }
+                    ]
+                },
+                "price_type": {
+                    "title": "Price type",
+                    "description": "Here you can choose how the price is calculated. Depending on the field there various types you can choose.",
+                    "value": "f",
+                    "type": "dropdown",
+                    "options": [
+                        {
+                            "key": "f",
+                            "text": "Fixed amount"
+                        },
+                        {
+                            "key": "p",
+                            "text": "Percent of the original price"
+                        },
+                        {
+                            "key": "p+",
+                            "text": "Percent of the original price + options"
+                        },
+                        {
+                            "key": "c",
+                            "text": "Current value * price",
+                            "depend": [
+                                {
+                                    "field": "data_type",
+                                    "operator": "=",
+                                    "value": "i"
+                                },
+                                {
+                                    "field": "input_type",
+                                    "operator": "#",
+                                    "value": "u"
+                                },
+                                {
+                                    "field": "input_type",
+                                    "operator": "#",
+                                    "value": "t"
+                                },
+                                {
+                                    "field": "input_type",
+                                    "operator": "#",
+                                    "value": "a"
+                                }
+                            ]
+                        },
+                        {
+                            "key": "cp",
+                            "text": "Price per char",
+                            "depend": [
+                                {
+                                    "field": "data_type",
+                                    "operator": "=",
+                                    "value": "i"
+                                },
+                                {
+                                    "field": "input_type",
+                                    "operator": "=",
+                                    "value": "t"
+                                }
+                            ]
+                        },
+                        {
+                            "key": "mf",
+                            "text": "Math formula"
+                        }
+                    ]
+                },
+                "depend_qty": {
+                    "title": "Depend quantity",
+                    "description": "If choose No, the additional price will be apply for cart item independently with the quantity.",
+                    "value": "y",
+                    "type": "dropdown",
+                    "options": [
+                        {
+                            "key": "y",
+                            "text": "Yes"
+                        },
+                        {
+                            "key": "n",
+                            "text": "No, the additional price is cart item fee"
+                        },
+                        {
+                            "key": "n2",
+                            "text": "No, the additional price is fixed amount for all items"
+                        }
+                    ]
+                },
+                "depend_quantity": {
+                    "title": "Depend quantity breaks",
+                    "description": "",
+                    "value": "n",
+                    "type": "dropdown",
+                    "options": [
+                        {
+                            "key": "y",
+                            "text": "Yes"
+                        },
+                        {
+                            "key": "n",
+                            "text": "No"
+                        }
+                    ]
+                },
+                "price": {
+                    "title": "Additional Price",
+                    "description": "Enter the price for this field or leave it blank for no price.",
+                    "value": "",
+                    "depend": [
+                        {
+                            "field": "depend_quantity",
+                            "operator": "#",
+                            "value": "y"
+                        },
+                        {
+                            "field": "data_type",
+                            "operator": "=",
+                            "value": "i"
+                        }
+                    ],
+                    "type": "number"
+                },
+                "price_breaks": {
+                    "title": "Price depend quantity breaks",
+                    "depend": [
+                        {
+                            "field": "depend_quantity",
+                            "operator": "=",
+                            "value": "y"
+                        },
+                        {
+                            "field": "data_type",
+                            "operator": "=",
+                            "value": "i"
+                        }
+                    ],
+                    "description": "",
+                    "value": [
+                        "",
+                        "",
+                        "",
+                        "",
+                        "",
+                        "",
+                        "",
+                        "",
+                        "",
+                        "",
+                        "",
+                        "",
+                        "",
+                        "",
+                        "",
+                        "",
+                        "",
+                        "",
+                        "",
+                        "",
+                        "",
+                        "",
+                        "",
+                        "",
+                        ""
+                    ],
+                    "type": "single_quantity_depend"
+                },
+                "attributes": {
+                    "title": "Attributes",
+                    "description": "Attributes let you define extra product data, such as size or color.",
+                    "type": "attributes",
+                    "same_size": "y",
+                    "bg_type": "i",
+                    "show_as_pt": "n",
+                    "number_of_sides": 2,
+                    "depend": [
+                        {
+                            "field": "data_type",
+                            "operator": "=",
+                            "value": "m"
+                        }
+                    ],
+                    "options": [
+                        {
+                            "preview_type": "i",
+                            "image": "0",
+                            "color": "#ffffff",
+                            "name": "Attribute name",
+                            "des": "",
+                            "price": [
+                                "",
+                                "",
+                                "",
+                                "",
+                                "",
+                                "",
+                                "",
+                                "",
+                                "",
+                                "",
+                                "",
+                                "",
+                                "",
+                                "",
+                                "",
+                                "",
+                                "",
+                                "",
+                                "",
+                                "",
+                                "",
+                                "",
+                                "",
+                                "",
+                                ""
+                            ],
+                            "implicit_value": "",
+                            "enable_subattr": 0,
+                            "sub_attributes": [],
+                            "sattr_display_type": "s",
+                            "enable_con": 0,
+                            "con_show": "n",
+                            "con_logic": "a",
+                            "depend": [
+                                {
+                                    "id": "",
+                                    "operator": "i",
+                                    "val": "",
+                                    "subval": ""
+                                }
+                            ],
+                            "image_url": "",
+                            "isExpand": false
+                        }
+                    ]
+                },
+                "min_width": "2.5",
+                "max_width": "4",
+                "step_width": "0.01",
+                "default_width": "3.75",
+                "min_height": "2",
+                "max_height": "3.5",
+                "step_height": "0.01",
+                "default_height": "2.25",
+                "mesure": "n",
+                "mesure_range": [],
+                "mesure_base_pages": "y",
+                "mesure_type": "u",
+                "mesure_min_area": 0,
+                "mesure_base_qty": "n"
+            },
+            "conditional": {
+                "enable": "y",
+                "show": "y",
+                "logic": "a",
+                "depend": [
+                    {
+                        "id": "f1561697235484",
+                        "operator": "i",
+                        "val": "3"
+                    }
+                ]
+            },
+            "appearance": {
+                "display_type": {
+                    "title": "Display type",
+                    "description": "",
+                    "value": "d",
+                    "type": "dropdown",
+                    "options": [
+                        {
+                            "key": "d",
+                            "text": "Dropdown"
+                        },
+                        {
+                            "key": "r",
+                            "text": "Radio button"
+                        },
+                        {
+                            "key": "s",
+                            "text": "Swatch"
+                        },
+                        {
+                            "key": "l",
+                            "text": "Label"
+                        },
+                        {
+                            "key": "ad",
+                            "text": "Advanced Dropdown"
+                        },
+                        {
+                            "key": "xl",
+                            "text": "Large label"
+                        }
+                    ]
+                },
+                "change_image_product": {
+                    "title": "Changes product image",
+                    "description": "Choose whether to change the product image.",
+                    "type": "dropdown",
+                    "value": "n",
+                    "options": [
+                        {
+                            "key": "y",
+                            "text": "Yes"
+                        },
+                        {
+                            "key": "n",
+                            "text": "No"
+                        }
+                    ]
+                },
+                "show_in_archives": {
+                    "title": "Show in archive pages",
+                    "description": "Show option in archive pages as swatch.",
+                    "type": "dropdown",
+                    "value": "n",
+                    "options": [
+                        {
+                            "key": "y",
+                            "text": "Yes"
+                        },
+                        {
+                            "key": "n",
+                            "text": "No"
+                        }
+                    ]
+                },
+                "css_class": {
+                    "title": "CSS Class",
+                    "description": "",
+                    "type": "text",
+                    "value": ""
+                }
+            },
+            "isExpand": false
+        }
+    ],
+    "display_type": "4",
+    "groups": [],
+    "popup_trigger_field": "",
+    "group_panel": "off",
+    "manual_build_pm": false,
+    "manual_pm": "",
+    "id": "",
+    "title": "Photo Copies on Matte or Gloss Cardstock",
+    "priority": "1",
+    "published": "1",
+    "date_from": "",
+    "date_to": "",
+    "apply_for": "p",
+    "product_cats": [],
+    "product_ids": [],
+    "pm_ver": [],
+    "pm_hoz": [],
+    "popup_trigger_index": ""
+}

@@ -1,3 +1,7 @@
 # Claude Code worktrees (used by parallel sub-agents during development).
 # Not part of the plugin package; never tracked.
 .claude/worktrees/
+
+# Source JSON dumps fed into tools/sanitize-templates.php.
+# Sanitized output lives under storage/print-templates/ and IS tracked.
+tools/source-templates/

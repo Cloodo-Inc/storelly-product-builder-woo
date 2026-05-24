@@ -1,0 +1,3038 @@
+{
+    "version": "120",
+    "quantity_enable": "n",
+    "quantity_type": "d",
+    "quantity_min": "100",
+    "quantity_max": "10000",
+    "quantity_step": "1",
+    "quantity_discount_type": "f",
+    "quantity_breaks": [
+        {
+            "val": "100",
+            "dis": "",
+            "default": "on"
+        },
+        {
+            "val": "250",
+            "dis": ""
+        },
+        {
+            "val": "500",
+            "dis": ""
+        },
+        {
+            "val": "1000",
+            "dis": ""
+        },
+        {
+            "val": "2500",
+            "dis": ""
+        },
+        {
+            "val": "5000",
+            "dis": ""
+        },
+        {
+            "val": "10000",
+            "dis": ""
+        }
+    ],
+    "fields": [
+        {
+            "id": "f1000000000033",
+            "general": {
+                "title": {
+                    "title": "Option name",
+                    "description": "",
+                    "value": "Business Card Product / Price Matrix",
+                    "type": "text"
+                },
+                "description": {
+                    "title": "Description",
+                    "description": "",
+                    "value": "Rounded corners available as optional add-on. Design fees do not apply; one free file review noted in guide.",
+                    "type": "textarea"
+                },
+                "data_type": {
+                    "title": "Data type",
+                    "description": "",
+                    "value": "m",
+                    "type": "dropdown",
+                    "options": [
+                        {
+                            "key": "i",
+                            "text": "Custom input"
+                        },
+                        {
+                            "key": "m",
+                            "text": "Multiple options"
+                        }
+                    ]
+                },
+                "input_type": {
+                    "title": "Input type",
+                    "description": "",
+                    "value": "t",
+                    "type": "dropdown",
+                    "depend": [
+                        {
+                            "field": "data_type",
+                            "operator": "=",
+                            "value": "i"
+                        }
+                    ],
+                    "options": [
+                        {
+                            "key": "t",
+                            "text": "Text"
+                        },
+                        {
+                            "key": "n",
+                            "text": "Number"
+                        },
+                        {
+                            "key": "r",
+                            "text": "Number range"
+                        },
+                        {
+                            "key": "u",
+                            "text": "Upload"
+                        },
+                        {
+                            "key": "a",
+                            "text": "Textarea"
+                        }
+                    ]
+                },
+                "input_option": {
+                    "title": "Input option",
+                    "description": "",
+                    "value": {
+                        "min": "1",
+                        "max": "100",
+                        "step": "1",
+                        "default": "1"
+                    },
+                    "type": "table",
+                    "depend": [
+                        {
+                            "field": "data_type",
+                            "operator": "=",
+                            "value": "i"
+                        },
+                        {
+                            "field": "input_type",
+                            "operator": "#",
+                            "value": "t"
+                        },
+                        {
+                            "field": "input_type",
+                            "operator": "#",
+                            "value": "u"
+                        },
+                        {
+                            "field": "input_type",
+                            "operator": "#",
+                            "value": "a"
+                        }
+                    ]
+                },
+                "text_option": {
+                    "title": "Text input option",
+                    "description": "",
+                    "value": {
+                        "min": "0",
+                        "max": "999"
+                    },
+                    "type": "table",
+                    "depend": [
+                        {
+                            "field": "data_type",
+                            "operator": "=",
+                            "value": "i"
+                        },
+                        {
+                            "field": "input_type",
+                            "operator": "=",
+                            "value": "t,a"
+                        }
+                    ]
+                },
+                "placeholder": {
+                    "title": "Placeholder",
+                    "description": "",
+                    "value": "",
+                    "type": "text",
+                    "depend": [
+                        {
+                            "field": "data_type",
+                            "operator": "=",
+                            "value": "i"
+                        },
+                        {
+                            "field": "input_type",
+                            "operator": "=",
+                            "value": "t,a"
+                        }
+                    ]
+                },
+                "upload_option": {
+                    "title": "Upload file option",
+                    "description": "",
+                    "value": {
+                        "min_size": "0",
+                        "max_size": "256",
+                        "allow_type": "png,jpg,jpeg"
+                    },
+                    "type": "table",
+                    "depend": [
+                        {
+                            "field": "data_type",
+                            "operator": "=",
+                            "value": "i"
+                        },
+                        {
+                            "field": "input_type",
+                            "operator": "=",
+                            "value": "u"
+                        }
+                    ]
+                },
+                "enabled": {
+                    "title": "Enabled",
+                    "description": "Choose whether the option is enabled or not.",
+                    "value": "y",
+                    "type": "dropdown",
+                    "options": [
+                        {
+                            "key": "y",
+                            "text": "Yes"
+                        },
+                        {
+                            "key": "n",
+                            "text": "No"
+                        }
+                    ]
+                },
+                "published": {
+                    "title": "Published",
+                    "description": "Show in summary options or not.",
+                    "value": "y",
+                    "type": "dropdown",
+                    "options": [
+                        {
+                            "key": "y",
+                            "text": "Yes"
+                        },
+                        {
+                            "key": "n",
+                            "text": "No"
+                        }
+                    ]
+                },
+                "required": {
+                    "title": "Required",
+                    "description": "Choose whether the option is required or not.",
+                    "value": "y",
+                    "type": "dropdown",
+                    "options": [
+                        {
+                            "key": "y",
+                            "text": "Yes"
+                        },
+                        {
+                            "key": "n",
+                            "text": "No"
+                        }
+                    ],
+                    "depend": [
+                        {
+                            "field": "published",
+                            "operator": "#",
+                            "value": "n"
+                        }
+                    ]
+                },
+                "price_type": {
+                    "title": "Price type",
+                    "description": "Here you can choose how the price is calculated. Depending on the field there various types you can choose.",
+                    "value": "f",
+                    "type": "dropdown",
+                    "options": [
+                        {
+                            "key": "f",
+                            "text": "Fixed amount"
+                        },
+                        {
+                            "key": "p",
+                            "text": "Percent of the original price"
+                        },
+                        {
+                            "key": "p+",
+                            "text": "Percent of the original price + options"
+                        },
+                        {
+                            "key": "c",
+                            "text": "Current value * price",
+                            "depend": [
+                                {
+                                    "field": "data_type",
+                                    "operator": "=",
+                                    "value": "i"
+                                },
+                                {
+                                    "field": "input_type",
+                                    "operator": "#",
+                                    "value": "u"
+                                },
+                                {
+                                    "field": "input_type",
+                                    "operator": "#",
+                                    "value": "t"
+                                },
+                                {
+                                    "field": "input_type",
+                                    "operator": "#",
+                                    "value": "a"
+                                }
+                            ]
+                        },
+                        {
+                            "key": "cp",
+                            "text": "Price per char",
+                            "depend": [
+                                {
+                                    "field": "data_type",
+                                    "operator": "=",
+                                    "value": "i"
+                                },
+                                {
+                                    "field": "input_type",
+                                    "operator": "=",
+                                    "value": "t"
+                                }
+                            ]
+                        },
+                        {
+                            "key": "mf",
+                            "text": "Math formula"
+                        }
+                    ]
+                },
+                "depend_qty": {
+                    "title": "Depend quantity",
+                    "description": "If choose No, the additional price will be apply for cart item independently with the quantity.",
+                    "value": "y",
+                    "type": "dropdown",
+                    "options": [
+                        {
+                            "key": "y",
+                            "text": "Yes"
+                        },
+                        {
+                            "key": "n",
+                            "text": "No, the additional price is cart item fee"
+                        },
+                        {
+                            "key": "n2",
+                            "text": "No, the additional price is fixed amount for all items"
+                        }
+                    ]
+                },
+                "depend_quantity": {
+                    "title": "Depend quantity breaks",
+                    "description": "",
+                    "value": "n",
+                    "type": "dropdown",
+                    "options": [
+                        {
+                            "key": "y",
+                            "text": "Yes"
+                        },
+                        {
+                            "key": "n",
+                            "text": "No"
+                        }
+                    ]
+                },
+                "price": {
+                    "title": "Additional Price",
+                    "description": "Enter the price for this field or leave it blank for no price.",
+                    "value": "",
+                    "depend": [
+                        {
+                            "field": "depend_quantity",
+                            "operator": "#",
+                            "value": "y"
+                        },
+                        {
+                            "field": "data_type",
+                            "operator": "=",
+                            "value": "i"
+                        }
+                    ],
+                    "type": "number"
+                },
+                "price_breaks": {
+                    "title": "Price depend quantity breaks",
+                    "depend": [
+                        {
+                            "field": "depend_quantity",
+                            "operator": "=",
+                            "value": "y"
+                        },
+                        {
+                            "field": "data_type",
+                            "operator": "=",
+                            "value": "i"
+                        }
+                    ],
+                    "description": "",
+                    "value": [
+                        "",
+                        "",
+                        "",
+                        "",
+                        "",
+                        "",
+                        ""
+                    ],
+                    "type": "single_quantity_depend"
+                },
+                "attributes": {
+                    "title": "Attributes",
+                    "description": "Attributes let you define extra product data, such as size or color.",
+                    "type": "attributes",
+                    "same_size": "y",
+                    "bg_type": "i",
+                    "show_as_pt": "n",
+                    "number_of_sides": 2,
+                    "depend": [
+                        {
+                            "field": "data_type",
+                            "operator": "=",
+                            "value": "m"
+                        }
+                    ],
+                    "options": [
+                        {
+                            "preview_type": "i",
+                            "image": "0",
+                            "color": "#ffffff",
+                            "name": "Premium 1 or 2 Sided - 16 PT Silk Laminate",
+                            "des": "",
+                            "price": [
+                                "",
+                                "126",
+                                "129",
+                                "180",
+                                "339",
+                                "531",
+                                "894"
+                            ],
+                            "implicit_value": "",
+                            "enable_subattr": 0,
+                            "sub_attributes": [],
+                            "sattr_display_type": "s",
+                            "enable_con": 0,
+                            "con_show": "n",
+                            "con_logic": "a",
+                            "depend": [
+                                {
+                                    "id": "",
+                                    "operator": "i",
+                                    "val": "",
+                                    "subval": ""
+                                }
+                            ],
+                            "image_url": "",
+                            "isExpand": false,
+                            "selected": "on"
+                        },
+                        {
+                            "preview_type": "i",
+                            "image": "0",
+                            "color": "#ffffff",
+                            "name": "Premium 1 or 2 Sided - 18 PT Soft Touch",
+                            "des": "",
+                            "price": [
+                                "",
+                                "159",
+                                "183",
+                                "249",
+                                "483",
+                                "702",
+                                "1167"
+                            ],
+                            "implicit_value": "",
+                            "enable_subattr": 0,
+                            "sub_attributes": [],
+                            "sattr_display_type": "s",
+                            "enable_con": 0,
+                            "con_show": "n",
+                            "con_logic": "a",
+                            "depend": [
+                                {
+                                    "id": "",
+                                    "operator": "i",
+                                    "val": "",
+                                    "subval": ""
+                                }
+                            ],
+                            "image_url": "",
+                            "isExpand": false
+                        },
+                        {
+                            "preview_type": "i",
+                            "image": "0",
+                            "color": "#ffffff",
+                            "name": "Fold-over BC 2 Sided - 14 PT C2S UV Gloss 1 Side",
+                            "des": "",
+                            "price": [
+                                "",
+                                "155",
+                                "180",
+                                "192",
+                                "408",
+                                "635",
+                                "855"
+                            ],
+                            "implicit_value": "",
+                            "enable_subattr": 0,
+                            "sub_attributes": [],
+                            "sattr_display_type": "s",
+                            "enable_con": 0,
+                            "con_show": "n",
+                            "con_logic": "a",
+                            "depend": [
+                                {
+                                    "id": "",
+                                    "operator": "i",
+                                    "val": "",
+                                    "subval": ""
+                                }
+                            ],
+                            "image_url": "",
+                            "isExpand": false
+                        },
+                        {
+                            "preview_type": "i",
+                            "image": "0",
+                            "color": "#ffffff",
+                            "name": "Fold-over BC 2 Sided - 16 PT C2S UV Gloss 1 Side",
+                            "des": "",
+                            "price": [
+                                "",
+                                "167",
+                                "194",
+                                "206",
+                                "436",
+                                "674",
+                                "912"
+                            ],
+                            "implicit_value": "",
+                            "enable_subattr": 0,
+                            "sub_attributes": [],
+                            "sattr_display_type": "s",
+                            "enable_con": 0,
+                            "con_show": "n",
+                            "con_logic": "a",
+                            "depend": [
+                                {
+                                    "id": "",
+                                    "operator": "i",
+                                    "val": "",
+                                    "subval": ""
+                                }
+                            ],
+                            "image_url": "",
+                            "isExpand": false
+                        },
+                        {
+                            "preview_type": "i",
+                            "image": "0",
+                            "color": "#ffffff",
+                            "name": "Fold-over BC 2 Sided - 16 PT Matte",
+                            "des": "",
+                            "price": [
+                                "",
+                                "167",
+                                "194",
+                                "206",
+                                "436",
+                                "674",
+                                "912"
+                            ],
+                            "implicit_value": "",
+                            "enable_subattr": 0,
+                            "sub_attributes": [],
+                            "sattr_display_type": "s",
+                            "enable_con": 0,
+                            "con_show": "n",
+                            "con_logic": "a",
+                            "depend": [
+                                {
+                                    "id": "",
+                                    "operator": "i",
+                                    "val": "",
+                                    "subval": ""
+                                }
+                            ],
+                            "image_url": "",
+                            "isExpand": false
+                        },
+                        {
+                            "preview_type": "i",
+                            "image": "0",
+                            "color": "#ffffff",
+                            "name": "Silk Flat Spot UV - 16 PT Silk Spot UV 1 Sided",
+                            "des": "",
+                            "price": [
+                                "",
+                                "",
+                                "193",
+                                "225",
+                                "",
+                                "",
+                                ""
+                            ],
+                            "implicit_value": "",
+                            "enable_subattr": 0,
+                            "sub_attributes": [],
+                            "sattr_display_type": "s",
+                            "enable_con": 0,
+                            "con_show": "n",
+                            "con_logic": "a",
+                            "depend": [
+                                {
+                                    "id": "",
+                                    "operator": "i",
+                                    "val": "",
+                                    "subval": ""
+                                }
+                            ],
+                            "image_url": "",
+                            "isExpand": false
+                        },
+                        {
+                            "preview_type": "i",
+                            "image": "0",
+                            "color": "#ffffff",
+                            "name": "Silk Flat Spot UV - 16 PT Silk Spot UV 2 Sided",
+                            "des": "",
+                            "price": [
+                                "",
+                                "",
+                                "193",
+                                "225",
+                                "",
+                                "",
+                                ""
+                            ],
+                            "implicit_value": "",
+                            "enable_subattr": 0,
+                            "sub_attributes": [],
+                            "sattr_display_type": "s",
+                            "enable_con": 0,
+                            "con_show": "n",
+                            "con_logic": "a",
+                            "depend": [
+                                {
+                                    "id": "",
+                                    "operator": "i",
+                                    "val": "",
+                                    "subval": ""
+                                }
+                            ],
+                            "image_url": "",
+                            "isExpand": false
+                        },
+                        {
+                            "preview_type": "i",
+                            "image": "0",
+                            "color": "#ffffff",
+                            "name": "Velvet Raised Spot UV - 16 PT Suede Raised UV 1 Side",
+                            "des": "",
+                            "price": [
+                                "154",
+                                "211",
+                                "283",
+                                "",
+                                "",
+                                "",
+                                ""
+                            ],
+                            "implicit_value": "",
+                            "enable_subattr": 0,
+                            "sub_attributes": [],
+                            "sattr_display_type": "s",
+                            "enable_con": 0,
+                            "con_show": "n",
+                            "con_logic": "a",
+                            "depend": [
+                                {
+                                    "id": "",
+                                    "operator": "i",
+                                    "val": "",
+                                    "subval": ""
+                                }
+                            ],
+                            "image_url": "",
+                            "isExpand": false
+                        },
+                        {
+                            "preview_type": "i",
+                            "image": "0",
+                            "color": "#ffffff",
+                            "name": "Velvet Raised Spot UV - 16 PT Suede Raised UV 2 Sides",
+                            "des": "",
+                            "price": [
+                                "182",
+                                "251",
+                                "337",
+                                "",
+                                "",
+                                "",
+                                ""
+                            ],
+                            "implicit_value": "",
+                            "enable_subattr": 0,
+                            "sub_attributes": [],
+                            "sattr_display_type": "s",
+                            "enable_con": 0,
+                            "con_show": "n",
+                            "con_logic": "a",
+                            "depend": [
+                                {
+                                    "id": "",
+                                    "operator": "i",
+                                    "val": "",
+                                    "subval": ""
+                                }
+                            ],
+                            "image_url": "",
+                            "isExpand": false
+                        },
+                        {
+                            "preview_type": "i",
+                            "image": "0",
+                            "color": "#ffffff",
+                            "name": "2 x 2 Square BC 2 Sided - 14 PT C2S UV",
+                            "des": "",
+                            "price": [
+                                "",
+                                "46",
+                                "56",
+                                "80",
+                                "158",
+                                "197",
+                                "345"
+                            ],
+                            "implicit_value": "",
+                            "enable_subattr": 0,
+                            "sub_attributes": [],
+                            "sattr_display_type": "s",
+                            "enable_con": 0,
+                            "con_show": "n",
+                            "con_logic": "a",
+                            "depend": [
+                                {
+                                    "id": "",
+                                    "operator": "i",
+                                    "val": "",
+                                    "subval": ""
+                                }
+                            ],
+                            "image_url": "",
+                            "isExpand": false
+                        },
+                        {
+                            "preview_type": "i",
+                            "image": "0",
+                            "color": "#ffffff",
+                            "name": "2 x 2 Square BC 2 Sided - 16 PT Matte",
+                            "des": "",
+                            "price": [
+                                "",
+                                "46",
+                                "56",
+                                "80",
+                                "158",
+                                "197",
+                                "345"
+                            ],
+                            "implicit_value": "",
+                            "enable_subattr": 0,
+                            "sub_attributes": [],
+                            "sattr_display_type": "s",
+                            "enable_con": 0,
+                            "con_show": "n",
+                            "con_logic": "a",
+                            "depend": [
+                                {
+                                    "id": "",
+                                    "operator": "i",
+                                    "val": "",
+                                    "subval": ""
+                                }
+                            ],
+                            "image_url": "",
+                            "isExpand": false
+                        },
+                        {
+                            "preview_type": "i",
+                            "image": "0",
+                            "color": "#ffffff",
+                            "name": "Standard 1 or 2 Sided - 14 PT C2S UV 1 or 2 Sides",
+                            "des": "",
+                            "price": [
+                                "",
+                                "",
+                                "60",
+                                "72",
+                                "150",
+                                "210",
+                                "336"
+                            ],
+                            "implicit_value": "",
+                            "enable_subattr": 0,
+                            "sub_attributes": [],
+                            "sattr_display_type": "s",
+                            "enable_con": 0,
+                            "con_show": "n",
+                            "con_logic": "a",
+                            "depend": [
+                                {
+                                    "id": "",
+                                    "operator": "i",
+                                    "val": "",
+                                    "subval": ""
+                                }
+                            ],
+                            "image_url": "",
+                            "isExpand": false
+                        },
+                        {
+                            "preview_type": "i",
+                            "image": "0",
+                            "color": "#ffffff",
+                            "name": "Standard 1 or 2 Sided - 16 PT C2S UV 1 or 2 Sides",
+                            "des": "",
+                            "price": [
+                                "",
+                                "",
+                                "66",
+                                "78",
+                                "153",
+                                "218",
+                                "357"
+                            ],
+                            "implicit_value": "",
+                            "enable_subattr": 0,
+                            "sub_attributes": [],
+                            "sattr_display_type": "s",
+                            "enable_con": 0,
+                            "con_show": "n",
+                            "con_logic": "a",
+                            "depend": [
+                                {
+                                    "id": "",
+                                    "operator": "i",
+                                    "val": "",
+                                    "subval": ""
+                                }
+                            ],
+                            "image_url": "",
+                            "isExpand": false
+                        },
+                        {
+                            "preview_type": "i",
+                            "image": "0",
+                            "color": "#ffffff",
+                            "name": "Standard 1 or 2 Sided - 16 PT Matte",
+                            "des": "",
+                            "price": [
+                                "",
+                                "49",
+                                "66",
+                                "78",
+                                "153",
+                                "218",
+                                "337"
+                            ],
+                            "implicit_value": "",
+                            "enable_subattr": 0,
+                            "sub_attributes": [],
+                            "sattr_display_type": "s",
+                            "enable_con": 0,
+                            "con_show": "n",
+                            "con_logic": "a",
+                            "depend": [
+                                {
+                                    "id": "",
+                                    "operator": "i",
+                                    "val": "",
+                                    "subval": ""
+                                }
+                            ],
+                            "image_url": "",
+                            "isExpand": false
+                        },
+                        {
+                            "preview_type": "i",
+                            "image": "0",
+                            "color": "#ffffff",
+                            "name": "Standard 1 or 2 Sided - 14 PT Uncoated",
+                            "des": "",
+                            "price": [
+                                "",
+                                "54",
+                                "81",
+                                "102",
+                                "174",
+                                "264",
+                                "519"
+                            ],
+                            "implicit_value": "",
+                            "enable_subattr": 0,
+                            "sub_attributes": [],
+                            "sattr_display_type": "s",
+                            "enable_con": 0,
+                            "con_show": "n",
+                            "con_logic": "a",
+                            "depend": [
+                                {
+                                    "id": "",
+                                    "operator": "i",
+                                    "val": "",
+                                    "subval": ""
+                                }
+                            ],
+                            "image_url": "",
+                            "isExpand": false
+                        },
+                        {
+                            "preview_type": "i",
+                            "image": "0",
+                            "color": "#ffffff",
+                            "name": "Standard Cards Color/BW - 100# Gloss or Uncoated Single Sided",
+                            "des": "",
+                            "price": [
+                                "35",
+                                "42",
+                                "70",
+                                "105",
+                                "",
+                                "",
+                                ""
+                            ],
+                            "implicit_value": "",
+                            "enable_subattr": 0,
+                            "sub_attributes": [],
+                            "sattr_display_type": "s",
+                            "enable_con": 0,
+                            "con_show": "n",
+                            "con_logic": "a",
+                            "depend": [
+                                {
+                                    "id": "",
+                                    "operator": "i",
+                                    "val": "",
+                                    "subval": ""
+                                }
+                            ],
+                            "image_url": "",
+                            "isExpand": false
+                        },
+                        {
+                            "preview_type": "i",
+                            "image": "0",
+                            "color": "#ffffff",
+                            "name": "Standard Cards Color/BW - 100# Gloss or Uncoated Double Sided",
+                            "des": "",
+                            "price": [
+                                "40",
+                                "56",
+                                "98",
+                                "147",
+                                "",
+                                "",
+                                ""
+                            ],
+                            "implicit_value": "",
+                            "enable_subattr": 0,
+                            "sub_attributes": [],
+                            "sattr_display_type": "s",
+                            "enable_con": 0,
+                            "con_show": "n",
+                            "con_logic": "a",
+                            "depend": [
+                                {
+                                    "id": "",
+                                    "operator": "i",
+                                    "val": "",
+                                    "subval": ""
+                                }
+                            ],
+                            "image_url": "",
+                            "isExpand": false
+                        },
+                        {
+                            "preview_type": "i",
+                            "image": "0",
+                            "color": "#ffffff",
+                            "name": "Standard Cards Color/BW - 14PT Gloss or 130# Uncoated Single Sided",
+                            "des": "",
+                            "price": [
+                                "38",
+                                "49",
+                                "84",
+                                "133",
+                                "",
+                                "",
+                                ""
+                            ],
+                            "implicit_value": "",
+                            "enable_subattr": 0,
+                            "sub_attributes": [],
+                            "sattr_display_type": "s",
+                            "enable_con": 0,
+                            "con_show": "n",
+                            "con_logic": "a",
+                            "depend": [
+                                {
+                                    "id": "",
+                                    "operator": "i",
+                                    "val": "",
+                                    "subval": ""
+                                }
+                            ],
+                            "image_url": "",
+                            "isExpand": false
+                        },
+                        {
+                            "preview_type": "i",
+                            "image": "0",
+                            "color": "#ffffff",
+                            "name": "Standard Cards Color/BW - 14PT Gloss or 130# Uncoated Double Sided",
+                            "des": "",
+                            "price": [
+                                "42",
+                                "84",
+                                "153",
+                                "266",
+                                "",
+                                "",
+                                ""
+                            ],
+                            "implicit_value": "",
+                            "enable_subattr": 0,
+                            "sub_attributes": [],
+                            "sattr_display_type": "s",
+                            "enable_con": 0,
+                            "con_show": "n",
+                            "con_logic": "a",
+                            "depend": [
+                                {
+                                    "id": "",
+                                    "operator": "i",
+                                    "val": "",
+                                    "subval": ""
+                                }
+                            ],
+                            "image_url": "",
+                            "isExpand": false
+                        },
+                        {
+                            "preview_type": "i",
+                            "image": "0",
+                            "color": "#ffffff",
+                            "name": "Rush Same/Next Day - 100# Gloss or Uncoated - Single Sided Color",
+                            "des": "",
+                            "price": [
+                                "25",
+                                "30",
+                                "50",
+                                "75",
+                                "",
+                                "",
+                                ""
+                            ],
+                            "implicit_value": "",
+                            "enable_subattr": 0,
+                            "sub_attributes": [],
+                            "sattr_display_type": "s",
+                            "enable_con": 0,
+                            "con_show": "n",
+                            "con_logic": "a",
+                            "depend": [
+                                {
+                                    "id": "",
+                                    "operator": "i",
+                                    "val": "",
+                                    "subval": ""
+                                }
+                            ],
+                            "image_url": "",
+                            "isExpand": false
+                        },
+                        {
+                            "preview_type": "i",
+                            "image": "0",
+                            "color": "#ffffff",
+                            "name": "Rush Same/Next Day - 100# Gloss or Uncoated - Double Sided Color",
+                            "des": "",
+                            "price": [
+                                "28",
+                                "40",
+                                "70",
+                                "105",
+                                "",
+                                "",
+                                ""
+                            ],
+                            "implicit_value": "",
+                            "enable_subattr": 0,
+                            "sub_attributes": [],
+                            "sattr_display_type": "s",
+                            "enable_con": 0,
+                            "con_show": "n",
+                            "con_logic": "a",
+                            "depend": [
+                                {
+                                    "id": "",
+                                    "operator": "i",
+                                    "val": "",
+                                    "subval": ""
+                                }
+                            ],
+                            "image_url": "",
+                            "isExpand": false
+                        },
+                        {
+                            "preview_type": "i",
+                            "image": "0",
+                            "color": "#ffffff",
+                            "name": "Rush Same/Next Day - 100# Gloss or Uncoated - Single Sided BW",
+                            "des": "",
+                            "price": [
+                                "21",
+                                "27",
+                                "43",
+                                "71",
+                                "",
+                                "",
+                                ""
+                            ],
+                            "implicit_value": "",
+                            "enable_subattr": 0,
+                            "sub_attributes": [],
+                            "sattr_display_type": "s",
+                            "enable_con": 0,
+                            "con_show": "n",
+                            "con_logic": "a",
+                            "depend": [
+                                {
+                                    "id": "",
+                                    "operator": "i",
+                                    "val": "",
+                                    "subval": ""
+                                }
+                            ],
+                            "image_url": "",
+                            "isExpand": false
+                        },
+                        {
+                            "preview_type": "i",
+                            "image": "0",
+                            "color": "#ffffff",
+                            "name": "Rush Same/Next Day - 100# Gloss or Uncoated - Double Sided BW",
+                            "des": "",
+                            "price": [
+                                "22",
+                                "29",
+                                "46",
+                                "77",
+                                "",
+                                "",
+                                ""
+                            ],
+                            "implicit_value": "",
+                            "enable_subattr": 0,
+                            "sub_attributes": [],
+                            "sattr_display_type": "s",
+                            "enable_con": 0,
+                            "con_show": "n",
+                            "con_logic": "a",
+                            "depend": [
+                                {
+                                    "id": "",
+                                    "operator": "i",
+                                    "val": "",
+                                    "subval": ""
+                                }
+                            ],
+                            "image_url": "",
+                            "isExpand": false
+                        },
+                        {
+                            "preview_type": "i",
+                            "image": "0",
+                            "color": "#ffffff",
+                            "name": "2-3 Business Day - 14PT Gloss / 120# Uncoated / 130# Silk - Single Sided Color",
+                            "des": "",
+                            "price": [
+                                "27",
+                                "35",
+                                "60",
+                                "95",
+                                "",
+                                "",
+                                ""
+                            ],
+                            "implicit_value": "",
+                            "enable_subattr": 0,
+                            "sub_attributes": [],
+                            "sattr_display_type": "s",
+                            "enable_con": 0,
+                            "con_show": "n",
+                            "con_logic": "a",
+                            "depend": [
+                                {
+                                    "id": "",
+                                    "operator": "i",
+                                    "val": "",
+                                    "subval": ""
+                                }
+                            ],
+                            "image_url": "",
+                            "isExpand": false
+                        },
+                        {
+                            "preview_type": "i",
+                            "image": "0",
+                            "color": "#ffffff",
+                            "name": "2-3 Business Day - 14PT Gloss / 120# Uncoated / 130# Silk - Double Sided Color",
+                            "des": "",
+                            "price": [
+                                "30",
+                                "60",
+                                "109",
+                                "190",
+                                "",
+                                "",
+                                ""
+                            ],
+                            "implicit_value": "",
+                            "enable_subattr": 0,
+                            "sub_attributes": [],
+                            "sattr_display_type": "s",
+                            "enable_con": 0,
+                            "con_show": "n",
+                            "con_logic": "a",
+                            "depend": [
+                                {
+                                    "id": "",
+                                    "operator": "i",
+                                    "val": "",
+                                    "subval": ""
+                                }
+                            ],
+                            "image_url": "",
+                            "isExpand": false
+                        },
+                        {
+                            "preview_type": "i",
+                            "image": "0",
+                            "color": "#ffffff",
+                            "name": "2-3 Business Day - 14PT Gloss / 120# Uncoated / 130# Silk - Single Sided BW",
+                            "des": "",
+                            "price": [
+                                "23",
+                                "32",
+                                "53",
+                                "90",
+                                "",
+                                "",
+                                ""
+                            ],
+                            "implicit_value": "",
+                            "enable_subattr": 0,
+                            "sub_attributes": [],
+                            "sattr_display_type": "s",
+                            "enable_con": 0,
+                            "con_show": "n",
+                            "con_logic": "a",
+                            "depend": [
+                                {
+                                    "id": "",
+                                    "operator": "i",
+                                    "val": "",
+                                    "subval": ""
+                                }
+                            ],
+                            "image_url": "",
+                            "isExpand": false
+                        },
+                        {
+                            "preview_type": "i",
+                            "image": "0",
+                            "color": "#ffffff",
+                            "name": "2-3 Business Day - 14PT Gloss / 120# Uncoated / 130# Silk - Double Sided BW",
+                            "des": "",
+                            "price": [
+                                "24",
+                                "54",
+                                "94",
+                                "172",
+                                "",
+                                "",
+                                ""
+                            ],
+                            "implicit_value": "",
+                            "enable_subattr": 0,
+                            "sub_attributes": [],
+                            "sattr_display_type": "s",
+                            "enable_con": 0,
+                            "con_show": "n",
+                            "con_logic": "a",
+                            "depend": [
+                                {
+                                    "id": "",
+                                    "operator": "i",
+                                    "val": "",
+                                    "subval": ""
+                                }
+                            ],
+                            "image_url": "",
+                            "isExpand": false
+                        }
+                    ]
+                }
+            },
+            "conditional": {
+                "enable": "n",
+                "show": "n",
+                "logic": "a",
+                "depend": [
+                    {
+                        "id": "",
+                        "operator": "i",
+                        "val": ""
+                    }
+                ]
+            },
+            "appearance": {
+                "display_type": {
+                    "title": "Display type",
+                    "description": "",
+                    "value": "ad",
+                    "type": "dropdown",
+                    "options": [
+                        {
+                            "key": "d",
+                            "text": "Dropdown"
+                        },
+                        {
+                            "key": "r",
+                            "text": "Radio button"
+                        },
+                        {
+                            "key": "s",
+                            "text": "Swatch"
+                        },
+                        {
+                            "key": "l",
+                            "text": "Label"
+                        },
+                        {
+                            "key": "ad",
+                            "text": "Advanced Dropdown"
+                        },
+                        {
+                            "key": "xl",
+                            "text": "Large label"
+                        }
+                    ]
+                },
+                "change_image_product": {
+                    "title": "Changes product image",
+                    "description": "Choose whether to change the product image.",
+                    "type": "dropdown",
+                    "value": "n",
+                    "options": [
+                        {
+                            "key": "y",
+                            "text": "Yes"
+                        },
+                        {
+                            "key": "n",
+                            "text": "No"
+                        }
+                    ]
+                },
+                "show_in_archives": {
+                    "title": "Show in archive pages",
+                    "description": "Show option in archive pages as swatch.",
+                    "type": "dropdown",
+                    "value": "n",
+                    "options": [
+                        {
+                            "key": "y",
+                            "text": "Yes"
+                        },
+                        {
+                            "key": "n",
+                            "text": "No"
+                        }
+                    ]
+                },
+                "css_class": {
+                    "title": "CSS Class",
+                    "description": "",
+                    "type": "text",
+                    "value": ""
+                }
+            },
+            "isExpand": false
+        },
+        {
+            "id": "f1000000000034",
+            "general": {
+                "title": {
+                    "title": "Option name",
+                    "description": "",
+                    "value": "Rounded Corners",
+                    "type": "text"
+                },
+                "description": {
+                    "title": "Description",
+                    "description": "",
+                    "value": "",
+                    "type": "textarea"
+                },
+                "data_type": {
+                    "title": "Data type",
+                    "description": "",
+                    "value": "m",
+                    "type": "dropdown",
+                    "options": [
+                        {
+                            "key": "i",
+                            "text": "Custom input"
+                        },
+                        {
+                            "key": "m",
+                            "text": "Multiple options"
+                        }
+                    ]
+                },
+                "input_type": {
+                    "title": "Input type",
+                    "description": "",
+                    "value": "t",
+                    "type": "dropdown",
+                    "depend": [
+                        {
+                            "field": "data_type",
+                            "operator": "=",
+                            "value": "i"
+                        }
+                    ],
+                    "options": [
+                        {
+                            "key": "t",
+                            "text": "Text"
+                        },
+                        {
+                            "key": "n",
+                            "text": "Number"
+                        },
+                        {
+                            "key": "r",
+                            "text": "Number range"
+                        },
+                        {
+                            "key": "u",
+                            "text": "Upload"
+                        },
+                        {
+                            "key": "a",
+                            "text": "Textarea"
+                        }
+                    ]
+                },
+                "input_option": {
+                    "title": "Input option",
+                    "description": "",
+                    "value": {
+                        "min": "1",
+                        "max": "100",
+                        "step": "1",
+                        "default": "1"
+                    },
+                    "type": "table",
+                    "depend": [
+                        {
+                            "field": "data_type",
+                            "operator": "=",
+                            "value": "i"
+                        },
+                        {
+                            "field": "input_type",
+                            "operator": "#",
+                            "value": "t"
+                        },
+                        {
+                            "field": "input_type",
+                            "operator": "#",
+                            "value": "u"
+                        },
+                        {
+                            "field": "input_type",
+                            "operator": "#",
+                            "value": "a"
+                        }
+                    ]
+                },
+                "text_option": {
+                    "title": "Text input option",
+                    "description": "",
+                    "value": {
+                        "min": "0",
+                        "max": "999"
+                    },
+                    "type": "table",
+                    "depend": [
+                        {
+                            "field": "data_type",
+                            "operator": "=",
+                            "value": "i"
+                        },
+                        {
+                            "field": "input_type",
+                            "operator": "=",
+                            "value": "t,a"
+                        }
+                    ]
+                },
+                "placeholder": {
+                    "title": "Placeholder",
+                    "description": "",
+                    "value": "",
+                    "type": "text",
+                    "depend": [
+                        {
+                            "field": "data_type",
+                            "operator": "=",
+                            "value": "i"
+                        },
+                        {
+                            "field": "input_type",
+                            "operator": "=",
+                            "value": "t,a"
+                        }
+                    ]
+                },
+                "upload_option": {
+                    "title": "Upload file option",
+                    "description": "",
+                    "value": {
+                        "min_size": "0",
+                        "max_size": "256",
+                        "allow_type": "png,jpg,jpeg"
+                    },
+                    "type": "table",
+                    "depend": [
+                        {
+                            "field": "data_type",
+                            "operator": "=",
+                            "value": "i"
+                        },
+                        {
+                            "field": "input_type",
+                            "operator": "=",
+                            "value": "u"
+                        }
+                    ]
+                },
+                "enabled": {
+                    "title": "Enabled",
+                    "description": "Choose whether the option is enabled or not.",
+                    "value": "y",
+                    "type": "dropdown",
+                    "options": [
+                        {
+                            "key": "y",
+                            "text": "Yes"
+                        },
+                        {
+                            "key": "n",
+                            "text": "No"
+                        }
+                    ]
+                },
+                "published": {
+                    "title": "Published",
+                    "description": "Show in summary options or not.",
+                    "value": "y",
+                    "type": "dropdown",
+                    "options": [
+                        {
+                            "key": "y",
+                            "text": "Yes"
+                        },
+                        {
+                            "key": "n",
+                            "text": "No"
+                        }
+                    ]
+                },
+                "required": {
+                    "title": "Required",
+                    "description": "Choose whether the option is required or not.",
+                    "value": "n",
+                    "type": "dropdown",
+                    "options": [
+                        {
+                            "key": "y",
+                            "text": "Yes"
+                        },
+                        {
+                            "key": "n",
+                            "text": "No"
+                        }
+                    ],
+                    "depend": [
+                        {
+                            "field": "published",
+                            "operator": "#",
+                            "value": "n"
+                        }
+                    ]
+                },
+                "price_type": {
+                    "title": "Price type",
+                    "description": "Here you can choose how the price is calculated. Depending on the field there various types you can choose.",
+                    "value": "f",
+                    "type": "dropdown",
+                    "options": [
+                        {
+                            "key": "f",
+                            "text": "Fixed amount"
+                        },
+                        {
+                            "key": "p",
+                            "text": "Percent of the original price"
+                        },
+                        {
+                            "key": "p+",
+                            "text": "Percent of the original price + options"
+                        },
+                        {
+                            "key": "c",
+                            "text": "Current value * price",
+                            "depend": [
+                                {
+                                    "field": "data_type",
+                                    "operator": "=",
+                                    "value": "i"
+                                },
+                                {
+                                    "field": "input_type",
+                                    "operator": "#",
+                                    "value": "u"
+                                },
+                                {
+                                    "field": "input_type",
+                                    "operator": "#",
+                                    "value": "t"
+                                },
+                                {
+                                    "field": "input_type",
+                                    "operator": "#",
+                                    "value": "a"
+                                }
+                            ]
+                        },
+                        {
+                            "key": "cp",
+                            "text": "Price per char",
+                            "depend": [
+                                {
+                                    "field": "data_type",
+                                    "operator": "=",
+                                    "value": "i"
+                                },
+                                {
+                                    "field": "input_type",
+                                    "operator": "=",
+                                    "value": "t"
+                                }
+                            ]
+                        },
+                        {
+                            "key": "mf",
+                            "text": "Math formula"
+                        }
+                    ]
+                },
+                "depend_qty": {
+                    "title": "Depend quantity",
+                    "description": "If choose No, the additional price will be apply for cart item independently with the quantity.",
+                    "value": "n2",
+                    "type": "dropdown",
+                    "options": [
+                        {
+                            "key": "y",
+                            "text": "Yes"
+                        },
+                        {
+                            "key": "n",
+                            "text": "No, the additional price is cart item fee"
+                        },
+                        {
+                            "key": "n2",
+                            "text": "No, the additional price is fixed amount for all items"
+                        }
+                    ]
+                },
+                "depend_quantity": {
+                    "title": "Depend quantity breaks",
+                    "description": "",
+                    "value": "n",
+                    "type": "dropdown",
+                    "options": [
+                        {
+                            "key": "y",
+                            "text": "Yes"
+                        },
+                        {
+                            "key": "n",
+                            "text": "No"
+                        }
+                    ]
+                },
+                "price": {
+                    "title": "Additional Price",
+                    "description": "Enter the price for this field or leave it blank for no price.",
+                    "value": "",
+                    "depend": [
+                        {
+                            "field": "depend_quantity",
+                            "operator": "#",
+                            "value": "y"
+                        },
+                        {
+                            "field": "data_type",
+                            "operator": "=",
+                            "value": "i"
+                        }
+                    ],
+                    "type": "number"
+                },
+                "price_breaks": {
+                    "title": "Price depend quantity breaks",
+                    "depend": [
+                        {
+                            "field": "depend_quantity",
+                            "operator": "=",
+                            "value": "y"
+                        },
+                        {
+                            "field": "data_type",
+                            "operator": "=",
+                            "value": "i"
+                        }
+                    ],
+                    "description": "",
+                    "value": [
+                        "",
+                        "",
+                        "",
+                        "",
+                        "",
+                        "",
+                        ""
+                    ],
+                    "type": "single_quantity_depend"
+                },
+                "attributes": {
+                    "title": "Attributes",
+                    "description": "Attributes let you define extra product data, such as size or color.",
+                    "type": "attributes",
+                    "same_size": "y",
+                    "bg_type": "i",
+                    "show_as_pt": "n",
+                    "number_of_sides": 2,
+                    "depend": [
+                        {
+                            "field": "data_type",
+                            "operator": "=",
+                            "value": "m"
+                        }
+                    ],
+                    "options": [
+                        {
+                            "preview_type": "i",
+                            "image": "0",
+                            "color": "#ffffff",
+                            "name": "No rounded corners",
+                            "des": "",
+                            "price": [
+                                "",
+                                "",
+                                "",
+                                "",
+                                "",
+                                "",
+                                ""
+                            ],
+                            "implicit_value": "",
+                            "enable_subattr": 0,
+                            "sub_attributes": [],
+                            "sattr_display_type": "s",
+                            "enable_con": 0,
+                            "con_show": "n",
+                            "con_logic": "a",
+                            "depend": [
+                                {
+                                    "id": "",
+                                    "operator": "i",
+                                    "val": "",
+                                    "subval": ""
+                                }
+                            ],
+                            "image_url": "",
+                            "isExpand": false,
+                            "selected": "on"
+                        },
+                        {
+                            "preview_type": "i",
+                            "image": "0",
+                            "color": "#ffffff",
+                            "name": "Rounded corners add-on",
+                            "des": "",
+                            "price": [
+                                "27.50",
+                                "27.50",
+                                "27.50",
+                                "27.50",
+                                "27.50",
+                                "27.50",
+                                "27.50"
+                            ],
+                            "implicit_value": "",
+                            "enable_subattr": 0,
+                            "sub_attributes": [],
+                            "sattr_display_type": "s",
+                            "enable_con": 0,
+                            "con_show": "n",
+                            "con_logic": "a",
+                            "depend": [
+                                {
+                                    "id": "",
+                                    "operator": "i",
+                                    "val": "",
+                                    "subval": ""
+                                }
+                            ],
+                            "image_url": "",
+                            "isExpand": false
+                        }
+                    ]
+                }
+            },
+            "conditional": {
+                "enable": "n",
+                "show": "n",
+                "logic": "a",
+                "depend": [
+                    {
+                        "id": "",
+                        "operator": "i",
+                        "val": ""
+                    }
+                ]
+            },
+            "appearance": {
+                "display_type": {
+                    "title": "Display type",
+                    "description": "",
+                    "value": "d",
+                    "type": "dropdown",
+                    "options": [
+                        {
+                            "key": "d",
+                            "text": "Dropdown"
+                        },
+                        {
+                            "key": "r",
+                            "text": "Radio button"
+                        },
+                        {
+                            "key": "s",
+                            "text": "Swatch"
+                        },
+                        {
+                            "key": "l",
+                            "text": "Label"
+                        },
+                        {
+                            "key": "ad",
+                            "text": "Advanced Dropdown"
+                        },
+                        {
+                            "key": "xl",
+                            "text": "Large label"
+                        }
+                    ]
+                },
+                "change_image_product": {
+                    "title": "Changes product image",
+                    "description": "Choose whether to change the product image.",
+                    "type": "dropdown",
+                    "value": "n",
+                    "options": [
+                        {
+                            "key": "y",
+                            "text": "Yes"
+                        },
+                        {
+                            "key": "n",
+                            "text": "No"
+                        }
+                    ]
+                },
+                "show_in_archives": {
+                    "title": "Show in archive pages",
+                    "description": "Show option in archive pages as swatch.",
+                    "type": "dropdown",
+                    "value": "n",
+                    "options": [
+                        {
+                            "key": "y",
+                            "text": "Yes"
+                        },
+                        {
+                            "key": "n",
+                            "text": "No"
+                        }
+                    ]
+                },
+                "css_class": {
+                    "title": "CSS Class",
+                    "description": "",
+                    "type": "text",
+                    "value": ""
+                }
+            },
+            "isExpand": false
+        },
+        {
+            "id": "f1000000000035",
+            "general": {
+                "title": {
+                    "title": "Option name",
+                    "description": "",
+                    "value": "Artwork / Design Option",
+                    "type": "text"
+                },
+                "description": {
+                    "title": "Description",
+                    "description": "",
+                    "value": "",
+                    "type": "textarea"
+                },
+                "data_type": {
+                    "title": "Data type",
+                    "description": "",
+                    "value": "m",
+                    "type": "dropdown",
+                    "options": [
+                        {
+                            "key": "i",
+                            "text": "Custom input"
+                        },
+                        {
+                            "key": "m",
+                            "text": "Multiple options"
+                        }
+                    ]
+                },
+                "input_type": {
+                    "title": "Input type",
+                    "description": "",
+                    "value": "t",
+                    "type": "dropdown",
+                    "depend": [
+                        {
+                            "field": "data_type",
+                            "operator": "=",
+                            "value": "i"
+                        }
+                    ],
+                    "options": [
+                        {
+                            "key": "t",
+                            "text": "Text"
+                        },
+                        {
+                            "key": "n",
+                            "text": "Number"
+                        },
+                        {
+                            "key": "r",
+                            "text": "Number range"
+                        },
+                        {
+                            "key": "u",
+                            "text": "Upload"
+                        },
+                        {
+                            "key": "a",
+                            "text": "Textarea"
+                        }
+                    ]
+                },
+                "input_option": {
+                    "title": "Input option",
+                    "description": "",
+                    "value": {
+                        "min": "1",
+                        "max": "100",
+                        "step": "1",
+                        "default": "1"
+                    },
+                    "type": "table",
+                    "depend": [
+                        {
+                            "field": "data_type",
+                            "operator": "=",
+                            "value": "i"
+                        },
+                        {
+                            "field": "input_type",
+                            "operator": "#",
+                            "value": "t"
+                        },
+                        {
+                            "field": "input_type",
+                            "operator": "#",
+                            "value": "u"
+                        },
+                        {
+                            "field": "input_type",
+                            "operator": "#",
+                            "value": "a"
+                        }
+                    ]
+                },
+                "text_option": {
+                    "title": "Text input option",
+                    "description": "",
+                    "value": {
+                        "min": "0",
+                        "max": "999"
+                    },
+                    "type": "table",
+                    "depend": [
+                        {
+                            "field": "data_type",
+                            "operator": "=",
+                            "value": "i"
+                        },
+                        {
+                            "field": "input_type",
+                            "operator": "=",
+                            "value": "t,a"
+                        }
+                    ]
+                },
+                "placeholder": {
+                    "title": "Placeholder",
+                    "description": "",
+                    "value": "",
+                    "type": "text",
+                    "depend": [
+                        {
+                            "field": "data_type",
+                            "operator": "=",
+                            "value": "i"
+                        },
+                        {
+                            "field": "input_type",
+                            "operator": "=",
+                            "value": "t,a"
+                        }
+                    ]
+                },
+                "upload_option": {
+                    "title": "Upload file option",
+                    "description": "",
+                    "value": {
+                        "min_size": "0",
+                        "max_size": "256",
+                        "allow_type": "png,jpg,jpeg"
+                    },
+                    "type": "table",
+                    "depend": [
+                        {
+                            "field": "data_type",
+                            "operator": "=",
+                            "value": "i"
+                        },
+                        {
+                            "field": "input_type",
+                            "operator": "=",
+                            "value": "u"
+                        }
+                    ]
+                },
+                "enabled": {
+                    "title": "Enabled",
+                    "description": "Choose whether the option is enabled or not.",
+                    "value": "y",
+                    "type": "dropdown",
+                    "options": [
+                        {
+                            "key": "y",
+                            "text": "Yes"
+                        },
+                        {
+                            "key": "n",
+                            "text": "No"
+                        }
+                    ]
+                },
+                "published": {
+                    "title": "Published",
+                    "description": "Show in summary options or not.",
+                    "value": "y",
+                    "type": "dropdown",
+                    "options": [
+                        {
+                            "key": "y",
+                            "text": "Yes"
+                        },
+                        {
+                            "key": "n",
+                            "text": "No"
+                        }
+                    ]
+                },
+                "required": {
+                    "title": "Required",
+                    "description": "Choose whether the option is required or not.",
+                    "value": "y",
+                    "type": "dropdown",
+                    "options": [
+                        {
+                            "key": "y",
+                            "text": "Yes"
+                        },
+                        {
+                            "key": "n",
+                            "text": "No"
+                        }
+                    ],
+                    "depend": [
+                        {
+                            "field": "published",
+                            "operator": "#",
+                            "value": "n"
+                        }
+                    ]
+                },
+                "price_type": {
+                    "title": "Price type",
+                    "description": "Here you can choose how the price is calculated. Depending on the field there various types you can choose.",
+                    "value": "f",
+                    "type": "dropdown",
+                    "options": [
+                        {
+                            "key": "f",
+                            "text": "Fixed amount"
+                        },
+                        {
+                            "key": "p",
+                            "text": "Percent of the original price"
+                        },
+                        {
+                            "key": "p+",
+                            "text": "Percent of the original price + options"
+                        },
+                        {
+                            "key": "c",
+                            "text": "Current value * price",
+                            "depend": [
+                                {
+                                    "field": "data_type",
+                                    "operator": "=",
+                                    "value": "i"
+                                },
+                                {
+                                    "field": "input_type",
+                                    "operator": "#",
+                                    "value": "u"
+                                },
+                                {
+                                    "field": "input_type",
+                                    "operator": "#",
+                                    "value": "t"
+                                },
+                                {
+                                    "field": "input_type",
+                                    "operator": "#",
+                                    "value": "a"
+                                }
+                            ]
+                        },
+                        {
+                            "key": "cp",
+                            "text": "Price per char",
+                            "depend": [
+                                {
+                                    "field": "data_type",
+                                    "operator": "=",
+                                    "value": "i"
+                                },
+                                {
+                                    "field": "input_type",
+                                    "operator": "=",
+                                    "value": "t"
+                                }
+                            ]
+                        },
+                        {
+                            "key": "mf",
+                            "text": "Math formula"
+                        }
+                    ]
+                },
+                "depend_qty": {
+                    "title": "Depend quantity",
+                    "description": "If choose No, the additional price will be apply for cart item independently with the quantity.",
+                    "value": "n2",
+                    "type": "dropdown",
+                    "options": [
+                        {
+                            "key": "y",
+                            "text": "Yes"
+                        },
+                        {
+                            "key": "n",
+                            "text": "No, the additional price is cart item fee"
+                        },
+                        {
+                            "key": "n2",
+                            "text": "No, the additional price is fixed amount for all items"
+                        }
+                    ]
+                },
+                "depend_quantity": {
+                    "title": "Depend quantity breaks",
+                    "description": "",
+                    "value": "n",
+                    "type": "dropdown",
+                    "options": [
+                        {
+                            "key": "y",
+                            "text": "Yes"
+                        },
+                        {
+                            "key": "n",
+                            "text": "No"
+                        }
+                    ]
+                },
+                "price": {
+                    "title": "Additional Price",
+                    "description": "Enter the price for this field or leave it blank for no price.",
+                    "value": "",
+                    "depend": [
+                        {
+                            "field": "depend_quantity",
+                            "operator": "#",
+                            "value": "y"
+                        },
+                        {
+                            "field": "data_type",
+                            "operator": "=",
+                            "value": "i"
+                        }
+                    ],
+                    "type": "number"
+                },
+                "price_breaks": {
+                    "title": "Price depend quantity breaks",
+                    "depend": [
+                        {
+                            "field": "depend_quantity",
+                            "operator": "=",
+                            "value": "y"
+                        },
+                        {
+                            "field": "data_type",
+                            "operator": "=",
+                            "value": "i"
+                        }
+                    ],
+                    "description": "",
+                    "value": [
+                        "",
+                        "",
+                        "",
+                        "",
+                        "",
+                        "",
+                        ""
+                    ],
+                    "type": "single_quantity_depend"
+                },
+                "attributes": {
+                    "title": "Attributes",
+                    "description": "Attributes let you define extra product data, such as size or color.",
+                    "type": "attributes",
+                    "same_size": "y",
+                    "bg_type": "i",
+                    "show_as_pt": "n",
+                    "number_of_sides": 2,
+                    "depend": [
+                        {
+                            "field": "data_type",
+                            "operator": "=",
+                            "value": "m"
+                        }
+                    ],
+                    "options": [
+                        {
+                            "preview_type": "i",
+                            "image": "0",
+                            "color": "#ffffff",
+                            "name": "Upload print-ready file / file review",
+                            "des": "",
+                            "price": [
+                                "",
+                                "",
+                                "",
+                                "",
+                                "",
+                                "",
+                                ""
+                            ],
+                            "implicit_value": "",
+                            "enable_subattr": 0,
+                            "sub_attributes": [],
+                            "sattr_display_type": "s",
+                            "enable_con": 0,
+                            "con_show": "n",
+                            "con_logic": "a",
+                            "depend": [
+                                {
+                                    "id": "",
+                                    "operator": "i",
+                                    "val": "",
+                                    "subval": ""
+                                }
+                            ],
+                            "image_url": "",
+                            "isExpand": false,
+                            "selected": "on",
+                            "action": "u"
+                        },
+                        {
+                            "preview_type": "i",
+                            "image": "0",
+                            "color": "#ffffff",
+                            "name": "Create design online",
+                            "des": "",
+                            "price": [
+                                "",
+                                "",
+                                "",
+                                "",
+                                "",
+                                "",
+                                ""
+                            ],
+                            "implicit_value": "",
+                            "enable_subattr": 0,
+                            "sub_attributes": [],
+                            "sattr_display_type": "s",
+                            "enable_con": 0,
+                            "con_show": "n",
+                            "con_logic": "a",
+                            "depend": [
+                                {
+                                    "id": "",
+                                    "operator": "i",
+                                    "val": "",
+                                    "subval": ""
+                                }
+                            ],
+                            "image_url": "",
+                            "isExpand": false,
+                            "action": "c"
+                        },
+                        {
+                            "preview_type": "i",
+                            "image": "0",
+                            "color": "#ffffff",
+                            "name": "Request expert design service - custom quote",
+                            "des": "",
+                            "price": [
+                                "",
+                                "",
+                                "",
+                                "",
+                                "",
+                                "",
+                                ""
+                            ],
+                            "implicit_value": "",
+                            "enable_subattr": 0,
+                            "sub_attributes": [],
+                            "sattr_display_type": "s",
+                            "enable_con": 0,
+                            "con_show": "n",
+                            "con_logic": "a",
+                            "depend": [
+                                {
+                                    "id": "",
+                                    "operator": "i",
+                                    "val": "",
+                                    "subval": ""
+                                }
+                            ],
+                            "image_url": "",
+                            "isExpand": false,
+                            "action": "h"
+                        }
+                    ]
+                }
+            },
+            "conditional": {
+                "enable": "n",
+                "show": "n",
+                "logic": "a",
+                "depend": [
+                    {
+                        "id": "",
+                        "operator": "i",
+                        "val": ""
+                    }
+                ]
+            },
+            "appearance": {
+                "display_type": {
+                    "title": "Display type",
+                    "description": "",
+                    "value": "d",
+                    "type": "dropdown",
+                    "options": [
+                        {
+                            "key": "d",
+                            "text": "Dropdown"
+                        },
+                        {
+                            "key": "r",
+                            "text": "Radio button"
+                        },
+                        {
+                            "key": "s",
+                            "text": "Swatch"
+                        },
+                        {
+                            "key": "l",
+                            "text": "Label"
+                        },
+                        {
+                            "key": "ad",
+                            "text": "Advanced Dropdown"
+                        },
+                        {
+                            "key": "xl",
+                            "text": "Large label"
+                        }
+                    ]
+                },
+                "change_image_product": {
+                    "title": "Changes product image",
+                    "description": "Choose whether to change the product image.",
+                    "type": "dropdown",
+                    "value": "n",
+                    "options": [
+                        {
+                            "key": "y",
+                            "text": "Yes"
+                        },
+                        {
+                            "key": "n",
+                            "text": "No"
+                        }
+                    ]
+                },
+                "show_in_archives": {
+                    "title": "Show in archive pages",
+                    "description": "Show option in archive pages as swatch.",
+                    "type": "dropdown",
+                    "value": "n",
+                    "options": [
+                        {
+                            "key": "y",
+                            "text": "Yes"
+                        },
+                        {
+                            "key": "n",
+                            "text": "No"
+                        }
+                    ]
+                },
+                "css_class": {
+                    "title": "CSS Class",
+                    "description": "",
+                    "type": "text",
+                    "value": ""
+                }
+            },
+            "isExpand": false,
+            "nbd_template": "nbd.actions",
+            "nbe_type": "actions"
+        },
+        {
+            "id": "f1000000000036",
+            "general": {
+                "title": {
+                    "title": "Option name",
+                    "description": "",
+                    "value": "Production Note",
+                    "type": "text"
+                },
+                "description": {
+                    "title": "Description",
+                    "description": "",
+                    "value": "",
+                    "type": "textarea"
+                },
+                "data_type": {
+                    "title": "Data type",
+                    "description": "",
+                    "value": "i",
+                    "type": "dropdown",
+                    "options": [
+                        {
+                            "key": "i",
+                            "text": "Custom input"
+                        },
+                        {
+                            "key": "m",
+                            "text": "Multiple options"
+                        }
+                    ],
+                    "hidden": true
+                },
+                "input_type": {
+                    "title": "Input type",
+                    "description": "",
+                    "value": "a",
+                    "type": "dropdown",
+                    "depend": [
+                        {
+                            "field": "data_type",
+                            "operator": "=",
+                            "value": "i"
+                        }
+                    ],
+                    "options": [
+                        {
+                            "key": "t",
+                            "text": "Text"
+                        },
+                        {
+                            "key": "n",
+                            "text": "Number"
+                        },
+                        {
+                            "key": "r",
+                            "text": "Number range"
+                        },
+                        {
+                            "key": "u",
+                            "text": "Upload"
+                        },
+                        {
+                            "key": "a",
+                            "text": "Textarea"
+                        }
+                    ],
+                    "hidden": true
+                },
+                "input_option": {
+                    "title": "Input option",
+                    "description": "",
+                    "value": {
+                        "min": "1",
+                        "max": "100",
+                        "step": "1",
+                        "default": "1"
+                    },
+                    "type": "table",
+                    "depend": [
+                        {
+                            "field": "data_type",
+                            "operator": "=",
+                            "value": "i"
+                        },
+                        {
+                            "field": "input_type",
+                            "operator": "#",
+                            "value": "t"
+                        },
+                        {
+                            "field": "input_type",
+                            "operator": "#",
+                            "value": "u"
+                        },
+                        {
+                            "field": "input_type",
+                            "operator": "#",
+                            "value": "a"
+                        }
+                    ]
+                },
+                "text_option": {
+                    "title": "Text input option",
+                    "description": "",
+                    "value": {
+                        "min": "0",
+                        "max": "999"
+                    },
+                    "type": "table",
+                    "depend": [
+                        {
+                            "field": "data_type",
+                            "operator": "=",
+                            "value": "i"
+                        },
+                        {
+                            "field": "input_type",
+                            "operator": "=",
+                            "value": "t,a"
+                        }
+                    ],
+                    "hidden": true
+                },
+                "placeholder": {
+                    "title": "Placeholder",
+                    "description": "",
+                    "value": "",
+                    "type": "text",
+                    "depend": [
+                        {
+                            "field": "data_type",
+                            "operator": "=",
+                            "value": "i"
+                        },
+                        {
+                            "field": "input_type",
+                            "operator": "=",
+                            "value": "t,a"
+                        }
+                    ]
+                },
+                "upload_option": {
+                    "title": "Upload file option",
+                    "description": "",
+                    "value": {
+                        "min_size": "0",
+                        "max_size": "256",
+                        "allow_type": "png,jpg,jpeg"
+                    },
+                    "type": "table",
+                    "depend": [
+                        {
+                            "field": "data_type",
+                            "operator": "=",
+                            "value": "i"
+                        },
+                        {
+                            "field": "input_type",
+                            "operator": "=",
+                            "value": "u"
+                        }
+                    ]
+                },
+                "enabled": {
+                    "title": "Enabled",
+                    "description": "Choose whether the option is enabled or not.",
+                    "value": "y",
+                    "type": "dropdown",
+                    "options": [
+                        {
+                            "key": "y",
+                            "text": "Yes"
+                        },
+                        {
+                            "key": "n",
+                            "text": "No"
+                        }
+                    ]
+                },
+                "published": {
+                    "title": "Published",
+                    "description": "Show in summary options or not.",
+                    "value": "y",
+                    "type": "dropdown",
+                    "options": [
+                        {
+                            "key": "y",
+                            "text": "Yes"
+                        },
+                        {
+                            "key": "n",
+                            "text": "No"
+                        }
+                    ]
+                },
+                "required": {
+                    "title": "Required",
+                    "description": "Choose whether the option is required or not.",
+                    "value": "n",
+                    "type": "dropdown",
+                    "options": [
+                        {
+                            "key": "y",
+                            "text": "Yes"
+                        },
+                        {
+                            "key": "n",
+                            "text": "No"
+                        }
+                    ],
+                    "depend": [
+                        {
+                            "field": "published",
+                            "operator": "#",
+                            "value": "n"
+                        }
+                    ]
+                },
+                "price_type": {
+                    "title": "Price type",
+                    "description": "Here you can choose how the price is calculated. Depending on the field there various types you can choose.",
+                    "value": "f",
+                    "type": "dropdown",
+                    "options": [
+                        {
+                            "key": "f",
+                            "text": "Fixed amount"
+                        },
+                        {
+                            "key": "p",
+                            "text": "Percent of the original price"
+                        },
+                        {
+                            "key": "p+",
+                            "text": "Percent of the original price + options"
+                        },
+                        {
+                            "key": "c",
+                            "text": "Current value * price",
+                            "depend": [
+                                {
+                                    "field": "data_type",
+                                    "operator": "=",
+                                    "value": "i"
+                                },
+                                {
+                                    "field": "input_type",
+                                    "operator": "#",
+                                    "value": "u"
+                                },
+                                {
+                                    "field": "input_type",
+                                    "operator": "#",
+                                    "value": "t"
+                                },
+                                {
+                                    "field": "input_type",
+                                    "operator": "#",
+                                    "value": "a"
+                                }
+                            ]
+                        },
+                        {
+                            "key": "cp",
+                            "text": "Price per char",
+                            "depend": [
+                                {
+                                    "field": "data_type",
+                                    "operator": "=",
+                                    "value": "i"
+                                },
+                                {
+                                    "field": "input_type",
+                                    "operator": "=",
+                                    "value": "t"
+                                }
+                            ]
+                        },
+                        {
+                            "key": "mf",
+                            "text": "Math formula"
+                        }
+                    ]
+                },
+                "depend_qty": {
+                    "title": "Depend quantity",
+                    "description": "If choose No, the additional price will be apply for cart item independently with the quantity.",
+                    "value": "y",
+                    "type": "dropdown",
+                    "options": [
+                        {
+                            "key": "y",
+                            "text": "Yes"
+                        },
+                        {
+                            "key": "n",
+                            "text": "No, the additional price is cart item fee"
+                        },
+                        {
+                            "key": "n2",
+                            "text": "No, the additional price is fixed amount for all items"
+                        }
+                    ]
+                },
+                "depend_quantity": {
+                    "title": "Depend quantity breaks",
+                    "description": "",
+                    "value": "n",
+                    "type": "dropdown",
+                    "options": [
+                        {
+                            "key": "y",
+                            "text": "Yes"
+                        },
+                        {
+                            "key": "n",
+                            "text": "No"
+                        }
+                    ]
+                },
+                "price": {
+                    "title": "Additional Price",
+                    "description": "Enter the price for this field or leave it blank for no price.",
+                    "value": "",
+                    "depend": [
+                        {
+                            "field": "depend_quantity",
+                            "operator": "#",
+                            "value": "y"
+                        },
+                        {
+                            "field": "data_type",
+                            "operator": "=",
+                            "value": "i"
+                        }
+                    ],
+                    "type": "number"
+                },
+                "price_breaks": {
+                    "title": "Price depend quantity breaks",
+                    "depend": [
+                        {
+                            "field": "depend_quantity",
+                            "operator": "=",
+                            "value": "y"
+                        },
+                        {
+                            "field": "data_type",
+                            "operator": "=",
+                            "value": "i"
+                        }
+                    ],
+                    "description": "",
+                    "value": [
+                        "",
+                        "",
+                        "",
+                        "",
+                        "",
+                        "",
+                        ""
+                    ],
+                    "type": "single_quantity_depend"
+                },
+                "attributes": {
+                    "title": "Attributes",
+                    "description": "Attributes let you define extra product data, such as size or color.",
+                    "type": "attributes",
+                    "same_size": "y",
+                    "bg_type": "i",
+                    "show_as_pt": "n",
+                    "number_of_sides": 2,
+                    "depend": [
+                        {
+                            "field": "data_type",
+                            "operator": "=",
+                            "value": "m"
+                        }
+                    ],
+                    "options": [
+                        {
+                            "preview_type": "i",
+                            "image": "0",
+                            "color": "#ffffff",
+                            "name": "Attribute name",
+                            "des": "",
+                            "price": [
+                                "",
+                                "",
+                                "",
+                                "",
+                                "",
+                                "",
+                                ""
+                            ],
+                            "implicit_value": "",
+                            "enable_subattr": 0,
+                            "sub_attributes": [],
+                            "sattr_display_type": "s",
+                            "enable_con": 0,
+                            "con_show": "n",
+                            "con_logic": "a",
+                            "depend": [
+                                {
+                                    "id": "",
+                                    "operator": "i",
+                                    "val": "",
+                                    "subval": ""
+                                }
+                            ],
+                            "image_url": "",
+                            "isExpand": false
+                        }
+                    ]
+                },
+                "min_width": "2.5",
+                "max_width": "4",
+                "step_width": "0.01",
+                "default_width": "3.75",
+                "min_height": "2",
+                "max_height": "3.5",
+                "step_height": "0.01",
+                "default_height": "2.25",
+                "mesure": "n",
+                "mesure_range": [],
+                "mesure_base_pages": "y",
+                "mesure_type": "u",
+                "mesure_min_area": 0,
+                "mesure_base_qty": "n"
+            },
+            "conditional": {
+                "enable": "y",
+                "show": "y",
+                "logic": "a",
+                "depend": [
+                    {
+                        "id": "f1561697235484",
+                        "operator": "i",
+                        "val": "3"
+                    }
+                ]
+            },
+            "appearance": {
+                "display_type": {
+                    "title": "Display type",
+                    "description": "",
+                    "value": "d",
+                    "type": "dropdown",
+                    "options": [
+                        {
+                            "key": "d",
+                            "text": "Dropdown"
+                        },
+                        {
+                            "key": "r",
+                            "text": "Radio button"
+                        },
+                        {
+                            "key": "s",
+                            "text": "Swatch"
+                        },
+                        {
+                            "key": "l",
+                            "text": "Label"
+                        },
+                        {
+                            "key": "ad",
+                            "text": "Advanced Dropdown"
+                        },
+                        {
+                            "key": "xl",
+                            "text": "Large label"
+                        }
+                    ]
+                },
+                "change_image_product": {
+                    "title": "Changes product image",
+                    "description": "Choose whether to change the product image.",
+                    "type": "dropdown",
+                    "value": "n",
+                    "options": [
+                        {
+                            "key": "y",
+                            "text": "Yes"
+                        },
+                        {
+                            "key": "n",
+                            "text": "No"
+                        }
+                    ]
+                },
+                "show_in_archives": {
+                    "title": "Show in archive pages",
+                    "description": "Show option in archive pages as swatch.",
+                    "type": "dropdown",
+                    "value": "n",
+                    "options": [
+                        {
+                            "key": "y",
+                            "text": "Yes"
+                        },
+                        {
+                            "key": "n",
+                            "text": "No"
+                        }
+                    ]
+                },
+                "css_class": {
+                    "title": "CSS Class",
+                    "description": "",
+                    "type": "text",
+                    "value": ""
+                }
+            },
+            "isExpand": false
+        }
+    ],
+    "display_type": "4",
+    "groups": [],
+    "popup_trigger_field": "",
+    "group_panel": "off",
+    "manual_build_pm": false,
+    "manual_pm": "",
+    "id": "",
+    "title": "Business Cards",
+    "priority": "1",
+    "published": "1",
+    "date_from": "",
+    "date_to": "",
+    "apply_for": "p",
+    "product_cats": [],
+    "product_ids": [],
+    "pm_ver": [],
+    "pm_hoz": [],
+    "popup_trigger_index": ""
+}

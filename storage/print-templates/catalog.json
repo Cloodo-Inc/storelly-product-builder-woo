@@ -1,0 +1,102 @@
+{
+    "version": "1",
+    "generated": "2026-05-23T12:42:15+00:00",
+    "categories": {
+        "stationery": {
+            "en_US": "Stationery",
+            "vi_VN": "Văn phòng phẩm"
+        },
+        "marketing": {
+            "en_US": "Marketing",
+            "vi_VN": "Tiếp thị"
+        },
+        "large_format": {
+            "en_US": "Large Format",
+            "vi_VN": "Khổ lớn"
+        },
+        "promotional": {
+            "en_US": "Promotional",
+            "vi_VN": "Quà tặng"
+        },
+        "signage": {
+            "en_US": "Signage",
+            "vi_VN": "Biển hiệu"
+        },
+        "envelopes": {
+            "en_US": "Envelopes",
+            "vi_VN": "Phong bì"
+        }
+    },
+    "templates": [
+        {
+            "slug": "business-cards",
+            "file": "templates/business-cards.json",
+            "name": {
+                "en_US": "Business Cards"
+            },
+            "category": "stationery",
+            "thumbnail": "thumbnails/business-cards.webp",
+            "field_count": 4,
+            "pricing_method": "fixed",
+            "template_version": "1.0.0",
+            "pricing_source": "Reference pricing from a US print shop (2026). Adjust prices to your market before publishing.",
+            "description": "Standard business cards with size, material, sides and quantity breaks."
+        },
+        {
+            "slug": "invitations",
+            "file": "templates/invitations.json",
+            "name": {
+                "en_US": "Invitations"
+            },
+            "category": "stationery",
+            "thumbnail": "thumbnails/invitations.webp",
+            "field_count": 3,
+            "pricing_method": "fixed",
+            "template_version": "1.0.0",
+            "pricing_source": "Reference pricing from a US print shop (2026). Adjust prices to your market before publishing.",
+            "description": "Invitations with size, paper stock and printing sides."
+        },
+        {
+            "slug": "photo-copies",
+            "file": "templates/photo-copies.json",
+            "name": {
+                "en_US": "Photo Copies"
+            },
+            "category": "marketing",
+            "thumbnail": "thumbnails/photo-copies.webp",
+            "field_count": 3,
+            "pricing_method": "fixed",
+            "template_version": "1.0.0",
+            "pricing_source": "Reference pricing from a US print shop (2026). Adjust prices to your market before publishing.",
+            "description": "Photo copy service with paper, color and quantity tiers."
+        },
+        {
+            "slug": "postcards-rack-cards",
+            "file": "templates/postcards-rack-cards.json",
+            "name": {
+                "en_US": "Postcards & Rack Cards"
+            },
+            "category": "marketing",
+            "thumbnail": "thumbnails/postcards-rack-cards.webp",
+            "field_count": 3,
+            "pricing_method": "fixed",
+            "template_version": "1.0.0",
+            "pricing_source": "Reference pricing from a US print shop (2026). Adjust prices to your market before publishing.",
+            "description": "Postcards and rack cards with size matrix and finish options."
+        },
+        {
+            "slug": "flyers-letter-legal",
+            "file": "templates/flyers-letter-legal.json",
+            "name": {
+                "en_US": "Flyers (Letter / Legal)"
+            },
+            "category": "marketing",
+            "thumbnail": "thumbnails/flyers-letter-legal.webp",
+            "field_count": 3,
+            "pricing_method": "fixed",
+            "template_version": "1.0.0",
+            "pricing_source": "Reference pricing from a US print shop (2026). Adjust prices to your market before publishing.",
+            "description": "Letter and legal size flyers with paper, color and quantity breaks."
+        }
+    ]
+}
