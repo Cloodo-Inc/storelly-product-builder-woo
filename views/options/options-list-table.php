@@ -571,9 +571,12 @@ $_current_page_n = isset( $_GET['paged'] ) ? max( 1, absint( $_GET['paged'] ) ) 
 		if ( inner ) { inner.innerHTML = renderSkeletons( 6 ); }
 		setLoading( true );
 
+		var fetchStart = performance.now();
+
 		fetch( AJAX_URL, { method: 'POST', credentials: 'same-origin', body: fd } )
 			.then( function ( r ) { return r.json(); } )
 			.then( function ( res ) {
+				var networkMs = Math.round( performance.now() - fetchStart );
 				if ( ! res || ! res.success ) {
 					showToast( ( res && res.data && res.data.msg ) || ERR_GENERIC, 'error' );
 					// Clear stuck skeletons so the grid is not left in a loading state.
@@ -581,6 +584,23 @@ $_current_page_n = isset( $_GET['paged'] ) ? max( 1, absint( $_GET['paged'] ) ) 
 					return;
 				}
 				var d = res.data;
+				// Log server-side timing when WP_DEBUG is on (PHP appends _timing).
+				if ( d._timing ) {
+					var t = d._timing;
+					console.groupCollapsed( '[Storelly] AJAX fetchList — ' + networkMs + 'ms total' );
+					console.log( 'Source     :', t.source );
+					console.log( 'Network    :', networkMs + 'ms  (includes WP bootstrap + handler)' );
+					if ( t.source === 'live' ) {
+						console.log( 'Handler    :', t.handler_ms + 'ms  (inside PHP handler)' );
+						console.log( '  DB query :', t.db_ms     + 'ms' );
+						console.log( '  Render   :', t.render_ms + 'ms' );
+						console.log( 'WP bootstrap:', ( networkMs - t.handler_ms ) + 'ms  (approx — load all plugins + hooks)' );
+					} else {
+						console.log( 'Handler    :', t.handler_ms + 'ms  (transient hit)' );
+						console.log( 'WP bootstrap:', ( networkMs - t.handler_ms ) + 'ms  (approx)' );
+					}
+					console.groupEnd();
+				}
 				if ( inner ) {
 					inner.innerHTML = d.grid_html;
 					// Re-attach pagination nav (it lives outside inner)

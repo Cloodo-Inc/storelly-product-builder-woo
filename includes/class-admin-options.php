@@ -3281,6 +3281,9 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
          * search input (debounced) and paginator arrows.
          */
         public function spbwc_list_options_html() {
+            // Capture request-start time for debug timing (enabled when WP_DEBUG is on).
+            $spbwc_t0 = microtime( true );
+
             check_ajax_referer( 'spbwc_options_list_nonce', 'nonce' );
             if ( ! current_user_can( 'manage_options' ) ) {
                 wp_send_json_error( array( 'msg' => esc_html__( 'Forbidden.', 'storelly-product-builder-for-woocommerce' ) ), 403 );
@@ -3305,6 +3308,9 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
                        . '_' . substr( md5( $paged . $status_filter . $search . $orderby . $order ), 0, 16 );
             $cached = get_transient( $cache_key );
             if ( false !== $cached ) {
+                if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+                    $cached['_timing'] = array( 'source' => 'transient', 'handler_ms' => round( ( microtime( true ) - $spbwc_t0 ) * 1000 ) );
+                }
                 wp_send_json_success( $cached );
                 return;
             }
@@ -3327,7 +3333,9 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
                 require_once SPBWC_PB_PLUGIN_DIR . 'includes/options/fields-list-table.php';
             }
             $list = new SPBWC_Storelly_Options_List_Table();
+            $spbwc_t_before_db = microtime( true );
             $list->spbwc_prepare_items();
+            $spbwc_t_after_db = microtime( true );
 
             $per_page = 10;
             // Re-use the count already computed inside spbwc_prepare_items() to avoid a
@@ -3484,6 +3492,7 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
                 echo '</div>';
             }
             $grid_html = ob_get_clean();
+            $spbwc_t_end = microtime( true );
 
             $response = array(
                 'grid_html'   => $grid_html,
@@ -3493,8 +3502,25 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
                 'counts'      => $counts,
             );
 
+            // In WP_DEBUG mode, append server-side timing breakdown to the response so
+            // the browser console can show exactly where PHP time is spent.
+            // Format: handler_ms = time inside this function; db_ms = DB query phase only.
+            // Bootstrap overhead (WordPress loading all plugins before reaching this
+            // handler) is NOT captured here — it is the difference between
+            // total network time and handler_ms.
+            if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+                $response['_timing'] = array(
+                    'source'     => 'live',
+                    'handler_ms' => round( ( $spbwc_t_end - $spbwc_t0 ) * 1000 ),
+                    'db_ms'      => round( ( $spbwc_t_after_db - $spbwc_t_before_db ) * 1000 ),
+                    'render_ms'  => round( ( $spbwc_t_end - $spbwc_t_after_db ) * 1000 ),
+                );
+            }
+
             // Store in transient for 2 minutes. Invalidated automatically by
             // spbwc_flush_option_caches() on any write operation.
+            // NOTE: Do NOT cache the _timing key — it is only added above in debug
+            // mode and is not part of the canonical cached payload.
             set_transient( $cache_key, $response, 120 );
 
             wp_send_json_success( $response );
