@@ -3440,6 +3440,17 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
             $_GET['orderby']           = $orderby;
             $_GET['order']             = $order;
 
+            // WP_List_Table (used by SPBWC_Storelly_Options_List_Table) calls
+            // convert_to_screen() in its constructor, which is defined in
+            // wp-admin/includes/screen.php.  That file is NOT auto-loaded in the
+            // REST API bootstrap — only admin-ajax.php / admin.php load it.
+            // Load screen.php (and its dependency class-wp-screen.php) when missing
+            // so this method works correctly from both REST and AJAX contexts.
+            if ( ! function_exists( 'convert_to_screen' ) ) {
+                require_once ABSPATH . 'wp-admin/includes/class-wp-screen.php';
+                require_once ABSPATH . 'wp-admin/includes/screen.php';
+            }
+
             if ( ! class_exists( 'SPBWC_Storelly_Options_List_Table' ) ) {
                 require_once SPBWC_PB_PLUGIN_DIR . 'includes/options/fields-list-table.php';
             }
