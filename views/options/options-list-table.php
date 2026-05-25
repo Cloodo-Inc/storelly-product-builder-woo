@@ -157,7 +157,7 @@ $_current_page_n = isset( $_GET['paged'] ) ? max( 1, absint( $_GET['paged'] ) ) 
 				       id="spbwc-unified-search"
 				       class="spbwc-block-search__input"
 				       value="<?php echo esc_attr( $_search_term ); ?>"
-				       placeholder="<?php esc_attr_e( 'Search options\xe2\x80\xa6', 'storelly-product-builder-for-woocommerce' ); ?>"
+				       placeholder="<?php esc_attr_e( 'Search options…', 'storelly-product-builder-for-woocommerce' ); ?>"
 				       aria-label="<?php esc_attr_e( 'Search options', 'storelly-product-builder-for-woocommerce' ); ?>">
 				<button type="button"
 				        class="spbwc-search-clear"
@@ -565,14 +565,19 @@ $_current_page_n = isset( $_GET['paged'] ) ? max( 1, absint( $_GET['paged'] ) ) 
 	function fetchList( resetPage ) {
 		if ( resetPage ) { state.paged = 1; }
 
-		// Build query-string params for the REST GET request.
-		var params = new URLSearchParams( {
-			paged:         state.paged,
-			status_filter: state.status_filter,
-			s:             state.s,
-			orderby:       state.orderby,
-			order:         state.order,
-		} );
+		// Build the request URL.
+		// IMPORTANT: When pretty permalinks are disabled, rest_url() already
+		// contains a query string ("?rest_route=/spbwc/v1/options-grid"), so
+		// naively appending "?paged=1&..." would create a double-"?" URL that
+		// PHP mis-parses (rest_route value becomes "/spbwc/v1/options-grid?paged=1"
+		// which matches no registered route → 404).
+		// Use the URL constructor to add params correctly in both permalink modes.
+		var fetchUrl = new URL( REST_URL );
+		fetchUrl.searchParams.set( 'paged',         state.paged );
+		fetchUrl.searchParams.set( 'status_filter', state.status_filter );
+		fetchUrl.searchParams.set( 's',             state.s );
+		fetchUrl.searchParams.set( 'orderby',       state.orderby );
+		fetchUrl.searchParams.set( 'order',         state.order );
 
 		// Show skeletons immediately; real cards replace them on resolve.
 		var inner = document.getElementById( 'spbwc-block-view-inner' );
@@ -581,7 +586,7 @@ $_current_page_n = isset( $_GET['paged'] ) ? max( 1, absint( $_GET['paged'] ) ) 
 
 		var fetchStart = performance.now();
 
-		fetch( REST_URL + '?' + params.toString(), {
+		fetch( fetchUrl.toString(), {
 			method:      'GET',
 			credentials: 'same-origin',
 			headers:     { 'X-WP-Nonce': REST_NONCE },
