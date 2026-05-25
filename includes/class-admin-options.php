@@ -3440,15 +3440,35 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
             $_GET['orderby']           = $orderby;
             $_GET['order']             = $order;
 
-            // WP_List_Table (used by SPBWC_Storelly_Options_List_Table) calls
-            // convert_to_screen() in its constructor, which is defined in
-            // wp-admin/includes/screen.php.  That file is NOT auto-loaded in the
-            // REST API bootstrap — only admin-ajax.php / admin.php load it.
-            // Load screen.php (and its dependency class-wp-screen.php) when missing
-            // so this method works correctly from both REST and AJAX contexts.
-            if ( ! function_exists( 'convert_to_screen' ) ) {
+            // WP_List_Table::__construct() calls convert_to_screen(), which lives in
+            // wp-admin/includes/template.php — a file that admin.php / admin-ajax.php
+            // load automatically but the REST API bootstrap does NOT.
+            //
+            // Loading all of template.php here is dangerous (it registers hooks and
+            // expects full admin context), so instead we:
+            //   1. Ensure WP_Screen class is loaded (class-wp-screen.php).
+            //   2. Load screen.php for get_column_headers() / get_hidden_columns()
+            //      which WP_List_Table display methods call internally.
+            //   3. Define a minimal convert_to_screen() shim — the real function is
+            //      just a thin wrapper around WP_Screen::get() (template.php:2696).
+            if ( ! class_exists( 'WP_Screen' ) ) {
                 require_once ABSPATH . 'wp-admin/includes/class-wp-screen.php';
+            }
+            if ( ! function_exists( 'get_column_headers' ) ) {
                 require_once ABSPATH . 'wp-admin/includes/screen.php';
+            }
+            if ( ! function_exists( 'convert_to_screen' ) ) {
+                /**
+                 * Minimal shim for convert_to_screen() used by WP_List_Table::__construct().
+                 * The real function lives in wp-admin/includes/template.php and simply
+                 * delegates to WP_Screen::get() after a class-exists guard.
+                 *
+                 * @param string|WP_Screen|null $hook_name Hook name or screen object.
+                 * @return WP_Screen
+                 */
+                function convert_to_screen( $hook_name ) {
+                    return WP_Screen::get( $hook_name );
+                }
             }
 
             if ( ! class_exists( 'SPBWC_Storelly_Options_List_Table' ) ) {
