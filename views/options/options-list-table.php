@@ -948,10 +948,13 @@ $_current_page_n = isset( $_GET['paged'] ) ? max( 1, absint( $_GET['paged'] ) ) 
 				clearTimeout( fetchTimer );
 				state.s = this.value.trim();
 				syncClearBtn();
-				var blockView = document.getElementById( 'spbwc-block-view' );
-				if ( blockView && ! blockView.hidden ) {
-					fetchTimer = setTimeout( function () { fetchList( true ); }, 300 );
-				}
+				// Always switch to block view and fetch — list view cannot update
+				// dynamically without a full page reload, so mirror the Enter key
+				// behaviour: switch to block view + debounced AJAX search.
+				fetchTimer = setTimeout( function () {
+					setView( 'block' );
+					fetchList( true );
+				}, 300 );
 			} );
 			search.addEventListener( 'keydown', function ( e ) {
 				if ( 'Enter' !== e.key ) { return; }
