@@ -35,6 +35,8 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
             add_filter('woocommerce_hidden_order_itemmeta', array($this, 'spbwc_hidden_custom_order_item_metada'));
              //Add title page
             add_filter( 'display_post_states', array( $this, 'spbwc_add_display_post_states' ), 10, 2 );
+            // REST API — Pricing Options grid (GET, read-only, faster than admin-ajax.php).
+            add_action( 'rest_api_init', array( $this, 'spbwc_register_rest_routes' ) );
         }
         public function spbwc_ajax() {
             $ajax_events = array(
@@ -3280,16 +3282,100 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
          * JS can swap the DOM without a full reload. Used by toolbar tabs,
          * search input (debounced) and paginator arrows.
          */
-        public function spbwc_list_options_html() {
-            // Capture request-start time for debug timing (enabled when WP_DEBUG is on).
-            $spbwc_t0 = microtime( true );
+        // ── REST API routes ─────────────────────────────────────────────────
+        /**
+         * Register WP REST API routes for the Pricing Options admin page.
+         * The /options-grid endpoint is GET-only and requires manage_options.
+         * It replaces the admin-ajax.php handler for the grid re-render because
+         * the REST API bootstrap skips admin-specific hooks, saving ~100-200 ms
+         * compared to admin-ajax.php on every filter/paginate request.
+         */
+        public function spbwc_register_rest_routes() {
+            register_rest_route(
+                'spbwc/v1',
+                '/options-grid',
+                array(
+                    'methods'             => WP_REST_Server::READABLE, // GET
+                    'callback'            => array( $this, 'spbwc_rest_get_options_grid' ),
+                    // Nonce verified automatically via X-WP-Nonce header.
+                    'permission_callback' => function () {
+                        return current_user_can( 'manage_options' );
+                    },
+                    'args'                => array(
+                        'paged'         => array(
+                            'type'              => 'integer',
+                            'default'           => 1,
+                            'minimum'           => 1,
+                            'sanitize_callback' => 'absint',
+                        ),
+                        'status_filter' => array(
+                            'type'              => 'string',
+                            'default'           => '',
+                            'sanitize_callback' => 'sanitize_text_field',
+                        ),
+                        's'             => array(
+                            'type'              => 'string',
+                            'default'           => '',
+                            'sanitize_callback' => 'sanitize_text_field',
+                        ),
+                        'orderby'       => array(
+                            'type'    => 'string',
+                            'default' => 'modified',
+                            'enum'    => array( 'id', 'title', 'modified', 'created' ),
+                        ),
+                        'order'         => array(
+                            'type'    => 'string',
+                            'default' => 'DESC',
+                            'enum'    => array( 'ASC', 'DESC' ),
+                        ),
+                    ),
+                )
+            );
+        }
 
+        /**
+         * REST callback — GET /wp-json/spbwc/v1/options-grid.
+         * Authentication via X-WP-Nonce: <wp_rest nonce>.
+         *
+         * @param WP_REST_Request $request Incoming REST request.
+         * @return WP_REST_Response
+         */
+        public function spbwc_rest_get_options_grid( WP_REST_Request $request ) {
+            $spbwc_t0      = microtime( true );
+            $paged         = max( 1, (int) $request->get_param( 'paged' ) );
+            $status_filter = sanitize_text_field( (string) $request->get_param( 'status_filter' ) );
+            $search        = sanitize_text_field( (string) $request->get_param( 's' ) );
+            $allowed_by    = array( 'id', 'title', 'modified', 'created' );
+            $raw_orderby   = (string) $request->get_param( 'orderby' );
+            $orderby       = in_array( $raw_orderby, $allowed_by, true ) ? $raw_orderby : 'modified';
+            $order         = strtoupper( (string) $request->get_param( 'order' ) ) === 'ASC' ? 'ASC' : 'DESC';
+
+            $result = $this->spbwc_build_grid_response( $paged, $status_filter, $search, $orderby, $order );
+            $data   = $result['data'];
+
+            if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+                $data['_timing'] = array(
+                    'source'     => $result['from_cache'] ? 'transient' : 'live',
+                    'handler_ms' => round( ( microtime( true ) - $spbwc_t0 ) * 1000 ),
+                    'db_ms'      => $result['db_ms'],
+                    'render_ms'  => $result['render_ms'],
+                );
+            }
+
+            return new WP_REST_Response( $data, 200 );
+        }
+
+        /**
+         * Legacy admin-ajax.php handler — kept for backwards compatibility.
+         * New code should use the REST endpoint (spbwc_rest_get_options_grid).
+         */
+        public function spbwc_list_options_html() {
+            $spbwc_t0 = microtime( true );
             check_ajax_referer( 'spbwc_options_list_nonce', 'nonce' );
             if ( ! current_user_can( 'manage_options' ) ) {
                 wp_send_json_error( array( 'msg' => esc_html__( 'Forbidden.', 'storelly-product-builder-for-woocommerce' ) ), 403 );
             }
 
-            // Whitelisted inputs.
             $paged         = isset( $_POST['paged'] ) ? max( 1, absint( $_POST['paged'] ) ) : 1;
             $status_filter = isset( $_POST['status_filter'] ) ? sanitize_text_field( wp_unslash( $_POST['status_filter'] ) ) : '';
             $search        = isset( $_POST['s'] ) ? sanitize_text_field( wp_unslash( $_POST['s'] ) ) : '';
@@ -3298,26 +3384,51 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
             $orderby       = in_array( $raw_by, $allowed_by, true ) ? $raw_by : 'modified';
             $order         = ( isset( $_POST['order'] ) && strtoupper( sanitize_text_field( wp_unslash( $_POST['order'] ) ) ) === 'ASC' ) ? 'ASC' : 'DESC';
 
+            $result = $this->spbwc_build_grid_response( $paged, $status_filter, $search, $orderby, $order );
+            $data   = $result['data'];
+
+            if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+                $data['_timing'] = array(
+                    'source'     => $result['from_cache'] ? 'transient' : 'live',
+                    'handler_ms' => round( ( microtime( true ) - $spbwc_t0 ) * 1000 ),
+                    'db_ms'      => $result['db_ms'],
+                    'render_ms'  => $result['render_ms'],
+                );
+            }
+
+            wp_send_json_success( $data );
+        }
+
+        /**
+         * Core rendering logic shared by both the AJAX handler and the REST
+         * endpoint.  Handles transient caching, DB query, term-cache priming,
+         * and HTML rendering.
+         *
+         * @param int    $paged         Current page number.
+         * @param string $status_filter Status filter ('published'|'draft'|'').
+         * @param string $search        Search query string.
+         * @param string $orderby       Column to sort by.
+         * @param string $order         Sort direction ('ASC'|'DESC').
+         * @return array {
+         *   data       => array  — the JSON response payload,
+         *   from_cache => bool   — whether data came from transient,
+         *   db_ms      => int    — DB query time in ms (0 on cache hit),
+         *   render_ms  => int    — HTML render time in ms (0 on cache hit),
+         * }
+         */
+        private function spbwc_build_grid_response( $paged, $status_filter, $search, $orderby, $order ) {
             // ── Transient cache ───────────────────────────────────────────────
-            // Key is user-specific (nonces in HTML are per-user) and includes all
-            // filter params so different views are cached independently.
-            // The spbwc_flush_option_caches() method deletes every transient whose
-            // name starts with spbwc_product_builder_ so this cache is always
-            // invalidated on any write (publish, trash, rename, duplicate…).
+            // Key is user-specific so different users don't share rendered nonces.
+            // Invalidated automatically by spbwc_flush_option_caches() on any write.
             $cache_key = 'spbwc_product_builder_grid_u' . get_current_user_id()
                        . '_' . substr( md5( $paged . $status_filter . $search . $orderby . $order ), 0, 16 );
             $cached = get_transient( $cache_key );
             if ( false !== $cached ) {
-                if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
-                    $cached['_timing'] = array( 'source' => 'transient', 'handler_ms' => round( ( microtime( true ) - $spbwc_t0 ) * 1000 ) );
-                }
-                wp_send_json_success( $cached );
-                return;
+                return array( 'data' => $cached, 'from_cache' => true, 'db_ms' => 0, 'render_ms' => 0 );
             }
 
-            // Project these into $_REQUEST so the existing list-table query
-            // helpers (which read from $_REQUEST) honour them without further
-            // plumbing.
+            // Project params into $_REQUEST/$_GET so the legacy WP_List_Table
+            // helpers (which read from super-globals) pick them up correctly.
             $_REQUEST['paged']         = $paged;
             $_REQUEST['status_filter'] = $status_filter;
             $_REQUEST['s']             = $search;
@@ -3332,14 +3443,12 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
             if ( ! class_exists( 'SPBWC_Storelly_Options_List_Table' ) ) {
                 require_once SPBWC_PB_PLUGIN_DIR . 'includes/options/fields-list-table.php';
             }
-            $list = new SPBWC_Storelly_Options_List_Table();
-            $spbwc_t_before_db = microtime( true );
+            $list       = new SPBWC_Storelly_Options_List_Table();
+            $t_before_db = microtime( true );
             $list->spbwc_prepare_items();
-            $spbwc_t_after_db = microtime( true );
+            $t_after_db  = microtime( true );
 
-            $per_page = 10;
-            // Re-use the count already computed inside spbwc_prepare_items() to avoid a
-            // second SELECT COUNT query.
+            $per_page    = 10;
             $total       = isset( $list->_pagination_args['total_items'] )
                 ? (int) $list->_pagination_args['total_items']
                 : (int) SPBWC_Storelly_Options_List_Table::spbwc_record_count();
@@ -3347,9 +3456,7 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
             $counts      = SPBWC_Storelly_Options_List_Table::spbwc_count_all_statuses();
             $nonce       = wp_create_nonce( 'spbwc_options_nonce' );
 
-            // ── Performance: prime the WP term object-cache for every category used
-            // across all rows in a single SQL query.  Without this, get_term() fires
-            // one DB round-trip per category per card (N+1 problem).
+            // ── Bulk-prime WP term object-cache (eliminates N+1 queries) ─────
             $all_cat_ids = array();
             foreach ( $list->items as $_row ) {
                 if ( ! empty( $_row['product_cats'] ) ) {
@@ -3365,6 +3472,7 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
                 _prime_term_caches( array_unique( $all_cat_ids ) );
             }
 
+            // ── Render HTML ───────────────────────────────────────────────────
             ob_start();
             if ( ! empty( $list->items ) ) {
                 echo '<div class="spbwc-options-grid" id="spbwc-options-grid">';
@@ -3373,17 +3481,13 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
                     $pub    = (int) $row['published'];
                     $id_int = absint( $row['id'] );
 
-                    // ── Performance: deserialize the fields blob once, share between
-                    // spbwc_count_fields() and spbwc_render_option_thumbnail() so
-                    // maybe_unserialize() is only called once per card instead of twice.
                     $parsed_fields = ! empty( $row['fields'] ) && is_string( $row['fields'] )
                         ? maybe_unserialize( $row['fields'] )
                         : ( is_array( $row['fields'] ) ? $row['fields'] : array() );
 
-                    $count = SPBWC_Storelly_Options_List_Table::spbwc_count_fields( $parsed_fields );
+                    $count  = SPBWC_Storelly_Options_List_Table::spbwc_count_fields( $parsed_fields );
                     $accent = SPBWC_Storelly_PB_Util::spbwc_option_color( $title );
 
-                    // Category names — get_term() now hits the in-memory cache primed above.
                     $cat_html = '';
                     if ( ! empty( $row['product_cats'] ) ) {
                         $cats      = maybe_unserialize( $row['product_cats'] );
@@ -3492,7 +3596,7 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
                 echo '</div>';
             }
             $grid_html = ob_get_clean();
-            $spbwc_t_end = microtime( true );
+            $t_end     = microtime( true );
 
             $response = array(
                 'grid_html'   => $grid_html,
@@ -3502,28 +3606,16 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
                 'counts'      => $counts,
             );
 
-            // In WP_DEBUG mode, append server-side timing breakdown to the response so
-            // the browser console can show exactly where PHP time is spent.
-            // Format: handler_ms = time inside this function; db_ms = DB query phase only.
-            // Bootstrap overhead (WordPress loading all plugins before reaching this
-            // handler) is NOT captured here — it is the difference between
-            // total network time and handler_ms.
-            if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
-                $response['_timing'] = array(
-                    'source'     => 'live',
-                    'handler_ms' => round( ( $spbwc_t_end - $spbwc_t0 ) * 1000 ),
-                    'db_ms'      => round( ( $spbwc_t_after_db - $spbwc_t_before_db ) * 1000 ),
-                    'render_ms'  => round( ( $spbwc_t_end - $spbwc_t_after_db ) * 1000 ),
-                );
-            }
-
-            // Store in transient for 2 minutes. Invalidated automatically by
-            // spbwc_flush_option_caches() on any write operation.
-            // NOTE: Do NOT cache the _timing key — it is only added above in debug
-            // mode and is not part of the canonical cached payload.
+            // Store in transient. _timing is NOT cached — it is added by the
+            // caller after this method returns.
             set_transient( $cache_key, $response, 120 );
 
-            wp_send_json_success( $response );
+            return array(
+                'data'       => $response,
+                'from_cache' => false,
+                'db_ms'      => round( ( $t_after_db - $t_before_db ) * 1000 ),
+                'render_ms'  => round( ( $t_end - $t_after_db ) * 1000 ),
+            );
         }
 
         /**

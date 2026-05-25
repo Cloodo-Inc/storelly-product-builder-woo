@@ -14,7 +14,9 @@ $link_create_option = add_query_arg(
 
 // ── Template variables ─────────────────────────────────────────────
 $_nonce_block   = wp_create_nonce( 'spbwc_options_nonce' );        // For edit/copy links
-$_nonce_list    = wp_create_nonce( 'spbwc_options_list_nonce' );   // For AJAX list operations
+$_nonce_list    = wp_create_nonce( 'spbwc_options_list_nonce' );   // For AJAX mutation ops (trash/dup/rename)
+$_rest_nonce    = wp_create_nonce( 'wp_rest' );                    // For REST API GET (grid fetch)
+$_rest_url      = rest_url( 'spbwc/v1/options-grid' );             // REST endpoint URL
 // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 $_page_slug = isset( $_REQUEST['page'] ) ? sanitize_text_field( wp_unslash( $_REQUEST['page'] ) ) : SPBWC_PB_BUILDER_SLUG;
 // phpcs:ignore WordPress.Security.NonceVerification.Recommended
@@ -445,7 +447,11 @@ $_current_page_n = isset( $_GET['paged'] ) ? max( 1, absint( $_GET['paged'] ) ) 
 	'use strict';
 
 	var AJAX_URL    = '<?php echo esc_js( admin_url( 'admin-ajax.php' ) ); ?>';
-	var NONCE       = '<?php echo esc_js( $_nonce_list ); ?>';
+	var NONCE       = '<?php echo esc_js( $_nonce_list ); ?>'; // Used for mutation ops (trash/dup/rename)
+	// REST endpoint for read-only grid fetch — faster than admin-ajax.php
+	// because it bypasses admin-specific hooks (~100-200 ms bootstrap savings).
+	var REST_URL    = '<?php echo esc_js( esc_url_raw( $_rest_url ) ); ?>';
+	var REST_NONCE  = '<?php echo esc_js( $_rest_nonce ); ?>';
 	var STORAGE_KEY = 'spbwc_options_view';
 	var SINGULAR    = '<?php echo esc_js( _x( 'option', 'singular item count', 'storelly-product-builder-for-woocommerce' ) ); ?>';
 	var PLURAL      = '<?php echo esc_js( _x( 'options', 'plural item count', 'storelly-product-builder-for-woocommerce' ) ); ?>';
@@ -553,18 +559,20 @@ $_current_page_n = isset( $_GET['paged'] ) ? max( 1, absint( $_GET['paged'] ) ) 
 		return html;
 	}
 
-	// ── Fetch grid via AJAX ───────────────────────────────────────────
+	// ── Fetch grid via REST API (GET) ────────────────────────────────
+	// REST API skips admin-specific hooks → ~100-200 ms faster than admin-ajax.php.
+	// Mutation ops (trash, duplicate, rename) still use doPost() → AJAX POST.
 	function fetchList( resetPage ) {
 		if ( resetPage ) { state.paged = 1; }
 
-		var fd = new FormData();
-		fd.append( 'action',        'spbwc_list_options_html' );
-		fd.append( 'nonce',         NONCE );
-		fd.append( 'paged',         state.paged );
-		fd.append( 'status_filter', state.status_filter );
-		fd.append( 's',             state.s );
-		fd.append( 'orderby',       state.orderby );
-		fd.append( 'order',         state.order );
+		// Build query-string params for the REST GET request.
+		var params = new URLSearchParams( {
+			paged:         state.paged,
+			status_filter: state.status_filter,
+			s:             state.s,
+			orderby:       state.orderby,
+			order:         state.order,
+		} );
 
 		// Show skeletons immediately; real cards replace them on resolve.
 		var inner = document.getElementById( 'spbwc-block-view-inner' );
@@ -573,34 +581,41 @@ $_current_page_n = isset( $_GET['paged'] ) ? max( 1, absint( $_GET['paged'] ) ) 
 
 		var fetchStart = performance.now();
 
-		fetch( AJAX_URL, { method: 'POST', credentials: 'same-origin', body: fd } )
-			.then( function ( r ) { return r.json(); } )
-			.then( function ( res ) {
-				var networkMs = Math.round( performance.now() - fetchStart );
-				if ( ! res || ! res.success ) {
-					showToast( ( res && res.data && res.data.msg ) || ERR_GENERIC, 'error' );
-					// Clear stuck skeletons so the grid is not left in a loading state.
-					if ( inner ) { inner.innerHTML = ''; }
-					return;
+		fetch( REST_URL + '?' + params.toString(), {
+			method:      'GET',
+			credentials: 'same-origin',
+			headers:     { 'X-WP-Nonce': REST_NONCE },
+		} )
+			.then( function ( r ) {
+				if ( ! r.ok ) {
+					return r.json().then( function ( body ) {
+						throw new Error( ( body && body.message ) ? body.message : ERR_GENERIC );
+					} );
 				}
-				var d = res.data;
+				return r.json();
+			} )
+			.then( function ( d ) {
+				// REST response is the payload directly (no success/data wrapper).
+				var networkMs = Math.round( performance.now() - fetchStart );
+
 				// Log server-side timing when WP_DEBUG is on (PHP appends _timing).
 				if ( d._timing ) {
 					var t = d._timing;
-					console.groupCollapsed( '[Storelly] AJAX fetchList — ' + networkMs + 'ms total' );
-					console.log( 'Source     :', t.source );
-					console.log( 'Network    :', networkMs + 'ms  (includes WP bootstrap + handler)' );
+					console.groupCollapsed( '[Storelly] REST fetchList — ' + networkMs + 'ms total' );
+					console.log( 'Source      :', t.source );
+					console.log( 'Network     :', networkMs + 'ms  (includes WP bootstrap + handler)' );
 					if ( t.source === 'live' ) {
-						console.log( 'Handler    :', t.handler_ms + 'ms  (inside PHP handler)' );
-						console.log( '  DB query :', t.db_ms     + 'ms' );
-						console.log( '  Render   :', t.render_ms + 'ms' );
-						console.log( 'WP bootstrap:', ( networkMs - t.handler_ms ) + 'ms  (approx — load all plugins + hooks)' );
+						console.log( 'Handler     :', t.handler_ms + 'ms  (inside PHP callback)' );
+						console.log( '  DB query  :', t.db_ms + 'ms' );
+						console.log( '  Render    :', t.render_ms + 'ms' );
+						console.log( 'WP bootstrap:', ( networkMs - t.handler_ms ) + 'ms  (approx — load plugins + hooks)' );
 					} else {
-						console.log( 'Handler    :', t.handler_ms + 'ms  (transient hit)' );
+						console.log( 'Handler     :', t.handler_ms + 'ms  (transient hit)' );
 						console.log( 'WP bootstrap:', ( networkMs - t.handler_ms ) + 'ms  (approx)' );
 					}
 					console.groupEnd();
 				}
+
 				if ( inner ) {
 					inner.innerHTML = d.grid_html;
 					// Re-attach pagination nav (it lives outside inner)
@@ -633,8 +648,8 @@ $_current_page_n = isset( $_GET['paged'] ) ? max( 1, absint( $_GET['paged'] ) ) 
 					}
 				}
 			} )
-			.catch( function () {
-				showToast( ERR_GENERIC, 'error' );
+			.catch( function ( err ) {
+				showToast( ( err && err.message ) ? err.message : ERR_GENERIC, 'error' );
 				// Clear stuck skeletons on network / parse errors.
 				if ( inner ) { inner.innerHTML = ''; }
 			} )
