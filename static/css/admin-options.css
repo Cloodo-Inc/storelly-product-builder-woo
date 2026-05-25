@@ -2628,8 +2628,8 @@ label.view-config {
 .spbwc-option-card__actions {
   display: flex;
   align-items: stretch;
-  gap: 8px;
-  padding: 10px 16px 14px;
+  gap: 0;
+  padding: 0;
   border-top: 1px solid var(--nbd-st-border-subtle);
   margin-top: auto;
 }
@@ -2639,13 +2639,14 @@ label.view-config {
   align-items: center;
   justify-content: center;
   gap: 5px;
-  flex: 1;                /* all buttons share width equally */
-  height: 34px;
+  flex: 1;
+  height: 38px;
   padding: 0 8px;
   font-size: 12px;
   font-weight: 600;
-  border-radius: var(--nbd-radius-sm);
-  border: 1px solid var(--nbd-st-border);
+  border: none;                              /* no individual borders */
+  border-left: 1px solid var(--nbd-st-border-subtle); /* separator only */
+  border-radius: 0;
   background: var(--nbd-st-bg);
   color: var(--nbd-st-text-soft);
   text-decoration: none;
@@ -2655,33 +2656,32 @@ label.view-config {
   line-height: 1;
 }
 
+/* First button: no left separator */
+.spbwc-card-btn:first-child {
+  border-left: none;
+}
+
 .spbwc-card-btn:hover {
   background: var(--nbd-st-bg-soft);
-  border-color: var(--nbd-st-border);
   color: var(--nbd-st-text);
 }
 
 .spbwc-card-btn--primary {
   background: var(--st-brand);
-  border-color: var(--st-brand);
   color: #fff;
-  justify-content: center;
 }
 
 .spbwc-card-btn--primary:hover {
   background: var(--st-brand-pressed);
-  border-color: var(--st-brand-pressed);
   color: #fff;
 }
 
 .spbwc-card-btn--danger {
   color: var(--nbd-color-danger, #dc2626);
-  border-color: var(--nbd-st-border-light);
 }
 
 .spbwc-card-btn--danger:hover {
   background: var(--st-pill-danger-bg);
-  border-color: var(--nbd-color-danger, #dc2626);
   color: var(--st-pill-danger-text);
 }
 
