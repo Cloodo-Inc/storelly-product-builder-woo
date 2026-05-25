@@ -2639,8 +2639,9 @@ label.view-config {
   align-items: center;
   justify-content: center;
   gap: 5px;
+  flex: 1;                /* all buttons share width equally */
   height: 34px;
-  padding: 0 12px;
+  padding: 0 8px;
   font-size: 12px;
   font-weight: 600;
   border-radius: var(--nbd-radius-sm);
@@ -2661,13 +2662,10 @@ label.view-config {
 }
 
 .spbwc-card-btn--primary {
-  flex: 1;
   background: var(--st-brand);
   border-color: var(--st-brand);
   color: #fff;
-  justify-content: flex-start;
-  padding-left: 10px;
-  padding-right: 10px;
+  justify-content: center;
 }
 
 .spbwc-card-btn--primary:hover {
@@ -2685,13 +2683,6 @@ label.view-config {
   background: var(--st-pill-danger-bg);
   border-color: var(--nbd-color-danger, #dc2626);
   color: var(--st-pill-danger-text);
-}
-
-/* Icon-only buttons (Duplicate, Delete) should be square */
-.spbwc-card-btn:not(.spbwc-card-btn--primary) {
-  width: 36px;
-  padding: 0;
-  flex-shrink: 0;
 }
 
 .spbwc-card-btn .dashicons {
