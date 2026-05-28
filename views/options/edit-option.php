@@ -596,6 +596,13 @@ $field_count   = isset($options['fields']) && is_array($options['fields']) ? cou
                                                ng-attr-step="{{ field.general.input_option.value.step }}"
                                                placeholder="{{ field.general.input_option.value.default || 0 }}" />
 
+                                        <!-- Number range -->
+                                        <input ng-if="field.general.data_type.value === 'i' && field.general.input_type.value === 'r'"
+                                               class="v2-prv-input" type="range"
+                                               ng-attr-min="{{ field.general.input_option.value.min }}"
+                                               ng-attr-max="{{ field.general.input_option.value.max }}"
+                                               ng-attr-step="{{ field.general.input_option.value.step }}" />
+
                                         <!-- Textarea -->
                                         <textarea ng-if="field.general.data_type.value === 'i' && field.general.input_type.value === 'a'"
                                                   class="v2-prv-input v2-prv-textarea" placeholder="<?php esc_attr_e('Customer types here…', 'storelly-product-builder-for-woocommerce'); ?>"></textarea>
@@ -707,6 +714,11 @@ $field_count   = isset($options['fields']) && is_array($options['fields']) ? cou
                                                    ng-attr-max="{{ field.general.input_option.value.max }}"
                                                    ng-attr-step="{{ field.general.input_option.value.step }}"
                                                    placeholder="{{ field.general.input_option.value.default || 0 }}" />
+                                            <input ng-if="field.general.data_type.value === 'i' && field.general.input_type.value === 'r'"
+                                                   class="v2-prv-input" type="range"
+                                                   ng-attr-min="{{ field.general.input_option.value.min }}"
+                                                   ng-attr-max="{{ field.general.input_option.value.max }}"
+                                                   ng-attr-step="{{ field.general.input_option.value.step }}" />
                                             <textarea ng-if="field.general.data_type.value === 'i' && field.general.input_type.value === 'a'"
                                                       class="v2-prv-input v2-prv-textarea" placeholder="<?php esc_attr_e('Customer types here…', 'storelly-product-builder-for-woocommerce'); ?>"></textarea>
                                             <div ng-if="field.general.data_type.value === 'i' && field.general.input_type.value === 'u'"
@@ -1423,6 +1435,11 @@ $field_count   = isset($options['fields']) && is_array($options['fields']) ? cou
             title: '<?php echo esc_js(__('Number field', 'storelly-product-builder-for-woocommerce')); ?>',
             body:  '<?php echo esc_js(__('Customer enters a numeric value within a min/max range, adjustable by a stepper. Use for counts, pages, sizes.', 'storelly-product-builder-for-woocommerce')); ?>',
             example: '<?php echo esc_js(__('Example: Number of pages (min 1, max 500, step 1)', 'storelly-product-builder-for-woocommerce')); ?>'
+        },
+        'i:r': {
+            title: '<?php echo esc_js(__('Number range field', 'storelly-product-builder-for-woocommerce')); ?>',
+            body:  '<?php echo esc_js(__('Customer picks a numeric value with a slider between a min and max. Uses the same min/max/step bounds as the Number field.', 'storelly-product-builder-for-woocommerce')); ?>',
+            example: '<?php echo esc_js(__('Example: Quantity slider from 10 to 1000, step 10', 'storelly-product-builder-for-woocommerce')); ?>'
         },
         'i:a': {
             title: '<?php echo esc_js(__('Textarea field', 'storelly-product-builder-for-woocommerce')); ?>',

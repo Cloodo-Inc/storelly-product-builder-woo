@@ -338,6 +338,12 @@ if (!class_exists('STORELLY_FRONTEND_OPTIONS')) {
                         ),
                     ));
                     wp_enqueue_script('spbwc-option-builder');
+                    // Conditional-logic companion — extends the nboApp module to
+                    // honor per-field conditional_depend rules. Depends on
+                    // spbwc-option-builder so it loads after the module is defined
+                    // and before the jQuery(document).ready bootstrap.
+                    wp_register_script( 'spbwc-conditional-logic', SPBWC_PB_JS_URL . 'conditional-logic.js', array( 'spbwc-option-builder' ), SPBWC_PB_VERSION, true );
+                    wp_enqueue_script( 'spbwc-conditional-logic' );
                 }
             }
         }
@@ -743,6 +749,7 @@ if (!class_exists('STORELLY_FRONTEND_OPTIONS')) {
                     case 'f':
                         $_fields[$key]['price'] = $_factor;
                         $total_price += $factor;
+                        break;
                     case 'p':
                         $_fields[$key]['price'] = $original_price * $_factor / 100;
                         $total_price += $original_price * $factor / 100;

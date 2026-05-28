@@ -14,6 +14,20 @@ if (!defined('ABSPATH')) exit;
                 <?php if( isset( $field['general']['placeholder'] ) && $field['general']['placeholder'] != '' ): ?>
                     placeholder="<?php echo esc_attr( $field['general']['placeholder'] ); ?>"
                 <?php endif; ?>
+            <?php elseif( $field['general']['input_type'] == 'n' ):
+                $nbd_input_opt = isset( $field['general']['input_option'] ) ? $field['general']['input_option'] : array();
+                $nbd_n_min  = isset( $nbd_input_opt['min'] )  ? $nbd_input_opt['min']  : '';
+                $nbd_n_max  = isset( $nbd_input_opt['max'] )  ? $nbd_input_opt['max']  : '';
+                $nbd_n_step = isset( $nbd_input_opt['step'] ) ? $nbd_input_opt['step'] : '';
+            ?>
+            string-to-number type="number" min="<?php echo esc_attr( $nbd_n_min ); ?>" max="<?php echo esc_attr( $nbd_n_max ); ?>" step="<?php echo esc_attr( $nbd_n_step ); ?>" ng-step="<?php echo esc_attr( $nbd_n_step !== '' ? $nbd_n_step : '0.0001' ); ?>"
+            <?php elseif( $field['general']['input_type'] == 'r' ):
+                $nbd_input_opt = isset( $field['general']['input_option'] ) ? $field['general']['input_option'] : array();
+                $nbd_n_min  = isset( $nbd_input_opt['min'] )  ? $nbd_input_opt['min']  : '';
+                $nbd_n_max  = isset( $nbd_input_opt['max'] )  ? $nbd_input_opt['max']  : '';
+                $nbd_n_step = isset( $nbd_input_opt['step'] ) ? $nbd_input_opt['step'] : '';
+            ?>
+            string-to-number type="range" min="<?php echo esc_attr( $nbd_n_min ); ?>" max="<?php echo esc_attr( $nbd_n_max ); ?>" step="<?php echo esc_attr( $nbd_n_step ); ?>" ng-step="<?php echo esc_attr( $nbd_n_step !== '' ? $nbd_n_step : '0.0001' ); ?>"
             <?php elseif( $field['general']['input_type'] == 'u' ): ?>
             type="file" nbo-input-file="check_valid()" data-field-id="<?php echo esc_attr( $field['id'] ); ?>" data-types="<?php echo esc_attr(strtolower( trim( $field['general']['upload_option']['allow_type'] ) )); ?>" 
                 data-minsize="<?php echo esc_attr( $field['general']['upload_option']['min_size'] ); ?>" data-maxsize="<?php echo esc_attr( $field['general']['upload_option']['max_size'] ); ?>"
@@ -50,6 +64,15 @@ if (!defined('ABSPATH')) exit;
         <?php if( $field['general']['input_type'] == 'u' && $field['general']['upload_option']['max_size'] != '' ): ?>
         <?php /* translators: %s: maximum upload size in MB. */ ?>
         <span style="display: block; font-size: 12px;"><?php printf( esc_html__('Max size: %s MB', 'storelly-product-builder-for-woocommerce'), esc_html( $field['general']['upload_option']['max_size'] ) ); ?></span>
+        <?php endif; ?>
+        <?php if( $field['general']['input_type'] == 'r' ): ?>
+        <span class="nbd-input-range">{{ nbd_fields['<?php echo esc_attr( $field['id'] ); ?>'].value }}</span>
+        <?php endif; ?>
+        <?php if( $field['general']['input_type'] == 'n' || $field['general']['input_type'] == 'r' ): ?>
+        <?php /* translators: %s: minimum allowed value. */ ?>
+        <span class="nbd-invalid-notice nbd-invalid-min"><?php printf( esc_html__('Invalid value, min: %s', 'storelly-product-builder-for-woocommerce'), esc_html( $nbd_n_min ) ); ?></span>
+        <?php /* translators: %s: maximum allowed value. */ ?>
+        <span class="nbd-invalid-notice nbd-invalid-max"><?php printf( esc_html__('Invalid value, max: %s', 'storelly-product-builder-for-woocommerce'), esc_html( $nbd_n_max ) ); ?></span>
         <?php endif; ?>
     </div>
 </div>

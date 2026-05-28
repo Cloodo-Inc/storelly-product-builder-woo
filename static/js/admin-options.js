@@ -132,7 +132,7 @@ angular
           break;
         case "n":
           f.general.data_type.value = "i";
-          f.general.input_type.value = "t";
+          f.general.input_type.value = "n";
           break;
         case "t":
           f.general.data_type.value = "i";

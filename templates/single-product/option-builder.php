@@ -27,7 +27,7 @@ $currentDir = realpath(dirname(__FILE__)); // phpcs:ignore WordPress.NamingConve
 <div class="nbo-wrapper <?php if ($is_wqv) echo esc_attr('nbd-option-in-wqv'); ?> <?php echo esc_attr('wrapper-type-' . $display_type); ?>">
     <div class="nbd-option-wrapper" id="<?php echo esc_attr($appid); ?>">
         <div ng-controller="optionCtrl" ng-form="nboForm" id="nbo-ctrl-<?php echo esc_attr($appid); ?>">
-            <div class="nbo-fields-wrapper">
+            <div class="nbo-fields-wrapper" spbwc-conditional-logic>
                 <?php
                 // phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Template variables used in loop.
                 $html_field         = '';
@@ -55,7 +55,11 @@ $currentDir = realpath(dirname(__FILE__)); // phpcs:ignore WordPress.NamingConve
                         $class      = apply_filters('storelly_field_class', $class, $field);
                         $need_show  = true;
                         if ($field['general']['data_type'] == 'i') {
-                            $tempalte = $currentDir . '/options-builder/input.php';
+                            if ($field['general']['input_type'] == 'a') {
+                                $tempalte = $currentDir . '/options-builder/textarea.php';
+                            } else {
+                                $tempalte = $currentDir . '/options-builder/input.php';
+                            }
                         } else {
                             if (count($field['general']['attributes']["options"]) == 0) {
                                 $need_show = false;

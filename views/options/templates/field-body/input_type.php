@@ -15,6 +15,8 @@
                     ng-click="field.general.input_type.value = op.key">
                 <span class="v2-segmented__icon" ng-switch="op.key">
                     <span ng-switch-when="t" aria-hidden="true">T</span>
+                    <span ng-switch-when="n" aria-hidden="true">#</span>
+                    <span ng-switch-when="r" aria-hidden="true">⇔</span>
                     <span ng-switch-when="u" aria-hidden="true">⬆</span>
                     <span ng-switch-when="a" aria-hidden="true">¶</span>
                     <span ng-switch-default aria-hidden="true">·</span>
