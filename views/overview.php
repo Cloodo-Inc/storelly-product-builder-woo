@@ -1,246 +1,801 @@
 <?php
 /**
- * Overview Page View
- * Variables available: $total_products, $total_pricing, $total_orders, $total_quotes, $remote_stats, $license
+ * Overview Page View — corporate / professional layout (v2)
+ *
+ * Variables available: $total_products, $total_pricing, $total_orders,
+ *                      $total_quotes, $remote_stats, $license
+ *
+ * Styles: static/css/overview.css (enqueued via spbwc_admin_enqueue_scripts
+ * when the current admin page is the Overview).
  */
 if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }
 
-// Determine which counts to use (prefer remote API when available)
+// Determine which counts to use (prefer remote API when available).
 $is_remote_ok   = ! is_wp_error( $remote_stats );
 $disp_products  = $is_remote_ok ? $remote_stats['total_products'] : $total_products;
 $disp_orders    = $is_remote_ok ? $remote_stats['total_orders'] : $total_orders;
 $disp_quotes    = $is_remote_ok ? $remote_stats['total_quotes'] : $total_quotes;
-$disp_pricing   = $total_pricing; // Always from local DB
+$disp_pricing   = $total_pricing; // Always from local DB.
 
 $pkg_name       = esc_html( $license['package_name'] );
 $pkg_slug       = esc_attr( $license['status'] );
+$is_free        = ( $pkg_slug === 'free' );
 $expires_at     = $license['expires_at'] ? esc_html( $license['expires_at'] ) : null;
 $license_url    = admin_url( 'admin.php?page=' . SPBWC_PB_LICENSE_SLUG );
 $nonce_license  = wp_create_nonce( 'spbwc_license_action' );
+
+// === Recent activity data ====================================
+// Recent products (any post_type=product, ordered by last modified)
+$recent_products = get_posts( array(
+    'post_type'      => 'product',
+    'post_status'    => array( 'publish', 'draft', 'pending' ),
+    'posts_per_page' => 5,
+    'orderby'        => 'modified',
+    'order'          => 'DESC',
+    'suppress_filters' => false,
+) );
+
+// Recent WooCommerce orders
+$recent_orders = function_exists( 'wc_get_orders' ) ? wc_get_orders( array(
+    'limit'   => 5,
+    'orderby' => 'date',
+    'order'   => 'DESC',
+    'status'  => array( 'wc-processing', 'wc-completed', 'wc-on-hold', 'wc-pending' ),
+) ) : array();
+
+// TODO: hook real data once schema is wired:
+//   $recent_options, $recent_designs, $recent_quotes, $recent_templates
+$recent_options   = array();
+$recent_designs   = array();
+$recent_quotes_l  = array();
+$recent_templates = array();
+
+// Helpful benefits text per plan tier.
+$plan_benefits = $is_free
+    ? array(
+        array( 'icon' => 'no-alt',  'text' => __( 'Limited to basic product builder features', 'storelly-product-builder-for-woocommerce' ) ),
+        array( 'icon' => 'no-alt',  'text' => __( 'Premium templates locked', 'storelly-product-builder-for-woocommerce' ) ),
+        array( 'icon' => 'no-alt',  'text' => __( 'Community support only', 'storelly-product-builder-for-woocommerce' ) ),
+    )
+    : array(
+        array( 'icon' => 'yes-alt', 'text' => __( 'Unlimited products and orders', 'storelly-product-builder-for-woocommerce' ) ),
+        array( 'icon' => 'yes-alt', 'text' => __( 'Premium templates and design tools', 'storelly-product-builder-for-woocommerce' ) ),
+        array( 'icon' => 'yes-alt', 'text' => __( 'Priority support from Storelly team', 'storelly-product-builder-for-woocommerce' ) ),
+    );
 ?>
-<div class="wrap spbwc-overview-wrap" style="max-width:1200px;">
-    <h1 style="font-size:26px;font-weight:800;color:#1d2327;margin-bottom:24px;display:flex;align-items:center;gap:10px;">
-        <span class="dashicons dashicons-dashboard" style="font-size:28px;color:#667eea;"></span>
-        <?php esc_html_e( 'Overview', 'storelly-product-builder-for-woocommerce' ); ?>
-    </h1>
+<div class="wrap spbwc-overview-wrap">
 
-    <style>
-    .spbwc-overview-wrap { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+    <!-- ============ Page hero block (corporate header band) ============ -->
+    <header class="spbwc-page-hero">
+        <div class="spbwc-page-hero__grid">
+            <div class="spbwc-page-hero__body">
+                <div class="spbwc-page-hero__eyebrow">
+                    <span class="dashicons dashicons-store" aria-hidden="true"></span>
+                    <?php esc_html_e( 'Storelly Product Builder', 'storelly-product-builder-for-woocommerce' ); ?>
+                </div>
+                <h1 class="spbwc-page-hero__title">
+                    <span class="dashicons dashicons-dashboard" aria-hidden="true"></span>
+                    <?php esc_html_e( 'Overview', 'storelly-product-builder-for-woocommerce' ); ?>
+                </h1>
+                <p class="spbwc-page-hero__subtitle">
+                    <?php esc_html_e( 'A snapshot of your Storelly Product Builder activity — license status, key metrics, and quick links to manage your store. Stats refresh hourly from your Storelly dashboard when connected.', 'storelly-product-builder-for-woocommerce' ); ?>
+                </p>
+            </div>
+            <div class="spbwc-page-hero__actions">
+                <a class="spbwc-cta-btn spbwc-cta-btn--ghost" href="https://storelly.com/docs" target="_blank" rel="noopener">
+                    <span class="dashicons dashicons-book" aria-hidden="true"></span>
+                    <?php esc_html_e( 'Documentation', 'storelly-product-builder-for-woocommerce' ); ?>
+                </a>
+                <a class="spbwc-cta-btn spbwc-cta-btn--solid" href="<?php echo esc_url( admin_url( 'admin.php?page=' . SPBWC_PB_BUILDER_SLUG ) ); ?>">
+                    <span class="dashicons dashicons-plus-alt2" aria-hidden="true"></span>
+                    <?php esc_html_e( 'Create option group', 'storelly-product-builder-for-woocommerce' ); ?>
+                </a>
+            </div>
+        </div>
+    </header>
 
-    /* ---- Stat Cards ---- */
-    .spbwc-stat-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 18px; margin-bottom: 32px; }
-    .spbwc-stat-card {
-        background: #fff; border-radius: 14px; padding: 22px 20px;
-        box-shadow: 0 2px 12px rgba(60,80,150,0.09);
-        border: 1px solid #eef0f5;
-        display: flex; flex-direction: column; gap: 8px;
-        transition: transform .2s, box-shadow .2s;
-    }
-    .spbwc-stat-card:hover { transform: translateY(-3px); box-shadow: 0 8px 24px rgba(102,126,234,0.18); }
-    .spbwc-stat-icon {
-        width: 44px; height: 44px; border-radius: 12px;
-        display: flex; align-items: center; justify-content: center;
-        font-size: 22px;
-    }
-    .spbwc-stat-value { font-size: 34px; font-weight: 800; color: #1d2327; line-height: 1; }
-    .spbwc-stat-label { font-size: 13px; color: #777; font-weight: 500; }
-
-    /* ---- Notices ---- */
-    .spbwc-notice-banner {
-        padding: 14px 20px; border-radius: 10px; margin-bottom: 24px;
-        display: flex; align-items: center; gap: 10px; font-size: 14px;
-    }
-    .spbwc-notice-banner.warn { background: #fff8e5; border-left: 4px solid #f0a500; color: #7a5900; }
-    .spbwc-notice-banner.success { background: #eafaf1; border-left: 4px solid #28a745; color: #155724; }
-    .spbwc-notice-banner.info { background: #eef3fb; border-left: 4px solid #667eea; color: #1e3a8a; }
-
-    /* ---- License Banner ---- */
-    .spbwc-license-banner {
-        border-radius: 14px; overflow: hidden; margin-bottom: 32px;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        box-shadow: 0 8px 28px rgba(102,126,234,0.35);
-        color: #fff; padding: 28px 32px;
-        display: flex; align-items: center; gap: 24px;
-        flex-wrap: wrap;
-    }
-    .spbwc-license-banner .badge-plan {
-        background: rgba(255,255,255,0.2); border-radius: 20px;
-        padding: 4px 18px; font-weight: 800; font-size: 16px;
-        letter-spacing: 0.5px; text-transform: uppercase;
-    }
-    .spbwc-license-banner .btn-upgrade {
-        background: #fff; color: #667eea; border: none; border-radius: 8px;
-        padding: 9px 22px; font-weight: 700; font-size: 14px; cursor: pointer;
-        text-decoration: none; transition: background .2s;
-        display: inline-block;
-    }
-    .spbwc-license-banner .btn-upgrade:hover { background: #f0f0ff; color: #4a5ae8; }
-    .spbwc-license-banner .btn-sync {
-        background: rgba(255,255,255,0.15); color: #fff; border: 1px solid rgba(255,255,255,0.4);
-        border-radius: 8px; padding: 8px 16px; font-size: 13px; cursor: pointer;
-        transition: background .2s;
-    }
-    .spbwc-license-banner .btn-sync:hover { background: rgba(255,255,255,0.25); }
-    .spbwc-license-banner .btn-sync.is-loading { cursor: wait; opacity: 0.85; pointer-events: none; }
-    .spbwc-license-banner .btn-sync.is-loading .dashicons-update { animation: spbwc-spin 0.8s linear infinite; }
-    @keyframes spbwc-spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-
-    /* ---- Quick Links ---- */
-    .spbwc-quick-links { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 24px; }
-    .spbwc-quick-link {
-        background: #fff; border: 1px solid #e8eaf0; border-radius: 10px;
-        padding: 12px 18px; display: flex; align-items: center; gap: 8px;
-        text-decoration: none; color: #374151; font-size: 14px; font-weight: 600;
-        transition: all .2s; box-shadow: 0 1px 4px rgba(60,80,150,0.06);
-    }
-    .spbwc-quick-link:hover { background: #667eea; color: #fff; box-shadow: 0 4px 16px rgba(102,126,234,0.3); }
-    .spbwc-quick-link .dashicons { font-size: 18px; }
-    </style>
-
+    <!-- ============ Notices ============ -->
     <?php if ( ! $is_remote_ok ) : ?>
-    <div class="spbwc-notice-banner info">
-        <span class="dashicons dashicons-cloud-saved"></span>
-        <?php esc_html_e( 'Overview stats are showing local data. Connect your Storelly account to see real-time data from the dashboard.', 'storelly-product-builder-for-woocommerce' ); ?>
-    </div>
-    <?php endif; ?>
-
-    <?php if ( $pkg_slug === 'free' ) : ?>
-    <div class="spbwc-notice-banner warn">
-        <span class="dashicons dashicons-star-filled"></span>
-        <?php
-        printf(
-            /* translators: %s: URL to license page */
-            wp_kses( __( 'You are on the <strong>Free</strong> plan. <a href="%s">Upgrade your license</a> to unlock unlimited products, orders, and priority support.', 'storelly-product-builder-for-woocommerce' ), array( 'strong' => array(), 'a' => array( 'href' => array() ) ) ),
-            esc_url( $license_url )
-        );
-        ?>
-    </div>
-    <?php endif; ?>
-
-    <!-- Stat Cards -->
-    <div class="spbwc-stat-grid">
-        <div class="spbwc-stat-card">
-            <div class="spbwc-stat-icon" style="background:#eef3fb;">
-                <span class="dashicons dashicons-products" style="color:#667eea;"></span>
-            </div>
-            <div class="spbwc-stat-value"><?php echo esc_html( number_format_i18n( $disp_products ) ); ?></div>
-            <div class="spbwc-stat-label"><?php esc_html_e( 'Products', 'storelly-product-builder-for-woocommerce' ); ?></div>
-        </div>
-        <div class="spbwc-stat-card">
-            <div class="spbwc-stat-icon" style="background:#eafdf5;">
-                <span class="dashicons dashicons-editor-table" style="color:#28a745;"></span>
-            </div>
-            <div class="spbwc-stat-value"><?php echo esc_html( number_format_i18n( $disp_pricing ) ); ?></div>
-            <div class="spbwc-stat-label"><?php esc_html_e( 'Pricing Options', 'storelly-product-builder-for-woocommerce' ); ?></div>
-        </div>
-        <div class="spbwc-stat-card">
-            <div class="spbwc-stat-icon" style="background:#fff8e5;">
-                <span class="dashicons dashicons-cart" style="color:#f0a500;"></span>
-            </div>
-            <div class="spbwc-stat-value"><?php echo esc_html( number_format_i18n( $disp_orders ) ); ?></div>
-            <div class="spbwc-stat-label"><?php esc_html_e( 'Orders', 'storelly-product-builder-for-woocommerce' ); ?></div>
-        </div>
-        <div class="spbwc-stat-card">
-            <div class="spbwc-stat-icon" style="background:#fef0f5;">
-                <span class="dashicons dashicons-email-alt" style="color:#e91e8c;"></span>
-            </div>
-            <div class="spbwc-stat-value"><?php echo esc_html( number_format_i18n( $disp_quotes ) ); ?></div>
-            <div class="spbwc-stat-label"><?php esc_html_e( 'Quote Requests', 'storelly-product-builder-for-woocommerce' ); ?></div>
-        </div>
-    </div>
-
-    <!-- License Banner -->
-    <div class="spbwc-license-banner">
-        <div style="flex:1;">
-            <div style="font-size:13px;opacity:.8;margin-bottom:4px;"><?php esc_html_e( 'Current License Plan', 'storelly-product-builder-for-woocommerce' ); ?></div>
-            <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
-                <span class="dashicons dashicons-admin-network" style="font-size:26px;"></span>
-                <span style="font-size:22px;font-weight:800;"><?php echo esc_html( $pkg_name ); ?></span>
-                <span class="badge-plan"><?php echo esc_html( $pkg_slug ); ?></span>
-            </div>
-            <?php if ( $expires_at ) : ?>
-                <div style="margin-top:6px;font-size:13px;opacity:.8;">
-                    <span class="dashicons dashicons-clock" style="font-size:14px;vertical-align:middle;"></span>
+        <div class="spbwc-notice-banner spbwc-notice-banner--info" role="status">
+            <span class="dashicons dashicons-cloud-saved" aria-hidden="true"></span>
+            <div class="spbwc-notice-banner__body">
+                <div class="spbwc-notice-banner__title">
+                    <?php esc_html_e( 'Showing local data only', 'storelly-product-builder-for-woocommerce' ); ?>
+                </div>
+                <div class="spbwc-notice-banner__text">
                     <?php
                     printf(
-                        /* translators: %s: expiry date */
-                        esc_html__( 'Expires: %s', 'storelly-product-builder-for-woocommerce' ),
-                        esc_html( $expires_at )
+                        /* translators: %s: URL to license page */
+                        wp_kses(
+                            __( 'Couldn\'t reach the Storelly server. Stats below are pulled from your local database. <a href="%s">Check your connection</a> to enable real-time metrics.', 'storelly-product-builder-for-woocommerce' ),
+                            array( 'a' => array( 'href' => array() ) )
+                        ),
+                        esc_url( $license_url )
                     );
                     ?>
                 </div>
-            <?php elseif ( $pkg_slug !== 'free' ) : ?>
-                <div style="margin-top:6px;font-size:13px;opacity:.8;">
-                    <span class="dashicons dashicons-yes-alt" style="font-size:14px;vertical-align:middle;"></span>
-                    <?php esc_html_e( 'Lifetime license – no expiry', 'storelly-product-builder-for-woocommerce' ); ?>
-                </div>
-            <?php endif; ?>
+            </div>
         </div>
-        <div style="display:flex;flex-direction:column;gap:8px;align-items:flex-end;">
-            <?php if ( $pkg_slug === 'free' ) : ?>
-                <a class="btn-upgrade" href="<?php echo esc_url( $license_url ); ?>">
-                    ⚡ <?php esc_html_e( 'Upgrade Plan', 'storelly-product-builder-for-woocommerce' ); ?>
-                </a>
-            <?php else : ?>
-                <a class="btn-upgrade" href="<?php echo esc_url( $license_url ); ?>">
-                    <?php esc_html_e( 'Manage License', 'storelly-product-builder-for-woocommerce' ); ?>
-                </a>
-            <?php endif; ?>
-            <button class="btn-sync" id="spbwc-overview-sync-btn"
-                    data-nonce="<?php echo esc_attr( $nonce_license ); ?>">
-                <span class="dashicons dashicons-update" style="font-size:14px;vertical-align:middle;"></span>
-                <?php esc_html_e( 'Sync License', 'storelly-product-builder-for-woocommerce' ); ?>
-            </button>
-        </div>
-    </div>
+    <?php endif; ?>
 
-    <!-- Quick Links -->
-    <h3 style="font-size:15px;font-weight:700;color:#374151;margin-bottom:12px;">
-        <?php esc_html_e( 'Quick Links', 'storelly-product-builder-for-woocommerce' ); ?>
-    </h3>
-    <div class="spbwc-quick-links">
-        <a class="spbwc-quick-link" href="<?php echo esc_url( admin_url( 'admin.php?page=' . SPBWC_PB_BUILDER_SLUG ) ); ?>">
-            <span class="dashicons dashicons-editor-table"></span>
-            <?php esc_html_e( 'Pricing Options', 'storelly-product-builder-for-woocommerce' ); ?>
-        </a>
-        <a class="spbwc-quick-link" href="<?php echo esc_url( admin_url( 'admin.php?page=' . SPBWC_PB_PRODUCTS_SLUG ) ); ?>">
-            <span class="dashicons dashicons-products"></span>
-            <?php esc_html_e( 'Products', 'storelly-product-builder-for-woocommerce' ); ?>
-        </a>
-        <a class="spbwc-quick-link" href="<?php echo esc_url( admin_url( 'admin.php?page=' . SPBWC_PB_ORDERS_SLUG ) ); ?>">
-            <span class="dashicons dashicons-cart"></span>
-            <?php esc_html_e( 'Orders', 'storelly-product-builder-for-woocommerce' ); ?>
-        </a>
-        <a class="spbwc-quick-link" href="<?php echo esc_url( admin_url( 'admin.php?page=' . SPBWC_PB_QUOTES_SLUG ) ); ?>">
-            <span class="dashicons dashicons-email-alt"></span>
-            <?php esc_html_e( 'Quotes', 'storelly-product-builder-for-woocommerce' ); ?>
-        </a>
-        <a class="spbwc-quick-link" href="<?php echo esc_url( $license_url ); ?>">
-            <span class="dashicons dashicons-admin-network"></span>
-            <?php esc_html_e( 'License', 'storelly-product-builder-for-woocommerce' ); ?>
-        </a>
-        <a class="spbwc-quick-link" href="<?php echo esc_url( admin_url( 'admin.php?page=' . SPBWC_PB_OPTIONS_SLUG ) ); ?>">
-            <span class="dashicons dashicons-admin-settings"></span>
-            <?php esc_html_e( 'Settings', 'storelly-product-builder-for-woocommerce' ); ?>
-        </a>
-    </div>
+    <?php if ( $is_free ) : ?>
+        <div class="spbwc-notice-banner spbwc-notice-banner--warn" role="status">
+            <span class="dashicons dashicons-star-filled" aria-hidden="true"></span>
+            <div class="spbwc-notice-banner__body">
+                <div class="spbwc-notice-banner__title">
+                    <?php esc_html_e( 'You\'re on the Free plan', 'storelly-product-builder-for-woocommerce' ); ?>
+                </div>
+                <div class="spbwc-notice-banner__text">
+                    <?php
+                    printf(
+                        /* translators: %s: URL to license page */
+                        wp_kses(
+                            __( 'Unlock unlimited products, premium templates, and priority support by <a href="%s">upgrading your license</a>. Existing customizations remain intact during the upgrade.', 'storelly-product-builder-for-woocommerce' ),
+                            array( 'a' => array( 'href' => array() ) )
+                        ),
+                        esc_url( $license_url )
+                    );
+                    ?>
+                </div>
+            </div>
+        </div>
+    <?php endif; ?>
+
+    <!-- ============ License hero ============ -->
+    <!-- Free plan → brand-blue gradient (encourages upgrade).      -->
+    <!-- Paid plan → royal-gold gradient (luxurious "premium" feel).-->
+    <section class="spbwc-license-hero<?php echo $is_free ? '' : ' spbwc-license-hero--premium'; ?>" aria-labelledby="spbwc-license-hero-title">
+        <div class="spbwc-license-hero__grid">
+            <div class="spbwc-license-hero__info">
+                <div class="spbwc-license-hero__eyebrow">
+                    <span class="dashicons dashicons-admin-network" aria-hidden="true"></span>
+                    <?php esc_html_e( 'Current license plan', 'storelly-product-builder-for-woocommerce' ); ?>
+                </div>
+                <div class="spbwc-license-hero__title">
+                    <span id="spbwc-license-hero-title" class="spbwc-license-hero__pkg">
+                        <?php echo esc_html( $pkg_name ); ?>
+                    </span>
+                    <span class="spbwc-license-hero__badge"><?php echo esc_html( $pkg_slug ); ?></span>
+                </div>
+                <?php if ( $expires_at ) : ?>
+                    <div class="spbwc-license-hero__meta">
+                        <span class="dashicons dashicons-clock" aria-hidden="true"></span>
+                        <?php
+                        printf(
+                            /* translators: %s: expiry date */
+                            esc_html__( 'Expires on %s', 'storelly-product-builder-for-woocommerce' ),
+                            esc_html( $expires_at )
+                        );
+                        ?>
+                    </div>
+                <?php elseif ( ! $is_free ) : ?>
+                    <div class="spbwc-license-hero__meta">
+                        <span class="dashicons dashicons-yes-alt" aria-hidden="true"></span>
+                        <?php esc_html_e( 'Lifetime license — no expiry', 'storelly-product-builder-for-woocommerce' ); ?>
+                    </div>
+                <?php else : ?>
+                    <div class="spbwc-license-hero__meta">
+                        <span class="dashicons dashicons-info-outline" aria-hidden="true"></span>
+                        <?php esc_html_e( 'No expiry — but limited feature set', 'storelly-product-builder-for-woocommerce' ); ?>
+                    </div>
+                <?php endif; ?>
+
+                <ul class="spbwc-license-hero__benefits">
+                    <?php foreach ( $plan_benefits as $benefit ) : ?>
+                        <li>
+                            <span class="dashicons dashicons-<?php echo esc_attr( $benefit['icon'] ); ?>" aria-hidden="true"></span>
+                            <?php echo esc_html( $benefit['text'] ); ?>
+                        </li>
+                    <?php endforeach; ?>
+                </ul>
+            </div>
+
+            <div class="spbwc-license-hero__actions">
+                <?php if ( $is_free ) : ?>
+                    <a class="spbwc-btn-upgrade" href="<?php echo esc_url( $license_url ); ?>">
+                        <span class="dashicons dashicons-superhero-alt" aria-hidden="true"></span>
+                        <?php esc_html_e( 'Upgrade plan', 'storelly-product-builder-for-woocommerce' ); ?>
+                    </a>
+                <?php else : ?>
+                    <a class="spbwc-btn-upgrade" href="<?php echo esc_url( $license_url ); ?>">
+                        <span class="dashicons dashicons-admin-tools" aria-hidden="true"></span>
+                        <?php esc_html_e( 'Manage license', 'storelly-product-builder-for-woocommerce' ); ?>
+                    </a>
+                <?php endif; ?>
+
+                <button class="spbwc-btn-sync" id="spbwc-overview-sync-btn"
+                        data-nonce="<?php echo esc_attr( $nonce_license ); ?>"
+                        title="<?php esc_attr_e( 'Refresh license status from the Storelly server', 'storelly-product-builder-for-woocommerce' ); ?>">
+                    <span class="dashicons dashicons-update" aria-hidden="true"></span>
+                    <?php esc_html_e( 'Sync from server', 'storelly-product-builder-for-woocommerce' ); ?>
+                </button>
+
+                <div class="spbwc-license-hero__last-sync">
+                    <?php esc_html_e( 'Click to verify status', 'storelly-product-builder-for-woocommerce' ); ?>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============ Stat cards ============ -->
+    <section class="spbwc-section" aria-labelledby="spbwc-metrics-title">
+        <header class="spbwc-section__header">
+            <h2 id="spbwc-metrics-title" class="spbwc-section__title">
+                <span class="dashicons dashicons-chart-bar" aria-hidden="true"></span>
+                <?php esc_html_e( 'Key metrics', 'storelly-product-builder-for-woocommerce' ); ?>
+            </h2>
+            <p class="spbwc-section__subtitle">
+                <?php
+                if ( $is_remote_ok ) {
+                    esc_html_e( 'Live numbers from your Storelly dashboard. Each card links straight to the related management screen.', 'storelly-product-builder-for-woocommerce' );
+                } else {
+                    esc_html_e( 'Local counts from your WordPress database. Connect your Storelly account to see live numbers.', 'storelly-product-builder-for-woocommerce' );
+                }
+                ?>
+            </p>
+        </header>
+
+        <div class="spbwc-stat-grid">
+            <article class="spbwc-stat-card spbwc-stat-card--brand">
+                <div class="spbwc-stat-card__head">
+                    <div class="spbwc-stat-card__icon">
+                        <span class="dashicons dashicons-products" aria-hidden="true"></span>
+                    </div>
+                    <div class="spbwc-stat-card__label"><?php esc_html_e( 'Products', 'storelly-product-builder-for-woocommerce' ); ?></div>
+                </div>
+                <div class="spbwc-stat-card__value"><?php echo esc_html( number_format_i18n( $disp_products ) ); ?></div>
+                <p class="spbwc-stat-card__hint">
+                    <?php esc_html_e( 'WooCommerce products that have the Storelly product builder enabled.', 'storelly-product-builder-for-woocommerce' ); ?>
+                </p>
+                <div class="spbwc-stat-card__footer">
+                    <a class="spbwc-cta-btn" href="<?php echo esc_url( admin_url( 'admin.php?page=' . SPBWC_PB_PRODUCTS_SLUG ) ); ?>">
+                        <?php esc_html_e( 'Manage products', 'storelly-product-builder-for-woocommerce' ); ?>
+                        <span class="dashicons dashicons-arrow-right-alt2" aria-hidden="true"></span>
+                    </a>
+                </div>
+            </article>
+
+            <article class="spbwc-stat-card spbwc-stat-card--success">
+                <div class="spbwc-stat-card__head">
+                    <div class="spbwc-stat-card__icon">
+                        <span class="dashicons dashicons-editor-table" aria-hidden="true"></span>
+                    </div>
+                    <div class="spbwc-stat-card__label"><?php esc_html_e( 'Pricing Options', 'storelly-product-builder-for-woocommerce' ); ?></div>
+                </div>
+                <div class="spbwc-stat-card__value"><?php echo esc_html( number_format_i18n( $disp_pricing ) ); ?></div>
+                <p class="spbwc-stat-card__hint">
+                    <?php esc_html_e( 'Active option groups (material, size, finish, quantity…) configured for your products.', 'storelly-product-builder-for-woocommerce' ); ?>
+                </p>
+                <div class="spbwc-stat-card__footer">
+                    <a class="spbwc-cta-btn" href="<?php echo esc_url( admin_url( 'admin.php?page=' . SPBWC_PB_BUILDER_SLUG ) ); ?>">
+                        <?php esc_html_e( 'Edit options', 'storelly-product-builder-for-woocommerce' ); ?>
+                        <span class="dashicons dashicons-arrow-right-alt2" aria-hidden="true"></span>
+                    </a>
+                </div>
+            </article>
+
+            <article class="spbwc-stat-card spbwc-stat-card--warning">
+                <div class="spbwc-stat-card__head">
+                    <div class="spbwc-stat-card__icon">
+                        <span class="dashicons dashicons-cart" aria-hidden="true"></span>
+                    </div>
+                    <div class="spbwc-stat-card__label"><?php esc_html_e( 'Orders', 'storelly-product-builder-for-woocommerce' ); ?></div>
+                </div>
+                <div class="spbwc-stat-card__value"><?php echo esc_html( number_format_i18n( $disp_orders ) ); ?></div>
+                <p class="spbwc-stat-card__hint">
+                    <?php esc_html_e( 'All-time WooCommerce orders containing a customized Storelly product.', 'storelly-product-builder-for-woocommerce' ); ?>
+                </p>
+                <div class="spbwc-stat-card__footer">
+                    <a class="spbwc-cta-btn" href="<?php echo esc_url( admin_url( 'admin.php?page=' . SPBWC_PB_ORDERS_SLUG ) ); ?>">
+                        <?php esc_html_e( 'View orders', 'storelly-product-builder-for-woocommerce' ); ?>
+                        <span class="dashicons dashicons-arrow-right-alt2" aria-hidden="true"></span>
+                    </a>
+                </div>
+            </article>
+
+            <article class="spbwc-stat-card spbwc-stat-card--accent">
+                <div class="spbwc-stat-card__head">
+                    <div class="spbwc-stat-card__icon">
+                        <span class="dashicons dashicons-email-alt" aria-hidden="true"></span>
+                    </div>
+                    <div class="spbwc-stat-card__label"><?php esc_html_e( 'Quote Requests', 'storelly-product-builder-for-woocommerce' ); ?></div>
+                </div>
+                <div class="spbwc-stat-card__value"><?php echo esc_html( number_format_i18n( $disp_quotes ) ); ?></div>
+                <p class="spbwc-stat-card__hint">
+                    <?php esc_html_e( 'Customer-submitted quote requests awaiting your response or follow-up.', 'storelly-product-builder-for-woocommerce' ); ?>
+                </p>
+                <div class="spbwc-stat-card__footer">
+                    <a class="spbwc-cta-btn" href="<?php echo esc_url( admin_url( 'admin.php?page=' . SPBWC_PB_QUOTES_SLUG ) ); ?>">
+                        <?php esc_html_e( 'Respond to quotes', 'storelly-product-builder-for-woocommerce' ); ?>
+                        <span class="dashicons dashicons-arrow-right-alt2" aria-hidden="true"></span>
+                    </a>
+                </div>
+            </article>
+        </div>
+    </section>
+
+    <!-- ============ Recent activity ============ -->
+    <section class="spbwc-section" aria-labelledby="spbwc-activity-title">
+        <header class="spbwc-section__header">
+            <h2 id="spbwc-activity-title" class="spbwc-section__title">
+                <span class="dashicons dashicons-list-view" aria-hidden="true"></span>
+                <?php esc_html_e( 'Recent activity', 'storelly-product-builder-for-woocommerce' ); ?>
+            </h2>
+            <p class="spbwc-section__subtitle">
+                <?php esc_html_e( 'A quick look at the latest products, orders, quotes, and designs flowing through your Storelly builder. Click any card to dive in.', 'storelly-product-builder-for-woocommerce' ); ?>
+            </p>
+        </header>
+
+        <div class="spbwc-list-grid">
+
+            <!-- Recent Products -->
+            <section class="spbwc-block spbwc-block--brand">
+                <header class="spbwc-block__head">
+                    <h3 class="spbwc-block__title">
+                        <span class="dashicons dashicons-products" aria-hidden="true"></span>
+                        <?php esc_html_e( 'Recent products', 'storelly-product-builder-for-woocommerce' ); ?>
+                    </h3>
+                    <span class="spbwc-block__badge"><?php echo esc_html( number_format_i18n( $disp_products ) ); ?> <?php esc_html_e( 'total', 'storelly-product-builder-for-woocommerce' ); ?></span>
+                </header>
+                <div class="spbwc-block__body<?php echo empty( $recent_products ) ? '' : ' spbwc-block__body--flush'; ?>">
+                    <?php if ( ! empty( $recent_products ) ) : ?>
+                        <ul class="spbwc-list" style="padding: 0 var(--nbd-space-5);">
+                            <?php foreach ( $recent_products as $p ) :
+                                $thumb     = get_the_post_thumbnail_url( $p->ID, 'thumbnail' );
+                                $edit_url  = get_edit_post_link( $p->ID );
+                                $status    = ( $p->post_status === 'publish' ) ? 'active' : ( ( $p->post_status === 'draft' ) ? 'draft' : 'pending' );
+                                $modified  = human_time_diff( get_post_modified_time( 'U', false, $p ), current_time( 'U' ) );
+                            ?>
+                                <a class="spbwc-list__item" href="<?php echo esc_url( $edit_url ); ?>">
+                                    <div class="spbwc-list__item-thumb">
+                                        <?php if ( $thumb ) : ?>
+                                            <img src="<?php echo esc_url( $thumb ); ?>" alt="">
+                                        <?php else : ?>
+                                            <span class="dashicons dashicons-products" aria-hidden="true"></span>
+                                        <?php endif; ?>
+                                    </div>
+                                    <div class="spbwc-list__item-body">
+                                        <div class="spbwc-list__item-title"><?php echo esc_html( $p->post_title ?: __( '(no title)', 'storelly-product-builder-for-woocommerce' ) ); ?></div>
+                                        <div class="spbwc-list__item-meta">
+                                            <span class="spbwc-list__item-status spbwc-list__item-status--<?php echo esc_attr( $status ); ?>"><?php echo esc_html( $p->post_status ); ?></span>
+                                            <span class="sep">·</span>
+                                            <span><?php
+                                                /* translators: %s: human time diff like "2 hours" */
+                                                printf( esc_html__( 'updated %s ago', 'storelly-product-builder-for-woocommerce' ), esc_html( $modified ) );
+                                            ?></span>
+                                        </div>
+                                    </div>
+                                    <span class="spbwc-list__item-action">
+                                        <span class="dashicons dashicons-arrow-right-alt2" aria-hidden="true"></span>
+                                    </span>
+                                </a>
+                            <?php endforeach; ?>
+                        </ul>
+                    <?php else : ?>
+                        <div class="spbwc-empty-state">
+                            <div class="spbwc-empty-state__icon">
+                                <span class="dashicons dashicons-products" aria-hidden="true"></span>
+                            </div>
+                            <div class="spbwc-empty-state__title"><?php esc_html_e( 'No products yet', 'storelly-product-builder-for-woocommerce' ); ?></div>
+                            <p class="spbwc-empty-state__text">
+                                <?php esc_html_e( 'Enable the product builder on a WooCommerce product to start customizing.', 'storelly-product-builder-for-woocommerce' ); ?>
+                            </p>
+                            <a class="spbwc-cta-btn spbwc-cta-btn--solid" href="<?php echo esc_url( admin_url( 'post-new.php?post_type=product' ) ); ?>">
+                                <span class="dashicons dashicons-plus-alt2" aria-hidden="true"></span>
+                                <?php esc_html_e( 'Add first product', 'storelly-product-builder-for-woocommerce' ); ?>
+                            </a>
+                        </div>
+                    <?php endif; ?>
+                </div>
+                <footer class="spbwc-block__foot">
+                    <a class="spbwc-block__foot-link" href="<?php echo esc_url( admin_url( 'admin.php?page=' . SPBWC_PB_PRODUCTS_SLUG ) ); ?>">
+                        <?php esc_html_e( 'View all products', 'storelly-product-builder-for-woocommerce' ); ?>
+                        <span class="dashicons dashicons-arrow-right-alt2" aria-hidden="true"></span>
+                    </a>
+                    <span class="spbwc-block__foot-meta"><?php esc_html_e( 'Last 5 updated', 'storelly-product-builder-for-woocommerce' ); ?></span>
+                </footer>
+            </section>
+
+            <!-- Recent Orders -->
+            <section class="spbwc-block spbwc-block--warning">
+                <header class="spbwc-block__head">
+                    <h3 class="spbwc-block__title">
+                        <span class="dashicons dashicons-cart" aria-hidden="true"></span>
+                        <?php esc_html_e( 'Recent orders', 'storelly-product-builder-for-woocommerce' ); ?>
+                    </h3>
+                    <span class="spbwc-block__badge"><?php echo esc_html( number_format_i18n( $disp_orders ) ); ?> <?php esc_html_e( 'total', 'storelly-product-builder-for-woocommerce' ); ?></span>
+                </header>
+                <div class="spbwc-block__body<?php echo empty( $recent_orders ) ? '' : ' spbwc-block__body--flush'; ?>">
+                    <?php if ( ! empty( $recent_orders ) ) : ?>
+                        <ul class="spbwc-list" style="padding: 0 var(--nbd-space-5);">
+                            <?php foreach ( $recent_orders as $order ) :
+                                $order_id   = $order->get_id();
+                                $order_url  = $order->get_edit_order_url();
+                                $customer   = trim( $order->get_billing_first_name() . ' ' . $order->get_billing_last_name() );
+                                $customer   = $customer ?: $order->get_billing_email() ?: __( 'Guest', 'storelly-product-builder-for-woocommerce' );
+                                $order_date = $order->get_date_created() ? human_time_diff( $order->get_date_created()->getTimestamp(), current_time( 'U' ) ) : '';
+                                $status     = $order->get_status();
+                                $status_cls = ( $status === 'completed' ) ? 'active' : ( ( $status === 'on-hold' || $status === 'pending' ) ? 'pending' : 'draft' );
+                            ?>
+                                <a class="spbwc-list__item" href="<?php echo esc_url( $order_url ); ?>">
+                                    <div class="spbwc-list__item-thumb">
+                                        <span class="dashicons dashicons-cart" aria-hidden="true"></span>
+                                    </div>
+                                    <div class="spbwc-list__item-body">
+                                        <div class="spbwc-list__item-title">
+                                            <?php echo esc_html( '#' . $order_id . ' · ' . $customer ); ?>
+                                        </div>
+                                        <div class="spbwc-list__item-meta">
+                                            <span class="spbwc-list__item-status spbwc-list__item-status--<?php echo esc_attr( $status_cls ); ?>"><?php echo esc_html( $status ); ?></span>
+                                            <span class="sep">·</span>
+                                            <span><?php echo wp_kses_post( wc_price( $order->get_total() ) ); ?></span>
+                                            <?php if ( $order_date ) : ?>
+                                                <span class="sep">·</span>
+                                                <span><?php echo esc_html( $order_date ); ?> <?php esc_html_e( 'ago', 'storelly-product-builder-for-woocommerce' ); ?></span>
+                                            <?php endif; ?>
+                                        </div>
+                                    </div>
+                                    <span class="spbwc-list__item-action">
+                                        <span class="dashicons dashicons-arrow-right-alt2" aria-hidden="true"></span>
+                                    </span>
+                                </a>
+                            <?php endforeach; ?>
+                        </ul>
+                    <?php else : ?>
+                        <div class="spbwc-empty-state">
+                            <div class="spbwc-empty-state__icon">
+                                <span class="dashicons dashicons-cart" aria-hidden="true"></span>
+                            </div>
+                            <div class="spbwc-empty-state__title"><?php esc_html_e( 'No orders yet', 'storelly-product-builder-for-woocommerce' ); ?></div>
+                            <p class="spbwc-empty-state__text">
+                                <?php esc_html_e( 'Orders containing customized products will appear here when customers check out.', 'storelly-product-builder-for-woocommerce' ); ?>
+                            </p>
+                        </div>
+                    <?php endif; ?>
+                </div>
+                <footer class="spbwc-block__foot">
+                    <a class="spbwc-block__foot-link" href="<?php echo esc_url( admin_url( 'admin.php?page=' . SPBWC_PB_ORDERS_SLUG ) ); ?>">
+                        <?php esc_html_e( 'View all orders', 'storelly-product-builder-for-woocommerce' ); ?>
+                        <span class="dashicons dashicons-arrow-right-alt2" aria-hidden="true"></span>
+                    </a>
+                    <span class="spbwc-block__foot-meta"><?php esc_html_e( 'Last 5', 'storelly-product-builder-for-woocommerce' ); ?></span>
+                </footer>
+            </section>
+
+            <!-- Recent Printing Options -->
+            <section class="spbwc-block spbwc-block--success">
+                <header class="spbwc-block__head">
+                    <h3 class="spbwc-block__title">
+                        <span class="dashicons dashicons-editor-table" aria-hidden="true"></span>
+                        <?php esc_html_e( 'Printing options', 'storelly-product-builder-for-woocommerce' ); ?>
+                    </h3>
+                    <span class="spbwc-block__badge"><?php echo esc_html( number_format_i18n( $disp_pricing ) ); ?> <?php esc_html_e( 'total', 'storelly-product-builder-for-woocommerce' ); ?></span>
+                </header>
+                <div class="spbwc-block__body">
+                    <div class="spbwc-empty-state">
+                        <div class="spbwc-empty-state__icon">
+                            <span class="dashicons dashicons-editor-table" aria-hidden="true"></span>
+                        </div>
+                        <div class="spbwc-empty-state__title">
+                            <?php
+                            if ( $disp_pricing > 0 ) {
+                                esc_html_e( 'Active option groups', 'storelly-product-builder-for-woocommerce' );
+                            } else {
+                                esc_html_e( 'No option groups yet', 'storelly-product-builder-for-woocommerce' );
+                            }
+                            ?>
+                        </div>
+                        <p class="spbwc-empty-state__text">
+                            <?php esc_html_e( 'Build dynamic pricing — material, size, quantity, conditional logic — for your products.', 'storelly-product-builder-for-woocommerce' ); ?>
+                        </p>
+                        <a class="spbwc-cta-btn spbwc-cta-btn--solid" href="<?php echo esc_url( admin_url( 'admin.php?page=' . SPBWC_PB_BUILDER_SLUG ) ); ?>">
+                            <span class="dashicons dashicons-plus-alt2" aria-hidden="true"></span>
+                            <?php esc_html_e( 'Open builder', 'storelly-product-builder-for-woocommerce' ); ?>
+                        </a>
+                    </div>
+                </div>
+                <footer class="spbwc-block__foot">
+                    <a class="spbwc-block__foot-link" href="<?php echo esc_url( admin_url( 'admin.php?page=' . SPBWC_PB_BUILDER_SLUG ) ); ?>">
+                        <?php esc_html_e( 'Manage options', 'storelly-product-builder-for-woocommerce' ); ?>
+                        <span class="dashicons dashicons-arrow-right-alt2" aria-hidden="true"></span>
+                    </a>
+                </footer>
+            </section>
+
+            <!-- Recent Quotes -->
+            <section class="spbwc-block spbwc-block--accent">
+                <header class="spbwc-block__head">
+                    <h3 class="spbwc-block__title">
+                        <span class="dashicons dashicons-email-alt" aria-hidden="true"></span>
+                        <?php esc_html_e( 'Quote requests', 'storelly-product-builder-for-woocommerce' ); ?>
+                    </h3>
+                    <span class="spbwc-block__badge"><?php echo esc_html( number_format_i18n( $disp_quotes ) ); ?> <?php esc_html_e( 'total', 'storelly-product-builder-for-woocommerce' ); ?></span>
+                </header>
+                <div class="spbwc-block__body">
+                    <div class="spbwc-empty-state">
+                        <div class="spbwc-empty-state__icon">
+                            <span class="dashicons dashicons-email-alt" aria-hidden="true"></span>
+                        </div>
+                        <div class="spbwc-empty-state__title"><?php esc_html_e( 'No pending quotes', 'storelly-product-builder-for-woocommerce' ); ?></div>
+                        <p class="spbwc-empty-state__text">
+                            <?php esc_html_e( 'B2B quote requests from your customers will appear here. Respond to convert them into orders.', 'storelly-product-builder-for-woocommerce' ); ?>
+                        </p>
+                        <a class="spbwc-cta-btn" href="<?php echo esc_url( admin_url( 'admin.php?page=' . SPBWC_PB_QUOTES_SLUG ) ); ?>">
+                            <?php esc_html_e( 'Open quotes', 'storelly-product-builder-for-woocommerce' ); ?>
+                            <span class="dashicons dashicons-arrow-right-alt2" aria-hidden="true"></span>
+                        </a>
+                    </div>
+                </div>
+                <footer class="spbwc-block__foot">
+                    <a class="spbwc-block__foot-link" href="<?php echo esc_url( admin_url( 'admin.php?page=' . SPBWC_PB_QUOTES_SLUG ) ); ?>">
+                        <?php esc_html_e( 'View all quotes', 'storelly-product-builder-for-woocommerce' ); ?>
+                        <span class="dashicons dashicons-arrow-right-alt2" aria-hidden="true"></span>
+                    </a>
+                </footer>
+            </section>
+
+            <!-- Customer Design Files -->
+            <section class="spbwc-block spbwc-block--brand">
+                <header class="spbwc-block__head">
+                    <h3 class="spbwc-block__title">
+                        <span class="dashicons dashicons-art" aria-hidden="true"></span>
+                        <?php esc_html_e( 'Customer designs', 'storelly-product-builder-for-woocommerce' ); ?>
+                    </h3>
+                    <span class="spbwc-block__pro-badge" title="<?php esc_attr_e( 'Premium feature', 'storelly-product-builder-for-woocommerce' ); ?>">
+                        <span class="dashicons dashicons-star-filled" aria-hidden="true"></span>
+                        <?php esc_html_e( 'Pro', 'storelly-product-builder-for-woocommerce' ); ?>
+                    </span>
+                </header>
+                <div class="spbwc-block__body">
+                    <div class="spbwc-empty-state">
+                        <div class="spbwc-empty-state__icon">
+                            <span class="dashicons dashicons-art" aria-hidden="true"></span>
+                        </div>
+                        <div class="spbwc-empty-state__title"><?php esc_html_e( 'No saved designs yet', 'storelly-product-builder-for-woocommerce' ); ?></div>
+                        <p class="spbwc-empty-state__text">
+                            <?php esc_html_e( 'Print-ready design files customers create with the Storelly designer canvas will be listed here for download and review.', 'storelly-product-builder-for-woocommerce' ); ?>
+                        </p>
+                        <?php if ( $is_free ) : ?>
+                            <a class="spbwc-cta-btn spbwc-cta-btn--solid" href="<?php echo esc_url( $license_url ); ?>">
+                                <span class="dashicons dashicons-superhero-alt" aria-hidden="true"></span>
+                                <?php esc_html_e( 'Upgrade to unlock', 'storelly-product-builder-for-woocommerce' ); ?>
+                            </a>
+                        <?php endif; ?>
+                    </div>
+                </div>
+                <footer class="spbwc-block__foot">
+                    <a class="spbwc-block__foot-link" href="<?php echo esc_url( admin_url( 'admin.php?page=' . SPBWC_PB_ORDERS_SLUG ) ); ?>">
+                        <?php esc_html_e( 'View order designs', 'storelly-product-builder-for-woocommerce' ); ?>
+                        <span class="dashicons dashicons-arrow-right-alt2" aria-hidden="true"></span>
+                    </a>
+                </footer>
+            </section>
+
+            <!-- Templates -->
+            <section class="spbwc-block spbwc-block--gold">
+                <header class="spbwc-block__head">
+                    <h3 class="spbwc-block__title">
+                        <span class="dashicons dashicons-layout" aria-hidden="true"></span>
+                        <?php esc_html_e( 'Design templates', 'storelly-product-builder-for-woocommerce' ); ?>
+                    </h3>
+                    <span class="spbwc-block__pro-badge" title="<?php esc_attr_e( 'Premium feature', 'storelly-product-builder-for-woocommerce' ); ?>">
+                        <span class="dashicons dashicons-star-filled" aria-hidden="true"></span>
+                        <?php esc_html_e( 'Pro', 'storelly-product-builder-for-woocommerce' ); ?>
+                    </span>
+                </header>
+                <div class="spbwc-block__body">
+                    <div class="spbwc-empty-state">
+                        <div class="spbwc-empty-state__icon">
+                            <span class="dashicons dashicons-layout" aria-hidden="true"></span>
+                        </div>
+                        <div class="spbwc-empty-state__title"><?php esc_html_e( 'No templates yet', 'storelly-product-builder-for-woocommerce' ); ?></div>
+                        <p class="spbwc-empty-state__text">
+                            <?php esc_html_e( 'Reusable design templates speed up customer customization. Import from the Storelly marketplace or create your own.', 'storelly-product-builder-for-woocommerce' ); ?>
+                        </p>
+                        <?php if ( $is_free ) : ?>
+                            <a class="spbwc-cta-btn spbwc-cta-btn--solid" href="<?php echo esc_url( $license_url ); ?>">
+                                <span class="dashicons dashicons-superhero-alt" aria-hidden="true"></span>
+                                <?php esc_html_e( 'Upgrade to unlock', 'storelly-product-builder-for-woocommerce' ); ?>
+                            </a>
+                        <?php else : ?>
+                            <a class="spbwc-cta-btn spbwc-cta-btn--solid" href="https://storelly.com/marketplace" target="_blank" rel="noopener">
+                                <span class="dashicons dashicons-download" aria-hidden="true"></span>
+                                <?php esc_html_e( 'Browse marketplace', 'storelly-product-builder-for-woocommerce' ); ?>
+                            </a>
+                        <?php endif; ?>
+                    </div>
+                </div>
+                <footer class="spbwc-block__foot">
+                    <a class="spbwc-block__foot-link" href="https://storelly.com/marketplace" target="_blank" rel="noopener">
+                        <?php esc_html_e( 'Browse marketplace', 'storelly-product-builder-for-woocommerce' ); ?>
+                        <span class="dashicons dashicons-external" aria-hidden="true"></span>
+                    </a>
+                </footer>
+            </section>
+
+        </div>
+    </section>
+
+    <!-- ============ Quick actions ============ -->
+    <section class="spbwc-section" aria-labelledby="spbwc-actions-title">
+        <header class="spbwc-section__header">
+            <h2 id="spbwc-actions-title" class="spbwc-section__title">
+                <span class="dashicons dashicons-admin-tools" aria-hidden="true"></span>
+                <?php esc_html_e( 'Quick actions', 'storelly-product-builder-for-woocommerce' ); ?>
+            </h2>
+            <p class="spbwc-section__subtitle">
+                <?php esc_html_e( 'Common tasks for managing your product builder. Pick a card to jump into the right section.', 'storelly-product-builder-for-woocommerce' ); ?>
+            </p>
+        </header>
+
+        <div class="spbwc-quick-grid">
+            <a class="spbwc-quick-card" href="<?php echo esc_url( admin_url( 'admin.php?page=' . SPBWC_PB_BUILDER_SLUG ) ); ?>">
+                <div class="spbwc-quick-card__head">
+                    <div class="spbwc-quick-card__icon">
+                        <span class="dashicons dashicons-editor-table" aria-hidden="true"></span>
+                    </div>
+                    <h3 class="spbwc-quick-card__title">
+                        <?php esc_html_e( 'Build pricing options', 'storelly-product-builder-for-woocommerce' ); ?>
+                    </h3>
+                </div>
+                <p class="spbwc-quick-card__desc">
+                    <?php esc_html_e( 'Create dynamic price rules — material, size, quantity tiers, conditional logic — for any WooCommerce product.', 'storelly-product-builder-for-woocommerce' ); ?>
+                </p>
+                <div class="spbwc-quick-card__footer">
+                    <span class="spbwc-cta-btn">
+                        <?php esc_html_e( 'Open builder', 'storelly-product-builder-for-woocommerce' ); ?>
+                        <span class="dashicons dashicons-arrow-right-alt2" aria-hidden="true"></span>
+                    </span>
+                </div>
+            </a>
+
+            <a class="spbwc-quick-card" href="<?php echo esc_url( admin_url( 'admin.php?page=' . SPBWC_PB_PRODUCTS_SLUG ) ); ?>">
+                <div class="spbwc-quick-card__head">
+                    <div class="spbwc-quick-card__icon">
+                        <span class="dashicons dashicons-products" aria-hidden="true"></span>
+                    </div>
+                    <h3 class="spbwc-quick-card__title">
+                        <?php esc_html_e( 'Manage products', 'storelly-product-builder-for-woocommerce' ); ?>
+                    </h3>
+                </div>
+                <p class="spbwc-quick-card__desc">
+                    <?php esc_html_e( 'Review which products have the builder enabled, assign option groups, and configure per-product designer settings.', 'storelly-product-builder-for-woocommerce' ); ?>
+                </p>
+                <div class="spbwc-quick-card__footer">
+                    <span class="spbwc-cta-btn">
+                        <?php esc_html_e( 'View products', 'storelly-product-builder-for-woocommerce' ); ?>
+                        <span class="dashicons dashicons-arrow-right-alt2" aria-hidden="true"></span>
+                    </span>
+                </div>
+            </a>
+
+            <a class="spbwc-quick-card" href="<?php echo esc_url( admin_url( 'admin.php?page=' . SPBWC_PB_ORDERS_SLUG ) ); ?>">
+                <div class="spbwc-quick-card__head">
+                    <div class="spbwc-quick-card__icon">
+                        <span class="dashicons dashicons-cart" aria-hidden="true"></span>
+                    </div>
+                    <h3 class="spbwc-quick-card__title">
+                        <?php esc_html_e( 'Review orders', 'storelly-product-builder-for-woocommerce' ); ?>
+                    </h3>
+                </div>
+                <p class="spbwc-quick-card__desc">
+                    <?php esc_html_e( 'Inspect customized orders, download print-ready designs, and export PDFs for your print partners.', 'storelly-product-builder-for-woocommerce' ); ?>
+                </p>
+                <div class="spbwc-quick-card__footer">
+                    <span class="spbwc-cta-btn">
+                        <?php esc_html_e( 'Open orders', 'storelly-product-builder-for-woocommerce' ); ?>
+                        <span class="dashicons dashicons-arrow-right-alt2" aria-hidden="true"></span>
+                    </span>
+                </div>
+            </a>
+
+            <a class="spbwc-quick-card" href="<?php echo esc_url( admin_url( 'admin.php?page=' . SPBWC_PB_QUOTES_SLUG ) ); ?>">
+                <div class="spbwc-quick-card__head">
+                    <div class="spbwc-quick-card__icon">
+                        <span class="dashicons dashicons-email-alt" aria-hidden="true"></span>
+                    </div>
+                    <h3 class="spbwc-quick-card__title">
+                        <?php esc_html_e( 'Handle quotes', 'storelly-product-builder-for-woocommerce' ); ?>
+                    </h3>
+                </div>
+                <p class="spbwc-quick-card__desc">
+                    <?php esc_html_e( 'Respond to B2B quote requests, convert approved quotes into orders, and track customer follow-ups.', 'storelly-product-builder-for-woocommerce' ); ?>
+                </p>
+                <div class="spbwc-quick-card__footer">
+                    <span class="spbwc-cta-btn">
+                        <?php esc_html_e( 'View quotes', 'storelly-product-builder-for-woocommerce' ); ?>
+                        <span class="dashicons dashicons-arrow-right-alt2" aria-hidden="true"></span>
+                    </span>
+                </div>
+            </a>
+
+            <a class="spbwc-quick-card" href="<?php echo esc_url( $license_url ); ?>">
+                <div class="spbwc-quick-card__head">
+                    <div class="spbwc-quick-card__icon">
+                        <span class="dashicons dashicons-admin-network" aria-hidden="true"></span>
+                    </div>
+                    <h3 class="spbwc-quick-card__title">
+                        <?php esc_html_e( 'License & billing', 'storelly-product-builder-for-woocommerce' ); ?>
+                    </h3>
+                </div>
+                <p class="spbwc-quick-card__desc">
+                    <?php esc_html_e( 'Activate or change your license key, view subscription details, and manage billing on the Storelly portal.', 'storelly-product-builder-for-woocommerce' ); ?>
+                </p>
+                <div class="spbwc-quick-card__footer">
+                    <span class="spbwc-cta-btn">
+                        <?php esc_html_e( 'Open license', 'storelly-product-builder-for-woocommerce' ); ?>
+                        <span class="dashicons dashicons-arrow-right-alt2" aria-hidden="true"></span>
+                    </span>
+                </div>
+            </a>
+
+            <a class="spbwc-quick-card" href="<?php echo esc_url( admin_url( 'admin.php?page=' . SPBWC_PB_OPTIONS_SLUG ) ); ?>">
+                <div class="spbwc-quick-card__head">
+                    <div class="spbwc-quick-card__icon">
+                        <span class="dashicons dashicons-admin-settings" aria-hidden="true"></span>
+                    </div>
+                    <h3 class="spbwc-quick-card__title">
+                        <?php esc_html_e( 'Plugin settings', 'storelly-product-builder-for-woocommerce' ); ?>
+                    </h3>
+                </div>
+                <p class="spbwc-quick-card__desc">
+                    <?php esc_html_e( 'Configure global options, API sync, designer fonts, watermarks, and PDF export defaults.', 'storelly-product-builder-for-woocommerce' ); ?>
+                </p>
+                <div class="spbwc-quick-card__footer">
+                    <span class="spbwc-cta-btn">
+                        <?php esc_html_e( 'Open settings', 'storelly-product-builder-for-woocommerce' ); ?>
+                        <span class="dashicons dashicons-arrow-right-alt2" aria-hidden="true"></span>
+                    </span>
+                </div>
+            </a>
+        </div>
+    </section>
+
+    <!-- ============ Help / resources ============ -->
+    <section class="spbwc-help-section" aria-labelledby="spbwc-help-title">
+        <div class="spbwc-help-section__body">
+            <h3 id="spbwc-help-title" class="spbwc-help-section__title">
+                <span class="dashicons dashicons-sos" aria-hidden="true"></span>
+                <?php esc_html_e( 'Need a hand?', 'storelly-product-builder-for-woocommerce' ); ?>
+            </h3>
+            <p class="spbwc-help-section__text">
+                <?php esc_html_e( 'Read the documentation, check the latest changelog, or reach out to the Storelly team. We typically respond within one business day on weekdays.', 'storelly-product-builder-for-woocommerce' ); ?>
+            </p>
+        </div>
+        <div class="spbwc-help-section__links">
+            <a class="spbwc-cta-btn spbwc-cta-btn--ghost" href="https://storelly.com/docs" target="_blank" rel="noopener">
+                <span class="dashicons dashicons-book" aria-hidden="true"></span>
+                <?php esc_html_e( 'Documentation', 'storelly-product-builder-for-woocommerce' ); ?>
+            </a>
+            <a class="spbwc-cta-btn spbwc-cta-btn--ghost" href="https://storelly.com/changelog" target="_blank" rel="noopener">
+                <span class="dashicons dashicons-megaphone" aria-hidden="true"></span>
+                <?php esc_html_e( 'Changelog', 'storelly-product-builder-for-woocommerce' ); ?>
+            </a>
+            <a class="spbwc-cta-btn" href="https://storelly.com/support" target="_blank" rel="noopener">
+                <span class="dashicons dashicons-email-alt" aria-hidden="true"></span>
+                <?php esc_html_e( 'Contact support', 'storelly-product-builder-for-woocommerce' ); ?>
+            </a>
+        </div>
+    </section>
 
     <script>
     (function($){
         var $btn = $('#spbwc-overview-sync-btn');
+        if ( ! $btn.length ) { return; }
         var btnHtml = $btn.html();
         $btn.on('click', function(){
-            if ( $btn.hasClass('is-loading') ) return;
+            if ( $btn.hasClass('is-loading') ) { return; }
             $btn.addClass('is-loading').prop('disabled', true)
-                .html('<span class="dashicons dashicons-update" style="font-size:14px;vertical-align:middle;"></span> <?php echo esc_js( __( 'Syncing...', 'storelly-product-builder-for-woocommerce' ) ); ?>');
+                .html('<span class="dashicons dashicons-update" aria-hidden="true"></span> <?php echo esc_js( __( 'Syncing...', 'storelly-product-builder-for-woocommerce' ) ); ?>');
             $.post(ajaxurl, {
                 action: 'spbwc_license_sync',
                 nonce: $btn.data('nonce')
             }, function(res){
-                if ( res.success ) { location.reload(); }
-                else {
+                if ( res.success ) {
+                    location.reload();
+                } else {
                     alert( (res.data && res.data.msg) ? res.data.msg : '<?php echo esc_js( __( 'Sync failed.', 'storelly-product-builder-for-woocommerce' ) ); ?>' );
                     $btn.removeClass('is-loading').prop('disabled', false).html(btnHtml);
                 }

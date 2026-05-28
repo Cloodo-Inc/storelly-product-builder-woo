@@ -51,6 +51,7 @@ define('SPBWC_PB_QUOTES_SLUG',              'storelly-product-builder-for-woocom
 define('SPBWC_PB_LICENSE_SLUG',             'storelly-product-builder-for-woocommerce-license');
 define('SPBWC_PB_OVERVIEW_SLUG',            'storelly-product-builder-for-woocommerce-overview');
 define('SPBWC_PB_TEMPLATE_LIBRARY_SLUG',    'storelly-product-builder-for-woocommerce-templates');
+define('SPBWC_PB_DESIGNS_SLUG',             'storelly-product-builder-for-woocommerce-designs');
 
 
 // check if woocommerce works
