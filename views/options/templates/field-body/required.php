@@ -1,16 +1,23 @@
 <?php if (!defined('ABSPATH')) exit; ?>
 <!-- No inline scripts or styles unless dynamic. -->
 <?php echo '<script type="text/ng-template" id="field_body_required">'; ?>
-<div class="pcpb-field-info" ng-show="check_depend(field.general, field.general.required)">
+<div class="pcpb-field-info pcpb-field-info--toggle" ng-show="check_depend(field.general, field.general.required)">
     <div class="pcpb-field-info-1">
-        <div><label><b><?php esc_html_e('Required', 'storelly-product-builder-for-woocommerce'); ?></b> <nbd-tip data-tip="<?php esc_html_e('Choose whether the option is required or not.', 'storelly-product-builder-for-woocommerce'); ?>"></nbd-tip></label></div>
+        <label><b><?php esc_html_e('Required', 'storelly-product-builder-for-woocommerce'); ?></b></label>
+        <p class="v2-form-help"><?php esc_html_e('Customer must select / fill this field before adding to cart.', 'storelly-product-builder-for-woocommerce'); ?></p>
     </div>
     <div class="pcpb-field-info-2">
-        <div>
-            <select name="options[fields][{{fieldIndex}}][general][required]" ng-model="field.general.required.value">
-                <option ng-repeat="op in field.general.required.options" value="{{op.key}}">{{op.text}}</option>
-            </select>
-        </div>
+        <label class="v2-toggle">
+            <input type="checkbox"
+                   ng-model="field.general.required.value"
+                   ng-true-value="'y'"
+                   ng-false-value="'n'" />
+            <span class="v2-toggle__track"></span>
+            <span class="v2-toggle__label" ng-bind="field.general.required.value === 'y' ? '<?php echo esc_js(__('On', 'storelly-product-builder-for-woocommerce')); ?>' : '<?php echo esc_js(__('Off', 'storelly-product-builder-for-woocommerce')); ?>'"></span>
+        </label>
+        <select class="v2-hidden-legacy" name="options[fields][{{fieldIndex}}][general][required]" ng-model="field.general.required.value">
+            <option ng-repeat="op in field.general.required.options" value="{{op.key}}">{{op.text}}</option>
+        </select>
     </div>
 </div>
 <?php echo '</script>';

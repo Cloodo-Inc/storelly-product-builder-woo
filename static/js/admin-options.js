@@ -114,6 +114,187 @@ angular
       });
       $scope.initfieldValue();
     };
+    /**
+     * v2 builder palette — add a field and pre-fill data_type/input_type
+     * for the chosen preset. Does not touch the data model; only
+     * mutates the same `field.general` keys the legacy editor uses.
+     *
+     * preset: 'm' (multi-choice), 'n' (number), 't' (text),
+     *         'a' (textarea), 'u' (file upload)
+     */
+    $scope.add_field_preset = function (preset) {
+      $scope.add_field();
+      var f = $scope.options.fields[$scope.options.fields.length - 1];
+      if (!f || !f.general) return;
+      switch (preset) {
+        case "m":
+          f.general.data_type.value = "m";
+          break;
+        case "n":
+          f.general.data_type.value = "i";
+          f.general.input_type.value = "t";
+          break;
+        case "t":
+          f.general.data_type.value = "i";
+          f.general.input_type.value = "t";
+          break;
+        case "a":
+          f.general.data_type.value = "i";
+          f.general.input_type.value = "a";
+          break;
+        case "u":
+          f.general.data_type.value = "i";
+          f.general.input_type.value = "u";
+          break;
+      }
+    };
+    /**
+     * Quantity-break helpers (option-level — not tied to a field).
+     * The legacy save handler already serializes `options.quantity_*` from
+     * $_POST['options'], so binding ng-model to these scope paths is enough.
+     */
+    /**
+     * v2 preview state — non-persistent, lives only in the controller.
+     * Tracks which attribute is "selected" per multi-choice field so the
+     * preview pane reflects a real customer interaction (click swatch,
+     * change price summary). Keyed by field.id to survive re-orders.
+     */
+    $scope.preview = {
+      base_price: 25,           // mocked base price for the calculator
+      selected: {},             // map: fieldId -> attrIndex
+      qty_index: 0,             // selected quantity tier index
+      qty_value: 1              // free-input quantity (stepper mode)
+    };
+
+    /**
+     * Select an attribute on a multi-choice field inside the preview pane.
+     */
+    $scope.preview_select_attr = function (fieldId, attrIndex) {
+      $scope.preview.selected[fieldId] = attrIndex;
+    };
+
+    /**
+     * True if (fieldId, attrIndex) is the currently-selected option.
+     * Defaults to attrIndex 0 when nothing has been picked yet, so the
+     * preview always shows a sensible "chosen" state on first paint.
+     */
+    $scope.preview_is_selected = function (fieldId, attrIndex) {
+      var sel = $scope.preview.selected[fieldId];
+      if (typeof sel === 'undefined') return attrIndex === 0;
+      return sel === attrIndex;
+    };
+
+    /**
+     * Return the currently-selected attribute object for a field, or
+     * the first attribute if none is selected yet. Used for the
+     * "chosen" label inside the section header.
+     */
+    $scope.preview_selected_attr = function (field) {
+      if (!field || !field.general || !field.general.attributes) return null;
+      var attrs = field.general.attributes.options || field.general.attributes;
+      if (!angular.isArray(attrs) || !attrs.length) return null;
+      var idx = $scope.preview.selected[field.id];
+      if (typeof idx === 'undefined') idx = 0;
+      return attrs[idx] || attrs[0];
+    };
+
+    /**
+     * Numeric coercion helper — turns "+$8.00" / "8" / 8 into 8.
+     */
+    function _toNum(v) {
+      if (typeof v === 'number') return v;
+      if (typeof v !== 'string') return 0;
+      var n = parseFloat(v.replace(/[^\d.\-]/g, ''));
+      return isNaN(n) ? 0 : n;
+    }
+
+    /**
+     * Live price calculation for the preview pane.
+     * Returns { base, options, qty_discount, total }.
+     */
+    $scope.preview_total = function () {
+      var base = _toNum($scope.preview.base_price);
+      var optTotal = 0;
+      angular.forEach($scope.options && $scope.options.fields, function (field) {
+        if (!field || !field.general) return;
+        if (field.general.enabled && field.general.enabled.value === 'n') return;
+        var attrs = field.general.attributes &&
+            (field.general.attributes.options || field.general.attributes);
+        if (!angular.isArray(attrs) || !attrs.length) return;
+        var idx = $scope.preview.selected[field.id];
+        if (typeof idx === 'undefined') idx = 0;
+        var attr = attrs[idx];
+        if (!attr) return;
+        var p = 0;
+        if (angular.isArray(attr.price)) {
+          p = _toNum(attr.price[0]);
+        } else if (attr.price) {
+          p = _toNum(attr.price);
+        }
+        optTotal += p;
+      });
+
+      // Apply quantity-break discount if enabled.
+      var qtyDiscount = 0;
+      var subTotal = base + optTotal;
+      if ($scope.options && $scope.options.quantity_enable === 'y' &&
+          angular.isArray($scope.options.quantity_breaks) &&
+          $scope.options.quantity_breaks.length) {
+        var brk = $scope.options.quantity_breaks[$scope.preview.qty_index] ||
+                  $scope.options.quantity_breaks[0];
+        var dis = _toNum(brk.dis);
+        if ($scope.options.quantity_discount_type === 'p') {
+          qtyDiscount = (subTotal * dis) / 100;
+        } else {
+          qtyDiscount = dis;
+        }
+      }
+
+      var total = Math.max(0, subTotal - qtyDiscount);
+      return {
+        base: base.toFixed(2),
+        options: optTotal.toFixed(2),
+        qty_discount: qtyDiscount.toFixed(2),
+        has_discount: qtyDiscount > 0.001,
+        total: total.toFixed(2)
+      };
+    };
+
+    /**
+     * Format an attribute's price for display in the preview swatch label.
+     */
+    $scope.preview_attr_price_label = function (attr) {
+      if (!attr) return '';
+      var p = angular.isArray(attr.price) ? attr.price[0] : attr.price;
+      var n = _toNum(p);
+      if (!n) return ''; // "Free"
+      var sign = n > 0 ? '+' : '';
+      return sign + '$' + n.toFixed(2);
+    };
+
+    $scope.add_quantity_break = function () {
+      if (!angular.isArray($scope.options.quantity_breaks)) {
+        $scope.options.quantity_breaks = [];
+      }
+      var last = $scope.options.quantity_breaks[$scope.options.quantity_breaks.length - 1];
+      var nextVal = last && parseInt(last.val, 10) ? parseInt(last.val, 10) * 2 : 100;
+      $scope.options.quantity_breaks.push({
+        val: nextVal,
+        dis: '',
+        default: ''
+      });
+    };
+    $scope.remove_quantity_break = function (index) {
+      if (!angular.isArray($scope.options.quantity_breaks)) return;
+      $scope.options.quantity_breaks.splice(index, 1);
+    };
+    $scope.set_default_quantity_break = function (index) {
+      if (!angular.isArray($scope.options.quantity_breaks)) return;
+      angular.forEach($scope.options.quantity_breaks, function (b, i) {
+        b.default = (i === index) ? 'on' : '';
+      });
+    };
+
     $scope.addView = function () {
       $scope.options.views.push({
         name: storelly_options.storelly_options_lang.view_name,
@@ -256,6 +437,59 @@ angular
       }
       return type_number;
     };
+
+    /**
+     * Human-readable label for a field's type, derived from its
+     * data_type / input_type / nbpb_type combo. Used in the collapsed
+     * field card meta chip (e.g. "Multi-choice", "Text input", "Upload").
+     */
+    $scope.get_field_label = function (field) {
+      if (!field || !field.general) return "";
+      if (field.nbpb_type) {
+        switch (field.nbpb_type) {
+          case "nbpb_com":   return "Designer Component";
+          case "nbpb_text":  return "Designer Text";
+          case "nbpb_image": return "Designer Image";
+        }
+      }
+      var dt = field.general.data_type && field.general.data_type.value;
+      var it = field.general.input_type && field.general.input_type.value;
+      if (dt === "m") return "Multi-choice";
+      if (dt === "i") {
+        switch (it) {
+          case "t": return "Text input";
+          case "a": return "Textarea";
+          case "u": return "File upload";
+        }
+        return "Input";
+      }
+      return "Field";
+    };
+
+    /**
+     * Number of attribute options on a multi-choice field.
+     */
+    $scope.get_field_attr_count = function (field) {
+      if (!field || !field.general || !field.general.attributes) return 0;
+      var opts = field.general.attributes.options || field.general.attributes;
+      return angular.isArray(opts) ? opts.length : 0;
+    };
+
+    /**
+     * Format an attribute's first price tier into a short label
+     * (e.g. "+$8.00", "Free", "−$2.00"). Returns null for the empty case.
+     */
+    $scope.attr_price_label = function (attr) {
+      if (!attr) return null;
+      var p = angular.isArray(attr.price) ? attr.price[0] : attr.price;
+      if (p === null || p === undefined || p === "" || p === "0" || p === 0) {
+        return null;
+      }
+      var n = parseFloat(("" + p).replace(/[^\d.\-]/g, ""));
+      if (isNaN(n) || n === 0) return null;
+      var sign = n > 0 ? "+" : "−";
+      return sign + "$" + Math.abs(n).toFixed(2);
+    };
     $scope.copy_field = function (index) {
       var field = {};
       angular.copy($scope.options.fields[index], field);
@@ -341,6 +575,14 @@ angular
       _toggleExpandField();
     };
     $scope.initfieldValue = function () {
+      // After every collection mutation, re-arm the sortable so newly added
+      // cards become draggable too. Debounced to avoid stacking digests.
+      if (typeof $scope.initSortableFields === "function") {
+        clearTimeout($scope._sortableT);
+        $scope._sortableT = setTimeout(function () {
+          $scope.initSortableFields();
+        }, 120);
+      }
       angular.forEach($scope.options.fields, function (field, key) {
         $scope.option_values[key] = angular.isDefined($scope.option_values[key])
           ? $scope.option_values[key]
@@ -599,6 +841,8 @@ angular
       });
       $scope.has_product_builder_field = false;
       $scope.initfieldValue();
+      // Wire the sortable drag handle once Angular has painted the cards.
+      $timeout(function () { $scope.initSortableFields(); }, 200);
     };
     $scope.export = function () {
       jQuery(".nbp-loading-wrap").addClass("nbp-show");
@@ -1137,9 +1381,8 @@ angular
           "options"
         ][opIndex]["sub_attributes"] = [];
       }
-      $scope.options["fields"][fieldIndex]["general"]["attributes"]["options"][
-        opIndex
-      ]["sub_attributes"].push({
+      var subAttrs = $scope.options["fields"][fieldIndex]["general"]["attributes"]["options"][opIndex]["sub_attributes"];
+      subAttrs.push({
         name: storelly_options.storelly_options_lang.sub_attribute_name,
         des: "",
         price: [],
@@ -1159,6 +1402,23 @@ angular
         ],
       });
       $scope.initfieldValue();
+      // Auto-scroll to the newly-added sub-attribute card so the user can
+      // see it immediately (otherwise it can be hidden below the fold and
+      // appear "covered" by the sticky Live Preview pane).
+      var newIndex = subAttrs.length - 1;
+      setTimeout(function () {
+        var cards = document.querySelectorAll(
+          '[data-field-index="' + fieldIndex + '"] .nbd-subattributes-wrap'
+        );
+        var target = cards[cards.length - 1];
+        if (target && typeof target.scrollIntoView === 'function') {
+          target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          target.classList.add('is-just-added');
+          setTimeout(function () {
+            target.classList.remove('is-just-added');
+          }, 1600);
+        }
+      }, 80);
     };
     $scope.toggle_enable_subattr = function (fieldIndex, opIndex) {
       var field = $scope.options["fields"][fieldIndex];
@@ -1189,6 +1449,20 @@ angular
         file_frame.open();
         return;
       }
+      // Compose a search query so the WP media library opens already
+      // filtered to images whose title / alt contains the attribute or
+      // field name — drastically narrows the picker when an option has
+      // 50+ uploaded images.
+      var field = $scope.options.fields[fieldIndex];
+      var attr  = field && field.general && field.general.attributes
+                  && field.general.attributes.options
+                  && field.general.attributes.options[$index];
+      var searchHint = "";
+      if (attr && attr.name) { searchHint = attr.name; }
+      else if (field && field.general && field.general.title && field.general.title.value) {
+        searchHint = field.general.title.value;
+      }
+
       file_frame = wp.media.frames.file_frame = wp.media({
         title: storelly_options.storelly_options_lang.choose_image,
         button: {
@@ -1196,8 +1470,20 @@ angular
         },
         library: {
           type: ["image"],
+          orderby: "date",
+          order: "DESC",
+          search: searchHint || null
         },
         multiple: false,
+      });
+      // Auto-focus the search box so the user can refine the query.
+      file_frame.on("open", function () {
+        try {
+          var searchInput = file_frame.$el.find('#media-search-input');
+          if (searchInput.length && searchHint) {
+            searchInput.val(searchHint).trigger('keyup');
+          }
+        } catch (e) { /* ignore */ }
       });
       file_frame.on("select", function () {
         var attachment = file_frame.state().get("selection").first().toJSON();
@@ -1378,6 +1664,87 @@ angular
       e.preventDefault();
       $scope.getJsonFields();
       return false;
+    };
+
+    /**
+     * Single-click on the collapsed field card header expands it.
+     * Skips clicks on interactive children (input, button, action area,
+     * drag handle) so they keep their normal behavior.
+     */
+    $scope.onHeaderClick = function (fieldIndex, event) {
+      var t = event.target;
+      if (!t) return;
+      // Skip clicks that should not toggle the card.
+      if (
+        t.tagName === "INPUT" ||
+        t.tagName === "BUTTON" ||
+        t.tagName === "A" ||
+        t.tagName === "SELECT" ||
+        t.tagName === "TEXTAREA" ||
+        (t.closest && (
+          t.closest(".field-action") ||
+          t.closest(".v2-drag-handle") ||
+          t.closest(".pcpb-field-name__title--editable") ||
+          t.closest(".nbd-tab-nav") ||
+          t.closest(".pcpb-field-content")
+        ))
+      ) {
+        return;
+      }
+      if (!$scope.options.fields[fieldIndex].isExpand) {
+        $scope.toggleExpandField(fieldIndex, event);
+      }
+    };
+
+    /**
+     * Wire up jQuery UI Sortable on the field list so the new ⋮⋮
+     * drag handle works. The legacy ↑/↓ arrows keep working as a
+     * keyboard-accessible fallback (no JS removal).
+     *
+     * Runs after the initial digest finishes so the ng-repeat'd cards
+     * exist in the DOM. Re-runs whenever fields are added/removed via
+     * the .destroy() + re-init cycle on the same root jQuery object.
+     */
+    $scope.initSortableFields = function () {
+      var $container = jQuery(".pcpb-fields-builder");
+      if (!$container.length || typeof $container.sortable !== "function") {
+        return;
+      }
+      // Destroy any previous instance to avoid stacking.
+      try { $container.sortable("destroy"); } catch (e) { /* not initialized yet */ }
+      $container.sortable({
+        handle: ".v2-drag-handle",
+        items: "> .pcpb-field-wrap",
+        axis: "y",
+        tolerance: "pointer",
+        cursor: "grabbing",
+        placeholder: "v2-sortable-placeholder",
+        forcePlaceholderSize: true,
+        opacity: 0.7,
+        revert: 150,
+        start: function (e, ui) {
+          ui.placeholder.height(ui.item.outerHeight());
+          ui.item.addClass("is-dragging");
+        },
+        stop: function (e, ui) {
+          ui.item.removeClass("is-dragging");
+        },
+        update: function (e, ui) {
+          // Read the new DOM order and rebuild $scope.options.fields.
+          var newOrder = [];
+          $container.find("> .pcpb-field-wrap").each(function () {
+            var origIdx = parseInt(jQuery(this).attr("data-field-index"), 10);
+            if (!isNaN(origIdx) && $scope.options.fields[origIdx]) {
+              newOrder.push($scope.options.fields[origIdx]);
+            }
+          });
+          if (newOrder.length === $scope.options.fields.length) {
+            $scope.$apply(function () {
+              $scope.options.fields = newOrder;
+            });
+          }
+        },
+      });
     };
     $scope.getJsonFields = function () {
       var fields = [];

@@ -3,24 +3,19 @@
 <?php echo '<script type="text/ng-template" id="field_body_text_option">'; ?>
 <div class="pcpb-field-info" ng-show="check_depend(field.general, field.general.text_option)">
     <div class="pcpb-field-info-1">
-        <div><label><b><?php esc_html_e('Text option', 'storelly-product-builder-for-woocommerce'); ?></b></label></div>
+        <label><b><?php esc_html_e('Character limit', 'storelly-product-builder-for-woocommerce'); ?></b></label>
+        <p class="v2-form-help"><?php esc_html_e('Min and max number of characters the customer can type.', 'storelly-product-builder-for-woocommerce'); ?></p>
     </div>
     <div class="pcpb-field-info-2">
-        <div>
-            <table class="nbd-table">
-                <tr>
-                    <th><?php esc_html_e('Min length', 'storelly-product-builder-for-woocommerce'); ?></th>
-                    <th><?php esc_html_e('Max length', 'storelly-product-builder-for-woocommerce'); ?></th>
-                </tr>
-                <tr>
-                    <td>
-                        <input class="nbd-short-ip" type="text" string-to-number ng-model="field.general.text_option.value.min" name="options[fields][{{fieldIndex}}][general][text_option][min]" />
-                    </td>
-                    <td>
-                        <input class="nbd-short-ip" type="text" string-to-number ng-model="field.general.text_option.value.max" name="options[fields][{{fieldIndex}}][general][text_option][max]" />
-                    </td>
-                </tr>
-            </table>
+        <div class="v2-mini-grid v2-mini-grid--2">
+            <label class="v2-mini-field">
+                <span class="v2-mini-field__label"><?php esc_html_e('Min length', 'storelly-product-builder-for-woocommerce'); ?></span>
+                <input type="number" string-to-number ng-model="field.general.text_option.value.min" name="options[fields][{{fieldIndex}}][general][text_option][min]" />
+            </label>
+            <label class="v2-mini-field">
+                <span class="v2-mini-field__label"><?php esc_html_e('Max length', 'storelly-product-builder-for-woocommerce'); ?></span>
+                <input type="number" string-to-number ng-model="field.general.text_option.value.max" name="options[fields][{{fieldIndex}}][general][text_option][max]" />
+            </label>
         </div>
     </div>
 </div>
