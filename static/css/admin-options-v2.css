@@ -4236,11 +4236,21 @@
     color: var(--nbd-color-danger);
 }
 .spbwc-edit-v2 .v2-qty-break-empty {
-    padding: var(--nbd-space-5);
-    text-align: center;
-    font-size: var(--text-base);
-    color: var(--nbd-st-text-mute);
+    display: flex;
+    align-items: center;
+    gap: var(--nbd-space-2);
+    padding: var(--nbd-space-3);
+    background: var(--nbd-st-bg-soft);
+    border: 1px dashed var(--nbd-st-border);
+    border-radius: var(--nbd-radius-md);
+    color: var(--nbd-st-text-soft);
+    font-size: var(--text-sm);
     font-style: italic;
+}
+.spbwc-edit-v2 .v2-qty-break-empty__icon {
+    font-size: var(--text-2xl);
+    color: var(--nbd-st-text-mute);
+    font-style: normal;
 }
 
 /* ============================================================

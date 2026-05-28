@@ -277,15 +277,15 @@ $field_count   = isset($options['fields']) && is_array($options['fields']) ? cou
                         <div class="v2-qty-grid v2-qty-grid--minmax" ng-show="options.quantity_type === 's'">
                             <div class="v2-form-row">
                                 <label class="v2-form-row__label"><?php esc_html_e('Min quantity', 'storelly-product-builder-for-woocommerce'); ?></label>
-                                <input class="v2-input" type="number" min="1" ng-model="options.quantity_min" name="options[quantity_min]" style="max-width:120px;" />
+                                <input class="v2-input" type="number" string-to-number min="1" ng-model="options.quantity_min" name="options[quantity_min]" style="max-width:120px;" />
                             </div>
                             <div class="v2-form-row">
                                 <label class="v2-form-row__label"><?php esc_html_e('Max quantity', 'storelly-product-builder-for-woocommerce'); ?></label>
-                                <input class="v2-input" type="number" min="1" ng-model="options.quantity_max" name="options[quantity_max]" style="max-width:120px;" />
+                                <input class="v2-input" type="number" string-to-number min="1" ng-model="options.quantity_max" name="options[quantity_max]" style="max-width:120px;" />
                             </div>
                             <div class="v2-form-row">
                                 <label class="v2-form-row__label"><?php esc_html_e('Step', 'storelly-product-builder-for-woocommerce'); ?></label>
-                                <input class="v2-input" type="number" min="1" ng-model="options.quantity_step" name="options[quantity_step]" style="max-width:120px;" />
+                                <input class="v2-input" type="number" string-to-number min="1" ng-model="options.quantity_step" name="options[quantity_step]" style="max-width:120px;" />
                             </div>
                         </div>
 
@@ -307,7 +307,7 @@ $field_count   = isset($options['fields']) && is_array($options['fields']) ? cou
                             </div>
                             <div class="v2-qty-break" ng-repeat="b in options.quantity_breaks track by $index">
                                 <div>
-                                    <input class="v2-input" type="number" min="1"
+                                    <input class="v2-input" type="number" string-to-number min="1"
                                            ng-model="b.val"
                                            name="options[quantity_breaks][{{$index}}][val]"
                                            placeholder="<?php esc_attr_e('e.g. 100', 'storelly-product-builder-for-woocommerce'); ?>" />
@@ -336,7 +336,8 @@ $field_count   = isset($options['fields']) && is_array($options['fields']) ? cou
                                 <button type="button" class="v2-qty-break__remove" ng-click="remove_quantity_break($index)" title="<?php esc_attr_e('Remove tier', 'storelly-product-builder-for-woocommerce'); ?>">✕</button>
                             </div>
                             <div class="v2-qty-break-empty" ng-show="!options.quantity_breaks || options.quantity_breaks.length === 0">
-                                <?php esc_html_e('No quantity tiers yet. Add at least one to enable bulk pricing.', 'storelly-product-builder-for-woocommerce'); ?>
+                                <span class="v2-qty-break-empty__icon" aria-hidden="true">∅</span>
+                                <span><?php esc_html_e('No quantity tiers yet. Add at least one to enable bulk pricing.', 'storelly-product-builder-for-woocommerce'); ?></span>
                             </div>
                         </div>
 
@@ -931,14 +932,14 @@ $field_count   = isset($options['fields']) && is_array($options['fields']) ? cou
                                     <div class="v2-view-card__dims">
                                         <label>
                                             <span><?php esc_html_e('W', 'storelly-product-builder-for-woocommerce'); ?></span>
-                                            <input class="v2-input" type="number" min="0" step="1"
+                                            <input class="v2-input" type="number" string-to-number min="0" step="1"
                                                    ng-model="view.base_width"
                                                    name="options[views][{{$index}}][base_width]" />
                                         </label>
                                         <span class="v2-view-card__times" aria-hidden="true">×</span>
                                         <label>
                                             <span><?php esc_html_e('H', 'storelly-product-builder-for-woocommerce'); ?></span>
-                                            <input class="v2-input" type="number" min="0" step="1"
+                                            <input class="v2-input" type="number" string-to-number min="0" step="1"
                                                    ng-model="view.base_height"
                                                    name="options[views][{{$index}}][base_height]" />
                                         </label>

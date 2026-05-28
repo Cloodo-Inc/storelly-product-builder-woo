@@ -59,7 +59,7 @@
                         <div class="v2-attr-section-label"><?php esc_html_e('Additional price', 'storelly-product-builder-for-woocommerce'); ?></div>
                         <div class="v2-attr-price-input">
                             <span class="v2-input-prefix">$</span>
-                            <input autocomplete="off" name="options[fields][{{fieldIndex}}][general][attributes][options][{{opIndex}}][price][0]" type="number" step="0.01" placeholder="0.00" ng-model="op.price[0]" />
+                            <input autocomplete="off" string-to-number name="options[fields][{{fieldIndex}}][general][attributes][options][{{opIndex}}][price][0]" type="number" step="0.01" placeholder="0.00" ng-model="op.price[0]" />
                         </div>
                         <small class="v2-attr-field__hint"><?php esc_html_e('Added to the base price when the customer picks this option. Leave 0.00 for no surcharge.', 'storelly-product-builder-for-woocommerce'); ?></small>
                     </div>
@@ -245,7 +245,7 @@
                                     <div class="v2-attr-section-label"><?php esc_html_e('Additional price', 'storelly-product-builder-for-woocommerce'); ?></div>
                                     <div class="v2-attr-price-input">
                                         <span class="v2-input-prefix">$</span>
-                                        <input autocomplete="off" name="options[fields][{{fieldIndex}}][general][attributes][options][{{opIndex}}][sub_attributes][{{sopIndex}}][price][0]" type="number" step="0.01" placeholder="0.00" ng-model="sop.price[0]" />
+                                        <input autocomplete="off" string-to-number name="options[fields][{{fieldIndex}}][general][attributes][options][{{opIndex}}][sub_attributes][{{sopIndex}}][price][0]" type="number" step="0.01" placeholder="0.00" ng-model="sop.price[0]" />
                                     </div>
                                     <small class="v2-attr-field__hint"><?php esc_html_e('Added on top of the parent option price when this sub-option is picked.', 'storelly-product-builder-for-woocommerce'); ?></small>
                                 </div>

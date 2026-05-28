@@ -21,7 +21,7 @@
                         <td>
                             <div class="v2-input-with-prefix">
                                 <span class="v2-input-prefix">$</span>
-                                <input type="number" step="0.01" class="nbd-short-ip" placeholder="0.00"
+                                <input type="number" string-to-number step="0.01" class="nbd-short-ip" placeholder="0.00"
                                        ng-model="field.general.price_breaks.value[$index]"
                                        name="options[fields][{{fieldIndex}}][general][price_breaks][{{$index}}]" />
                             </div>

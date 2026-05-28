@@ -9,7 +9,7 @@
     <div class="pcpb-field-info-2">
         <div class="v2-input-with-prefix">
             <span class="v2-input-prefix">$</span>
-            <input type="number" step="0.01" ng-model="field.general.price.value" name="options[fields][{{fieldIndex}}][general][price]" placeholder="0.00" class="nbd-short-ip" />
+            <input type="number" string-to-number step="0.01" ng-model="field.general.price.value" name="options[fields][{{fieldIndex}}][general][price]" placeholder="0.00" class="nbd-short-ip" />
         </div>
     </div>
 </div>
