@@ -2,13 +2,16 @@
 .git
 .github
 .claude
+.remember
 .distignore
 CLAUDE.md
 AUDIT-WPORG.md
+docs
 node_modules
 tests
 .editorconfig
 .gitignore
+.phpcs.xml
 phpcs.xml
 phpcs.xml.dist
 phpunit.xml
@@ -22,3 +25,4 @@ README.md
 *.map
 .DS_Store
 tools
+static/mockups
