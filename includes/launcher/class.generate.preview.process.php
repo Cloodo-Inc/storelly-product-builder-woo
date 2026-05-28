@@ -3,13 +3,25 @@ if (!defined('ABSPATH')) {
     exit; // Exit if accessed directly
 }
 
-if ( ! class_exists( 'WP_Async_Request', false ) ) {
-    include_once dirname( WC_PLUGIN_FILE ) . '/includes/libraries/wp-async-request.php';
+// Check if WooCommerce constant exists (may not exist in newer WC versions)
+$wc_lib_path = defined('WC_PLUGIN_FILE') ? dirname( WC_PLUGIN_FILE ) . '/includes/libraries/' : '';
+
+if ( $wc_lib_path && ! class_exists( 'WP_Async_Request', false ) ) {
+    $async_file = $wc_lib_path . 'wp-async-request.php';
+    if ( file_exists( $async_file ) ) {
+        include_once $async_file;
+    }
 }
 
-if ( ! class_exists( 'WP_Background_Process', false ) ) {
-    include_once dirname( WC_PLUGIN_FILE ) . '/includes/libraries/wp-background-process.php';
+if ( $wc_lib_path && ! class_exists( 'WP_Background_Process', false ) ) {
+    $bg_file = $wc_lib_path . 'wp-background-process.php';
+    if ( file_exists( $bg_file ) ) {
+        include_once $bg_file;
+    }
 }
+
+// Only define class if parent class exists
+if ( class_exists( 'WP_Background_Process', false ) ) {
 
 class SPBWC_Generate_Preview_Process extends WP_Background_Process {
 
@@ -183,3 +195,5 @@ class SPBWC_Generate_Preview_Process extends WP_Background_Process {
         parent::complete();
     }
 }
+
+} // end if class_exists WP_Background_Process

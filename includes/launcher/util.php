@@ -826,7 +826,10 @@ function spbwc_marketplace_get_sale_report( $group_by = 'day', $start_date = '',
 function spbwc_marketplace_init_background_process(){
     global $nbdl_processor;
     include_once( NBDESIGNER_PLUGIN_DIR . 'includes/launcher/class.generate.preview.process.php' );
-    $nbdl_processor = new SPBWC_Generate_Preview_Process();
+    // Only instantiate if class exists (requires WooCommerce background process library)
+    if ( class_exists( 'SPBWC_Generate_Preview_Process', false ) ) {
+        $nbdl_processor = new SPBWC_Generate_Preview_Process();
+    }
 }
 add_action( 'woocommerce_loaded', 'spbwc_marketplace_init_background_process' );
 
@@ -836,9 +839,12 @@ function spbwc_marketplace_generate_color_product_design( $approved ){
     }
 
     global $nbdl_processor;
-    
-    foreach( $approved as $design_id ){
-        $nbdl_processor->push_to_queue( $design_id );
+
+    // Only run if background processor was initialized
+    if ( ! empty( $nbdl_processor ) && is_object( $nbdl_processor ) ) {
+        foreach( $approved as $design_id ){
+            $nbdl_processor->push_to_queue( $design_id );
+        }
+        $nbdl_processor->save()->dispatch();
     }
-    $nbdl_processor->save()->dispatch();
 }
