@@ -567,9 +567,28 @@ if (!class_exists('STORELLY_FRONTEND_OPTIONS')) {
                 } else { 
                     if ( ! empty( $_FILES ) && isset( $_FILES['pcpb-field'] ) ) {
                         $files = $_FILES['pcpb-field']; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Upload array validated and sanitized inside upload_file().
+                        // Map each field's configured upload constraints (allowed
+                        // extensions + max size) so the server enforces what the
+                        // merchant set, not a fixed list.
+                        $upload_cfg_map = array();
+                        $decoded_fields = $options['fields'];
+                        if ( is_string( $decoded_fields ) ) {
+                            if ( SPBWC_Storelly_PB_Util::spbwc_is_base64_string( $decoded_fields ) ) {
+                                $decoded_fields = base64_decode( $decoded_fields ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_decode -- Internal option blob, not user input.
+                            }
+                            $decoded_fields = maybe_unserialize( $decoded_fields );
+                        }
+                        if ( is_array( $decoded_fields ) && isset( $decoded_fields['fields'] ) && is_array( $decoded_fields['fields'] ) ) {
+                            foreach ( $decoded_fields['fields'] as $f ) {
+                                if ( isset( $f['id'], $f['general']['upload_option'] ) ) {
+                                    $upload_cfg_map[ $f['id'] ] = $f['general']['upload_option'];
+                                }
+                            }
+                        }
                         foreach ( $files['name'] as $field_id => $file_name ) {
                             if ( ! isset( $nbd_field[ $field_id ] ) ) {
-                                $nbd_upload_field = $this->upload_file( $files, $field_id );
+                                $cfg = isset( $upload_cfg_map[ $field_id ] ) ? $upload_cfg_map[ $field_id ] : array();
+                                $nbd_upload_field = $this->upload_file( $files, $field_id, $cfg );
                                 if ( ! empty( $nbd_upload_field ) ) {
                                     $nbd_field[ $field_id ] = $nbd_upload_field[ $field_id ];
                                 }
@@ -607,10 +626,10 @@ if (!class_exists('STORELLY_FRONTEND_OPTIONS')) {
             return $upload;
         }
 
-        public function upload_file($files, $field_id) {
+        public function upload_file($files, $field_id, $upload_cfg = array()) {
             $nbd_upload_fields = array();
             $user_folder = md5(WC()->session->get_customer_id());
-            
+
             // Validate file input exists
             if ( ! isset( $files['name'][ $field_id ] ) ) {
                 return $nbd_upload_fields;
@@ -618,7 +637,7 @@ if (!class_exists('STORELLY_FRONTEND_OPTIONS')) {
 
             $raw_name = $files['name'][$field_id];
             $file_name_clean = sanitize_file_name( wp_basename( $raw_name ) );
-             
+
             $file_error = isset( $files['error'][ $field_id ] ) ? absint( $files['error'][ $field_id ] ) : UPLOAD_ERR_NO_FILE;
             if ( UPLOAD_ERR_OK !== $file_error ) {
                 return $nbd_upload_fields;
@@ -629,25 +648,58 @@ if (!class_exists('STORELLY_FRONTEND_OPTIONS')) {
                 return $nbd_upload_fields;
             }
 
+            // Safe server-side extension whitelist (never accept scripts/executables).
+            // Intersected below with the merchant's configured allow_type so the
+            // server honors the field config instead of a fixed list.
+            $safe_whitelist = apply_filters(
+                'spbwc_upload_file_allowed_extensions',
+                array( 'json', 'svg', 'png', 'jpg', 'jpeg', 'gif', 'pdf', 'webp', 'bmp', 'tiff', 'tif', 'ai', 'eps', 'psd' )
+            );
+            $allowed = $safe_whitelist;
+            if ( isset( $upload_cfg['allow_type'] ) && '' !== trim( (string) $upload_cfg['allow_type'] ) ) {
+                $merchant = array_filter( array_map(
+                    static function ( $t ) { return strtolower( trim( $t ) ); },
+                    explode( ',', (string) $upload_cfg['allow_type'] )
+                ) );
+                if ( in_array( 'jpg', $merchant, true ) || in_array( 'jpeg', $merchant, true ) ) {
+                    $merchant[] = 'jpg';
+                    $merchant[] = 'jpeg';
+                }
+                if ( in_array( 'tiff', $merchant, true ) || in_array( 'tif', $merchant, true ) ) {
+                    $merchant[] = 'tiff';
+                    $merchant[] = 'tif';
+                }
+                $allowed = array_values( array_intersect( $safe_whitelist, $merchant ) );
+            }
+            if ( empty( $allowed ) ) {
+                return $nbd_upload_fields;
+            }
+
+            // Temporarily widen mimes so WP's filetype check + uploader accept the
+            // configured print/design formats (ai/eps/psd/pdf…). Scoped to this
+            // upload only — removed before returning.
+            add_filter( 'upload_mimes', array( $this, 'spbwc_widen_upload_mimes' ) );
+
             $file_check = wp_check_filetype_and_ext( $tmp_name, $file_name_clean );
             $ext  = isset( $file_check['ext'] ) ? $file_check['ext'] : '';
             $type = isset( $file_check['type'] ) ? $file_check['type'] : '';
 
-            if ( '' === $ext || '' === $type ) {
+            if ( '' === $ext || '' === $type || ! in_array( $ext, $allowed, true ) ) {
+                remove_filter( 'upload_mimes', array( $this, 'spbwc_widen_upload_mimes' ) );
                 return $nbd_upload_fields;
             }
 
-            $allowed_extensions = apply_filters(
-                'spbwc_upload_file_allowed_extensions',
-                array( 'json', 'svg', 'png', 'jpg', 'jpeg', 'gif' )
-            );
-
-            if ( ! in_array( $ext, $allowed_extensions, true ) ) {
-                return $nbd_upload_fields;
+            // Enforce the merchant's max file size (MB) on the server, not just client-side.
+            $size_bytes = isset( $files['size'][ $field_id ] ) ? absint( $files['size'][ $field_id ] ) : 0;
+            if ( isset( $upload_cfg['max_size'] ) && (float) $upload_cfg['max_size'] > 0 ) {
+                $max_bytes = (float) $upload_cfg['max_size'] * 1024 * 1024;
+                if ( $size_bytes > $max_bytes ) {
+                    remove_filter( 'upload_mimes', array( $this, 'spbwc_widen_upload_mimes' ) );
+                    return $nbd_upload_fields;
+                }
             }
 
             $new_name = strtotime( 'now' ) . substr( md5( rand( 1111, 9999 ) ), 0, 8 ) . '.' . $ext; // phpcs:ignore WordPress.WP.AlternativeFunctions.rand_rand
-            $new_path = SPBWC_PB_UPLOAD_DIR . '/' . $user_folder . '/' . $new_name;
             $mkpath = wp_mkdir_p( SPBWC_PB_UPLOAD_DIR . '/' . $user_folder );
 
             if ( $mkpath ) {
@@ -657,7 +709,7 @@ if (!class_exists('STORELLY_FRONTEND_OPTIONS')) {
                     'type'     => $type,
                     'tmp_name' => $tmp_name,
                     'error'    => $file_error,
-                    'size'     => isset( $files['size'][ $field_id ] ) ? absint( $files['size'][ $field_id ] ) : 0,
+                    'size'     => $size_bytes,
                 );
                 $upload_overrides = array( 'test_form' => false );
                 $movefile = wp_handle_upload( $file, $upload_overrides );
@@ -666,7 +718,22 @@ if (!class_exists('STORELLY_FRONTEND_OPTIONS')) {
                     $nbd_upload_fields[ $field_id ] = $user_folder . '/' . $new_name;
                 }
             }
+            remove_filter( 'upload_mimes', array( $this, 'spbwc_widen_upload_mimes' ) );
             return $nbd_upload_fields;
+        }
+        /**
+         * Print/design mimes allowed only during a buyer artwork upload (added +
+         * removed around wp_handle_upload). Non-executable formats only.
+         */
+        public function spbwc_widen_upload_mimes( $mimes ) {
+            $mimes['pdf']      = 'application/pdf';
+            $mimes['ai']       = 'application/postscript';
+            $mimes['eps']      = 'application/postscript';
+            $mimes['psd']      = 'image/vnd.adobe.photoshop';
+            $mimes['tiff|tif'] = 'image/tiff';
+            $mimes['webp']     = 'image/webp';
+            $mimes['bmp']      = 'image/bmp';
+            return $mimes;
         }
         public function get_field_by_id($option_fields, $field_id) {
             foreach ($option_fields['fields'] as $key => $field) {

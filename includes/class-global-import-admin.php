@@ -63,6 +63,7 @@ if (!class_exists('SPBWC_Global_Import_Admin')) {
                 'rest_url' => esc_url_raw(rest_url('storelly/v1')),
                 'rest_nonce' => wp_create_nonce('wp_rest'),
                 'assets_url' => SPBWC_PB_ASSETS_URL,
+                'background' => function_exists('as_enqueue_async_action'),
                 'i18n' => array(
                     'upload_title' => __('Upload file', 'storelly-product-builder-for-woocommerce'),
                     'import_title' => __('Import products', 'storelly-product-builder-for-woocommerce'),

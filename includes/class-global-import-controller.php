@@ -25,9 +25,236 @@ class SPBWC_Global_Import_Controller {
         add_action('wp_ajax_spbwc_global_import_row_ids', array($this, 'handle_row_ids'));
         add_action('wp_ajax_spbwc_global_import_run', array($this, 'handle_import'));
         add_action('wp_ajax_spbwc_global_import_log', array($this, 'handle_log'));
-        add_action('wp_ajax_spbwc_global_import_issues', array($this, 'handle_issues_list'));
         add_action('wp_ajax_spbwc_global_import_reimport', array($this, 'handle_reimport'));
         add_action('wp_ajax_spbwc_global_import_health', array($this, 'handle_health'));
+        add_action('wp_ajax_spbwc_global_import_enqueue', array($this, 'handle_enqueue'));
+        add_action('wp_ajax_spbwc_global_import_progress', array($this, 'handle_progress'));
+        // Action Scheduler worker — registered on every request so the queue runner (a separate
+        // loopback/WP-Cron request) can invoke it even when no admin page is open.
+        add_action('spbwc_gi_process_batch', array($this, 'process_import_batch'));
+    }
+
+    private function job_option_key($run_id) {
+        return 'spbwc_gi_job_' . $run_id;
+    }
+
+    private function get_job($run_id) {
+        $job = get_option($this->job_option_key($run_id), null);
+        return is_array($job) ? $job : null;
+    }
+
+    private function save_job($job) {
+        update_option($this->job_option_key($job['run_id']), $job, false);
+    }
+
+    /**
+     * Queue a background import. Schedules a self-chaining Action Scheduler worker so the import
+     * keeps running server-side even if the admin closes the browser.
+     */
+    public function handle_enqueue() {
+        check_ajax_referer('spbwc_global_import', 'nonce');
+        if (!current_user_can('manage_woocommerce')) {
+            wp_send_json_error(__('Permission denied', 'storelly-product-builder-for-woocommerce'), 403);
+        }
+        if (!function_exists('as_enqueue_async_action')) {
+            wp_send_json_error(array(
+                'code'    => 'no_background',
+                'message' => __('Background processing is unavailable on this site.', 'storelly-product-builder-for-woocommerce'),
+            ));
+        }
+        $import_id = sanitize_text_field($_POST['import_id'] ?? '');
+        if ('' === $import_id) {
+            $import_id = $this->demo_session_id();
+        }
+        $run_id = preg_replace('/[^A-Za-z0-9_\-]/', '', (string) ($_POST['run_id'] ?? ''));
+        if ('' === $run_id) {
+            $run_id = 'bg-' . time() . '-' . wp_generate_password(6, false, false);
+        }
+        $row_ids_raw = isset($_POST['row_ids']) ? wp_unslash($_POST['row_ids']) : array();
+        if (is_array($row_ids_raw)) {
+            $row_ids = array_map('sanitize_text_field', $row_ids_raw);
+        } elseif (is_string($row_ids_raw) && '' !== $row_ids_raw) {
+            $row_ids = array_map('sanitize_text_field', explode(',', $row_ids_raw));
+        } else {
+            $row_ids = array();
+        }
+        $row_ids = array_values(array_unique(array_filter($row_ids, static function ($id) {
+            return '' !== $id;
+        })));
+        if (empty($row_ids)) {
+            wp_send_json_error(__('No rows selected', 'storelly-product-builder-for-woocommerce'));
+        }
+        $batch = max(1, absint($_POST['batch'] ?? 3));
+
+        $session = ($import_id === $this->demo_session_id())
+            ? $this->ensure_demo_session()
+            : $this->get_session($import_id);
+        if (!$session || empty($session['session_path'])) {
+            wp_send_json_error(__('Import session not found.', 'storelly-product-builder-for-woocommerce'));
+        }
+
+        $active = get_option('spbwc_gi_active_jobs', array());
+        if (!is_array($active)) {
+            $active = array();
+        }
+        if (isset($active[$import_id])) {
+            $prev = $this->get_job($active[$import_id]);
+            if ($prev && in_array($prev['status'], array('done', 'error'), true)) {
+                delete_option($this->job_option_key($active[$import_id]));
+            }
+        }
+
+        $job = array(
+            'run_id'       => $run_id,
+            'import_id'    => $import_id,
+            'session_path' => $session['session_path'],
+            'pending'      => array_values($row_ids),
+            'total'        => count($row_ids),
+            'processed'    => 0,
+            'succeeded'    => 0,
+            'failed'       => 0,
+            'batch'        => $batch,
+            'status'       => 'queued',
+            'current_name' => '',
+            'errors'       => array(),
+            'started_at'   => time(),
+            'updated_at'   => time(),
+        );
+        $this->save_job($job);
+        $active[$import_id] = $run_id;
+        update_option('spbwc_gi_active_jobs', $active, false);
+
+        as_enqueue_async_action('spbwc_gi_process_batch', array($run_id), 'spbwc-global-import');
+
+        wp_send_json_success(array(
+            'run_id' => $run_id,
+            'total'  => $job['total'],
+            'status' => 'queued',
+        ));
+    }
+
+    /**
+     * Action Scheduler worker: import a slice of the job's pending rows, then re-schedule itself
+     * until the queue is empty. Bounded by batch count and elapsed time to avoid timeouts.
+     *
+     * @param string $run_id Job identifier.
+     */
+    public function process_import_batch($run_id) {
+        $run_id = preg_replace('/[^A-Za-z0-9_\-]/', '', (string) $run_id);
+        $job = $this->get_job($run_id);
+        if (!$job || in_array($job['status'], array('done', 'error'), true)) {
+            return;
+        }
+        // Read the session snapshot captured at enqueue time (a local file) — never re-fetch the
+        // remote demo feed per worker run, which would be slow and flaky.
+        $session_path = isset($job['session_path']) ? $job['session_path'] : '';
+        $rows = $this->read_session_rows($session_path);
+        if (empty($rows)) {
+            $job['status']   = 'error';
+            $job['errors'][] = __('Import session data is unavailable.', 'storelly-product-builder-for-woocommerce');
+            $this->save_job($job);
+            return;
+        }
+        $rows_map = array();
+        foreach ($rows as $row) {
+            $rows_map[$row['row_id']] = $row;
+        }
+        $this->adapter->set_logger(function ($message) use ($run_id) {
+            $this->log_line($run_id, $message);
+        });
+        $job['status'] = 'running';
+        @set_time_limit(0); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged, Generic.PHP.DiscouragedFunctions -- long media/JSON downloads in a background worker.
+        wp_defer_term_counting(true);
+        wp_defer_comment_counting(true);
+        $start         = time();
+        $done_this_run = 0;
+        while (!empty($job['pending']) && $done_this_run < $job['batch'] && (time() - $start) < 20) {
+            $row_id = array_shift($job['pending']);
+            $job['current_name'] = isset($rows_map[$row_id]) ? $rows_map[$row_id]['name'] : $row_id;
+            $this->save_job($job);
+            if (!isset($rows_map[$row_id])) {
+                $job['failed']++;
+                $job['processed']++;
+                $done_this_run++;
+                $this->log_line($run_id, 'ERROR Row ' . $row_id . ' not found');
+                continue;
+            }
+            $this->log_line($run_id, 'IMPORTING product: ' . ($rows_map[$row_id]['name'] ? $rows_map[$row_id]['name'] : $row_id));
+            try {
+                $result = $this->import_row($rows_map[$row_id]);
+            } catch (Throwable $throwable) {
+                $result = array('success' => false, 'message' => $throwable->getMessage());
+            }
+            if (!empty($result['success'])) {
+                $job['succeeded']++;
+                $this->log_line($run_id, 'BATCH_COMPLETE ' . wp_json_encode(array('row_id' => $row_id, 'product_id' => $result['data']['product_id'])));
+                if (!empty($result['warnings'])) {
+                    foreach ($result['warnings'] as $warning) {
+                        $this->log_line($run_id, 'WARNING ' . $warning);
+                    }
+                }
+            } else {
+                $job['failed']++;
+                $job['errors'][] = $result['message'];
+                $this->log_line($run_id, 'ERROR ' . $result['message']);
+            }
+            if (!empty($result['debug'])) {
+                foreach ($result['debug'] as $debug) {
+                    $this->log_line($run_id, 'DEBUG ' . $debug);
+                }
+            }
+            $job['processed']++;
+            $done_this_run++;
+            $job['updated_at'] = time();
+            $this->save_job($job);
+        }
+        wp_defer_term_counting(false);
+        wp_defer_comment_counting(false);
+        if (!empty($job['pending'])) {
+            $this->save_job($job);
+            as_enqueue_async_action('spbwc_gi_process_batch', array($run_id), 'spbwc-global-import');
+        } else {
+            $job['status']       = 'done';
+            $job['current_name'] = '';
+            $job['updated_at']   = time();
+            $this->save_job($job);
+            $this->log_line($run_id, 'BATCH_COMPLETE ' . wp_json_encode(array('done' => true, 'succeeded' => $job['succeeded'], 'failed' => $job['failed'])));
+        }
+    }
+
+    /**
+     * Report progress of a background import job. Looks up the active job by import_id when no
+     * run_id is supplied, so the admin can re-open the page and resume watching.
+     */
+    public function handle_progress() {
+        check_ajax_referer('spbwc_global_import', 'nonce');
+        if (!current_user_can('manage_woocommerce')) {
+            wp_send_json_error(__('Permission denied', 'storelly-product-builder-for-woocommerce'), 403);
+        }
+        $run_id = preg_replace('/[^A-Za-z0-9_\-]/', '', (string) ($_POST['run_id'] ?? ''));
+        if ('' === $run_id) {
+            $import_id = sanitize_text_field($_POST['import_id'] ?? '');
+            if ('' === $import_id) {
+                $import_id = $this->demo_session_id();
+            }
+            $active = get_option('spbwc_gi_active_jobs', array());
+            if (is_array($active) && isset($active[$import_id])) {
+                $run_id = $active[$import_id];
+            }
+        }
+        $job = '' !== $run_id ? $this->get_job($run_id) : null;
+        if (!$job) {
+            wp_send_json_success(array('job' => null));
+        }
+        wp_send_json_success(array('job' => array(
+            'run_id'       => $job['run_id'],
+            'status'       => $job['status'],
+            'total'        => (int) $job['total'],
+            'processed'    => (int) $job['processed'],
+            'succeeded'    => (int) $job['succeeded'],
+            'failed'       => (int) $job['failed'],
+            'current_name' => (string) $job['current_name'],
+        )));
     }
 
     private function filesystem() {
@@ -222,6 +449,7 @@ class SPBWC_Global_Import_Controller {
         $price_max = isset($_POST['price_max']) ? floatval($_POST['price_max']) : null;
         $sort_by = sanitize_text_field($_POST['sort_by'] ?? 'name');
         $sort_dir = sanitize_text_field($_POST['sort_dir'] ?? 'asc');
+        $import_state = sanitize_text_field($_POST['import_state'] ?? '');
         $rows = $this->get_filtered_rows(
             $session['session_path'],
             $search,
@@ -232,15 +460,133 @@ class SPBWC_Global_Import_Controller {
             $sort_by,
             $sort_dir
         );
+        $rows = $this->annotate_import_state($rows);
+        if ('' !== $import_state) {
+            $rows = array_values(array_filter($rows, static function ($row) use ($import_state) {
+                $state = $row['import'];
+                if ('imported' === $import_state) {
+                    return $state['imported'] && 'ok' === $state['status'];
+                }
+                if ('issues' === $import_state) {
+                    return $state['imported'] && 'ok' !== $state['status'];
+                }
+                if ('none' === $import_state) {
+                    return !$state['imported'];
+                }
+                return true;
+            }));
+        }
         $total = count($rows);
         $offset = ($page - 1) * $per_page;
         $paged = array_slice($rows, $offset, $per_page);
+        $summary = $this->summarize_import_state(
+            $this->annotate_import_state($this->read_session_rows($session['session_path']))
+        );
         wp_send_json_success(array(
             'items' => $paged,
             'total' => $total,
             'page' => $page,
-            'per_page' => $per_page
+            'per_page' => $per_page,
+            'summary' => $summary,
         ));
+    }
+
+    /**
+     * Annotate source rows with their current import state (matched by external_id) so the UI can
+     * show which products are already imported, imported with issues, or not yet imported.
+     *
+     * @param array $rows Normalized source rows.
+     * @return array Same rows with an added 'import' descriptor on each.
+     */
+    private function annotate_import_state($rows) {
+        if (empty($rows) || !is_array($rows)) {
+            return $rows;
+        }
+        $ext_ids = array();
+        foreach ($rows as $row) {
+            $ext = isset($row['raw']['external_id']) ? (string) $row['raw']['external_id'] : '';
+            if ('' !== $ext) {
+                $ext_ids[$ext] = true;
+            }
+        }
+        $map = array();
+        if (!empty($ext_ids)) {
+            global $wpdb;
+            $values       = array_keys($ext_ids);
+            $placeholders = implode(',', array_fill(0, count($values), '%s'));
+            // Dynamic IN() placeholder list bound via the $values array; WPCS cannot
+            // count variable placeholders statically, so the prepare-placeholder sniffs
+            // are suppressed for this bounded, fully-prepared custom lookup.
+            // phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare, WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber
+            $results = $wpdb->get_results(
+                $wpdb->prepare(
+                    "SELECT pm.meta_value AS ext, pm.post_id AS pid
+                     FROM {$wpdb->postmeta} pm
+                     INNER JOIN {$wpdb->posts} p ON p.ID = pm.post_id
+                     WHERE pm.meta_key = '_spbwc_external_id'
+                     AND pm.meta_value IN ($placeholders)
+                     AND p.post_type = 'product' AND p.post_status != 'trash'",
+                    $values
+                )
+            );
+            // phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare, WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber
+            foreach ($results as $r) {
+                if (!isset($map[$r->ext])) {
+                    $map[$r->ext] = (int) $r->pid;
+                }
+            }
+        }
+        foreach ($rows as &$row) {
+            $ext   = isset($row['raw']['external_id']) ? (string) $row['raw']['external_id'] : '';
+            $state = array(
+                'imported'   => false,
+                'product_id' => 0,
+                'status'     => 'none',
+                'warnings'   => array(),
+                'date'       => '',
+                'edit_url'   => '',
+            );
+            if ('' !== $ext && isset($map[$ext])) {
+                $pid      = $map[$ext];
+                $status   = (string) get_post_meta($pid, '_spbwc_import_status', true);
+                $warnings = json_decode((string) get_post_meta($pid, '_spbwc_import_warnings', true), true);
+                $state    = array(
+                    'imported'   => true,
+                    'product_id' => $pid,
+                    'status'     => '' !== $status ? $status : 'ok',
+                    'warnings'   => is_array($warnings) ? $warnings : array(),
+                    'date'       => (string) get_post_meta($pid, '_spbwc_import_date', true),
+                    'edit_url'   => get_edit_post_link($pid, 'raw'),
+                );
+            }
+            $row['import'] = $state;
+        }
+        unset($row);
+        return $rows;
+    }
+
+    private function summarize_import_state($rows) {
+        $imported_ok  = 0;
+        $issues       = 0;
+        $not_imported = 0;
+        foreach ($rows as $row) {
+            $state = isset($row['import']) ? $row['import'] : null;
+            if ($state && !empty($state['imported'])) {
+                if ('ok' === $state['status']) {
+                    $imported_ok++;
+                } else {
+                    $issues++;
+                }
+            } else {
+                $not_imported++;
+            }
+        }
+        return array(
+            'total'        => count($rows),
+            'imported_ok'  => $imported_ok,
+            'issues'       => $issues,
+            'not_imported' => $not_imported,
+        );
     }
 
     public function handle_row_ids() {
@@ -265,6 +611,7 @@ class SPBWC_Global_Import_Controller {
         $stock = sanitize_text_field($_POST['stock'] ?? '');
         $price_min = isset($_POST['price_min']) ? floatval($_POST['price_min']) : null;
         $price_max = isset($_POST['price_max']) ? floatval($_POST['price_max']) : null;
+        $import_state = sanitize_text_field($_POST['import_state'] ?? '');
         $rows = $this->get_filtered_rows(
             $session['session_path'],
             $search,
@@ -275,6 +622,22 @@ class SPBWC_Global_Import_Controller {
             'name',
             'asc'
         );
+        if ('' !== $import_state) {
+            $rows = $this->annotate_import_state($rows);
+            $rows = array_values(array_filter($rows, static function ($row) use ($import_state) {
+                $state = $row['import'];
+                if ('imported' === $import_state) {
+                    return $state['imported'] && 'ok' === $state['status'];
+                }
+                if ('issues' === $import_state) {
+                    return $state['imported'] && 'ok' !== $state['status'];
+                }
+                if ('none' === $import_state) {
+                    return !$state['imported'];
+                }
+                return true;
+            }));
+        }
         $row_ids = array_values(
             array_filter(
                 array_map(
@@ -464,46 +827,6 @@ class SPBWC_Global_Import_Controller {
     }
 
     /**
-     * List products that were imported with problems (partial imports) so the admin can review
-     * and re-import them.
-     */
-    public function handle_issues_list() {
-        check_ajax_referer('spbwc_global_import', 'nonce');
-        if (!current_user_can('manage_woocommerce')) {
-            wp_send_json_error(__('Permission denied', 'storelly-product-builder-for-woocommerce'), 403);
-        }
-        $query = new WP_Query(array(
-            'post_type'      => 'product',
-            'post_status'    => 'any',
-            'posts_per_page' => 200,
-            'fields'         => 'ids',
-            'no_found_rows'  => true,
-            // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query -- bounded admin-only lookup of products flagged during import.
-            'meta_query'     => array(
-                array(
-                    'key'   => '_spbwc_import_status',
-                    'value' => 'partial',
-                ),
-            ),
-        ));
-        $items = array();
-        foreach ($query->posts as $pid) {
-            $warnings = json_decode((string) get_post_meta($pid, '_spbwc_import_warnings', true), true);
-            $source   = json_decode((string) get_post_meta($pid, '_spbwc_import_source', true), true);
-            $items[] = array(
-                'product_id'   => (int) $pid,
-                'name'         => html_entity_decode(get_the_title($pid), ENT_QUOTES),
-                'status'       => (string) get_post_meta($pid, '_spbwc_import_status', true),
-                'warnings'     => is_array($warnings) ? $warnings : array(),
-                'date'         => (string) get_post_meta($pid, '_spbwc_import_date', true),
-                'edit_url'     => get_edit_post_link($pid, 'raw'),
-                'can_reimport' => is_array($source) && !empty($source['settings']),
-            );
-        }
-        wp_send_json_success(array('items' => $items));
-    }
-
-    /**
      * Re-import a single product from its recorded source, overwriting the existing product in
      * place (same product ID) so order references stay valid.
      */
@@ -520,7 +843,10 @@ class SPBWC_Global_Import_Controller {
         if (!is_array($source) || empty($source['settings'])) {
             wp_send_json_error(__('No import source recorded for this product — cannot re-import.', 'storelly-product-builder-for-woocommerce'));
         }
-        $run_id = 'reimport-' . $product_id . '-' . time();
+        $run_id = preg_replace('/[^A-Za-z0-9_\-]/', '', (string) ($_POST['run_id'] ?? ''));
+        if ('' === $run_id) {
+            $run_id = 'reimport-' . $product_id . '-' . time();
+        }
         @set_time_limit(0); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged, Generic.PHP.DiscouragedFunctions -- best-effort lift of the time limit for a long media/JSON re-download.
         $this->adapter->set_logger(function ($message) use ($run_id) {
             $this->log_line($run_id, $message);
@@ -1038,7 +1364,8 @@ class SPBWC_Global_Import_Controller {
                 }
             }
         }
-        $debug_lines[] = sprintf('%s payload decode failed. Sample: %s', $payload_type, substr($payload, 0, 140));
+        $sample = preg_replace('#https?://[^\s"\']+#', '[source]', substr($payload, 0, 140));
+        $debug_lines[] = sprintf('%s payload decode failed. Sample: %s', $payload_type, $sample);
         return array();
     }
 
@@ -1071,8 +1398,9 @@ class SPBWC_Global_Import_Controller {
             return;
         }
         $print_options_url = (string) $raw['print_options'];
-        $debug_lines[] = 'Row ' . $row_id . ': fetching print options from ' . $print_options_url;
         $path = wp_parse_url($print_options_url, PHP_URL_PATH);
+        $po_name = $path ? basename($path) : '';
+        $debug_lines[] = 'Row ' . $row_id . ': fetching print options' . ('' !== $po_name ? ' (' . $po_name . ')' : '');
         $ext = $path ? strtolower(pathinfo($path, PATHINFO_EXTENSION)) : '';
         $po_fetch = $this->adapter->fetch_remote($print_options_url, 'json' === $ext);
         if (!$po_fetch['ok']) {

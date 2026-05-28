@@ -361,6 +361,7 @@ class SPBWC_Designer {
 
         $status_placeholders = implode( ', ', array_fill( 0, count( $status ), '%s' ) );
 
+        // phpcs:ignore WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber -- placeholder count is dynamic ($status_placeholders) and all values are bound via a single array passed to prepare(); WPCS cannot count these statically.
         $result = $wpdb->get_row( $wpdb->prepare(
             "SELECT SUM(debit) as earnings,
             ( SELECT SUM(credit) FROM {$wpdb->prefix}storelly_marketplace_balance WHERE user_id = %d AND DATE(balance_date) <= %s ) as withdraw
@@ -381,6 +382,7 @@ class SPBWC_Designer {
 
         $status_placeholders = implode( ', ', array_fill( 0, count( $status ), '%s' ) );
 
+        // phpcs:ignore WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber -- placeholder count is dynamic ($status_placeholders) and all values are bound via a single array passed to prepare(); WPCS cannot count these statically.
         $result  = $wpdb->get_row( $wpdb->prepare(
             "SELECT SUM(debit) AS earnings
             FROM {$wpdb->prefix}storelly_marketplace_balance

@@ -199,21 +199,114 @@
 }
 .spbwc-gi-toast {
     position: fixed;
-    top: 20px;
-    right: 20px;
+    top: 24px;
+    left: 50%;
+    transform: translateX(-50%);
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    align-items: center;
+    gap: var(--nbd-space-2);
     z-index: 9999;
 }
 .spbwc-gi-toast-item {
-    background: #111827;
-    color: #fff;
-    padding: 10px 14px;
-    border-radius: 8px;
-    min-width: 220px;
-    box-shadow: var(--gi-shadow);
+    background: var(--nbd-st-text);
+    color: var(--nbd-st-text-inverse);
+    padding: 12px 20px;
+    border-radius: var(--nbd-radius-md);
+    min-width: 280px;
+    max-width: 520px;
+    text-align: center;
+    font-weight: var(--font-semibold);
+    box-shadow: var(--shadow-lg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--nbd-space-2);
+    animation: spbwc-gi-toast-in 0.2s ease;
 }
+.spbwc-gi-toast-item.success { background: var(--nbd-color-success); }
+.spbwc-gi-toast-item.error   { background: var(--nbd-color-danger); }
+.spbwc-gi-toast-item .dashicons { width: 20px; height: 20px; font-size: 20px; }
+@keyframes spbwc-gi-toast-in {
+    from { opacity: 0; transform: translateY(-8px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+/* === Filter chips ============================================= */
+.spbwc-gi-chips {
+    display: flex;
+    gap: var(--nbd-space-2);
+    flex-wrap: wrap;
+    margin-bottom: var(--nbd-space-4);
+}
+.spbwc-gi-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    border: 1px solid var(--gi-border);
+    background: var(--nbd-st-bg);
+    color: var(--nbd-st-text-soft);
+    border-radius: var(--nbd-radius-pill);
+    cursor: pointer;
+    font-size: var(--text-md);
+    font-weight: var(--font-semibold);
+    transition: var(--transition-fast);
+}
+.spbwc-gi-chip:hover { border-color: var(--st-brand); color: var(--st-brand); }
+.spbwc-gi-chip.active { background: var(--st-brand); border-color: var(--st-brand); color: var(--nbd-st-text-inverse); }
+.spbwc-gi-chip b { font-weight: var(--font-bold); }
+
+/* === Status pills ============================================= */
+.spbwc-gi-pill {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: var(--nbd-radius-pill);
+    font-size: var(--text-sm);
+    font-weight: var(--font-semibold);
+    white-space: nowrap;
+}
+.spbwc-gi-pill.is-ok     { background: var(--st-pill-active-bg);  color: var(--st-pill-active-text); }
+.spbwc-gi-pill.is-issues { background: var(--st-pill-pending-bg); color: var(--st-pill-pending-text); }
+.spbwc-gi-pill.is-none   { background: var(--st-pill-draft-bg);   color: var(--st-pill-draft-text); }
+
+/* === Edit link next to product name =========================== */
+.spbwc-gi-editlink {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    margin-top: var(--nbd-space-1);
+    font-size: var(--text-base);
+    color: var(--nbd-st-text-soft);
+    text-decoration: none;
+}
+.spbwc-gi-editlink:hover { color: var(--st-brand); text-decoration: underline; }
+.spbwc-gi-editlink .dashicons { width: 14px; height: 14px; font-size: 14px; }
+
+.spbwc-gi-meta { font-size: var(--text-sm); color: var(--gi-muted); margin-top: 3px; }
+
+/* === Issues detail ============================================ */
+.spbwc-gi-issue-toggle {
+    background: none;
+    border: none;
+    padding: 2px 0;
+    cursor: pointer;
+    color: var(--st-pill-pending-text);
+    font-size: var(--text-sm);
+    font-weight: var(--font-semibold);
+}
+.spbwc-gi-detail-row td { background: var(--st-accent-soft); }
+.spbwc-gi-detail-row ul { margin: var(--nbd-space-2) 0 var(--nbd-space-2) 18px; padding: 0; }
+.spbwc-gi-detail-row li { font-size: var(--text-base); color: var(--st-pill-warning-text); }
+
+/* === Health banner & server pill ============================== */
+.spbwc-gi-banner { border-left: 4px solid var(--nbd-color-warning); background: var(--st-accent-soft); }
+.spbwc-gi-banner h3 { color: var(--st-pill-warning-text); }
+.spbwc-gi-banner-msg { color: var(--st-pill-warning-text); margin: 4px 0; }
+.spbwc-gi-banner .spbwc-gi-badge.bad  { background: var(--st-pill-danger-bg);  color: var(--st-pill-danger-text); }
+.spbwc-gi-banner .spbwc-gi-badge.good { background: var(--st-pill-active-bg);  color: var(--st-pill-active-text); }
+.spbwc-gi-serverpill.good { background: var(--st-pill-active-bg);  color: var(--st-pill-active-text); }
+.spbwc-gi-serverpill.warn { background: var(--st-pill-pending-bg); color: var(--st-pill-pending-text); }
 .spbwc-gi-flex {
     display: flex;
     align-items: center;

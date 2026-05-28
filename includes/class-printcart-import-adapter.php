@@ -17,6 +17,19 @@ class SPBWC_Printcart_Import_Adapter {
         }
     }
 
+    /**
+     * Reduce a remote URL to just its file name for log output, so the original source host/path
+     * is never exposed to merchants watching the import log.
+     *
+     * @param string $url Remote URL.
+     * @return string File name, or 'file' when none can be derived.
+     */
+    private function safe_file_label($url) {
+        $path = wp_parse_url((string) $url, PHP_URL_PATH);
+        $name = $path ? basename($path) : '';
+        return '' !== $name ? $name : 'file';
+    }
+
 
     private function filesystem() {
 
@@ -82,8 +95,8 @@ class SPBWC_Printcart_Import_Adapter {
             // responses only ever make the decoded body larger, so this never false-positives.)
             if (strlen($body) < (int) $declared) {
                 $result['reason']  = 'truncated';
-                /* translators: 1: bytes received, 2: total bytes expected */
                 $result['message'] = sprintf(
+                    /* translators: 1: bytes received, 2: total bytes expected */
                     __('Download was cut off: received %1$d of %2$d bytes', 'storelly-product-builder-for-woocommerce'),
                     strlen($body),
                     (int) $declared
@@ -96,8 +109,8 @@ class SPBWC_Printcart_Import_Adapter {
             json_decode($body);
             if (JSON_ERROR_NONE !== json_last_error()) {
                 $result['reason']  = 'invalid_json';
-                /* translators: %s: JSON parser error message */
                 $result['message'] = sprintf(
+                    /* translators: %s: JSON parser error message */
                     __('Invalid or incomplete JSON (%s)', 'storelly-product-builder-for-woocommerce'),
                     json_last_error_msg()
                 );
@@ -142,7 +155,7 @@ class SPBWC_Printcart_Import_Adapter {
             $filename = 'image-' . time() . '.jpg';
         }
 
-        $this->log('Downloading image: ' . $file);
+        $this->log('Downloading image: ' . $this->safe_file_label($file));
         $response = wp_remote_get($file, array('timeout' => 30));
         if (is_wp_error($response)) {
             $this->log('Download failed: ' . $response->get_error_message());
