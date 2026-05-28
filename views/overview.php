@@ -12,6 +12,8 @@ if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }
 
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- template-scope locals passed in from controller; not true globals.
+
 // Determine which counts to use (prefer remote API when available).
 $is_remote_ok   = ! is_wp_error( $remote_stats );
 $disp_products  = $is_remote_ok ? $remote_stats['total_products'] : $total_products;
@@ -809,3 +811,4 @@ $plan_benefits = $is_free
     })(jQuery);
     </script>
 </div>
+<?php // phpcs:enable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound

@@ -52,6 +52,7 @@ $stt_yes_cloud2print_api = isset($storelly_pb_settings['enable_cloud2print_api']
 $stt_no_cloud2print_api = isset($storelly_pb_settings['enable_cloud2print_api']) && $storelly_pb_settings['enable_cloud2print_api'] == 'no' ? 'checked' : '';
 // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Template variable.
 $spbwc_valid_tabs = array('pricing-option', 'display', 'pricing', 'catalog', 'cart', 'integration');
+// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only settings tab selector; validated against whitelist below, no state change.
 $spbwc_settings_tab = isset($_GET['tab']) ? sanitize_key(wp_unslash($_GET['tab'])) : 'pricing-option';
 if ( ! in_array($spbwc_settings_tab, $spbwc_valid_tabs, true) ) {
     $spbwc_settings_tab = 'pricing-option';
@@ -324,7 +325,7 @@ if ( ! in_array($spbwc_settings_tab, $spbwc_valid_tabs, true) ) {
                             </div>
                             <div class="spbwc-setting-row__control">
                                 <div class="spbwc-radio-group">
-                                    <?php foreach ( array( 'top' => __('Top','storelly-product-builder-for-woocommerce'), 'right' => __('Right','storelly-product-builder-for-woocommerce'), 'bottom' => __('Bottom','storelly-product-builder-for-woocommerce'), 'left' => __('Left','storelly-product-builder-for-woocommerce') ) as $val => $lbl ) : ?>
+                                    <?php foreach ( array( 'top' => __('Top','storelly-product-builder-for-woocommerce'), 'right' => __('Right','storelly-product-builder-for-woocommerce'), 'bottom' => __('Bottom','storelly-product-builder-for-woocommerce'), 'left' => __('Left','storelly-product-builder-for-woocommerce') ) as $val => $lbl ) : // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- loop vars ?>
                                     <label class="spbwc-radio-group__option">
                                         <input type="radio" name="spbwc_tooltip_position" value="<?php echo esc_attr($val); ?>" <?php checked($po['tooltip_position'], $val); ?> />
                                         <span class="spbwc-radio-group__lbl"><?php echo esc_html($lbl); ?></span>

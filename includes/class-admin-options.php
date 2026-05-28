@@ -800,7 +800,9 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
                 'post_status' => $post_status_arg,
                 's'           => $search,
             );
+            // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_tax_query -- Admin product-list filter; necessary to scope by taxonomy.
             if ( ! empty( $tax_query ) )  { $shared['tax_query']  = $tax_query; }
+            // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query -- Admin product-list filter; necessary to scope by stock meta.
             if ( ! empty( $meta_query ) ) { $shared['meta_query'] = $meta_query; }
 
             // Tab counts (reflect current search + extra filters, but not option_filter).
@@ -826,6 +828,7 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
             if ( 'mapped' === $option_filter && ! empty( $spbwc_mapped_ids ) ) {
                 $main_args['post__in'] = $spbwc_mapped_ids;
             } elseif ( 'unmapped' === $option_filter && ! empty( $spbwc_mapped_ids ) ) {
+                // phpcs:ignore WordPressVIPMinimum.Performance.WPQueryParams.PostNotIn_post__not_in -- Admin-only filter; mapped-id set is small and bounded.
                 $main_args['post__not_in'] = $spbwc_mapped_ids;
             }
             $products_query = new WP_Query( $main_args );
@@ -963,7 +966,7 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
                 $tab = 'get-quote';
             }
 
-            if ( 'POST' === $_SERVER['REQUEST_METHOD'] && isset( $_POST['spbwc_save_quote_settings'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce checked below.
+            if ( isset( $_SERVER['REQUEST_METHOD'] ) && 'POST' === $_SERVER['REQUEST_METHOD'] && isset( $_POST['spbwc_save_quote_settings'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce checked below.
                 check_admin_referer( 'spbwc_quote_settings_action', 'spbwc_quote_settings_nonce' );
                 $settings = array(
                     'enable_quote'      => isset( $_POST['enable_quote'] ) ? sanitize_text_field( wp_unslash( $_POST['enable_quote'] ) ) : 'no', // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce checked above.
@@ -973,22 +976,22 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
                 update_option( 'spbwc_quote_settings', $settings );
                 echo '<div class="notice notice-success is-dismissible"><p>' . esc_html__( 'Quote settings saved.', 'storelly-product-builder-for-woocommerce' ) . '</p></div>';
             }
-            if ( 'POST' === $_SERVER['REQUEST_METHOD'] && isset( $_POST['spbwc_save_quote_form'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce checked below.
+            if ( isset( $_SERVER['REQUEST_METHOD'] ) && 'POST' === $_SERVER['REQUEST_METHOD'] && isset( $_POST['spbwc_save_quote_form'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce checked below.
                 check_admin_referer( 'spbwc_quote_form_action', 'spbwc_quote_form_nonce' );
                 $fields = $this->spbwc_get_default_quote_form_fields();
-                // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce checked above.
+                // phpcs:ignore WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Nonce checked above; each element sanitized via sanitize_key/sanitize_text_field in the loop below.
                 $posted_names = isset( $_POST['field_name'] ) ? (array) wp_unslash( $_POST['field_name'] ) : array();
-                // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce checked above.
+                // phpcs:ignore WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Nonce checked above; each element sanitized via sanitize_key in the loop below.
                 $posted_types = isset( $_POST['field_type'] ) ? (array) wp_unslash( $_POST['field_type'] ) : array();
-                // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce checked above.
+                // phpcs:ignore WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Nonce checked above; each element sanitized via sanitize_text_field in the loop below.
                 $posted_labels = isset( $_POST['field_label'] ) ? (array) wp_unslash( $_POST['field_label'] ) : array();
-                // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce checked above.
+                // phpcs:ignore WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Nonce checked above; each element sanitized via sanitize_text_field in the loop below.
                 $posted_placeholders = isset( $_POST['field_placeholder'] ) ? (array) wp_unslash( $_POST['field_placeholder'] ) : array();
-                // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce checked above.
+                // phpcs:ignore WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Nonce checked above; each element sanitized via sanitize_key in the loop below.
                 $posted_validation = isset( $_POST['field_validation'] ) ? (array) wp_unslash( $_POST['field_validation'] ) : array();
-                // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce checked above.
+                // phpcs:ignore WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Nonce checked above; values compared as string indices via in_array() only.
                 $posted_required = isset( $_POST['field_required'] ) ? (array) wp_unslash( $_POST['field_required'] ) : array();
-                // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce checked above.
+                // phpcs:ignore WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Nonce checked above; values compared as string indices via in_array() only.
                 $posted_enabled = isset( $_POST['field_enabled'] ) ? (array) wp_unslash( $_POST['field_enabled'] ) : array();
                 $rows = max(
                     count( $posted_names ),
@@ -1260,6 +1263,7 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
                             'paginate'    => true,
                             'orderby'     => 'date',
                             'order'       => 'DESC',
+                            // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query -- Admin-only quotes listing; meta query required to find quote-request orders.
                             'meta_query'  => array(
                                 'relation' => 'OR',
                                 array(
@@ -1645,7 +1649,7 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
             $order_itemmeta_table = $wpdb->prefix . 'woocommerce_order_itemmeta';
             $posts_table = $wpdb->posts;
 
-            // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter -- Read-only query for admin listing, table names are trusted from $wpdb.
+            // phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter -- Read-only admin listing; interpolated table names are trusted $wpdb properties, all user values bound via prepare().
             $total_orders = (int) $wpdb->get_var(
                 $wpdb->prepare(
                     "SELECT COUNT(DISTINCT oi.order_id)
@@ -1661,7 +1665,6 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
                 )
             );
 
-            // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter -- Read-only query for admin listing, table names are trusted from $wpdb.
             $order_ids = $wpdb->get_col(
                 $wpdb->prepare(
                     "SELECT DISTINCT oi.order_id
@@ -1680,6 +1683,7 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
                     $offset
                 )
             );
+            // phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
             ?>
             <div class="wrap">
                 <header class="spbwc-page-hero">
@@ -1888,8 +1892,8 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
             $modified_date  = new DateTime();
             $title = isset($_POST['title']) ? sanitize_text_field(wp_unslash($_POST['title'])) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce verified in spbwc_product_builder_options.
             $product_ids = isset($_POST['product_ids']) ? array_map('absint', (array) wp_unslash($_POST['product_ids'])) : array(); // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce verified in spbwc_product_builder_options.
-            $apply_for   = isset($_POST['apply_for']) ? sanitize_text_field(wp_unslash($_POST['apply_for'])) : 'p';
-            $product_cats = isset($_POST['product_cats']) ? array_map('absint', (array) wp_unslash($_POST['product_cats'])) : array();
+            $apply_for   = isset($_POST['apply_for']) ? sanitize_text_field(wp_unslash($_POST['apply_for'])) : 'p'; // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce verified in spbwc_product_builder_options.
+            $product_cats = isset($_POST['product_cats']) ? array_map('absint', (array) wp_unslash($_POST['product_cats'])) : array(); // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce verified in spbwc_product_builder_options.
             $arr            = array(
                 'title'        => $title,
                 'published'    => 1,
@@ -2331,7 +2335,7 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
                 $value = array(
                     'min_size'      =>  0,
                     'max_size'      =>  SPBWC_Storelly_PB_Util::spbwc_get_max_upload_default(),
-                    'allow_type'    =>  'png,jpg,jpeg'
+                    'allow_type'    =>  'pdf,ai,eps,psd,png,jpg,jpeg,gif,svg,tiff,webp,bmp'
                 );
             }
             return array(
@@ -2921,13 +2925,16 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
             }
 
             // Validate file present
+            // phpcs:disable WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Server-generated upload tmp path, validated via is_uploaded_file(); not user text.
             if ( empty( $_FILES['font_file'] ) ||
                  empty( $_FILES['font_file']['tmp_name'] ) ||
                  ! is_uploaded_file( $_FILES['font_file']['tmp_name'] ) ) {
                 wp_send_json_error( array( 'message' => esc_html__( 'No file received. Please try again.', 'storelly-product-builder-for-woocommerce' ) ) );
             }
+            // phpcs:enable WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 
             // Check for PHP upload errors
+            // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotValidated -- $_FILES error index is always set on upload; value cast to int.
             if ( UPLOAD_ERR_OK !== (int) $_FILES['font_file']['error'] ) {
                 wp_send_json_error( array( 'message' => esc_html__( 'Upload error. Check PHP upload_max_filesize / post_max_size.', 'storelly-product-builder-for-woocommerce' ) ) );
             }
@@ -3317,7 +3324,7 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
             // --- Local WooCommerce / WordPress counts ---
             global $wpdb; // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals
             $table_options    = $wpdb->prefix . 'storelly_product_builder_options';
-            $total_pricing    = (int) $wpdb->get_var( "SELECT COUNT(id) FROM {$table_options}" ); // phpcs:ignore WordPress.DB
+            $total_pricing    = (int) $wpdb->get_var( "SELECT COUNT(id) FROM {$table_options}" ); // phpcs:ignore WordPress.DB, PluginCheck.Security.DirectDB.UnescapedDBParameter -- prefix-only custom table name.
             $total_products   = (int) wp_count_posts( 'product' )->publish;
 
             // WooCommerce orders (all statuses)
@@ -3335,7 +3342,7 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
             $total_quotes = 0;
             // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
             if ( $wpdb->get_var( $wpdb->prepare( "SHOW TABLES LIKE %s", $quote_table ) ) === $quote_table ) {
-                $total_quotes = (int) $wpdb->get_var( "SELECT COUNT(id) FROM {$quote_table}" ); // phpcs:ignore WordPress.DB
+                $total_quotes = (int) $wpdb->get_var( "SELECT COUNT(id) FROM {$quote_table}" ); // phpcs:ignore WordPress.DB, PluginCheck.Security.DirectDB.UnescapedDBParameter -- prefix-only custom table name.
             }
 
             // --- Remote (Storelly) stats overlay ---
@@ -3623,6 +3630,7 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
                  * @param string|WP_Screen|null $hook_name Hook name or screen object.
                  * @return WP_Screen
                  */
+                // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedFunctionFound -- Polyfill must use the exact core function name expected by WP_List_Table; guarded by function_exists().
                 function convert_to_screen( $hook_name ) {
                     return WP_Screen::get( $hook_name );
                 }

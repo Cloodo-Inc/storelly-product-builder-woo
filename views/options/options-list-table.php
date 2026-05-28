@@ -2,7 +2,7 @@
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
-// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Template variable.
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- template-scope locals passed in / read-only listing filters; not true globals.
 $link_create_option = add_query_arg(
 	array(
 		'action' => 'edit',
@@ -17,12 +17,11 @@ $_nonce_block   = wp_create_nonce( 'spbwc_options_nonce' );        // For edit/c
 $_nonce_list    = wp_create_nonce( 'spbwc_options_list_nonce' );   // For AJAX mutation ops (trash/dup/rename)
 $_rest_nonce    = wp_create_nonce( 'wp_rest' );                    // For REST API GET (grid fetch)
 $_rest_url      = rest_url( 'spbwc/v1/options-grid' );             // REST endpoint URL
-// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only admin listing filter; no state change.
 $_page_slug = isset( $_REQUEST['page'] ) ? sanitize_text_field( wp_unslash( $_REQUEST['page'] ) ) : SPBWC_PB_BUILDER_SLUG;
-// phpcs:ignore WordPress.Security.NonceVerification.Recommended
-$_status_filter = isset( $_REQUEST['status_filter'] ) && strlen( $_REQUEST['status_filter'] )
-	? sanitize_text_field( wp_unslash( $_REQUEST['status_filter'] ) ) : '';
-// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+// phpcs:ignore WordPress.Security.NonceVerification.Recommended, WordPress.Security.ValidatedSanitizedInput.MissingUnslash, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- read-only listing filter; sanitized in same statement before use.
+$_status_filter = isset( $_REQUEST['status_filter'] ) && '' !== $_REQUEST['status_filter'] ? sanitize_text_field( wp_unslash( $_REQUEST['status_filter'] ) ) : '';
+// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only admin listing filter; no state change.
 $_search_term   = isset( $_REQUEST['s'] ) ? sanitize_text_field( wp_unslash( $_REQUEST['s'] ) ) : '';
 
 $_status_counts  = SPBWC_Storelly_Options_List_Table::spbwc_count_all_statuses();
@@ -1052,3 +1051,4 @@ $_current_page_n = isset( $_GET['paged'] ) ? max( 1, absint( $_GET['paged'] ) ) 
 	} );
 }());
 </script>
+<?php // phpcs:enable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound

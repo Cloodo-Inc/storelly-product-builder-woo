@@ -138,7 +138,8 @@ class SPBWC_Marketplace{
         }
 
         $tabs           = array( 'dashboard', 'withdraw', 'settings', 'designs' );
-        $tab            = ( isset( $_GET['tab'] ) && in_array( $_GET['tab'], $tabs ) ) ? sanitize_text_field($_GET['tab']) : 'dashboard';
+        // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only account-page tab selector
+        $tab            = ( isset( $_GET['tab'] ) && in_array( sanitize_text_field( wp_unslash( $_GET['tab'] ) ), $tabs, true ) ) ? sanitize_text_field( wp_unslash( $_GET['tab'] ) ) : 'dashboard';
         $designer_id    = get_current_user_id();
         $data = array(
             'tab'           => $tab,
@@ -422,7 +423,7 @@ class SPBWC_Marketplace{
     }
     public function frontend_enqueue_scripts(){
         wp_register_style( 'nbd_launcher', NBDESIGNER_CSS_URL . 'launcher.css', array(), NBDESIGNER_VERSION );
-        wp_register_script( 'nbd_launcher', NBDESIGNER_JS_URL . 'launcher.js', array('jquery', 'selectWoo'), NBDESIGNER_VERSION );
+        wp_register_script( 'nbd_launcher', NBDESIGNER_JS_URL . 'launcher.js', array('jquery', 'selectWoo'), NBDESIGNER_VERSION, false );
 
         if ( is_account_page() ) {
             wp_enqueue_style( 'nbd_launcher' );
@@ -480,7 +481,7 @@ class SPBWC_Marketplace{
             0 => 'spbwc_sell_design',
             1 => 'spbwc_become_designer'
         );
-        $capabilities = apply_filters( 'nbd_designer_cap', $capabilities );
+        $capabilities = apply_filters( 'nbd_designer_cap', $capabilities ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- established hook name (back-compat)
         $desinger_role = get_role( 'storelly_designer' );
         if( null === $desinger_role ){
             add_role( 'storelly_designer', esc_html__( 'Designer', 'storelly-product-builder-for-woocommerce' ), array(
@@ -610,7 +611,7 @@ class SPBWC_Marketplace{
             $designer_earning   = $this->get_designer_earning( $order, $designer_id, $items );
             $threshold_day      = absint( nbdesigner_get_option( 'storelly_marketplace_withdraw_threshold', 0 ) );
             
-            $wpdb->insert( $wpdb->prefix . 'storelly_marketplace_balance',
+            $wpdb->insert( $wpdb->prefix . 'storelly_marketplace_balance', // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- direct query on plugin custom table; not WP-object-cacheable
                 array(
                     'user_id'           => $designer_id,
                     'transaction_id'    => $order_id,
@@ -637,7 +638,7 @@ class SPBWC_Marketplace{
         }
 
         foreach( $designs as $design_id => $qty ){
-            $wpdb->insert( $wpdb->prefix . 'storelly_marketplace_orders',
+            $wpdb->insert( $wpdb->prefix . 'storelly_marketplace_orders', // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- direct query on plugin custom table; not WP-object-cacheable
                 array(
                     'design_id'         => $design_id,
                     'transaction_id'    => $order_id,
@@ -696,14 +697,14 @@ class SPBWC_Marketplace{
             $new_status = 'wc-' . $new_status;
         }
 
-        $wpdb->update( $wpdb->prefix . 'storelly_marketplace_orders',
+        $wpdb->update( $wpdb->prefix . 'storelly_marketplace_orders', // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- direct query on plugin custom table; not WP-object-cacheable
             array( 'status' => $new_status ),
             array( 'transaction_id' => $order_id ),
             array( '%s' ),
             array( '%d' )
         );
 
-        $wpdb->update( $wpdb->prefix . 'storelly_marketplace_balance',
+        $wpdb->update( $wpdb->prefix . 'storelly_marketplace_balance', // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- direct query on plugin custom table; not WP-object-cacheable
             array( 'status' => $new_status ),
             array( 'transaction_id' => $order_id, 'transaction_type' => 'new_order' ),
             array( '%s' ),
@@ -711,11 +712,11 @@ class SPBWC_Marketplace{
         );
     }
     public function nbdl_get_product_info(){
-        if (!wp_verify_nonce( $_POST['nonce'], 'nbd_launcher_nonce' ) && NBDESIGNER_ENABLE_NONCE) {
+        if (!wp_verify_nonce( isset( $_POST['nonce'] ) ? sanitize_text_field( wp_unslash( $_POST['nonce'] ) ) : '', 'nbd_launcher_nonce' ) && NBDESIGNER_ENABLE_NONCE) {
             die('Security error');
         }
 
-        $product_id = absint( $_POST['product_id'] );
+        $product_id = isset( $_POST['product_id'] ) ? absint( $_POST['product_id'] ) : 0;
         $data       = array(
             'flag'  => 1
         );
@@ -739,7 +740,7 @@ class SPBWC_Marketplace{
         }
 
         if( isset( $_POST['task'] ) && $_POST['task'] == 'edit' ){
-            $design_id  = wc_clean( $_POST['design_id'] );
+            $design_id  = isset( $_POST['design_id'] ) ? sanitize_text_field( wp_unslash( $_POST['design_id'] ) ) : '';
             $design     = nbd_get_design( $design_id );
             if( !empty( $design ) ){
                 $design_previews            = Nbdesigner_IO::get_list_images( NBDESIGNER_CUSTOMER_DIR . '/' . $design['resource'], 1 );
@@ -761,11 +762,11 @@ class SPBWC_Marketplace{
         wp_die();
     }
     public function nbdl_get_related_products(){
-        if (!wp_verify_nonce( $_POST['nonce'], 'nbd_launcher_nonce' ) && NBDESIGNER_ENABLE_NONCE) {
+        if (!wp_verify_nonce( isset( $_POST['nonce'] ) ? sanitize_text_field( wp_unslash( $_POST['nonce'] ) ) : '', 'nbd_launcher_nonce' ) && NBDESIGNER_ENABLE_NONCE) {
             die('Security error');
         }
 
-        $product_id         = absint( $_POST['product_id'] );
+        $product_id         = isset( $_POST['product_id'] ) ? absint( $_POST['product_id'] ) : 0;
         $products           = nbd_get_products_has_design( true );
         $cats               = $this->get_product_categories( $product_id );
         $data['products']   = array();
@@ -814,7 +815,7 @@ class SPBWC_Marketplace{
         return $cats;
     }
     public function nbdl_submit_product(){
-        if (!wp_verify_nonce( $_POST['nonce'], 'nbd_launcher_nonce' ) && NBDESIGNER_ENABLE_NONCE) {
+        if (!wp_verify_nonce( isset( $_POST['nonce'] ) ? sanitize_text_field( wp_unslash( $_POST['nonce'] ) ) : '', 'nbd_launcher_nonce' ) && NBDESIGNER_ENABLE_NONCE) {
             die('Security error');
         }
 
@@ -824,12 +825,12 @@ class SPBWC_Marketplace{
             'templates' => array()
         );
         $products               = array();
-        $product_id             = absint( $_POST['product_id'] );
-        $related_product_ids    = wc_clean( $_POST['related_product_ids'] );
-        $tags                   = wc_clean( $_POST['tags'] );
-        $name                   = stripslashes( wc_clean( $_POST['name'] ) );
-        $task                   = isset( $_POST['task'] ) ? wc_clean( $_POST['task'] ) : 'new';
-        $folder                 = isset( $_POST['folder'] ) ? wc_clean( $_POST['folder'] ) : substr(md5(uniqid()),0,5).wp_rand(1,100).time();
+        $product_id             = isset( $_POST['product_id'] ) ? absint( $_POST['product_id'] ) : 0;
+        $related_product_ids    = isset( $_POST['related_product_ids'] ) ? sanitize_text_field( wp_unslash( $_POST['related_product_ids'] ) ) : '';
+        $tags                   = isset( $_POST['tags'] ) ? sanitize_text_field( wp_unslash( $_POST['tags'] ) ) : '';
+        $name                   = isset( $_POST['name'] ) ? sanitize_text_field( wp_unslash( $_POST['name'] ) ) : '';
+        $task                   = isset( $_POST['task'] ) ? sanitize_text_field( wp_unslash( $_POST['task'] ) ) : 'new';
+        $folder                 = isset( $_POST['folder'] ) ? sanitize_text_field( wp_unslash( $_POST['folder'] ) ) : substr(md5(uniqid()),0,5).wp_rand(1,100).time();
         $path                   = NBDESIGNER_CUSTOMER_DIR . '/' . $folder;
         $max_upload_size        = absint( nbdesigner_get_option( 'nbdesigner_maxsize_upload_file', nbd_get_max_upload_default() ) );
         $max_size_in_byte       = $max_upload_size * 1024 * 1024;
@@ -899,10 +900,10 @@ class SPBWC_Marketplace{
             }
 
             if( $task == 'edit' ){
-                $design_id  = wc_clean( $_POST['design_id'] );
+                $design_id  = isset( $_POST['design_id'] ) ? sanitize_text_field( wp_unslash( $_POST['design_id'] ) ) : '';
                 $design     = nbd_get_design( $design_id );
                 if( !empty( $design ) ){
-                    $resource_folder = isset( $_POST['design'] ) ? wc_clean( $_POST['design'] ) : '';
+                    $resource_folder = isset( $_POST['design'] ) ? sanitize_text_field( wp_unslash( $_POST['design'] ) ) : '';
                     if( $resource_folder != '' ){
                         $resource_path  = NBDESIGNER_CUSTOMER_DIR . '/' . $resource_folder;
                         $folder         = $resource_folder;
@@ -1044,18 +1045,18 @@ class SPBWC_Marketplace{
     public function insert_solid_template( $data ){
         global $wpdb;
         $table_name = $wpdb->prefix . 'storelly_marketplace_designs';
-        return $wpdb->insert( $table_name, $data );
+        return $wpdb->insert( $table_name, $data ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- direct query on plugin custom table; not WP-object-cacheable
     }
     public function update_solid_template( $id, $data ){
         global $wpdb;
         $table_name = $wpdb->prefix . 'storelly_marketplace_designs';
-        return $wpdb->update("{$wpdb->prefix}storelly_marketplace_designs", $data, array( 'id' => $id) );
+        return $wpdb->update("{$wpdb->prefix}storelly_marketplace_designs", $data, array( 'id' => $id) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- direct query on plugin custom table; not WP-object-cacheable
     }
     public function get_last_template(){
         global $wpdb;
         $table_name = $wpdb->prefix . 'storelly_marketplace_designs';
         $sql        = "SELECT * FROM {$wpdb->prefix}storelly_marketplace_designs ORDER BY created_date DESC";
-        $data       = $wpdb->get_row( $sql ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- table name from $wpdb->prefix; no user input
+        $data       = $wpdb->get_row( $sql ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- table name from $wpdb->prefix; direct query on plugin custom table; not WP-object-cacheable
         return $data;
     }
     public function calc_design_position( $design_width, $design_height, $area_width, $area_height ){
@@ -1162,7 +1163,8 @@ class SPBWC_Marketplace{
     public function product_get_image_id( $value ){
         if( $this->is_solid_design() ){
             $product_id     = get_the_ID();
-            $design_code    = wc_clean( $_GET['design_id'] );
+            // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only public design lookup
+            $design_code    = isset( $_GET['design_id'] ) ? sanitize_text_field( wp_unslash( $_GET['design_id'] ) ) : '';
             $design_id      = nbd_decode_design_id( $design_code );
             $design         = nbd_get_design( $design_id, $product_id );
             if( is_array( $design ) && isset( $design['thumbnail'] ) ){
@@ -1173,7 +1175,8 @@ class SPBWC_Marketplace{
     }
     public function nbdl_before_add_to_cart_button(){
         if( $this->is_solid_design() ){
-            $design_code    = wc_clean( $_GET['design_id'] );
+            // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only public design lookup
+            $design_code    = isset( $_GET['design_id'] ) ? sanitize_text_field( wp_unslash( $_GET['design_id'] ) ) : '';
             $design_id      = nbd_decode_design_id( $design_code );
             ?>
             <input type="hidden" name="nbd_solid_design_id" value="<?php echo esc_attr( $design_id ); ?>"/>
@@ -1182,8 +1185,9 @@ class SPBWC_Marketplace{
     }
     public function is_solid_design(){
         if( is_singular( 'product' ) ){
+            // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only public design lookup
             if( isset( $_GET['design_id'] ) ){
-                $design_code    = wc_clean( $_GET['design_id'] );
+                $design_code    = sanitize_text_field( wp_unslash( $_GET['design_id'] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only public design lookup
                 $design_id      = nbd_decode_design_id( $design_code );
                 if( $design_id ) return true;
             }
@@ -1194,7 +1198,8 @@ class SPBWC_Marketplace{
         $html = '';
         if( $this->is_solid_design() ){
             $product_id     = get_the_ID();
-            $design_code    = wc_clean( $_GET['design_id'] );
+            // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only public design author display
+            $design_code    = isset( $_GET['design_id'] ) ? sanitize_text_field( wp_unslash( $_GET['design_id'] ) ) : '';
             $design_id      = nbd_decode_design_id( $design_code );
             $design         = nbd_get_design( $design_id, $product_id );
             if( is_array( $design ) && isset( $design['user_id'] ) && absint( $design['user_id'] ) != 0 ){
@@ -1208,7 +1213,7 @@ class SPBWC_Marketplace{
         echo wp_kses_post( $html );
     }
     public function add_cart_item_data( $cart_item_data ){
-        $post_data = $_POST;
+        $post_data = $_POST; // phpcs:ignore WordPress.Security.NonceVerification.Missing -- WooCommerce add-to-cart pipeline verifies its own nonce upstream
         if( isset( $post_data['nbd_solid_design_id'] ) ){
             $design = nbd_get_design( absint( $post_data['nbd_solid_design_id'] ) );
             if( is_array( $design ) && isset( $design['folder'] ) ){
@@ -1299,7 +1304,8 @@ class SPBWC_Marketplace{
     }
     public function override_product_image_by_design_preview( $options, $product_id ){
         if( $this->is_solid_design() ){
-            $design_code    = wc_clean( $_GET['design_id'] );
+            // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only public design preview lookup
+            $design_code    = isset( $_GET['design_id'] ) ? sanitize_text_field( wp_unslash( $_GET['design_id'] ) ) : '';
             $design_id      = nbd_decode_design_id( $design_code );
 
             foreach ($options['fields'] as $key => $field){
@@ -1344,7 +1350,7 @@ class SPBWC_Marketplace{
             'order'      => 'ASC',
             'status'     => 'all',
             'featured'   => '',
-            'meta_query' => array(),
+            'meta_query' => array(), // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query -- intentional meta query
         );
         
         $user_query     = new WP_User_Query( $args );
@@ -1352,7 +1358,7 @@ class SPBWC_Marketplace{
 
         if( $users ){
             $new_user_id = $users[0]->ID;
-            $wpdb->update( 
+            $wpdb->update( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- direct query on plugin custom table; not WP-object-cacheable
                 $wpdb->prefix . 'storelly_marketplace_designs',
                 array(
                     'user_id'   => $new_user_id
@@ -1362,7 +1368,7 @@ class SPBWC_Marketplace{
                 )
             );
         }else{
-            $wpdb->update( 
+            $wpdb->update( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- direct query on plugin custom table; not WP-object-cacheable
                 $wpdb->prefix . 'storelly_marketplace_designs',
                 array(
                     'publish'   => 0

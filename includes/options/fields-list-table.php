@@ -98,11 +98,12 @@ class SPBWC_Storelly_Options_List_Table extends WP_List_Table
             $where .= $wpdb->prepare(' AND title LIKE %s', '%' . $wpdb->esc_like($search) . '%');
         }
 
-        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared -- Admin-only grouped count query.
+        // phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter -- Admin-only grouped count query; $table_name is prefix-only, $where built with $wpdb->prepare().
         $rows = $wpdb->get_results(
             "SELECT published, COUNT(*) AS cnt FROM {$table_name} {$where} GROUP BY published",
             ARRAY_A
         );
+        // phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
 
         $counts = array('all' => 0, 'published' => 0, 'draft' => 0);
         if (is_array($rows)) {
@@ -124,8 +125,8 @@ class SPBWC_Storelly_Options_List_Table extends WP_List_Table
         global $wpdb; // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Global variable $wpdb.
         $table_name = $wpdb->prefix . 'storelly_product_builder_options';
 
-        // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only display filter, no state mutation.
-        $status = isset($_REQUEST['status_filter']) && strlen($_REQUEST['status_filter']) ? sanitize_text_field(wp_unslash($_REQUEST['status_filter'])) : '';
+        // phpcs:ignore WordPress.Security.NonceVerification.Recommended, WordPress.Security.ValidatedSanitizedInput.MissingUnslash, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Read-only display filter; sanitized in same statement before use.
+        $status = isset($_REQUEST['status_filter']) && '' !== $_REQUEST['status_filter'] ? sanitize_text_field(wp_unslash($_REQUEST['status_filter'])) : '';
         // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only search filter, no state mutation.
         $search = isset($_REQUEST['s']) ? sanitize_text_field(wp_unslash($_REQUEST['s'])) : '';
 
@@ -137,7 +138,7 @@ class SPBWC_Storelly_Options_List_Table extends WP_List_Table
             $sql .= $wpdb->prepare(' AND title LIKE %s', '%' . $wpdb->esc_like($search) . '%');
         }
 
-        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared -- Admin-only count query; dynamic clauses built with $wpdb->prepare().
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter -- Admin-only count query; $table_name is prefix-only, dynamic clauses built with $wpdb->prepare().
         return $wpdb->get_var($sql);
     }
 
@@ -147,8 +148,8 @@ class SPBWC_Storelly_Options_List_Table extends WP_List_Table
         $table_name = $wpdb->prefix . 'storelly_product_builder_options';
         $offset     = ($page_number - 1) * $per_page;
 
-        // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only display filter, no state mutation.
-        $status = isset($_REQUEST['status_filter']) && strlen($_REQUEST['status_filter']) ? sanitize_text_field(wp_unslash($_REQUEST['status_filter'])) : '';
+        // phpcs:ignore WordPress.Security.NonceVerification.Recommended, WordPress.Security.ValidatedSanitizedInput.MissingUnslash, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Read-only display filter; sanitized in same statement before use.
+        $status = isset($_REQUEST['status_filter']) && '' !== $_REQUEST['status_filter'] ? sanitize_text_field(wp_unslash($_REQUEST['status_filter'])) : '';
         // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only search filter, no state mutation.
         $search = isset($_REQUEST['s']) ? sanitize_text_field(wp_unslash($_REQUEST['s'])) : '';
 
@@ -171,7 +172,7 @@ class SPBWC_Storelly_Options_List_Table extends WP_List_Table
         $sql .= " ORDER BY {$orderby} {$order}";
         $sql .= $wpdb->prepare(' LIMIT %d OFFSET %d', $per_page, $offset);
 
-        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared -- Admin-only paginated query; dynamic clauses built with $wpdb->prepare().
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter -- Admin-only paginated query; $table_name prefix-only, $orderby/$order whitelisted, dynamic clauses built with $wpdb->prepare().
         return $wpdb->get_results($sql, 'ARRAY_A');
     }
 
