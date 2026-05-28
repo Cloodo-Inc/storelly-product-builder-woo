@@ -1,0 +1,1245 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Storelly — Edit Pricing Option (mockup v2)</title>
+<style>
+/* ============================================================
+   Storelly admin design tokens
+   (mirror of static/css/_tokens.css — source of truth)
+   ============================================================ */
+:root{
+  /* Brand */
+  --st-brand:#1d4ed8; --st-brand-pressed:#1e40af; --st-brand-soft:#dbeafe; --st-brand-tint:#eff6ff;
+  --st-brand-gradient:linear-gradient(135deg,#1d4ed8 0%,#1e40af 100%);
+  --st-secondary:#404762; --st-secondary-soft:#eef0f5;
+  --st-gold:#B8860B; --st-gold-soft:#f4e8c4;
+  --st-accent:#f59e0b; --st-accent-soft:#fef3c7;
+
+  /* WP chrome */
+  --nbd-st-primary:#2271b1; --nbd-st-primary-soft:#e6f0f7;
+  --wp-sidebar-bg:#1d2327; --wp-sidebar-active:#2271b1; --wp-sidebar-hover:#2c3338;
+
+  /* Semantic */
+  --nbd-color-success:#16a34a; --nbd-color-warning:#f59e0b; --nbd-color-danger:#dc2626; --nbd-color-info:#2271b1;
+
+  /* Backgrounds */
+  --nbd-st-bg:#ffffff; --nbd-st-bg-soft:#f6f7f7; --nbd-st-bg-canvas:#f0f0f1;
+  --nbd-st-bg-input:#ffffff; --nbd-st-bg-brand:#f8fafc;
+
+  /* Text */
+  --nbd-st-text:#1d2327; --nbd-st-text-soft:#50575e; --nbd-st-text-mute:#8c8f94;
+  --nbd-st-text-inverse:#ffffff; --nbd-st-text-brand:#1e40af;
+
+  /* Borders */
+  --nbd-st-border:#c3c4c7; --nbd-st-border-light:#dcdcde; --nbd-st-border-subtle:#f0f0f1; --nbd-st-border-brand:#bfdbfe;
+
+  /* Status pills */
+  --st-pill-active-bg:#dcfce7; --st-pill-active-text:#14532d;
+  --st-pill-pending-bg:#fef3c7; --st-pill-pending-text:#92400e;
+  --st-pill-warning-bg:#fed7aa; --st-pill-warning-text:#9a3412;
+  --st-pill-danger-bg:#fee2e2; --st-pill-danger-text:#991b1b;
+  --st-pill-draft-bg:#f3f4f6; --st-pill-draft-text:#4b5563;
+  --st-pill-featured-bg:#dbeafe; --st-pill-featured-text:#1e40af;
+
+  /* Spacing */
+  --nbd-space-1:4px; --nbd-space-2:8px; --nbd-space-3:12px; --nbd-space-4:16px;
+  --nbd-space-5:20px; --nbd-space-6:24px; --nbd-space-8:32px; --nbd-space-10:40px;
+
+  /* Radius */
+  --nbd-radius-sm:4px; --nbd-radius:6px; --nbd-radius-md:8px;
+  --nbd-radius-lg:12px; --nbd-radius-xl:16px; --nbd-radius-pill:9999px;
+
+  /* Typography */
+  --st-font-sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Oxygen-Sans,Ubuntu,Cantarell,"Helvetica Neue",sans-serif;
+  --text-xs:10px; --text-sm:11px; --text-base:12px; --text-md:13px; --text-lg:14px;
+  --text-xl:16px; --text-2xl:18px; --text-3xl:20px; --text-4xl:24px; --text-5xl:28px;
+  --font-normal:400; --font-medium:500; --font-semibold:600; --font-bold:700; --font-extrabold:800;
+
+  /* Shadows */
+  --shadow-card:0 1px 2px rgba(16,24,40,.04),0 6px 16px rgba(16,24,40,.06);
+  --shadow-card-hover:0 2px 4px rgba(16,24,40,.05),0 12px 28px rgba(16,24,40,.10);
+  --shadow-hero:0 4px 8px rgba(16,24,40,.04),0 16px 40px rgba(29,78,216,.18);
+  --shadow-input-focus:inset 0 1px 2px rgba(16,24,40,.04),0 0 0 3px var(--st-brand-soft);
+
+  /* Transitions */
+  --transition-fast:all .15s ease;
+  --transition-card:box-shadow .18s, border-color .18s, transform .18s;
+}
+
+*,*::before,*::after{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  background:var(--nbd-st-bg-canvas);
+  font-family:var(--st-font-sans);
+  font-size:var(--text-md); color:var(--nbd-st-text);
+  line-height:1.5;
+}
+
+/* ============================================================
+   WP-admin chrome simulation
+   ============================================================ */
+.wp-shell{display:grid; grid-template-columns:160px 1fr; min-height:100vh}
+.wp-side{background:var(--wp-sidebar-bg); color:#dcdcde; padding:var(--nbd-space-3) 0; font-size:var(--text-md)}
+.wp-side__brand{padding:var(--nbd-space-2) var(--nbd-space-4); color:#f0f0f1; font-weight:var(--font-semibold); display:flex; align-items:center; gap:var(--nbd-space-2)}
+.wp-side__brand-dot{width:18px;height:18px;border-radius:var(--nbd-radius-sm);background:var(--st-brand-gradient)}
+.wp-side__item{padding:7px var(--nbd-space-4); color:#c3c4c7; cursor:pointer; display:flex; align-items:center; gap:var(--nbd-space-2); font-size:var(--text-md)}
+.wp-side__item:hover{background:var(--wp-sidebar-hover); color:#fff}
+.wp-side__item.is-active{background:var(--st-brand); color:#fff}
+.wp-side__sub{padding-left:36px; font-size:var(--text-base); color:#a7aaad}
+.wp-side__sub.is-active{color:#fff; font-weight:var(--font-semibold)}
+
+.wp-main{padding:var(--nbd-space-5) var(--nbd-space-6) 84px; max-width:1640px; margin:0 auto; width:100%}
+
+/* ============================================================
+   Breadcrumb back-bar
+   ============================================================ */
+.back-bar{
+  display:flex; align-items:center; gap:var(--nbd-space-2);
+  font-size:var(--text-base); color:var(--nbd-st-text-soft);
+  margin-bottom:var(--nbd-space-3);
+}
+.back-bar a{
+  color:var(--st-brand); text-decoration:none;
+  display:inline-flex; align-items:center; gap:var(--nbd-space-1);
+}
+.back-bar a:hover{text-decoration:underline}
+.back-bar svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2}
+.back-bar__sep{color:var(--nbd-st-text-mute)}
+.back-bar__current{color:var(--nbd-st-text); font-weight:var(--font-medium)}
+
+/* ============================================================
+   Hero (mirrors .spbwc-page-hero)
+   ============================================================ */
+.hero{
+  position:relative; overflow:hidden;
+  background:var(--st-brand-gradient); color:var(--nbd-st-text-inverse);
+  border-radius:var(--nbd-radius-xl);
+  padding:var(--nbd-space-5) var(--nbd-space-6);
+  box-shadow:var(--shadow-hero);
+  margin-bottom:var(--nbd-space-5);
+}
+.hero::before{
+  content:""; position:absolute; inset:0; pointer-events:none;
+  background:radial-gradient(circle at 90% 0%, rgba(255,255,255,.15), transparent 50%);
+}
+.hero__grid{
+  display:grid; grid-template-columns:1fr auto; gap:var(--nbd-space-6);
+  align-items:center; position:relative; z-index:1;
+}
+.hero__eyebrow{
+  display:inline-flex; align-items:center; gap:var(--nbd-space-1);
+  font-size:var(--text-sm); text-transform:uppercase; letter-spacing:.08em;
+  opacity:.9; margin-bottom:var(--nbd-space-1); font-weight:var(--font-semibold);
+}
+.hero__title{
+  font-size:var(--text-4xl); font-weight:var(--font-bold);
+  margin:0 0 var(--nbd-space-1); display:flex; align-items:center; gap:var(--nbd-space-2);
+}
+.hero__sub{font-size:var(--text-md); opacity:.85; margin:0; max-width:640px}
+.hero__actions{display:flex; gap:var(--nbd-space-2); flex-wrap:wrap}
+.hero__kpis{
+  margin-top:var(--nbd-space-4); display:flex; gap:var(--nbd-space-6);
+  padding-top:var(--nbd-space-4); border-top:1px solid rgba(255,255,255,.15);
+  position:relative; z-index:1;
+}
+.kpi{display:flex; flex-direction:column}
+.kpi__label{
+  font-size:var(--text-xs); text-transform:uppercase; letter-spacing:.06em;
+  opacity:.75; font-weight:var(--font-semibold);
+}
+.kpi__value{font-size:var(--text-2xl); font-weight:var(--font-bold); margin-top:2px}
+.kpi__delta{font-size:var(--text-sm); opacity:.85}
+
+/* ============================================================
+   Buttons
+   ============================================================ */
+.btn{
+  display:inline-flex; align-items:center; gap:var(--nbd-space-1);
+  padding:var(--nbd-space-2) var(--nbd-space-4);
+  border-radius:var(--nbd-radius-md);
+  font-size:var(--text-md); font-weight:var(--font-semibold);
+  cursor:pointer; border:1px solid transparent;
+  transition:var(--transition-fast); text-decoration:none; white-space:nowrap;
+  font-family:inherit;
+}
+.btn--primary{background:var(--st-brand); color:#fff; border-color:var(--st-brand)}
+.btn--primary:hover{background:var(--st-brand-pressed); border-color:var(--st-brand-pressed)}
+.btn--ghost{background:transparent; color:#fff; border:1px solid rgba(255,255,255,.45)}
+.btn--ghost:hover{background:rgba(255,255,255,.12)}
+.btn--secondary{background:#fff; color:var(--nbd-st-text); border-color:var(--nbd-st-border-light)}
+.btn--secondary:hover{background:var(--nbd-st-bg-soft); border-color:var(--nbd-st-border)}
+.btn--danger-link{background:transparent; color:var(--nbd-color-danger); border:none; padding:var(--nbd-space-1) var(--nbd-space-2)}
+.btn--danger-link:hover{text-decoration:underline}
+.btn--sm{padding:5px var(--nbd-space-3); font-size:var(--text-base)}
+.btn--xs{padding:3px var(--nbd-space-2); font-size:var(--text-sm)}
+
+/* ============================================================
+   Tabs
+   ============================================================ */
+.tab-strip{
+  display:flex; gap:0;
+  border-bottom:1px solid var(--nbd-st-border-light);
+  margin-bottom:var(--nbd-space-5);
+}
+.tab{
+  padding:var(--nbd-space-3) var(--nbd-space-4);
+  font-size:var(--text-md); font-weight:var(--font-medium);
+  color:var(--nbd-st-text-soft); cursor:pointer;
+  border:none; background:transparent;
+  border-bottom:2px solid transparent;
+  margin-bottom:-1px;
+  display:inline-flex; align-items:center; gap:var(--nbd-space-1);
+  font-family:inherit;
+}
+.tab:hover{color:var(--nbd-st-text)}
+.tab.is-active{color:var(--st-brand); border-bottom-color:var(--st-brand); font-weight:var(--font-semibold)}
+.tab__count{
+  font-size:var(--text-xs); padding:2px var(--nbd-space-2);
+  border-radius:var(--nbd-radius-pill);
+  background:var(--nbd-st-bg-soft); color:var(--nbd-st-text-soft);
+}
+.tab.is-active .tab__count{background:var(--st-brand-soft); color:var(--st-brand-pressed)}
+
+/* ============================================================
+   Card
+   ============================================================ */
+.card{
+  background:var(--nbd-st-bg);
+  border:1px solid var(--nbd-st-border-light);
+  border-radius:var(--nbd-radius-lg);
+  box-shadow:var(--shadow-card);
+  margin-bottom:var(--nbd-space-4);
+}
+.card__head{
+  display:flex; align-items:center; gap:var(--nbd-space-3);
+  padding:var(--nbd-space-3) var(--nbd-space-4);
+  border-bottom:1px solid var(--nbd-st-border-subtle);
+}
+.card__head--brand{
+  background:var(--st-brand-tint);
+  border-radius:var(--nbd-radius-lg) var(--nbd-radius-lg) 0 0;
+}
+.card__title{
+  font-size:var(--text-lg); font-weight:var(--font-semibold); margin:0;
+  display:flex; align-items:center; gap:var(--nbd-space-2);
+}
+.card__title-icon{
+  width:24px;height:24px;border-radius:var(--nbd-radius-sm);
+  background:var(--st-brand); color:#fff;
+  display:inline-flex; align-items:center; justify-content:center;
+  font-size:var(--text-base); font-weight:var(--font-bold);
+}
+.card__sub{font-size:var(--text-base); color:var(--nbd-st-text-soft); margin-left:auto}
+.card__body{padding:var(--nbd-space-4)}
+.card__body--flush{padding:0}
+.card__body--tight{padding:var(--nbd-space-3)}
+
+/* ============================================================
+   Form pieces
+   ============================================================ */
+.form-row{display:flex; flex-direction:column; gap:var(--nbd-space-1); margin-bottom:var(--nbd-space-3)}
+.form-row__label{font-size:var(--text-base); font-weight:var(--font-semibold); color:var(--nbd-st-text)}
+.form-row__help{font-size:var(--text-sm); color:var(--nbd-st-text-soft); margin:-2px 0 var(--nbd-space-1)}
+.form-input,.form-select,.form-textarea{
+  width:100%;
+  padding:var(--nbd-space-2) var(--nbd-space-3);
+  border:1px solid var(--nbd-st-border-light);
+  border-radius:var(--nbd-radius-md);
+  background:var(--nbd-st-bg-input);
+  font-size:var(--text-md); color:var(--nbd-st-text);
+  font-family:inherit;
+}
+.form-input:focus,.form-select:focus,.form-textarea:focus{
+  outline:none; border-color:var(--st-brand);
+  box-shadow:var(--shadow-input-focus);
+}
+.form-input--narrow{max-width:140px}
+.form-input--xs{max-width:80px}
+.form-textarea{min-height:72px; resize:vertical}
+.form-prefix,.form-suffix{font-size:var(--text-base); color:var(--nbd-st-text-soft)}
+.form-row-inline{display:flex; align-items:center; gap:var(--nbd-space-2); flex-wrap:wrap}
+
+/* ============================================================
+   Status pills
+   ============================================================ */
+.pill{
+  display:inline-flex; align-items:center; gap:var(--nbd-space-1);
+  padding:3px var(--nbd-space-2);
+  border-radius:var(--nbd-radius-pill);
+  font-size:var(--text-sm); font-weight:var(--font-semibold);
+}
+.pill--active{background:var(--st-pill-active-bg); color:var(--st-pill-active-text)}
+.pill--pending{background:var(--st-pill-pending-bg); color:var(--st-pill-pending-text)}
+.pill--warning{background:var(--st-pill-warning-bg); color:var(--st-pill-warning-text)}
+.pill--danger{background:var(--st-pill-danger-bg); color:var(--st-pill-danger-text)}
+.pill--draft{background:var(--st-pill-draft-bg); color:var(--st-pill-draft-text)}
+.pill--featured{background:var(--st-pill-featured-bg); color:var(--st-pill-featured-text)}
+.pill__dot{width:6px; height:6px; border-radius:50%; background:currentColor}
+
+/* ============================================================
+   Layout: 2 columns — BUILDER (left) | PREVIEW (right, sticky, full-height)
+   ============================================================ */
+.builder-layout{
+  display:grid;
+  grid-template-columns:1fr 420px;
+  gap:var(--nbd-space-5);
+  align-items:start;
+}
+@media(max-width:1180px){ .builder-layout{grid-template-columns:1fr} }
+
+/* ============================================================
+   PREVIEW PANEL (right, sticky, fills viewport height)
+   ============================================================ */
+.preview-panel{
+  position:sticky;
+  top:var(--nbd-space-4);
+  display:flex; flex-direction:column;
+  height:calc(100vh - var(--nbd-space-4) - 84px); /* viewport − top offset − savebar */
+}
+.preview-panel__head{
+  display:flex; align-items:center; gap:var(--nbd-space-3);
+  padding:var(--nbd-space-3) var(--nbd-space-4);
+  background:var(--st-brand-tint);
+  border:1px solid var(--nbd-st-border-light);
+  border-bottom:none;
+  border-radius:var(--nbd-radius-lg) var(--nbd-radius-lg) 0 0;
+}
+.preview-panel__title{
+  font-size:var(--text-lg); font-weight:var(--font-semibold); margin:0;
+  display:flex; align-items:center; gap:var(--nbd-space-2);
+}
+.preview-panel__device{
+  display:inline-flex; background:var(--nbd-st-bg);
+  border:1px solid var(--nbd-st-border-light); border-radius:var(--nbd-radius-md);
+  padding:2px; margin-left:auto;
+}
+.device-btn{
+  padding:var(--nbd-space-1) var(--nbd-space-3);
+  font-size:var(--text-sm); font-weight:var(--font-semibold);
+  border:none; background:transparent; cursor:pointer; color:var(--nbd-st-text-soft);
+  border-radius:var(--nbd-radius-sm); font-family:inherit;
+  display:inline-flex; align-items:center; gap:var(--nbd-space-1);
+}
+.device-btn.is-active{background:var(--st-brand); color:#fff}
+.preview-panel__body{
+  background:var(--nbd-st-bg-soft);
+  border:1px solid var(--nbd-st-border-light);
+  border-radius:0 0 var(--nbd-radius-lg) var(--nbd-radius-lg);
+  padding:var(--nbd-space-4);
+  flex:1 1 auto;
+  min-height:0;
+  overflow:auto;
+}
+
+/* Mobile viewport simulator */
+.preview-mobile{
+  width:340px; margin:0 auto;
+  background:#fff;
+  border:8px solid #1d2327;
+  border-radius:28px;
+  overflow:hidden;
+  box-shadow:0 12px 32px rgba(0,0,0,.18);
+}
+.preview-mobile__notch{
+  background:#1d2327; height:18px;
+  display:flex; align-items:center; justify-content:center;
+}
+.preview-mobile__notch::after{
+  content:""; width:60px; height:5px; background:#000; border-radius:99px;
+}
+.preview-mobile__screen{padding:var(--nbd-space-3); font-size:var(--text-base)}
+
+.preview-product-img{
+  width:100%; height:140px;
+  background:linear-gradient(135deg,#f3e8ff 0%,#c4b5fd 100%);
+  border-radius:var(--nbd-radius-md);
+  margin-bottom:var(--nbd-space-3);
+  display:flex; align-items:center; justify-content:center;
+  color:#4c1d95; font-weight:var(--font-bold); font-size:var(--text-md);
+}
+.preview-product-name{font-size:var(--text-lg); font-weight:var(--font-bold); margin:0 0 var(--nbd-space-1)}
+.preview-product-price{
+  font-size:var(--text-xl); font-weight:var(--font-bold);
+  color:var(--st-brand); margin-bottom:var(--nbd-space-3);
+}
+
+.po-section{margin-bottom:var(--nbd-space-3)}
+.po-section__head{
+  display:flex; justify-content:space-between; align-items:baseline;
+  margin-bottom:var(--nbd-space-1);
+}
+.po-section__label{font-size:var(--text-base); font-weight:var(--font-semibold)}
+.po-section__chosen{font-size:var(--text-sm); color:var(--nbd-st-text-soft)}
+.po-section__chosen strong{color:var(--nbd-st-text)}
+
+.po-swatches{display:grid; grid-template-columns:repeat(3,1fr); gap:var(--nbd-space-1)}
+.po-swatch{
+  border:1.5px solid var(--nbd-st-border-light);
+  border-radius:var(--nbd-radius-sm);
+  padding:var(--nbd-space-1);
+  text-align:center;
+  font-size:var(--text-xs);
+}
+.po-swatch--active{border-color:var(--st-brand); background:var(--st-brand-tint)}
+.po-swatch-color{height:24px; border-radius:3px; margin-bottom:2px}
+
+.po-select{
+  width:100%; padding:var(--nbd-space-1) var(--nbd-space-2);
+  border:1px solid var(--nbd-st-border-light);
+  border-radius:var(--nbd-radius-sm);
+  font-size:var(--text-sm); font-family:inherit;
+}
+
+.po-radios{display:flex; gap:var(--nbd-space-1)}
+.po-radio{
+  flex:1; padding:var(--nbd-space-1) var(--nbd-space-2);
+  border:1.5px solid var(--nbd-st-border-light);
+  border-radius:var(--nbd-radius-sm);
+  font-size:var(--text-sm); text-align:center;
+}
+.po-radio--active{border-color:var(--st-brand); background:var(--st-brand-tint); font-weight:var(--font-semibold)}
+
+.po-qty{display:flex; align-items:center; gap:var(--nbd-space-2); margin-top:var(--nbd-space-1)}
+.po-qty input{
+  flex:1; padding:var(--nbd-space-1) var(--nbd-space-2);
+  border:1px solid var(--nbd-st-border-light);
+  border-radius:var(--nbd-radius-sm); font-size:var(--text-sm);
+}
+
+.po-price-summary{
+  margin-top:var(--nbd-space-3);
+  padding:var(--nbd-space-3);
+  background:#fff;
+  border:1px solid var(--nbd-st-border-light);
+  border-radius:var(--nbd-radius-md);
+}
+.po-price-row{display:flex; justify-content:space-between; font-size:var(--text-sm); padding:2px 0}
+.po-price-row--total{
+  border-top:1px solid var(--nbd-st-border-subtle);
+  padding-top:var(--nbd-space-2); margin-top:var(--nbd-space-1);
+  font-size:var(--text-lg); font-weight:var(--font-bold);
+}
+.po-price-row--total .v{color:var(--st-brand)}
+
+.po-cta{
+  width:100%; margin-top:var(--nbd-space-3);
+  padding:var(--nbd-space-2);
+  background:var(--st-brand); color:#fff;
+  border:none; border-radius:var(--nbd-radius-md);
+  font-size:var(--text-md); font-weight:var(--font-bold);
+  cursor:default; font-family:inherit;
+}
+
+/* Desktop viewport simulator (shown when device=desktop) */
+.preview-desktop{display:none; background:#fff; border:1px solid var(--nbd-st-border-light); border-radius:var(--nbd-radius-md); padding:var(--nbd-space-4)}
+.preview-panel[data-device="desktop"] .preview-mobile{display:none}
+.preview-panel[data-device="desktop"] .preview-desktop{display:block}
+
+/* ============================================================
+   BUILDER right column
+   ============================================================ */
+
+/* Quick add field type palette (horizontal chip strip) */
+.palette{
+  background:var(--nbd-st-bg);
+  border:1px solid var(--nbd-st-border-light);
+  border-radius:var(--nbd-radius-lg);
+  padding:var(--nbd-space-3) var(--nbd-space-4);
+  margin-bottom:var(--nbd-space-4);
+  box-shadow:var(--shadow-card);
+}
+.palette__title{
+  font-size:var(--text-base); font-weight:var(--font-bold);
+  color:var(--nbd-st-text-soft); text-transform:uppercase; letter-spacing:.04em;
+  margin:0 0 var(--nbd-space-2);
+}
+.palette__grid{display:flex; gap:var(--nbd-space-2); flex-wrap:wrap}
+.palette-chip{
+  display:inline-flex; align-items:center; gap:var(--nbd-space-2);
+  padding:var(--nbd-space-2) var(--nbd-space-3);
+  background:var(--nbd-st-bg-soft);
+  border:1px solid var(--nbd-st-border-light);
+  border-radius:var(--nbd-radius-md);
+  font-size:var(--text-md); font-weight:var(--font-medium); color:var(--nbd-st-text);
+  cursor:pointer; transition:var(--transition-fast); font-family:inherit;
+}
+.palette-chip:hover{
+  background:var(--st-brand-tint); border-color:var(--st-brand);
+  color:var(--st-brand-pressed); transform:translateY(-1px);
+  box-shadow:var(--shadow-card);
+}
+.palette-chip__icon{
+  width:24px;height:24px; border-radius:var(--nbd-radius-sm);
+  display:inline-flex; align-items:center; justify-content:center;
+  font-weight:var(--font-bold); font-size:var(--text-base);
+}
+.palette-chip__icon--m{background:var(--st-pill-featured-bg); color:var(--st-pill-featured-text)}
+.palette-chip__icon--t{background:var(--st-pill-pending-bg); color:var(--st-pill-pending-text)}
+.palette-chip__icon--a{background:#fde68a; color:#92400e}
+.palette-chip__icon--u{background:#e0e7ff; color:#3730a3}
+.palette-chip__icon--n{background:var(--st-pill-active-bg); color:var(--st-pill-active-text)}
+.palette-chip__icon--com{background:#fce7f3; color:#9d174d}
+.palette-chip__icon--text{background:#e0f2fe; color:#075985}
+.palette-chip__icon--image{background:#dcfce7; color:#14532d}
+
+.palette__divider{
+  width:1px; background:var(--nbd-st-border-subtle);
+  margin:0 var(--nbd-space-1); align-self:stretch;
+}
+
+/* Option metadata card */
+.meta-grid{display:grid; grid-template-columns:1fr 1fr 1fr; gap:var(--nbd-space-3)}
+@media(max-width:760px){ .meta-grid{grid-template-columns:1fr} }
+
+.meta-item{display:flex; flex-direction:column; gap:2px}
+.meta-item__label{font-size:var(--text-sm); color:var(--nbd-st-text-soft); text-transform:uppercase; letter-spacing:.04em; font-weight:var(--font-semibold)}
+.meta-item__value{font-size:var(--text-md); font-weight:var(--font-semibold)}
+
+/* Group panel */
+.group{margin-bottom:var(--nbd-space-4)}
+.group__head{
+  display:flex; align-items:center; gap:var(--nbd-space-3);
+  padding:var(--nbd-space-3) var(--nbd-space-4);
+  background:var(--nbd-st-bg-soft);
+  border:1px solid var(--nbd-st-border-light);
+  border-radius:var(--nbd-radius-md) var(--nbd-radius-md) 0 0;
+  border-bottom:none;
+}
+.group__icon{
+  width:28px;height:28px;border-radius:var(--nbd-radius-sm);
+  background:#fff; border:1px solid var(--nbd-st-border-light);
+  display:inline-flex; align-items:center; justify-content:center;
+  font-size:var(--text-lg);
+}
+.group__title{font-size:var(--text-md); font-weight:var(--font-bold); margin:0; flex:1}
+.group__meta{font-size:var(--text-sm); color:var(--nbd-st-text-soft)}
+.group__toggle{
+  background:transparent; border:none; cursor:pointer;
+  padding:var(--nbd-space-1); color:var(--nbd-st-text-soft);
+  font-family:inherit;
+}
+.group__body{
+  border:1px solid var(--nbd-st-border-light);
+  border-radius:0 0 var(--nbd-radius-md) var(--nbd-radius-md);
+  background:var(--nbd-st-bg);
+  padding:var(--nbd-space-2);
+}
+
+/* Field card */
+.field-card{
+  border:1px solid var(--nbd-st-border-light);
+  border-radius:var(--nbd-radius-md);
+  background:var(--nbd-st-bg);
+  margin-bottom:var(--nbd-space-1);
+  transition:var(--transition-card);
+}
+.field-card:hover{border-color:var(--nbd-st-border)}
+.field-card.is-expanded{
+  box-shadow:var(--shadow-card);
+  border-color:var(--st-brand-soft);
+}
+.field-card__head{
+  display:flex; align-items:center; gap:var(--nbd-space-2);
+  padding:var(--nbd-space-2) var(--nbd-space-3);
+  cursor:pointer;
+}
+.field-card__drag{
+  color:var(--nbd-st-text-mute); cursor:grab;
+  padding:2px; font-size:var(--text-lg); line-height:1;
+}
+.field-card__type{
+  display:inline-flex; align-items:center; justify-content:center;
+  width:24px; height:24px;
+  border-radius:var(--nbd-radius-sm);
+  background:var(--st-pill-featured-bg); color:var(--st-pill-featured-text);
+  font-size:var(--text-sm); font-weight:var(--font-bold);
+}
+.field-card__type--t{background:var(--st-pill-pending-bg); color:var(--st-pill-pending-text)}
+.field-card__type--a{background:#fde68a; color:#92400e}
+.field-card__type--u{background:#e0e7ff; color:#3730a3}
+.field-card__type--com{background:#fce7f3; color:#9d174d}
+.field-card__type--text{background:#e0f2fe; color:#075985}
+.field-card__type--image{background:#dcfce7; color:#14532d}
+
+.field-card__title{
+  font-size:var(--text-md); font-weight:var(--font-semibold);
+  flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+}
+.field-card__meta{font-size:var(--text-sm); color:var(--nbd-st-text-soft); display:flex; gap:var(--nbd-space-2)}
+.field-card__actions{display:flex; gap:2px}
+.field-card__action{
+  width:26px;height:26px; border-radius:var(--nbd-radius-sm);
+  border:none; background:transparent; cursor:pointer;
+  color:var(--nbd-st-text-soft);
+  display:inline-flex; align-items:center; justify-content:center;
+  font-family:inherit;
+}
+.field-card__action:hover{background:var(--nbd-st-bg-soft); color:var(--nbd-st-text)}
+.field-card__action--danger:hover{background:var(--st-pill-danger-bg); color:var(--nbd-color-danger)}
+
+.field-card__body{
+  padding:var(--nbd-space-3) var(--nbd-space-3) var(--nbd-space-2) var(--nbd-space-3);
+  border-top:1px solid var(--nbd-st-border-subtle);
+  display:none;
+}
+.field-card.is-expanded .field-card__body{display:block}
+.field-card__tabs{display:flex; gap:var(--nbd-space-1); margin-bottom:var(--nbd-space-3)}
+.field-card__tab{
+  font-size:var(--text-sm);
+  padding:var(--nbd-space-1) var(--nbd-space-3);
+  border-radius:var(--nbd-radius-pill);
+  border:1px solid var(--nbd-st-border-light);
+  background:var(--nbd-st-bg);
+  cursor:pointer; color:var(--nbd-st-text-soft);
+  font-family:inherit;
+}
+.field-card__tab.is-active{background:var(--st-brand); color:#fff; border-color:var(--st-brand)}
+
+/* Field property row */
+.fp{
+  display:grid; grid-template-columns:160px 1fr;
+  gap:var(--nbd-space-3); padding:var(--nbd-space-2) 0; align-items:start;
+}
+.fp__label{font-size:var(--text-base); font-weight:var(--font-semibold); color:var(--nbd-st-text); padding-top:var(--nbd-space-2)}
+.fp__hint{font-size:var(--text-xs); color:var(--nbd-st-text-mute); font-weight:var(--font-normal); margin-top:2px}
+.fp__control{display:flex; flex-direction:column; gap:var(--nbd-space-1)}
+
+/* Attribute list */
+.attr-list{display:flex; flex-direction:column; gap:var(--nbd-space-1)}
+.attr{
+  display:grid; grid-template-columns:32px 1fr 110px 26px;
+  gap:var(--nbd-space-2); align-items:center;
+  padding:var(--nbd-space-2) var(--nbd-space-3);
+  border:1px solid var(--nbd-st-border-subtle);
+  border-radius:var(--nbd-radius-md);
+  background:var(--nbd-st-bg-soft);
+}
+.attr--active{background:var(--st-brand-tint); border-color:var(--st-brand-soft)}
+.attr__swatch{
+  width:32px; height:32px; border-radius:var(--nbd-radius-sm);
+  border:1px solid var(--nbd-st-border-light);
+}
+.attr__name input{
+  width:100%; border:1px solid transparent; background:transparent;
+  padding:var(--nbd-space-1) var(--nbd-space-2);
+  font-size:var(--text-base); font-weight:var(--font-medium);
+  font-family:inherit;
+}
+.attr__name input:focus{
+  border-color:var(--nbd-st-border-light); background:#fff; outline:none;
+}
+.attr__price{display:flex; align-items:center; gap:var(--nbd-space-1); font-size:var(--text-sm)}
+.attr__price input{
+  width:60px; padding:var(--nbd-space-1) var(--nbd-space-2);
+  border:1px solid var(--nbd-st-border-light);
+  border-radius:var(--nbd-radius-sm);
+  font-size:var(--text-sm); font-family:inherit;
+}
+.attr__remove{
+  width:24px; height:24px;
+  border:none; background:transparent;
+  color:var(--nbd-st-text-mute); cursor:pointer;
+  border-radius:var(--nbd-radius-sm); font-family:inherit;
+}
+.attr__remove:hover{background:var(--st-pill-danger-bg); color:var(--nbd-color-danger)}
+
+.attr-list__add{
+  margin-top:var(--nbd-space-1);
+  padding:var(--nbd-space-1) var(--nbd-space-3);
+  font-size:var(--text-sm);
+  border:1px dashed var(--nbd-st-border);
+  border-radius:var(--nbd-radius-md);
+  background:var(--nbd-st-bg); color:var(--st-brand);
+  cursor:pointer; align-self:flex-start; font-family:inherit;
+}
+
+/* Hint */
+.hint{
+  padding:var(--nbd-space-3) var(--nbd-space-3);
+  background:var(--st-accent-soft);
+  border:1px solid var(--st-accent);
+  border-radius:var(--nbd-radius-md);
+  font-size:var(--text-base);
+  color:#854d0e;
+  display:flex; gap:var(--nbd-space-2);
+  margin-bottom:var(--nbd-space-4);
+}
+.hint__icon{font-size:var(--text-lg)}
+
+/* Save bar */
+.savebar{
+  position:fixed; left:0; right:0; bottom:0;
+  background:var(--nbd-st-bg);
+  border-top:1px solid var(--nbd-st-border-light);
+  padding:var(--nbd-space-3) var(--nbd-space-6);
+  display:flex; align-items:center; gap:var(--nbd-space-3);
+  justify-content:flex-end;
+  box-shadow:0 -4px 12px rgba(0,0,0,.05);
+  z-index:10;
+}
+.savebar__status{
+  margin-right:auto; font-size:var(--text-base);
+  color:var(--nbd-st-text-soft);
+}
+.savebar__status strong{color:var(--nbd-color-success)}
+
+/* Misc utilities */
+.hr{height:1px; background:var(--nbd-st-border-subtle); margin:var(--nbd-space-3) 0}
+.muted{color:var(--nbd-st-text-soft)}
+
+</style>
+</head>
+<body>
+
+<div class="wp-shell">
+
+  <!-- ───── WP sidebar simulation ───── -->
+  <aside class="wp-side">
+    <div class="wp-side__brand">
+      <span class="wp-side__brand-dot"></span> Storelly Builder
+    </div>
+    <div class="wp-side__item">📊 Overview</div>
+    <div class="wp-side__item">⚙ Settings</div>
+    <div class="wp-side__item is-active">💲 Pricing Options</div>
+    <div class="wp-side__sub is-active">› Edit #8</div>
+    <div class="wp-side__item">📦 Products</div>
+    <div class="wp-side__item">🧾 Orders</div>
+    <div class="wp-side__item">💬 Quotes</div>
+    <div class="wp-side__item">🎨 Designs</div>
+    <div class="wp-side__item">🔑 License</div>
+  </aside>
+
+  <main class="wp-main">
+
+    <!-- ───── Breadcrumb ───── -->
+    <div class="back-bar">
+      <a href="#">
+        <svg viewBox="0 0 24 24"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+        Pricing Options
+      </a>
+      <span class="back-bar__sep">/</span>
+      <span class="back-bar__current">Premium Business Card · #8</span>
+    </div>
+
+    <!-- ───── Hero ───── -->
+    <header class="hero">
+      <div class="hero__grid">
+        <div>
+          <div class="hero__eyebrow">⚙ Pricing Option</div>
+          <h1 class="hero__title">Premium Business Card — Print options</h1>
+          <p class="hero__sub">Define the printing attributes (paper, size, finishing, qty…) customers configure for this product.</p>
+        </div>
+        <div class="hero__actions">
+          <button class="btn btn--ghost">Duplicate</button>
+          <button class="btn btn--ghost">Preview on site</button>
+          <button class="btn btn--secondary">Save draft</button>
+          <button class="btn btn--primary">Save &amp; publish</button>
+        </div>
+      </div>
+      <div class="hero__kpis">
+        <div class="kpi"><span class="kpi__label">Status</span><span class="kpi__value">Published</span></div>
+        <div class="kpi"><span class="kpi__label">Bound products</span><span class="kpi__value">3</span></div>
+        <div class="kpi"><span class="kpi__label">Fields</span><span class="kpi__value">7</span></div>
+        <div class="kpi"><span class="kpi__label">Last modified</span><span class="kpi__value">2h ago</span><span class="kpi__delta">by David</span></div>
+      </div>
+    </header>
+
+    <!-- ───── Tab strip ───── -->
+    <div class="tab-strip">
+      <button class="tab is-active">⚙ Builder <span class="tab__count">7</span></button>
+      <button class="tab">📦 Apply to products <span class="tab__count">3</span></button>
+      <button class="tab">📄 Output (PDF)</button>
+      <button class="tab">🔌 Import / Export</button>
+    </div>
+
+    <!-- ============================================================
+         BUILDER TAB CONTENT
+         ============================================================ -->
+
+    <!-- Option metadata (compact, full width) -->
+    <div class="card">
+      <div class="card__head card__head--brand">
+        <h2 class="card__title">
+          <span class="card__title-icon">i</span>
+          Option metadata
+        </h2>
+        <span class="pill pill--active"><span class="pill__dot"></span>Published</span>
+      </div>
+      <div class="card__body">
+        <div class="form-row">
+          <label class="form-row__label">Option title <span style="color:var(--nbd-color-danger)">*</span></label>
+          <input class="form-input" value="Premium Business Card — Print options" />
+        </div>
+        <div class="meta-grid">
+          <div class="meta-item">
+            <span class="meta-item__label">Created</span>
+            <span class="meta-item__value">Apr 12, 2026</span>
+          </div>
+          <div class="meta-item">
+            <span class="meta-item__label">Modified</span>
+            <span class="meta-item__value">May 24, 2026 · 09:14</span>
+          </div>
+          <div class="meta-item">
+            <span class="meta-item__label">Option ID</span>
+            <span class="meta-item__value">#8</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ───── Field type palette ───── -->
+    <div class="palette">
+      <p class="palette__title">Add field to this option</p>
+      <div class="palette__grid">
+        <button class="palette-chip">
+          <span class="palette-chip__icon palette-chip__icon--m">M</span>
+          Multi-choice
+        </button>
+        <button class="palette-chip">
+          <span class="palette-chip__icon palette-chip__icon--n">N</span>
+          Number / Quantity
+        </button>
+        <button class="palette-chip">
+          <span class="palette-chip__icon palette-chip__icon--t">T</span>
+          Text input
+        </button>
+        <button class="palette-chip">
+          <span class="palette-chip__icon palette-chip__icon--a">A</span>
+          Textarea
+        </button>
+        <button class="palette-chip">
+          <span class="palette-chip__icon palette-chip__icon--u">U</span>
+          File upload
+        </button>
+        <span class="palette__divider"></span>
+        <button class="palette-chip">
+          <span class="palette-chip__icon palette-chip__icon--com">⚛</span>
+          Designer Component
+        </button>
+        <button class="palette-chip">
+          <span class="palette-chip__icon palette-chip__icon--text">Tx</span>
+          Designer Text
+        </button>
+        <button class="palette-chip">
+          <span class="palette-chip__icon palette-chip__icon--image">Im</span>
+          Designer Image
+        </button>
+      </div>
+    </div>
+
+    <!-- ───── Main builder layout: PREVIEW left | BUILDER right ───── -->
+    <div class="builder-layout">
+
+      <!-- ════════════════════════════════════════════════════════
+           LEFT — PREVIEW PANEL (sticky, Mobile default)
+           ════════════════════════════════════════════════════════ -->
+      <div class="preview-panel" data-device="mobile">
+        <div class="preview-panel__head">
+          <h2 class="preview-panel__title">
+            <span class="card__title-icon">👁</span>
+            Live preview
+          </h2>
+          <div class="preview-panel__device" role="tablist">
+            <button class="device-btn is-active" role="tab" aria-selected="true">
+              📱 Mobile
+            </button>
+            <button class="device-btn" role="tab" aria-selected="false">
+              🖥 Desktop
+            </button>
+          </div>
+        </div>
+        <div class="preview-panel__body">
+
+          <!-- Mobile viewport simulator (default) -->
+          <div class="preview-mobile">
+            <div class="preview-mobile__notch"></div>
+            <div class="preview-mobile__screen">
+
+              <div class="preview-product-img">Business Card Mockup</div>
+              <h3 class="preview-product-name">Premium Business Card</h3>
+              <div class="preview-product-price">$44.00</div>
+
+              <div class="po-section">
+                <div class="po-section__head">
+                  <span class="po-section__label">Paper *</span>
+                  <span class="po-section__chosen"><strong>Soft-touch 350gsm</strong></span>
+                </div>
+                <div class="po-swatches">
+                  <div class="po-swatch">
+                    <div class="po-swatch-color" style="background:linear-gradient(135deg,#e5e7eb,#d1d5db)"></div>
+                    Matte
+                  </div>
+                  <div class="po-swatch po-swatch--active">
+                    <div class="po-swatch-color" style="background:linear-gradient(135deg,#f3e8ff,#c4b5fd)"></div>
+                    Soft-touch
+                  </div>
+                  <div class="po-swatch">
+                    <div class="po-swatch-color" style="background:linear-gradient(135deg,#fbbf24,#f59e0b)"></div>
+                    Glossy
+                  </div>
+                </div>
+              </div>
+
+              <div class="po-section">
+                <div class="po-section__head">
+                  <span class="po-section__label">Size *</span>
+                  <span class="po-section__chosen"><strong>85 × 55mm</strong></span>
+                </div>
+                <select class="po-select"><option>Standard 85 × 55mm</option></select>
+              </div>
+
+              <div class="po-section">
+                <div class="po-section__head">
+                  <span class="po-section__label">Sides *</span>
+                  <span class="po-section__chosen"><strong>Double</strong> +$4</span>
+                </div>
+                <div class="po-radios">
+                  <div class="po-radio">Single</div>
+                  <div class="po-radio po-radio--active">Double +$4</div>
+                </div>
+              </div>
+
+              <div class="po-section">
+                <div class="po-section__head">
+                  <span class="po-section__label">Quantity *</span>
+                  <span class="po-section__chosen"><strong>250 cards</strong></span>
+                </div>
+                <div class="po-qty">
+                  <input value="250" />
+                </div>
+              </div>
+
+              <div class="po-price-summary">
+                <div class="po-price-row"><span>Base</span><span>$32.00</span></div>
+                <div class="po-price-row"><span>+ Soft-touch</span><span>+$8.00</span></div>
+                <div class="po-price-row"><span>+ Double</span><span>+$4.00</span></div>
+                <div class="po-price-row po-price-row--total">
+                  <span>Total</span><span class="v">$44.00</span>
+                </div>
+              </div>
+
+              <button class="po-cta">Add to cart — $44.00</button>
+
+            </div>
+          </div>
+
+          <!-- Desktop viewport simulator -->
+          <div class="preview-desktop">
+            <p class="muted" style="font-size:var(--text-sm); margin:0">Desktop preview (collapsed). Same fields, wider layout.</p>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- ════════════════════════════════════════════════════════
+           RIGHT — BUILDER (groups + field cards)
+           ════════════════════════════════════════════════════════ -->
+      <section>
+
+        <div class="hint">
+          <span class="hint__icon">💡</span>
+          <div><strong>Tip:</strong> Click a field type chip above to add a new field. Drag <span style="font-size:var(--text-lg)">⋮⋮</span> to reorder.</div>
+        </div>
+
+        <!-- ───── GROUP 1: Pricing attributes (data_type=m) ───── -->
+        <div class="group">
+          <div class="group__head">
+            <span class="group__icon">📐</span>
+            <h3 class="group__title">Pricing attributes</h3>
+            <span class="group__meta">4 fields · multi-choice</span>
+            <button class="group__toggle" title="Collapse">▾</button>
+          </div>
+          <div class="group__body">
+
+            <!-- Field: Paper (expanded) -->
+            <div class="field-card is-expanded">
+              <div class="field-card__head">
+                <span class="field-card__drag">⋮⋮</span>
+                <span class="field-card__type">M</span>
+                <div style="flex:1;min-width:0">
+                  <div class="field-card__title">Paper</div>
+                  <div class="field-card__meta">
+                    <span>Multi-choice · 6 attributes</span>
+                  </div>
+                </div>
+                <span class="pill pill--featured">Required</span>
+                <div class="field-card__actions">
+                  <button class="field-card__action" title="Duplicate">⎘</button>
+                  <button class="field-card__action" title="Move up">↑</button>
+                  <button class="field-card__action" title="Move down">↓</button>
+                  <button class="field-card__action field-card__action--danger" title="Delete">✕</button>
+                  <button class="field-card__action" title="Collapse">▴</button>
+                </div>
+              </div>
+              <div class="field-card__body">
+                <div class="field-card__tabs">
+                  <button class="field-card__tab is-active">General</button>
+                  <button class="field-card__tab">Appearance</button>
+                </div>
+
+                <div class="fp">
+                  <div class="fp__label">Option name<div class="fp__hint">Shown to customer</div></div>
+                  <div class="fp__control"><input class="form-input" value="Paper" /></div>
+                </div>
+                <div class="fp">
+                  <div class="fp__label">Description<div class="fp__hint">Optional help text</div></div>
+                  <div class="fp__control"><input class="form-input" value="Choose the finish that matches your brand." /></div>
+                </div>
+                <div class="fp">
+                  <div class="fp__label">Data type</div>
+                  <div class="fp__control">
+                    <select class="form-select form-input--narrow">
+                      <option>Multiple options</option>
+                      <option>Custom input</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="fp">
+                  <div class="fp__label">Required</div>
+                  <div class="fp__control">
+                    <label style="font-size:var(--text-base)">
+                      <input type="checkbox" checked /> Customer must select a value
+                    </label>
+                  </div>
+                </div>
+
+                <div class="hr"></div>
+
+                <div style="font-size:var(--text-base); font-weight:var(--font-bold); margin-bottom:var(--nbd-space-2)">Attributes (6)</div>
+                <div class="attr-list">
+                  <div class="attr">
+                    <div class="attr__swatch" style="background:linear-gradient(135deg,#e5e7eb 0%,#d1d5db 100%)"></div>
+                    <div class="attr__name"><input value="Matte 250gsm" /></div>
+                    <div class="attr__price"><span>+$</span><input value="0.00" /></div>
+                    <button class="attr__remove">✕</button>
+                  </div>
+                  <div class="attr attr--active">
+                    <div class="attr__swatch" style="background:linear-gradient(135deg,#f3e8ff 0%,#c4b5fd 100%)"></div>
+                    <div class="attr__name"><input value="Soft-touch 350gsm" /></div>
+                    <div class="attr__price"><span>+$</span><input value="8.00" /></div>
+                    <button class="attr__remove">✕</button>
+                  </div>
+                  <div class="attr">
+                    <div class="attr__swatch" style="background:linear-gradient(135deg,#fbbf24 0%,#f59e0b 100%)"></div>
+                    <div class="attr__name"><input value="Glossy 300gsm" /></div>
+                    <div class="attr__price"><span>+$</span><input value="4.00" /></div>
+                    <button class="attr__remove">✕</button>
+                  </div>
+                  <div class="attr">
+                    <div class="attr__swatch" style="background:repeating-linear-gradient(45deg,#d4a574 0px,#d4a574 2px,#c89968 2px,#c89968 4px)"></div>
+                    <div class="attr__name"><input value="Linen 320gsm" /></div>
+                    <div class="attr__price"><span>+$</span><input value="6.00" /></div>
+                    <button class="attr__remove">✕</button>
+                  </div>
+                  <div class="attr">
+                    <div class="attr__swatch" style="background:linear-gradient(135deg,#d1d5db 0%,#6b7280 50%,#d1d5db 100%)"></div>
+                    <div class="attr__name"><input value="Metallic 300gsm" /></div>
+                    <div class="attr__price"><span>+$</span><input value="12.00" /></div>
+                    <button class="attr__remove">✕</button>
+                  </div>
+                  <div class="attr">
+                    <div class="attr__swatch" style="background:linear-gradient(135deg,#fef3c7 0%,#fcd34d 50%,#d4a574 100%)"></div>
+                    <div class="attr__name"><input value="Recycled Kraft" /></div>
+                    <div class="attr__price"><span>+$</span><input value="0.00" /></div>
+                    <button class="attr__remove">✕</button>
+                  </div>
+                </div>
+                <button class="attr-list__add">+ Add attribute</button>
+              </div>
+            </div>
+
+            <!-- Field: Size -->
+            <div class="field-card">
+              <div class="field-card__head">
+                <span class="field-card__drag">⋮⋮</span>
+                <span class="field-card__type">M</span>
+                <div style="flex:1;min-width:0">
+                  <div class="field-card__title">Size</div>
+                  <div class="field-card__meta"><span>Multi-choice · 5 attributes</span></div>
+                </div>
+                <span class="pill pill--featured">Required</span>
+                <div class="field-card__actions">
+                  <button class="field-card__action">⎘</button>
+                  <button class="field-card__action">↑</button>
+                  <button class="field-card__action">↓</button>
+                  <button class="field-card__action field-card__action--danger">✕</button>
+                  <button class="field-card__action">▾</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Field: Orientation -->
+            <div class="field-card">
+              <div class="field-card__head">
+                <span class="field-card__drag">⋮⋮</span>
+                <span class="field-card__type">M</span>
+                <div style="flex:1;min-width:0">
+                  <div class="field-card__title">Orientation</div>
+                  <div class="field-card__meta"><span>Multi-choice · 2 attributes</span></div>
+                </div>
+                <span class="pill pill--draft">Optional</span>
+                <div class="field-card__actions">
+                  <button class="field-card__action">⎘</button>
+                  <button class="field-card__action">↑</button>
+                  <button class="field-card__action">↓</button>
+                  <button class="field-card__action field-card__action--danger">✕</button>
+                  <button class="field-card__action">▾</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Field: Printing sides -->
+            <div class="field-card">
+              <div class="field-card__head">
+                <span class="field-card__drag">⋮⋮</span>
+                <span class="field-card__type">M</span>
+                <div style="flex:1;min-width:0">
+                  <div class="field-card__title">Printing sides</div>
+                  <div class="field-card__meta"><span>Multi-choice · 2 attributes</span></div>
+                </div>
+                <span class="pill pill--featured">Required</span>
+                <div class="field-card__actions">
+                  <button class="field-card__action">⎘</button>
+                  <button class="field-card__action">↑</button>
+                  <button class="field-card__action">↓</button>
+                  <button class="field-card__action field-card__action--danger">✕</button>
+                  <button class="field-card__action">▾</button>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- ───── GROUP 2: Customer inputs (data_type=i) ───── -->
+        <div class="group">
+          <div class="group__head">
+            <span class="group__icon">✏</span>
+            <h3 class="group__title">Customer inputs</h3>
+            <span class="group__meta">2 fields · text / upload / number</span>
+            <button class="group__toggle">▾</button>
+          </div>
+          <div class="group__body">
+
+            <div class="field-card">
+              <div class="field-card__head">
+                <span class="field-card__drag">⋮⋮</span>
+                <span class="field-card__type field-card__type--t">N</span>
+                <div style="flex:1;min-width:0">
+                  <div class="field-card__title">Quantity</div>
+                  <div class="field-card__meta"><span>Number · range 100–10000 · step 50</span></div>
+                </div>
+                <span class="pill pill--featured">Required</span>
+                <div class="field-card__actions">
+                  <button class="field-card__action">⎘</button>
+                  <button class="field-card__action">↑</button>
+                  <button class="field-card__action">↓</button>
+                  <button class="field-card__action field-card__action--danger">✕</button>
+                  <button class="field-card__action">▾</button>
+                </div>
+              </div>
+            </div>
+
+            <div class="field-card">
+              <div class="field-card__head">
+                <span class="field-card__drag">⋮⋮</span>
+                <span class="field-card__type field-card__type--u">U</span>
+                <div style="flex:1;min-width:0">
+                  <div class="field-card__title">Upload print-ready file</div>
+                  <div class="field-card__meta"><span>File upload · PDF / AI / PNG up to 25MB</span></div>
+                </div>
+                <span class="pill pill--draft">Optional</span>
+                <div class="field-card__actions">
+                  <button class="field-card__action">⎘</button>
+                  <button class="field-card__action">↑</button>
+                  <button class="field-card__action">↓</button>
+                  <button class="field-card__action field-card__action--danger">✕</button>
+                  <button class="field-card__action">▾</button>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- ───── GROUP 3: Designer components (nbpb_type set) ───── -->
+        <div class="group">
+          <div class="group__head">
+            <span class="group__icon">🎨</span>
+            <h3 class="group__title">Designer components</h3>
+            <span class="group__meta">1 field · for the online designer canvas</span>
+            <button class="group__toggle">▾</button>
+          </div>
+          <div class="group__body">
+
+            <div class="field-card">
+              <div class="field-card__head">
+                <span class="field-card__drag">⋮⋮</span>
+                <span class="field-card__type field-card__type--image">Im</span>
+                <div style="flex:1;min-width:0">
+                  <div class="field-card__title">Logo placeholder</div>
+                  <div class="field-card__meta"><span>Image component · designer canvas</span></div>
+                </div>
+                <div class="field-card__actions">
+                  <button class="field-card__action">⎘</button>
+                  <button class="field-card__action">↑</button>
+                  <button class="field-card__action">↓</button>
+                  <button class="field-card__action field-card__action--danger">✕</button>
+                  <button class="field-card__action">▾</button>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+      </section>
+    </div><!-- /.builder-layout -->
+
+  </main>
+</div>
+
+<!-- ───── Floating save bar ───── -->
+<div class="savebar">
+  <span class="savebar__status">Last saved <strong>2 hours ago</strong> · all changes synced</span>
+  <button class="btn btn--secondary">Cancel</button>
+  <button class="btn btn--secondary">Preview</button>
+  <button class="btn btn--primary">Save &amp; publish</button>
+</div>
+
+<script>
+// Device toggle (mockup behavior)
+document.querySelectorAll('.preview-panel__device .device-btn').forEach(btn => {
+  btn.addEventListener('click', e => {
+    const panel = btn.closest('.preview-panel');
+    panel.querySelectorAll('.device-btn').forEach(b => {
+      b.classList.remove('is-active');
+      b.setAttribute('aria-selected','false');
+    });
+    btn.classList.add('is-active');
+    btn.setAttribute('aria-selected','true');
+    panel.dataset.device = btn.textContent.trim().toLowerCase().includes('mobile') ? 'mobile' : 'desktop';
+  });
+});
+
+// Expand/collapse field cards
+document.querySelectorAll('.field-card__head').forEach(head => {
+  head.addEventListener('click', e => {
+    if (e.target.closest('.field-card__action') || e.target.closest('.field-card__drag') || e.target.tagName === 'INPUT') return;
+    head.closest('.field-card').classList.toggle('is-expanded');
+  });
+});
+
+// Tab strip (visual only)
+document.querySelectorAll('.tab-strip .tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.tab-strip .tab').forEach(t => t.classList.remove('is-active'));
+    tab.classList.add('is-active');
+  });
+});
+</script>
+
+</body>
+</html>
