@@ -25,6 +25,9 @@ class SPBWC_Global_Import_Controller {
         add_action('wp_ajax_spbwc_global_import_row_ids', array($this, 'handle_row_ids'));
         add_action('wp_ajax_spbwc_global_import_run', array($this, 'handle_import'));
         add_action('wp_ajax_spbwc_global_import_log', array($this, 'handle_log'));
+        add_action('wp_ajax_spbwc_global_import_issues', array($this, 'handle_issues_list'));
+        add_action('wp_ajax_spbwc_global_import_reimport', array($this, 'handle_reimport'));
+        add_action('wp_ajax_spbwc_global_import_health', array($this, 'handle_health'));
     }
 
     private function filesystem() {
@@ -460,6 +463,218 @@ class SPBWC_Global_Import_Controller {
         wp_send_json_success(array('lines' => $slice, 'offset' => count($lines)));
     }
 
+    /**
+     * List products that were imported with problems (partial imports) so the admin can review
+     * and re-import them.
+     */
+    public function handle_issues_list() {
+        check_ajax_referer('spbwc_global_import', 'nonce');
+        if (!current_user_can('manage_woocommerce')) {
+            wp_send_json_error(__('Permission denied', 'storelly-product-builder-for-woocommerce'), 403);
+        }
+        $query = new WP_Query(array(
+            'post_type'      => 'product',
+            'post_status'    => 'any',
+            'posts_per_page' => 200,
+            'fields'         => 'ids',
+            'no_found_rows'  => true,
+            // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query -- bounded admin-only lookup of products flagged during import.
+            'meta_query'     => array(
+                array(
+                    'key'   => '_spbwc_import_status',
+                    'value' => 'partial',
+                ),
+            ),
+        ));
+        $items = array();
+        foreach ($query->posts as $pid) {
+            $warnings = json_decode((string) get_post_meta($pid, '_spbwc_import_warnings', true), true);
+            $source   = json_decode((string) get_post_meta($pid, '_spbwc_import_source', true), true);
+            $items[] = array(
+                'product_id'   => (int) $pid,
+                'name'         => html_entity_decode(get_the_title($pid), ENT_QUOTES),
+                'status'       => (string) get_post_meta($pid, '_spbwc_import_status', true),
+                'warnings'     => is_array($warnings) ? $warnings : array(),
+                'date'         => (string) get_post_meta($pid, '_spbwc_import_date', true),
+                'edit_url'     => get_edit_post_link($pid, 'raw'),
+                'can_reimport' => is_array($source) && !empty($source['settings']),
+            );
+        }
+        wp_send_json_success(array('items' => $items));
+    }
+
+    /**
+     * Re-import a single product from its recorded source, overwriting the existing product in
+     * place (same product ID) so order references stay valid.
+     */
+    public function handle_reimport() {
+        check_ajax_referer('spbwc_global_import', 'nonce');
+        if (!current_user_can('manage_woocommerce')) {
+            wp_send_json_error(__('Permission denied', 'storelly-product-builder-for-woocommerce'), 403);
+        }
+        $product_id = absint($_POST['product_id'] ?? 0);
+        if (!$product_id) {
+            wp_send_json_error(__('Invalid product', 'storelly-product-builder-for-woocommerce'));
+        }
+        $source = json_decode((string) get_post_meta($product_id, '_spbwc_import_source', true), true);
+        if (!is_array($source) || empty($source['settings'])) {
+            wp_send_json_error(__('No import source recorded for this product — cannot re-import.', 'storelly-product-builder-for-woocommerce'));
+        }
+        $run_id = 'reimport-' . $product_id . '-' . time();
+        @set_time_limit(0); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged, Generic.PHP.DiscouragedFunctions -- best-effort lift of the time limit for a long media/JSON re-download.
+        $this->adapter->set_logger(function ($message) use ($run_id) {
+            $this->log_line($run_id, $message);
+        });
+        $product = wc_get_product($product_id);
+        $row = array(
+            'row_id'     => isset($source['row_id']) ? (string) $source['row_id'] : (string) $product_id,
+            'name'       => isset($source['name']) ? (string) $source['name'] : ($product ? $product->get_name() : ''),
+            'sku'        => $product ? $product->get_sku() : '',
+            'price'      => 0,
+            'image'      => isset($source['image']) ? (string) $source['image'] : '',
+            'categories' => array(),
+            'raw'        => array(
+                'settings'      => (string) $source['settings'],
+                'print_options' => isset($source['print_options']) ? (string) $source['print_options'] : '',
+                'templates'     => isset($source['templates']) ? (string) $source['templates'] : '',
+                'external_id'   => isset($source['external_id']) ? (string) $source['external_id'] : '',
+                'image'         => isset($source['image']) ? (string) $source['image'] : '',
+            ),
+        );
+        $this->log_line($run_id, 'RE-IMPORT product #' . $product_id . ': ' . $row['name']);
+        try {
+            $result = $this->import_row($row, true, $product_id);
+        } catch (Throwable $throwable) {
+            $this->log_line($run_id, 'ERROR ' . $throwable->getMessage());
+            wp_send_json_error($throwable->getMessage());
+        }
+        if (empty($result['success'])) {
+            $this->log_line($run_id, 'ERROR ' . $result['message']);
+            wp_send_json_error($result['message']);
+        }
+        if (!empty($result['warnings'])) {
+            foreach ($result['warnings'] as $warning) {
+                $this->log_line($run_id, 'WARNING ' . $warning);
+            }
+        }
+        $this->log_line($run_id, 'BATCH_COMPLETE ' . wp_json_encode(array('product_id' => $product_id)));
+        $warnings = json_decode((string) get_post_meta($product_id, '_spbwc_import_warnings', true), true);
+        wp_send_json_success(array(
+            'product_id' => $product_id,
+            'run_id'     => $run_id,
+            'status'     => (string) get_post_meta($product_id, '_spbwc_import_status', true),
+            'warnings'   => is_array($warnings) ? $warnings : array(),
+        ));
+    }
+
+    /**
+     * Report PHP environment capability so the admin is warned when their server is too weak for
+     * heavy imports (large JSON pricing options, many media files).
+     */
+    public function handle_health() {
+        check_ajax_referer('spbwc_global_import', 'nonce');
+        if (!current_user_can('manage_woocommerce')) {
+            wp_send_json_error(__('Permission denied', 'storelly-product-builder-for-woocommerce'), 403);
+        }
+        wp_send_json_success($this->get_environment_health());
+    }
+
+    private function get_environment_health() {
+        $checks = array();
+
+        $max_exec = (int) ini_get('max_execution_time');
+        $exec_ok  = (0 === $max_exec || $max_exec >= 120);
+        $checks[] = array(
+            'key'         => 'max_execution_time',
+            'label'       => __('Max execution time', 'storelly-product-builder-for-woocommerce'),
+            'value'       => 0 === $max_exec ? __('unlimited', 'storelly-product-builder-for-woocommerce') : $max_exec . 's',
+            'recommended' => '≥ 120s',
+            'ok'          => $exec_ok,
+        );
+
+        $mem    = wp_convert_hr_to_bytes(ini_get('memory_limit'));
+        $mem_ok = ($mem <= 0 || $mem >= 256 * MB_IN_BYTES);
+        $checks[] = array(
+            'key'         => 'memory_limit',
+            'label'       => __('Memory limit', 'storelly-product-builder-for-woocommerce'),
+            'value'       => $mem <= 0 ? __('unlimited', 'storelly-product-builder-for-woocommerce') : size_format($mem),
+            'recommended' => '≥ 256 MB',
+            'ok'          => $mem_ok,
+        );
+
+        $post_max    = wp_convert_hr_to_bytes(ini_get('post_max_size'));
+        $post_max_ok = ($post_max <= 0 || $post_max >= 64 * MB_IN_BYTES);
+        $checks[] = array(
+            'key'         => 'post_max_size',
+            'label'       => __('Post max size', 'storelly-product-builder-for-woocommerce'),
+            'value'       => $post_max <= 0 ? __('unlimited', 'storelly-product-builder-for-woocommerce') : size_format($post_max),
+            'recommended' => '≥ 64 MB',
+            'ok'          => $post_max_ok,
+        );
+
+        $upload_max    = wp_convert_hr_to_bytes(ini_get('upload_max_filesize'));
+        $upload_max_ok = ($upload_max <= 0 || $upload_max >= 64 * MB_IN_BYTES);
+        $checks[] = array(
+            'key'         => 'upload_max_filesize',
+            'label'       => __('Upload max filesize', 'storelly-product-builder-for-woocommerce'),
+            'value'       => $upload_max <= 0 ? __('unlimited', 'storelly-product-builder-for-woocommerce') : size_format($upload_max),
+            'recommended' => '≥ 64 MB',
+            'ok'          => $upload_max_ok,
+        );
+
+        $zip_ok   = class_exists('ZipArchive');
+        $checks[] = array(
+            'key'         => 'zip',
+            'label'       => __('ZipArchive (design templates)', 'storelly-product-builder-for-woocommerce'),
+            'value'       => $zip_ok ? __('available', 'storelly-product-builder-for-woocommerce') : __('missing', 'storelly-product-builder-for-woocommerce'),
+            'recommended' => __('available', 'storelly-product-builder-for-woocommerce'),
+            'ok'          => $zip_ok,
+        );
+
+        $disabled          = array_map('trim', explode(',', (string) ini_get('disable_functions')));
+        $set_time_limit_ok = function_exists('set_time_limit') && !in_array('set_time_limit', $disabled, true);
+        $checks[] = array(
+            'key'         => 'set_time_limit',
+            'label'       => __('set_time_limit()', 'storelly-product-builder-for-woocommerce'),
+            'value'       => $set_time_limit_ok ? __('available', 'storelly-product-builder-for-woocommerce') : __('disabled', 'storelly-product-builder-for-woocommerce'),
+            'recommended' => __('available', 'storelly-product-builder-for-woocommerce'),
+            'ok'          => $set_time_limit_ok,
+        );
+
+        $conn = $this->adapter->fetch_remote(self::DEMO_DATA_URL, true, 10);
+
+        $warnings = array();
+        foreach ($checks as $check) {
+            if (!$check['ok']) {
+                $warnings[] = sprintf(
+                    /* translators: 1: setting label, 2: current value, 3: recommended value */
+                    __('%1$s is %2$s (recommended %3$s).', 'storelly-product-builder-for-woocommerce'),
+                    $check['label'],
+                    $check['value'],
+                    $check['recommended']
+                );
+            }
+        }
+
+        $recommended_batch = 5;
+        if (!$exec_ok || $mem > 0 && $mem < 256 * MB_IN_BYTES) {
+            $recommended_batch = 2;
+        } elseif (0 === $max_exec && ($mem <= 0 || $mem >= 512 * MB_IN_BYTES)) {
+            $recommended_batch = 10;
+        }
+
+        return array(
+            'checks'            => $checks,
+            'warnings'          => $warnings,
+            'connectivity'      => array(
+                'ok'      => (bool) $conn['ok'],
+                'message' => $conn['ok'] ? __('Connected to import server.', 'storelly-product-builder-for-woocommerce') : $conn['message'],
+            ),
+            'recommended_batch' => $recommended_batch,
+            'healthy'           => empty($warnings) && $conn['ok'],
+        );
+    }
+
     private function parse_file($path, $ext) {
         if ($ext === 'csv') {
             return $this->parse_csv($path);
@@ -859,16 +1074,19 @@ class SPBWC_Global_Import_Controller {
         $debug_lines[] = 'Row ' . $row_id . ': fetching print options from ' . $print_options_url;
         $path = wp_parse_url($print_options_url, PHP_URL_PATH);
         $ext = $path ? strtolower(pathinfo($path, PATHINFO_EXTENSION)) : '';
-        $print_options_str = $this->adapter->file_get_contents_remote($print_options_url);
-        if ('' === $print_options_str) {
+        $po_fetch = $this->adapter->fetch_remote($print_options_url, 'json' === $ext);
+        if (!$po_fetch['ok']) {
             $warnings[] = sprintf(
-                /* translators: 1: row identifier from the import payload, 2: URL the print options were fetched from */
-                __('Row %1$s: unable to fetch print options from %2$s', 'storelly-product-builder-for-woocommerce'),
+                /* translators: 1: row identifier, 2: WooCommerce product ID, 3: failure reason */
+                __('Row %1$s: print options for product #%2$d skipped (%3$s)', 'storelly-product-builder-for-woocommerce'),
                 $row_id,
-                $print_options_url
+                $product_id,
+                $po_fetch['message']
             );
+            $debug_lines[] = 'Row ' . $row_id . ': print options fetch ' . $po_fetch['reason'];
             return;
         }
+        $print_options_str = $po_fetch['body'];
         if ('json' === $ext) {
             $debug_lines[] = 'Row ' . $row_id . ': detected print options JSON payload.';
             $print_options_data = $this->decode_remote_payload_to_array($print_options_str, $debug_lines, 'print_options');
@@ -913,13 +1131,13 @@ class SPBWC_Global_Import_Controller {
         );
     }
 
-    private function import_row($row) {
+    private function import_row($row, $overwrite = false, $target_id = 0) {
         $raw = $row['raw'];
         $sku = $row['sku'];
         $external_id = $raw['external_id'] ?? $raw['id'] ?? '';
         $warnings = array();
         $debug_lines = array();
-        $existing_id = $sku ? wc_get_product_id_by_sku($sku) : 0;
+        $existing_id = $target_id > 0 ? (int) $target_id : ($sku ? wc_get_product_id_by_sku($sku) : 0);
         if (!$existing_id && $external_id) {
             $existing = get_posts(array(
                 'post_type' => 'product',
@@ -933,26 +1151,52 @@ class SPBWC_Global_Import_Controller {
             }
         }
         if (!empty($raw['settings'])) {
-            $settings_str = $this->adapter->file_get_contents_remote($raw['settings']);
-            $data = $this->decode_remote_payload_to_array($settings_str, $debug_lines, 'settings');
+            $settings_fetch = $this->adapter->fetch_remote($raw['settings']);
+            if (!$settings_fetch['ok']) {
+                $debug_lines[] = 'Row ' . $row['row_id'] . ': settings fetch ' . $settings_fetch['reason'] . ' - ' . $settings_fetch['message'];
+            }
+            $data = $this->decode_remote_payload_to_array($settings_fetch['body'], $debug_lines, 'settings');
             if (empty($data)) {
                 return array(
                     'success' => false,
                     'message' => sprintf(
-                        /* translators: %s: row identifier from the import payload */
-                        __('Row %s: product settings payload is invalid', 'storelly-product-builder-for-woocommerce'),
-                        $row['row_id']
+                        /* translators: 1: row identifier from the import payload, 2: failure reason */
+                        __('Row %1$s: product settings could not be loaded (%2$s)', 'storelly-product-builder-for-woocommerce'),
+                        $row['row_id'],
+                        $settings_fetch['ok'] ? __('payload is invalid', 'storelly-product-builder-for-woocommerce') : $settings_fetch['message']
                     ),
                     'warnings' => $warnings,
                     'debug' => $debug_lines,
                 );
             }
-            $product_id = $existing_id ?: $this->adapter->add_product($data);
+            if ($existing_id) {
+                $product_id = $existing_id;
+                if ($overwrite) {
+                    $this->adapter->update_product($product_id, $data);
+                }
+            } else {
+                $product_id = $this->adapter->add_product($data);
+            }
+            if ($overwrite && $product_id) {
+                $this->adapter->delete_print_options_for_product($product_id);
+            }
             $this->import_print_options_for_product($product_id, $row['row_id'], $raw, $warnings, $debug_lines);
             if (!empty($raw['templates'])) {
-                $templates_str = $this->adapter->file_get_contents_remote($raw['templates']);
-                $templates = json_decode($templates_str, true);
-                $this->adapter->add_templates($templates, $external_id ?: $row['row_id'], $product_id);
+                $templates_fetch = $this->adapter->fetch_remote($raw['templates'], true);
+                if ($templates_fetch['ok']) {
+                    $templates = json_decode($templates_fetch['body'], true);
+                    if (is_array($templates)) {
+                        $this->adapter->add_templates($templates, $external_id ?: $row['row_id'], $product_id);
+                    }
+                } else {
+                    $warnings[] = sprintf(
+                        /* translators: 1: row identifier, 2: failure reason */
+                        __('Row %1$s: design templates skipped (%2$s)', 'storelly-product-builder-for-woocommerce'),
+                        $row['row_id'],
+                        $templates_fetch['message']
+                    );
+                    $debug_lines[] = 'Row ' . $row['row_id'] . ': templates fetch ' . $templates_fetch['reason'];
+                }
             }
         } else {
             $product = $existing_id ? wc_get_product($existing_id) : new WC_Product();
@@ -967,6 +1211,9 @@ class SPBWC_Global_Import_Controller {
             if (isset($raw['stock_quantity'])) $product->set_stock_quantity(intval($raw['stock_quantity']));
             if ($sku) $product->set_sku($sku);
             $product_id = $product->save();
+            if ($overwrite && $product_id) {
+                $this->adapter->delete_print_options_for_product($product_id);
+            }
             $this->import_print_options_for_product($product_id, $row['row_id'], $raw, $warnings, $debug_lines);
         }
         if ($external_id) {
@@ -1019,6 +1266,7 @@ class SPBWC_Global_Import_Controller {
                 }
             }
         }
+        $this->record_import_status($product_id, $row, $raw, $external_id, $warnings);
         do_action('spbwc_global_import_product_saved', $product_id, $row);
         return array(
             'success' => true,
@@ -1030,6 +1278,35 @@ class SPBWC_Global_Import_Controller {
             'warnings' => $warnings,
             'debug' => $debug_lines,
         );
+    }
+
+    /**
+     * Store the import outcome and the original source URLs on the product so the admin can see
+     * which products imported with problems and re-import (overwrite) them from source later.
+     *
+     * @param int    $product_id  WooCommerce product ID.
+     * @param array  $row         Normalized row.
+     * @param array  $raw         Raw row payload.
+     * @param string $external_id Source external identifier.
+     * @param array  $warnings    Warnings collected during this row's import.
+     */
+    private function record_import_status($product_id, $row, $raw, $external_id, $warnings) {
+        if (!$product_id) {
+            return;
+        }
+        $source = array(
+            'settings'      => isset($raw['settings']) ? (string) $raw['settings'] : '',
+            'print_options' => isset($raw['print_options']) ? (string) $raw['print_options'] : '',
+            'templates'     => isset($raw['templates']) ? (string) $raw['templates'] : '',
+            'image'         => isset($row['image']) ? (string) $row['image'] : '',
+            'external_id'   => (string) $external_id,
+            'row_id'        => (string) $row['row_id'],
+            'name'          => isset($row['name']) ? (string) $row['name'] : '',
+        );
+        update_post_meta($product_id, '_spbwc_import_source', wp_json_encode($source));
+        update_post_meta($product_id, '_spbwc_import_status', empty($warnings) ? 'ok' : 'partial');
+        update_post_meta($product_id, '_spbwc_import_warnings', wp_json_encode(array_values($warnings)));
+        update_post_meta($product_id, '_spbwc_import_date', current_time('mysql'));
     }
 
     private function build_product_payload($product_id) {

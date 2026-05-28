@@ -45,7 +45,12 @@
                 processed: 0,
                 logs: [],
                 logOffset: 0,
-                toasts: []
+                toasts: [],
+                issues: [],
+                issuesLoading: false,
+                reimporting: {},
+                health: null,
+                healthLoading: false
             };
         },
         computed: {
@@ -249,6 +254,7 @@
                     this.importStatus = '';
                     this.clearSelection();
                     this.toast('Import completed');
+                    this.fetchIssues();
                     return;
                 }
                 const batch = this.importQueue.splice(0, this.batchSize);
@@ -338,10 +344,91 @@
                     return row.categories.join(', ');
                 }
                 return row.categories || '';
+            },
+            fetchHealth() {
+                this.healthLoading = true;
+                jQuery.post(this.config.ajax_url, {
+                    action: 'spbwc_global_import_health',
+                    nonce: this.config.nonce
+                }).done(res => {
+                    if (res.success) {
+                        this.health = res.data;
+                        if (res.data.recommended_batch) {
+                            this.batchSize = res.data.recommended_batch;
+                        }
+                    }
+                }).always(() => {
+                    this.healthLoading = false;
+                });
+            },
+            fetchIssues() {
+                this.issuesLoading = true;
+                jQuery.post(this.config.ajax_url, {
+                    action: 'spbwc_global_import_issues',
+                    nonce: this.config.nonce
+                }).done(res => {
+                    if (res.success && Array.isArray(res.data.items)) {
+                        this.issues = res.data.items;
+                    }
+                }).always(() => {
+                    this.issuesLoading = false;
+                });
+            },
+            reimportProduct(item) {
+                if (!item || !item.product_id || this.reimporting[item.product_id]) return;
+                this.reimporting[item.product_id] = true;
+                jQuery.ajax({
+                    url: this.config.ajax_url,
+                    method: 'POST',
+                    dataType: 'json',
+                    data: {
+                        action: 'spbwc_global_import_reimport',
+                        nonce: this.config.nonce,
+                        product_id: item.product_id
+                    }
+                }).done(res => {
+                    if (res.success) {
+                        const warnCount = Array.isArray(res.data.warnings) ? res.data.warnings.length : 0;
+                        this.toast(warnCount
+                            ? `Re-imported "${item.name}" with ${warnCount} warning(s)`
+                            : `Re-imported "${item.name}" successfully`);
+                        if (res.data.run_id) {
+                            this.loadRunLog(res.data.run_id);
+                        }
+                        this.fetchIssues();
+                    } else {
+                        this.toast((res.data && typeof res.data === 'string') ? res.data : 'Re-import failed');
+                    }
+                }).fail(xhr => {
+                    const message = xhr && xhr.responseJSON && xhr.responseJSON.data
+                        ? xhr.responseJSON.data
+                        : 'Re-import failed';
+                    this.toast(message);
+                }).always(() => {
+                    delete this.reimporting[item.product_id];
+                });
+            },
+            loadRunLog(runId) {
+                jQuery.post(this.config.ajax_url, {
+                    action: 'spbwc_global_import_log',
+                    nonce: this.config.nonce,
+                    run_id: runId,
+                    offset: 0
+                }).done(res => {
+                    if (res.success && Array.isArray(res.data.lines)) {
+                        this.logs = this.logs.concat(res.data.lines);
+                        this.$nextTick(() => {
+                            const logEl = this.$el.querySelector('.spbwc-gi-log');
+                            if (logEl) logEl.scrollTop = logEl.scrollHeight;
+                        });
+                    }
+                });
             }
         },
         mounted() {
             this.fetchList();
+            this.fetchIssues();
+            this.fetchHealth();
         },
         template: `
         <div class="spbwc-gi-grid">
@@ -349,6 +436,22 @@
                 <div class="spbwc-gi-title">Global Import</div>
                 <div class="spbwc-gi-toolbar">
                     <button class="spbwc-gi-btn secondary" @click="fetchList" :disabled="loading">{{ loading ? config.i18n.loading_products : 'Refresh' }}</button>
+                </div>
+            </div>
+            <div class="spbwc-gi-card" v-if="health && !health.healthy" style="border-left:4px solid #f59e0b;">
+                <div style="display:flex; align-items:center; gap:8px; margin-bottom:8px;">
+                    <span class="dashicons dashicons-warning" style="color:#f59e0b;" aria-hidden="true"></span>
+                    <h3 style="margin:0;">Server capability warning</h3>
+                </div>
+                <p v-if="!health.connectivity.ok" style="margin:4px 0; color:#b45309;">{{ health.connectivity.message }}</p>
+                <ul v-if="health.warnings.length" style="margin:4px 0 8px 18px;">
+                    <li v-for="(w, i) in health.warnings" :key="i" style="color:#b45309;">{{ w }}</li>
+                </ul>
+                <p style="margin:4px 0; font-size:13px; color:var(--gi-muted);">
+                    Heavy products may import partially (truncated images or pricing JSON). Recommended batch size for this server: <strong>{{ health.recommended_batch }}</strong>.
+                </p>
+                <div style="margin-top:8px; display:flex; flex-wrap:wrap; gap:6px;">
+                    <span v-for="(c, i) in health.checks" :key="i" class="spbwc-gi-badge" :style="{background: c.ok ? '#dcfce7' : '#fee2e2', color: c.ok ? '#166534' : '#991b1b'}">{{ c.label }}: {{ c.value }}</span>
                 </div>
             </div>
             <div class="spbwc-gi-card" v-if="logs.length > 0">
@@ -427,6 +530,40 @@
                     <button class="spbwc-gi-btn secondary" :disabled="page<=1 || loading" @click="page--; fetchList()">Prev</button>
                     <span>{{ page }} / {{ totalPages }}</span>
                     <button class="spbwc-gi-btn secondary" :disabled="page>=totalPages || loading" @click="page++; fetchList()">Next</button>
+                </div>
+            </div>
+            <div class="spbwc-gi-card" v-if="issues.length > 0">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+                    <h3 style="margin:0;">Imported with issues ({{ issues.length }})</h3>
+                    <button class="spbwc-gi-btn secondary" style="padding:4px 8px; font-size:11px;" @click="fetchIssues" :disabled="issuesLoading">Refresh</button>
+                </div>
+                <div class="spbwc-gi-table-wrap">
+                    <table class="spbwc-gi-table">
+                        <thead>
+                            <tr><th>Product</th><th>Issues</th><th>Imported</th><th></th></tr>
+                        </thead>
+                        <tbody>
+                            <tr v-for="item in issues" :key="item.product_id">
+                                <td>
+                                    <a v-if="item.edit_url" :href="item.edit_url" target="_blank" rel="noopener">{{ item.name }}</a>
+                                    <span v-else>{{ item.name }}</span>
+                                    <span class="spbwc-gi-badge" style="background:#fef3c7; color:#92400e; margin-left:6px;">{{ item.status }}</span>
+                                </td>
+                                <td>
+                                    <ul v-if="item.warnings.length" style="margin:0 0 0 16px; padding:0;">
+                                        <li v-for="(w, i) in item.warnings" :key="i" style="font-size:12px; color:#b45309;">{{ w }}</li>
+                                    </ul>
+                                    <span v-else style="color:var(--gi-muted);">—</span>
+                                </td>
+                                <td style="white-space:nowrap; font-size:12px; color:var(--gi-muted);">{{ item.date }}</td>
+                                <td>
+                                    <button class="spbwc-gi-btn" style="padding:4px 10px; font-size:12px;" @click="reimportProduct(item)" :disabled="!item.can_reimport || !!reimporting[item.product_id]">
+                                        {{ reimporting[item.product_id] ? 'Re-importing…' : 'Re-import' }}
+                                    </button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
                 </div>
             </div>
             <div class="spbwc-gi-toast">

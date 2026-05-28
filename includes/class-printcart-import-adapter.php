@@ -28,15 +28,91 @@ class SPBWC_Printcart_Import_Adapter {
         return $wp_filesystem;
     }
 
-    public function file_get_contents_remote($url) {
-        $response = wp_remote_get($url);
-        if (!is_wp_error($response)) {
-            $body = wp_remote_retrieve_body($response);
-            if ($body !== '') {
-                return $body;
+    /**
+     * Fetch a remote URL and report exactly why it failed.
+     *
+     * Detects responses that were cut off mid-transfer (PHP/network limits) by comparing the
+     * declared Content-Length against the received body length, and optionally validates JSON.
+     *
+     * @param string $url         Remote URL.
+     * @param bool   $expect_json Validate the body as JSON when true.
+     * @param int    $timeout     Request timeout in seconds.
+     * @return array{ok:bool, body:string, reason:string, http_code:int, message:string, bytes:int, expected:int}
+     */
+    public function fetch_remote($url, $expect_json = false, $timeout = 30) {
+        $result = array(
+            'ok'        => false,
+            'body'      => '',
+            'reason'    => '',
+            'http_code' => 0,
+            'message'   => '',
+            'bytes'     => 0,
+            'expected'  => 0,
+        );
+        if (empty($url) || !is_string($url)) {
+            $result['reason']  = 'empty_url';
+            $result['message'] = __('No URL provided', 'storelly-product-builder-for-woocommerce');
+            return $result;
+        }
+        $response = wp_remote_get($url, array('timeout' => (int) $timeout));
+        if (is_wp_error($response)) {
+            $result['reason']  = 'wp_error';
+            $result['message'] = $response->get_error_message();
+            return $result;
+        }
+        $code               = (int) wp_remote_retrieve_response_code($response);
+        $result['http_code'] = $code;
+        if ($code < 200 || $code >= 300) {
+            $result['reason']  = 'http_error';
+            /* translators: %d: HTTP status code returned by the remote server */
+            $result['message'] = sprintf(__('Remote server returned HTTP %d', 'storelly-product-builder-for-woocommerce'), $code);
+            return $result;
+        }
+        $body            = wp_remote_retrieve_body($response);
+        $result['bytes'] = strlen($body);
+        if ('' === $body) {
+            $result['reason']  = 'empty';
+            $result['message'] = __('Empty response body', 'storelly-product-builder-for-woocommerce');
+            return $result;
+        }
+        $declared = wp_remote_retrieve_header($response, 'content-length');
+        if ('' !== $declared && is_numeric($declared)) {
+            $result['expected'] = (int) $declared;
+            // Body shorter than the declared size means the transfer was cut off. (Compressed
+            // responses only ever make the decoded body larger, so this never false-positives.)
+            if (strlen($body) < (int) $declared) {
+                $result['reason']  = 'truncated';
+                /* translators: 1: bytes received, 2: total bytes expected */
+                $result['message'] = sprintf(
+                    __('Download was cut off: received %1$d of %2$d bytes', 'storelly-product-builder-for-woocommerce'),
+                    strlen($body),
+                    (int) $declared
+                );
+                $result['body'] = $body;
+                return $result;
             }
         }
-        return '';
+        if ($expect_json) {
+            json_decode($body);
+            if (JSON_ERROR_NONE !== json_last_error()) {
+                $result['reason']  = 'invalid_json';
+                /* translators: %s: JSON parser error message */
+                $result['message'] = sprintf(
+                    __('Invalid or incomplete JSON (%s)', 'storelly-product-builder-for-woocommerce'),
+                    json_last_error_msg()
+                );
+                $result['body'] = $body;
+                return $result;
+            }
+        }
+        $result['ok']   = true;
+        $result['body'] = $body;
+        return $result;
+    }
+
+    public function file_get_contents_remote($url) {
+        $res = $this->fetch_remote($url);
+        return $res['ok'] ? $res['body'] : '';
     }
 
     public function add_attachment_from_url($file) {
@@ -67,14 +143,24 @@ class SPBWC_Printcart_Import_Adapter {
         }
 
         $this->log('Downloading image: ' . $file);
-        $response = wp_remote_get($file, array('timeout' => 15));
+        $response = wp_remote_get($file, array('timeout' => 30));
         if (is_wp_error($response)) {
             $this->log('Download failed: ' . $response->get_error_message());
+            return 0;
+        }
+        $http_code = (int) wp_remote_retrieve_response_code($response);
+        if ($http_code < 200 || $http_code >= 300) {
+            $this->log('Download failed: HTTP ' . $http_code);
             return 0;
         }
         $contents = wp_remote_retrieve_body($response);
         if ($contents === '') {
             $this->log('Download failed: Empty body');
+            return 0;
+        }
+        $declared = wp_remote_retrieve_header($response, 'content-length');
+        if ('' !== $declared && is_numeric($declared) && strlen($contents) < (int) $declared) {
+            $this->log('Download failed: cut off (' . strlen($contents) . '/' . (int) $declared . ' bytes)');
             return 0;
         }
         $upload_file = wp_upload_bits($filename, null, $contents);
@@ -104,12 +190,20 @@ class SPBWC_Printcart_Import_Adapter {
 
 
     public function download_remote_file($url, $path) {
-        $response = wp_remote_get($url);
+        $response = wp_remote_get($url, array('timeout' => 30));
         if (is_wp_error($response)) {
+            return false;
+        }
+        $http_code = (int) wp_remote_retrieve_response_code($response);
+        if ($http_code < 200 || $http_code >= 300) {
             return false;
         }
         $data = wp_remote_retrieve_body($response);
         if ($data === '') {
+            return false;
+        }
+        $declared = wp_remote_retrieve_header($response, 'content-length');
+        if ('' !== $declared && is_numeric($declared) && strlen($data) < (int) $declared) {
             return false;
         }
         $fs = $this->filesystem();
@@ -118,10 +212,46 @@ class SPBWC_Printcart_Import_Adapter {
 
     public function add_product($data) {
         $product = new WC_Product();
-        $product->set_name($data['name']);
-        $product->set_description($data['description']);
-        $product->set_regular_price($data['regular_price']);
-        $product->set_sale_price($data['sale_price']);
+        $this->apply_product_data($product, $data);
+        $product_id = $product->save();
+        $this->apply_product_meta($product_id, $data);
+        return $product_id;
+    }
+
+    /**
+     * Overwrite an existing product in place from a decoded settings payload.
+     *
+     * Used by the re-import flow: keeps the same product ID (so existing WooCommerce orders and
+     * links stay valid) while replacing its configuration, media and design settings.
+     *
+     * @param int   $product_id Existing WooCommerce product ID.
+     * @param array $data       Decoded settings payload.
+     * @return int Product ID (creates a new product if the ID no longer exists).
+     */
+    public function update_product($product_id, $data) {
+        $product = wc_get_product($product_id);
+        if (!$product) {
+            return $this->add_product($data);
+        }
+        $this->apply_product_data($product, $data);
+        $product->save();
+        $this->apply_product_meta($product_id, $data);
+        return $product_id;
+    }
+
+    private function apply_product_data($product, $data) {
+        if (isset($data['name'])) {
+            $product->set_name($data['name']);
+        }
+        if (isset($data['description'])) {
+            $product->set_description($data['description']);
+        }
+        if (isset($data['regular_price'])) {
+            $product->set_regular_price($data['regular_price']);
+        }
+        if (isset($data['sale_price'])) {
+            $product->set_sale_price($data['sale_price']);
+        }
         $product->set_status('publish');
         $product->set_catalog_visibility('visible');
         $product->set_stock_status('instock');
@@ -131,11 +261,13 @@ class SPBWC_Printcart_Import_Adapter {
                 $product->set_image_id($media_id);
             }
         }
-        $product_id = $product->save();
-        update_post_meta($product_id, '_nbdesigner_enable', $data['enable_design']);
-        update_post_meta($product_id, '_nbdesigner_enable_upload', $data['enable_upload']);
-        update_post_meta($product_id, '_nbdesigner_enable_upload_without_design', $data['upload_without_design']);
-        update_post_meta($product_id, '_nbo_enable', $data['nbo_enable']);
+    }
+
+    private function apply_product_meta($product_id, $data) {
+        update_post_meta($product_id, '_nbdesigner_enable', $data['enable_design'] ?? '');
+        update_post_meta($product_id, '_nbdesigner_enable_upload', $data['enable_upload'] ?? '');
+        update_post_meta($product_id, '_nbdesigner_enable_upload_without_design', $data['upload_without_design'] ?? '');
+        update_post_meta($product_id, '_nbo_enable', $data['nbo_enable'] ?? '');
         if (!empty($data['setting_upload'])) {
             update_post_meta($product_id, '_nbdesigner_upload', $data['setting_upload']);
         }
@@ -146,16 +278,37 @@ class SPBWC_Printcart_Import_Adapter {
             $product_config = maybe_unserialize($data['setting_design']);
             $default_bg_id = get_option('nbdesigner_default_background');
             $default_ov_id = get_option('nbdesigner_default_overlay');
-            foreach ($product_config as $key => $_config) {
-                $im_id = $this->add_attachment_from_url($_config['img_src']);
-                $product_config[$key]['img_src'] = $im_id ? $im_id : $default_bg_id;
-                $ov_id = $this->add_attachment_from_url($_config['img_overlay']);
-                $product_config[$key]['img_overlay'] = $ov_id ? $ov_id : $default_ov_id;
+            if (is_array($product_config)) {
+                foreach ($product_config as $key => $_config) {
+                    $im_id = $this->add_attachment_from_url($_config['img_src']);
+                    $product_config[$key]['img_src'] = $im_id ? $im_id : $default_bg_id;
+                    $ov_id = $this->add_attachment_from_url($_config['img_overlay']);
+                    $product_config[$key]['img_overlay'] = $ov_id ? $ov_id : $default_ov_id;
+                }
             }
-            $setting_design = serialize($product_config);
-            update_post_meta($product_id, '_designer_setting', $setting_design);
+            update_post_meta($product_id, '_designer_setting', serialize($product_config)); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.serialize_serialize -- legacy Storelly designer setting format stored as serialized string.
         }
-        return $product_id;
+    }
+
+    /**
+     * Remove print options that belong solely to a product (used before a re-import overwrite so
+     * options are not duplicated).
+     *
+     * @param int $product_id WooCommerce product ID.
+     * @return void
+     */
+    public function delete_print_options_for_product($product_id) {
+        global $wpdb;
+        $product_id = (int) $product_id;
+        if ($product_id <= 0) {
+            return;
+        }
+        $table  = $wpdb->prefix . 'storelly_product_builder_options';
+        $needle = '%' . $wpdb->esc_like(serialize(array($product_id))) . '%'; // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.serialize_serialize -- matches the exact serialized linkage written by save_print_option().
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.DirectDatabaseQuery.SchemaChange -- custom options table; clearing rows before re-import.
+        $wpdb->query($wpdb->prepare("DELETE FROM `{$table}` WHERE product_ids LIKE %s", $needle));
+        delete_post_meta($product_id, '_spbwc_option_id');
+        delete_transient('spbwc_product_builder_' . $product_id);
     }
 
     private function decode_payload_to_array($value) {
