@@ -309,22 +309,57 @@ angular
       $scope.options.views.splice(vIndex, 1);
       $scope.initfieldValue();
     };
+    // Current product id for scoping the media picker to one product's images.
+    $scope.spbwcMediaPid = function () {
+      return ($scope.options && $scope.options.product_ids && parseInt($scope.options.product_ids[0], 10)) || 0;
+    };
+    // Media frame title: when scoped to a product, show "Images for: <product>" so
+    // the merchant knows they are browsing that one product's images.
+    $scope.spbwcFrameTitle = function () {
+      var lang = (typeof storelly_options !== "undefined" && storelly_options.storelly_options_lang) || {};
+      var pid = $scope.spbwcMediaPid();
+      var labels = $scope.options && $scope.options.spbwc_product_labels;
+      var name = (pid > 0 && labels && labels[pid]) ? labels[pid] : "";
+      if (name && lang.media_scope_title) {
+        return lang.media_scope_title.replace("%s", name);
+      }
+      return lang.choose_image || "";
+    };
+    // When an option already references an image, open the media frame with that
+    // image pre-selected (highlighted + scrolled into view) so "edit image" lands
+    // on the right one instead of a blank search.
+    $scope.spbwcPreselect = function (frame, currentId) {
+      currentId = parseInt(currentId, 10);
+      if (!currentId || currentId <= 0) {
+        return;
+      }
+      frame.on("open", function () {
+        var selection = frame.state().get("selection");
+        var attachment = wp.media.attachment(currentId);
+        attachment.fetch();
+        selection.add(attachment ? [attachment] : []);
+      });
+    };
     $scope.set_view_base = function (vIndex) {
       var file_frame;
       if (file_frame) {
         file_frame.open();
         return;
       }
+      var spbwcPid = $scope.spbwcMediaPid();
+      var lib = {
+        type: ["image"],
+      };
+      if (spbwcPid > 0) lib.uploadedTo = spbwcPid;
       file_frame = wp.media.frames.file_frame = wp.media({
-        title: storelly_options.storelly_options_lang.choose_image,
+        title: $scope.spbwcFrameTitle(),
         button: {
           text: storelly_options.storelly_options_lang.choose_image,
         },
-        library: {
-          type: ["image"],
-        },
+        library: lib,
         multiple: false,
       });
+      $scope.spbwcPreselect(file_frame, $scope.options.views[vIndex].base);
       file_frame.on("select", function () {
         var attachment = file_frame.state().get("selection").first().toJSON();
         $scope.options.views[vIndex].base = attachment.id;
@@ -361,16 +396,23 @@ angular
         file_frame.open();
         return;
       }
+      var spbwcPid = ($scope.options && $scope.options.product_ids && parseInt($scope.options.product_ids[0], 10)) || 0;
+      var lib = {
+        type: ["image"],
+      };
+      if (spbwcPid > 0) lib.uploadedTo = spbwcPid;
       file_frame = wp.media.frames.file_frame = wp.media({
-        title: storelly_options.storelly_options_lang.choose_image,
+        title: $scope.spbwcFrameTitle(),
         button: {
           text: storelly_options.storelly_options_lang.choose_image,
         },
-        library: {
-          type: ["image"],
-        },
+        library: lib,
         multiple: false,
       });
+      $scope.spbwcPreselect(
+        file_frame,
+        $scope.options["fields"][fieldIndex]["general"]["pb_config"][attr_index][sattr_index].views[$index].image
+      );
       file_frame.on("select", function () {
         var attachment = file_frame.state().get("selection").first().toJSON();
         $scope.options["fields"][fieldIndex]["general"]["pb_config"][
@@ -1449,42 +1491,32 @@ angular
         file_frame.open();
         return;
       }
-      // Compose a search query so the WP media library opens already
-      // filtered to images whose title / alt contains the attribute or
-      // field name — drastically narrows the picker when an option has
-      // 50+ uploaded images.
+      // Scope the picker to the current product's images (post_parent). The
+      // merchant can still switch to "All media items" inside the frame.
       var field = $scope.options.fields[fieldIndex];
       var attr  = field && field.general && field.general.attributes
                   && field.general.attributes.options
                   && field.general.attributes.options[$index];
-      var searchHint = "";
-      if (attr && attr.name) { searchHint = attr.name; }
-      else if (field && field.general && field.general.title && field.general.title.value) {
-        searchHint = field.general.title.value;
-      }
-
+      var spbwcPid = $scope.spbwcMediaPid();
+      var lib = {
+        type: ["image"],
+        orderby: "date",
+        order: "DESC",
+      };
+      if (spbwcPid > 0) lib.uploadedTo = spbwcPid;
       file_frame = wp.media.frames.file_frame = wp.media({
-        title: storelly_options.storelly_options_lang.choose_image,
+        title: $scope.spbwcFrameTitle(),
         button: {
           text: storelly_options.storelly_options_lang.choose_image,
         },
-        library: {
-          type: ["image"],
-          orderby: "date",
-          order: "DESC",
-          search: searchHint || null
-        },
+        library: lib,
         multiple: false,
       });
-      // Auto-focus the search box so the user can refine the query.
-      file_frame.on("open", function () {
-        try {
-          var searchInput = file_frame.$el.find('#media-search-input');
-          if (searchInput.length && searchHint) {
-            searchInput.val(searchHint).trigger('keyup');
-          }
-        } catch (e) { /* ignore */ }
-      });
+      // Pre-select the option's current image so "edit" opens the right one.
+      var spbwcCurrentImg = angular.isDefined($bg_index)
+        ? (attr && attr[type] && attr[type][$bg_index])
+        : (attr && attr[type]);
+      $scope.spbwcPreselect(file_frame, spbwcCurrentImg);
       file_frame.on("select", function () {
         var attachment = file_frame.state().get("selection").first().toJSON();
         if (angular.isDefined($bg_index)) {
@@ -1526,16 +1558,21 @@ angular
         file_frame.open();
         return;
       }
+      var spbwcPid = $scope.spbwcMediaPid();
+      var lib = { type: ["image"] };
+      if (spbwcPid > 0) lib.uploadedTo = spbwcPid;
       file_frame = wp.media.frames.file_frame = wp.media({
-        title: storelly_options.storelly_options_lang.choose_image,
+        title: $scope.spbwcFrameTitle(),
         button: {
           text: storelly_options.storelly_options_lang.choose_image,
         },
-        library: {
-          type: ["image"],
-        },
+        library: lib,
         multiple: false,
       });
+      $scope.spbwcPreselect(
+        file_frame,
+        $scope.options["fields"][fieldIndex]["general"]["component_icon"]
+      );
       file_frame.on("select", function () {
         var attachment = file_frame.state().get("selection").first().toJSON();
         $scope.options["fields"][fieldIndex]["general"]["component_icon"] =
@@ -1568,16 +1605,21 @@ angular
         file_frame.open();
         return;
       }
+      var spbwcPid = $scope.spbwcMediaPid();
+      var lib = { type: ["image"] };
+      if (spbwcPid > 0) lib.uploadedTo = spbwcPid;
       file_frame = wp.media.frames.file_frame = wp.media({
-        title: storelly_options.storelly_options_lang.choose_image,
+        title: $scope.spbwcFrameTitle(),
         button: {
           text: storelly_options.storelly_options_lang.choose_image,
         },
-        library: {
-          type: ["image"],
-        },
+        library: lib,
         multiple: false,
       });
+      $scope.spbwcPreselect(
+        file_frame,
+        $scope.options["fields"][fieldIndex]["general"]["attributes"]["options"][opIndex]["sub_attributes"][sopIndex]["image"]
+      );
       file_frame.on("select", function () {
         var attachment = file_frame.state().get("selection").first().toJSON();
         $scope.options["fields"][fieldIndex]["general"]["attributes"][

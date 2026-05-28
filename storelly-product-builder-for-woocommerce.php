@@ -83,6 +83,7 @@ require_once(SPBWC_PB_PLUGIN_DIR .  'includes/class-request-quote.php');
 require_once(SPBWC_PB_PLUGIN_DIR .  'includes/class-global-import.php');
 require_once(SPBWC_PB_PLUGIN_DIR .  'includes/class-global-import-admin.php');
 require_once(SPBWC_PB_PLUGIN_DIR .  'includes/class-global-import-controller.php');
+require_once(SPBWC_PB_PLUGIN_DIR .  'includes/class-media-group.php');
 require_once(SPBWC_PB_PLUGIN_DIR .  'includes/class-printcart-import-adapter.php');
 require_once(SPBWC_PB_PLUGIN_DIR .  'includes/class-printcart-import-schema.php');
 require_once(SPBWC_PB_PLUGIN_DIR .  'includes/class-license-manager.php');
@@ -155,6 +156,10 @@ function spbwc_sanitize_recursive($data) {
         $data = sanitize_text_field($data);
     }
     return $data;
+}
+
+if ( class_exists( 'SPBWC_Media_Group' ) ) {
+    SPBWC_Media_Group::instance()->spbwc_init();
 }
 
 $storelly_product_builder = new SPBWC_Storelly_Product_Builder_Backend();

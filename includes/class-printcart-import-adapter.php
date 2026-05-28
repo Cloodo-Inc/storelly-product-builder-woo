@@ -150,6 +150,25 @@ class SPBWC_Printcart_Import_Adapter {
             }
         }
 
+        // Dedupe: reuse a previously imported attachment whose stored source URL matches, so
+        // re-imports do not pile up duplicate copies in the Media Library.
+        $existing = get_posts(array(
+            'post_type'      => 'attachment',
+            'post_status'    => 'inherit',
+            'fields'         => 'ids',
+            'posts_per_page' => 1,
+            'meta_key'       => '_spbwc_source_url', // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key -- single low-volume lookup during import.
+            'meta_value'     => $file, // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_value -- single low-volume lookup during import.
+        ));
+        if (!empty($existing)) {
+            $cached_id = (int) $existing[0];
+            $cached_path = get_attached_file($cached_id);
+            if ($cached_path && file_exists($cached_path)) {
+                $this->log('Reusing cached attachment for URL: ' . $this->safe_file_label($file));
+                return $cached_id;
+            }
+        }
+
         $filename = basename(wp_parse_url($file, PHP_URL_PATH));
         if (empty($filename)) {
             $filename = 'image-' . time() . '.jpg';
@@ -196,6 +215,8 @@ class SPBWC_Printcart_Import_Adapter {
         require_once ABSPATH . 'wp-admin/includes/image.php';
         $attachment_data = wp_generate_attachment_metadata($attachment_id, $upload_file['file']);
         wp_update_attachment_metadata($attachment_id, $attachment_data);
+        // Remember the original remote URL so future re-imports of the same image are deduped.
+        update_post_meta($attachment_id, '_spbwc_source_url', $file);
         $this->log('Successfully imported image. ID: ' . $attachment_id);
         return $attachment_id;
     }
@@ -287,6 +308,7 @@ class SPBWC_Printcart_Import_Adapter {
         if (!empty($data['option'])) {
             update_post_meta($product_id, '_nbdesigner_option', $data['option']);
         }
+        $designer_media_ids = array();
         if (!empty($data['setting_design'])) {
             $product_config = maybe_unserialize($data['setting_design']);
             $default_bg_id = get_option('nbdesigner_default_background');
@@ -297,10 +319,54 @@ class SPBWC_Printcart_Import_Adapter {
                     $product_config[$key]['img_src'] = $im_id ? $im_id : $default_bg_id;
                     $ov_id = $this->add_attachment_from_url($_config['img_overlay']);
                     $product_config[$key]['img_overlay'] = $ov_id ? $ov_id : $default_ov_id;
+                    $designer_media_ids[] = (int) $product_config[$key]['img_src'];
+                    $designer_media_ids[] = (int) $product_config[$key]['img_overlay'];
                 }
             }
             update_post_meta($product_id, '_designer_setting', serialize($product_config)); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.serialize_serialize -- legacy Storelly designer setting format stored as serialized string.
         }
+        // Group the product thumbnail and designer background/overlay images under this product.
+        $media_ids = $designer_media_ids;
+        $thumbnail_id = (int) get_post_thumbnail_id($product_id);
+        if ($thumbnail_id > 0) {
+            $media_ids[] = $thumbnail_id;
+        }
+        $this->spbwc_assign_collected_media($media_ids, $product_id);
+    }
+
+    /**
+     * Recursively collect positive-integer attachment IDs from a saved builder fields array.
+     *
+     * Delegates to the shared SPBWC_Media_Group collector so import and backfill stay in sync.
+     *
+     * @param mixed $fields_array Unserialized fields array.
+     * @return array Unique int attachment IDs.
+     */
+    private function spbwc_collect_attachment_ids($fields_array) {
+        if (class_exists('SPBWC_Media_Group')) {
+            return SPBWC_Media_Group::spbwc_collect_attachment_ids($fields_array);
+        }
+        return array();
+    }
+
+    /**
+     * Assign a set of attachment IDs to a product's media group (post_parent + taxonomy term).
+     *
+     * @param array $attachment_ids Attachment IDs.
+     * @param int   $product_id     WooCommerce product ID.
+     * @return void
+     */
+    private function spbwc_assign_collected_media($attachment_ids, $product_id) {
+        if (!class_exists('SPBWC_Media_Group') || empty($attachment_ids)) {
+            return;
+        }
+        $ids = array_values(array_unique(array_filter(array_map('intval', (array) $attachment_ids), function ($id) {
+            return $id > 0;
+        })));
+        if (empty($ids)) {
+            return;
+        }
+        SPBWC_Media_Group::spbwc_assign_media_group($ids, (int) $product_id);
     }
 
     /**
@@ -618,6 +684,9 @@ class SPBWC_Printcart_Import_Adapter {
             set_transient('spbwc_product_builder_' . $new_product_id, $option_id);
             update_post_meta($new_product_id, '_spbwc_option_id', $option_id);
             update_post_meta($new_product_id, '_storelly_pb_enable', 1);
+            // Group every imported image referenced by this option set under the product.
+            $collected_ids = $this->spbwc_collect_attachment_ids($fields_payload);
+            $this->spbwc_assign_collected_media($collected_ids, $new_product_id);
         }
         return array(
             'success' => true,

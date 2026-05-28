@@ -471,7 +471,8 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
                 || ( is_string( $hook ) && substr( $hook, - ( strlen( SPBWC_PB_BUILDER_SLUG ) + 6 ) ) === '_page_' . SPBWC_PB_BUILDER_SLUG )
             );
             if ($spbwc_is_builder_hook) {
-                wp_register_script('spbwc-options-script', SPBWC_PB_JS_URL . 'admin-options.js', array('jquery', 'wpdialogs', 'jquery-ui-resizable', 'jquery-ui-draggable', 'jquery-ui-droppable', 'jquery-ui-sortable', 'jquery-ui-datepicker', 'jquery-ui-autocomplete', 'wp-color-picker', 'spbwc-ag', 'wc-enhanced-select', 'spbwc-snap-svg', 'spbwc-tiptip'), SPBWC_PB_VERSION, true);
+                $spbwc_admin_options_ver = file_exists( SPBWC_PB_PLUGIN_DIR . 'static/js/admin-options.js' ) ? filemtime( SPBWC_PB_PLUGIN_DIR . 'static/js/admin-options.js' ) : SPBWC_PB_VERSION;
+                wp_register_script('spbwc-options-script', SPBWC_PB_JS_URL . 'admin-options.js', array('jquery', 'wpdialogs', 'jquery-ui-resizable', 'jquery-ui-draggable', 'jquery-ui-droppable', 'jquery-ui-sortable', 'jquery-ui-datepicker', 'jquery-ui-autocomplete', 'wp-color-picker', 'spbwc-ag', 'wc-enhanced-select', 'spbwc-snap-svg', 'spbwc-tiptip'), $spbwc_admin_options_ver, true);
                 wp_localize_script('spbwc-options-script', 'storelly_options', array(
                     'search_products_nonce'     => wp_create_nonce("search-products"),
                     'calendar_image'            => SPBWC_PB_ASSETS_URL . 'images/calendar.png',
@@ -607,13 +608,25 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
                             $options['product_ids'] = array(0 => $product_id);
                         }
                     }
-                    
+                    // Product id -> name map so the media picker title can show which
+                    // product's images the merchant is browsing.
+                    $options['spbwc_product_labels'] = array();
+                    if (!empty($options['product_ids']) && is_array($options['product_ids'])) {
+                        foreach ($options['product_ids'] as $spbwc_label_pid) {
+                            $spbwc_label_pid = absint($spbwc_label_pid);
+                            if ($spbwc_label_pid > 0) {
+                                $options['spbwc_product_labels'][$spbwc_label_pid] = get_the_title($spbwc_label_pid);
+                            }
+                        }
+                    }
+
                     // Must depend on Angular ('spbwc-ag') so {{ }} interpolation
                     // and ng-controller="optionCtrl" inside edit-option.php bind
                     // even when the global admin_enqueue_scripts hook check
                     // misses (e.g. when the parent menu title changes and the
                     // hook suffix no longer matches the legacy form).
-                    wp_register_script('spbwc_option_field_script', SPBWC_PB_JS_URL . 'admin-options.js', array('jquery', 'spbwc-ag'), SPBWC_PB_VERSION, true);
+                    $spbwc_admin_options_ver = file_exists( SPBWC_PB_PLUGIN_DIR . 'static/js/admin-options.js' ) ? filemtime( SPBWC_PB_PLUGIN_DIR . 'static/js/admin-options.js' ) : SPBWC_PB_VERSION;
+                    wp_register_script('spbwc_option_field_script', SPBWC_PB_JS_URL . 'admin-options.js', array('jquery', 'spbwc-ag'), $spbwc_admin_options_ver, true);
                     wp_localize_script('spbwc_option_field_script', 'storelly_option_variable', array(
                         'STORELLY_OPTIONS' =>  $options,
                         'STORELLY_OPTION_FIELD' => $default_field,
@@ -2702,6 +2715,9 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
                 'nbpb_image'            => esc_html__('Image', 'storelly-product-builder-for-woocommerce'),
                 'attribute_name'        => esc_html__('Attribute name', 'storelly-product-builder-for-woocommerce'),
                 'sub_attribute_name'    => esc_html__('Sub attribute name', 'storelly-product-builder-for-woocommerce'),
+                'choose_image'          => esc_html__('Choose image', 'storelly-product-builder-for-woocommerce'),
+                /* translators: %s = product name. Shown as the media picker title so the merchant knows the picker is showing that one product's images. */
+                'media_scope_title'     => esc_html__('Images for: %s', 'storelly-product-builder-for-woocommerce'),
             );
         }
         public function spbwc_add_meta_boxes() {
