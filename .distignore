@@ -26,3 +26,5 @@ README.md
 .DS_Store
 tools
 static/mockups
+_tmp_inspect.php
+_tmp_*
