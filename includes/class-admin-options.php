@@ -2068,12 +2068,16 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
                     'input_type'         => null,
                     'input_option'       => null,
                     'text_option'        => null,
+                    'placeholder'        => null,
                     'upload_option'      => null,
                     'enabled'            => null,
                     'required'           => null,
                     'published'          => null,
                     'price_type'         => null,
+                    'depend_qty'         => null,
+                    'depend_quantity'    => null,
                     'price'              => null,
+                    'price_breaks'       => null,
                     'attributes'         => null,
                     'conditional_depend' => null
                 ),
@@ -2424,6 +2428,97 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
                     )
                 ),
                 'type'          => 'number'
+            );
+        }
+        public function build_config_general_placeholder($value = null) {
+            $value = $this->spbwc_legacy_scalar($value, '');
+            return array(
+                'title'         => esc_html__('Placeholder', 'storelly-product-builder-for-woocommerce'),
+                'description'   => '',
+                'value'         => $value,
+                'type'          => 'text',
+                'depend'        => array(
+                    array(
+                        'field'     => 'data_type',
+                        'operator'  => '=',
+                        'value'     => 'i'
+                    ),
+                    array(
+                        'field'     => 'input_type',
+                        'operator'  => '=',
+                        'value'     => 't,a'
+                    )
+                )
+            );
+        }
+        public function build_config_general_depend_qty($value = null) {
+            $value = $this->spbwc_legacy_scalar($value, 'y');
+            if ($value === '') $value = 'y';
+            return array(
+                'title'         => esc_html__('Depend quantity', 'storelly-product-builder-for-woocommerce'),
+                'description'   => esc_html__('If choose No, the additional price will be apply for cart item independently with the quantity.', 'storelly-product-builder-for-woocommerce'),
+                'value'         => $value,
+                'type'          => 'dropdown',
+                'options'       => array(
+                    array(
+                        'key'       => 'y',
+                        'text'      => esc_html__('Yes', 'storelly-product-builder-for-woocommerce')
+                    ),
+                    array(
+                        'key'       => 'n',
+                        'text'      => esc_html__('No, the additional price is cart item fee', 'storelly-product-builder-for-woocommerce')
+                    ),
+                    array(
+                        'key'       => 'n2',
+                        'text'      => esc_html__('No, the additional price is fixed amount for all items', 'storelly-product-builder-for-woocommerce')
+                    )
+                )
+            );
+        }
+        public function build_config_general_depend_quantity($value = null) {
+            $value = $this->spbwc_legacy_scalar($value, 'n');
+            if ($value === '') $value = 'n';
+            return array(
+                'title'         => esc_html__('Depend quantity breaks', 'storelly-product-builder-for-woocommerce'),
+                'description'   => '',
+                'value'         => $value,
+                'type'          => 'dropdown',
+                'options'       => array(
+                    array(
+                        'key'       => 'y',
+                        'text'      => esc_html__('Yes', 'storelly-product-builder-for-woocommerce')
+                    ),
+                    array(
+                        'key'       => 'n',
+                        'text'      => esc_html__('No', 'storelly-product-builder-for-woocommerce')
+                    )
+                )
+            );
+        }
+        public function build_config_general_price_breaks($value = null) {
+            if ( is_array( $value ) && array_key_exists( 'value', $value ) ) {
+                $value = $value['value'];
+            }
+            if ( ! is_array( $value ) ) {
+                $value = array( '' );
+            }
+            return array(
+                'title'         => esc_html__('Price depend quantity breaks', 'storelly-product-builder-for-woocommerce'),
+                'description'   => '',
+                'value'         => $value,
+                'type'          => 'single_quantity_depend',
+                'depend'        => array(
+                    array(
+                        'field'     => 'depend_quantity',
+                        'operator'  => '=',
+                        'value'     => 'y'
+                    ),
+                    array(
+                        'field'     => 'data_type',
+                        'operator'  => '=',
+                        'value'     => 'i'
+                    )
+                )
             );
         }
         public function build_config_general_attributes($attributes = null) {
