@@ -1,14 +1,6 @@
 .spbwc-global-import-wrap {
-    --gi-primary: #2563eb;
-    --gi-primary-dark: #1d4ed8;
-    --gi-bg: #f8fafc;
-    --gi-text: #0f172a;
-    --gi-muted: #64748b;
-    --gi-border: #e2e8f0;
-    --gi-shadow: 0 6px 20px rgba(15, 23, 42, 0.08);
-    --gi-radius: 10px;
-    --gi-gap: 16px;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    /* --gi-* tokens now defined globally in _tokens.css (legacy aliases). */
+    font-family: var(--st-font-sans);
     color: var(--gi-text);
 }
 .spbwc-gi-header {
@@ -91,7 +83,7 @@
 .spbwc-gi-dropzone.active {
     border-color: var(--gi-primary);
     color: var(--gi-primary);
-    background: #eff6ff;
+    background: var(--st-brand-soft);
 }
 .spbwc-gi-table-wrap {
     position: relative;
@@ -149,7 +141,7 @@
     height: 120px;
     border-radius: 6px;
     object-fit: cover;
-    background: #f1f5f9;
+    background: var(--nbd-st-bg-soft);
 }
 .spbwc-gi-status {
     display: flex;
@@ -157,7 +149,7 @@
     gap: 6px;
 }
 .spbwc-gi-warning {
-    color: #ff9800;
+    color: var(--nbd-color-warning);
     display: inline-flex;
     align-items: center;
     gap: 6px;
@@ -177,16 +169,16 @@
 .spbwc-gi-badge {
     display: inline-block;
     padding: 2px 8px;
-    border-radius: 999px;
-    background: #e2e8f0;
-    color: #334155;
+    border-radius: var(--nbd-radius-pill);
+    background: var(--nbd-st-border-light);
+    color: var(--nbd-st-text);
     font-size: 11px;
 }
 .spbwc-gi-progress {
     width: 100%;
     height: 10px;
-    background: #e2e8f0;
-    border-radius: 999px;
+    background: var(--nbd-st-border-light);
+    border-radius: var(--nbd-radius-pill);
     overflow: hidden;
 }
 .spbwc-gi-progress span {
@@ -197,7 +189,7 @@
 }
 .spbwc-gi-log {
     background: #0f172a;
-    color: #e2e8f0;
+    color: var(--nbd-st-border-light);
     font-family: "Courier New", monospace;
     font-size: 12px;
     padding: 12px;
