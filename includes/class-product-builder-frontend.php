@@ -24,6 +24,22 @@ if (!class_exists('SPBWC_Storelly_Product_Builder_Frontend')) {
         {
             $this->spbwc_frontend_enqueue_scripts();
             add_action('woocommerce_before_single_product', array(&$this, 'spbwc_before_product_container'), 1);
+
+            // Register the Customize button + popup wrapper hooks UNCONDITIONALLY
+            // at init time. The original design only added them from inside the
+            // `woocommerce_before_single_product` callback, which means themes
+            // that skip that action (custom WC templates, page builders that
+            // bypass woocommerce_content, etc.) silently lose the button — the
+            // `do_action('spbwc_after_default_options')` call in option-builder.php
+            // fires with no listener attached, even though show_option_fields()
+            // is rendering correctly via `woocommerce_before_add_to_cart_button`.
+            // The handlers themselves check spbwc_is_product_builder($pid)
+            // before emitting markup, so registering them always is safe.
+            add_action('spbwc_after_default_options', array(&$this, 'spbwc_product_builder_html'), 1);
+            add_action('wp_footer', array(&$this, 'spbwc_modal_product_builder'), 1);
+            add_action('wp_ajax_spbwc_save_product_builder_design', array($this, 'spbwc_save_product_builder_design'));
+            add_action('wp_ajax_nopriv_spbwc_save_product_builder_design', array($this, 'spbwc_save_product_builder_design'));
+
             if (is_admin()) {
                 $this->spbwc_ajax();
             }
@@ -459,6 +475,13 @@ if (!class_exists('SPBWC_Storelly_Product_Builder_Frontend')) {
                         'depends' => array('jquery', 'underscore', 'pc-builderjs', 'fabricjs', 'fontfaceobserver', 'spectrum')
                     )
                 );
+                // Register design tokens style first — app-product-builder.css
+                // references var(--nbd-st-bg-soft), var(--st-brand) etc., which
+                // resolve to nothing on the frontend if _tokens.css isn't
+                // enqueued, breaking the popup background and other surfaces.
+                if (!wp_style_is('spbwc-tokens', 'registered')) {
+                    wp_register_style('spbwc-tokens', SPBWC_PB_CSS_URL . '_tokens.css', array(), SPBWC_PB_VERSION);
+                }
                 $css_libs = array(
                     'spectrum' => array(
                         'link' => SPBWC_PB_ASSETS_URL . 'css/spectrum.css',
@@ -468,7 +491,7 @@ if (!class_exists('SPBWC_Storelly_Product_Builder_Frontend')) {
                     'product-builder' => array(
                         'link' => SPBWC_PB_ASSETS_URL . 'css/app-product-builder.css',
                         'version' => SPBWC_PB_VERSION,
-                        'depends' => array('spectrum')
+                        'depends' => array('spectrum', 'spbwc-tokens')
                     ),
                 );
                 foreach ($css_libs as $key => $css) {

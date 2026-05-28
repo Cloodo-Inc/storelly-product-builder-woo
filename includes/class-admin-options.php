@@ -1899,9 +1899,25 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
             $post_options_raw = isset( $_POST['options'] ) ? wp_unslash( $_POST['options'] ) : array(); // phpcs:ignore WordPress.Security.NonceVerification.Missing,WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Nonce verified in spbwc_product_builder_options and data sanitized recursively via spbwc_sanitize_recursive.
             $post_options = spbwc_sanitize_recursive( $post_options_raw );
             if (isset($post_options['jsonFields'])) {
-                $post_options['fields'] = json_decode(stripslashes($post_options['jsonFields']), true); 
+                $post_options['fields'] = json_decode(stripslashes($post_options['jsonFields']), true);
                 unset($post_options['jsonFields']);
             }
+
+            // Whitelist design_output values. When AngularJS's ngModel value does
+            // not match any <option>, the directive injects a hidden
+            // <option value="? string:XX ?"> that browsers submit verbatim via
+            // FormData(form). Each round-trip nests another marker layer
+            // ("? string:? string:? ? ?"), corrupting the saved blob. Force
+            // dimension_unit to the known set and dpi to a positive integer.
+            if ( ! isset( $post_options['design_output'] ) || ! is_array( $post_options['design_output'] ) ) {
+                $post_options['design_output'] = array();
+            }
+            $allowed_units = array( 'cm', 'in', 'mm', 'px' );
+            $unit_raw      = isset( $post_options['design_output']['dimension_unit'] ) ? (string) $post_options['design_output']['dimension_unit'] : '';
+            $post_options['design_output']['dimension_unit'] = in_array( $unit_raw, $allowed_units, true ) ? $unit_raw : 'px';
+            $dpi_raw = isset( $post_options['design_output']['dpi'] ) ? $post_options['design_output']['dpi'] : 300;
+            $dpi_int = (int) $dpi_raw;
+            $post_options['design_output']['dpi'] = ( $dpi_int > 0 ) ? $dpi_int : 300;
 
             $arr['fields'] = serialize($post_options);
             global $wpdb; // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Global variable $wpdb.
@@ -1962,6 +1978,21 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
             // on the product page (Sections list, Matrix grid, or Stepper wizard).
             if ( ! isset( $options['display_mode'] ) || ! in_array( $options['display_mode'], array( 'sections', 'matrix', 'stepper' ), true ) ) {
                 $options['display_mode'] = 'sections';
+            }
+            // Normalize design_output so AngularJS's <select ng-model> finds a
+            // matching <option> on load. A stale/corrupted dimension_unit makes
+            // ngModelController inject a hidden "? string:XX ?" marker option,
+            // which the next save then writes back to DB (see spbwc_save_option).
+            if ( ! isset( $options['design_output'] ) || ! is_array( $options['design_output'] ) ) {
+                $options['design_output'] = array();
+            }
+            $allowed_units = array( 'cm', 'in', 'mm', 'px' );
+            if ( ! isset( $options['design_output']['dimension_unit'] ) || ! in_array( $options['design_output']['dimension_unit'], $allowed_units, true ) ) {
+                $options['design_output']['dimension_unit'] = 'px';
+            }
+            $dpi_val = isset( $options['design_output']['dpi'] ) ? (int) $options['design_output']['dpi'] : 0;
+            if ( $dpi_val <= 0 ) {
+                $options['design_output']['dpi'] = 300;
             }
             $options['fields'] = $this->spbwc_recursive_stripslashes($options['fields']);
             foreach ($options['fields'] as $f_key => $field) {
@@ -2031,19 +2062,20 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
             return array(
                 'id'            => 'f' . round(microtime(true) * 1000),
                 'general'       => array(
-                    'title'             => null,
-                    'description'       => null,
-                    'data_type'         => null,
-                    'input_type'        => null,
-                    'input_option'      => null,
-                    'text_option'       => null,
-                    'upload_option'     => null,
-                    'enabled'           => null,
-                    'required'          => null,
-                    'published'         => null,
-                    'price_type'        => null,
-                    'price'             => null,
-                    'attributes'        => null
+                    'title'              => null,
+                    'description'        => null,
+                    'data_type'          => null,
+                    'input_type'         => null,
+                    'input_option'       => null,
+                    'text_option'        => null,
+                    'upload_option'      => null,
+                    'enabled'            => null,
+                    'required'           => null,
+                    'published'          => null,
+                    'price_type'         => null,
+                    'price'              => null,
+                    'attributes'         => null,
+                    'conditional_depend' => null
                 ),
                 'appearance' => array(
                     'display_type'          => null,

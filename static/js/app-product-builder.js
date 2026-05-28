@@ -57,6 +57,13 @@ nbdpbApp.controller("nbpbCtrl", [
   function ($scope, FabricWindow, NBDDataFactory, $window, $timeout) {
     $scope.isStartDesign = false;
     $scope.isDisplayOn = function (display) {
+      // Treat undefined/null as "on" by default. The Storelly admin UI does
+      // not always persist the `display` flag in pb_config views (only the
+      // `image` attachment is saved), so the buyer-side check returned false
+      // for every view and selectAttribute() skipped the entire image-load
+      // chain. Default ON keeps behavior identical for views that DO set the
+      // flag, and lets unflagged data render correctly.
+      if (display === undefined || display === null || display === "") return true;
       return display == "on" || display == "1" || display === 1 || display === true;
     };
     $scope.onloadTemplate = false;
@@ -97,16 +104,12 @@ nbdpbApp.controller("nbpbCtrl", [
         },
       };
       if (angular.isDefined(nbOption.options.design_output)) {
-        $scope.resource.design_output.dimension_unit = angular.isDefined(
-          nbOption.options.design_output.dimension_unit
-        )
-          ? nbOption.options.design_output.dimension_unit
-          : "px";
-        $scope.resource.design_output.dpi = angular.isDefined(
-          nbOption.options.design_output.dpi
-        )
-          ? nbOption.options.design_output.dpi
-          : "300";
+        var _allowedUnits = ["cm", "in", "mm", "px"];
+        var _u = nbOption.options.design_output.dimension_unit;
+        $scope.resource.design_output.dimension_unit =
+          _allowedUnits.indexOf(_u) !== -1 ? _u : "px";
+        var _d = parseInt(nbOption.options.design_output.dpi, 10);
+        $scope.resource.design_output.dpi = _d > 0 ? String(_d) : "300";
       }
       var uploaded = localStorage.getItem("nbpb_uploaded");
       if (uploaded) {
