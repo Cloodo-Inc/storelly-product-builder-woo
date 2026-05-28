@@ -34,7 +34,7 @@ $settings_url = add_query_arg( array( 'page' => $parent_slug . '-marketplace-set
                     <?php
                     printf(
                         /* translators: %s: option key shown as inline code */
-                        esc_html__( 'Tip: the master toggle is %s — set it to %2$s to surface the marketplace UI for designers.', 'storelly-product-builder-for-woocommerce' ),
+                        esc_html__( 'Tip: the master toggle is %1$s — set it to %2$s to surface the marketplace UI for designers.', 'storelly-product-builder-for-woocommerce' ),
                         '<code>spbwc_marketplace_enabled</code>',
                         '<code>yes</code>'
                     );

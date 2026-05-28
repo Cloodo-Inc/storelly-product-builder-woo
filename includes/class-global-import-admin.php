@@ -33,9 +33,10 @@ if (!class_exists('SPBWC_Global_Import_Admin')) {
                 array('spbwc-admin-ui'),
                 SPBWC_PB_VERSION
             );
+            // Bundled locally (wordpress.org forbids offloading scripts to remote/CDN servers).
             wp_enqueue_script(
                 'spbwc-vue',
-                'https://unpkg.com/vue@3.4.27/dist/vue.global.prod.js',
+                SPBWC_PB_ASSETS_URL . 'libs/vue.global.prod.js',
                 array(),
                 '3.4.27',
                 true

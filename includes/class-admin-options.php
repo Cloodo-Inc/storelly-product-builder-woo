@@ -1575,7 +1575,7 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
                         <tr><th><?php esc_html_e( 'WordPress Version', 'storelly-product-builder-for-woocommerce' ); ?></th><td><?php echo esc_html( $wp_version ); ?></td></tr>
                         <tr><th><?php esc_html_e( 'WooCommerce Version', 'storelly-product-builder-for-woocommerce' ); ?></th><td><?php echo esc_html( defined( 'WC_VERSION' ) ? WC_VERSION : 'N/A' ); ?></td></tr>
                         <tr><th><?php esc_html_e( 'PHP Version', 'storelly-product-builder-for-woocommerce' ); ?></th><td><?php echo esc_html( phpversion() ); ?></td></tr>
-                        <tr><th><?php esc_html_e( 'MySQL Version', 'storelly-product-builder-for-woocommerce' ); ?></th><td><?php echo esc_html( function_exists( 'mysqli_get_client_info' ) ? mysqli_get_client_info() : 'N/A' ); ?></td></tr>
+                        <tr><th><?php esc_html_e( 'MySQL Version', 'storelly-product-builder-for-woocommerce' ); ?></th><td><?php echo esc_html( ! empty( $GLOBALS['wpdb'] ) ? $GLOBALS['wpdb']->db_version() : 'N/A' ); ?></td></tr>
                         <tr><th><?php esc_html_e( 'Site URL', 'storelly-product-builder-for-woocommerce' ); ?></th><td><?php echo esc_html( site_url() ); ?></td></tr>
                         <tr><th><?php esc_html_e( 'Home URL', 'storelly-product-builder-for-woocommerce' ); ?></th><td><?php echo esc_html( home_url() ); ?></td></tr>
                         <tr><th><?php esc_html_e( 'WP Debug', 'storelly-product-builder-for-woocommerce' ); ?></th><td><?php echo esc_html( ( defined( 'WP_DEBUG' ) && WP_DEBUG ) ? 'Enabled' : 'Disabled' ); ?></td></tr>
@@ -2172,6 +2172,14 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
                     array(
                         'key'       => 't',
                         'text'      => esc_html__('Text', 'storelly-product-builder-for-woocommerce')
+                    ),
+                    array(
+                        'key'       => 'n',
+                        'text'      => esc_html__('Number', 'storelly-product-builder-for-woocommerce')
+                    ),
+                    array(
+                        'key'       => 'r',
+                        'text'      => esc_html__('Number range', 'storelly-product-builder-for-woocommerce')
                     ),
                     array(
                         'key'       => 'u',
@@ -2931,7 +2939,7 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
             $unique_name = wp_unique_filename( $fonts_dir, $safe_name_base );
             $target_path = $fonts_dir . $unique_name;
 
-            // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+            // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized, Generic.PHP.ForbiddenFunctions.Found -- Upload fully validated above (manage_options cap + nonce + is_uploaded_file + extension whitelist + unique filename in a protected dir); wp_handle_upload() rejects font MIME types on WP 5.8+, so a direct guarded move is required.
             if ( ! move_uploaded_file( $_FILES['font_file']['tmp_name'], $target_path ) ) {
                 wp_send_json_error( array( 'message' => esc_html__( 'Failed to save file. Check server write permissions.', 'storelly-product-builder-for-woocommerce' ) ) );
             }
@@ -3704,7 +3712,7 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
                                     <span class="spbwc-badge spbwc-badge--draft"><?php esc_html_e( 'Draft', 'storelly-product-builder-for-woocommerce' ); ?></span>
                                 <?php endif; ?>
                                 <span class="spbwc-field-count-badge">
-                                    <?php echo esc_html( sprintf( _n( '%d field', '%d fields', $count, 'storelly-product-builder-for-woocommerce' ), $count ) ); ?>
+                                    <?php /* translators: %d: number of option fields. */ echo esc_html( sprintf( _n( '%d field', '%d fields', $count, 'storelly-product-builder-for-woocommerce' ), $count ) ); ?>
                                 </span>
                             </div>
                             <?php if ( $cat_html ) : ?>

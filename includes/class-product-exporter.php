@@ -32,7 +32,7 @@ if (!class_exists('SPBWC_Product_Exporter')) {
                         var btn = $(this);
                         var product_id = btn.data('id');
                         
-                        if (!confirm('<?php _e('Do you want to export and download reference data for this product?', 'storelly-product-builder-for-woocommerce'); ?>')) {
+                        if (!confirm('<?php esc_html_e('Do you want to export and download reference data for this product?', 'storelly-product-builder-for-woocommerce'); ?>')) {
                             return;
                         }
 
@@ -40,7 +40,7 @@ if (!class_exists('SPBWC_Product_Exporter')) {
 
                         $.post(ajaxurl, {
                             action: 'spbwc_export_product_reference',
-                            nonce: '<?php echo wp_create_nonce('spbwc_export_product_nonce'); ?>',
+                            nonce: '<?php echo esc_js(wp_create_nonce('spbwc_export_product_nonce')); ?>',
                             product_id: product_id
                         }, function(res) {
                             btn.prop('disabled', false).find('.dashicons').removeClass('dashicons-update spin').addClass('dashicons-download');
@@ -165,10 +165,10 @@ if (!class_exists('SPBWC_Product_Exporter')) {
                     // Cleanup the temporary folder
                     foreach ($files as $file) {
                         if ($file !== '.' && $file !== '..') {
-                            unlink($export_dir . '/' . $file);
+                            wp_delete_file($export_dir . '/' . $file);
                         }
                     }
-                    rmdir($export_dir);
+                    rmdir($export_dir); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_rmdir -- local temp dir cleanup
                     
                     return array(
                         'success' => true,

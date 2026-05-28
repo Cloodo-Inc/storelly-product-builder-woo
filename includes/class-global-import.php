@@ -441,11 +441,11 @@ if (!class_exists('SPBWC_Global_Import')) {
                 header('Content-Type: application/json');
                 header('Content-Disposition: attachment; filename="' . $filename . '"');
                 header('Content-Length: ' . filesize($filepath));
-                echo $fs->get_contents($filepath);
+                echo $fs->get_contents($filepath); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- raw JSON file download, escaping would corrupt the attachment
                 exit;
             }
-            
-            wp_die(__('File not found', 'storelly-product-builder-for-woocommerce'));
+
+            wp_die(esc_html__('File not found', 'storelly-product-builder-for-woocommerce'));
         }
     }
 }

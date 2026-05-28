@@ -152,9 +152,15 @@ if ( ! class_exists( 'SPBWC_Marketplace_IO' ) ) {
                 foreach ( $files as $file ) {
                     self::delete_folder( realpath( $path ) . '/' . $file );
                 }
-                return rmdir( $path );
+                global $wp_filesystem;
+                if ( ! $wp_filesystem ) {
+                    require_once ABSPATH . 'wp-admin/includes/file.php';
+                    WP_Filesystem();
+                }
+                return $wp_filesystem->rmdir( $path );
             } elseif ( is_file( $path ) === true ) {
-                return unlink( $path );
+                wp_delete_file( $path );
+                return true;
             }
             return false;
         }

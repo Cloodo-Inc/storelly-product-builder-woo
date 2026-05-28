@@ -366,12 +366,12 @@ $field_count   = isset($options['fields']) && is_array($options['fields']) ? cou
                         </button>
 
                         <button type="button" class="v2-chip" ng-click="add_field_preset('n')"
-                                data-spbwc-help="<?php esc_attr_e('Numeric quantity with min/max/step and optional quantity breaks for bulk pricing.', 'storelly-product-builder-for-woocommerce'); ?>"
-                                data-spbwc-example="<?php esc_attr_e('Example: Quantity · 100 / 250 / 500 / 1000 with tier discount', 'storelly-product-builder-for-woocommerce'); ?>">
+                                data-spbwc-help="<?php esc_attr_e('Numeric input with a min/max range and step. For option-wide bulk pricing tiers, use the Quantity & bulk pricing card above.', 'storelly-product-builder-for-woocommerce'); ?>"
+                                data-spbwc-example="<?php esc_attr_e('Example: Number of pages · min 1, max 500, step 1', 'storelly-product-builder-for-woocommerce'); ?>">
                             <span class="v2-chip__icon v2-chip__icon--n">N</span>
                             <span class="v2-chip__label">
-                                <strong><?php esc_html_e('Number / Quantity', 'storelly-product-builder-for-woocommerce'); ?></strong>
-                                <small><?php esc_html_e('Stepper + qty breaks', 'storelly-product-builder-for-woocommerce'); ?></small>
+                                <strong><?php esc_html_e('Number', 'storelly-product-builder-for-woocommerce'); ?></strong>
+                                <small><?php esc_html_e('Numeric stepper (min/max/step)', 'storelly-product-builder-for-woocommerce'); ?></small>
                             </span>
                         </button>
 
@@ -497,8 +497,8 @@ $field_count   = isset($options['fields']) && is_array($options['fields']) ? cou
                                 </button>
                                 <button type="button" class="v2-onboarding__card" ng-click="add_field_preset('n')">
                                     <span class="v2-onboarding__card-icon" style="background: var(--st-pill-active-bg); color: var(--st-pill-active-text);">🔢</span>
-                                    <strong><?php esc_html_e('Quantity', 'storelly-product-builder-for-woocommerce'); ?></strong>
-                                    <small><?php esc_html_e('Stepper · 100 / 250 / 500 / 1000', 'storelly-product-builder-for-woocommerce'); ?></small>
+                                    <strong><?php esc_html_e('Number', 'storelly-product-builder-for-woocommerce'); ?></strong>
+                                    <small><?php esc_html_e('Numeric stepper · min / max / step', 'storelly-product-builder-for-woocommerce'); ?></small>
                                 </button>
                                 <button type="button" class="v2-onboarding__card" ng-click="add_field_preset('u')">
                                     <span class="v2-onboarding__card-icon v2-onboarding__card-icon--upload">⬆</span>
@@ -587,6 +587,14 @@ $field_count   = isset($options['fields']) && is_array($options['fields']) ? cou
                                         <!-- Text input -->
                                         <input ng-if="field.general.data_type.value === 'i' && field.general.input_type.value === 't'"
                                                class="v2-prv-input" type="text" placeholder="<?php esc_attr_e('Customer types here…', 'storelly-product-builder-for-woocommerce'); ?>" />
+
+                                        <!-- Number input -->
+                                        <input ng-if="field.general.data_type.value === 'i' && field.general.input_type.value === 'n'"
+                                               class="v2-prv-input" type="number"
+                                               ng-attr-min="{{ field.general.input_option.value.min }}"
+                                               ng-attr-max="{{ field.general.input_option.value.max }}"
+                                               ng-attr-step="{{ field.general.input_option.value.step }}"
+                                               placeholder="{{ field.general.input_option.value.default || 0 }}" />
 
                                         <!-- Textarea -->
                                         <textarea ng-if="field.general.data_type.value === 'i' && field.general.input_type.value === 'a'"
@@ -693,6 +701,12 @@ $field_count   = isset($options['fields']) && is_array($options['fields']) ? cou
 
                                             <input ng-if="field.general.data_type.value === 'i' && field.general.input_type.value === 't'"
                                                    class="v2-prv-input" type="text" placeholder="<?php esc_attr_e('Customer types here…', 'storelly-product-builder-for-woocommerce'); ?>" />
+                                            <input ng-if="field.general.data_type.value === 'i' && field.general.input_type.value === 'n'"
+                                                   class="v2-prv-input" type="number"
+                                                   ng-attr-min="{{ field.general.input_option.value.min }}"
+                                                   ng-attr-max="{{ field.general.input_option.value.max }}"
+                                                   ng-attr-step="{{ field.general.input_option.value.step }}"
+                                                   placeholder="{{ field.general.input_option.value.default || 0 }}" />
                                             <textarea ng-if="field.general.data_type.value === 'i' && field.general.input_type.value === 'a'"
                                                       class="v2-prv-input v2-prv-textarea" placeholder="<?php esc_attr_e('Customer types here…', 'storelly-product-builder-for-woocommerce'); ?>"></textarea>
                                             <div ng-if="field.general.data_type.value === 'i' && field.general.input_type.value === 'u'"
@@ -804,7 +818,7 @@ $field_count   = isset($options['fields']) && is_array($options['fields']) ? cou
                                 foreach ($options['product_ids'] as $product_id) {
                                     $product = wc_get_product($product_id);
                                     if (is_object($product)) {
-                                        echo '<option value="' . esc_attr($product_id) . '"' . selected(TRUE, TRUE, FALSE) . '>' . wp_kses_post($product->get_formatted_name()) . '</option>';
+                                        echo '<option value="' . esc_attr($product_id) . '"' . wp_kses_post(selected(TRUE, TRUE, FALSE)) . '>' . wp_kses_post($product->get_formatted_name()) . '</option>';
                                     }
                                 }
                                 ?>
@@ -823,8 +837,7 @@ $field_count   = isset($options['fields']) && is_array($options['fields']) ? cou
                                 $product_cats_terms = get_terms( array( 'taxonomy' => 'product_cat', 'hide_empty' => false ) );
                                 if ( ! is_wp_error( $product_cats_terms ) && is_array( $product_cats_terms ) ) {
                                     foreach ( $product_cats_terms as $term ) {
-                                        $sel = in_array( $term->term_id, $applied_cats, true ) ? ' selected="selected"' : '';
-                                        echo '<option value="' . esc_attr( $term->term_id ) . '"' . $sel . '>' . esc_html( $term->name ) . ' (' . (int) $term->count . ')</option>';
+                                        echo '<option value="' . esc_attr( $term->term_id ) . '"' . selected( in_array( $term->term_id, $applied_cats, true ), true, false ) . '>' . esc_html( $term->name ) . ' (' . (int) $term->count . ')</option>';
                                     }
                                 }
                                 ?>
@@ -1405,6 +1418,11 @@ $field_count   = isset($options['fields']) && is_array($options['fields']) ? cou
             title: '<?php echo esc_js(__('Text input field', 'storelly-product-builder-for-woocommerce')); ?>',
             body:  '<?php echo esc_js(__('Customer types a single-line value. Use min/max characters to constrain. Optional price-per-character pricing.', 'storelly-product-builder-for-woocommerce')); ?>',
             example: '<?php echo esc_js(__('Example: Custom name printed on card (max 30 chars)', 'storelly-product-builder-for-woocommerce')); ?>'
+        },
+        'i:n': {
+            title: '<?php echo esc_js(__('Number field', 'storelly-product-builder-for-woocommerce')); ?>',
+            body:  '<?php echo esc_js(__('Customer enters a numeric value within a min/max range, adjustable by a stepper. Use for counts, pages, sizes.', 'storelly-product-builder-for-woocommerce')); ?>',
+            example: '<?php echo esc_js(__('Example: Number of pages (min 1, max 500, step 1)', 'storelly-product-builder-for-woocommerce')); ?>'
         },
         'i:a': {
             title: '<?php echo esc_js(__('Textarea field', 'storelly-product-builder-for-woocommerce')); ?>',

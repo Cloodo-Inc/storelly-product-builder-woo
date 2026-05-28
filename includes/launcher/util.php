@@ -265,8 +265,8 @@ function spbwc_marketplace_get_designs( $status = '', $limit = 10, $offset = 0, 
     $params[] = intval($offset);
     $params[] = intval($limit);
 
-    $prepared_sql = $wpdb->prepare( $sql, $params );
-    $result = $wpdb->get_results( $prepared_sql );
+    $prepared_sql = $wpdb->prepare( $sql, $params ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- table name from $wpdb->prefix; values parameterized
+    $result = $wpdb->get_results( $prepared_sql ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- prepared above; table name from $wpdb->prefix
     return $result;
 }
 
@@ -289,10 +289,10 @@ function spbwc_marketplace_get_design_status_count( $user_id = '', $product_id =
     $sql .= " GROUP BY publish";
 
     if ( count($params) ) {
-        $sql = $wpdb->prepare( $sql, $params );
+        $sql = $wpdb->prepare( $sql, $params ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- table name from $wpdb->prefix; values parameterized
     }
 
-    $result = $wpdb->get_results( $sql );
+    $result = $wpdb->get_results( $sql ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- table name from $wpdb->prefix; values parameterized
 
     if ( $result ) {
         foreach ($result as $row) {
@@ -341,13 +341,13 @@ function nbdl_get_product_data( $product_id, $variation_id = 0 ){
 
 function nbdl_get_summary_design( $from = null, $to = null, $user_id = null ) {
     $this_month_designs = nbdl_count_designs_in_period( $user_id, array(
-        'year'  => date( 'Y' ),
-        'month' => date( 'm' )
+        'year'  => gmdate( 'Y' ),
+        'month' => gmdate( 'm' )
     ) );
 
     $last_month_designs = nbdl_count_designs_in_period( $user_id, array(
-        'year'  => date( 'Y', strtotime( 'last month' ) ),
-        'month' => date( 'm', strtotime( 'last month' ) )
+        'year'  => gmdate( 'Y', strtotime( 'last month' ) ),
+        'month' => gmdate( 'm', strtotime( 'last month' ) )
     ) );
 
     $pending_designs = spbwc_marketplace_get_design_status_count( $user_id, '' )['pending'];
@@ -448,10 +448,10 @@ function nbdl_count_designs_in_period( $user_id = null, $args = array(), $status
     }
 
     if ( count($params) ) {
-        $sql = $wpdb->prepare( $sql, $params );
+        $sql = $wpdb->prepare( $sql, $params ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- table name from $wpdb->prefix; values parameterized
     }
 
-    $result = $wpdb->get_results( $sql );
+    $result = $wpdb->get_results( $sql ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- table name from $wpdb->prefix; values parameterized
 
     if ( $result ) {
         $count = count( $result );
@@ -477,8 +477,8 @@ function nbdl_get_summary_designer( $from, $to ){
     $this_month = spbwc_marketplace_get_designers( array(
         'date_query'    => array(
             array(
-                'year'  => date('Y'),
-                'month' => date('m')
+                'year'  => gmdate('Y'),
+                'month' => gmdate('m')
             ),
         ),
         'role__in' => array( 'storelly_designer' ),
@@ -489,8 +489,8 @@ function nbdl_get_summary_designer( $from, $to ){
     $last_month = spbwc_marketplace_get_designers( array(
         'date_query'    => array(
             array(
-                'year'  => date( 'Y', strtotime( 'last month' ) ),
-                'month' => date( 'm', strtotime( 'last month' ) )
+                'year'  => gmdate( 'Y', strtotime( 'last month' ) ),
+                'month' => gmdate( 'm', strtotime( 'last month' ) )
             ),
         ),
         'role__in' => array( 'storelly_designer' ),
@@ -645,13 +645,13 @@ function nbdl_prepare_date_query( $from, $to ) {
 
 function nbdl_get_summary_sale( $from = null, $to = null, $user_id = null ) {
     $this_month = spbwc_marketplace_count_sales_in_period( $user_id, array(
-        'year'  => date( 'Y' ),
-        'month' => date( 'm' )
+        'year'  => gmdate( 'Y' ),
+        'month' => gmdate( 'm' )
     ) );
 
     $last_month = spbwc_marketplace_count_sales_in_period( $user_id, array(
-        'year'  => date( 'Y', strtotime( 'last month' ) ),
-        'month' => date( 'm', strtotime( 'last month' ) )
+        'year'  => gmdate( 'Y', strtotime( 'last month' ) ),
+        'month' => gmdate( 'm', strtotime( 'last month' ) )
     ) );
 
     if ( $from && $to ) {
@@ -746,8 +746,8 @@ function spbwc_marketplace_count_sales_in_period( $user_id = null, $args = array
         $sql .= " AND t.user_id = %d";
         $params[] = absint($user_id);
     }
-    $sql = $wpdb->prepare( $sql, $params );
-    $result = $wpdb->get_var( $sql );
+    $sql = $wpdb->prepare( $sql, $params ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- table names from $wpdb->prefix; values parameterized
+    $result = $wpdb->get_var( $sql ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- prepared above; table names from $wpdb->prefix
 
     if ( $result ) {
         $count = $result;
@@ -765,13 +765,19 @@ function spbwc_marketplace_get_sale_status_count( $user_id = null ){
     $sql   .= " INNER JOIN $wpdb->posts p ON oi.order_id = p.ID";
     $sql   .= " INNER JOIN {$wpdb->prefix}storelly_marketplace_designs t ON t.folder = oim.meta_value";
 
+    $params = array();
     if( $user_id ){
-        $sql .= " AND t.user_id = {$user_id}";
+        $sql .= " AND t.user_id = %d";
+        $params[] = absint( $user_id );
     }
 
     $sql   .= " WHERE oim.meta_key = '_spbwc_marketplace_design_id' AND p.post_status IN ('wc-on-hold', 'wc-completed', 'wc-processing')";
 
-    $data = $wpdb->get_var( $sql );
+    if ( count( $params ) ) {
+        $sql = $wpdb->prepare( $sql, $params ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- table names from $wpdb->prefix; values parameterized
+    }
+
+    $data = $wpdb->get_var( $sql ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- table names from $wpdb->prefix; values parameterized
 
     return absint( $data );
 }
@@ -780,10 +786,12 @@ function spbwc_marketplace_get_design_report( $group_by = 'day', $start_date = '
     global $wpdb;
 
     $sql    = "SELECT COUNT(id) as total, created_date FROM {$wpdb->prefix}storelly_marketplace_designs WHERE 1 = 1";
-    $sql   .= " AND DATE(created_date) >= '$start_date' AND DATE(created_date) <= '$end_date'";
+    $sql   .= " AND DATE(created_date) >= %s AND DATE(created_date) <= %s";
+    $params = array( $start_date, $end_date );
 
     if( !empty( $user_id ) ){
-        $sql .= " AND user_id = {$user_id}";
+        $sql .= " AND user_id = %d";
+        $params[] = intval( $user_id );
     }
 
     if ( 'day' == $group_by ) {
@@ -792,7 +800,8 @@ function spbwc_marketplace_get_design_report( $group_by = 'day', $start_date = '
         $sql    .= ' GROUP BY YEAR(created_date), MONTH(created_date)';
     }
 
-    $data = $wpdb->get_results( $sql );
+    $sql = $wpdb->prepare( $sql, $params ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- table name from $wpdb->prefix; values parameterized
+    $data = $wpdb->get_results( $sql ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- prepared above; table name from $wpdb->prefix
 
     return $data;
 }
@@ -806,10 +815,12 @@ function spbwc_marketplace_get_sale_report( $group_by = 'day', $start_date = '',
     $sql   .= " INNER JOIN $wpdb->posts p ON oi.order_id = p.ID";
     $sql   .= " INNER JOIN {$wpdb->prefix}storelly_marketplace_designs t ON t.folder = oim.meta_value";
     $sql   .= " WHERE oim.meta_key = '_spbwc_marketplace_design_id' AND p.post_status IN ('wc-on-hold', 'wc-completed', 'wc-processing')";
-    $sql   .= " AND DATE(p.post_date) >= '$start_date' AND DATE(p.post_date) <= '$end_date'";
+    $sql   .= " AND DATE(p.post_date) >= %s AND DATE(p.post_date) <= %s";
+    $params = array( $start_date, $end_date );
 
     if( !empty( $user_id ) ){
-        $sql .= " AND user_id = {$user_id}";
+        $sql .= " AND user_id = %d";
+        $params[] = intval( $user_id );
     }
 
     if ( 'day' == $group_by ) {
@@ -818,7 +829,8 @@ function spbwc_marketplace_get_sale_report( $group_by = 'day', $start_date = '',
         $sql    .= ' GROUP BY YEAR(p.post_date), MONTH(p.post_date)';
     }
 
-    $data = $wpdb->get_results( $sql );
+    $sql = $wpdb->prepare( $sql, $params ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- table names from $wpdb->prefix; values parameterized
+    $data = $wpdb->get_results( $sql ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- prepared above; table names from $wpdb->prefix
 
     return $data;
 }

@@ -356,15 +356,17 @@ class SPBWC_Designer {
     public function get_balance( $formatted = true, $on_date = '' ){
         global $wpdb;
 
-        $status     = spbwc_marketplace_get_order_status_for_withdraw( true );
-        $on_date    = $on_date ? date( 'Y-m-d', strtotime( $on_date ) ) : current_time( 'mysql' );
+        $status     = spbwc_marketplace_get_order_status_for_withdraw();
+        $on_date    = $on_date ? gmdate( 'Y-m-d', strtotime( $on_date ) ) : current_time( 'mysql' );
+
+        $status_placeholders = implode( ', ', array_fill( 0, count( $status ), '%s' ) );
 
         $result = $wpdb->get_row( $wpdb->prepare(
             "SELECT SUM(debit) as earnings,
-            ( SELECT SUM(credit) FROM {$wpdb->prefix}storelly_marketplace_balance WHERE user_id = %d AND DATE(balance_date) <= '%s' ) as withdraw
+            ( SELECT SUM(credit) FROM {$wpdb->prefix}storelly_marketplace_balance WHERE user_id = %d AND DATE(balance_date) <= %s ) as withdraw
             from {$wpdb->prefix}storelly_marketplace_balance
-            WHERE user_id = '%d' AND DATE(balance_date) <= '%s' AND status IN($status)",
-            $this->id, $on_date, $this->id, $on_date
+            WHERE user_id = %d AND DATE(balance_date) <= %s AND status IN($status_placeholders)",
+            array_merge( array( $this->id, $on_date, $this->id, $on_date ), $status )
         ));
 
         $balance = round( (float) $result->earnings - (float) $result->withdraw, wc_get_rounding_precision() );
@@ -374,14 +376,16 @@ class SPBWC_Designer {
     public function get_earnings( $formatted = true, $on_date = '' ){
         global $wpdb;
 
-        $status     = spbwc_marketplace_get_order_status_for_withdraw( true );
-        $on_date    = $on_date ? date( 'Y-m-d', strtotime( $on_date ) ) : current_time( 'mysql' );
+        $status     = spbwc_marketplace_get_order_status_for_withdraw();
+        $on_date    = $on_date ? gmdate( 'Y-m-d', strtotime( $on_date ) ) : current_time( 'mysql' );
+
+        $status_placeholders = implode( ', ', array_fill( 0, count( $status ), '%s' ) );
 
         $result  = $wpdb->get_row( $wpdb->prepare(
             "SELECT SUM(debit) AS earnings
             FROM {$wpdb->prefix}storelly_marketplace_balance
-            WHERE user_id = %d AND DATE(balance_date) <= %s AND status IN ($status) AND transaction_type = 'new_order'",
-            $this->id, $on_date 
+            WHERE user_id = %d AND DATE(balance_date) <= %s AND status IN ($status_placeholders) AND transaction_type = 'new_order'",
+            array_merge( array( $this->id, $on_date ), $status )
         ));
 
         $earning = (float)$result->earnings;

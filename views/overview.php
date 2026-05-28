@@ -109,6 +109,7 @@ $plan_benefits = $is_free
                     printf(
                         /* translators: %s: URL to license page */
                         wp_kses(
+                            /* translators: %s: URL to license page */
                             __( 'Couldn\'t reach the Storelly server. Stats below are pulled from your local database. <a href="%s">Check your connection</a> to enable real-time metrics.', 'storelly-product-builder-for-woocommerce' ),
                             array( 'a' => array( 'href' => array() ) )
                         ),
@@ -132,6 +133,7 @@ $plan_benefits = $is_free
                     printf(
                         /* translators: %s: URL to license page */
                         wp_kses(
+                            /* translators: %s: URL to license page */
                             __( 'Unlock unlimited products, premium templates, and priority support by <a href="%s">upgrading your license</a>. Existing customizations remain intact during the upgrade.', 'storelly-product-builder-for-woocommerce' ),
                             array( 'a' => array( 'href' => array() ) )
                         ),

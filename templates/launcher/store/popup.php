@@ -79,7 +79,7 @@
             ob_start();
             nbdesigner_get_template("launcher/store/upload-form.php", array( 'tags' => $tags ));
             $form = ob_get_clean();
-            echo( $form );
+            echo wp_kses_post( $form );
         ?>
     </div>
 </div>

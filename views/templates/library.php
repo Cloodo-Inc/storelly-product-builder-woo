@@ -164,7 +164,7 @@ $catalog = SPBWC_Template_Catalog::instance();
 								?>
 							</span>
 							<span class="spbwc-tl-badge <?php echo esc_attr( $spbwc_type_cls ); ?>">
-								<?php echo $spbwc_type_label; // already escaped above ?>
+								<?php echo wp_kses_post( $spbwc_type_label ); // already escaped above ?>
 							</span>
 						</div>
 						<?php if ( ! empty( $tpl['description'] ) ) : ?>

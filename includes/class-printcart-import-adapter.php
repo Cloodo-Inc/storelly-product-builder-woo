@@ -61,7 +61,7 @@ class SPBWC_Printcart_Import_Adapter {
             }
         }
 
-        $filename = basename(parse_url($file, PHP_URL_PATH));
+        $filename = basename(wp_parse_url($file, PHP_URL_PATH));
         if (empty($filename)) {
             $filename = 'image-' . time() . '.jpg';
         }
@@ -466,7 +466,7 @@ class SPBWC_Printcart_Import_Adapter {
             return false;
         }
         foreach ($templates as $tem) {
-            $temp_name = substr(md5(uniqid()), 0, 5) . rand(1, 100) . time();
+            $temp_name = substr(md5(uniqid()), 0, 5) . wp_rand(1, 100) . time();
             $import_dir = SPBWC_PB_DATA_DIR . '/import/' . $product_id . '/';
             if (!file_exists($import_dir)) {
                 wp_mkdir_p($import_dir);

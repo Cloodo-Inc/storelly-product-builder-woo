@@ -477,9 +477,9 @@ class SPBWC_Global_Import_Controller {
         $rows = array();
         $fs = $this->filesystem();
         $content = $fs ? $fs->get_contents($path) : '';
-        $handle = fopen('php://temp', 'r+');
+        $handle = fopen('php://temp', 'r+'); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fopen -- in-memory stream for fgetcsv parsing
         if ($content !== '') {
-            fwrite($handle, $content);
+            fwrite($handle, $content); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fwrite -- in-memory stream for fgetcsv parsing
             rewind($handle);
         }
         if (!$handle) return $rows;
@@ -495,7 +495,7 @@ class SPBWC_Global_Import_Controller {
             }
             $rows[] = $row;
         }
-        fclose($handle);
+        fclose($handle); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fclose -- in-memory stream for fgetcsv parsing
         return $rows;
     }
 
@@ -696,12 +696,11 @@ class SPBWC_Global_Import_Controller {
             $q_start = $i;
             $declared = (int) $num_str;
             $after_declared = $q_start + $declared;
-            if ($after_declared < $len && '"' === $s[$after_declared]) {
-                $i = $after_declared + 1;
-                if ($i < $len && ';' === $s[$i]) {
-                    $i++;
-                }
-                $pos = $i;
+            // A genuine s:N:"..."; segment always closes with a quote immediately followed by ';'.
+            // Requiring the ';' prevents treating a literal '"' inside the string content (e.g. an
+            // HTML attribute quote) as a valid boundary when the declared length is wrong.
+            if ($after_declared + 1 < $len && '"' === $s[$after_declared] && ';' === $s[$after_declared + 1]) {
+                $pos = $after_declared + 2;
                 continue;
             }
             $head = substr($s, 0, $spos);
@@ -1117,7 +1116,7 @@ class SPBWC_Global_Import_Controller {
         $fs = $this->filesystem();
         if (!$fs) return;
         $path = $this->log_dir() . $import_id . '.log';
-        $line = date('[H:i:s] ') . $message . "\n";
+        $line = gmdate('[H:i:s] ') . $message . "\n";
         
         $content = '';
         if ($fs->exists($path)) {

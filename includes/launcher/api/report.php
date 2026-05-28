@@ -90,7 +90,7 @@ class SPBWC_Report_API extends WP_REST_Controller {
                 $date->modify( 'first day of this month' );
                 $date = $date->format( 'Y-m-d' );
             } else {
-                $date = date( 'Y-m-d', strtotime( $row->created_date ) );
+                $date = gmdate( 'Y-m-d', strtotime( $row->created_date ) );
             }
 
             $design_counts[ $date ] = (int) $row->total;
@@ -103,7 +103,7 @@ class SPBWC_Report_API extends WP_REST_Controller {
                 $date->modify( 'first day of this month' );
                 $date = $date->format( 'Y-m-d' );
             } else {
-                $date = date( 'Y-m-d', strtotime( $row->created_date ) );
+                $date = gmdate( 'Y-m-d', strtotime( $row->created_date ) );
             }
 
             $sale_counts[ $date ] = (int) $row->total;

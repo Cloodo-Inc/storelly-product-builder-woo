@@ -80,7 +80,7 @@ while ( $products_query->have_posts() ) :
                                 <span class="dashicons dashicons-list-view" aria-hidden="true"></span>
                                 <?php
                                 /* translators: %d: number of fields */
-                                printf( esc_html__( '%d fields', 'storelly-product-builder-for-woocommerce' ), $spbwc_fcount );
+                                printf( esc_html__( '%d fields', 'storelly-product-builder-for-woocommerce' ), (int) $spbwc_fcount );
                                 ?>
                             </span>
                         <?php endif; ?>

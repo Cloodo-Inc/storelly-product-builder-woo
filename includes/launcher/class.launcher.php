@@ -151,7 +151,7 @@ class SPBWC_Marketplace{
         nbdesigner_get_template("launcher/store/tabs.php", $data);
         nbdesigner_get_template("launcher/store/{$tab}.php", $data);
         $content = ob_get_clean();
-        echo( $content );
+        echo wp_kses_post( $content );
     }
     public function get_store_dashboard_data( $data ){
         $designer_id        = $data['designer_id'];
@@ -174,12 +174,12 @@ class SPBWC_Marketplace{
         }
 
         foreach ( $design_data as $row ) {
-            $date                   = date( 'Y-m-d', strtotime( $row->created_date ) );
+            $date                   = gmdate( 'Y-m-d', strtotime( $row->created_date ) );
             $design_counts[ $date ] = (int) $row->total;
         }
 
         foreach ( $sale_data as $row ) {
-            $date                   = date( 'Y-m-d', strtotime( $row->created_date ) );
+            $date                   = gmdate( 'Y-m-d', strtotime( $row->created_date ) );
             $sale_counts[ $date ]   = (int) $row->total;
         }
 
@@ -455,7 +455,7 @@ class SPBWC_Marketplace{
         if ( is_account_page() ) {
 
             $products           = nbd_get_products_has_design( true );
-            $template_tags      = get_terms( 'template_tag', 'hide_empty=0' );
+            $template_tags      = get_terms( array( 'taxonomy' => 'template_tag', 'hide_empty' => 0 ) );
             $tags               = array();
             if ( ! empty( $template_tags ) && ! is_wp_error( $template_tags ) ){
                 foreach( $template_tags as $tag ){
@@ -472,7 +472,7 @@ class SPBWC_Marketplace{
                 'tags'      => $tags
             ));
             $content = ob_get_clean();
-            echo( $content );
+            echo wp_kses_post( $content );
         }
     }
     public function add_designer_role(){
@@ -541,7 +541,7 @@ class SPBWC_Marketplace{
         ?>
         <div class="nbdl-become-designer">
             <p><?php esc_html_e( 'You want to sell your designs to earn commission?', 'storelly-product-builder-for-woocommerce' ); ?></p>
-            <a class="button" href="<?php echo( $link ); ?>"><?php esc_html_e( 'Become designer', 'storelly-product-builder-for-woocommerce' ); ?></a>
+            <a class="button" href="<?php echo esc_url( $link ); ?>"><?php esc_html_e( 'Become designer', 'storelly-product-builder-for-woocommerce' ); ?></a>
         </div>
         <?php
         endif;
@@ -620,7 +620,7 @@ class SPBWC_Marketplace{
                     'credit'            => 0,
                     'status'            => $order_status,
                     'transaction_date'  => current_time( 'mysql' ),
-                    'balance_date'      => date( 'Y-m-d h:i:s', strtotime( current_time( 'mysql' ) . ' + '.$threshold_day.' days' ) )
+                    'balance_date'      => gmdate( 'Y-m-d h:i:s', strtotime( current_time( 'mysql' ) . ' + '.$threshold_day.' days' ) )
                 ),
                 array(
                     '%d',
@@ -829,7 +829,7 @@ class SPBWC_Marketplace{
         $tags                   = wc_clean( $_POST['tags'] );
         $name                   = stripslashes( wc_clean( $_POST['name'] ) );
         $task                   = isset( $_POST['task'] ) ? wc_clean( $_POST['task'] ) : 'new';
-        $folder                 = isset( $_POST['folder'] ) ? wc_clean( $_POST['folder'] ) : substr(md5(uniqid()),0,5).rand(1,100).time();
+        $folder                 = isset( $_POST['folder'] ) ? wc_clean( $_POST['folder'] ) : substr(md5(uniqid()),0,5).wp_rand(1,100).time();
         $path                   = NBDESIGNER_CUSTOMER_DIR . '/' . $folder;
         $max_upload_size        = absint( nbdesigner_get_option( 'nbdesigner_maxsize_upload_file', nbd_get_max_upload_default() ) );
         $max_size_in_byte       = $max_upload_size * 1024 * 1024;
@@ -1055,7 +1055,7 @@ class SPBWC_Marketplace{
         global $wpdb;
         $table_name = $wpdb->prefix . 'storelly_marketplace_designs';
         $sql        = "SELECT * FROM {$wpdb->prefix}storelly_marketplace_designs ORDER BY created_date DESC";
-        $data       = $wpdb->get_row( $sql );
+        $data       = $wpdb->get_row( $sql ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- table name from $wpdb->prefix; no user input
         return $data;
     }
     public function calc_design_position( $design_width, $design_height, $area_width, $area_height ){
@@ -1084,7 +1084,7 @@ class SPBWC_Marketplace{
     private function create_side_preview( $setting, $content_designs ){
         $preview_width  = absint( apply_filters( 'nbdl_solid_design_preview_width', 500 ) );
         $scale          = $preview_width / 500;
-        $folder         = substr( md5( uniqid() ), 0, 5 ).rand( 1,100 ).time();
+        $folder         = substr( md5( uniqid() ), 0, 5 ).wp_rand( 1,100 ).time();
         $path           = NBDESIGNER_CUSTOMER_DIR . '/' . $folder;
         $preview_path   = $path . '/preview';
 
@@ -1176,7 +1176,7 @@ class SPBWC_Marketplace{
             $design_code    = wc_clean( $_GET['design_id'] );
             $design_id      = nbd_decode_design_id( $design_code );
             ?>
-            <input type="hidden" name="nbd_solid_design_id" value="<?php echo sanitize_text_field( $design_id ); ?>"/>
+            <input type="hidden" name="nbd_solid_design_id" value="<?php echo esc_attr( $design_id ); ?>"/>
             <?php
         }
     }
@@ -1205,7 +1205,7 @@ class SPBWC_Marketplace{
                 $html       = '<h2 class="nbdl-author">' . esc_html__( "Designed by", 'storelly-product-builder-for-woocommerce' ) . ' <a href="' . $store_url . '" target="_blank">' . $name . '</a></h2>';
             }
         }
-        echo( $html );
+        echo wp_kses_post( $html );
     }
     public function add_cart_item_data( $cart_item_data ){
         $post_data = $_POST;
@@ -1292,8 +1292,8 @@ class SPBWC_Marketplace{
             $design = nbd_get_design_by_folder( $design_id );
             if( is_array( $design ) && isset( $design['type'] ) && $design['type'] == 'solid' && isset( $design['resource'] ) ) {
                 $link_download_design = NBDESIGNER_CUSTOMER_URL . '/' . $design['resource'] . '/design.zip';
-                $html = '<a class="button" download href="'. $link_download_design .'">'. esc_html__('Download design resource', 'storelly-product-builder-for-woocommerce') .'</a>';
-                echo( $html );
+                $html = '<a class="button" download href="'. esc_url( $link_download_design ) .'">'. esc_html__('Download design resource', 'storelly-product-builder-for-woocommerce') .'</a>';
+                echo wp_kses( $html, array( 'a' => array( 'class' => array(), 'download' => array(), 'href' => array() ) ) );
             }
         }
     }

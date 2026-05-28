@@ -143,10 +143,10 @@ $custom_fonts = isset( $custom_fonts ) && is_array( $custom_fonts ) ? $custom_fo
             <style>
                 @font-face {
                     font-family: '<?php echo esc_js( $cf['name'] ); ?>';
-                    src: url('<?php echo $cf_url; ?>') format('<?php echo $cf_fmt; ?>');
+                    src: url('<?php echo esc_url( $cf_url ); ?>') format('<?php echo esc_attr( $cf_fmt ); ?>');
                 }
             </style>
-            <div class="spbwc-custom-card" data-font-id="<?php echo $cf_id; ?>">
+            <div class="spbwc-custom-card" data-font-id="<?php echo esc_attr( $cf_id ); ?>">
                 <div class="spbwc-custom-card__inner">
                     <p class="spbwc-custom-card__name" title="<?php echo esc_attr( $cf['name'] ); ?>">
                         <?php echo esc_html( $cf['name'] ); ?>
@@ -157,10 +157,10 @@ $custom_fonts = isset( $custom_fonts ) && is_array( $custom_fonts ) ? $custom_fo
                     </p>
                 </div>
                 <div class="spbwc-custom-card__footer">
-                    <span class="spbwc-custom-card__category"><?php echo $cf_cat; ?></span>
+                    <span class="spbwc-custom-card__category"><?php echo esc_html( $cf_cat ); ?></span>
                     <button type="button"
                             class="spbwc-custom-card__delete"
-                            data-font-id="<?php echo $cf_id; ?>"
+                            data-font-id="<?php echo esc_attr( $cf_id ); ?>"
                             aria-label="<?php esc_attr_e( 'Delete font', 'storelly-product-builder-for-woocommerce' ); ?>">
                         <span class="dashicons dashicons-trash" aria-hidden="true"></span>
                     </button>

@@ -263,8 +263,8 @@ $_current_page_n = isset( $_GET['paged'] ) ? max( 1, absint( $_GET['paged'] ) ) 
 				?>
 				<article class="spbwc-option-card"
 				         data-title="<?php echo esc_attr( mb_strtolower( $spbwc_title ) ); ?>"
-				         data-option-id="<?php echo $spbwc_id_str; ?>"
-				         data-published="<?php echo $spbwc_pub; ?>">
+				         data-option-id="<?php echo esc_attr( $spbwc_id_str ); ?>"
+				         data-published="<?php echo esc_attr( $spbwc_pub ); ?>">
 					<a href="<?php echo $spbwc_edit_url; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- already esc_url'd above ?>"
 					   class="spbwc-option-card__thumb spbwc-option-card__thumb--name"
 					   style="background:<?php echo esc_attr( $spbwc_accent ); ?>;"
@@ -279,8 +279,8 @@ $_current_page_n = isset( $_GET['paged'] ) ? max( 1, absint( $_GET['paged'] ) ) 
 							<button type="button"
 							        class="spbwc-publish-toggle<?php echo 1 === $spbwc_pub ? ' is-published' : ''; ?>"
 							        data-spbwc-action="toggle-publish"
-							        data-id="<?php echo $spbwc_id_str; ?>"
-							        data-published="<?php echo $spbwc_pub; ?>"
+							        data-id="<?php echo esc_attr( $spbwc_id_str ); ?>"
+							        data-published="<?php echo esc_attr( $spbwc_pub ); ?>"
 							        title="<?php echo 1 === $spbwc_pub ? esc_attr__( 'Unpublish', 'storelly-product-builder-for-woocommerce' ) : esc_attr__( 'Publish', 'storelly-product-builder-for-woocommerce' ); ?>"
 							        aria-pressed="<?php echo 1 === $spbwc_pub ? 'true' : 'false'; ?>">
 								<span class="dashicons dashicons-<?php echo 1 === $spbwc_pub ? 'visibility' : 'hidden'; ?>" aria-hidden="true"></span>
@@ -331,14 +331,14 @@ $_current_page_n = isset( $_GET['paged'] ) ? max( 1, absint( $_GET['paged'] ) ) 
 							<button type="button"
 							        class="spbwc-card-btn"
 							        data-spbwc-action="duplicate"
-							        data-id="<?php echo $spbwc_id_str; ?>"
+							        data-id="<?php echo esc_attr( $spbwc_id_str ); ?>"
 							        title="<?php esc_attr_e( 'Duplicate', 'storelly-product-builder-for-woocommerce' ); ?>">
 								<span class="dashicons dashicons-admin-page" aria-hidden="true"></span>
 							</button>
 							<button type="button"
 							        class="spbwc-card-btn spbwc-card-btn--danger"
 							        data-spbwc-action="trash"
-							        data-id="<?php echo $spbwc_id_str; ?>"
+							        data-id="<?php echo esc_attr( $spbwc_id_str ); ?>"
 							        title="<?php esc_attr_e( 'Delete', 'storelly-product-builder-for-woocommerce' ); ?>">
 								<span class="dashicons dashicons-trash" aria-hidden="true"></span>
 							</button>
@@ -380,8 +380,8 @@ $_current_page_n = isset( $_GET['paged'] ) ? max( 1, absint( $_GET['paged'] ) ) 
 				printf(
 					/* translators: 1: current page number, 2: total pages */
 					esc_html__( 'Page %1$d of %2$d', 'storelly-product-builder-for-woocommerce' ),
-					$_current_page_n,
-					$_total_pages_n
+					(int) $_current_page_n,
+					(int) $_total_pages_n
 				);
 				?>
 			</span>

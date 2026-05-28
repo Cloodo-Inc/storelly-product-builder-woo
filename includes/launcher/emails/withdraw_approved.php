@@ -96,6 +96,7 @@ if ( ! class_exists( 'SPBWC_Email_Withdraw_Approved' ) ) {
                     'title'         => esc_html__( 'Subject', 'storelly-product-builder-for-woocommerce' ),
                     'type'          => 'text',
                     'desc_tip'      => true,
+                    /* translators: %s: list of available placeholder tags (site_name, amount, user_name) */
                     'description'   => sprintf( esc_html__( 'Available placeholders: %s', 'storelly-product-builder-for-woocommerce' ), '<code>{site_name},{amount},{user_name}</code>' ),
                     'placeholder'   => $this->get_default_subject(),
                     'default'       => '',
@@ -104,6 +105,7 @@ if ( ! class_exists( 'SPBWC_Email_Withdraw_Approved' ) ) {
                     'title'         => esc_html__( 'Email heading', 'storelly-product-builder-for-woocommerce' ),
                     'type'          => 'text',
                     'desc_tip'      => true,
+                    /* translators: %s: list of available placeholder tags (site_name, amount, user_name) */
                     'description'   => sprintf( esc_html__( 'Available placeholders: %s', 'storelly-product-builder-for-woocommerce' ), '<code>{site_name},{amount},{user_name}</code>' ),
                     'placeholder'   => $this->get_default_heading(),
                     'default'       => '',
