@@ -11,6 +11,8 @@ if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }
 
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- view template; variables here are local to this included view, not plugin globals.
+
 $current_slug = esc_attr( $license['status'] );
 $pkg_name     = esc_html( $license['package_name'] );
 $expires_at   = $license['expires_at'] ? esc_html( $license['expires_at'] ) : null;

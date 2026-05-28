@@ -9,6 +9,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- view template; variables here are local to this included view, not plugin globals.
+
 if ( ! class_exists( 'SPBWC_Designs_List_Table' ) ) {
 	require_once SPBWC_PB_PLUGIN_DIR . 'includes/marketplace/admin/class-designs-list-table.php';
 }

@@ -9,6 +9,8 @@ if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }
 
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- view template; variables here are local to this included view, not plugin globals.
+
 $designer_counts = function_exists( 'spbwc_marketplace_get_designer_status_count' ) ? spbwc_marketplace_get_designer_status_count() : array();
 $design_counts   = function_exists( 'spbwc_marketplace_get_design_status_count' )   ? spbwc_marketplace_get_design_status_count()   : array();
 $sale_counts     = function_exists( 'spbwc_marketplace_get_sale_status_count' )     ? spbwc_marketplace_get_sale_status_count()     : array();
