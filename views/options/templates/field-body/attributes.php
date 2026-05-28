@@ -152,7 +152,7 @@
                     <div class="v2-attr-divider" ng-hide="field.nbd_type != '' && field.nbd_type != null"></div>
                     <div class="nbd-enable-subattribute v2-subattr-toggle" ng-hide="field.nbd_type != '' && field.nbd_type != null">
                         <label class="v2-subattr-toggle__label">
-                            <input ng-click="toggle_enable_subattr(fieldIndex, $index)" type="checkbox" name="options[fields][{{fieldIndex}}][general][attributes][options][{{$index}}][enable_subattr]" ng-true-value="'on'" ng-false-value="'off'" ng-model="op.enable_subattr" ng-checked="op.enable_subattr" />
+                            <input ng-click="toggle_enable_subattr(fieldIndex, $index)" type="checkbox" name="options[fields][{{fieldIndex}}][general][attributes][options][{{$index}}][enable_subattr]" ng-true-value="'on'" ng-false-value="'off'" ng-model="op.enable_subattr" />
                             <span class="v2-subattr-toggle__text">
                                 <strong><?php esc_html_e('Enable sub-attributes', 'storelly-product-builder-for-woocommerce'); ?></strong>
                                 <small><?php esc_html_e('Show extra choices that only appear when this option is selected (e.g. Size → Color).', 'storelly-product-builder-for-woocommerce'); ?></small>

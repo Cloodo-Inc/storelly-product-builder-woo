@@ -63,19 +63,19 @@
                 </div>
                 <!-- Other dropdowns: keep native select but styled -->
                 <div ng-if="data.type == 'dropdown' && key != 'display_type' && data.options.length > 3">
-                    <select name="options[fields][{{fieldIndex}}][appearance][{{key}}]" ng-model="data.value">
+                    <select class="v2-select" name="options[fields][{{fieldIndex}}][appearance][{{key}}]" ng-model="data.value">
                         <option ng-repeat="op in data.options" value="{{op.key}}">{{op.text}}</option>
                     </select>
                 </div>
                 <div ng-if="data.type == 'dropdown_group'">
-                    <select name="options[fields][{{fieldIndex}}][appearance][{{key}}]" ng-model="data.value">
+                    <select class="v2-select" name="options[fields][{{fieldIndex}}][appearance][{{key}}]" ng-model="data.value">
                         <optgroup ng-repeat="gr in data.options" label={{gr.title}}>
                             <option ng-repeat="op in gr.value" value="{{op.key}}">{{op.text}}</option>
                         </optgroup>
                     </select>
                 </div>
                 <div ng-if="data.type == 'text'">
-                    <input type="text" name="options[fields][{{fieldIndex}}][appearance][{{key}}]" ng-model="data.value">
+                    <input type="text" class="v2-input" name="options[fields][{{fieldIndex}}][appearance][{{key}}]" ng-model="data.value">
                 </div>
             </div>
         </div>

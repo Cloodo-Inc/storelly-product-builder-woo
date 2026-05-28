@@ -481,6 +481,7 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
                wp_enqueue_style('spbwc-options-v2-style');
                wp_enqueue_script('spbwc-options-script');
             }
+            // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only current-page detection inside admin asset enqueue; no state change.
             $spbwc_current_page = isset( $_GET['page'] ) ? sanitize_text_field( wp_unslash( $_GET['page'] ) ) : '';
             if ( $hook === 'product-builder-options_page_' . SPBWC_PB_OPTIONS_SLUG . '/manager-fonts'
                  || $spbwc_current_page === SPBWC_PB_OPTIONS_SLUG . '/manager-fonts' ) {
@@ -709,6 +710,7 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
             if ( 'mapped' === $filter && ! empty( $spbwc_mapped_ids ) ) {
                 $spbwc_main_args['post__in'] = $spbwc_mapped_ids;
             } elseif ( 'unmapped' === $filter && ! empty( $spbwc_mapped_ids ) ) {
+                // phpcs:ignore WordPressVIPMinimum.Performance.WPQueryParams.PostNotIn_post__not_in -- Admin-only filter; mapped-id set is small and bounded.
                 $spbwc_main_args['post__not_in'] = $spbwc_mapped_ids;
             }
             $products_query = new WP_Query( $spbwc_main_args );
@@ -2562,7 +2564,11 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
                 $options = $attributes['options'];
             };
             foreach ($options as $key => $option) {
-                $options[$key]['enable_subattr']     = isset( $options[$key]['enable_subattr'] ) ? $options[$key]['enable_subattr'] : 0;
+                // Normalize to 'on'/'off' so the editor checkbox (ng-model) binds
+                // reliably and the buyer side (== 'on') stays consistent for
+                // legacy/imported values like 1/true/'1'.
+                $raw_enable_subattr                  = isset( $options[$key]['enable_subattr'] ) ? $options[$key]['enable_subattr'] : 'off';
+                $options[$key]['enable_subattr']     = ( $raw_enable_subattr === 'on' || $raw_enable_subattr === true || $raw_enable_subattr === 1 || $raw_enable_subattr === '1' ) ? 'on' : 'off';
                 $options[$key]['sub_attributes']     = isset( $options[$key]['sub_attributes'] ) ? $options[$key]['sub_attributes'] : array();
                 $options[$key]['sattr_display_type'] = isset( $options[$key]['sattr_display_type'] ) ? $options[$key]['sattr_display_type'] : 's';
                 // Normalize price to array form [value] so the editor's
