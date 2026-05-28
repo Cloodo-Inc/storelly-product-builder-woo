@@ -24,6 +24,12 @@
     /* WP host chrome.                                              */
     /*                                                              */
     /* WCAG AA contrast on white: 5.7:1 — safe for body + UI text.  */
+    /*                                                              */
+    /* Semantic aliases (no separate value — same token reused in   */
+    /* different surface contexts so consumers can read intent):    */
+    /*   --st-pill-featured-bg / -text  ≡  --st-brand-soft / -pressed */
+    /*   --nbd-color-info               ≡  --nbd-st-primary           */
+    /*   --st-accent                    ≡  --nbd-color-warning        */
     --st-brand:               #1d4ed8;
     --st-brand-pressed:       #1e40af;
     --st-brand-soft:          #dbeafe;
@@ -69,6 +75,7 @@
     --nbd-color-success:      #16a34a;
     --nbd-color-warning:      #f59e0b;
     --nbd-color-danger:       #dc2626;
+    --nbd-color-danger-soft:  #fef2f2;   /* light red — inline error highlight bg */
     --nbd-color-info:         #2271b1;
 
     /* === Backgrounds =========================================== */
@@ -87,6 +94,7 @@
 
     /* === Borders =============================================== */
     --nbd-st-border:          #c3c4c7;
+    --nbd-st-border-strong:   #8c8f94;   /* strong gray — visually distinct from --nbd-st-border (matches --nbd-st-text-mute) */
     --nbd-st-border-light:    #dcdcde;
     --nbd-st-border-subtle:   #f0f0f1;
     --nbd-st-border-brand:    #bfdbfe;

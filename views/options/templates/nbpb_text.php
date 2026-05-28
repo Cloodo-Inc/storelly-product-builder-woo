@@ -9,27 +9,41 @@
         <input type="text" ng-model="field.general.nbpb_text_configs.default_text" name="options[fields][{{fieldIndex}}][general][nbpb_text_configs][default_text]" />
     </div>
 </div>
-<div class="pcpb-field-info">
+<div class="pcpb-field-info pcpb-field-info--toggle">
     <div class="pcpb-field-info-1">
-        <div><b><?php esc_html_e('Allow change font family', 'storelly-product-builder-for-woocommerce'); ?></b></div>
+        <label><b><?php esc_html_e('Allow font family change', 'storelly-product-builder-for-woocommerce'); ?></b></label>
+        <p class="v2-form-help"><?php esc_html_e('Let the customer pick a font for this text on the designer canvas.', 'storelly-product-builder-for-woocommerce'); ?></p>
     </div>
     <div class="pcpb-field-info-2">
-        <select name="options[fields][{{fieldIndex}}][general][nbpb_text_configs][allow_font_family]" ng-model="field.general.nbpb_text_configs.allow_font_family">
+        <label class="v2-toggle">
+            <input type="checkbox" ng-model="field.general.nbpb_text_configs.allow_font_family" ng-true-value="'y'" ng-false-value="'n'" />
+            <span class="v2-toggle__track"></span>
+            <span class="v2-toggle__label" ng-bind="field.general.nbpb_text_configs.allow_font_family === 'y' ? '<?php echo esc_js(__('On', 'storelly-product-builder-for-woocommerce')); ?>' : '<?php echo esc_js(__('Off', 'storelly-product-builder-for-woocommerce')); ?>'"></span>
+        </label>
+        <select class="v2-hidden-legacy" name="options[fields][{{fieldIndex}}][general][nbpb_text_configs][allow_font_family]" ng-model="field.general.nbpb_text_configs.allow_font_family">
             <option value="y"><?php esc_html_e('Yes', 'storelly-product-builder-for-woocommerce'); ?></option>
             <option value="n"><?php esc_html_e('No', 'storelly-product-builder-for-woocommerce'); ?></option>
         </select>
     </div>
 </div>
-<div class="pcpb-field-info" ng-show="field.general.nbpb_text_configs.allow_font_family == 'y'">
+<div class="pcpb-field-info pcpb-field-info--toggle" ng-show="field.general.nbpb_text_configs.allow_font_family == 'y'">
     <div class="pcpb-field-info-1">
-        <div><b><?php esc_html_e('Allow all fonts', 'storelly-product-builder-for-woocommerce'); ?></b></div>
+        <label><b><?php esc_html_e('Allow all fonts', 'storelly-product-builder-for-woocommerce'); ?></b></label>
+        <p class="v2-form-help">
+            <?php esc_html_e('When on, all fonts are available. When off, choose a curated list below.', 'storelly-product-builder-for-woocommerce'); ?>
+            · <a target="_blank" href="<?php echo esc_url(admin_url('admin.php?page=' . SPBWC_PB_OPTIONS_SLUG . '/manager-fonts')); ?>"><?php esc_html_e('Manage fonts', 'storelly-product-builder-for-woocommerce'); ?></a>
+        </p>
     </div>
     <div class="pcpb-field-info-2">
-        <select name="options[fields][{{fieldIndex}}][general][nbpb_text_configs][allow_all_font]" ng-model="field.general.nbpb_text_configs.allow_all_font">
+        <label class="v2-toggle">
+            <input type="checkbox" ng-model="field.general.nbpb_text_configs.allow_all_font" ng-true-value="'y'" ng-false-value="'n'" />
+            <span class="v2-toggle__track"></span>
+            <span class="v2-toggle__label" ng-bind="field.general.nbpb_text_configs.allow_all_font === 'y' ? '<?php echo esc_js(__('On', 'storelly-product-builder-for-woocommerce')); ?>' : '<?php echo esc_js(__('Off', 'storelly-product-builder-for-woocommerce')); ?>'"></span>
+        </label>
+        <select class="v2-hidden-legacy" name="options[fields][{{fieldIndex}}][general][nbpb_text_configs][allow_all_font]" ng-model="field.general.nbpb_text_configs.allow_all_font">
             <option value="y"><?php esc_html_e('Yes', 'storelly-product-builder-for-woocommerce'); ?></option>
             <option value="n"><?php esc_html_e('No', 'storelly-product-builder-for-woocommerce'); ?></option>
         </select>
-        <br /><?php esc_html_e('Manage fonts', 'storelly-product-builder-for-woocommerce'); ?> <a target="_blank" href="<?php echo esc_url(admin_url('admin.php?page=' . SPBWC_PB_OPTIONS_SLUG . '/manager-fonts')); ?>"><?php esc_html_e('here', 'storelly-product-builder-for-woocommerce'); ?></a>
     </div>
 </div>
 <div class="pcpb-field-info" ng-show="field.general.nbpb_text_configs.allow_font_family == 'y' && field.general.nbpb_text_configs.allow_all_font == 'n'">
@@ -88,23 +102,35 @@
         </select>
     </div>
 </div>
-<div class="pcpb-field-info">
+<div class="pcpb-field-info pcpb-field-info--toggle">
     <div class="pcpb-field-info-1">
-        <div><b><?php esc_html_e('Allow change color', 'storelly-product-builder-for-woocommerce'); ?></b></div>
+        <label><b><?php esc_html_e('Allow color change', 'storelly-product-builder-for-woocommerce'); ?></b></label>
+        <p class="v2-form-help"><?php esc_html_e('Let the customer pick a color for this text on the designer canvas.', 'storelly-product-builder-for-woocommerce'); ?></p>
     </div>
     <div class="pcpb-field-info-2">
-        <select name="options[fields][{{fieldIndex}}][general][nbpb_text_configs][allow_change_color]" ng-model="field.general.nbpb_text_configs.allow_change_color">
+        <label class="v2-toggle">
+            <input type="checkbox" ng-model="field.general.nbpb_text_configs.allow_change_color" ng-true-value="'y'" ng-false-value="'n'" />
+            <span class="v2-toggle__track"></span>
+            <span class="v2-toggle__label" ng-bind="field.general.nbpb_text_configs.allow_change_color === 'y' ? '<?php echo esc_js(__('On', 'storelly-product-builder-for-woocommerce')); ?>' : '<?php echo esc_js(__('Off', 'storelly-product-builder-for-woocommerce')); ?>'"></span>
+        </label>
+        <select class="v2-hidden-legacy" name="options[fields][{{fieldIndex}}][general][nbpb_text_configs][allow_change_color]" ng-model="field.general.nbpb_text_configs.allow_change_color">
             <option value="y"><?php esc_html_e('Yes', 'storelly-product-builder-for-woocommerce'); ?></option>
             <option value="n"><?php esc_html_e('No', 'storelly-product-builder-for-woocommerce'); ?></option>
         </select>
     </div>
 </div>
-<div class="pcpb-field-info" ng-show="field.general.nbpb_text_configs.allow_change_color == 'y'">
+<div class="pcpb-field-info pcpb-field-info--toggle" ng-show="field.general.nbpb_text_configs.allow_change_color == 'y'">
     <div class="pcpb-field-info-1">
-        <div><b><?php esc_html_e('Allow all colors', 'storelly-product-builder-for-woocommerce'); ?></b></div>
+        <label><b><?php esc_html_e('Allow all colors', 'storelly-product-builder-for-woocommerce'); ?></b></label>
+        <p class="v2-form-help"><?php esc_html_e('When on, customer can pick any color. When off, only the curated palette below is offered.', 'storelly-product-builder-for-woocommerce'); ?></p>
     </div>
     <div class="pcpb-field-info-2">
-        <select name="options[fields][{{fieldIndex}}][general][nbpb_text_configs][allow_all_color]" ng-model="field.general.nbpb_text_configs.allow_all_color">
+        <label class="v2-toggle">
+            <input type="checkbox" ng-model="field.general.nbpb_text_configs.allow_all_color" ng-true-value="'y'" ng-false-value="'n'" />
+            <span class="v2-toggle__track"></span>
+            <span class="v2-toggle__label" ng-bind="field.general.nbpb_text_configs.allow_all_color === 'y' ? '<?php echo esc_js(__('On', 'storelly-product-builder-for-woocommerce')); ?>' : '<?php echo esc_js(__('Off', 'storelly-product-builder-for-woocommerce')); ?>'"></span>
+        </label>
+        <select class="v2-hidden-legacy" name="options[fields][{{fieldIndex}}][general][nbpb_text_configs][allow_all_color]" ng-model="field.general.nbpb_text_configs.allow_all_color">
             <option value="y"><?php esc_html_e('Yes', 'storelly-product-builder-for-woocommerce'); ?></option>
             <option value="n"><?php esc_html_e('No', 'storelly-product-builder-for-woocommerce'); ?></option>
         </select>
@@ -116,7 +142,7 @@
     </div>
     <div class="pcpb-field-info-2">
         <div class="nbd-table-wrap">
-            <table class="nbd-table nbpb-text-configs" style="text-align: center;">
+            <table class="nbd-table nbpb-text-configs nbpb-cell--center">
                 <thead>
                     <tr>
                         <th><?php esc_html_e('Color name', 'storelly-product-builder-for-woocommerce'); ?></th>
@@ -139,7 +165,7 @@
                 </tbody>
                 <tfoot>
                     <tr>
-                        <td colspan="3" style="text-align: left;">
+                        <td colspan="3" class="nbpb-cell--left">
                             <a ng-click="add_text_configs_color(fieldIndex)" class="button button-primary"><?php esc_html_e('Add color', 'storelly-product-builder-for-woocommerce'); ?></a>
                         </td>
                     </tr>
@@ -154,7 +180,7 @@
     </div>
     <div class="pcpb-field-info-2">
         <div class="nbd-table-wrap">
-            <table class="nbd-table" style="text-align: center;">
+            <table class="nbd-table nbpb-cell--center">
                 <thead>
                     <tr>
                         <th ng-repeat="view in options.views">{{view.name}}</th>

@@ -273,6 +273,9 @@
   overflow-x: scroll;
   overflow: auto;
 }
+/* Text-align utility classes for nbpb table cells — replaces inline styles */
+.nbpb-cell--center { text-align: center; }
+.nbpb-cell--left   { text-align: left; }
 .frontend-prview.wide {
   width: 560px;
 }
