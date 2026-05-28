@@ -2529,6 +2529,15 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
                 )
             );
         }
+        private function spbwc_normalize_attr_price( $price ) {
+            if ( is_array( $price ) ) {
+                return $price;
+            }
+            if ( $price === '' || $price === null ) {
+                return array();
+            }
+            return array( $price );
+        }
         public function build_config_general_attributes($attributes = null) {
             if (is_null($attributes)) {
                 $options = array(
@@ -2556,6 +2565,13 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
                 $options[$key]['enable_subattr']     = isset( $options[$key]['enable_subattr'] ) ? $options[$key]['enable_subattr'] : 0;
                 $options[$key]['sub_attributes']     = isset( $options[$key]['sub_attributes'] ) ? $options[$key]['sub_attributes'] : array();
                 $options[$key]['sattr_display_type'] = isset( $options[$key]['sattr_display_type'] ) ? $options[$key]['sattr_display_type'] : 's';
+                // Normalize price to array form [value] so the editor's
+                // ng-model="op.price[0]" binds. Legacy/imported attributes may
+                // store price as a scalar, which otherwise shows 0 when expanded.
+                $options[$key]['price'] = $this->spbwc_normalize_attr_price( isset( $options[$key]['price'] ) ? $options[$key]['price'] : array() );
+                foreach ( $options[$key]['sub_attributes'] as $sak => $sa ) {
+                    $options[$key]['sub_attributes'][$sak]['price'] = $this->spbwc_normalize_attr_price( isset( $sa['price'] ) ? $sa['price'] : array() );
+                }
                 $options[$key]['image_url']          = SPBWC_Storelly_PB_Util::spbwc_get_image_thumbnail($option['image']);
                 if (isset($options[$key]['product_image'])) {
                     $options[$key]['product_image_url'] = SPBWC_Storelly_PB_Util::spbwc_get_image_thumbnail($option['product_image']);

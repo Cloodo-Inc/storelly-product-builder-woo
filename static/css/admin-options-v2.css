@@ -167,6 +167,20 @@
 }
 .spbwc-edit-v2 .v2-textarea { min-height: 72px; resize: vertical; }
 
+/* Native <select> styled as an unambiguous dropdown (custom chevron). */
+.spbwc-edit-v2 .v2-select {
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    padding-right: 30px;
+    background-color: var(--nbd-st-bg-input);
+    background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath fill='none' stroke='%238c8f94' stroke-width='1.5' d='M1 1l4 4 4-4'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    background-size: 10px 6px;
+    cursor: pointer;
+}
+
 .spbwc-edit-v2 .v2-meta-grid {
     display: grid;
     grid-template-columns: 1fr 1fr 1fr;
@@ -1549,6 +1563,8 @@
     font-size: var(--text-md);
 }
 .spbwc-edit-v2 .v2-cond-rule__op { max-width: 160px !important; }
+.spbwc-edit-v2 .v2-cond-rule__field,
+.spbwc-edit-v2 .v2-cond-rule__op { padding-right: 28px; }
 .spbwc-edit-v2 .v2-cond-rule__remove {
     width: 28px;
     height: 28px;
