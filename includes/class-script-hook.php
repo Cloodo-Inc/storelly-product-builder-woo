@@ -70,9 +70,13 @@ if (!class_exists('SPBWC_SPBWC_Storelly_PB_Script_Hook')) {
         // PC custom add param script
         public function spbwc_enqueue_script_head($page)
         {
+            // Design tokens — registered defensively here too in case the
+            // admin-options enqueue path didn't run on this page.
+            wp_register_style('spbwc-tokens', SPBWC_PB_CSS_URL . '_tokens.css', array(), SPBWC_PB_VERSION);
+
             wp_register_style('spbwc-poppins-font-r', 'https://fonts.googleapis.com/css?family=Poppins:400,400i,700,700i', array(), SPBWC_PB_VERSION);
             wp_register_style('spbwc-spectrum-css', SPBWC_PB_CSS_URL . 'spectrum.css', array(), '1.8.0');
-            wp_register_style('spbwc-app-product-builder', SPBWC_PB_CSS_URL . 'app-product-builder.css', array(), SPBWC_PB_VERSION);
+            wp_register_style('spbwc-app-product-builder', SPBWC_PB_CSS_URL . 'app-product-builder.css', array('spbwc-tokens'), SPBWC_PB_VERSION);
             wp_register_style('storelly-product-builder-for-woocommerce-view', SPBWC_PB_CSS_URL . 'views/product-builder.css', array(), SPBWC_PB_VERSION);
 
             wp_register_script('wc-accounting', WC()->plugin_url() . '/assets/js/accounting/accounting.min.js', array(), '0.4.2', true);
@@ -86,7 +90,18 @@ if (!class_exists('SPBWC_SPBWC_Storelly_PB_Script_Hook')) {
                 $this->spbwc_enqueue_script(array('spbwc-storelly-ext', 'spbwc-ag', 'wc-accounting'));
             }
             if ($page == 'single-product') {
-                $this->spbwc_enqueue_script(array('spbwc-ag', 'spbwc-tiptip'));
+                // NOTE: do not enqueue 'spbwc-ag' here — it loads the same
+                // builderproductag.min.js bundle as 'pc-builderjs' (registered
+                // in class-product-builder-frontend.php). Enqueuing both produces
+                // two <script> tags for the same file because WP dedupes by
+                // handle, not URL. The second load re-bootstraps AngularJS and
+                // throws "$injector:unpr" for directives registered on the
+                // first instance (nboDisabled, nbdHelpTip, etc.), which breaks
+                // option-builder.php and prevents the Customize button from
+                // rendering. 'pc-builderjs' is enqueued downstream when the
+                // product has an assigned option, so AngularJS is still
+                // available on the page.
+                $this->spbwc_enqueue_script(array('spbwc-tiptip'));
             }
         }
 

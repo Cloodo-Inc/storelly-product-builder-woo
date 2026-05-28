@@ -26,7 +26,7 @@ $currentDir = realpath(dirname(__FILE__)); // phpcs:ignore WordPress.NamingConve
 ?>
 <div class="nbo-wrapper <?php if ($is_wqv) echo esc_attr('nbd-option-in-wqv'); ?> <?php echo esc_attr('wrapper-type-' . $display_type); ?>">
     <div class="nbd-option-wrapper" id="<?php echo esc_attr($appid); ?>">
-        <div ng-controller="optionCtrl" ng-form="nboForm" id="nbo-ctrl-<?php echo esc_attr($appid); ?>" ng-cloak>
+        <div ng-controller="optionCtrl" ng-form="nboForm" id="nbo-ctrl-<?php echo esc_attr($appid); ?>">
             <div class="nbo-fields-wrapper">
                 <?php
                 // phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Template variables used in loop.
@@ -155,7 +155,7 @@ $currentDir = realpath(dirname(__FILE__)); // phpcs:ignore WordPress.NamingConve
                                 <td><b><?php esc_html_e('Cart item fee', 'storelly-product-builder-for-woocommerce'); ?></b></td>
                                 <td><span id="nbd-option-total"><span ng-bind-html="cart_item_fee.value | to_trusted"></span> / <?php esc_html_e('all items', 'storelly-product-builder-for-woocommerce'); ?></span></td>
                             </tr>
-                            <tr class="nbo-final-price nbo-total-price" ng-if="_qty > 1">
+                            <tr class="nbo-final-price nbo-total-price" ng-if="_qty &gt; 1">
                                 <td><b><?php esc_html_e('Subtotal price', 'storelly-product-builder-for-woocommerce'); ?></b></td>
                                 <td><span id="nbd-option-total"><span ng-bind-html="total_cart_price | to_trusted"></span> / {{_qty}} <?php esc_html_e('items', 'storelly-product-builder-for-woocommerce'); ?></span></td>
                             </tr>
