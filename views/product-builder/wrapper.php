@@ -38,8 +38,8 @@
                                             <div class="nbpb-background">
                                                 
                                             </div>
-                                            <div class="design-zone nbdpb-full-contain" ng-style="{'width': stage.config.width,
-                                            'height': stage.config.height,
+                                            <div class="design-zone nbdpb-full-contain" ng-style="{'width': stage.config.width + 'px',
+                                            'height': stage.config.height + 'px',
                                             'top': stage.config.top + 'px',
                                             'left': stage.config.left + 'px',
                                             'background-image': 'url(' + resource.views[$index].base_url + ')'
