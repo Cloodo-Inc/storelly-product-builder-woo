@@ -45,12 +45,16 @@ if (!defined('ABSPATH')) exit;
                     $spbwc_real_color = ( isset( $attr['preview_type'] ) && $attr['preview_type'] === 'c'
                         && ! empty( $attr['color'] )
                         && ! in_array( strtolower( $attr['color'] ), array( '#ffffff', '#fff', '#fdfdfd' ), true ) );
+                    // Use background-image / background-color (NOT the `background` shorthand) so the
+                    // CSS neutral backdrop on .nbd-swatch__visual survives behind transparent line-art.
+                    $spbwc_is_photo = false; // real uploaded image → render with `contain` (show whole photo, no crop)
                     if ( $attr['preview_type'] == 'i' && ! empty( $attr['image'] ) && $attr['image'] != 0 && $image_url && false === strpos( $image_url, 'placeholder' ) ) {
-                        $swatch_style = 'background: url(' . $image_url . ') center / cover';
+                        $swatch_style = 'background-image: url(' . $image_url . ')';
+                        $spbwc_is_photo = true;
                     } elseif ( $spbwc_real_color ) {
                         $swatch_style = isset( $attr['color2'] )
-                            ? 'background: linear-gradient(150deg, ' . $attr['color'] . ' 0%, ' . $attr['color'] . ' 50%, ' . $attr['color2'] . ' 51%, ' . $attr['color2'] . ' 100%)'
-                            : 'background: ' . $attr['color'];
+                            ? 'background-image: linear-gradient(150deg, ' . $attr['color'] . ' 0%, ' . $attr['color'] . ' 50%, ' . $attr['color2'] . ' 51%, ' . $attr['color2'] . ' 100%)'
+                            : 'background-color: ' . $attr['color'];
                     } else {
                         $spbwc_nlc = strtolower( (string) $attr['name'] );
                         $spbwc_grad = '';
@@ -58,7 +62,7 @@ if (!defined('ABSPATH')) exit;
                             if ( '' !== $spbwc_nlc && false !== strpos( $spbwc_nlc, $spbwc_kw ) ) { $spbwc_grad = $spbwc_g; break; }
                         }
                         if ( '' === $spbwc_grad ) { $spbwc_grad = $spbwc_sw_palette[ $key % count( $spbwc_sw_palette ) ]; }
-                        $swatch_style = 'background: ' . $spbwc_grad;
+                        $swatch_style = 'background-image: ' . $spbwc_grad;
                     }
             ?>
                 <input ng-change="check_valid();updateMapOptions('<?php echo esc_attr( $field['id'] ); ?>')" value="<?php echo esc_attr( $key ); ?>" ng-model="nbd_fields['<?php echo esc_attr( $field['id'] ); ?>'].value" name="pcpb-field[<?php echo esc_attr( $field['id'] ); ?>]<?php if($show_subattr) echo esc_attr('[value]'); ?>"
@@ -74,7 +78,7 @@ if (!defined('ABSPATH')) exit;
                 <label class="nbd-swatch nbd-swatch-card" for='pcpb-field-<?php echo esc_attr( $field['id'].'-'.$key ); ?>'
                     title="<?php echo esc_attr( $attr['name'] ); ?>"
                     nbo-disabled="!status_fields['<?php echo esc_attr( $field['id'] ); ?>'][<?php echo esc_attr( $key ); ?>].enable" nbo-disabled-type="class" >
-                    <span class="nbd-swatch__visual" style="<?php echo esc_attr( $swatch_style ); ?>">
+                    <span class="nbd-swatch__visual<?php echo $spbwc_is_photo ? ' nbd-swatch__visual--photo' : ''; ?>" style="<?php echo esc_attr( $swatch_style ); ?>">
                         <span class="nbd-swatch__check" aria-hidden="true">✓</span>
                     </span>
                     <span class="nbd-swatch__body">

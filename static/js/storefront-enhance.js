@@ -117,22 +117,24 @@
                     scope.$watch(function () { return '' + scope._qty + '|' + scope.quantity; }, function () { updateHeroCta(); });
                     $timeout(updateHeroCta, 0);
 
-                    /* Sticky price+CTA bar: reveal when the real Add-to-cart scrolls out of view */
+                    /* Sticky price+CTA bar: reveal only once the hero has scrolled out of view
+                     * AND the real Add-to-cart is still off-screen (so it never overlaps the top). */
                     $timeout(function () {
                         var bar = root.querySelector('.nbo-sticky-mobile');
                         var atc = document.querySelector('form.cart button.single_add_to_cart_button, form.cart .single_add_to_cart_button, .single_add_to_cart_button');
+                        var hero = root.querySelector('.nbo-price-showcase');
                         if (!bar || !atc || !('IntersectionObserver' in window)) { return; }
-                        new IntersectionObserver(function (entries) {
-                            for (var i = 0; i < entries.length; i++) {
-                                bar.classList.toggle('is-visible', !entries[i].isIntersecting);
-                            }
-                        }, { threshold: 0, rootMargin: '0px 0px -8% 0px' }).observe(atc);
+                        var heroVisible = true, atcVisible = false;
+                        function sync() { bar.classList.toggle('is-visible', !heroVisible && !atcVisible); }
+                        new IntersectionObserver(function (e) { heroVisible = e[0].isIntersecting; sync(); }, { threshold: 0 }).observe(hero || atc);
+                        new IntersectionObserver(function (e) { atcVisible = e[0].isIntersecting; sync(); }, { threshold: 0, rootMargin: '0px 0px -8% 0px' }).observe(atc);
                     }, 80);
 
                     /* ── Completion progress (segmented "N of M chosen") ──
                      * The progress markup lives inside ng-if="fields.length", so it is NOT in
                      * the DOM when this directive links. Query the nodes lazily on each update. */
                     var segCount = -1; // remembers how many segments are currently rendered
+                    var hasInteracted = false; // gate the "Ready to order" cue until a real change
 
                     function renderSegments(pBar, total) {
                         if (!pBar || segCount === total) { return; }
@@ -169,7 +171,7 @@
                             if (s < filled) { segs[s].classList.add('is-filled'); }
                             else { segs[s].classList.remove('is-filled'); }
                         }
-                        var complete = (total > 0 && filled >= total);
+                        var complete = (total > 0 && filled >= total && hasInteracted);
                         pWrap.classList.toggle('is-complete', complete);
                         if (pText) { pText.textContent = complete ? ('✓ ' + labelDone) : (filled + ' of ' + total + ' ' + labelChosen); }
                         setCtaReady(complete);
@@ -191,7 +193,10 @@
                             }
                         }
                         return sig;
-                    }, function () { updateProgress(); });
+                    }, function (newSig, oldSig) {
+                        if (newSig !== oldSig) { hasInteracted = true; }
+                        updateProgress();
+                    });
                     $timeout(updateProgress, 0);
 
                     /* ── Smart-recommend: default combo + one-click Apply ── */
