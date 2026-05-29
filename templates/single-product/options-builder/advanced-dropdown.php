@@ -22,7 +22,7 @@ if (!defined('ABSPATH')) exit;
                 <?php endforeach; ?>
             </select>
             <div class="nbo-ad-result">
-                <span class="nbo-ad-result-name">{{nbd_fields['<?php echo esc_attr($field['id']); ?>'].value_name}}</span>
+                <span class="nbo-ad-result-name" ng-bind="nbd_fields['<?php echo esc_attr($field['id']); ?>'].value_name"></span>
                 <svg xmlns="http://www.w3.org/2000/svg" version="1.1" width="24" height="24" viewBox="0 0 24 24">
                     <path d="M16.594 8.578l1.406 1.406-6 6-6-6 1.406-1.406 4.594 4.594z" />
                 </svg>
@@ -102,7 +102,7 @@ if (!defined('ABSPATH')) exit;
                     </div>
                 <?php endforeach; ?>
             </div>
-            <div class="nbo-invalid-option" ng-class="nbd_fields['<?php echo esc_attr($field['id']); ?>'].valid === false ? 'active' : ''" ng-if="nbd_fields['<?php echo esc_attr($field['id']); ?>'].valid === false">{{nbd_fields['<?php echo esc_attr($field['id']); ?>'].invalidOption}} <?php esc_html_e('is not available', 'storelly-product-builder-for-woocommerce'); ?>
+            <div class="nbo-invalid-option" ng-class="nbd_fields['<?php echo esc_attr($field['id']); ?>'].valid === false ? 'active' : ''" ng-if="nbd_fields['<?php echo esc_attr($field['id']); ?>'].valid === false"><span ng-bind="nbd_fields['<?php echo esc_attr($field['id']); ?>'].invalidOption"></span> <?php esc_html_e('is not available', 'storelly-product-builder-for-woocommerce'); ?>
             </div>
         </div>
     </div>

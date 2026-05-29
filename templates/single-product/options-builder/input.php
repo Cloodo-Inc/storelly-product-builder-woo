@@ -52,21 +52,25 @@ if (!defined('ABSPATH')) exit;
                 <?php endif; ?>
             <?php endif; ?>
         />
-        <?php 
+        <?php
             if( $field['general']['input_type'] == 'u' && isset($form_values[$field['id']]) ):
         ?>
         <input class="nbd-upload-hidden" id="nbd-upload-hidden-<?php echo esc_attr( $field['id'] ); ?>" type="hidden" name="nbd-field[<?php echo esc_attr( $field['id'] ); ?>]" value="<?php echo esc_attr( $form_values[$field['id']] ); ?>" />
         <?php endif; ?>
-        <?php if( $field['general']['input_type'] == 'u' && $field['general']['upload_option']['min_size'] != '' ): ?>
-        <?php /* translators: %s: minimum upload size in MB. */ ?>
-        <span style="display: block; font-size: 12px;margin-top: 10px;"><?php printf( esc_html__('Min size: %s MB', 'storelly-product-builder-for-woocommerce'), esc_html( $field['general']['upload_option']['min_size'] ) ); ?></span>
-        <?php endif; ?>
-        <?php if( $field['general']['input_type'] == 'u' && $field['general']['upload_option']['max_size'] != '' ): ?>
-        <?php /* translators: %s: maximum upload size in MB. */ ?>
-        <span style="display: block; font-size: 12px;"><?php printf( esc_html__('Max size: %s MB', 'storelly-product-builder-for-woocommerce'), esc_html( $field['general']['upload_option']['max_size'] ) ); ?></span>
-        <?php endif; ?>
+        <?php if( $field['general']['input_type'] == 'u' ) :
+            $nbd_up        = isset( $field['general']['upload_option'] ) ? $field['general']['upload_option'] : array();
+            $nbd_up_types  = isset( $nbd_up['allow_type'] ) && '' !== trim( (string) $nbd_up['allow_type'] ) ? strtoupper( str_replace( ',', ', ', trim( (string) $nbd_up['allow_type'] ) ) ) : '';
+            $nbd_up_min    = isset( $nbd_up['min_size'] ) ? (string) $nbd_up['min_size'] : '';
+            $nbd_up_max    = isset( $nbd_up['max_size'] ) ? (string) $nbd_up['max_size'] : '';
+            if ( '' !== $nbd_up_types || '' !== $nbd_up_min || '' !== $nbd_up_max ) : ?>
+            <div class="nbd-upload-notes">
+                <?php if ( '' !== $nbd_up_types ) : ?><span class="nbd-upload-note"><?php printf( /* translators: %s: list of accepted file extensions */ esc_html__( 'Accepted: %s', 'storelly-product-builder-for-woocommerce' ), esc_html( $nbd_up_types ) ); ?></span><?php endif; ?>
+                <?php if ( '' !== $nbd_up_min && '0' !== $nbd_up_min ) : ?><span class="nbd-upload-note"><?php printf( /* translators: %s: minimum upload size in MB */ esc_html__( 'Min %s MB', 'storelly-product-builder-for-woocommerce' ), esc_html( $nbd_up_min ) ); ?></span><?php endif; ?>
+                <?php if ( '' !== $nbd_up_max ) : ?><span class="nbd-upload-note"><?php printf( /* translators: %s: maximum upload size in MB */ esc_html__( 'Max %s MB', 'storelly-product-builder-for-woocommerce' ), esc_html( $nbd_up_max ) ); ?></span><?php endif; ?>
+            </div>
+        <?php endif; endif; ?>
         <?php if( $field['general']['input_type'] == 'r' ): ?>
-        <span class="nbd-input-range">{{ nbd_fields['<?php echo esc_attr( $field['id'] ); ?>'].value }}</span>
+        <span class="nbd-input-range" ng-bind="nbd_fields['<?php echo esc_attr( $field['id'] ); ?>'].value"></span>
         <?php endif; ?>
         <?php if( $field['general']['input_type'] == 'n' || $field['general']['input_type'] == 'r' ): ?>
         <?php /* translators: %s: minimum allowed value. */ ?>

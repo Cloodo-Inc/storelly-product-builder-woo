@@ -122,8 +122,68 @@ if (!class_exists('STORELLY_FRONTEND_OPTIONS')) {
             }
             return $valid_fields;
         }
+        /**
+         * Collapse admin-builder "config descriptor" objects to their runtime scalar value.
+         *
+         * Options applied from a bundled Template Library template are stored as the admin
+         * Angular model, where each general/appearance leaf is a descriptor array
+         * { title, value, type, ... } instead of a flat value. Both the PHP render loop in
+         * templates/single-product/option-builder.php and the buyer core (option-builder.js)
+         * expect flat values (e.g. general.enabled === 'y'); a descriptor-shaped option
+         * therefore renders no fields at all. Idempotent — already-flat values pass through
+         * unchanged. Root fix lives in the template import; this is the buyer-side safety net.
+         *
+         * @param mixed $value Field subtree (general/appearance) or a leaf.
+         * @return mixed
+         */
+        private static function spbwc_collapse_field_config_objects($value) {
+            if (
+                is_array($value)
+                && array_key_exists('value', $value)
+                && array_key_exists('type', $value)
+                && array_key_exists('title', $value)
+            ) {
+                return $value['value'];
+            }
+            if (is_array($value)) {
+                foreach ($value as $key => $sub) {
+                    $value[$key] = self::spbwc_collapse_field_config_objects($sub);
+                }
+            }
+            return $value;
+        }
+        /**
+         * Normalize an option "fields" array to runtime shape by collapsing descriptor
+         * objects in each field's general/appearance subtree.
+         *
+         * @param array $fields Unserialized fields array.
+         * @return array
+         */
+        private static function spbwc_flatten_option_fields($fields) {
+            if (!is_array($fields)) {
+                return $fields;
+            }
+            foreach ($fields as $idx => $field) {
+                if (!is_array($field)) {
+                    continue;
+                }
+                if (isset($field['general']) && is_array($field['general'])) {
+                    $fields[$idx]['general'] = self::spbwc_collapse_field_config_objects($field['general']);
+                }
+                if (isset($field['appearance']) && is_array($field['appearance'])) {
+                    $fields[$idx]['appearance'] = self::spbwc_collapse_field_config_objects($field['appearance']);
+                }
+            }
+            return $fields;
+        }
         public function spbwc_frontend_enqueue_scripts(){
-            $product_id = get_the_ID();
+            // Resolve the product reliably. At wp_enqueue_scripts the global $post
+            // is not yet the product on block themes / page builders, so
+            // get_the_ID() returns 0 and the buyer app would never enqueue (the
+            // markup still prints via woocommerce_before_add_to_cart_button, so
+            // only the static Customize button shows). get_queried_object_id() is
+            // reliable on a single-product request regardless of theme.
+            $product_id = ( function_exists( 'is_product' ) && is_product() ) ? get_queried_object_id() : get_the_ID();
             $option_id = $this->get_product_option($product_id);
              if ($option_id) {
                 $_options = $this->get_option($option_id);
@@ -133,6 +193,8 @@ if (!class_exists('STORELLY_FRONTEND_OPTIONS')) {
                         $options['fields'] = array();
                     }
                     $options['fields'] = $this->recursive_stripslashes($options['fields']);
+                    // Safety net: collapse descriptor-shaped fields (from Template Library imports) to runtime shape.
+                    $options['fields'] = self::spbwc_flatten_option_fields($options['fields']);
                     foreach ($options['fields'] as $key => $field) {
                         if (!isset($field['general']['attributes'])) {
                             $field['general']['attributes'] = array();
@@ -316,6 +378,7 @@ if (!class_exists('STORELLY_FRONTEND_OPTIONS')) {
                         'nbds_frontend'         => $nbds_frontend,
                         'options'               => $options,
                         'product_id'            => $product_id,
+                        'price'                 => $product->get_price(),
                         'type'                  => $type,
                         'quantity'              => $quantity,
                         'variations'            => wp_json_encode((array) $variations),
@@ -344,6 +407,20 @@ if (!class_exists('STORELLY_FRONTEND_OPTIONS')) {
                     // and before the jQuery(document).ready bootstrap.
                     wp_register_script( 'spbwc-conditional-logic', SPBWC_PB_JS_URL . 'conditional-logic.js', array( 'spbwc-option-builder' ), SPBWC_PB_VERSION, true );
                     wp_enqueue_script( 'spbwc-conditional-logic' );
+
+                    // Storefront flow enhancements (progress bar + mobile sticky CTA).
+                    wp_register_script( 'spbwc-storefront-enhance', SPBWC_PB_JS_URL . 'storefront-enhance.js', array( 'spbwc-option-builder' ), SPBWC_PB_VERSION, true );
+                    wp_enqueue_script( 'spbwc-storefront-enhance' );
+
+                    // Token-based storefront styling for the options form. Loads
+                    // whenever a product has an option (incl. plain option
+                    // products that otherwise receive no buyer CSS). Depends on
+                    // the design tokens so var(--st-*/--nbd-*) resolve.
+                    if ( ! wp_style_is( 'spbwc-tokens', 'registered' ) ) {
+                        wp_register_style( 'spbwc-tokens', SPBWC_PB_CSS_URL . '_tokens.css', array(), SPBWC_PB_VERSION );
+                    }
+                    wp_register_style( 'spbwc-storefront-options', SPBWC_PB_CSS_URL . 'storefront-options.css', array( 'spbwc-tokens' ), SPBWC_PB_VERSION );
+                    wp_enqueue_style( 'spbwc-storefront-options' );
                 }
             }
         }
@@ -359,6 +436,8 @@ if (!class_exists('STORELLY_FRONTEND_OPTIONS')) {
                         $options['fields'] = array();
                     }
                     $options['fields'] = $this->recursive_stripslashes($options['fields']);
+                    // Safety net: collapse descriptor-shaped fields (from Template Library imports) to runtime shape.
+                    $options['fields'] = self::spbwc_flatten_option_fields($options['fields']);
                     foreach ($options['fields'] as $key => $field) {
                         if (!isset($field['general']['attributes'])) {
                             $field['general']['attributes'] = array();
