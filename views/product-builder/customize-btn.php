@@ -9,20 +9,15 @@
 				<path d="M7 8H3" /><path d="M21 16h-4" /><path d="M11 3H9" />
 			</svg>
 		</span>
-		<span class="spbwc-customize-btn__label"><?php esc_html_e( 'Preview & customize', 'storelly-product-builder-for-woocommerce' ); ?></span>
+		<span class="spbwc-customize-btn__text">
+			<span class="spbwc-customize-btn__label"><?php esc_html_e( 'Preview & customize', 'storelly-product-builder-for-woocommerce' ); ?></span>
+			<span class="spbwc-customize-btn__hint"><?php esc_html_e( 'See your product and make it yours before checkout.', 'storelly-product-builder-for-woocommerce' ); ?></span>
+		</span>
 		<span class="spbwc-customize-btn__arrow" aria-hidden="true">
 			<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
 				<path d="M5 12h14" /><path d="m12 5 7 7-7 7" />
 			</svg>
 		</span>
 	</a>
-	<p class="spbwc-customize-note">
-		<span class="spbwc-customize-note__icon" aria-hidden="true">
-			<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-				<circle cx="12" cy="12" r="10" /><path d="M12 16v-4" /><path d="M12 8h.01" />
-			</svg>
-		</span>
-		<span><?php esc_html_e( 'See your product and make it yours before checkout.', 'storelly-product-builder-for-woocommerce' ); ?></span>
-	</p>
 </div>
 <div class="pcpb-custom-design"></div>

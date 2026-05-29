@@ -2103,6 +2103,7 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
                 'appearance' => array(
                     'display_type'          => null,
                     'change_image_product'  => null,
+                    'show_in_options'       => null,
                     'css_class'             => null
                 ),
             );
@@ -2646,7 +2647,10 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
             return $configs;
         }
         public function build_config_appearance_display_type($value = null) {
-            if (is_null($value)) $value = 'd';
+            // Default new fields to Label (chip cards) rather than a plain dropdown:
+            // cards read better on the storefront and work for any option set. Existing
+            // fields keep whatever type they were saved with.
+            if (is_null($value)) $value = 'l';
             return array(
                 'title'         => __('Display type', 'storelly-product-builder-for-woocommerce'),
                 'description'   => '',
@@ -2685,6 +2689,29 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
             return array(
                 'title'         => __('Changes product image', 'storelly-product-builder-for-woocommerce'),
                 'description'   => __('Choose whether to change the product image.', 'storelly-product-builder-for-woocommerce'),
+                'type'          => 'dropdown',
+                'value'         => $value,
+                'options'       => array(
+                    array(
+                        'key'   => 'y',
+                        'text'  => __('Yes', 'storelly-product-builder-for-woocommerce')
+                    ),
+                    array(
+                        'key'   => 'n',
+                        'text'  => __('No', 'storelly-product-builder-for-woocommerce')
+                    )
+                )
+            );
+        }
+        public function build_config_appearance_show_in_options($value = null) {
+            // Design components (nbpb_type = nbpb_com) are normally editor-only. When this is
+            // 'y', the component ALSO appears in the storefront product-options list so buyers
+            // can pick it and see its price without opening the design editor. Default off so
+            // existing designer products are unchanged.
+            if (is_null($value)) $value = 'n';
+            return array(
+                'title'         => __('Show in product options list', 'storelly-product-builder-for-woocommerce'),
+                'description'   => __('Also let buyers choose this design component (and see its price) in the product options, not only inside the design editor.', 'storelly-product-builder-for-woocommerce'),
                 'type'          => 'dropdown',
                 'value'         => $value,
                 'options'       => array(

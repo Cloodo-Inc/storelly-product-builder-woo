@@ -90,8 +90,19 @@ $currentDir = realpath(dirname(__FILE__)); // phpcs:ignore WordPress.NamingConve
                     foreach ($options_fields as $key => $field) {
                         $class = '';
                         if (isset($field['nbpb_type']) && ($field['nbpb_type'] == 'nbpb_com' || $field['nbpb_type'] == 'nbpb_text' || $field['nbpb_type'] == 'nbpb_image')) {
-                            $class      = 'nbo-hidden';
                             $has_nbpb   = true;
+                            // Design components (nbpb_com) opt-in: when "Show in product options
+                            // list" is on, render the component in the storefront list too (buyers
+                            // pick + see price without opening the editor). Its value/price already
+                            // flow through nbd_fields + option_processing, and selection stays in
+                            // sync with the editor via the update_nbo_options bridge. Text/image
+                            // elements always stay editor-only.
+                            $spbwc_show_com = ( $field['nbpb_type'] == 'nbpb_com'
+                                && isset($field['appearance']['show_in_options'])
+                                && $field['appearance']['show_in_options'] == 'y' );
+                            if ( ! $spbwc_show_com ) {
+                                $class = 'nbo-hidden';
+                            }
                         }
 
                         if (isset($field['general']['published']) && $field['general']['published'] == 'n') {
