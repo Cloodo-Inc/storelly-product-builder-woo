@@ -293,6 +293,23 @@
     justify-content: center;
 }
 
+/* The Unlink form participates in the actions row as a flex item that wraps
+ * a single button. `display: contents` would be cleaner but has lingering
+ * a11y quirks in older AT — use a thin flex wrapper instead. */
+.spbwc-vb__card-unlink {
+    margin: 0;
+    padding: 0;
+    flex: 1;
+    display: flex;
+    min-width: 0;
+}
+
+.spbwc-vb__card-unlink-btn {
+    width: 100%;
+    text-align: center;
+    justify-content: center;
+}
+
 /* ───────────── Picker form ───────────── */
 
 .spbwc-vb__picker {
@@ -351,6 +368,114 @@
     justify-content: flex-end;
     padding-top: 16px;
     border-top: 1px solid var(--vb-card-border);
+}
+
+/* ═════════════════════════════════════════════════════════════════════
+ * EDIT SCREEN (M6.2)
+ * ─────────────────────────────────────────────────────────────────────
+ * Mounts the classic AngularJS controller so it inherits the v2-card,
+ * v2-views-grid, v2-view-card, v2-palette, v2-chip, pcpb-field-wrap
+ * styles from admin-options-v2.css. This file only adds Visual Builder
+ * chrome on top of those and hides cards that don't belong here.
+ * ═════════════════════════════════════════════════════════════════════ */
+
+/* The hidden round-trip block holds inputs needed for save fidelity.
+ * Belt-and-suspenders: [hidden] in HTML + display:none here, so the block
+ * also collapses height when an AT or browser-extension overrides [hidden]. */
+.spbwc-vb-roundtrip,
+.spbwc-vb-roundtrip[hidden] {
+    display: none !important;
+}
+
+/* Hide every field card that is NOT a nbpb_* designer component.
+ * The is-nbpb class is added by views/options/field.php on the same
+ * ng-class object used by classic (purely additive — classic ignores it).
+ * The card and all its inputs stay in the DOM so the form POST round-trips
+ * pricing fields untouched. */
+.spbwc-vb-edit .pcpb-fields-builder .pcpb-field-wrap:not(.is-nbpb) {
+    display: none !important;
+}
+
+/* Hide the classic field-list "Clear All / Add Field" footer — Visual
+ * Builder uses the chip palette above the list instead, and "Clear All"
+ * would also wipe pricing fields that we are only round-tripping. */
+.spbwc-vb-edit .pcpb-fields-actions {
+    display: none !important;
+}
+
+/* Hero — right-aligned save actions on edit screen. */
+.spbwc-vb-edit__hero-actions {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.spbwc-vb-edit__hero-actions .dashicons {
+    line-height: inherit;
+}
+
+/* Stack sections with breathing room. */
+.spbwc-vb-edit__section {
+    margin: 0 0 24px;
+}
+
+.spbwc-vb-edit__section-hint {
+    font-size: 12px;
+}
+
+/* Sticky save bar — pinned to the bottom of the viewport so the action is
+ * reachable without scrolling to the top in long option configs. */
+.spbwc-vb-edit__savebar {
+    position: sticky;
+    bottom: 0;
+    z-index: 10;
+    margin: 24px 0 0;
+    padding: 12px 16px;
+    background: #fff;
+    border: 1px solid var(--vb-card-border);
+    border-radius: var(--vb-card-radius);
+    box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.05);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.spbwc-vb-edit__savebar-hint {
+    flex: 1;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    color: var(--vb-text-mute);
+    min-width: 0;
+}
+
+.spbwc-vb-edit__savebar-hint .dashicons {
+    font-size: 14px;
+    width: 14px;
+    height: 14px;
+    line-height: 14px;
+    color: var(--vb-link);
+    flex-shrink: 0;
+}
+
+/* Mobile save bar — stack vertically and let buttons take full width. */
+@media (max-width: 600px) {
+    .spbwc-vb-edit__savebar {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .spbwc-vb-edit__savebar-hint {
+        order: -1;
+        margin-bottom: 4px;
+    }
+
+    .spbwc-vb-edit__savebar .button {
+        width: 100%;
+        text-align: center;
+    }
 }
 
 /* ───────────── Mobile safety ───────────── */

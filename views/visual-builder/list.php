@@ -2,15 +2,13 @@
 /**
  * Visual Builder — Listing screen.
  *
- * Rendered by SPBWC_Visual_Builder_Admin::render_list(). Receives:
- *   - $options : array of option rows with attached `vb_meta` from
- *                derive_meta() (component_count, view_count, thumb_url,
- *                target_label, target_type).
+ * Shows only options that have been EXPLICITLY promoted into Visual Builder
+ * (id present in the `spbwc_vb_promoted` WP option). Options with stray views /
+ * nbpb fields added via the classic Designer tab do NOT auto-appear.
  *
- * Read-only. Submits nothing. Links into:
- *   - Visual Builder create picker (?action=create)
- *   - Visual Builder edit stub (?action=edit&id=…) — full editor in M6.2
- *   - Classic Pricing Options editor (escape hatch)
+ * Rendered by SPBWC_Visual_Builder_Admin::render_list(). Receives:
+ *   - $options : array of option rows with attached `vb_meta`.
+ *   - $notice  : flash-notice payload from ?vb_notice= (or null).
  *
  * @package Storelly_Product_Builder
  */
@@ -27,7 +25,7 @@ if ( ! defined( 'ABSPATH' ) ) {
                 <?php esc_html_e( 'Visual Builder', 'storelly-product-builder-for-woocommerce' ); ?>
             </h1>
             <p class="spbwc-vb__subtitle">
-                <?php esc_html_e( 'Build product configurators with real product images — views, components and visual attributes. Each visual is a Pricing Option that has visual content; targeting (products / categories) is inherited from the option itself.', 'storelly-product-builder-for-woocommerce' ); ?>
+                <?php esc_html_e( 'Build product configurators with real product images — views, components and visual attributes. Each Visual is a Pricing Option you have explicitly promoted here; targeting (products / categories) is inherited from the option itself.', 'storelly-product-builder-for-woocommerce' ); ?>
             </p>
         </div>
         <div class="spbwc-vb__hero-right">
@@ -39,6 +37,12 @@ if ( ! defined( 'ABSPATH' ) ) {
         </div>
     </header>
 
+    <?php if ( ! empty( $notice ) ) : ?>
+        <div class="notice notice-<?php echo esc_attr( $notice['type'] ); ?> inline">
+            <p><?php echo esc_html( $notice['text'] ); ?></p>
+        </div>
+    <?php endif; ?>
+
     <?php if ( empty( $options ) ) : ?>
         <div class="spbwc-vb__empty">
             <div class="spbwc-vb__empty-icon" aria-hidden="true">🖼️</div>
@@ -46,7 +50,7 @@ if ( ! defined( 'ABSPATH' ) ) {
                 <?php esc_html_e( 'No visuals yet', 'storelly-product-builder-for-woocommerce' ); ?>
             </h2>
             <p class="spbwc-vb__empty-body">
-                <?php esc_html_e( 'A "visual" is any Pricing Option that has views or designer components added to it. Pick an existing Pricing Option to attach a visual, or create a new option first.', 'storelly-product-builder-for-woocommerce' ); ?>
+                <?php esc_html_e( 'Promote an existing Pricing Option to start building its visual configurator. Nothing here will appear automatically — you decide which options become Visuals.', 'storelly-product-builder-for-woocommerce' ); ?>
             </p>
             <p class="spbwc-vb__empty-actions">
                 <a class="button button-primary"
@@ -69,28 +73,30 @@ if ( ! defined( 'ABSPATH' ) ) {
                 $classic_url = add_query_arg(
                     array(
                         'page'   => SPBWC_PB_BUILDER_SLUG,
-                        'action' => 'update',
+                        'action' => 'edit',
                         'id'     => $oid,
                     ),
                     admin_url( 'admin.php' )
                 );
+                $unlink_url  = SPBWC_Visual_Builder_Admin::url();
                 $target_icon = ( 'c' === $m['target_type'] ) ? 'category' : 'cart';
                 if ( $m['target_empty'] ) {
                     $target_icon = 'warning';
                 }
+                $title_text = '' !== trim( (string) $opt['title'] ) ? $opt['title'] : sprintf( '#%d', $oid );
                 ?>
                 <article class="spbwc-vb__card" data-option-id="<?php echo esc_attr( (string) $oid ); ?>">
                     <a class="spbwc-vb__card-thumb" href="<?php echo esc_url( $edit_url ); ?>" aria-label="<?php echo esc_attr( sprintf(
                         /* translators: %s: option title */
                         __( 'Edit visual for %s', 'storelly-product-builder-for-woocommerce' ),
-                        $opt['title']
+                        $title_text
                     ) ); ?>">
                         <img src="<?php echo esc_url( $m['thumb_url'] ); ?>" alt="" loading="lazy" />
                     </a>
                     <div class="spbwc-vb__card-body">
                         <h3 class="spbwc-vb__card-title">
                             <a href="<?php echo esc_url( $edit_url ); ?>">
-                                <?php echo esc_html( '' !== trim( (string) $opt['title'] ) ? $opt['title'] : sprintf( '#%d', $oid ) ); ?>
+                                <?php echo esc_html( $title_text ); ?>
                             </a>
                         </h3>
                         <p class="spbwc-vb__card-target<?php echo $m['target_empty'] ? ' is-empty' : ''; ?>">
@@ -131,6 +137,25 @@ if ( ! defined( 'ABSPATH' ) ) {
                            title="<?php esc_attr_e( 'Open the classic Pricing Options editor for this option', 'storelly-product-builder-for-woocommerce' ); ?>">
                             <?php esc_html_e( 'Pricing', 'storelly-product-builder-for-woocommerce' ); ?>
                         </a>
+                        <form method="post" action="<?php echo esc_url( $unlink_url ); ?>"
+                              class="spbwc-vb__card-unlink"
+                              onsubmit="return confirm('<?php echo esc_js( sprintf(
+                                /* translators: %s: option title */
+                                __( 'Unlink "%s" from Visual Builder? The pricing option itself will be preserved.', 'storelly-product-builder-for-woocommerce' ),
+                                $title_text
+                              ) ); ?>');">
+                            <?php
+                            wp_nonce_field(
+                                SPBWC_Visual_Builder_Admin::NONCE_UNLINK,
+                                SPBWC_Visual_Builder_Admin::NONCE_UNLINK_FIELD
+                            );
+                            ?>
+                            <input type="hidden" name="id" value="<?php echo esc_attr( (string) $oid ); ?>" />
+                            <button type="submit" class="button button-link-delete spbwc-vb__card-unlink-btn"
+                                    title="<?php esc_attr_e( 'Unlink from Visual Builder (option is preserved)', 'storelly-product-builder-for-woocommerce' ); ?>">
+                                <?php esc_html_e( 'Unlink', 'storelly-product-builder-for-woocommerce' ); ?>
+                            </button>
+                        </form>
                     </div>
                 </article>
             <?php endforeach; ?>

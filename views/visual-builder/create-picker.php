@@ -2,14 +2,14 @@
 /**
  * Visual Builder — Create picker.
  *
- * Lets the admin pick an existing Pricing Option that does NOT yet have visual
- * content. Submit redirects (via plain GET) to the Visual Builder edit screen
- * for that option id — no DB write at this stage. The "binding" is implicit:
- * adding the first view / nbpb_* field in the editor (M6.2) makes the option
- * show up in the listing on next load.
+ * Lets the admin pick an existing Pricing Option to PROMOTE into the Visual
+ * Builder. Promotion is an explicit action: the option id is appended to the
+ * `spbwc_vb_promoted` WP option (single row, no schema change). After promote,
+ * we redirect to the edit screen for that option.
  *
  * Rendered by SPBWC_Visual_Builder_Admin::render_create_picker(). Receives:
- *   - $candidates : array of option rows (id, title, modified, …) without visual.
+ *   - $candidates : array of option rows (id, title, modified, …) not yet promoted.
+ *   - $notice     : flash-notice payload from ?vb_notice= (or null).
  *
  * @package Storelly_Product_Builder
  */
@@ -37,19 +37,25 @@ if ( ! defined( 'ABSPATH' ) ) {
                 <?php esc_html_e( 'Create new Visual', 'storelly-product-builder-for-woocommerce' ); ?>
             </h1>
             <p class="spbwc-vb__subtitle">
-                <?php esc_html_e( 'Pick an existing Pricing Option to attach a Visual to. Only options that do not have visual content yet are listed. The Visual will inherit the option\'s product / category targeting.', 'storelly-product-builder-for-woocommerce' ); ?>
+                <?php esc_html_e( 'Pick a Pricing Option to attach a Visual to. Only options not already in Visual Builder are listed. The Visual you build will inherit the option\'s product / category targeting.', 'storelly-product-builder-for-woocommerce' ); ?>
             </p>
         </div>
     </header>
+
+    <?php if ( ! empty( $notice ) ) : ?>
+        <div class="notice notice-<?php echo esc_attr( $notice['type'] ); ?> inline">
+            <p><?php echo esc_html( $notice['text'] ); ?></p>
+        </div>
+    <?php endif; ?>
 
     <?php if ( empty( $candidates ) ) : ?>
         <div class="spbwc-vb__empty">
             <div class="spbwc-vb__empty-icon" aria-hidden="true">✅</div>
             <h2 class="spbwc-vb__empty-title">
-                <?php esc_html_e( 'All your Pricing Options already have visuals', 'storelly-product-builder-for-woocommerce' ); ?>
+                <?php esc_html_e( 'No pricing options available to promote', 'storelly-product-builder-for-woocommerce' ); ?>
             </h2>
             <p class="spbwc-vb__empty-body">
-                <?php esc_html_e( 'Create a new Pricing Option first, then come back here.', 'storelly-product-builder-for-woocommerce' ); ?>
+                <?php esc_html_e( 'Either every published Pricing Option is already in Visual Builder, or none exists yet. Create a new Pricing Option first, then come back here.', 'storelly-product-builder-for-woocommerce' ); ?>
             </p>
             <p class="spbwc-vb__empty-actions">
                 <a class="button button-primary" href="<?php echo esc_url( add_query_arg( array( 'page' => SPBWC_PB_BUILDER_SLUG, 'action' => 'create', 'id' => 0 ), admin_url( 'admin.php' ) ) ); ?>">
@@ -61,15 +67,15 @@ if ( ! defined( 'ABSPATH' ) ) {
             </p>
         </div>
     <?php else : ?>
-        <form class="spbwc-vb__picker" method="get" action="<?php echo esc_url( admin_url( 'admin.php' ) ); ?>">
-            <?php /*
-                Plain GET form — no nonce required: the destination (?action=edit)
-                only renders the editor; the actual save lives in the classic
-                editor (which has its own nonce). No DB write occurs from this
-                form submission.
-            */ ?>
-            <input type="hidden" name="page" value="<?php echo esc_attr( SPBWC_PB_VISUAL_BUILDER_SLUG ); ?>" />
-            <input type="hidden" name="action" value="edit" />
+        <form class="spbwc-vb__picker" method="post" action="<?php echo esc_url( SPBWC_Visual_Builder_Admin::url( 'create' ) ); ?>">
+            <?php
+            // Nonce + capability gate is enforced server-side in
+            // SPBWC_Visual_Builder_Admin::handle_create_submit().
+            wp_nonce_field(
+                SPBWC_Visual_Builder_Admin::NONCE_CREATE,
+                SPBWC_Visual_Builder_Admin::NONCE_CREATE_FIELD
+            );
+            ?>
 
             <div class="spbwc-vb__picker-field">
                 <label for="spbwc-vb-option-picker" class="spbwc-vb__picker-label">
@@ -95,7 +101,7 @@ if ( ! defined( 'ABSPATH' ) ) {
                     <?php endforeach; ?>
                 </select>
                 <p class="spbwc-vb__picker-help">
-                    <?php esc_html_e( 'The Visual you build for this option will appear to buyers on every product (or category) the option is applied to. You can change that targeting later in the Pricing Options editor — Visual Builder will follow.', 'storelly-product-builder-for-woocommerce' ); ?>
+                    <?php esc_html_e( 'After you create the Visual, you can build it (views, components, attribute images) on the next screen. You can unlink it any time — the pricing option itself stays intact.', 'storelly-product-builder-for-woocommerce' ); ?>
                 </p>
             </div>
 
@@ -104,7 +110,7 @@ if ( ! defined( 'ABSPATH' ) ) {
                     <?php esc_html_e( 'Cancel', 'storelly-product-builder-for-woocommerce' ); ?>
                 </a>
                 <button type="submit" class="button button-primary">
-                    <?php esc_html_e( 'Open in Visual Builder', 'storelly-product-builder-for-woocommerce' ); ?>
+                    <?php esc_html_e( 'Create Visual', 'storelly-product-builder-for-woocommerce' ); ?>
                     <span class="dashicons dashicons-arrow-right-alt2" aria-hidden="true"></span>
                 </button>
             </div>
