@@ -474,25 +474,36 @@
     gap: var(--nbd-space-2);
     width: 100%;
     padding: 12px 16px;
-    border: 1.5px solid var(--nbd-st-border);
+    /* Active-badge look (matches a chosen swatch / chip card): blue selection
+       accent border + soft tint bg + blue text — because a dropdown ALWAYS has a
+       selected value, so it reads as "this is what you've picked" rather than a
+       neutral input waiting for input. */
+    border: 2px solid var(--cld-select);
     border-radius: var(--nbd-radius-md);
-    background: var(--nbd-st-bg);
+    background: var(--cld-select-tint);
     color: var(--nbd-st-text);
     font-size: var(--text-md);
     font-weight: var(--font-bold);
     line-height: 1.4;
     cursor: pointer;
-    box-shadow: 0 1px 2px rgba(16,24,40,.04);
-    transition: border-color .15s ease, box-shadow .15s ease;
+    box-shadow: 0 0 0 3px var(--cld-select-soft);
+    transition: box-shadow .15s ease, background .15s ease;
 }
-.nbo-wrapper.nbo-style-cloodo .nbo-ad-result:hover { border-color: var(--nbd-st-border-strong); }
+.nbo-wrapper.nbo-style-cloodo .nbo-ad-result:hover { background: #fff; }
 .nbo-wrapper.nbo-style-cloodo .nbo-ad-result svg {
     flex: 0 0 auto;
     width: 16px;
     height: 16px;
-    color: var(--nbd-st-text);
+    color: var(--cld-select);
     transition: transform .15s ease;
 }
+/* When the dropdown is OPEN (its parent gets `.active`), drop the soft ring +
+   subtle bg so it visually un-pins to "I'm being edited" mode. */
+.nbo-wrapper.nbo-style-cloodo .pcpb-field-ad-dropdown-wrap.active .nbo-ad-result {
+    background: #ffffff;
+    box-shadow: 0 0 0 3px var(--cld-select-soft);
+}
+.nbo-wrapper.nbo-style-cloodo .pcpb-field-ad-dropdown-wrap.active .nbo-ad-result svg { transform: rotate(180deg); }
 .nbo-wrapper.nbo-style-cloodo .nbo-ad-result-name { flex: 1 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .nbo-wrapper.nbo-style-cloodo .nbo-ad-pseudo-list {
     position: absolute;
@@ -757,6 +768,25 @@
     box-shadow: var(--shadow-card);
 }
 
+/* ── Sticky product gallery + Customize gateway (desktop) ────────
+   The pricing-option list on the right column can get long; pin the gallery (which
+   contains both the product image AND the Preview & customize button) to the
+   viewport so the buyer can always see the product + open the design editor while
+   they scroll through options. Mobile (single-column stack) keeps natural flow. */
+@media (min-width: 783px) {
+    /* Target the COLUMN-LEVEL wrapper (block theme) — its parent is the flex column
+       which stretches to full row height, giving sticky enough room to scroll within.
+       Stickying `.woocommerce-product-gallery` directly fails because ITS parent is
+       a flow-block whose height equals the gallery's natural height (no room). */
+    .wp-block-woocommerce-product-image-gallery,
+    .product > .woocommerce-product-gallery {
+        position: sticky !important;
+        top: var(--spbwc-c-sticky-top, 80px);
+        align-self: flex-start;
+        z-index: 1;
+    }
+}
+
 /* ── Designer "Preview & customize" gateway ─────────────────────
    Self-contained (NOT scoped to .nbo-wrapper.nbo-style-cloodo) because the button
    now renders BELOW the product image (`woocommerce_product_thumbnails` hook), i.e.
@@ -766,16 +796,16 @@
 .spbwc-customize-cta {
     /* self-contained token defaults */
     --spbwc-c-accent: #2563eb;
-    --spbwc-c-accent-tint: #eff6ff;
+    --spbwc-c-accent-strong: #1d4ed8;
     --spbwc-c-accent-soft: #dbeafe;
-    --spbwc-c-bg: #ffffff;
-    --spbwc-c-bg-soft: #faf7f2;
-    --spbwc-c-text: #1c1917;
-    --spbwc-c-text-mute: #a8a29e;
-    --spbwc-c-border: #d6cfc4;
 
-    margin: 16px 0 0;
+    margin: 0 0 16px;
+    /* Reorder so the Customize button renders ABOVE the product image inside the
+       gallery wrapper — this way it pins at the TOP of the sticky area as soon as
+       the user starts scrolling, instead of sitting hidden below the image. */
+    order: -1;
 }
+.woocommerce-product-gallery__wrapper { display: flex; flex-direction: column; }
 .spbwc-customize-btn,
 a#pcpb-start-design.spbwc-customize-btn {
     position: relative;
@@ -787,17 +817,19 @@ a#pcpb-start-design.spbwc-customize-btn {
     justify-content: flex-start;
     gap: 12px;
     padding: 14px 18px;
-    border: 2px solid var(--spbwc-c-border);
+    border: 1.5px solid var(--spbwc-c-accent-soft);
     border-radius: 14px;
-    background: var(--spbwc-c-bg);
-    color: var(--spbwc-c-text);
+    /* White card with an accent-coloured icon chip — the chip + soft drop shadow
+       carry the "this is an important action" signal without the loud solid-blue. */
+    background: #ffffff;
+    color: #1c1917;
     text-align: left;
     text-decoration: none;
     font-family: inherit;
     font-size: 16px;
     line-height: 1.2;
     cursor: pointer;
-    box-shadow: 0 1px 2px rgba(16,24,40,.04);
+    box-shadow: 0 4px 12px rgba(37,99,235,.10), 0 1px 3px rgba(16,24,40,.06);
     transition: transform .15s ease, box-shadow .15s ease, border-color .15s ease, background .15s ease;
     animation: spbwcCustomizePulse 2.6s ease-in-out infinite;
 }
@@ -810,13 +842,13 @@ a#pcpb-start-design.spbwc-customize-btn {
     height: 34px;
     border-radius: 9px;
     background: var(--spbwc-c-accent);
-    color: #fff;
-    box-shadow: 0 2px 4px rgba(37,99,235,.18);
+    color: #ffffff;
+    box-shadow: 0 2px 4px rgba(37,99,235,.22);
 }
 .spbwc-customize-btn__icon svg { width: 20px; height: 20px; display: block; }
 .spbwc-customize-btn__text { flex: 1 1 auto; display: flex; flex-direction: column; gap: 1px; min-width: 0; }
-.spbwc-customize-btn__label { font-size: 16px; font-weight: 700; line-height: 1.2; color: var(--spbwc-c-text); }
-.spbwc-customize-btn__hint  { font-size: 12px; font-weight: 400; line-height: 1.3; color: var(--spbwc-c-text-mute); white-space: normal; }
+.spbwc-customize-btn__label { font-size: 16px; font-weight: 700; line-height: 1.2; color: #1c1917; }
+.spbwc-customize-btn__hint  { font-size: 12px; font-weight: 400; line-height: 1.3; color: #6b6864; white-space: normal; }
 .spbwc-customize-btn__arrow {
     flex: 0 0 auto;
     display: inline-flex;
@@ -826,16 +858,19 @@ a#pcpb-start-design.spbwc-customize-btn {
 .spbwc-customize-btn__arrow svg { width: 20px; height: 20px; display: block; }
 .spbwc-customize-btn:hover,
 a#pcpb-start-design.spbwc-customize-btn:hover {
-    background: var(--spbwc-c-accent-tint);
+    background: #f8faff;
     border-color: var(--spbwc-c-accent);
+    color: #1c1917;
     transform: translateY(-1px);
-    box-shadow: 0 2px 6px rgba(16,24,40,.06), 0 14px 30px rgba(16,24,40,.10);
+    box-shadow: 0 8px 18px rgba(37,99,235,.16), 0 2px 6px rgba(16,24,40,.08);
     animation: none; /* let the static hover shadow take over */
 }
 .spbwc-customize-btn:hover .spbwc-customize-btn__arrow { transform: translateX(3px); }
 @keyframes spbwcCustomizePulse {
-    0%, 100% { box-shadow: 0 0 0 0 rgba(37, 99, 235, 0); }
-    50%      { box-shadow: 0 0 0 4px rgba(37, 99, 235, .12); }
+    /* Keep the base drop-shadow constant; pulse a soft outer ring so the white
+       CTA still draws the eye without being loud. */
+    0%, 100% { box-shadow: 0 4px 12px rgba(37,99,235,.10), 0 1px 3px rgba(16,24,40,.06), 0 0 0 0 rgba(37,99,235,0); }
+    50%      { box-shadow: 0 4px 12px rgba(37,99,235,.10), 0 1px 3px rgba(16,24,40,.06), 0 0 0 5px rgba(37,99,235,.12); }
 }
 @media (prefers-reduced-motion: reduce) {
     .spbwc-customize-btn { animation: none; }
@@ -1383,6 +1418,16 @@ a#pcpb-start-design.spbwc-customize-btn:hover {
 /* ════════════════════════════════════════════════════════════
    Quantity volume-discount tiers ("buy more, save more")
    ════════════════════════════════════════════════════════════ */
+/* Quantity Quick Pick block — wrap in a bordered card so it reads as its own
+   discrete section (matches the recommend-combo and summary cards). */
+.nbo-wrapper.nbo-style-cloodo .nbo-qty-tiers {
+    padding: var(--nbd-space-5);
+    border: 1px solid var(--nbd-st-border-light);
+    border-radius: var(--nbd-radius-lg);
+    background: var(--nbd-st-bg);
+    box-shadow: 0 1px 2px rgba(16, 24, 40, .04);
+}
+.nbo-wrapper.nbo-style-cloodo .nbo-qty-tiers .pcpb-field-header { margin-bottom: var(--nbd-space-4); }
 .nbo-wrapper.nbo-style-cloodo .nbo-qty-tiers__grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));

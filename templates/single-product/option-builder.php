@@ -157,14 +157,19 @@ $currentDir = realpath(dirname(__FILE__)); // phpcs:ignore WordPress.NamingConve
                                 case 'r':
                                     $tempalte = $currentDir . '/options-builder/radio.php';
                                     break;
-                                case 'ad':
-                                    $tempalte = $currentDir . '/options-builder/advanced-dropdown.php';
-                                    break;
                                 case 'xl':
                                     $tempalte = $currentDir . '/options-builder/xlabel.php';
                                     break;
+                                case 'd':
+                                case 'ad':
                                 default:
-                                    $tempalte = $currentDir . '/options-builder/dropdown.php';
+                                    // Both Dropdown ('d') and Advanced Dropdown ('ad') render via
+                                    // the advanced-dropdown template — its custom div-based panel
+                                    // is the only way to style the OPEN list (the native <select>
+                                    // popup is OS-controlled and ignores CSS). The Angular
+                                    // `nbo-adv-dropdown` directive handles toggle + selection;
+                                    // a hidden <select> still carries the submitted value.
+                                    $tempalte = $currentDir . '/options-builder/advanced-dropdown.php';
                                     break;
                             }
                         }
