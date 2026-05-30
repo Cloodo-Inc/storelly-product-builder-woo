@@ -127,6 +127,14 @@ if ( ! class_exists( 'SPBWC_Template_Library_Admin' ) ) {
 						'inputNumber'        => esc_html__( 'Number', 'storelly-product-builder-for-woocommerce' ),
 						'previewApplyCTA'    => esc_html__( 'Apply this template', 'storelly-product-builder-for-woocommerce' ),
 						'applySuccess'       => esc_html__( 'Template applied successfully.', 'storelly-product-builder-for-woocommerce' ),
+						'noFields'           => esc_html__( 'This template has no buyer-facing fields.', 'storelly-product-builder-for-woocommerce' ),
+						'aboutSlug'          => esc_html__( 'Template slug', 'storelly-product-builder-for-woocommerce' ),
+						'aboutCategory'      => esc_html__( 'Category', 'storelly-product-builder-for-woocommerce' ),
+						'aboutFieldCount'    => esc_html__( 'Field count', 'storelly-product-builder-for-woocommerce' ),
+						'aboutPricingMethod' => esc_html__( 'Pricing method', 'storelly-product-builder-for-woocommerce' ),
+						'aboutVersion'       => esc_html__( 'Template version', 'storelly-product-builder-for-woocommerce' ),
+						'aboutDescription'   => esc_html__( 'Description', 'storelly-product-builder-for-woocommerce' ),
+						'aboutPricingSource' => esc_html__( 'Pricing source', 'storelly-product-builder-for-woocommerce' ),
 					),
 				)
 			);

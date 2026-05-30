@@ -108,20 +108,30 @@
 .nbo-wrapper.nbo-style-cloodo .nbo-fields-wrapper {
     display: flex;
     flex-direction: column;
-    gap: var(--nbd-space-6);
+    gap: var(--nbd-space-3);
 }
+/* Each option field is a soft card — clear visual grouping per choice. */
 .nbo-wrapper.nbo-style-cloodo .nbd-option-field {
-    margin: 0;
-    padding: 0;
-    border-bottom: 0;
+    background: var(--nbd-st-bg);
+    border: 1px solid var(--nbd-st-border-subtle);
+    border-radius: var(--nbd-radius-lg);
+    padding: 14px 16px 16px;
+    transition: var(--transition-fast);
+}
+.nbo-wrapper.nbo-style-cloodo .nbd-option-field:hover {
+    border-color: var(--nbd-st-border-light);
+}
+.nbo-wrapper.nbo-style-cloodo .nbd-option-field:focus-within {
+    border-color: var(--st-brand);
+    box-shadow: 0 0 0 3px var(--st-brand-tint);
 }
 
 /* ── Field header (title + count + chosen, then description) ── */
 .nbo-wrapper.nbo-style-cloodo .pcpb-field-header {
     display: flex;
     flex-direction: column;
-    gap: var(--nbd-space-1);
-    margin-bottom: var(--nbd-space-3);
+    gap: 4px;
+    margin-bottom: 12px;
     /* Override legacy app-product-builder.css gray bar header */
     background: transparent;
     padding: 0;
@@ -131,23 +141,25 @@
     display: flex;
     align-items: baseline;
     gap: var(--nbd-space-2);
+    flex-wrap: wrap;
+    min-height: 1.6em;
 }
 .nbo-wrapper.nbo-style-cloodo .pcpb-field-header label {
     margin: 0 !important; /* beat legacy app-product-builder.css label margin-left */
-    padding: 1px 0 0 !important;
+    padding: 0 !important;
     font-size: var(--text-lg);
     font-weight: var(--font-semibold);
     letter-spacing: -0.01em;
-    color: var(--nbd-st-text-soft);
-    line-height: 1.45;
+    /* Title is the *name* of the choice — make it the strongest text in the row. */
+    color: var(--nbd-st-text);
+    line-height: 1.4;
     overflow: visible;
 }
-.nbo-wrapper.nbo-style-cloodo .pcpb-field-header__row { min-height: 1.6em; }
 .nbo-wrapper.nbo-style-cloodo .pcpb-field-desc {
-    margin: 0;
-    font-size: var(--text-md);
+    margin: 4px 0 0;
+    font-size: var(--text-base);
     line-height: 1.5;
-    color: var(--nbd-st-text-mute);
+    color: var(--nbd-st-text-soft);
     max-width: 62ch;
 }
 .nbo-wrapper.nbo-style-cloodo .nbd-required {
@@ -416,24 +428,30 @@
 /* ── Dropdown (select) ───────────────────────────────────── */
 .nbo-wrapper.nbo-style-cloodo select.nbo-dropdown {
     width: 100%;
-    max-width: 360px;
-    padding: var(--nbd-space-2) var(--nbd-space-3);
-    padding-right: 32px;
+    max-width: 100%;
+    padding: 10px 38px 10px 14px;
     border: 1px solid var(--nbd-st-border-light);
     border-radius: var(--nbd-radius-md);
     background-color: var(--nbd-st-bg-input);
     color: var(--nbd-st-text);
     font-size: var(--text-md);
+    font-weight: var(--font-semibold);
     line-height: 1.4;
     cursor: pointer;
     appearance: none;
     -webkit-appearance: none;
     -moz-appearance: none;
-    background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath fill='none' stroke='%238c8f94' stroke-width='1.5' d='M1 1l4 4 4-4'/%3E%3C/svg%3E");
+    /* Stronger chevron — darker stroke + slightly bigger so it reads as
+       "click to pick", not a faded decoration. */
+    background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='none' stroke='%23374151' stroke-width='1.75' stroke-linecap='round' stroke-linejoin='round' d='M1.5 1.5l4.5 4.5 4.5-4.5'/%3E%3C/svg%3E");
     background-repeat: no-repeat;
-    background-position: right 10px center;
-    background-size: 10px 6px;
+    background-position: right 14px center;
+    background-size: 12px 8px;
     transition: var(--transition-fast);
+}
+.nbo-wrapper.nbo-style-cloodo select.nbo-dropdown:hover {
+    border-color: var(--nbd-st-border-strong);
+    background-color: var(--nbd-st-bg);
 }
 .nbo-wrapper.nbo-style-cloodo select.nbo-dropdown:focus {
     outline: none;
@@ -746,11 +764,14 @@
    (that file loads on designer products and otherwise wins on
    the same elements — these resets let the token design show).
    ════════════════════════════════════════════════════════════ */
+/* Re-assert the card design so it wins over the legacy app-product-builder.css
+   buyer block (.nbd-option-field there has gray bg + border-bottom + padding 0). */
 .nbo-wrapper.nbo-style-cloodo .nbd-option-field {
-    background: transparent;
-    border: 0;
+    background: var(--nbd-st-bg);
+    border: 1px solid var(--nbd-st-border-subtle);
     margin: 0;
-    padding: 0;
+    padding: 14px 16px 16px;
+    border-radius: var(--nbd-radius-lg);
 }
 .nbo-wrapper.nbo-style-cloodo .pcpb-field-content { padding: 0; }
 .nbo-wrapper.nbo-style-cloodo .nbd-swatch-wrap .pcpb-field-content { font-size: var(--text-base); }
@@ -906,35 +927,49 @@
     white-space: nowrap;
 }
 
-/* Per-field option-count badge in the field header */
+/* Per-field option-count badge — quiet, but a clear at-a-glance signal. */
 .nbo-wrapper.nbo-style-cloodo .pcpb-field-count {
     display: inline-flex;
     align-items: center;
     align-self: center;
-    padding: 2px var(--nbd-space-2);
+    padding: 1px 8px;
     border-radius: var(--nbd-radius-pill);
     background: var(--nbd-st-bg-soft);
-    border: 1px solid var(--nbd-st-border-subtle);
     color: var(--nbd-st-text-soft);
-    font-size: var(--text-xs);
+    font-size: 11px;
     font-weight: var(--font-semibold);
     text-transform: uppercase;
     letter-spacing: .04em;
     white-space: nowrap;
 }
 
+/* Chosen value — this is the *answer*, so it gets the strong-dark treatment;
+   the price delta lives in a tinted pill so it reads as "what this costs you". */
 .nbo-wrapper.nbo-style-cloodo .pcpb-field-chosen {
     margin-left: auto;
     display: inline-flex;
     align-items: baseline;
-    gap: var(--nbd-space-2);
+    gap: 6px;
     font-size: var(--text-md);
     line-height: 1.45;
-    color: var(--nbd-st-text-mute);
+    color: var(--nbd-st-text);
     text-align: right;
 }
-.nbo-wrapper.nbo-style-cloodo .pcpb-field-chosen b { color: var(--nbd-st-text-soft); font-weight: var(--font-semibold); }
-.nbo-wrapper.nbo-style-cloodo .pcpb-field-chosen__price { color: var(--cld-price); font-weight: var(--font-bold); font-size: var(--text-md); }
+.nbo-wrapper.nbo-style-cloodo .pcpb-field-chosen b {
+    color: var(--nbd-st-text);
+    font-weight: var(--font-semibold);
+}
+.nbo-wrapper.nbo-style-cloodo .pcpb-field-chosen__price {
+    display: inline-flex;
+    align-items: center;
+    padding: 1px 8px;
+    border-radius: var(--nbd-radius-pill);
+    background: var(--st-brand-tint);
+    color: var(--cld-price);
+    font-weight: var(--font-bold);
+    font-size: var(--text-md);
+    line-height: 1.4;
+}
 .nbo-wrapper.nbo-style-cloodo .pcpb-field-chosen__price .woocommerce-Price-amount { color: inherit; font-size: inherit; }
 
 /* Sticky price + CTA bar — slides up when the real Add-to-cart scrolls off-screen
@@ -1158,36 +1193,62 @@
 }
 @media (prefers-reduced-motion: reduce) { .spbwc-cloodo-cta--ready { animation: none; } }
 
-/* Trust bar — slim reassurance row under the hero */
+/* Trust bar — reassurance row of pill-cards with per-badge accent icons */
 .nbo-wrapper.nbo-style-cloodo .nbo-trust {
     display: flex;
     flex-wrap: wrap;
-    align-items: center;
-    gap: var(--nbd-space-2);
-    margin: 0 0 var(--nbd-space-2);
+    align-items: stretch;
+    gap: var(--nbd-space-3);
+    margin: var(--nbd-space-3) 0 var(--nbd-space-4);
     padding: 0;
 }
 .nbo-wrapper.nbo-style-cloodo .nbo-trust__item {
     display: inline-flex;
     align-items: center;
-    gap: 6px;
-    padding: var(--nbd-space-1) var(--nbd-space-3);
-    border: 1px solid var(--nbd-st-border-light);
-    border-radius: var(--nbd-radius-pill);
-    background: var(--nbd-st-bg-soft);
-    font-size: var(--text-sm);
-    font-weight: var(--font-semibold);
-    color: var(--nbd-st-text-soft);
+    gap: var(--nbd-space-3);
+    padding: var(--nbd-space-3) var(--nbd-space-4);
+    border: 1.5px solid var(--nbd-st-border);
+    border-radius: var(--nbd-radius-lg);
+    background: var(--nbd-st-bg);
+    color: var(--nbd-st-text);
+    font-size: var(--text-md);
+    font-weight: var(--font-bold);
+    line-height: 1.2;
     white-space: nowrap;
+    box-shadow: 0 1px 2px rgba(16, 24, 40, .04);
+    transition: transform .15s ease, box-shadow .15s ease, border-color .15s ease;
+}
+.nbo-wrapper.nbo-style-cloodo .nbo-trust__item:hover {
+    transform: translateY(-1px);
+    border-color: var(--nbd-st-border-strong);
+    box-shadow: var(--shadow-card);
+}
+.nbo-wrapper.nbo-style-cloodo .nbo-trust__text {
+    font-size: var(--text-md);
+    font-weight: var(--font-bold);
+    color: var(--nbd-st-text);
+    letter-spacing: -.01em;
 }
 .nbo-wrapper.nbo-style-cloodo .nbo-trust__icon {
-    color: var(--nbd-color-success);
-    flex: none;
-    width: 16px;
-    height: 16px;
-    padding: 2px;
-    border-radius: var(--nbd-radius-pill);
-    background: var(--nbd-color-success-soft, #d1fae5);
+    flex: 0 0 auto;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 9px;
+    color: #fff;
+    box-shadow: 0 2px 4px rgba(16, 24, 40, .08);
+}
+.nbo-wrapper.nbo-style-cloodo .nbo-trust__icon svg { width: 18px; height: 18px; display: block; }
+/* Per-badge accent color — keeps the trust row visually rich while the rest of the UI stays neutral. */
+.nbo-wrapper.nbo-style-cloodo .nbo-trust__icon--shield { background: linear-gradient(135deg, #10b981 0%, #047857 100%); }   /* emerald — security */
+.nbo-wrapper.nbo-style-cloodo .nbo-trust__icon--hammer { background: linear-gradient(135deg, #f59e0b 0%, #b45309 100%); }   /* amber — craft */
+.nbo-wrapper.nbo-style-cloodo .nbo-trust__icon--eye    { background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%); }   /* blue — transparency / live */
+.nbo-wrapper.nbo-style-cloodo .nbo-trust__icon--check  { background: linear-gradient(135deg, #10b981 0%, #047857 100%); }
+@media (prefers-reduced-motion: reduce) {
+    .nbo-wrapper.nbo-style-cloodo .nbo-trust__item { transition: none; }
+    .nbo-wrapper.nbo-style-cloodo .nbo-trust__item:hover { transform: none; }
 }
 
 /* ════════════════════════════════════════════════════════════
@@ -1212,15 +1273,15 @@
     transition: var(--transition-card);
 }
 .nbo-wrapper.nbo-style-cloodo .nbo-qty-tier:hover {
-    border-color: var(--st-brand);
-    background: var(--st-brand-tint);
+    border-color: var(--cld-select);
+    background: var(--cld-select-tint);
     transform: translateY(-2px);
     box-shadow: var(--shadow-card-hover);
 }
 .nbo-wrapper.nbo-style-cloodo .nbo-qty-tier.is-active {
-    border-color: var(--st-brand);
-    background: var(--st-brand-tint);
-    box-shadow: 0 0 0 3px var(--st-brand-soft);
+    border-color: var(--cld-select);
+    background: var(--cld-select-tint);
+    box-shadow: 0 0 0 3px var(--cld-select-soft);
 }
 .nbo-wrapper.nbo-style-cloodo .nbo-qty-tier__qty {
     font-size: var(--text-2xl);

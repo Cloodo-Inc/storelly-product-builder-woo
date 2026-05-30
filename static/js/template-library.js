@@ -303,35 +303,47 @@
 		var render = data.render || {};
 		var fields = render.fields || [];
 		if (!fields.length) {
-			$('#spbwc-tl-preview-fields').html('<p>No fields in this template.</p>');
+			$('#spbwc-tl-preview-fields').html(
+				'<p class="spbwc-tl-empty">' + esc(L.i18n.noFields || 'No fields in this template.') + '</p>'
+			);
 			return;
 		}
-		var html = '<table class="spbwc-tl-fields-table"><thead><tr>';
-		html += '<th>Field</th><th>Type</th><th>Display</th><th>Required</th><th>Options</th>';
-		html += '</tr></thead><tbody>';
-		fields.forEach(function (f) {
-			html += '<tr>';
-			html += '<td><strong>' + esc(f.title || '(untitled)') + '</strong>';
-			if (f.description) html += '<br><small>' + esc(f.description) + '</small>';
-			html += '</td>';
-			html += '<td>' + esc(displayLabel(f)) + '</td>';
-			html += '<td>' + esc(displayTypeLabel(f.display)) + '</td>';
-			html += '<td>' + (f.required ? '<span class="spbwc-tl-badge spbwc-tl-badge--required">' + L.i18n.required + '</span>' : '—') + '</td>';
-			html += '<td>';
-			if (f.attributes && f.attributes.length) {
-				html += '<div class="attr-chips">';
-				f.attributes.slice(0, 8).forEach(function (a) {
-					html += '<span class="attr-chip">' + esc(a.name || '—') + '</span>';
-				});
-				if (f.attributes.length > 8) html += '<span class="attr-chip">+' + (f.attributes.length - 8) + '</span>';
-				html += '</div>';
-			} else {
-				html += '<em>' + esc(displayLabel(f)) + '</em>';
+		// One card per field — easier to scan than a flat 5-col table, and the
+		// card structure mirrors what the buyer actually sees in the preview.
+		var html = '<div class="spbwc-tl-fields-list">';
+		fields.forEach(function (f, idx) {
+			var typeLabel = (f.data_type === 'i')
+				? displayLabel(f)            // input fields — show input type ("Text input", "Upload"…)
+				: displayTypeLabel(f.display); // multiple-choice — show display style ("Dropdown", "Swatch"…)
+			html += '<article class="spbwc-tl-field-card">';
+			html += '<header class="spbwc-tl-field-card__head">';
+			html += '<div class="spbwc-tl-field-card__title">';
+			html += '<span class="spbwc-tl-field-card__index">' + (idx + 1) + '</span>';
+			html += '<h4>' + esc(f.title || '(untitled)') + '</h4>';
+			html += '</div>';
+			html += '<div class="spbwc-tl-field-card__chips">';
+			html += '<span class="spbwc-tl-pill spbwc-tl-pill--type">' + esc(typeLabel) + '</span>';
+			if (f.required) {
+				html += '<span class="spbwc-tl-pill spbwc-tl-pill--required">' + esc(L.i18n.required || 'Required') + '</span>';
 			}
-			html += '</td>';
-			html += '</tr>';
+			html += '</div>';
+			html += '</header>';
+			if (f.description) {
+				html += '<p class="spbwc-tl-field-card__desc">' + esc(f.description) + '</p>';
+			}
+			if (f.attributes && f.attributes.length) {
+				html += '<div class="spbwc-tl-field-card__attrs">';
+				f.attributes.slice(0, 12).forEach(function (a) {
+					html += '<span class="spbwc-tl-attr-chip">' + esc(a.name || '—') + '</span>';
+				});
+				if (f.attributes.length > 12) {
+					html += '<span class="spbwc-tl-attr-chip spbwc-tl-attr-chip--more">+' + (f.attributes.length - 12) + '</span>';
+				}
+				html += '</div>';
+			}
+			html += '</article>';
 		});
-		html += '</tbody></table>';
+		html += '</div>';
 		$('#spbwc-tl-preview-fields').html(html);
 	}
 
@@ -358,25 +370,48 @@
 	}
 
 	function renderPreviewAbout(data) {
-		var m = data.meta;
+		var m   = data.meta || {};
+		var i18 = L.i18n || {};
 		var html = '<div class="spbwc-tl-about">';
-		html += aboutRow('Template slug', '<code>' + esc(m.slug) + '</code>');
-		html += aboutRow('Category', esc(m.category));
-		html += aboutRow('Field count', m.field_count);
-		html += aboutRow('Pricing method', esc((m.pricing_method || '').replace(/_/g, ' ')));
-		html += aboutRow('Template version', esc(m.template_version));
-		if (m.description) html += aboutRow('Description', esc(m.description));
-		if (m.pricing_source) {
-			html += '<div class="spbwc-tl-about__row spbwc-tl-about__pricing-note">';
-			html += '<dt>⚠ Pricing source</dt><dd>' + esc(m.pricing_source) + '</dd>';
+
+		// Compact 2-col key-value grid for the structural metadata.
+		html += '<dl class="spbwc-tl-about__grid">';
+		html += aboutPair(i18.aboutSlug || 'Template slug', '<code class="spbwc-tl-about__code">' + esc(m.slug) + '</code>');
+		html += aboutPair(i18.aboutCategory || 'Category', esc(m.category));
+		html += aboutPair(i18.aboutFieldCount || 'Field count', '<strong>' + esc(String(m.field_count)) + '</strong>');
+		html += aboutPair(i18.aboutPricingMethod || 'Pricing method', esc((m.pricing_method || '').replace(/_/g, ' ')));
+		html += aboutPair(i18.aboutVersion || 'Template version', '<code class="spbwc-tl-about__code">' + esc(m.template_version) + '</code>');
+		html += '</dl>';
+
+		// Description gets its own block — paragraph reads better than a row.
+		if (m.description) {
+			html += '<div class="spbwc-tl-about__block">';
+			html += '<div class="spbwc-tl-about__block-label">' + esc(i18.aboutDescription || 'Description') + '</div>';
+			html += '<p class="spbwc-tl-about__block-text">' + esc(m.description) + '</p>';
 			html += '</div>';
 		}
+
+		// Pricing-source caveat — surfaced as an amber callout so merchants
+		// don't miss a "configured but unsupported" warning.
+		if (m.pricing_source) {
+			html += '<div class="spbwc-tl-about__callout">';
+			html += '<span class="dashicons dashicons-warning spbwc-tl-about__callout-icon" aria-hidden="true"></span>';
+			html += '<div>';
+			html += '<div class="spbwc-tl-about__callout-title">' + esc(i18.aboutPricingSource || 'Pricing source') + '</div>';
+			html += '<div class="spbwc-tl-about__callout-text">' + esc(m.pricing_source) + '</div>';
+			html += '</div>';
+			html += '</div>';
+		}
+
 		html += '</div>';
 		$('#spbwc-tl-preview-about').html(html);
 	}
 
-	function aboutRow(label, value) {
-		return '<div class="spbwc-tl-about__row"><dt>' + esc(label) + '</dt><dd>' + value + '</dd></div>';
+	function aboutPair(label, valueHtml) {
+		return '<div class="spbwc-tl-about__pair">' +
+			'<dt>' + esc(label) + '</dt>' +
+			'<dd>' + valueHtml + '</dd>' +
+			'</div>';
 	}
 
 	// ─── Apply dialog ────────────────────────────────────────────────

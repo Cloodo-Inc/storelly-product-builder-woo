@@ -713,11 +713,15 @@ button.spbwc-tl-apply:hover {
 .spbwc-tl-tabpanel { display: none; }
 .spbwc-tl-tabpanel--active { display: block; }
 
+/* Default the live panel to hidden so the .spbwc-tl-tabpanel { display:none }
+   rule can take effect — its #id specificity would otherwise pin it visible
+   even when Fields/About is the active tab. */
 #spbwc-tl-preview-live {
-	display: flex;
+	display: none;
 	flex-direction: column;
 	min-height: 0;
 }
+.spbwc-tl-tabpanel--active#spbwc-tl-preview-live { display: flex; }
 
 .spbwc-tl-preview-toolbar {
 	display: flex;
@@ -908,73 +912,227 @@ button.spbwc-tl-apply:hover {
 	color: var(--nbd-st-text-soft);
 	text-align: center;
 }
-/* ── Fields tab (table) ────────────────────────────────────────────── */
-.spbwc-tl-fields-table {
-	width: 100%;
-	border-collapse: collapse;
-	background: var(--nbd-st-bg);
-	border-radius: var(--nbd-radius);
-	overflow: hidden;
-	box-shadow: var(--shadow-sm);
-}
-.spbwc-tl-fields-table th,
-.spbwc-tl-fields-table td {
-	padding: 10px 14px;
-	text-align: left;
-	border-bottom: 1px solid var(--nbd-st-border-subtle);
-	font-size: 13px;
-}
-.spbwc-tl-fields-table th {
-	background: var(--nbd-st-bg-soft);
-	font-weight: 600;
-	color: var(--nbd-st-text-soft);
-	font-size: 11px;
-	text-transform: uppercase;
-	letter-spacing: .04em;
-}
-.spbwc-tl-fields-table tbody tr:last-child td { border-bottom: 0; }
-.spbwc-tl-fields-table .attr-chips {
+/* ── Fields tab (card list) ──────────────────────────────────────────
+   One card per field — title + type/required pills + description +
+   attribute chips. Scannable, mobile-friendly, mirrors how buyers see
+   the field stack in the live preview. */
+.spbwc-tl-fields-list {
 	display: flex;
-	flex-wrap: wrap;
-	gap: 3px;
-	max-width: 320px;
+	flex-direction: column;
+	gap: 12px;
+	padding: 18px;
 }
-.spbwc-tl-fields-table .attr-chip {
-	background: var(--nbd-st-bg-soft);
-	border: 1px solid var(--nbd-st-border-light);
-	border-radius: 4px;
-	padding: 1px 6px;
-	font-size: 11px;
+.spbwc-tl-empty {
+	margin: 0;
+	padding: 28px 16px;
+	text-align: center;
 	color: var(--nbd-st-text-soft);
+	font-size: 13px;
 }
 
-/* ── About tab ─────────────────────────────────────────────────────── */
-.spbwc-tl-about {
-	display: grid;
-	gap: 14px;
-}
-.spbwc-tl-about__row {
+.spbwc-tl-field-card {
 	background: var(--nbd-st-bg);
 	border: 1px solid var(--nbd-st-border-light);
-	border-radius: var(--nbd-radius);
-	padding: 12px 14px;
+	border-radius: var(--nbd-radius-lg, 12px);
+	padding: 14px 16px 16px;
+	transition: border-color 140ms ease, box-shadow 140ms ease;
 }
-.spbwc-tl-about__row dt {
+.spbwc-tl-field-card:hover {
+	border-color: var(--nbd-st-border-strong, #c7cdd6);
+	box-shadow: 0 1px 2px rgba(15, 23, 42, .04);
+}
+.spbwc-tl-field-card__head {
+	display: flex;
+	align-items: flex-start;
+	justify-content: space-between;
+	gap: 12px;
+	flex-wrap: wrap;
+}
+.spbwc-tl-field-card__title {
+	display: inline-flex;
+	align-items: center;
+	gap: 10px;
+	min-width: 0;
+}
+.spbwc-tl-field-card__index {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 22px;
+	height: 22px;
+	border-radius: 999px;
+	background: var(--nbd-st-bg-soft);
+	color: var(--nbd-st-text-soft);
+	font-size: 11px;
+	font-weight: 700;
+	font-variant-numeric: tabular-nums;
+	flex: 0 0 auto;
+}
+.spbwc-tl-field-card__title h4 {
+	margin: 0;
+	font-size: 14px;
+	font-weight: 600;
+	color: var(--nbd-st-text);
+	line-height: 1.35;
+	letter-spacing: -0.005em;
+	word-break: break-word;
+}
+.spbwc-tl-field-card__chips {
+	display: inline-flex;
+	gap: 6px;
+	flex-wrap: wrap;
+}
+.spbwc-tl-pill {
+	display: inline-flex;
+	align-items: center;
+	padding: 2px 9px;
+	border-radius: 999px;
 	font-size: 11px;
 	font-weight: 600;
+	letter-spacing: .01em;
+	white-space: nowrap;
+}
+.spbwc-tl-pill--type {
+	background: var(--nbd-st-bg-soft);
+	color: var(--nbd-st-text-soft);
+	border: 1px solid var(--nbd-st-border-subtle);
+}
+.spbwc-tl-pill--required {
+	background: #fee2e2;
+	color: #b91c1c;
+}
+.spbwc-tl-field-card__desc {
+	margin: 8px 0 0;
+	font-size: 12.5px;
+	line-height: 1.5;
+	color: var(--nbd-st-text-soft);
+}
+.spbwc-tl-field-card__attrs {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 5px;
+	margin-top: 10px;
+}
+.spbwc-tl-attr-chip {
+	display: inline-flex;
+	align-items: center;
+	padding: 3px 9px;
+	border-radius: 6px;
+	background: var(--nbd-st-bg-soft);
+	border: 1px solid var(--nbd-st-border-subtle);
+	color: var(--nbd-st-text);
+	font-size: 11.5px;
+	font-weight: 500;
+	line-height: 1.3;
+}
+.spbwc-tl-attr-chip--more {
+	background: transparent;
+	color: var(--nbd-st-text-soft);
+	border-style: dashed;
+}
+
+/* ── About tab (metadata grid + callout) ─────────────────────────────
+   Compact 2-col label/value grid for slug, category, counts and version;
+   description gets its own block for readability; pricing-source is an
+   amber callout so merchants don't miss the caveat. */
+.spbwc-tl-about {
+	display: flex;
+	flex-direction: column;
+	gap: 14px;
+	padding: 18px;
+}
+.spbwc-tl-about__grid {
+	margin: 0;
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+	gap: 1px;
+	background: var(--nbd-st-border-subtle);
+	border: 1px solid var(--nbd-st-border-subtle);
+	border-radius: var(--nbd-radius-lg, 12px);
+	overflow: hidden;
+}
+.spbwc-tl-about__pair {
+	background: var(--nbd-st-bg);
+	padding: 12px 14px;
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+}
+.spbwc-tl-about__pair dt {
+	margin: 0;
+	font-size: 10.5px;
+	font-weight: 600;
+	text-transform: uppercase;
+	letter-spacing: .05em;
+	color: var(--nbd-st-text-soft);
+}
+.spbwc-tl-about__pair dd {
+	margin: 0;
+	font-size: 13.5px;
+	color: var(--nbd-st-text);
+	line-height: 1.45;
+	word-break: break-word;
+}
+.spbwc-tl-about__pair dd strong { font-weight: 700; }
+.spbwc-tl-about__code {
+	display: inline-block;
+	padding: 1px 6px;
+	background: var(--nbd-st-bg-soft);
+	border: 1px solid var(--nbd-st-border-subtle);
+	border-radius: 4px;
+	font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+	font-size: 12px;
+	color: var(--nbd-st-text);
+}
+
+.spbwc-tl-about__block {
+	background: var(--nbd-st-bg);
+	border: 1px solid var(--nbd-st-border-subtle);
+	border-radius: var(--nbd-radius-lg, 12px);
+	padding: 14px 16px;
+}
+.spbwc-tl-about__block-label {
+	font-size: 10.5px;
+	font-weight: 600;
+	text-transform: uppercase;
+	letter-spacing: .05em;
+	color: var(--nbd-st-text-soft);
+	margin-bottom: 6px;
+}
+.spbwc-tl-about__block-text {
+	margin: 0;
+	font-size: 13.5px;
+	color: var(--nbd-st-text);
+	line-height: 1.55;
+}
+
+.spbwc-tl-about__callout {
+	display: flex;
+	align-items: flex-start;
+	gap: 10px;
+	padding: 12px 14px;
+	background: #fef3c7;
+	border: 1px solid #fde68a;
+	border-radius: var(--nbd-radius-lg, 12px);
+	color: #78350f;
+}
+.spbwc-tl-about__callout-icon {
+	font-size: 18px !important;
+	width: 18px;
+	height: 18px;
+	color: #b45309;
+	flex: 0 0 auto;
+	margin-top: 1px;
+}
+.spbwc-tl-about__callout-title {
+	font-size: 12px;
+	font-weight: 700;
 	text-transform: uppercase;
 	letter-spacing: .04em;
-	color: var(--nbd-st-text-soft);
-	margin-bottom: 4px;
-}
-.spbwc-tl-about__row dd {
-	margin: 0;
-	color: var(--nbd-st-text);
-	font-size: 13px;
-}
-.spbwc-tl-about__pricing-note {
-	background: #fef3c7;
-	border-color: #fde68a;
 	color: #92400e;
+	margin-bottom: 2px;
 }
-.spbwc-tl-about__pricing-note dd { color: #78350f; }
+.spbwc-tl-about__callout-text {
+	font-size: 13px;
+	line-height: 1.5;
+}
