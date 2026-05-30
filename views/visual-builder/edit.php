@@ -65,7 +65,10 @@ if ( ! defined( 'ABSPATH' ) ) {
                     <span class="dashicons dashicons-edit" aria-hidden="true"></span>
                     <?php esc_html_e( 'Edit pricing', 'storelly-product-builder-for-woocommerce' ); ?>
                 </a>
-                <button type="submit" form="spbwc-vb-form" class="button button-primary">
+                <?php /* getJsonFields() flattens fields[], writes options[jsonFields],
+                       then submits the nboForm. type="button" so a stray Enter doesn't
+                       submit the raw POST (which would lose pricing nested data). */ ?>
+                <button type="button" ng-click="getJsonFields()" class="button button-primary">
                     <span class="dashicons dashicons-yes-alt" aria-hidden="true"></span>
                     <?php esc_html_e( 'Save Visual', 'storelly-product-builder-for-woocommerce' ); ?>
                 </button>
@@ -84,6 +87,17 @@ if ( ! defined( 'ABSPATH' ) ) {
             <input type="hidden" name="spbwc_vb_save" value="1" />
             <input type="hidden" name="option_id" value="<?php echo esc_attr( (string) absint( $current_id ) ); ?>" />
             <input type="hidden" name="options[version]" value="<?php echo esc_attr( SPBWC_PB_VERSION ); ?>" />
+            <?php /*
+                jsonFields round-trip: the classic save flow flattens the full
+                $scope.options.fields array into JSON via $scope.getJsonFields()
+                and writes it to this hidden input. spbwc_save_option() in PHP
+                then decodes options[jsonFields] and uses it as options[fields],
+                preserving nested structure (general.title.value, attributes,
+                pb_config, …) that the per-field DOM inputs cannot round-trip
+                on their own. Without this, pricing fields lose their nested
+                .value sub-keys on save.
+            */ ?>
+            <input type="hidden" name="options[jsonFields]" ng-value="jsonFields" value="{{jsonFields}}" />
 
             <!-- ════════════════════════════════════════════════════════
                  HIDDEN ROUND-TRIP BLOCK
@@ -292,7 +306,7 @@ if ( ! defined( 'ABSPATH' ) ) {
                 <a class="button" href="<?php echo esc_url( $back_url ); ?>">
                     <?php esc_html_e( 'Cancel', 'storelly-product-builder-for-woocommerce' ); ?>
                 </a>
-                <button type="submit" class="button button-primary">
+                <button type="button" ng-click="getJsonFields()" class="button button-primary">
                     <span class="dashicons dashicons-yes-alt" aria-hidden="true"></span>
                     <?php esc_html_e( 'Save Visual', 'storelly-product-builder-for-woocommerce' ); ?>
                 </button>

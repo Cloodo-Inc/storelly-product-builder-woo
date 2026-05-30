@@ -38,7 +38,16 @@ if ( ! class_exists( 'SPBWC_Visual_Builder_Admin' ) ) {
 
         const CSS_HANDLE         = 'spbwc-visual-builder';
         const VIEWS_REL          = 'views/visual-builder/';
+        // Two WP options drive the listing:
+        //   PROMOTED  = ids the admin explicitly promoted via Create Visual.
+        //   EXCLUDED  = ids the admin explicitly Unlinked from auto-detection.
+        // Listing  = (auto-detected ∪ promoted) − excluded. Auto-detection
+        // covers options that already had nbpb_* designer components built in
+        // the classic Designer tab — they ARE visuals by existing data, so we
+        // surface them automatically. The excluded list lets the admin hide
+        // any auto-detected option without deleting it.
         const PROMOTED_OPTION    = 'spbwc_vb_promoted';
+        const EXCLUDED_OPTION    = 'spbwc_vb_excluded';
         const NONCE_CREATE       = 'spbwc_vb_create_action';
         const NONCE_CREATE_FIELD = 'spbwc_vb_create_nonce';
         const NONCE_UNLINK       = 'spbwc_vb_unlink_action';
@@ -114,6 +123,9 @@ if ( ! class_exists( 'SPBWC_Visual_Builder_Admin' ) ) {
                 exit;
             }
             self::promote( $oid );
+            // If the option had been previously unlinked (excluded), explicit
+            // promote should override that — un-exclude it.
+            self::unexclude( $oid );
             wp_safe_redirect( self::url( 'edit', array( 'id' => $oid, 'vb_notice' => 'created' ) ) );
             exit;
         }
@@ -144,11 +156,11 @@ if ( ! class_exists( 'SPBWC_Visual_Builder_Admin' ) ) {
                 $oid = isset( $_GET['id'] ) ? absint( wp_unslash( $_GET['id'] ) ) : 0;
             }
 
-            // Defensive: only allow saving for options we have promoted into
-            // Visual Builder. Prevents the Visual Builder save URL from being
-            // used as a side channel to edit arbitrary pricing options.
-            $promoted = self::get_promoted_ids();
-            if ( $oid <= 0 || ! in_array( $oid, $promoted, true ) ) {
+            // Defensive: only allow saving for options currently visible in the
+            // VB listing (auto-detected ∪ promoted − excluded). Prevents the
+            // Visual Builder save URL from being used as a side channel to edit
+            // arbitrary pricing options.
+            if ( $oid <= 0 || ! self::is_visible_in_listing( $oid ) ) {
                 wp_safe_redirect( self::url( '', array( 'vb_notice' => 'notfound' ) ) );
                 exit;
             }
@@ -162,8 +174,12 @@ if ( ! class_exists( 'SPBWC_Visual_Builder_Admin' ) ) {
         }
 
         /**
-         * Unlink-from-listing form submit — removes the option from the promoted
-         * set. The option itself is preserved.
+         * Unlink-from-listing form submit — hides the option from Visual Builder.
+         * Works for both explicit-promoted ids and auto-detected ids:
+         *   • Remove from PROMOTED (no-op if not there).
+         *   • Add to EXCLUDED (covers auto-detected case so it doesn't reappear
+         *     next reload).
+         * The option itself in wp_storelly_product_builder_options is preserved.
          */
         private static function handle_unlink_submit() {
             check_admin_referer( self::NONCE_UNLINK, self::NONCE_UNLINK_FIELD );
@@ -174,6 +190,7 @@ if ( ! class_exists( 'SPBWC_Visual_Builder_Admin' ) ) {
             $oid = isset( $_POST['id'] ) ? absint( wp_unslash( $_POST['id'] ) ) : 0;
             if ( $oid > 0 ) {
                 self::unpromote( $oid );
+                self::exclude( $oid );
             }
             wp_safe_redirect( self::url( '', array( 'vb_notice' => 'unlinked' ) ) );
             exit;
@@ -251,6 +268,87 @@ if ( ! class_exists( 'SPBWC_Visual_Builder_Admin' ) ) {
         }
 
         /**
+         * @return int[] sorted list of excluded option ids (denylist).
+         */
+        public static function get_excluded_ids() {
+            $raw = get_option( self::EXCLUDED_OPTION, array() );
+            if ( ! is_array( $raw ) ) {
+                return array();
+            }
+            $ids = array();
+            foreach ( $raw as $v ) {
+                $i = absint( $v );
+                if ( $i > 0 ) {
+                    $ids[ $i ] = true;
+                }
+            }
+            $out = array_keys( $ids );
+            sort( $out, SORT_NUMERIC );
+            return $out;
+        }
+
+        public static function exclude( $oid ) {
+            $oid = absint( $oid );
+            if ( $oid <= 0 ) {
+                return false;
+            }
+            $ids = self::get_excluded_ids();
+            if ( in_array( $oid, $ids, true ) ) {
+                return true;
+            }
+            $ids[] = $oid;
+            sort( $ids, SORT_NUMERIC );
+            update_option( self::EXCLUDED_OPTION, $ids, false );
+            return true;
+        }
+
+        public static function unexclude( $oid ) {
+            $oid = absint( $oid );
+            if ( $oid <= 0 ) {
+                return false;
+            }
+            $ids = self::get_excluded_ids();
+            $new = array();
+            foreach ( $ids as $i ) {
+                if ( $i !== $oid ) {
+                    $new[] = $i;
+                }
+            }
+            if ( count( $new ) === count( $ids ) ) {
+                return true;
+            }
+            update_option( self::EXCLUDED_OPTION, $new, false );
+            return true;
+        }
+
+        /**
+         * Predicate: is this option id currently shown in the VB listing?
+         * Mirrors get_visual_options() filter: (auto ∪ promoted) − excluded.
+         * Used by render_edit() / handle_save_submit() so a card the admin
+         * sees is always editable + saveable.
+         *
+         * @param int $oid Option id.
+         * @return bool
+         */
+        public static function is_visible_in_listing( $oid ) {
+            $oid = absint( $oid );
+            if ( $oid <= 0 ) {
+                return false;
+            }
+            $excluded_map = array_flip( self::get_excluded_ids() );
+            if ( isset( $excluded_map[ $oid ] ) ) {
+                return false;
+            }
+            if ( in_array( $oid, self::get_promoted_ids(), true ) ) {
+                return true;
+            }
+            if ( in_array( $oid, self::get_auto_detected_ids(), true ) ) {
+                return true;
+            }
+            return false;
+        }
+
+        /**
          * Cheap existence check used by the create handler.
          *
          * @param int $oid Option id.
@@ -293,11 +391,11 @@ if ( ! class_exists( 'SPBWC_Visual_Builder_Admin' ) ) {
             // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only routing target id.
             $oid = isset( $_GET['id'] ) ? absint( wp_unslash( $_GET['id'] ) ) : 0;
 
-            // Only allow editing options that are actually promoted to VB.
-            // Prevents the edit URL from doubling as an unauthenticated entry
-            // into the classic option editor for arbitrary ids.
-            $promoted = self::get_promoted_ids();
-            if ( $oid <= 0 || ! in_array( $oid, $promoted, true ) ) {
+            // Allow editing any option that's currently SHOWN in the listing —
+            // either auto-detected (has nbpb_*) or explicitly promoted, and not
+            // excluded. Mirrors the listing visibility predicate so a card the
+            // admin sees is always editable.
+            if ( $oid <= 0 || ! self::is_visible_in_listing( $oid ) ) {
                 wp_safe_redirect( self::url( '', array( 'vb_notice' => 'notfound' ) ) );
                 exit;
             }
@@ -343,20 +441,39 @@ if ( ! class_exists( 'SPBWC_Visual_Builder_Admin' ) ) {
                 }
             }
 
-            // Same enqueue pattern as classic dispatcher (class-admin-options.php:666-695).
-            // We use the lighter `spbwc_option_field_script` handle so we don't pull
-            // every jQuery UI / wc-enhanced-select dep — Visual Builder UX does not
-            // need them at M6.2 (we'll add as needed in later sub-milestones).
+            // Enqueue pattern mirrors the classic dispatcher (class-admin-options.php
+            // around line 475). admin-options.js depends on the full jQuery UI set
+            // + wpColorPicker + wpdialogs + Snap.svg + TipTip during bootstrap (color
+            // pickers on every attribute, datepicker init at line ~2111, etc.). If
+            // those are missing the script throws on init and ng-click handlers never
+            // bind reliably — Add View / Add Component / color attribute editors all
+            // appear dead. Use the same full dependency list as classic.
             $spbwc_admin_options_ver = file_exists( SPBWC_PB_PLUGIN_DIR . 'static/js/admin-options.js' )
                 ? filemtime( SPBWC_PB_PLUGIN_DIR . 'static/js/admin-options.js' )
                 : SPBWC_PB_VERSION;
             wp_register_script(
                 'spbwc_option_field_script',
                 SPBWC_PB_JS_URL . 'admin-options.js',
-                array( 'jquery', 'spbwc-ag' ),
+                array(
+                    'jquery',
+                    'wpdialogs',
+                    'jquery-ui-resizable',
+                    'jquery-ui-draggable',
+                    'jquery-ui-droppable',
+                    'jquery-ui-sortable',
+                    'jquery-ui-datepicker',
+                    'jquery-ui-autocomplete',
+                    'wp-color-picker',
+                    'spbwc-ag',
+                    'wc-enhanced-select',
+                    'spbwc-snap-svg',
+                    'spbwc-tiptip',
+                ),
                 $spbwc_admin_options_ver,
                 true
             );
+            // wpColorPicker also needs its own stylesheet.
+            wp_enqueue_style( 'wp-color-picker' );
             wp_localize_script( 'spbwc_option_field_script', 'storelly_option_variable', array(
                 'STORELLY_OPTIONS'      => $options,
                 'STORELLY_OPTION_FIELD' => $default_field,
@@ -404,19 +521,43 @@ if ( ! class_exists( 'SPBWC_Visual_Builder_Admin' ) ) {
          * ──────────────────────────────────────────────────────────────── */
 
         /**
-         * Return the option rows that are currently in the promoted set.
-         * Stale ids (option deleted from underlying table) are silently dropped.
+         * Return the rows that should appear in the Visual Builder listing.
+         *
+         * Showable set = (auto-detected ∪ promoted) − excluded
+         *   • auto-detected = options whose serialized `fields` contains any
+         *     entry with a non-empty nbpb_type. These are options the admin
+         *     already built designer components for in the classic Designer
+         *     tab, so they ARE visuals.
+         *   • promoted = options the admin explicitly added via Create Visual.
+         *   • excluded = options the admin unlinked (denylist; only meaningful
+         *     for auto-detected entries — promoted entries are dropped from
+         *     promoted on unlink so they don't need the denylist, but we add
+         *     to excluded anyway as a safety net).
+         *
+         * Stale ids are silently dropped by the SELECT IN.
          *
          * @return array<int, array<string, mixed>>
          */
         public static function get_visual_options() {
-            $ids = self::get_promoted_ids();
-            if ( empty( $ids ) ) {
+            $auto     = self::get_auto_detected_ids();
+            $promoted = self::get_promoted_ids();
+            $excluded = self::get_excluded_ids();
+
+            $union = array_values( array_unique( array_merge( $auto, $promoted ) ) );
+            if ( ! empty( $excluded ) ) {
+                $excluded_map = array_flip( $excluded );
+                $union        = array_values( array_filter( $union, static function ( $id ) use ( $excluded_map ) {
+                    return ! isset( $excluded_map[ $id ] );
+                } ) );
+            }
+            if ( empty( $union ) ) {
                 return array();
             }
+            sort( $union, SORT_NUMERIC );
+
             global $wpdb; // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Global $wpdb.
             $table        = $wpdb->prefix . 'storelly_product_builder_options';
-            $placeholders = implode( ',', array_fill( 0, count( $ids ), '%d' ) );
+            $placeholders = implode( ',', array_fill( 0, count( $union ), '%d' ) );
             // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter -- Admin-only read; $table from prefix; $placeholders is a fixed-count list of '%d' literals fed to $wpdb->prepare.
             $rows = $wpdb->get_results(
                 $wpdb->prepare(
@@ -424,7 +565,7 @@ if ( ! class_exists( 'SPBWC_Visual_Builder_Admin' ) ) {
                      FROM {$table}
                      WHERE id IN ({$placeholders})
                      ORDER BY modified DESC",
-                    $ids
+                    $union
                 ),
                 'ARRAY_A'
             );
@@ -439,17 +580,66 @@ if ( ! class_exists( 'SPBWC_Visual_Builder_Admin' ) ) {
         }
 
         /**
-         * Return options eligible for promotion — published options that are
-         * not already in the promoted set.
+         * Scan all options for ones that already carry designer components
+         * (any field with nbpb_type). Static cache for the request.
+         *
+         * @return int[] sorted ids
+         */
+        public static function get_auto_detected_ids() {
+            static $cache = null;
+            if ( null !== $cache ) {
+                return $cache;
+            }
+            global $wpdb; // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Global $wpdb.
+            $table = $wpdb->prefix . 'storelly_product_builder_options';
+            // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter -- Admin-only read; $table from prefix; no user input.
+            $rows = $wpdb->get_results(
+                "SELECT id, fields FROM {$table} WHERE published = 1",
+                'ARRAY_A'
+            );
+            $out = array();
+            if ( is_array( $rows ) ) {
+                foreach ( $rows as $row ) {
+                    $data = self::safe_unserialize( $row['fields'] );
+                    if ( ! is_array( $data ) || empty( $data['fields'] ) || ! is_array( $data['fields'] ) ) {
+                        continue;
+                    }
+                    foreach ( $data['fields'] as $f ) {
+                        if ( is_array( $f ) && ! empty( $f['nbpb_type'] ) ) {
+                            $out[] = absint( $row['id'] );
+                            break;
+                        }
+                    }
+                }
+            }
+            $out = array_values( array_unique( $out ) );
+            sort( $out, SORT_NUMERIC );
+            $cache = $out;
+            return $cache;
+        }
+
+        /**
+         * Return options eligible for promotion in the Create picker — options
+         * that are NOT already showing in the listing (auto-detected ∪ promoted),
+         * but excluding the already-excluded ones (so the admin can re-promote
+         * an option they previously unlinked).
          *
          * @return array<int, array<string, mixed>>
          */
         public static function get_unbound_options() {
             global $wpdb; // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Global $wpdb.
-            $table    = $wpdb->prefix . 'storelly_product_builder_options';
-            $promoted = self::get_promoted_ids();
+            $table = $wpdb->prefix . 'storelly_product_builder_options';
 
-            if ( empty( $promoted ) ) {
+            $showing = array_values( array_unique( array_merge(
+                self::get_auto_detected_ids(),
+                self::get_promoted_ids()
+            ) ) );
+            $excluded_map = array_flip( self::get_excluded_ids() );
+            $showing      = array_values( array_filter( $showing, static function ( $id ) use ( $excluded_map ) {
+                return ! isset( $excluded_map[ $id ] );
+            } ) );
+
+            if ( empty( $showing ) ) {
                 // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter -- Admin-only read; $table from prefix, no user input.
                 $rows = $wpdb->get_results(
                     "SELECT id, title, fields, modified
@@ -459,7 +649,7 @@ if ( ! class_exists( 'SPBWC_Visual_Builder_Admin' ) ) {
                     'ARRAY_A'
                 );
             } else {
-                $placeholders = implode( ',', array_fill( 0, count( $promoted ), '%d' ) );
+                $placeholders = implode( ',', array_fill( 0, count( $showing ), '%d' ) );
                 // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter -- Admin-only read; $table from prefix; $placeholders fixed-count '%d' list fed to $wpdb->prepare.
                 $rows = $wpdb->get_results(
                     $wpdb->prepare(
@@ -468,7 +658,7 @@ if ( ! class_exists( 'SPBWC_Visual_Builder_Admin' ) ) {
                          WHERE published = 1
                            AND id NOT IN ({$placeholders})
                          ORDER BY title ASC",
-                        $promoted
+                        $showing
                     ),
                     'ARRAY_A'
                 );
