@@ -46,9 +46,18 @@ if ( ! class_exists( 'SPBWC_Woo_Seed_Controller' ) ) {
 		}
 
 		/**
-		 * Enqueue the wizard app only on Setup Wizard › Import Woo Variations
-		 * (tab=woo). Matches the hook-needle pattern used by the existing
-		 * Sample Products importer.
+		 * Enqueue assets for the Setup Wizard pages (landing + Woo seed tab).
+		 * Matches the hook-needle pattern used by the existing Sample Products
+		 * importer so we layer onto the same admin screen without colliding.
+		 *
+		 * Loads in two tiers:
+		 *   - Landing / Woo tab : design tokens + shared admin-ui component
+		 *                         library, so .spbwc-page-hero, .spbwc-quick-card,
+		 *                         .spbwc-block, .spbwc-cta-btn etc. all resolve.
+		 *   - Woo tab only      : wizard-specific stylesheet + the JS app.
+		 *
+		 * The Sample Products sub-tab keeps its own asset stack and is left
+		 * untouched here.
 		 *
 		 * @param string $hook
 		 */
@@ -59,20 +68,49 @@ if ( ! class_exists( 'SPBWC_Woo_Seed_Controller' ) ) {
 			}
 			// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only tab check; no state change.
 			$tab = isset( $_GET['tab'] ) ? sanitize_key( wp_unslash( $_GET['tab'] ) ) : '';
+			// 'sample' has its own asset stack — bail without touching it.
+			if ( 'sample' === $tab ) {
+				return;
+			}
+
+			// Tokens must load before any other Storelly stylesheet so var()
+			// references resolve. Register defensively in case no earlier code
+			// path queued them on this screen.
+			if ( ! wp_style_is( 'spbwc-tokens', 'registered' ) ) {
+				wp_register_style( 'spbwc-tokens', SPBWC_PB_CSS_URL . '_tokens.css', array(), SPBWC_PB_VERSION );
+			}
+			if ( ! wp_style_is( 'spbwc-admin-ui', 'registered' ) ) {
+				wp_register_style(
+					'spbwc-admin-ui',
+					SPBWC_PB_CSS_URL . 'storelly-admin-ui.css',
+					array( 'spbwc-tokens', 'dashicons' ),
+					SPBWC_PB_VERSION
+				);
+			}
+			wp_enqueue_style( 'spbwc-tokens' );
+			wp_enqueue_style( 'spbwc-admin-ui' );
+
+			// Wizard-specific styles + JS only on the Woo tab.
 			if ( 'woo' !== $tab ) {
 				return;
 			}
 
-			$ver = SPBWC_PB_VERSION;
-			$js  = SPBWC_PB_PLUGIN_DIR . 'static/js/woo-seed-app.js';
-			if ( file_exists( $js ) ) {
-				$ver = (string) filemtime( $js );
-			}
+			$css      = SPBWC_PB_PLUGIN_DIR . 'static/css/woo-seed.css';
+			$css_ver  = file_exists( $css ) ? (string) filemtime( $css ) : SPBWC_PB_VERSION;
+			wp_enqueue_style(
+				'spbwc-woo-seed',
+				SPBWC_PB_CSS_URL . 'woo-seed.css',
+				array( 'spbwc-admin-ui' ),
+				$css_ver
+			);
+
+			$js = SPBWC_PB_PLUGIN_DIR . 'static/js/woo-seed-app.js';
+			$js_ver = file_exists( $js ) ? (string) filemtime( $js ) : SPBWC_PB_VERSION;
 			wp_enqueue_script(
 				'spbwc-woo-seed-app',
 				SPBWC_PB_JS_URL . 'woo-seed-app.js',
 				array(),
-				$ver,
+				$js_ver,
 				true
 			);
 			wp_localize_script(
@@ -95,7 +133,8 @@ if ( ! class_exists( 'SPBWC_Woo_Seed_Controller' ) ) {
 						'multiAttr'          => esc_html__( 'Multi-attribute products', 'storelly-product-builder-for-woocommerce' ),
 						'lossyNote'          => esc_html__( 'price math will be lossy', 'storelly-product-builder-for-woocommerce' ),
 						'viewList'           => esc_html__( 'View product list', 'storelly-product-builder-for-woocommerce' ),
-						'previewMore'        => esc_html__( 'Showing %d of %d.', 'storelly-product-builder-for-woocommerce' ),
+						/* translators: 1: number of products shown in preview, 2: total products available. */
+						'previewMore'        => esc_html__( 'Showing %1$d of %2$d.', 'storelly-product-builder-for-woocommerce' ),
 
 						'rules'              => esc_html__( 'Import rules', 'storelly-product-builder-for-woocommerce' ),
 						'displayTypeLabel'   => esc_html__( 'Default display type', 'storelly-product-builder-for-woocommerce' ),
@@ -104,10 +143,12 @@ if ( ! class_exists( 'SPBWC_Woo_Seed_Controller' ) ) {
 						'radio'              => esc_html__( 'Radio', 'storelly-product-builder-for-woocommerce' ),
 						'swatch'             => esc_html__( 'Swatch', 'storelly-product-builder-for-woocommerce' ),
 						'importImagesLabel'  => esc_html__( 'Import variation images as option swatch images', 'storelly-product-builder-for-woocommerce' ),
+						/* translators: %d: number of Woo variations that have an image attached. */
 						'importImagesHelp'   => esc_html__( '%d variations have images.', 'storelly-product-builder-for-woocommerce' ),
 						'priceRuleLabel'     => esc_html__( 'Multi-attribute price rule', 'storelly-product-builder-for-woocommerce' ),
 						'priceRuleAvg'       => esc_html__( 'Average across variations', 'storelly-product-builder-for-woocommerce' ),
 						'priceRuleEmpty'     => esc_html__( 'Leave price empty (fill in manually)', 'storelly-product-builder-for-woocommerce' ),
+						/* translators: %d: number of multi-attribute products affected by the chosen price rule. */
 						'priceRuleHelp'      => esc_html__( 'Affects %d products. Final total may differ ±a few units vs original Woo combinations.', 'storelly-product-builder-for-woocommerce' ),
 						'nonVariationLabel'  => esc_html__( 'Non-variation attributes (is_visible only)', 'storelly-product-builder-for-woocommerce' ),
 						'nonVariationCheck'  => esc_html__( 'Also import as 0-price dropdown', 'storelly-product-builder-for-woocommerce' ),
@@ -129,7 +170,9 @@ if ( ! class_exists( 'SPBWC_Woo_Seed_Controller' ) ) {
 						),
 
 						'readyToImport'      => esc_html__( 'Ready to import', 'storelly-product-builder-for-woocommerce' ),
+						/* translators: %d: number of Storelly option sets the seed will create. */
 						'summaryCreate'      => esc_html__( 'Create %d Storelly option set(s) (1 per product)', 'storelly-product-builder-for-woocommerce' ),
+						/* translators: %d: number of products that will be skipped because they are already linked. */
 						'summarySkip'        => esc_html__( 'Skip %d product(s) already linked', 'storelly-product-builder-for-woocommerce' ),
 						'summaryDisplay'     => esc_html__( 'Display type:', 'storelly-product-builder-for-woocommerce' ),
 						'summaryImages'      => esc_html__( 'Import images:', 'storelly-product-builder-for-woocommerce' ),
@@ -138,28 +181,36 @@ if ( ! class_exists( 'SPBWC_Woo_Seed_Controller' ) ) {
 						'off'                => esc_html__( 'Off', 'storelly-product-builder-for-woocommerce' ),
 						'stockWarning'       => esc_html__( 'Stock / SKU per variation will NOT carry over. Woo variations still exist — you can disable them later.', 'storelly-product-builder-for-woocommerce' ),
 						'acknowledge'        => esc_html__( 'I understand this is one-time, not a live sync.', 'storelly-product-builder-for-woocommerce' ),
+						/* translators: %d: number of products the import button will process. */
 						'runBtn'             => esc_html__( 'Import %d products', 'storelly-product-builder-for-woocommerce' ),
 
 						'running'            => esc_html__( 'Importing…', 'storelly-product-builder-for-woocommerce' ),
-						'runningCounts'      => esc_html__( '%d processed · %d skipped · %d errors · %d total', 'storelly-product-builder-for-woocommerce' ),
+						/* translators: 1: processed count, 2: skipped count, 3: error count, 4: total products to import. */
+						'runningCounts'      => esc_html__( '%1$d processed · %2$d skipped · %3$d errors · %4$d total', 'storelly-product-builder-for-woocommerce' ),
 						'log'                => esc_html__( 'Log', 'storelly-product-builder-for-woocommerce' ),
 						'stop'               => esc_html__( 'Stop', 'storelly-product-builder-for-woocommerce' ),
 						'stopping'           => esc_html__( 'Finishing current batch…', 'storelly-product-builder-for-woocommerce' ),
 
 						'done'               => esc_html__( 'Done', 'storelly-product-builder-for-woocommerce' ),
+						/* translators: %d: number of products successfully imported. */
 						'doneProcessed'      => esc_html__( '%d imported', 'storelly-product-builder-for-woocommerce' ),
+						/* translators: %d: number of products skipped because they were already linked. */
 						'doneSkipped'        => esc_html__( '%d skipped (already linked)', 'storelly-product-builder-for-woocommerce' ),
+						/* translators: %d: number of products that failed during import. */
 						'doneErrors'         => esc_html__( '%d errors', 'storelly-product-builder-for-woocommerce' ),
 						'openPricing'        => esc_html__( 'Open Pricing Options', 'storelly-product-builder-for-woocommerce' ),
 						'undoBtn'            => esc_html__( 'Undo this seed', 'storelly-product-builder-for-woocommerce' ),
+						/* translators: %d: number of option sets that will be deleted by the undo action. */
 						'undoConfirm'        => esc_html__( 'Delete %d Storelly option sets created by this seed? Linked products will be unlinked.', 'storelly-product-builder-for-woocommerce' ),
-						'undoOk'             => esc_html__( 'Undone: %d sets deleted, %d products unlinked.', 'storelly-product-builder-for-woocommerce' ),
+						/* translators: 1: number of option sets deleted, 2: number of products unlinked. */
+						'undoOk'             => esc_html__( 'Undone: %1$d sets deleted, %2$d products unlinked.', 'storelly-product-builder-for-woocommerce' ),
 
 						'back'               => esc_html__( 'Back', 'storelly-product-builder-for-woocommerce' ),
 						'next'               => esc_html__( 'Next', 'storelly-product-builder-for-woocommerce' ),
 						'cancel'             => esc_html__( 'Cancel', 'storelly-product-builder-for-woocommerce' ),
 						'rescan'             => esc_html__( 'Re-scan', 'storelly-product-builder-for-woocommerce' ),
-						'stepOf'             => esc_html__( 'Step %d of %d', 'storelly-product-builder-for-woocommerce' ),
+						/* translators: 1: current step number, 2: total steps. */
+						'stepOf'             => esc_html__( 'Step %1$d of %2$d', 'storelly-product-builder-for-woocommerce' ),
 
 						'scanFailed'         => esc_html__( 'Scan failed. Reload the page to try again.', 'storelly-product-builder-for-woocommerce' ),
 						'runFailed'          => esc_html__( 'Import failed.', 'storelly-product-builder-for-woocommerce' ),

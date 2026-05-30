@@ -1,0 +1,355 @@
+/**
+ * Storelly Setup Wizard — Import Woo Variations
+ *
+ * Wizard-specific styles. All values flow through design tokens
+ * (--st-*, --nbd-st-*) declared in _tokens.css — no hardcoded colors
+ * or pixel spacing here.
+ *
+ * Pairs with: views/setup-wizard/landing.php,
+ *             views/setup-wizard/woo-seed.php,
+ *             static/js/woo-seed-app.js
+ */
+
+/* ---------- Wizard shell ---------- */
+
+.spbwc-ws-app {
+    margin-top: var(--nbd-space-4);
+}
+
+.spbwc-ws-app .spbwc-ws-loading {
+    color: var(--nbd-st-text-soft);
+    font-size: var(--text-md);
+    display: flex;
+    align-items: center;
+    gap: var(--nbd-space-2);
+    padding: var(--nbd-space-5);
+}
+
+/* ---------- Step header (Step N of 3) ---------- */
+
+.spbwc-ws-step-meta {
+    float: right;
+    color: var(--nbd-st-text-mute);
+    font-size: var(--text-base);
+    font-weight: var(--font-semibold);
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+}
+
+.spbwc-ws-block-body {
+    padding: var(--nbd-space-6);
+}
+
+.spbwc-ws-block-body h2 {
+    margin: 0 0 var(--nbd-space-4) 0;
+    font-size: var(--text-3xl);
+    font-weight: var(--font-bold);
+    color: var(--nbd-st-text);
+}
+
+/* ---------- Stat grid (Step 1 scan numbers) ---------- */
+
+.spbwc-ws-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: var(--nbd-space-3);
+    margin-bottom: var(--nbd-space-5);
+}
+
+.spbwc-ws-stat {
+    background: var(--nbd-st-bg);
+    border: 1px solid var(--nbd-st-border-light);
+    border-top: 3px solid var(--nbd-st-border);
+    border-radius: var(--nbd-radius-md);
+    padding: var(--nbd-space-4);
+    box-shadow: var(--shadow-card);
+}
+
+.spbwc-ws-stat--success { border-top-color: var(--nbd-color-success); }
+.spbwc-ws-stat--warning { border-top-color: var(--nbd-color-warning); }
+.spbwc-ws-stat--mute    { border-top-color: var(--nbd-st-border); }
+
+.spbwc-ws-stat__label {
+    font-size: var(--text-base);
+    color: var(--nbd-st-text-soft);
+    font-weight: var(--font-semibold);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin-bottom: var(--nbd-space-2);
+}
+
+.spbwc-ws-stat__value {
+    font-size: var(--text-5xl);
+    font-weight: var(--font-extrabold);
+    color: var(--nbd-st-text);
+    line-height: 1;
+    letter-spacing: -0.02em;
+}
+
+.spbwc-ws-stat__hint {
+    font-size: var(--text-base);
+    color: var(--nbd-st-text-mute);
+    margin-top: var(--nbd-space-2);
+}
+
+/* ---------- Detected list (key/value rows) ---------- */
+
+.spbwc-ws-detected {
+    background: var(--nbd-st-bg-soft);
+    border: 1px solid var(--nbd-st-border-subtle);
+    border-radius: var(--nbd-radius-md);
+    padding: var(--nbd-space-4) var(--nbd-space-5);
+    margin-bottom: var(--nbd-space-5);
+}
+
+.spbwc-ws-detected__row {
+    display: flex;
+    gap: var(--nbd-space-4);
+    padding: var(--nbd-space-2) 0;
+    font-size: var(--text-md);
+}
+
+.spbwc-ws-detected__row + .spbwc-ws-detected__row {
+    border-top: 1px solid var(--nbd-st-border-subtle);
+}
+
+.spbwc-ws-detected__label {
+    color: var(--nbd-st-text-soft);
+    flex: 0 0 220px;
+}
+
+.spbwc-ws-detected__value {
+    color: var(--nbd-st-text);
+    font-weight: var(--font-semibold);
+}
+
+.spbwc-ws-detected__hint {
+    color: var(--nbd-st-text-mute);
+    font-size: var(--text-base);
+    margin-left: var(--nbd-space-2);
+}
+
+/* ---------- Preview product list (collapsed/expanded) ---------- */
+
+.spbwc-ws-preview {
+    margin-bottom: var(--nbd-space-5);
+}
+
+.spbwc-ws-preview > summary {
+    cursor: pointer;
+    font-weight: var(--font-semibold);
+    color: var(--nbd-st-text-brand);
+    font-size: var(--text-md);
+    padding: var(--nbd-space-2) 0;
+}
+
+.spbwc-ws-preview table {
+    width: 100%;
+    margin-top: var(--nbd-space-3);
+    border-collapse: collapse;
+    font-size: var(--text-md);
+}
+
+.spbwc-ws-preview th,
+.spbwc-ws-preview td {
+    padding: var(--nbd-space-2) var(--nbd-space-3);
+    border-bottom: 1px solid var(--nbd-st-border-subtle);
+    text-align: left;
+    color: var(--nbd-st-text);
+}
+
+.spbwc-ws-preview th {
+    color: var(--nbd-st-text-soft);
+    font-weight: var(--font-semibold);
+    text-transform: uppercase;
+    font-size: var(--text-sm);
+    letter-spacing: 0.04em;
+}
+
+.spbwc-ws-preview__more {
+    color: var(--nbd-st-text-mute);
+    font-size: var(--text-base);
+    margin-top: var(--nbd-space-2);
+}
+
+/* ---------- Rules form (Step 2) ---------- */
+
+.spbwc-ws-rule {
+    margin-bottom: var(--nbd-space-5);
+}
+
+.spbwc-ws-rule__label {
+    display: block;
+    font-weight: var(--font-semibold);
+    color: var(--nbd-st-text);
+    margin-bottom: var(--nbd-space-2);
+    font-size: var(--text-md);
+}
+
+.spbwc-ws-rule__choice {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--nbd-space-2);
+    margin-right: var(--nbd-space-5);
+    color: var(--nbd-st-text);
+    font-size: var(--text-md);
+    cursor: pointer;
+}
+
+.spbwc-ws-rule__hint {
+    color: var(--nbd-st-text-mute);
+    font-size: var(--text-base);
+    margin-top: var(--nbd-space-2);
+    line-height: 1.5;
+}
+
+.spbwc-ws-rule__star {
+    color: var(--st-accent-pressed);
+    font-weight: var(--font-bold);
+    margin-left: 4px;
+}
+
+/* ---------- Auto vs Manual two-column ---------- */
+
+.spbwc-ws-policy {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: var(--nbd-space-6);
+    margin-top: var(--nbd-space-6);
+    padding-top: var(--nbd-space-5);
+    border-top: 1px solid var(--nbd-st-border-subtle);
+}
+
+.spbwc-ws-policy h3 {
+    margin: 0 0 var(--nbd-space-2) 0;
+    font-size: var(--text-md);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    font-weight: var(--font-bold);
+}
+
+.spbwc-ws-policy--auto h3   { color: var(--nbd-color-success); }
+.spbwc-ws-policy--manual h3 { color: var(--st-accent-pressed); }
+
+.spbwc-ws-policy ul {
+    margin: 0;
+    padding-left: var(--nbd-space-5);
+    font-size: var(--text-md);
+    color: var(--nbd-st-text);
+    line-height: 1.7;
+}
+
+/* ---------- Step footer (Back / Next / Run buttons) ---------- */
+
+.spbwc-ws-footer {
+    margin-top: var(--nbd-space-6);
+    padding-top: var(--nbd-space-4);
+    border-top: 1px solid var(--nbd-st-border-subtle);
+    display: flex;
+    gap: var(--nbd-space-2);
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.spbwc-ws-footer__spacer { flex: 1; }
+
+/* ---------- Run state (progress + log) ---------- */
+
+.spbwc-ws-progress {
+    background: var(--nbd-st-bg-soft);
+    border-radius: var(--nbd-radius-pill);
+    height: 14px;
+    overflow: hidden;
+    margin: var(--nbd-space-3) 0 var(--nbd-space-2);
+    box-shadow: var(--shadow-input-inset);
+}
+
+.spbwc-ws-progress__bar {
+    background: var(--st-brand-gradient);
+    height: 100%;
+    transition: width 200ms ease;
+    border-radius: inherit;
+}
+
+.spbwc-ws-progress__label {
+    font-size: var(--text-base);
+    color: var(--nbd-st-text-mute);
+    margin: 0 0 var(--nbd-space-3) 0;
+    font-weight: var(--font-semibold);
+}
+
+.spbwc-ws-counts {
+    font-size: var(--text-md);
+    color: var(--nbd-st-text-soft);
+    margin-bottom: var(--nbd-space-3);
+}
+
+.spbwc-ws-log {
+    margin-top: var(--nbd-space-3);
+}
+
+.spbwc-ws-log > summary {
+    cursor: pointer;
+    font-weight: var(--font-semibold);
+    color: var(--nbd-st-text-brand);
+    font-size: var(--text-md);
+    padding: var(--nbd-space-2) 0;
+}
+
+.spbwc-ws-log__pre {
+    background: #1e1e1e;
+    color: #d4d4d4;
+    padding: var(--nbd-space-4);
+    max-height: 280px;
+    overflow: auto;
+    font-size: var(--text-base);
+    line-height: 1.5;
+    border-radius: var(--nbd-radius-md);
+    margin-top: var(--nbd-space-2);
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    white-space: pre-wrap;
+}
+
+/* ---------- Acknowledge box (Step 3) ---------- */
+
+.spbwc-ws-ack {
+    display: block;
+    margin: var(--nbd-space-4) 0;
+    padding: var(--nbd-space-3) var(--nbd-space-4);
+    background: var(--st-brand-tint);
+    border: 1px solid var(--nbd-st-border-brand);
+    border-radius: var(--nbd-radius-md);
+    color: var(--nbd-st-text);
+    font-size: var(--text-md);
+    cursor: pointer;
+}
+
+.spbwc-ws-ack input { margin-right: var(--nbd-space-2); }
+
+/* ---------- Done state ---------- */
+
+.spbwc-ws-done h2 .dashicons-yes-alt {
+    color: var(--nbd-color-success);
+    font-size: 28px;
+    width: 28px;
+    height: 28px;
+    vertical-align: middle;
+}
+
+.spbwc-ws-done__tag {
+    background: var(--nbd-st-bg-soft);
+    border: 1px solid var(--nbd-st-border-subtle);
+    border-radius: var(--nbd-radius-sm);
+    padding: 2px 8px;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-size: var(--text-base);
+    color: var(--nbd-st-text-soft);
+}
+
+/* ---------- Re-entry / last-seed banner on landing ---------- */
+
+.spbwc-ws-last-seed {
+    font-size: var(--text-base);
+    color: var(--nbd-st-text-mute);
+    margin: var(--nbd-space-2) 0 0;
+}
