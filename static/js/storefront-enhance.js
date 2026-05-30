@@ -37,6 +37,30 @@
 
                     /* ── Price hero: count-up total + per-unit + live CTA price ── */
                     var nbdsFmt = (typeof spbwc_option_builder_variable !== 'undefined' && spbwc_option_builder_variable.nbds_frontend) ? spbwc_option_builder_variable.nbds_frontend : {};
+
+                    /* ── Quantity volume-discount mirror (client-side preview) ──
+                     * Mirrors the server engine in STORELLY_FRONTEND_OPTIONS::option_processing()
+                     * so the hero / sticky / CTA reflect the discount BEFORE add-to-cart.
+                     * Reads the tier data straight from the rendered Quick Pick cards — each
+                     * `.nbo-qty-tier` has `data-spbwc-qty` + `data-spbwc-discount`, and the
+                     * `.nbo-qty-tiers__grid` carries `data-spbwc-discount-type` ('p'/'f'). DOM
+                     * is the source of truth, no global-var coupling. */
+                    function computeTierDiscount(qty, perItemBase) {
+                        if (qty < 1) { return 0; }
+                        var grid = root.querySelector('[data-spbwc-qty-tiers]');
+                        if (!grid) { return 0; }
+                        var dtype = grid.getAttribute('data-spbwc-discount-type') || 'f';
+                        var cards = grid.querySelectorAll('[data-spbwc-qty][data-spbwc-discount]');
+                        var tierVal = 0, tierDis = 0;
+                        for (var i = 0; i < cards.length; i++) {
+                            var bv = parseInt(cards[i].getAttribute('data-spbwc-qty'), 10);
+                            var bd = parseFloat(cards[i].getAttribute('data-spbwc-discount'));
+                            if (!bv || !bd || isNaN(bd) || bd <= 0) { continue; }
+                            if (qty >= bv && bv > tierVal) { tierVal = bv; tierDis = bd; }
+                        }
+                        if (tierDis <= 0) { return 0; }
+                        return dtype === 'p' ? (perItemBase * tierDis / 100) : tierDis; // per-item
+                    }
                     function parseAmount(str) {
                         if (str == null) { return NaN; }
                         var s = String(str).replace(/<[^>]*>/g, '');
@@ -78,17 +102,37 @@
                         return (isNaN(q) || q < 1) ? 1 : q;
                     }
                     function updateHeroCta() {
-                        var total = parseAmount(scope.total_cart_price);
+                        var rawTotal = parseAmount(scope.total_cart_price);
                         var qty = getQty();
+                        /* Per-item base = qty-scaled total ÷ qty; safe-guard against /0. */
+                        var perItemBase = (!isNaN(rawTotal) && qty > 0) ? (rawTotal / qty) : 0;
+                        var perItemDis  = computeTierDiscount(qty, perItemBase);
+                        var totalDis    = perItemDis * qty;
+                        var total       = isNaN(rawTotal) ? NaN : Math.max(0, rawTotal - totalDis);
+                        var perItemNet  = Math.max(0, perItemBase - perItemDis);
+
                         var totEl = root.querySelector('[data-spbwc-cloodo-total]');
                         if (totEl && !isNaN(total)) { animateTotal(totEl, total); }
+
+                        /* Saved badge — only shown when a tier discount applies. */
+                        var savedEl = root.querySelector('[data-spbwc-cloodo-saved]');
+                        if (savedEl) {
+                            if (totalDis > 0 && !isNaN(total)) {
+                                savedEl.textContent = '−' + formatMoney(totalDis) + ' saved';
+                                savedEl.removeAttribute('hidden');
+                            } else {
+                                savedEl.setAttribute('hidden', 'hidden');
+                                savedEl.textContent = '';
+                            }
+                        }
+
                         var subEl = root.querySelector('[data-spbwc-cloodo-sub]');
                         if (subEl) {
                             var lblItem = subEl.getAttribute('data-label-item') || 'item';
                             var lblItems = subEl.getAttribute('data-label-items') || 'items';
                             if (qty > 1 && !isNaN(total)) {
                                 subEl.innerHTML = '<strong></strong> / ' + lblItem + ' · ' + qty + ' ' + lblItems;
-                                subEl.querySelector('strong').textContent = formatMoney(total / qty);
+                                subEl.querySelector('strong').textContent = formatMoney(perItemNet);
                             } else {
                                 subEl.textContent = qty + ' ' + (qty === 1 ? lblItem : lblItems);
                             }
@@ -107,6 +151,12 @@
                                 pe.textContent = '· ' + formatMoney(total);
                             }
                         }
+                        /* Mirror the discounted total onto the sticky mobile bar too. The
+                         * template's `ng-bind-html=total_cart_price` re-renders during digest;
+                         * this $watch callback runs in the same digest cycle AFTER the bind, so
+                         * the overwrite wins. */
+                        var stkAmt = root.querySelector('.nbo-sticky-mobile__amount');
+                        if (stkAmt && !isNaN(total)) { stkAmt.textContent = formatMoney(total); }
                         /* Reflect the active quantity tier */
                         var qtiles = root.querySelectorAll('[data-spbwc-qty-tiers] [data-spbwc-qty]');
                         for (var qti = 0; qti < qtiles.length; qti++) {
@@ -116,6 +166,63 @@
                     scope.$watch('total_cart_price', function () { updateHeroCta(); });
                     scope.$watch(function () { return '' + scope._qty + '|' + scope.quantity; }, function () { updateHeroCta(); });
                     $timeout(updateHeroCta, 0);
+
+                    /* ── A11y: keyboard + aria-expanded for advanced-dropdown ──
+                     * The custom dropdown UI (.nbo-ad-result + .nbo-ad-pseudo-list) needs
+                     * keyboard parity with a native <select>: Enter/Space toggles open,
+                     * ArrowDown opens + moves focus into the list, ArrowUp/Down navigates
+                     * items, Enter selects, Escape closes & returns focus. aria-expanded
+                     * mirrors the directive's `.active` class on the wrap so AT users see
+                     * the state. Delegated handler — works for late-rendered fields too. */
+                    $timeout(function () {
+                        root.addEventListener('keydown', function (e) {
+                            var t = e.target;
+                            if (!t || !t.classList) { return; }
+                            if (t.classList.contains('nbo-ad-result')) {
+                                if (e.key === 'Enter' || e.key === ' ') {
+                                    e.preventDefault();
+                                    t.click();
+                                } else if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+                                    e.preventDefault();
+                                    var wrap = t.closest('.pcpb-field-ad-dropdown-wrap');
+                                    if (wrap && !wrap.classList.contains('active')) { t.click(); }
+                                    setTimeout(function () {
+                                        var first = wrap && wrap.querySelector('.nbo-ad-list-item');
+                                        if (first) { first.focus(); }
+                                    }, 60);
+                                }
+                            } else if (t.classList.contains('nbo-ad-list-item')) {
+                                if (e.key === 'Enter' || e.key === ' ') {
+                                    e.preventDefault();
+                                    t.click();
+                                } else if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+                                    e.preventDefault();
+                                    var dir = e.key === 'ArrowDown' ? 'nextElementSibling' : 'previousElementSibling';
+                                    var n = t[dir];
+                                    while (n && !n.classList.contains('nbo-ad-list-item')) { n = n[dir]; }
+                                    if (n) { n.focus(); }
+                                } else if (e.key === 'Escape') {
+                                    e.preventDefault();
+                                    var w = t.closest('.pcpb-field-ad-dropdown-wrap');
+                                    var trig = w && w.querySelector('.nbo-ad-result');
+                                    if (trig) { trig.click(); trig.focus(); }
+                                }
+                            }
+                        });
+                        /* aria-expanded ↔ `.active` class on the wrap, via MutationObserver. */
+                        if (typeof MutationObserver === 'function') {
+                            var wraps = root.querySelectorAll('.pcpb-field-ad-dropdown-wrap');
+                            for (var i = 0; i < wraps.length; i++) {
+                                (function (wrap) {
+                                    var trig = wrap.querySelector('.nbo-ad-result');
+                                    if (!trig) { return; }
+                                    var sync = function () { trig.setAttribute('aria-expanded', wrap.classList.contains('active') ? 'true' : 'false'); };
+                                    sync();
+                                    new MutationObserver(sync).observe(wrap, { attributes: true, attributeFilter: ['class'] });
+                                })(wraps[i]);
+                            }
+                        }
+                    }, 100);
 
                     /* Sticky price+CTA bar: reveal only once the hero has scrolled out of view
                      * AND the real Add-to-cart is still off-screen (so it never overlaps the top). */

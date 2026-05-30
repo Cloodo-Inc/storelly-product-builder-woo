@@ -4,7 +4,7 @@ if (!defined('ABSPATH')) exit;
 ?>
 <div class="pcpb-field-header">
     <div class="pcpb-field-header__row">
-        <label for='pcpb-field-<?php echo esc_attr($field['id']); ?>'><?php echo esc_html($field['general']['title']); ?><?php if ($field['general']['required'] == 'y') : ?> <span class="nbd-required">*</span><?php endif; ?></label>
+        <label for='pcpb-field-<?php echo esc_attr($field['id']); ?>'><?php echo esc_html($field['general']['title']); ?><?php if ($field['general']['required'] == 'y') : ?> <span class="nbd-required" aria-label="<?php esc_attr_e( 'Required', 'storelly-product-builder-for-woocommerce' ); ?>" title="<?php esc_attr_e( 'Required', 'storelly-product-builder-for-woocommerce' ); ?>">*</span><?php endif; ?></label>
         <?php
         $spbwc_opt_count = ( isset($field['general']['data_type'], $field['general']['attributes']['options'])
             && $field['general']['data_type'] === 'm'

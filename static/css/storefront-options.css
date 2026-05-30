@@ -1507,3 +1507,57 @@ a#pcpb-start-design.spbwc-customize-btn:hover {
     letter-spacing: .03em;
     white-space: nowrap;
 }
+
+/* ════════════════════════════════════════════════════════════
+   Mobile polish (<=600px) — defensive tightening so the storefront
+   reads cleanly on narrow viewports where the gallery is stacked
+   above the options instead of sticky-pinned to the left column.
+   ════════════════════════════════════════════════════════════ */
+@media (max-width: 600px) {
+    /* Trust badges: tighter pills, two-per-row instead of one wrapping row */
+    .nbo-wrapper.nbo-style-cloodo .nbo-trust { gap: 8px; margin: 12px 0 16px; }
+    .nbo-wrapper.nbo-style-cloodo .nbo-trust__item {
+        flex: 1 1 calc(50% - 4px);
+        min-width: 0;
+        padding: 8px 10px;
+        gap: 8px;
+        white-space: normal;
+    }
+    .nbo-wrapper.nbo-style-cloodo .nbo-trust__text { font-size: var(--text-sm); }
+    .nbo-wrapper.nbo-style-cloodo .nbo-trust__icon { width: 28px; height: 28px; }
+    .nbo-wrapper.nbo-style-cloodo .nbo-trust__icon svg { width: 16px; height: 16px; }
+
+    /* Hero total: a little tighter so it doesn't dominate the small viewport */
+    .nbo-wrapper.nbo-style-cloodo .nbo-price-showcase__amount { font-size: 30px; }
+
+    /* Swatch + chip grids: reduce inter-cell gaps */
+    .nbo-wrapper.nbo-style-cloodo .nbd-swatch-grid { gap: 8px; }
+    .nbo-wrapper.nbo-style-cloodo .nbd-label-wrap { gap: 6px; }
+
+    /* Qty tiers: compact cards */
+    .nbo-wrapper.nbo-style-cloodo .nbo-qty-tiers { padding: 14px; }
+    .nbo-wrapper.nbo-style-cloodo .nbo-qty-tier { padding: 12px 8px; }
+    .nbo-wrapper.nbo-style-cloodo .nbo-qty-tier__qty { font-size: 20px; }
+
+    /* Summary card: tighter padding */
+    .nbo-wrapper.nbo-style-cloodo .nbo-table-summary-wrap { padding: 16px; }
+    .nbo-wrapper.nbo-style-cloodo .nbo-final-price td:last-child .ng-binding { font-size: 22px; }
+
+    /* Customize button: keep prominent but fit smaller screens */
+    .spbwc-customize-btn,
+    a#pcpb-start-design.spbwc-customize-btn { padding: 12px 14px; }
+    .spbwc-customize-btn__label { font-size: 15px; }
+    .spbwc-customize-btn__hint  { font-size: 11px; }
+
+    /* Field-header: stack chosen-value below the row instead of pushing it
+       off-screen via margin-left:auto. */
+    .nbo-wrapper.nbo-style-cloodo .pcpb-field-chosen { margin-left: 0; width: 100%; }
+
+    /* Sticky corner card: take full-width strip at bottom, easier to tap. */
+    .nbo-wrapper.nbo-style-cloodo .nbo-sticky-mobile {
+        left: var(--nbd-space-3);
+        right: var(--nbd-space-3);
+        bottom: var(--nbd-space-3);
+        max-width: none;
+    }
+}

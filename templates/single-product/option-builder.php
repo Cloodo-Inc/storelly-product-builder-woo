@@ -222,11 +222,11 @@ $currentDir = realpath(dirname(__FILE__)); // phpcs:ignore WordPress.NamingConve
                         </div>
                         <p class="pcpb-field-desc"><?php esc_html_e('Pick a common quantity, or set your own below — the total updates instantly.', 'storelly-product-builder-for-woocommerce'); ?></p>
                     </div>
-                    <div class="nbo-qty-tiers__grid" data-spbwc-qty-tiers>
+                    <div class="nbo-qty-tiers__grid" data-spbwc-qty-tiers data-spbwc-discount-type="<?php echo esc_attr( $spbwc_qty_dtype ); ?>">
                         <?php foreach ($spbwc_qtiers as $spbwc_qv) :
                             $spbwc_qdis = isset( $spbwc_qtiers_data[ $spbwc_qv ] ) ? $spbwc_qtiers_data[ $spbwc_qv ] : 0;
                         ?>
-                        <button type="button" class="nbo-qty-tier" data-spbwc-qty="<?php echo esc_attr($spbwc_qv); ?>">
+                        <button type="button" class="nbo-qty-tier" data-spbwc-qty="<?php echo esc_attr($spbwc_qv); ?>" data-spbwc-discount="<?php echo esc_attr( $spbwc_qdis ); ?>">
                             <span class="nbo-qty-tier__qty"><?php echo esc_html($spbwc_qv); ?></span>
                             <span class="nbo-qty-tier__unit"><?php esc_html_e('units', 'storelly-product-builder-for-woocommerce'); ?></span>
                             <?php if ( $spbwc_qdis > 0 ) : ?>

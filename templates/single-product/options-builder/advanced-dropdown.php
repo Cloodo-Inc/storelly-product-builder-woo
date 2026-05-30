@@ -21,13 +21,13 @@ if (!defined('ABSPATH')) exit;
                     </option>
                 <?php endforeach; ?>
             </select>
-            <div class="nbo-ad-result">
+            <div class="nbo-ad-result" tabindex="0" role="combobox" aria-haspopup="listbox" aria-expanded="false" aria-controls="nbo-ad-list-<?php echo esc_attr($field['id']); ?>" aria-labelledby="pcpb-field-<?php echo esc_attr($field['id']); ?>-label">
                 <span class="nbo-ad-result-name" ng-bind="nbd_fields['<?php echo esc_attr($field['id']); ?>'].value_name"></span>
-                <svg xmlns="http://www.w3.org/2000/svg" version="1.1" width="24" height="24" viewBox="0 0 24 24">
+                <svg xmlns="http://www.w3.org/2000/svg" version="1.1" width="24" height="24" viewBox="0 0 24 24" aria-hidden="true">
                     <path d="M16.594 8.578l1.406 1.406-6 6-6-6 1.406-1.406 4.594 4.594z" />
                 </svg>
             </div>
-            <div class="nbo-ad-pseudo-list <?php if ($sublist_position == 'r') echo esc_attr('nbo-ad-right'); ?>">
+            <div class="nbo-ad-pseudo-list <?php if ($sublist_position == 'r') echo esc_attr('nbo-ad-right'); ?>" id="nbo-ad-list-<?php echo esc_attr($field['id']); ?>" role="listbox">
                 <?php
                 foreach ($field['general']['attributes']["options"] as $key => $attr) :
                     $image_url = SPBWC_Storelly_PB_Util::spbwc_get_image_thumbnail($attr['image']);
@@ -36,7 +36,7 @@ if (!defined('ABSPATH')) exit;
                     $show_subattr = ($enable_subattr == 'on' && count($attr['sub_attributes']) > 0) ? true : false;
                     $field['general']['attributes']["options"][$key]['show_subattr'] = $show_subattr;
                 ?>
-                    <div class="nbo-ad-list-item" ng-click="select_adv_attr('<?php echo esc_attr($field['id']); ?>', '<?php echo esc_attr($key); ?>');updateMapOptions('<?php echo esc_attr($field['id']); ?>')" ng-class="nbd_fields['<?php echo esc_attr($field['id']); ?>'].value == '<?php echo esc_attr($key); ?>' ? 'active' : ''" nbo-disabled="!status_fields['<?php echo esc_attr($field['id']); ?>'][<?php echo esc_attr($key); ?>].enable" nbo-disabled-type="class">
+                    <div class="nbo-ad-list-item" role="option" tabindex="-1" ng-attr-aria-selected="{{nbd_fields['<?php echo esc_attr($field['id']); ?>'].value == '<?php echo esc_attr($key); ?>'}}" ng-click="select_adv_attr('<?php echo esc_attr($field['id']); ?>', '<?php echo esc_attr($key); ?>');updateMapOptions('<?php echo esc_attr($field['id']); ?>')" ng-class="nbd_fields['<?php echo esc_attr($field['id']); ?>'].value == '<?php echo esc_attr($key); ?>' ? 'active' : ''" nbo-disabled="!status_fields['<?php echo esc_attr($field['id']); ?>'][<?php echo esc_attr($key); ?>].enable" nbo-disabled-type="class">
                         <?php if ($attr['preview_type'] == 'i' && $attr['image'] != '0') : ?>
                             <img src="<?php echo esc_url($image_url); ?>" class="nbo-ad-item-thumb" />
                         <?php elseif ($attr['preview_type'] == 'c') : ?>
