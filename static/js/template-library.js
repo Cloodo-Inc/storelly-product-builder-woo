@@ -21,6 +21,30 @@
 	var L = window.spbwcTemplateLibrary;
 	var $previewDialog, $applyDialog, $cards, currentTemplate = null;
 
+	// localStorage key for the merchant's last-typed sample base price
+	// (single value, not per-slug — that matches the "what does $X look
+	// like with this template" mental model).
+	var BASE_STORAGE_KEY = 'spbwcTplPreviewBase';
+
+	// Debounce + first-load tracking for the iframe loader.
+	var basePriceTimer = null;
+	var firstFrameLoad = true;     // true = show full overlay; false = subtle "Updating…"
+	var lastFrameSlug  = null;
+	var lastFrameBase  = null;
+	var heroBase       = '';       // subtitle text built from meta (without total)
+	var lastLiveTotal  = '';
+
+	function readStoredBase() {
+		try {
+			var v = window.localStorage.getItem(BASE_STORAGE_KEY);
+			var n = parseFloat(v);
+			return (!isNaN(n) && n >= 0) ? n : 0;
+		} catch (e) { return 0; }
+	}
+	function writeStoredBase(v) {
+		try { window.localStorage.setItem(BASE_STORAGE_KEY, String(v)); } catch (e) {}
+	}
+
 	$(function () {
 		$previewDialog = $('#spbwc-tl-preview-dialog');
 		$applyDialog   = $('#spbwc-tl-apply-dialog');
@@ -90,17 +114,37 @@
 			$('#spbwc-tl-preview-live').find('.spbwc-tl-preview-stage').attr('data-viewport', vp);
 		});
 
-		// Sample base price — reload the preview frame so the live total reflects it.
-		$previewDialog.on('change input', '#spbwc-tl-baseprice', function () {
-			var base = parseFloat($(this).val());
-			if (isNaN(base) || base < 0) base = 0;
-			if (currentTemplate) loadPreviewFrame(currentTemplate.slug, base);
+		// Currency-symbol affordance next to the base-price input.
+		if (L.currencySymbol) {
+			$('#spbwc-tl-baseprice-symbol').text(L.currencySymbol);
+		}
+
+		// Sample base price — debounce on input (every keystroke would
+		// otherwise re-fetch the iframe), fire immediately on blur (change).
+		$previewDialog.on('input', '#spbwc-tl-baseprice', function () {
+			var raw = $(this).val();
+			if (basePriceTimer) { clearTimeout(basePriceTimer); }
+			basePriceTimer = setTimeout(function () { applyBasePrice(raw); }, 400);
+		});
+		$previewDialog.on('change', '#spbwc-tl-baseprice', function () {
+			if (basePriceTimer) { clearTimeout(basePriceTimer); basePriceTimer = null; }
+			applyBasePrice($(this).val());
 		});
 
-		// Hide the loading overlay once the iframe document finishes loading.
-		$('#spbwc-tl-preview-frame').on('load', function () {
-			$('#spbwc-tl-preview-frame-loading').prop('hidden', true);
+		// Iframe load handler — hide overlays + sanity-check the doc rendered.
+		$('#spbwc-tl-preview-frame').on('load', onFrameLoad);
+
+		// Retry from the error overlay.
+		$(document).on('click', '#spbwc-tl-preview-frame-retry', function () {
+			if (currentTemplate) {
+				firstFrameLoad = true; // re-show the full overlay on retry
+				loadPreviewFrame(currentTemplate.slug, lastFrameBase || 0);
+			}
 		});
+
+		// Postmessage bridge — auto-grow iframe to content + reflect live total
+		// in the subtitle. Same origin verified before trusting the payload.
+		window.addEventListener('message', onPreviewMessage);
 
 		// "Apply this template" CTA from preview footer.
 		$('#spbwc-tl-preview-apply-cta').on('click', function () {
@@ -110,12 +154,70 @@
 		});
 	}
 
+	function applyBasePrice(rawVal) {
+		var base = parseFloat(rawVal);
+		if (isNaN(base) || base < 0) base = 0;
+		writeStoredBase(base);
+		if (currentTemplate) loadPreviewFrame(currentTemplate.slug, base);
+	}
+
+	function onFrameLoad() {
+		var $wrap    = $('#spbwc-tl-preview-frame-wrap');
+		var $loading = $('#spbwc-tl-preview-frame-loading');
+		var $update  = $('#spbwc-tl-preview-frame-updating');
+		var $error   = $('#spbwc-tl-preview-frame-error');
+		$loading.prop('hidden', true);
+		$update.prop('hidden', true);
+		$wrap.removeClass('is-updating');
+
+		// Defer the success check one tick so Angular has a chance to mount
+		// the wrapper element after parsing the document.
+		setTimeout(function () {
+			var doc = null;
+			try { doc = document.getElementById('spbwc-tl-preview-frame').contentDocument; } catch (e) {}
+			var ok = !!(doc && doc.querySelector('.nbo-wrapper.nbo-style-cloodo'));
+			$error.prop('hidden', ok);
+			$wrap.toggleClass('has-error', !ok);
+		}, 250);
+	}
+
+	function onPreviewMessage(ev) {
+		if (!ev || !ev.data || ev.data.source !== 'spbwc-tpl-preview') return;
+		// Same-origin check — admin and preview live under the WP site URL.
+		var expected = L.previewOrigin || window.location.origin;
+		if (ev.origin !== expected) return;
+
+		if (ev.data.type === 'height') {
+			var h = parseInt(ev.data.value, 10);
+			if (h > 0) {
+				// Cap to avoid runaway growth; the CSS minimum (420px) still applies.
+				var maxH = Math.max(420, Math.round(window.innerHeight * 0.82));
+				h = Math.min(h, maxH);
+				$('#spbwc-tl-preview-frame').css('height', h + 'px');
+			}
+		} else if (ev.data.type === 'total') {
+			lastLiveTotal = (ev.data.value || '').trim();
+			refreshSubtitle();
+		}
+	}
+
+	function refreshSubtitle() {
+		var sub = heroBase || '';
+		if (lastLiveTotal) {
+			var prefix = L.i18n.estimatedTotal || 'est.';
+			sub = sub ? (sub + ' · ' + prefix + ' ' + lastLiveTotal) : (prefix + ' ' + lastLiveTotal);
+		}
+		$('#spbwc-tl-preview-subtitle').text(sub);
+	}
+
 	function openPreview(slug, name) {
 		currentTemplate = { slug: slug, name: name };
 
 		// Populate header immediately from card data — subtitle updated after load.
 		$('#spbwc-tl-preview-title').text(name);
-		$('#spbwc-tl-preview-subtitle').text('');
+		heroBase = '';
+		lastLiveTotal = '';
+		refreshSubtitle();
 
 		// Reset to Preview tab and clear the metadata panels.
 		$previewDialog.find('.spbwc-tl-tab').removeClass('spbwc-tl-tab--active');
@@ -125,12 +227,21 @@
 		$('#spbwc-tl-preview-fields').empty();
 		$('#spbwc-tl-preview-about').empty();
 
-		// Reset preview controls, then load the live storefront iframe.
+		// Reset preview controls + clear any prior error/updating state.
 		$previewDialog.find('.spbwc-tl-vp__btn').removeClass('spbwc-tl-vp__btn--active');
 		$previewDialog.find('.spbwc-tl-vp__btn[data-pv="desktop"]').addClass('spbwc-tl-vp__btn--active');
 		$('#spbwc-tl-preview-live').find('.spbwc-tl-preview-stage').attr('data-viewport', 'desktop');
-		$('#spbwc-tl-baseprice').val('0');
-		loadPreviewFrame(slug, 0);
+		$('#spbwc-tl-preview-frame-wrap').removeClass('is-updating has-error');
+		$('#spbwc-tl-preview-frame-error').prop('hidden', true);
+		$('#spbwc-tl-preview-frame-updating').prop('hidden', true);
+
+		// Restore the merchant's last-typed sample base price so reopening
+		// the dialog keeps the live total they were comparing against.
+		var startBase = readStoredBase();
+		$('#spbwc-tl-baseprice').val(startBase);
+
+		firstFrameLoad = true; // first open → full overlay
+		loadPreviewFrame(slug, startBase);
 
 		openDialog($previewDialog);
 
@@ -144,24 +255,48 @@
 			if (!resp || !resp.success) return;
 			renderPreviewFields(resp.data);
 			renderPreviewAbout(resp.data);
-			$('#spbwc-tl-preview-subtitle').text(resp.data.meta.category + ' · ' + resp.data.meta.field_count + ' fields');
+			heroBase = resp.data.meta.category + ' · ' + resp.data.meta.field_count + ' fields';
+			refreshSubtitle();
 		});
 	}
 
 	// Point the preview iframe at the shared storefront renderer for this
-	// template + sample base price.
+	// template + sample base price. First load shows a full overlay; later
+	// reloads (base-price tweaks) dim the iframe + show a corner "Updating…"
+	// pill, keeping the prior content visible to avoid a jarring flash.
 	function loadPreviewFrame(slug, base) {
 		var $frame   = $('#spbwc-tl-preview-frame');
+		var $wrap    = $('#spbwc-tl-preview-frame-wrap');
 		var $loading = $('#spbwc-tl-preview-frame-loading');
+		var $update  = $('#spbwc-tl-preview-frame-updating');
+		var $error   = $('#spbwc-tl-preview-frame-error');
 		if (!L.previewUrl) {
 			$loading.prop('hidden', true);
 			return;
 		}
-		$loading.prop('hidden', false);
+		// Same slug + same base → nothing to reload (defensive against
+		// stray events; harmless if it slips through).
+		if (lastFrameSlug === slug && lastFrameBase === base && !firstFrameLoad) { return; }
+		lastFrameSlug = slug;
+		lastFrameBase = base;
+
+		$error.prop('hidden', true);
+		$wrap.removeClass('has-error');
+		if (firstFrameLoad) {
+			$loading.prop('hidden', false);
+			$update.prop('hidden', true);
+			$wrap.removeClass('is-updating');
+		} else {
+			$loading.prop('hidden', true);
+			$update.prop('hidden', false);
+			$wrap.addClass('is-updating');
+		}
+
 		var url = L.previewUrl +
 			'&slug=' + encodeURIComponent(slug) +
 			'&base=' + encodeURIComponent(base || 0);
 		$frame.attr('src', url);
+		firstFrameLoad = false; // any subsequent reload is an update
 	}
 
 	function renderPreviewFields(data) {

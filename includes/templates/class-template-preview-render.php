@@ -376,6 +376,14 @@ if ( ! class_exists( 'SPBWC_Template_Preview_Render' ) ) {
 			wp_register_script( 'spbwc-storefront-enhance', SPBWC_PB_JS_URL . 'storefront-enhance.js', array( 'spbwc-option-builder' ), SPBWC_PB_VERSION, true );
 			wp_enqueue_script( 'spbwc-storefront-enhance' );
 
+			// Iframe→admin-dialog bridge — posts body height + live total to
+			// the parent so the dialog auto-grows and the subtitle reflects
+			// the running estimate. Only active inside the preview document.
+			$bridge_path = SPBWC_PB_PLUGIN_DIR . 'static/js/template-preview-bridge.js';
+			$bridge_ver  = file_exists( $bridge_path ) ? filemtime( $bridge_path ) : SPBWC_PB_VERSION;
+			wp_register_script( 'spbwc-tpl-preview-bridge', SPBWC_PB_JS_URL . 'template-preview-bridge.js', array( 'spbwc-storefront-enhance' ), $bridge_ver, true );
+			wp_enqueue_script( 'spbwc-tpl-preview-bridge' );
+
 			if ( ! wp_style_is( 'spbwc-tokens', 'registered' ) ) {
 				wp_register_style( 'spbwc-tokens', SPBWC_PB_CSS_URL . '_tokens.css', array(), SPBWC_PB_VERSION );
 			}

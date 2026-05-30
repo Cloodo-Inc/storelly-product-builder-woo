@@ -3,13 +3,13 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Storelly Product Builder for WooCommerce 1.2.7\n"
-"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/storelly-product-builder-woo\n"
+"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/storelly-product-builder-for-woocommerce\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-05-29T16:58:30+00:00\n"
+"POT-Creation-Date: 2026-05-30T03:26:10+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: storelly-product-builder-for-woocommerce\n"
@@ -135,7 +135,7 @@ msgstr ""
 
 #: includes/class-admin-options.php:375
 #: includes/class-admin-options.php:376
-#: includes/templates/class-template-library-admin.php:102
+#: includes/templates/class-template-library-admin.php:111
 #: views/templates/library.php:213
 msgid "About"
 msgstr ""
@@ -150,7 +150,7 @@ msgstr ""
 #: includes/class-admin-options.php:3395
 #: includes/class-admin-options.php:3441
 #: includes/marketplace/admin/class-marketplace-admin.php:101
-#: includes/templates/class-template-library-admin.php:124
+#: includes/templates/class-template-library-admin.php:137
 msgid "You do not have permission to access this page."
 msgstr ""
 
@@ -312,6 +312,9 @@ msgstr ""
 #: includes/marketplace/admin/class-designers-list-table.php:88
 #: includes/settings/launcher.php:16
 #: includes/settings/launcher.php:133
+#: includes/setup-wizard/class-woo-seed-mapper.php:554
+#: includes/setup-wizard/class-woo-seed-mapper.php:672
+#: includes/setup-wizard/class-woo-seed-mapper.php:686
 #: views/menu-settings.php:166
 #: views/menu-settings.php:206
 #: views/menu-settings.php:273
@@ -347,6 +350,8 @@ msgstr ""
 #: includes/marketplace/admin/class-designers-list-table.php:88
 #: includes/settings/launcher.php:17
 #: includes/settings/launcher.php:134
+#: includes/setup-wizard/class-woo-seed-mapper.php:555
+#: includes/setup-wizard/class-woo-seed-mapper.php:687
 #: views/menu-settings.php:170
 #: views/menu-settings.php:210
 #: views/menu-settings.php:277
@@ -421,7 +426,8 @@ msgstr ""
 
 #: includes/class-admin-options.php:1211
 #: includes/class-admin-options.php:2705
-#: includes/templates/class-template-library-admin.php:110
+#: includes/setup-wizard/class-woo-seed-mapper.php:729
+#: includes/templates/class-template-library-admin.php:123
 #: views/options/templates/field-body/attributes.php:200
 #: views/options/templates/field-body/attributes.php:208
 msgid "Label"
@@ -429,6 +435,7 @@ msgstr ""
 
 #: includes/class-admin-options.php:1212
 #: includes/class-admin-options.php:2495
+#: includes/setup-wizard/class-woo-seed-mapper.php:622
 #: views/options/templates/field-body/placeholder.php:6
 msgid "Placeholder"
 msgstr ""
@@ -439,7 +446,8 @@ msgstr ""
 
 #: includes/class-admin-options.php:1214
 #: includes/class-admin-options.php:2355
-#: includes/templates/class-template-library-admin.php:106
+#: includes/setup-wizard/class-woo-seed-mapper.php:561
+#: includes/templates/class-template-library-admin.php:119
 #: views/options/field.php:35
 #: views/options/templates/field-body/required.php:6
 msgid "Required"
@@ -449,6 +457,7 @@ msgstr ""
 #: includes/class-admin-options.php:2315
 #: includes/launcher/class.launcher.php:1451
 #: includes/marketplace/admin/class-designers-list-table.php:82
+#: includes/setup-wizard/class-woo-seed-mapper.php:477
 #: views/marketplace-admin/designers.php:41
 #: views/options/edit-option.php:236
 #: views/options/templates/field-body/enabled.php:6
@@ -468,6 +477,7 @@ msgstr ""
 #: includes/class-admin-options.php:1227
 #: includes/class-admin-options.php:2225
 #: includes/class-admin-options.php:2772
+#: includes/setup-wizard/class-woo-seed-mapper.php:578
 msgid "Text"
 msgstr ""
 
@@ -486,6 +496,7 @@ msgstr ""
 
 #: includes/class-admin-options.php:1230
 #: includes/class-admin-options.php:2241
+#: includes/setup-wizard/class-woo-seed-mapper.php:582
 #: views/options/edit-option.php:394
 msgid "Textarea"
 msgstr ""
@@ -731,7 +742,7 @@ msgstr ""
 #: includes/launcher/class.launcher.php:202
 #: templates/launcher/store/dashboard.php:12
 #: templates/launcher/store/dashboard.php:28
-#: templates/single-product/option-builder.php:277
+#: templates/single-product/option-builder.php:301
 #: views/designs.php:100
 #: views/options/edit-option.php:653
 #: views/options/edit-option.php:761
@@ -753,6 +764,7 @@ msgstr ""
 #: includes/class-admin-options.php:2169
 #: includes/class-admin-options.php:2170
 #: includes/class-admin-options.php:2172
+#: includes/setup-wizard/class-woo-seed-mapper.php:462
 #: views/options/edit-option.php:485
 #: views/options/templates/field-body/title.php:6
 msgid "Option name"
@@ -763,6 +775,7 @@ msgid "Option description"
 msgstr ""
 
 #: includes/class-admin-options.php:2181
+#: includes/setup-wizard/class-woo-seed-mapper.php:530
 #: views/options/templates/field-body/attributes.php:52
 #: views/options/templates/field-body/attributes.php:239
 #: views/options/templates/field-body/description.php:6
@@ -770,47 +783,56 @@ msgid "Description"
 msgstr ""
 
 #: includes/class-admin-options.php:2191
+#: includes/setup-wizard/class-woo-seed-mapper.php:465
 #: views/options/templates/field-body/data_type.php:6
 #: views/options/templates/field-body/data_type.php:10
 msgid "Data type"
 msgstr ""
 
 #: includes/class-admin-options.php:2198
+#: includes/setup-wizard/class-woo-seed-mapper.php:468
 msgid "Custom input"
 msgstr ""
 
 #: includes/class-admin-options.php:2202
+#: includes/setup-wizard/class-woo-seed-mapper.php:469
 msgid "Multiple options"
 msgstr ""
 
 #: includes/class-admin-options.php:2211
+#: includes/setup-wizard/class-woo-seed-mapper.php:570
 #: views/options/templates/field-body/input_type.php:6
 #: views/options/templates/field-body/input_type.php:10
 msgid "Input type"
 msgstr ""
 
 #: includes/class-admin-options.php:2229
-#: includes/templates/class-template-library-admin.php:114
+#: includes/setup-wizard/class-woo-seed-mapper.php:579
+#: includes/templates/class-template-library-admin.php:127
 #: views/options/edit-option.php:374
 #: views/options/edit-option.php:501
 msgid "Number"
 msgstr ""
 
 #: includes/class-admin-options.php:2233
+#: includes/setup-wizard/class-woo-seed-mapper.php:580
 #: views/options/templates/field-body/input_option.php:6
 msgid "Number range"
 msgstr ""
 
 #: includes/class-admin-options.php:2237
+#: includes/setup-wizard/class-woo-seed-mapper.php:581
 #: views/options/templates/field-body/attributes.php:296
 msgid "Upload"
 msgstr ""
 
 #: includes/class-admin-options.php:2257
+#: includes/setup-wizard/class-woo-seed-mapper.php:589
 msgid "Input option"
 msgstr ""
 
 #: includes/class-admin-options.php:2293
+#: includes/setup-wizard/class-woo-seed-mapper.php:609
 msgid "Text input option"
 msgstr ""
 
@@ -823,6 +845,7 @@ msgstr ""
 #: includes/class-admin-options.php:3814
 #: includes/marketplace/admin/class-designs-list-table.php:95
 #: includes/options/fields-list-table.php:438
+#: includes/setup-wizard/class-woo-seed-mapper.php:478
 #: views/designs.php:107
 #: views/designs.php:133
 #: views/marketplace-admin/designs.php:40
@@ -843,10 +866,12 @@ msgid "Choose whether the option is required or not."
 msgstr ""
 
 #: includes/class-admin-options.php:2387
+#: includes/setup-wizard/class-woo-seed-mapper.php:635
 msgid "Upload file option"
 msgstr ""
 
 #: includes/class-admin-options.php:2409
+#: includes/setup-wizard/class-woo-seed-mapper.php:652
 #: views/options/templates/field-body/price_type.php:6
 #: views/options/templates/field-body/price_type.php:10
 msgid "Price type"
@@ -857,14 +882,17 @@ msgid "Here you can choose how the price is calculated. Depending on the field t
 msgstr ""
 
 #: includes/class-admin-options.php:2416
+#: includes/setup-wizard/class-woo-seed-mapper.php:657
 msgid "Fixed amount"
 msgstr ""
 
 #: includes/class-admin-options.php:2420
+#: includes/setup-wizard/class-woo-seed-mapper.php:658
 msgid "Percent of the original price"
 msgstr ""
 
 #: includes/class-admin-options.php:2424
+#: includes/setup-wizard/class-woo-seed-mapper.php:659
 msgid "Percent of the original price + options"
 msgstr ""
 
@@ -877,6 +905,7 @@ msgid "Price per char"
 msgstr ""
 
 #: includes/class-admin-options.php:2474
+#: includes/setup-wizard/class-woo-seed-mapper.php:694
 #: views/options/templates/field-body/price.php:6
 msgid "Additional Price"
 msgstr ""
@@ -886,6 +915,7 @@ msgid "Enter the price for this field or leave it blank for no price."
 msgstr ""
 
 #: includes/class-admin-options.php:2517
+#: includes/setup-wizard/class-woo-seed-mapper.php:667
 #: views/options/templates/field-body/depend_qty.php:6
 msgid "Depend quantity"
 msgstr ""
@@ -895,20 +925,24 @@ msgid "If choose No, the additional price will be apply for cart item independen
 msgstr ""
 
 #: includes/class-admin-options.php:2528
+#: includes/setup-wizard/class-woo-seed-mapper.php:673
 msgid "No, the additional price is cart item fee"
 msgstr ""
 
 #: includes/class-admin-options.php:2532
+#: includes/setup-wizard/class-woo-seed-mapper.php:674
 msgid "No, the additional price is fixed amount for all items"
 msgstr ""
 
 #: includes/class-admin-options.php:2541
+#: includes/setup-wizard/class-woo-seed-mapper.php:681
 #: views/options/templates/field-body/depend_quantity.php:6
 #: views/options/templates/field-body/depend_quantity.php:10
 msgid "Depend quantity breaks"
 msgstr ""
 
 #: includes/class-admin-options.php:2565
+#: includes/setup-wizard/class-woo-seed-mapper.php:707
 #: views/options/templates/field-body/price_breaks.php:6
 msgid "Price depend quantity breaks"
 msgstr ""
@@ -920,6 +954,7 @@ msgid "Attribute name"
 msgstr ""
 
 #: includes/class-admin-options.php:2645
+#: includes/setup-wizard/class-woo-seed-mapper.php:486
 #: views/options/edit-option.php:1547
 msgid "Attributes"
 msgstr ""
@@ -929,11 +964,13 @@ msgid "Attributes let you define extra product data, such as size or color."
 msgstr ""
 
 #: includes/class-admin-options.php:2686
+#: includes/setup-wizard/class-woo-seed-mapper.php:721
 msgid "Display type"
 msgstr ""
 
 #: includes/class-admin-options.php:2693
-#: includes/templates/class-template-library-admin.php:107
+#: includes/setup-wizard/class-woo-seed-mapper.php:726
+#: includes/templates/class-template-library-admin.php:120
 #: views/options/edit-option.php:256
 #: views/options/templates/field-body/attributes.php:176
 #: views/options/templates/field-body/attributes.php:205
@@ -941,26 +978,31 @@ msgid "Dropdown"
 msgstr ""
 
 #: includes/class-admin-options.php:2697
+#: includes/setup-wizard/class-woo-seed-mapper.php:727
 #: views/options/templates/field-body/attributes.php:206
 msgid "Radio button"
 msgstr ""
 
 #: includes/class-admin-options.php:2701
-#: includes/templates/class-template-library-admin.php:109
+#: includes/setup-wizard/class-woo-seed-mapper.php:728
+#: includes/templates/class-template-library-admin.php:122
 #: views/options/templates/field-body/attributes.php:192
 #: views/options/templates/field-body/attributes.php:207
 msgid "Swatch"
 msgstr ""
 
 #: includes/class-admin-options.php:2709
+#: includes/setup-wizard/class-woo-seed-mapper.php:730
 msgid "Advanced Dropdown"
 msgstr ""
 
 #: includes/class-admin-options.php:2713
+#: includes/setup-wizard/class-woo-seed-mapper.php:731
 msgid "Large label"
 msgstr ""
 
 #: includes/class-admin-options.php:2721
+#: includes/setup-wizard/class-woo-seed-mapper.php:509
 msgid "Changes product image"
 msgstr ""
 
@@ -977,6 +1019,7 @@ msgid "Also let buyers choose this design component (and see its price) in the p
 msgstr ""
 
 #: includes/class-admin-options.php:2763
+#: includes/setup-wizard/class-woo-seed-mapper.php:511
 msgid "CSS Class"
 msgstr ""
 
@@ -1304,28 +1347,28 @@ msgstr ""
 msgid "Please check invalid fields, quantity, or choose a different combination."
 msgstr ""
 
-#: includes/class-frontend-options.php:975
+#: includes/class-frontend-options.php:1009
 msgid "Update cart"
 msgstr ""
 
-#: includes/class-frontend-options.php:1092
-#: includes/class-frontend-options.php:1169
-#: templates/single-product/option-builder.php:234
+#: includes/class-frontend-options.php:1126
+#: includes/class-frontend-options.php:1203
+#: templates/single-product/option-builder.php:258
 msgid "( cart fee )"
 msgstr ""
 
-#: includes/class-frontend-options.php:1095
-#: includes/class-frontend-options.php:1172
-#: templates/single-product/option-builder.php:235
+#: includes/class-frontend-options.php:1129
+#: includes/class-frontend-options.php:1206
+#: templates/single-product/option-builder.php:259
 msgid "( for all items )"
 msgstr ""
 
-#: includes/class-frontend-options.php:1102
-#: includes/class-frontend-options.php:1183
+#: includes/class-frontend-options.php:1136
+#: includes/class-frontend-options.php:1217
 msgid "Quantity Discount"
 msgstr ""
 
-#: includes/class-frontend-options.php:1254
+#: includes/class-frontend-options.php:1288
 #: views/overview.php:277
 msgid "Edit options"
 msgstr ""
@@ -1683,7 +1726,7 @@ msgstr ""
 
 #: includes/class-request-quote.php:120
 #: includes/templates/class-template-preview-render.php:286
-#: templates/single-product/option-builder.php:185
+#: templates/single-product/option-builder.php:209
 #: views/options/edit-option.php:303
 #: views/options/edit-option.php:621
 #: views/options/edit-option.php:732
@@ -2158,7 +2201,7 @@ msgid "At a Glance"
 msgstr ""
 
 #: includes/launcher/class.launcher.php:1418
-#: templates/single-product/option-builder.php:78
+#: templates/single-product/option-builder.php:101
 #: views/templates/library.php:187
 msgid "Apply"
 msgstr ""
@@ -2185,7 +2228,7 @@ msgstr ""
 #: views/options/edit-option.php:1109
 #: views/options/options-list-table.php:424
 #: views/product-builder/js_config.php:69
-#: views/templates/library.php:392
+#: views/templates/library.php:404
 msgid "Cancel"
 msgstr ""
 
@@ -2348,7 +2391,7 @@ msgstr ""
 
 #: includes/launcher/class.launcher.php:1463
 #: templates/single-product/option-builder.php:40
-#: templates/single-product/option-builder.php:259
+#: templates/single-product/option-builder.php:283
 msgid "items"
 msgstr ""
 
@@ -2966,14 +3009,14 @@ msgid "Title"
 msgstr ""
 
 #: includes/options/fields-list-table.php:42
-#: includes/templates/class-template-library-admin.php:101
+#: includes/templates/class-template-library-admin.php:110
 #: views/products.php:206
 #: views/templates/library.php:212
 msgid "Fields"
 msgstr ""
 
 #: includes/options/fields-list-table.php:43
-#: views/templates/library.php:341
+#: views/templates/library.php:353
 msgid "Categories"
 msgstr ""
 
@@ -2981,7 +3024,7 @@ msgstr ""
 #: views/license.php:180
 #: views/overview.php:250
 #: views/products.php:35
-#: views/templates/library.php:324
+#: views/templates/library.php:336
 msgid "Products"
 msgstr ""
 
@@ -3095,6 +3138,20 @@ msgstr ""
 msgid "Beware this option turn on the process which consumes a lot of system resources"
 msgstr ""
 
+#. translators: %s: product name
+#: includes/setup-wizard/class-woo-seed-mapper.php:416
+#, php-format
+msgid "%s (Woo seed)"
+msgstr ""
+
+#: includes/setup-wizard/class-woo-seed-mapper.php:510
+msgid "Show in archive pages"
+msgstr ""
+
+#: includes/setup-wizard/class-woo-seed-mapper.php:660
+msgid "Math formula"
+msgstr ""
+
 #: includes/templates/class-template-ajax.php:44
 #: includes/templates/class-template-preview-render.php:108
 msgid "Template not found."
@@ -3126,7 +3183,7 @@ msgid "Database insert failed."
 msgstr ""
 
 #: includes/templates/class-template-applier.php:133
-#: includes/templates/class-template-library-admin.php:116
+#: includes/templates/class-template-library-admin.php:129
 msgid "Template applied successfully."
 msgstr ""
 
@@ -3135,77 +3192,96 @@ msgstr ""
 msgid "Options Templates"
 msgstr ""
 
-#: includes/templates/class-template-library-admin.php:94
+#: includes/templates/class-template-library-admin.php:103
 msgid "Applying…"
 msgstr ""
 
-#: includes/templates/class-template-library-admin.php:95
-#: views/templates/library.php:261
+#: includes/templates/class-template-library-admin.php:104
+#: views/templates/library.php:273
 msgid "Apply template"
 msgstr ""
 
-#: includes/templates/class-template-library-admin.php:96
+#: includes/templates/class-template-library-admin.php:105
 #: views/options/options-list-table.php:457
 msgid "Something went wrong. Please try again."
 msgstr ""
 
-#: includes/templates/class-template-library-admin.php:97
+#: includes/templates/class-template-library-admin.php:106
 msgid "Search for a product…"
 msgstr ""
 
-#: includes/templates/class-template-library-admin.php:98
+#: includes/templates/class-template-library-admin.php:107
 msgid "Select categories…"
 msgstr ""
 
-#: includes/templates/class-template-library-admin.php:99
+#: includes/templates/class-template-library-admin.php:108
 msgid "Please select at least one product."
 msgstr ""
 
-#: includes/templates/class-template-library-admin.php:100
+#: includes/templates/class-template-library-admin.php:109
 msgid "Please select at least one category."
 msgstr ""
 
-#: includes/templates/class-template-library-admin.php:103
+#: includes/templates/class-template-library-admin.php:112
 #: views/options/edit-option.php:531
 msgid "Live preview"
 msgstr ""
 
+#: includes/templates/class-template-library-admin.php:113
+msgid "est."
+msgstr ""
+
+#: includes/templates/class-template-library-admin.php:114
+#: views/templates/library.php:246
+msgid "Couldn’t load the preview."
+msgstr ""
+
+#: includes/templates/class-template-library-admin.php:115
+#: views/templates/library.php:247
+msgid "Retry"
+msgstr ""
+
+#: includes/templates/class-template-library-admin.php:116
+#: views/templates/library.php:242
+msgid "Updating…"
+msgstr ""
+
 #. translators: %d: number of options in the template.
-#: includes/templates/class-template-library-admin.php:105
+#: includes/templates/class-template-library-admin.php:118
 #, php-format
 msgid "%d options"
 msgstr ""
 
-#: includes/templates/class-template-library-admin.php:108
+#: includes/templates/class-template-library-admin.php:121
 #: views/options/templates/field-body/attributes.php:184
 msgid "Radio"
 msgstr ""
 
-#: includes/templates/class-template-library-admin.php:111
+#: includes/templates/class-template-library-admin.php:124
 #: views/options/edit-option.php:384
 msgid "Text input"
 msgstr ""
 
-#: includes/templates/class-template-library-admin.php:112
+#: includes/templates/class-template-library-admin.php:125
 #: views/options/edit-option.php:404
 msgid "File upload"
 msgstr ""
 
-#: includes/templates/class-template-library-admin.php:113
+#: includes/templates/class-template-library-admin.php:126
 msgid "Long text"
 msgstr ""
 
-#: includes/templates/class-template-library-admin.php:115
-#: views/templates/library.php:250
+#: includes/templates/class-template-library-admin.php:128
+#: views/templates/library.php:262
 msgid "Apply this template"
 msgstr ""
 
-#: includes/templates/class-template-library-admin.php:133
+#: includes/templates/class-template-library-admin.php:146
 #: views/templates/library.php:42
 msgid "Template Library"
 msgstr ""
 
-#: includes/templates/class-template-library-admin.php:134
+#: includes/templates/class-template-library-admin.php:147
 msgid "View file missing."
 msgstr ""
 
@@ -3218,7 +3294,7 @@ msgid "Template catalog unavailable."
 msgstr ""
 
 #: includes/templates/class-template-preview-render.php:289
-#: templates/single-product/option-builder.php:280
+#: templates/single-product/option-builder.php:304
 #: views/options/edit-option.php:658
 #: views/options/edit-option.php:766
 msgid "Add to cart"
@@ -3670,85 +3746,85 @@ msgstr ""
 msgid "Ready to order"
 msgstr ""
 
-#: templates/single-product/option-builder.php:52
+#: templates/single-product/option-builder.php:54
 msgid "Secure checkout"
 msgstr ""
 
-#: templates/single-product/option-builder.php:53
+#: templates/single-product/option-builder.php:55
 msgid "Made to order"
 msgstr ""
 
-#: templates/single-product/option-builder.php:54
+#: templates/single-product/option-builder.php:56
 msgid "Live, transparent pricing"
 msgstr ""
 
-#: templates/single-product/option-builder.php:75
+#: templates/single-product/option-builder.php:98
 msgid "Most-picked combo"
 msgstr ""
 
-#: templates/single-product/option-builder.php:75
+#: templates/single-product/option-builder.php:98
 #: templates/single-product/options-builder/swatch.php:93
 msgid "Popular"
 msgstr ""
 
-#: templates/single-product/option-builder.php:186
+#: templates/single-product/option-builder.php:210
 msgid "Quick pick"
 msgstr ""
 
-#: templates/single-product/option-builder.php:188
+#: templates/single-product/option-builder.php:212
 msgid "Pick a common quantity, or set your own below — the total updates instantly."
 msgstr ""
 
-#: templates/single-product/option-builder.php:194
+#: templates/single-product/option-builder.php:218
 msgid "units"
 msgstr ""
 
-#: templates/single-product/option-builder.php:202
+#: templates/single-product/option-builder.php:226
 msgid "Clear selection"
 msgstr ""
 
-#: templates/single-product/option-builder.php:206
+#: templates/single-product/option-builder.php:230
 msgid "Please check invalid fields and quantity input or choose a different combination!"
 msgstr ""
 
-#: templates/single-product/option-builder.php:211
+#: templates/single-product/option-builder.php:235
 msgid "Summary options"
 msgstr ""
 
-#: templates/single-product/option-builder.php:242
+#: templates/single-product/option-builder.php:266
 msgid "Options price"
 msgstr ""
 
-#: templates/single-product/option-builder.php:243
-#: templates/single-product/option-builder.php:249
+#: templates/single-product/option-builder.php:267
+#: templates/single-product/option-builder.php:273
 msgid "1 item"
 msgstr ""
 
-#: templates/single-product/option-builder.php:246
+#: templates/single-product/option-builder.php:270
 msgid "Final price"
 msgstr ""
 
-#: templates/single-product/option-builder.php:254
+#: templates/single-product/option-builder.php:278
 msgid "Cart item fee"
 msgstr ""
 
-#: templates/single-product/option-builder.php:255
+#: templates/single-product/option-builder.php:279
 msgid "all items"
 msgstr ""
 
-#: templates/single-product/option-builder.php:258
+#: templates/single-product/option-builder.php:282
 msgid "Subtotal price"
 msgstr ""
 
-#: templates/single-product/option-builder.php:268
+#: templates/single-product/option-builder.php:292
 msgid "Save your build"
 msgstr ""
 
-#: templates/single-product/option-builder.php:269
+#: templates/single-product/option-builder.php:293
 msgid "Store this configuration in your browser to reuse later."
 msgstr ""
 
-#: templates/single-product/option-builder.php:272
+#: templates/single-product/option-builder.php:296
 msgid "Save build"
 msgstr ""
 
@@ -5140,13 +5216,13 @@ msgid "Apply to specific products one-by-one, or apply to every product in chose
 msgstr ""
 
 #: views/options/edit-option.php:810
-#: views/templates/library.php:306
+#: views/templates/library.php:318
 msgid "Specific products"
 msgstr ""
 
 #: views/options/edit-option.php:814
 #: views/templates/library.php:90
-#: views/templates/library.php:312
+#: views/templates/library.php:324
 msgid "Product categories"
 msgstr ""
 
@@ -6873,8 +6949,8 @@ msgid "Template Preview"
 msgstr ""
 
 #: views/templates/library.php:215
-#: views/templates/library.php:247
-#: views/templates/library.php:265
+#: views/templates/library.php:259
+#: views/templates/library.php:277
 msgid "Close"
 msgstr ""
 
@@ -6890,75 +6966,75 @@ msgstr ""
 msgid "Sample base price"
 msgstr ""
 
-#: views/templates/library.php:232
+#: views/templates/library.php:235
 msgid "Live template preview"
 msgstr ""
 
-#: views/templates/library.php:235
+#: views/templates/library.php:238
 msgid "Loading preview…"
 msgstr ""
 
-#: views/templates/library.php:239
+#: views/templates/library.php:251
 msgid "This is the exact storefront UI buyers see — change the sample base price to preview the live total."
 msgstr ""
 
-#: views/templates/library.php:278
+#: views/templates/library.php:290
 msgid "Global template — you get your own editable copy"
 msgstr ""
 
-#: views/templates/library.php:279
+#: views/templates/library.php:291
 msgid "Storelly creates a private copy of this template on your store. The original stays read-only and shared. You can rename fields, adjust prices, and change which products or categories use it at any time from the Pricing Options screen."
 msgstr ""
 
-#: views/templates/library.php:285
+#: views/templates/library.php:297
 msgid "Name for your copy"
 msgstr ""
 
-#: views/templates/library.php:293
+#: views/templates/library.php:305
 msgid "Shown in your Pricing Options list — you can rename it any time."
 msgstr ""
 
-#: views/templates/library.php:299
+#: views/templates/library.php:311
 msgid "Apply to"
 msgstr ""
 
-#: views/templates/library.php:300
+#: views/templates/library.php:312
 msgid "(optional)"
 msgstr ""
 
-#: views/templates/library.php:307
+#: views/templates/library.php:319
 msgid "Only products without an existing Pricing Option"
 msgstr ""
 
-#: views/templates/library.php:313
+#: views/templates/library.php:325
 msgid "Applied to every product in the selected categories"
 msgstr ""
 
-#: views/templates/library.php:318
+#: views/templates/library.php:330
 msgid "Selection is optional — you can skip and assign products or categories later from Pricing Options."
 msgstr ""
 
-#: views/templates/library.php:332
+#: views/templates/library.php:344
 msgid "Type a product name or SKU to search…"
 msgstr ""
 
-#: views/templates/library.php:335
+#: views/templates/library.php:347
 msgid "Search and select as many products as you like. Only products without an existing Pricing Option are recommended."
 msgstr ""
 
-#: views/templates/library.php:367
+#: views/templates/library.php:379
 msgid "Select one or more categories — the template applies to every product within them."
 msgstr ""
 
-#: views/templates/library.php:380
+#: views/templates/library.php:392
 msgid "Template applied!"
 msgstr ""
 
-#: views/templates/library.php:383
+#: views/templates/library.php:395
 msgid "Opening the editor…"
 msgstr ""
 
-#: views/templates/library.php:396
+#: views/templates/library.php:408
 msgid "Apply &amp; Edit"
 msgstr ""
 

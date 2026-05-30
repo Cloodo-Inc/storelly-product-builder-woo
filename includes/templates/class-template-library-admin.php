@@ -82,6 +82,13 @@ if ( ! class_exists( 'SPBWC_Template_Library_Admin' ) ) {
 				true
 			);
 
+			// Currency symbol — shown as an affordance next to the
+			// "Sample base price" input in the preview toolbar, and used
+			// when surfacing the live total in the dialog subtitle.
+			$currency_symbol = function_exists( 'get_woocommerce_currency_symbol' )
+				? html_entity_decode( (string) get_woocommerce_currency_symbol(), ENT_QUOTES, 'UTF-8' )
+				: '$';
+
 			wp_localize_script(
 				'spbwc-template-library',
 				'spbwcTemplateLibrary',
@@ -90,6 +97,8 @@ if ( ! class_exists( 'SPBWC_Template_Library_Admin' ) ) {
 					'nonce'               => wp_create_nonce( 'spbwc_template_library' ),
 					'searchProductsNonce' => wp_create_nonce( 'search-products' ),
 					'previewUrl'          => class_exists( 'SPBWC_Template_Preview_Render' ) ? SPBWC_Template_Preview_Render::preview_url() : '',
+					'previewOrigin'       => wp_parse_url( home_url( '/' ), PHP_URL_SCHEME ) . '://' . wp_parse_url( home_url( '/' ), PHP_URL_HOST ) . ( wp_parse_url( home_url( '/' ), PHP_URL_PORT ) ? ':' . wp_parse_url( home_url( '/' ), PHP_URL_PORT ) : '' ),
+					'currencySymbol'      => $currency_symbol,
 					'i18n'                => array(
 						'applying'           => esc_html__( 'Applying…', 'storelly-product-builder-for-woocommerce' ),
 						'apply'              => esc_html__( 'Apply template', 'storelly-product-builder-for-woocommerce' ),
@@ -101,6 +110,10 @@ if ( ! class_exists( 'SPBWC_Template_Library_Admin' ) ) {
 						'fieldsTab'          => esc_html__( 'Fields', 'storelly-product-builder-for-woocommerce' ),
 						'aboutTab'           => esc_html__( 'About', 'storelly-product-builder-for-woocommerce' ),
 						'previewTab'         => esc_html__( 'Live preview', 'storelly-product-builder-for-woocommerce' ),
+						'estimatedTotal'     => esc_html__( 'est.', 'storelly-product-builder-for-woocommerce' ),
+						'previewFailed'      => esc_html__( 'Couldn’t load the preview.', 'storelly-product-builder-for-woocommerce' ),
+						'retry'              => esc_html__( 'Retry', 'storelly-product-builder-for-woocommerce' ),
+						'updating'           => esc_html__( 'Updating…', 'storelly-product-builder-for-woocommerce' ),
 						// translators: %d: number of options in the template.
 						'optionsCount'       => esc_html__( '%d options', 'storelly-product-builder-for-woocommerce' ),
 						'required'           => esc_html__( 'Required', 'storelly-product-builder-for-woocommerce' ),

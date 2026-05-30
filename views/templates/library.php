@@ -224,15 +224,27 @@ $catalog = SPBWC_Template_Catalog::instance();
 							</div>
 							<label class="spbwc-tl-baseprice">
 								<span class="spbwc-tl-baseprice__label"><?php esc_html_e( 'Sample base price', 'storelly-product-builder-for-woocommerce' ); ?></span>
-								<input type="number" id="spbwc-tl-baseprice" class="spbwc-tl-baseprice__input" min="0" step="0.01" value="0" inputmode="decimal" />
+								<span class="spbwc-tl-baseprice__field">
+									<span class="spbwc-tl-baseprice__symbol" id="spbwc-tl-baseprice-symbol" aria-hidden="true">$</span>
+									<input type="number" id="spbwc-tl-baseprice" class="spbwc-tl-baseprice__input" min="0" step="0.01" value="0" inputmode="decimal" />
+								</span>
 							</label>
 						</div>
 						<div class="spbwc-tl-preview-stage" data-viewport="desktop">
-							<div class="spbwc-tl-preview-frame-wrap">
+							<div class="spbwc-tl-preview-frame-wrap" id="spbwc-tl-preview-frame-wrap">
 								<iframe id="spbwc-tl-preview-frame" class="spbwc-tl-preview-frame" title="<?php esc_attr_e( 'Live template preview', 'storelly-product-builder-for-woocommerce' ); ?>"></iframe>
 								<div class="spbwc-tl-preview-frame-loading" id="spbwc-tl-preview-frame-loading">
 									<span class="spinner is-active" aria-hidden="true"></span>
 									<span><?php esc_html_e( 'Loading preview…', 'storelly-product-builder-for-woocommerce' ); ?></span>
+								</div>
+								<div class="spbwc-tl-preview-frame-updating" id="spbwc-tl-preview-frame-updating" hidden aria-live="polite">
+									<span class="spinner is-active" aria-hidden="true"></span>
+									<span><?php esc_html_e( 'Updating…', 'storelly-product-builder-for-woocommerce' ); ?></span>
+								</div>
+								<div class="spbwc-tl-preview-frame-error" id="spbwc-tl-preview-frame-error" hidden role="alert">
+									<span class="dashicons dashicons-warning" aria-hidden="true"></span>
+									<p><?php esc_html_e( 'Couldn’t load the preview.', 'storelly-product-builder-for-woocommerce' ); ?></p>
+									<button type="button" class="button" id="spbwc-tl-preview-frame-retry"><?php esc_html_e( 'Retry', 'storelly-product-builder-for-woocommerce' ); ?></button>
 								</div>
 							</div>
 							<p class="spbwc-tl-preview-hint">

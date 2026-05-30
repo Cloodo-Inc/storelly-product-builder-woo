@@ -767,13 +767,36 @@ button.spbwc-tl-apply:hover {
 	color: var(--nbd-st-text-soft);
 }
 .spbwc-tl-baseprice__label { font-weight: 600; }
-.spbwc-tl-baseprice__input {
-	width: 110px;
-	padding: 6px 10px;
+.spbwc-tl-baseprice__field {
+	display: inline-flex;
+	align-items: stretch;
 	border: 1px solid var(--nbd-st-border-light);
 	border-radius: var(--nbd-radius);
+	background: var(--nbd-st-bg);
+	overflow: hidden;
+}
+.spbwc-tl-baseprice__field:focus-within {
+	border-color: var(--nbd-st-brand, #2563eb);
+	box-shadow: 0 0 0 2px rgba(37, 99, 235, .18);
+}
+.spbwc-tl-baseprice__symbol {
+	display: inline-flex;
+	align-items: center;
+	padding: 0 8px;
+	background: var(--nbd-st-bg-soft);
+	color: var(--nbd-st-text-soft);
+	font-size: 12px;
+	font-weight: 600;
+	border-right: 1px solid var(--nbd-st-border-light);
+}
+.spbwc-tl-baseprice__input {
+	width: 100px;
+	padding: 6px 10px;
+	border: 0;
+	background: transparent;
 	font-size: 13px;
 	color: var(--nbd-st-text);
+	outline: 0;
 }
 
 .spbwc-tl-preview-stage {
@@ -795,12 +818,24 @@ button.spbwc-tl-apply:hover {
 .spbwc-tl-preview-frame {
 	display: block;
 	width: 100%;
+	/* Initial height — the postMessage bridge from the preview iframe will
+	   auto-grow this up to the JS-enforced cap once the doc renders. */
 	height: 62vh;
 	min-height: 420px;
 	border: 1px solid var(--nbd-st-border-light);
 	border-radius: var(--nbd-radius-lg, 12px);
 	background: #fff;
 	box-shadow: var(--nbd-shadow-md, 0 2px 8px rgba(0,0,0,.08));
+	transition: opacity 180ms ease, height 180ms ease;
+}
+/* "Updating…" state — keep the prior content visible, just dim it and
+   show a small corner pill so base-price tweaks don't blank the frame. */
+.spbwc-tl-preview-frame-wrap.is-updating .spbwc-tl-preview-frame {
+	opacity: .55;
+}
+.spbwc-tl-preview-frame-wrap.has-error .spbwc-tl-preview-frame {
+	opacity: 0;
+	pointer-events: none;
 }
 
 .spbwc-tl-preview-frame-loading {
@@ -817,6 +852,54 @@ button.spbwc-tl-apply:hover {
 }
 .spbwc-tl-preview-frame-loading[hidden] { display: none; }
 .spbwc-tl-preview-frame-loading .spinner { float: none; margin: 0; }
+
+.spbwc-tl-preview-frame-updating {
+	position: absolute;
+	top: 12px;
+	right: 12px;
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	padding: 4px 10px 4px 6px;
+	background: rgba(17, 24, 39, .82);
+	color: #fff;
+	border-radius: 999px;
+	font-size: 12px;
+	font-weight: 500;
+	pointer-events: none;
+}
+.spbwc-tl-preview-frame-updating[hidden] { display: none; }
+.spbwc-tl-preview-frame-updating .spinner {
+	float: none;
+	margin: 0;
+	transform: scale(.55);
+	filter: invert(1);
+}
+
+.spbwc-tl-preview-frame-error {
+	position: absolute;
+	inset: 0;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	gap: 10px;
+	padding: 24px;
+	text-align: center;
+	background: var(--nbd-st-bg);
+	border: 1px dashed var(--nbd-st-border-light);
+	border-radius: var(--nbd-radius-lg, 12px);
+	color: var(--nbd-st-text-soft);
+	font-size: 13px;
+}
+.spbwc-tl-preview-frame-error[hidden] { display: none; }
+.spbwc-tl-preview-frame-error .dashicons {
+	font-size: 28px;
+	width: 28px;
+	height: 28px;
+	color: #d97706;
+}
+.spbwc-tl-preview-frame-error p { margin: 0; }
 
 .spbwc-tl-preview-hint {
 	max-width: 820px;
