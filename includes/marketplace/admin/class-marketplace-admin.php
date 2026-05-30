@@ -43,8 +43,8 @@ if ( ! class_exists( 'SPBWC_Marketplace_Admin' ) ) {
 
             $this->hook_suffix = add_submenu_page(
                 $parent_slug,
-                esc_html__( 'Designer Marketplace', 'storelly-product-builder-for-woocommerce' ),
-                esc_html__( 'Marketplace', 'storelly-product-builder-for-woocommerce' ),
+                esc_html__( 'B2B Clients', 'storelly-product-builder-for-woocommerce' ),
+                esc_html__( 'B2B Clients', 'storelly-product-builder-for-woocommerce' ),
                 self::CAPABILITY,
                 self::MENU_SLUG,
                 array( $this, 'render' )

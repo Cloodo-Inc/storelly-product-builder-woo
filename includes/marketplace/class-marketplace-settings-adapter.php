@@ -39,8 +39,8 @@ if ( ! class_exists( 'SPBWC_Marketplace_Settings_Adapter' ) ) {
             }
             add_submenu_page(
                 SPBWC_PB_OVERVIEW_SLUG,
-                esc_html__( 'Marketplace Settings', 'storelly-product-builder-for-woocommerce' ),
-                esc_html__( 'Marketplace Settings', 'storelly-product-builder-for-woocommerce' ),
+                esc_html__( 'B2B Clients', 'storelly-product-builder-for-woocommerce' ),
+                esc_html__( 'B2B Clients', 'storelly-product-builder-for-woocommerce' ),
                 self::CAPABILITY,
                 self::MENU_SLUG,
                 array( __CLASS__, 'render_page' )

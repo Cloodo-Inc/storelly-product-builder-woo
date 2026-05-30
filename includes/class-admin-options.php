@@ -275,16 +275,16 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
                 // Set Overview as the first child of the main menu slug to prevent double entries
                 add_submenu_page(
                     SPBWC_PB_OVERVIEW_SLUG,
-                    esc_html__('Overview', 'storelly-product-builder-for-woocommerce'),
-                    esc_html__('Overview', 'storelly-product-builder-for-woocommerce'),
+                    esc_html__('Overview Dashboard', 'storelly-product-builder-for-woocommerce'),
+                    esc_html__('Overview Dashboard', 'storelly-product-builder-for-woocommerce'),
                     'manage_options',
                     SPBWC_PB_OVERVIEW_SLUG,
                     array($this, 'spbwc_overview')
                 );
                 add_submenu_page(
                     SPBWC_PB_OVERVIEW_SLUG,
-                    esc_html__('Settings', 'storelly-product-builder-for-woocommerce'),
-                    esc_html__('Settings', 'storelly-product-builder-for-woocommerce'),
+                    esc_html__('General Settings', 'storelly-product-builder-for-woocommerce'),
+                    esc_html__('General Settings', 'storelly-product-builder-for-woocommerce'),
                     'manage_options',
                     SPBWC_PB_OPTIONS_SLUG,
                     array($this, 'spbwc_settings')
@@ -299,32 +299,40 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
                 );
                 add_submenu_page(
                     SPBWC_PB_OVERVIEW_SLUG,
-                    esc_html__('Products', 'storelly-product-builder-for-woocommerce'),
-                    esc_html__('Products', 'storelly-product-builder-for-woocommerce'),
+                    esc_html__('Visual Builder', 'storelly-product-builder-for-woocommerce'),
+                    esc_html__('Visual Builder', 'storelly-product-builder-for-woocommerce'),
+                    'manage_options',
+                    SPBWC_PB_VISUAL_BUILDER_SLUG,
+                    array($this, 'spbwc_visual_builder')
+                );
+                add_submenu_page(
+                    SPBWC_PB_OVERVIEW_SLUG,
+                    esc_html__('Linked Products', 'storelly-product-builder-for-woocommerce'),
+                    esc_html__('Linked Products', 'storelly-product-builder-for-woocommerce'),
                     'manage_options',
                     SPBWC_PB_PRODUCTS_SLUG,
                     array($this, 'spbwc_products_manager')
                 );
                 add_submenu_page(
                     SPBWC_PB_OVERVIEW_SLUG,
-                    esc_html__('Orders', 'storelly-product-builder-for-woocommerce'),
-                    esc_html__('Orders', 'storelly-product-builder-for-woocommerce'),
+                    esc_html__('Custom Orders', 'storelly-product-builder-for-woocommerce'),
+                    esc_html__('Custom Orders', 'storelly-product-builder-for-woocommerce'),
                     'manage_options',
                     SPBWC_PB_ORDERS_SLUG,
                     array($this, 'spbwc_orders_manager')
                 );
                 add_submenu_page(
                     SPBWC_PB_OVERVIEW_SLUG,
-                    esc_html__('Quotes', 'storelly-product-builder-for-woocommerce'),
-                    esc_html__('Quotes', 'storelly-product-builder-for-woocommerce'),
+                    esc_html__('Quote Requests', 'storelly-product-builder-for-woocommerce'),
+                    esc_html__('Quote Requests', 'storelly-product-builder-for-woocommerce'),
                     'manage_options',
                     SPBWC_PB_QUOTES_SLUG,
                     array($this, 'spbwc_quotes_manager')
                 );
                 add_submenu_page(
                     SPBWC_PB_OVERVIEW_SLUG,
-                    esc_html__('Designs', 'storelly-product-builder-for-woocommerce'),
-                    esc_html__('Designs', 'storelly-product-builder-for-woocommerce'),
+                    esc_html__('Design Files', 'storelly-product-builder-for-woocommerce'),
+                    esc_html__('Design Files', 'storelly-product-builder-for-woocommerce'),
                     'manage_options',
                     SPBWC_PB_DESIGNS_SLUG,
                     array($this, 'spbwc_designs_page')
@@ -332,24 +340,24 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
                 // License submenu – placed right after Designs
                 add_submenu_page(
                     SPBWC_PB_OVERVIEW_SLUG,
-                    esc_html__('License', 'storelly-product-builder-for-woocommerce'),
-                    esc_html__('License', 'storelly-product-builder-for-woocommerce'),
+                    esc_html__('License Plan', 'storelly-product-builder-for-woocommerce'),
+                    esc_html__('License Plan', 'storelly-product-builder-for-woocommerce'),
                     'manage_options',
                     SPBWC_PB_LICENSE_SLUG,
                     array($this, 'spbwc_license_page')
                 );
                 add_submenu_page(
                     SPBWC_PB_OVERVIEW_SLUG,
-                    esc_html__('Fonts', 'storelly-product-builder-for-woocommerce'),
-                    esc_html__('Fonts', 'storelly-product-builder-for-woocommerce'),
+                    esc_html__('Custom Fonts', 'storelly-product-builder-for-woocommerce'),
+                    esc_html__('Custom Fonts', 'storelly-product-builder-for-woocommerce'),
                     'manage_options',
                     SPBWC_PB_OPTIONS_SLUG . '/manager-fonts',
                     array($this, 'spbwc_manager_fonts')
                 );
                 add_submenu_page(
                     SPBWC_PB_OVERVIEW_SLUG,
-                    esc_html__('Global Import', 'storelly-product-builder-for-woocommerce'),
-                    esc_html__('Global Import', 'storelly-product-builder-for-woocommerce'),
+                    esc_html__('Setup Wizard', 'storelly-product-builder-for-woocommerce'),
+                    esc_html__('Setup Wizard', 'storelly-product-builder-for-woocommerce'),
                     'manage_options',
                     SPBWC_PB_OPTIONS_SLUG . '/global-import',
                     array($this, 'spbwc_global_import')
@@ -371,6 +379,29 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
                     array($this, 'spbwc_about')
                 );
             }
+        }
+        public function spbwc_visual_builder() {
+            if ( ! current_user_can( 'spbwc_manage_product_builder' ) ) {
+                wp_die( esc_html__( 'You do not have permission to access this page.', 'storelly-product-builder-for-woocommerce' ) );
+            }
+            ?>
+            <div class="wrap">
+                <h1><?php esc_html_e( 'Visual Builder', 'storelly-product-builder-for-woocommerce' ); ?></h1>
+                <p style="max-width:720px;font-size:14px;line-height:1.6;">
+                    <?php esc_html_e( 'Let buyers configure products visually from real product images — pick decals, colors and components and watch the preview update live. This build method sits alongside Pricing Options and Quote Requests.', 'storelly-product-builder-for-woocommerce' ); ?>
+                </p>
+                <p>
+                    <span class="dashicons dashicons-format-image" aria-hidden="true" style="color:#1971c2;"></span>
+                    <strong><?php esc_html_e( 'Coming soon.', 'storelly-product-builder-for-woocommerce' ); ?></strong>
+                    <?php esc_html_e( 'The visual configurator is being prepared. In the meantime, use Pricing Options to build configurable products.', 'storelly-product-builder-for-woocommerce' ); ?>
+                </p>
+                <p>
+                    <a class="button button-primary" href="<?php echo esc_url( admin_url( 'admin.php?page=' . SPBWC_PB_BUILDER_SLUG ) ); ?>">
+                        <?php esc_html_e( 'Go to Pricing Options', 'storelly-product-builder-for-woocommerce' ); ?>
+                    </a>
+                </p>
+            </div>
+            <?php
         }
         public function spbwc_create_options_table() {
             global $wpdb; // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Global variable $wpdb.

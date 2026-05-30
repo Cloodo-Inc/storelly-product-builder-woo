@@ -70,6 +70,12 @@ if ( ! class_exists( 'SPBWC_Template_Applier' ) ) {
 			$template_data['product_ids']  = $product_ids;
 			$template_data['product_cats'] = $product_cats;
 
+			// Bundled template JSON stores each field's general/appearance settings as descriptor
+			// objects ( { title, type, value, ... } ). The renderer (PHP field loop + JS nbd_fields)
+			// expects the flat value ( "y" ), so collapse descriptors to their value before
+			// persisting — matching the shape produced by Global Import.
+			$template_data = $this->flatten_field_descriptors( $template_data );
+
 			$title = '' !== trim( (string) $custom_title )
 				? sanitize_text_field( $custom_title )
 				: $this->derive_title( $meta );
@@ -136,6 +142,53 @@ if ( ! class_exists( 'SPBWC_Template_Applier' ) ) {
 					)
 				),
 			);
+		}
+
+		/**
+		 * Collapse field-config descriptor objects to their flat value within each field's
+		 * general/appearance blocks, so the saved option matches what the renderer expects.
+		 *
+		 * @param array $template_data Decoded template JSON.
+		 * @return array
+		 */
+		protected function flatten_field_descriptors( $template_data ) {
+			if ( ! is_array( $template_data ) || empty( $template_data['fields'] ) || ! is_array( $template_data['fields'] ) ) {
+				return $template_data;
+			}
+			foreach ( $template_data['fields'] as $idx => $field ) {
+				if ( ! is_array( $field ) ) {
+					continue;
+				}
+				if ( isset( $field['general'] ) && is_array( $field['general'] ) ) {
+					$field['general'] = $this->collapse_descriptors( $field['general'] );
+				}
+				if ( isset( $field['appearance'] ) && is_array( $field['appearance'] ) ) {
+					$field['appearance'] = $this->collapse_descriptors( $field['appearance'] );
+				}
+				$template_data['fields'][ $idx ] = $field;
+			}
+			return $template_data;
+		}
+
+		/**
+		 * Recursively replace any { value, type, title } descriptor object with its 'value'.
+		 *
+		 * @param mixed $value Value to collapse.
+		 * @return mixed
+		 */
+		protected function collapse_descriptors( $value ) {
+			if ( is_array( $value )
+				&& array_key_exists( 'value', $value )
+				&& array_key_exists( 'type', $value )
+				&& array_key_exists( 'title', $value ) ) {
+				return $value['value'];
+			}
+			if ( is_array( $value ) ) {
+				foreach ( $value as $key => $sub ) {
+					$value[ $key ] = $this->collapse_descriptors( $sub );
+				}
+			}
+			return $value;
 		}
 
 		protected function derive_title( $meta ) {
