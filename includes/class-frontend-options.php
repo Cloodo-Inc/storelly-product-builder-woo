@@ -961,6 +961,40 @@ if (!class_exists('STORELLY_FRONTEND_OPTIONS')) {
                 }
                 $cart_item_fee['value'] = $total_cart_price - $_total_cart_price;
             }
+            // Quantity volume-discount engine. `quantity_breaks` and `quantity_discount_type`
+            // live INSIDE the serialized option blob (read via $option_fields above), not at
+            // the outer $options wrapper (which only carries the DB columns). Each tier is
+            // { val, dis }; 'p' = percent of (base+options) per item, 'f' = fixed amount per
+            // item. The highest tier where qty >= val wins; empty/zero `dis` rows are skipped.
+            // discount_price is per-item; cart code subtracts it from each item's price and
+            // shows a "Quantity Discount" meta line (see prepare_meta_data / get_item_data).
+            $spbwc_qbreaks = ( is_array( $option_fields ) && isset( $option_fields['quantity_breaks'] ) && is_array( $option_fields['quantity_breaks'] ) ) ? $option_fields['quantity_breaks'] : array();
+            if ( ! empty( $spbwc_qbreaks ) && (int) $quantity > 0 ) {
+                $spbwc_dtype    = ( is_array( $option_fields ) && isset( $option_fields['quantity_discount_type'] ) ) ? $option_fields['quantity_discount_type'] : 'f';
+                $spbwc_tier_val = 0;
+                $spbwc_tier_dis = 0;
+                foreach ( $spbwc_qbreaks as $spbwc_b ) {
+                    if ( ! is_array( $spbwc_b ) ) { continue; }
+                    $spbwc_bv = isset( $spbwc_b['val'] ) ? $spbwc_b['val'] : '';
+                    $spbwc_bd = isset( $spbwc_b['dis'] ) ? $spbwc_b['dis'] : '';
+                    $spbwc_bv = is_array( $spbwc_bv ) ? ( isset( $spbwc_bv['value'] ) ? $spbwc_bv['value'] : '' ) : $spbwc_bv;
+                    $spbwc_bd = is_array( $spbwc_bd ) ? ( isset( $spbwc_bd['value'] ) ? $spbwc_bd['value'] : '' ) : $spbwc_bd;
+                    if ( '' === (string) $spbwc_bv || '' === (string) $spbwc_bd ) { continue; }
+                    $spbwc_bv = (int) $spbwc_bv;
+                    $spbwc_bd = (float) $spbwc_bd;
+                    if ( $spbwc_bv > 0 && $spbwc_bd > 0 && (int) $quantity >= $spbwc_bv && $spbwc_bv > $spbwc_tier_val ) {
+                        $spbwc_tier_val = $spbwc_bv;
+                        $spbwc_tier_dis = $spbwc_bd;
+                    }
+                }
+                if ( $spbwc_tier_dis > 0 ) {
+                    if ( 'p' === $spbwc_dtype ) {
+                        $discount_price = ( $original_price + $total_price ) * $spbwc_tier_dis / 100;
+                    } else {
+                        $discount_price = $spbwc_tier_dis;
+                    }
+                }
+            }
             return array(
                 'total_price'       => $total_price,
                 'cart_item_fee'     => $cart_item_fee,

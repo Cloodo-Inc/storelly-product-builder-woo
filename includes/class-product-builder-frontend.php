@@ -35,7 +35,13 @@ if (!class_exists('SPBWC_Storelly_Product_Builder_Frontend')) {
             // is rendering correctly via `woocommerce_before_add_to_cart_button`.
             // The handlers themselves check spbwc_is_product_builder($pid)
             // before emitting markup, so registering them always is safe.
-            add_action('spbwc_after_default_options', array(&$this, 'spbwc_product_builder_html'), 1);
+            // Render the Preview & customize button RIGHT BELOW the product image (inside
+            // the WooCommerce gallery container) via `woocommerce_product_thumbnails`. Now
+            // that pricing-option fields surface the design components inline (opt-in), the
+            // button is no longer a "next step inside the options form" — it's a way to open
+            // the visual design preview, conceptually paired with the product image rather
+            // than with the option fields. spbwc_product_builder_html guards on product type.
+            add_action('woocommerce_product_thumbnails', array(&$this, 'spbwc_product_builder_html'), 30);
             add_action('wp_footer', array(&$this, 'spbwc_modal_product_builder'), 1);
             add_action('wp_ajax_spbwc_save_product_builder_design', array($this, 'spbwc_save_product_builder_design'));
             add_action('wp_ajax_nopriv_spbwc_save_product_builder_design', array($this, 'spbwc_save_product_builder_design'));
@@ -440,7 +446,7 @@ if (!class_exists('SPBWC_Storelly_Product_Builder_Frontend')) {
             if (SPBWC_Storelly_PB_Util::spbwc_is_product_builder($pid)) {
                 add_action('wp_ajax_spbwc_save_product_builder_design', array($this, 'spbwc_save_product_builder_design'));
         add_action('wp_ajax_nopriv_spbwc_save_product_builder_design', array($this, 'spbwc_save_product_builder_design'));
-                add_action('spbwc_after_default_options', array(&$this, 'spbwc_product_builder_html'), 1);
+                add_action('woocommerce_product_thumbnails', array(&$this, 'spbwc_product_builder_html'), 30);
                 add_action('wp_footer', array(&$this, 'spbwc_modal_product_builder'), 1);
             }
         }
@@ -506,6 +512,14 @@ if (!class_exists('SPBWC_Storelly_Product_Builder_Frontend')) {
         }
         public function spbwc_product_builder_html()
         {
+            // Only render the Customize button on designer products. The hook
+            // (`woocommerce_product_thumbnails`) fires on every product page, so the gate
+            // here replaces the implicit `if ($has_nbpb)` guard that wrapped the previous
+            // `spbwc_after_default_options` listener.
+            $pid = ( function_exists( 'is_product' ) && is_product() ) ? get_queried_object_id() : get_the_ID();
+            if ( ! $pid || ! SPBWC_Storelly_PB_Util::spbwc_is_product_builder( $pid ) ) {
+                return;
+            }
             include(SPBWC_PB_PLUGIN_DIR . 'views/product-builder/customize-btn.php');
         }
         public function spbwc_modal_product_builder()

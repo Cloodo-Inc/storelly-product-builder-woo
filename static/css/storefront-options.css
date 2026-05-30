@@ -425,38 +425,129 @@
     .nbo-wrapper.nbo-style-cloodo .nbd-label-wrap input[type="radio"]:checked + .nbd-label::before { animation: none; }
 }
 
-/* ── Dropdown (select) ───────────────────────────────────── */
+/* ── Dropdown (native select) ───────────────────────────────────
+   Polished card-style select: 1.5px border (matches trust badges / qty tiers),
+   radius-md, comfortable padding, blue selection accent on focus so it shares the
+   same affordance language as the rest of the buyer UI. */
 .nbo-wrapper.nbo-style-cloodo select.nbo-dropdown {
     width: 100%;
     max-width: 100%;
-    padding: 10px 38px 10px 14px;
-    border: 1px solid var(--nbd-st-border-light);
+    padding: 12px 40px 12px 16px;
+    border: 1.5px solid var(--nbd-st-border);
     border-radius: var(--nbd-radius-md);
-    background-color: var(--nbd-st-bg-input);
+    background-color: var(--nbd-st-bg);
     color: var(--nbd-st-text);
     font-size: var(--text-md);
-    font-weight: var(--font-semibold);
+    font-weight: var(--font-bold);
     line-height: 1.4;
     cursor: pointer;
     appearance: none;
     -webkit-appearance: none;
     -moz-appearance: none;
-    /* Stronger chevron — darker stroke + slightly bigger so it reads as
-       "click to pick", not a faded decoration. */
-    background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='none' stroke='%23374151' stroke-width='1.75' stroke-linecap='round' stroke-linejoin='round' d='M1.5 1.5l4.5 4.5 4.5-4.5'/%3E%3C/svg%3E");
+    background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='none' stroke='%231c1917' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' d='M1.5 1.5l4.5 4.5 4.5-4.5'/%3E%3C/svg%3E");
     background-repeat: no-repeat;
-    background-position: right 14px center;
+    background-position: right 16px center;
     background-size: 12px 8px;
-    transition: var(--transition-fast);
+    box-shadow: 0 1px 2px rgba(16,24,40,.04);
+    transition: border-color .15s ease, box-shadow .15s ease, background-color .15s ease;
 }
 .nbo-wrapper.nbo-style-cloodo select.nbo-dropdown:hover {
     border-color: var(--nbd-st-border-strong);
-    background-color: var(--nbd-st-bg);
 }
 .nbo-wrapper.nbo-style-cloodo select.nbo-dropdown:focus {
     outline: none;
-    border-color: var(--st-brand);
-    box-shadow: var(--shadow-input-focus);
+    border-color: var(--cld-select);
+    box-shadow: 0 0 0 3px var(--cld-select-soft);
+}
+
+/* ── Advanced dropdown (custom pseudo-list) ───────────────────────
+   The advanced-dropdown wraps a hidden native select + a visible "result" card +
+   a JS-toggled pseudo-list of rich option rows (thumb + name + description). The
+   legacy CSS leaves these unstyled under Cloodo, so they fall back to default
+   browser look. Apply the same card aesthetic as the native dropdown above. */
+.nbo-wrapper.nbo-style-cloodo .pcpb-field-ad-dropdown-wrap { position: relative; }
+.nbo-wrapper.nbo-style-cloodo .pcpb-field-ad-dropdown-wrap > .pcpb-field-content > div { position: relative; }
+.nbo-wrapper.nbo-style-cloodo .nbo-ad-result {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--nbd-space-2);
+    width: 100%;
+    padding: 12px 16px;
+    border: 1.5px solid var(--nbd-st-border);
+    border-radius: var(--nbd-radius-md);
+    background: var(--nbd-st-bg);
+    color: var(--nbd-st-text);
+    font-size: var(--text-md);
+    font-weight: var(--font-bold);
+    line-height: 1.4;
+    cursor: pointer;
+    box-shadow: 0 1px 2px rgba(16,24,40,.04);
+    transition: border-color .15s ease, box-shadow .15s ease;
+}
+.nbo-wrapper.nbo-style-cloodo .nbo-ad-result:hover { border-color: var(--nbd-st-border-strong); }
+.nbo-wrapper.nbo-style-cloodo .nbo-ad-result svg {
+    flex: 0 0 auto;
+    width: 16px;
+    height: 16px;
+    color: var(--nbd-st-text);
+    transition: transform .15s ease;
+}
+.nbo-wrapper.nbo-style-cloodo .nbo-ad-result-name { flex: 1 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.nbo-wrapper.nbo-style-cloodo .nbo-ad-pseudo-list {
+    position: absolute;
+    top: calc(100% + 6px);
+    left: 0;
+    right: 0;
+    z-index: 50;
+    max-height: 320px;
+    overflow-y: auto;
+    padding: var(--nbd-space-2);
+    border: 1.5px solid var(--nbd-st-border);
+    border-radius: var(--nbd-radius-md);
+    background: var(--nbd-st-bg);
+    box-shadow: var(--shadow-card);
+    display: none;
+}
+.nbo-wrapper.nbo-style-cloodo .nbo-ad-pseudo-list.active,
+.nbo-wrapper.nbo-style-cloodo .pcpb-field-ad-dropdown-wrap.active .nbo-ad-pseudo-list { display: block; }
+.nbo-wrapper.nbo-style-cloodo .nbo-ad-list-item {
+    display: flex;
+    align-items: center;
+    gap: var(--nbd-space-3);
+    padding: var(--nbd-space-2) var(--nbd-space-3);
+    border-radius: var(--nbd-radius-sm);
+    cursor: pointer;
+    transition: background-color .12s ease;
+}
+.nbo-wrapper.nbo-style-cloodo .nbo-ad-list-item:hover { background: var(--nbd-st-bg-soft); }
+.nbo-wrapper.nbo-style-cloodo .nbo-ad-list-item.active {
+    background: var(--cld-select-tint);
+    box-shadow: inset 3px 0 0 var(--cld-select);
+}
+.nbo-wrapper.nbo-style-cloodo .nbo-ad-item-thumb {
+    flex: 0 0 auto;
+    width: 36px;
+    height: 36px;
+    border-radius: var(--nbd-radius-sm);
+    background-size: cover;
+    background-position: center;
+    background-color: #fff;
+    object-fit: cover;
+    box-shadow: inset 0 0 0 1px rgba(0,0,0,.06);
+}
+.nbo-wrapper.nbo-style-cloodo .nbo-ad-item-main { flex: 1 1 auto; min-width: 0; }
+.nbo-wrapper.nbo-style-cloodo .nbo-ad-item-title { font-size: var(--text-md); font-weight: var(--font-bold); color: var(--nbd-st-text); line-height: 1.3; }
+.nbo-wrapper.nbo-style-cloodo .nbo-ad-item-description { font-size: var(--text-sm); color: var(--nbd-st-text-soft); line-height: 1.35; margin-top: 1px; }
+.nbo-wrapper.nbo-style-cloodo .nbo-ad-pseudo-sublist-toggle svg { width: 16px; height: 16px; color: var(--nbd-st-text-mute); }
+
+/* Blue accent focus across other inputs for consistency with selection language. */
+.nbo-wrapper.nbo-style-cloodo .pcpb-field-content input[type="text"]:focus,
+.nbo-wrapper.nbo-style-cloodo .pcpb-field-content input[type="number"]:focus,
+.nbo-wrapper.nbo-style-cloodo .nbd-field-textarea:focus {
+    outline: none;
+    border-color: var(--cld-select);
+    box-shadow: 0 0 0 3px var(--cld-select-soft);
 }
 
 /* ── Text / number / textarea inputs ─────────────────────── */
@@ -595,7 +686,10 @@
 .nbo-wrapper.nbo-style-cloodo .nbo-summary-table td { padding: var(--nbd-space-2) 0; vertical-align: top; color: var(--nbd-st-text-soft); }
 .nbo-wrapper.nbo-style-cloodo .nbo-summary-table td b { color: var(--nbd-st-text); font-weight: var(--font-semibold); }
 .nbo-wrapper.nbo-style-cloodo .nbo-summary-table td:last-child { text-align: right; white-space: nowrap; }
-.nbo-wrapper.nbo-style-cloodo .nbo-summary-table tfoot { border-top: 1px solid var(--nbd-st-border); }
+/* tbody → tfoot transition: no separator above "Options price" — keep the only
+   strong divider above "Final price" so the row flow stays clean and consistent. */
+.nbo-wrapper.nbo-style-cloodo .nbo-summary-table tfoot { border-top: 0; }
+.nbo-wrapper.nbo-style-cloodo .nbo-summary-qty td { color: var(--nbd-st-text); }
 /* Grand-total row — drop the legacy gray fill bar; use a clean rule + a big number.
    (legacy app-product-builder.css sets `.nbo-final-price { background:<gray> }`.) */
 .nbo-wrapper.nbo-style-cloodo .nbo-final-price { background: transparent; }
@@ -663,57 +757,89 @@
     box-shadow: var(--shadow-card);
 }
 
-/* ── Designer "Preview & customize" — guided gateway action ───
-   Add-to-cart stays the primary (solid) CTA; this button opens the live design
-   studio, so it's an enhanced secondary: a distinctive wand icon chip, a forward
-   arrow, a gentle attention pulse, and a one-line note so buyers know what clicking
-   it does. (Re-uses the blue selection accent so the icon "pops".) */
-.nbo-wrapper.nbo-style-cloodo .spbwc-customize-cta { margin-top: var(--nbd-space-4); }
-.nbo-wrapper.nbo-style-cloodo .nbd-option-wrapper #pcpb-start-design.spbwc-customize-btn {
+/* ── Designer "Preview & customize" gateway ─────────────────────
+   Self-contained (NOT scoped to .nbo-wrapper.nbo-style-cloodo) because the button
+   now renders BELOW the product image (`woocommerce_product_thumbnails` hook), i.e.
+   outside the cloodo options wrapper. Defines its own tokens so it looks right on
+   any WP theme without inheriting from a parent wrapper. The button still opens the
+   visual design preview; pricing options live separately in the summary column. */
+.spbwc-customize-cta {
+    /* self-contained token defaults */
+    --spbwc-c-accent: #2563eb;
+    --spbwc-c-accent-tint: #eff6ff;
+    --spbwc-c-accent-soft: #dbeafe;
+    --spbwc-c-bg: #ffffff;
+    --spbwc-c-bg-soft: #faf7f2;
+    --spbwc-c-text: #1c1917;
+    --spbwc-c-text-mute: #a8a29e;
+    --spbwc-c-border: #d6cfc4;
+
+    margin: 16px 0 0;
+}
+.spbwc-customize-btn,
+a#pcpb-start-design.spbwc-customize-btn {
     position: relative;
-    display: flex !important;     /* beat legacy float/inline so it's a full-width row */
-    float: none !important;
-    width: 100% !important;
+    display: flex;
+    float: none;
+    width: 100%;
+    box-sizing: border-box;
+    align-items: center;
     justify-content: flex-start;
-    gap: var(--nbd-space-3);
+    gap: 12px;
+    padding: 14px 18px;
+    border: 2px solid var(--spbwc-c-border);
+    border-radius: 14px;
+    background: var(--spbwc-c-bg);
+    color: var(--spbwc-c-text);
     text-align: left;
+    text-decoration: none;
+    font-family: inherit;
+    font-size: 16px;
+    line-height: 1.2;
+    cursor: pointer;
+    box-shadow: 0 1px 2px rgba(16,24,40,.04);
+    transition: transform .15s ease, box-shadow .15s ease, border-color .15s ease, background .15s ease;
     animation: spbwcCustomizePulse 2.6s ease-in-out infinite;
 }
-.nbo-wrapper.nbo-style-cloodo .spbwc-customize-btn__icon {
+.spbwc-customize-btn__icon {
     flex: 0 0 auto;
     display: inline-flex;
     align-items: center;
     justify-content: center;
     width: 34px;
     height: 34px;
-    border-radius: var(--nbd-radius-md);
-    background: var(--cld-select);
+    border-radius: 9px;
+    background: var(--spbwc-c-accent);
     color: #fff;
+    box-shadow: 0 2px 4px rgba(37,99,235,.18);
 }
-.nbo-wrapper.nbo-style-cloodo .spbwc-customize-btn__icon svg { width: 20px; height: 20px; display: block; }
-.nbo-wrapper.nbo-style-cloodo .spbwc-customize-btn__text { flex: 1 1 auto; display: flex; flex-direction: column; gap: 1px; min-width: 0; }
-.nbo-wrapper.nbo-style-cloodo .spbwc-customize-btn__label { font-size: var(--text-lg); font-weight: var(--font-bold); line-height: 1.2; }
-.nbo-wrapper.nbo-style-cloodo .spbwc-customize-btn__hint { font-size: var(--text-sm); font-weight: var(--font-normal); color: var(--nbd-st-text-mute); line-height: 1.3; white-space: normal; }
-.nbo-wrapper.nbo-style-cloodo .spbwc-customize-btn__arrow {
+.spbwc-customize-btn__icon svg { width: 20px; height: 20px; display: block; }
+.spbwc-customize-btn__text { flex: 1 1 auto; display: flex; flex-direction: column; gap: 1px; min-width: 0; }
+.spbwc-customize-btn__label { font-size: 16px; font-weight: 700; line-height: 1.2; color: var(--spbwc-c-text); }
+.spbwc-customize-btn__hint  { font-size: 12px; font-weight: 400; line-height: 1.3; color: var(--spbwc-c-text-mute); white-space: normal; }
+.spbwc-customize-btn__arrow {
     flex: 0 0 auto;
     display: inline-flex;
-    color: var(--cld-select);
-    transition: transform var(--transition-fast);
+    color: var(--spbwc-c-accent);
+    transition: transform .15s ease;
 }
-.nbo-wrapper.nbo-style-cloodo .spbwc-customize-btn__arrow svg { width: 20px; height: 20px; display: block; }
-.nbo-wrapper.nbo-style-cloodo .nbd-option-wrapper #pcpb-start-design.spbwc-customize-btn:hover {
-    background: var(--cld-select-tint) !important;
-    border-color: var(--cld-select) !important;
+.spbwc-customize-btn__arrow svg { width: 20px; height: 20px; display: block; }
+.spbwc-customize-btn:hover,
+a#pcpb-start-design.spbwc-customize-btn:hover {
+    background: var(--spbwc-c-accent-tint);
+    border-color: var(--spbwc-c-accent);
+    transform: translateY(-1px);
+    box-shadow: 0 2px 6px rgba(16,24,40,.06), 0 14px 30px rgba(16,24,40,.10);
     animation: none; /* let the static hover shadow take over */
 }
-.nbo-wrapper.nbo-style-cloodo #pcpb-start-design.spbwc-customize-btn:hover .spbwc-customize-btn__arrow { transform: translateX(3px); }
+.spbwc-customize-btn:hover .spbwc-customize-btn__arrow { transform: translateX(3px); }
 @keyframes spbwcCustomizePulse {
     0%, 100% { box-shadow: 0 0 0 0 rgba(37, 99, 235, 0); }
     50%      { box-shadow: 0 0 0 4px rgba(37, 99, 235, .12); }
 }
 @media (prefers-reduced-motion: reduce) {
-    .nbo-wrapper.nbo-style-cloodo #pcpb-start-design.spbwc-customize-btn { animation: none; }
-    .nbo-wrapper.nbo-style-cloodo #pcpb-start-design.spbwc-customize-btn:hover .spbwc-customize-btn__arrow { transition: none; }
+    .spbwc-customize-btn { animation: none; }
+    .spbwc-customize-btn:hover .spbwc-customize-btn__arrow { transition: none; }
 }
 /* "Clear selection" → secondary/ghost */
 .nbo-wrapper.nbo-style-cloodo .nbo-clear-option-wrap { margin-top: var(--nbd-space-3); }
@@ -931,8 +1057,10 @@
 .nbo-wrapper.nbo-style-cloodo .pcpb-field-count {
     display: inline-flex;
     align-items: center;
-    align-self: center;
-    padding: 1px 8px;
+    /* baseline (not center) so the chip text sits on the same baseline as the
+       field title — otherwise the chip floats higher than the label. */
+    align-self: baseline;
+    padding: 2px 10px;
     border-radius: var(--nbd-radius-pill);
     background: var(--nbd-st-bg-soft);
     color: var(--nbd-st-text-soft);
@@ -941,6 +1069,7 @@
     text-transform: uppercase;
     letter-spacing: .04em;
     white-space: nowrap;
+    line-height: 1.4;
 }
 
 /* Chosen value — this is the *answer*, so it gets the strong-dark treatment;
@@ -1291,6 +1420,22 @@
     font-variant-numeric: tabular-nums;
 }
 .nbo-wrapper.nbo-style-cloodo .nbo-qty-tier__unit { font-size: var(--text-sm); color: var(--nbd-st-text-mute); }
+/* Per-tier discount badge inside the quantity card — red number on soft red tint
+   so the discount is impossible to miss. "—" rendered muted for the no-discount tier. */
+.nbo-wrapper.nbo-style-cloodo .nbo-qty-tier__discount {
+    margin-top: var(--nbd-space-2);
+    padding: 3px var(--nbd-space-3);
+    border-radius: var(--nbd-radius-pill);
+    background: rgba(220, 38, 38, .10);
+    color: var(--nbd-color-danger);
+    font-size: var(--text-md);
+    font-weight: var(--font-extrabold);
+    font-variant-numeric: tabular-nums;
+    line-height: 1.2;
+    letter-spacing: -.01em;
+}
+.nbo-wrapper.nbo-style-cloodo .nbo-qty-tier__discount .woocommerce-Price-amount { color: inherit; font-size: inherit; }
+.nbo-wrapper.nbo-style-cloodo .nbo-qty-tier__discount--none { background: transparent; color: var(--nbd-st-text-mute); font-weight: var(--font-normal); }
 .nbo-wrapper.nbo-style-cloodo .nbo-qty-tier__save {
     margin-top: var(--nbd-space-1);
     padding: 1px var(--nbd-space-2);

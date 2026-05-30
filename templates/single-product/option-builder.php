@@ -46,22 +46,45 @@ $currentDir = realpath(dirname(__FILE__)); // phpcs:ignore WordPress.NamingConve
                 </div>
                 <?php
                 // Trust bar — merchant-customizable via the `spbwc_cloodo_trust_items` filter.
+                // Each item may be either a string (uses the default check icon) OR an array
+                //   array( 'icon' => 'shield'|'hammer'|'eye'|'check'|<raw svg html>, 'text' => '...' )
                 // Defaults are statements that are true for the plugin context (no shipping/return
                 // claims that could be inaccurate for a given store).
                 $spbwc_trust_items = apply_filters( 'spbwc_cloodo_trust_items', array(
-                    __( 'Secure checkout', 'storelly-product-builder-for-woocommerce' ),
-                    __( 'Made to order', 'storelly-product-builder-for-woocommerce' ),
-                    __( 'Live, transparent pricing', 'storelly-product-builder-for-woocommerce' ),
+                    array( 'icon' => 'shield', 'text' => __( 'Secure checkout', 'storelly-product-builder-for-woocommerce' ) ),
+                    array( 'icon' => 'hammer', 'text' => __( 'Made to order', 'storelly-product-builder-for-woocommerce' ) ),
+                    array( 'icon' => 'eye',    'text' => __( 'Live, transparent pricing', 'storelly-product-builder-for-woocommerce' ) ),
                 ) );
+                // Tiny inline SVG library — keys map to icon-chip accent classes below.
+                $spbwc_trust_icon_lib = array(
+                    'shield' => '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg>',
+                    'hammer' => '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 12-8.5 8.5a2.12 2.12 0 1 1-3-3L12 9"/><path d="M17.64 15 22 10.64"/><path d="m20.91 11.7-1.25-1.25a2.05 2.05 0 0 1 0-2.91l.18-.18a2.05 2.05 0 0 0 0-2.91l-2.21-2.21a2.05 2.05 0 0 0-2.91 0l-.18.18a2.05 2.05 0 0 1-2.91 0L9.91 1"/></svg>',
+                    'eye'    => '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg>',
+                    'check'  => '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6L9 17l-5-5"/></svg>',
+                );
+                $spbwc_trust_allowed_svg = array(
+                    'svg'    => array( 'viewbox' => true, 'width' => true, 'height' => true, 'fill' => true, 'stroke' => true, 'stroke-width' => true, 'stroke-linecap' => true, 'stroke-linejoin' => true, 'aria-hidden' => true ),
+                    'path'   => array( 'd' => true ),
+                    'circle' => array( 'cx' => true, 'cy' => true, 'r' => true ),
+                );
                 if ( ! empty( $spbwc_trust_items ) && is_array( $spbwc_trust_items ) ) : ?>
                 <div class="nbo-trust" ng-if="fields.length">
                     <?php foreach ( $spbwc_trust_items as $spbwc_trust_item ) :
                         $spbwc_trust_text = is_array( $spbwc_trust_item ) ? ( isset( $spbwc_trust_item['text'] ) ? $spbwc_trust_item['text'] : '' ) : $spbwc_trust_item;
                         if ( '' === $spbwc_trust_text ) { continue; }
+                        $spbwc_trust_icon_key = ( is_array( $spbwc_trust_item ) && isset( $spbwc_trust_item['icon'] ) ) ? $spbwc_trust_item['icon'] : 'check';
+                        if ( isset( $spbwc_trust_icon_lib[ $spbwc_trust_icon_key ] ) ) {
+                            $spbwc_trust_icon_svg = $spbwc_trust_icon_lib[ $spbwc_trust_icon_key ];
+                            $spbwc_trust_icon_cls = ' nbo-trust__icon--' . sanitize_html_class( $spbwc_trust_icon_key );
+                        } else {
+                            // Merchant supplied raw SVG markup — accent class neutral.
+                            $spbwc_trust_icon_svg = $spbwc_trust_icon_key;
+                            $spbwc_trust_icon_cls = ' nbo-trust__icon--check';
+                        }
                         ?>
                         <span class="nbo-trust__item">
-                            <svg class="nbo-trust__icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6L9 17l-5-5"/></svg>
-                            <?php echo esc_html( $spbwc_trust_text ); ?>
+                            <span class="nbo-trust__icon<?php echo esc_attr( $spbwc_trust_icon_cls ); ?>" aria-hidden="true"><?php echo wp_kses( $spbwc_trust_icon_svg, $spbwc_trust_allowed_svg ); ?></span>
+                            <span class="nbo-trust__text"><?php echo esc_html( $spbwc_trust_text ); ?></span>
                         </span>
                     <?php endforeach; ?>
                 </div>
@@ -163,20 +186,27 @@ $currentDir = realpath(dirname(__FILE__)); // phpcs:ignore WordPress.NamingConve
                 if ($has_nbpb) do_action('spbwc_after_default_options');
 
                 // Quantity quick-select from the merchant's configured quantity breaks.
-                // NOTE: the pricing engine does not apply a volume discount (no quantity_breaks
-                // handling in option-builder.js or option_processing), so we DO NOT advertise
-                // "save %": that would be a false claim. These are honest quick-pick quantities;
-                // the live total updates to quantity x price.
-                $spbwc_qtiers = array();
+                // The volume-discount engine in option_processing applies each tier's `dis`
+                // (per-item, percent or fixed) at cart submission; the cart shows a
+                // "Quantity Discount" deduction. The live hero total (rendered by the core
+                // option-builder.js) does not yet preview the discount, so we still keep the
+                // Quick Pick cards as a quantity selector — the discount surfaces in cart.
+                // Build per-tier metadata: qty => discount value (float, 0 = no discount).
+                // The discount value pairs with `quantity_discount_type` ('p'=percent, 'f'=fixed)
+                // to render the per-card save label and (server-side) drive option_processing.
+                $spbwc_qtiers_data = array();
                 if ( isset($options['quantity_breaks']) && is_array($options['quantity_breaks']) ) {
                     foreach ($options['quantity_breaks'] as $spbwc_b) {
                         $spbwc_bval = isset($spbwc_b['val']) ? ( is_array($spbwc_b['val']) ? ( $spbwc_b['val']['value'] ?? '' ) : $spbwc_b['val'] ) : '';
+                        $spbwc_bdis = isset($spbwc_b['dis']) ? ( is_array($spbwc_b['dis']) ? ( $spbwc_b['dis']['value'] ?? '' ) : $spbwc_b['dis'] ) : '';
                         if ( '' !== (string) $spbwc_bval && (int) $spbwc_bval > 0 ) {
-                            $spbwc_qtiers[] = (int) $spbwc_bval;
+                            $spbwc_qtiers_data[ (int) $spbwc_bval ] = ( '' === (string) $spbwc_bdis ) ? 0.0 : (float) $spbwc_bdis;
                         }
                     }
-                    $spbwc_qtiers = array_values( array_unique( $spbwc_qtiers ) );
+                    ksort( $spbwc_qtiers_data, SORT_NUMERIC );
                 }
+                $spbwc_qty_dtype = isset( $options['quantity_discount_type'] ) ? $options['quantity_discount_type'] : 'f';
+                $spbwc_qtiers    = array_keys( $spbwc_qtiers_data );
                 ?>
                 <?php if ( count($spbwc_qtiers) > 1 ) : ?>
                 <div class="nbo-qty-tiers" ng-if="fields.length">
@@ -188,10 +218,21 @@ $currentDir = realpath(dirname(__FILE__)); // phpcs:ignore WordPress.NamingConve
                         <p class="pcpb-field-desc"><?php esc_html_e('Pick a common quantity, or set your own below — the total updates instantly.', 'storelly-product-builder-for-woocommerce'); ?></p>
                     </div>
                     <div class="nbo-qty-tiers__grid" data-spbwc-qty-tiers>
-                        <?php foreach ($spbwc_qtiers as $spbwc_qv) : ?>
+                        <?php foreach ($spbwc_qtiers as $spbwc_qv) :
+                            $spbwc_qdis = isset( $spbwc_qtiers_data[ $spbwc_qv ] ) ? $spbwc_qtiers_data[ $spbwc_qv ] : 0;
+                        ?>
                         <button type="button" class="nbo-qty-tier" data-spbwc-qty="<?php echo esc_attr($spbwc_qv); ?>">
                             <span class="nbo-qty-tier__qty"><?php echo esc_html($spbwc_qv); ?></span>
                             <span class="nbo-qty-tier__unit"><?php esc_html_e('units', 'storelly-product-builder-for-woocommerce'); ?></span>
+                            <?php if ( $spbwc_qdis > 0 ) : ?>
+                                <?php if ( 'p' === $spbwc_qty_dtype ) : ?>
+                                    <span class="nbo-qty-tier__discount">&minus;<?php echo esc_html( rtrim( rtrim( number_format( $spbwc_qdis, 2 ), '0' ), '.' ) ); ?>%</span>
+                                <?php else : ?>
+                                    <span class="nbo-qty-tier__discount">&minus;<?php echo wp_kses_post( wc_price( $spbwc_qdis ) ); ?></span>
+                                <?php endif; ?>
+                            <?php else : ?>
+                                <span class="nbo-qty-tier__discount nbo-qty-tier__discount--none">&mdash;</span>
+                            <?php endif; ?>
                         </button>
                         <?php endforeach; ?>
                     </div>
@@ -236,8 +277,12 @@ $currentDir = realpath(dirname(__FILE__)); // phpcs:ignore WordPress.NamingConve
                                 </td>
                                 <td ng-bind-html="field.price | to_trusted"></td>
                             </tr>
+                            <tr class="nbo-summary-qty">
+                                <td><?php esc_html_e( 'Quantity', 'storelly-product-builder-for-woocommerce' ); ?> : <b>{{_qty}}</b></td>
+                                <td><span ng-show="_qty == 1"><?php esc_html_e( '1 item', 'storelly-product-builder-for-woocommerce' ); ?></span><span ng-hide="_qty == 1">{{_qty}} <?php esc_html_e( 'items', 'storelly-product-builder-for-woocommerce' ); ?></span></td>
+                            </tr>
                         </tbody>
-                        <tfoot style="border-top: 1px solid #404762;">
+                        <tfoot>
                             <tr>
                                 <td><b><?php esc_html_e('Options price', 'storelly-product-builder-for-woocommerce'); ?></b></td>
                                 <td><span id="nbd-option-total"><span ng-bind-html="total_price | to_trusted"></span> / <?php esc_html_e('1 item', 'storelly-product-builder-for-woocommerce'); ?></span></td>
