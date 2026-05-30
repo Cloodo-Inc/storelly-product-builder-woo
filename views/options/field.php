@@ -1,5 +1,5 @@
 <?php if (!defined('ABSPATH')) exit; ?>
-<div class="pcpb-field-wrap" ng-repeat="(fieldIndex, field) in options.fields" id="{{field.id}}" ng-class="{'is-expanded': field.isExpand, 'is-disabled': field.general.enabled.value === 'n'}" data-field-index="{{fieldIndex}}">
+<div class="pcpb-field-wrap" ng-repeat="(fieldIndex, field) in options.fields" id="{{field.id}}" ng-class="{'is-expanded': field.isExpand, 'is-disabled': field.general.enabled.value === 'n', 'is-nbpb': !!field.nbpb_type}" data-field-index="{{fieldIndex}}">
     <div class="nbd-nav">
         <!-- Drag handle for sortable reorder. Wired up to jQuery UI sortable
              from admin-options.js (boot at controller init). -->
