@@ -240,7 +240,7 @@ msgstr ""
 
 #: includes/class-admin-options.php:1090 includes/class-request-quote.php:360
 msgid "Quotes"
-msgstr ""
+msgstr "Báo giá"
 
 #: includes/class-admin-options.php:1093
 msgid "Configure Get Quote, build request forms, and review submitted quote requests."
@@ -248,7 +248,7 @@ msgstr ""
 
 #: includes/class-admin-options.php:1104 includes/class-request-quote.php:95
 msgid "Get Quote"
-msgstr ""
+msgstr "Lấy báo giá"
 
 #: includes/class-admin-options.php:1109
 msgid "Form Builder"
@@ -350,7 +350,7 @@ msgstr ""
 
 #: includes/class-admin-options.php:1201
 msgid "Add field"
-msgstr ""
+msgstr "Thêm trường"
 
 #: includes/class-admin-options.php:1209
 #: includes/marketplace/admin/class-designs-list-table.php:32
@@ -393,7 +393,7 @@ msgstr "Bắt buộc"
 #: views/marketplace-admin/designers.php:41 views/options/edit-option.php:236
 #: views/options/templates/field-body/enabled.php:6
 msgid "Enabled"
-msgstr ""
+msgstr "Đã bật"
 
 #: includes/class-admin-options.php:1216 includes/class-admin-options.php:1369
 #: includes/class-admin-options.php:1791 includes/class-request-quote.php:392
@@ -424,7 +424,7 @@ msgstr "Điện thoại"
 #: includes/setup-wizard/class-woo-seed-mapper.php:582
 #: views/options/edit-option.php:394
 msgid "Textarea"
-msgstr ""
+msgstr "Vùng văn bản"
 
 #: includes/class-admin-options.php:1231
 #: templates/launcher/store/upload-form.php:202 views/manager-fonts.php:286
@@ -463,7 +463,7 @@ msgstr "Khách hàng"
 #: includes/class-admin-options.php:1367
 #: includes/launcher/class.launcher.php:1469
 msgid "Message"
-msgstr ""
+msgstr "Tin nhắn"
 
 #: includes/class-admin-options.php:1368 includes/class-admin-options.php:1787
 #: includes/class-request-quote.php:389
@@ -500,7 +500,7 @@ msgstr ""
 #: includes/class-admin-options.php:1466 views/menu-settings.php:838
 #: views/options/edit-option.php:1146
 msgid "Saving…"
-msgstr ""
+msgstr "Đang lưu…"
 
 #: includes/class-admin-options.php:1467
 msgid "Saved successfully."
@@ -536,11 +536,11 @@ msgstr ""
 
 #: includes/class-admin-options.php:1629
 msgid "Site URL"
-msgstr ""
+msgstr "URL website"
 
 #: includes/class-admin-options.php:1630
 msgid "Home URL"
-msgstr ""
+msgstr "URL trang chủ"
 
 #: includes/class-admin-options.php:1631
 msgid "WP Debug"
@@ -568,7 +568,7 @@ msgstr ""
 
 #: includes/class-admin-options.php:1637
 msgid "Timezone"
-msgstr ""
+msgstr "Múi giờ"
 
 #: includes/class-admin-options.php:1638
 msgid "Theme"
@@ -592,7 +592,7 @@ msgstr ""
 
 #: includes/class-admin-options.php:1643
 msgid "Active Plugins"
-msgstr ""
+msgstr "Plugin đang bật"
 
 #: includes/class-admin-options.php:1670
 msgid "Storelly Product Builder for WooCommerce helps merchants create advanced printing options and product builder workflows."
@@ -692,7 +692,7 @@ msgstr "Mô tả"
 #: views/options/templates/field-body/data_type.php:6
 #: views/options/templates/field-body/data_type.php:10
 msgid "Data type"
-msgstr ""
+msgstr "Loại dữ liệu"
 
 #: includes/class-admin-options.php:2198
 #: includes/setup-wizard/class-woo-seed-mapper.php:468
@@ -874,7 +874,7 @@ msgstr ""
 #: views/options/templates/field-body/attributes.php:176
 #: views/options/templates/field-body/attributes.php:205
 msgid "Dropdown"
-msgstr ""
+msgstr "Dropdown"
 
 #: includes/class-admin-options.php:2697
 #: includes/setup-wizard/class-woo-seed-mapper.php:727
@@ -925,7 +925,7 @@ msgstr ""
 
 #: includes/class-admin-options.php:2771
 msgid "Component"
-msgstr ""
+msgstr "Thành phần"
 
 #: includes/class-admin-options.php:2773
 #: views/options/templates/field-body/attributes.php:80
@@ -1005,7 +1005,7 @@ msgstr ""
 
 #: includes/class-admin-options.php:3151
 msgid "Complete!"
-msgstr ""
+msgstr "Hoàn tất!"
 
 #: includes/class-admin-options.php:3162
 msgid "Delete this font? This cannot be undone."
@@ -1146,7 +1146,7 @@ msgstr ""
 #: includes/class-admin-options.php:4015
 #: views/options/options-list-table.php:867
 msgid "Renamed."
-msgstr ""
+msgstr "Đã đổi tên."
 
 #: includes/class-admin-options.php:4035
 msgid "No items selected."
@@ -1684,7 +1684,7 @@ msgstr[0] ""
 
 #: includes/class-request-quote.php:382
 msgid "My Quotes"
-msgstr ""
+msgstr "Báo giá của tôi"
 
 #: includes/class-request-quote.php:384
 msgid "No quotes found."
@@ -1692,7 +1692,7 @@ msgstr ""
 
 #: includes/class-request-quote.php:388
 msgid "Quote"
-msgstr ""
+msgstr "Báo giá"
 
 #: includes/class-request-quote.php:416
 msgid "Quote not found."
@@ -1706,11 +1706,11 @@ msgstr ""
 
 #: includes/class-request-quote.php:437
 msgid "Status:"
-msgstr ""
+msgstr "Trạng thái:"
 
 #: includes/class-request-quote.php:438
 msgid "Message:"
-msgstr ""
+msgstr "Tin nhắn:"
 
 #: includes/class-request-quote.php:439
 msgid "Accept Quote"
@@ -1743,7 +1743,7 @@ msgstr ""
 
 #: includes/class-util.php:224
 msgid "Warning."
-msgstr ""
+msgstr "Cảnh báo."
 
 #. translators: %1$s: Template file path.
 #: includes/class-util.php:268
@@ -1891,7 +1891,7 @@ msgstr ""
 
 #: includes/launcher/class.launcher.php:107
 msgid "My store"
-msgstr ""
+msgstr "Cửa hàng của tôi"
 
 #: includes/launcher/class.launcher.php:126
 msgid "Design store"
@@ -1902,7 +1902,7 @@ msgstr ""
 #: views/marketplace-admin/designers.php:26
 #: views/marketplace-admin/header.php:17 views/marketplace-admin/report.php:34
 msgid "Designers"
-msgstr ""
+msgstr "Designers"
 
 #: includes/launcher/class.launcher.php:340 views/options/field.php:77
 msgid "General"
@@ -1919,7 +1919,7 @@ msgstr ""
 #: includes/marketplace/admin/class-withdraws-list-table.php:31
 #: views/options/edit-option.php:128
 msgid "Designer"
-msgstr ""
+msgstr "Designer"
 
 #: includes/launcher/class.launcher.php:343
 #: includes/launcher/class.launcher.php:1324
@@ -2015,7 +2015,7 @@ msgstr ""
 
 #: includes/launcher/class.launcher.php:1409
 msgid "Add Note"
-msgstr ""
+msgstr "Thêm ghi chú"
 
 #: includes/launcher/class.launcher.php:1410
 #: views/marketplace-admin/designers.php:46
@@ -2041,7 +2041,7 @@ msgstr ""
 #: templates/launcher/store/withdraw-table.php:23
 #: views/marketplace-admin/withdraws.php:41
 msgid "Approved"
-msgstr ""
+msgstr "Đã duyệt"
 
 #: includes/launcher/class.launcher.php:1414
 msgid "Approve Request"
@@ -2100,11 +2100,11 @@ msgstr ""
 #: templates/launcher/store/withdraw-table.php:25
 #: views/marketplace-admin/withdraws.php:42
 msgid "Cancelled"
-msgstr ""
+msgstr "Đã hủy"
 
 #: includes/launcher/class.launcher.php:1426 includes/settings/launcher.php:32
 msgid "Combine"
-msgstr ""
+msgstr "Gộp"
 
 #: includes/launcher/class.launcher.php:1427
 msgid "% + "
@@ -2144,7 +2144,7 @@ msgstr "Tùy chỉnh"
 
 #: includes/launcher/class.launcher.php:1436
 msgid "Dashboard"
-msgstr ""
+msgstr "Bảng điều khiển"
 
 #: includes/launcher/class.launcher.php:1441
 #: includes/marketplace/admin/class-designers-list-table.php:36
@@ -2152,7 +2152,7 @@ msgstr ""
 #: views/marketplace-admin/designs.php:25 views/marketplace-admin/header.php:18
 #: views/marketplace-admin/report.php:45
 msgid "Designs"
-msgstr ""
+msgstr "Thiết kế"
 
 #: includes/launcher/class.launcher.php:1442
 msgid "Designer Commission Type"
@@ -2175,7 +2175,7 @@ msgstr ""
 #: views/marketplace-admin/designers.php:42 views/options/edit-option.php:236
 #: views/options/field.php:39
 msgid "Disabled"
-msgstr ""
+msgstr "Đã tắt"
 
 #: includes/launcher/class.launcher.php:1447
 msgid "Download resource"
@@ -2187,7 +2187,7 @@ msgstr ""
 
 #: includes/launcher/class.launcher.php:1450
 msgid "Editable"
-msgstr ""
+msgstr "Có thể sửa"
 
 #: includes/launcher/class.launcher.php:1452
 msgid "Enable Selling Designs"
@@ -2195,7 +2195,7 @@ msgstr ""
 
 #: includes/launcher/class.launcher.php:1453
 msgid "Error!"
-msgstr ""
+msgstr "Lỗi!"
 
 #: includes/launcher/class.launcher.php:1454 includes/settings/launcher.php:31
 #: views/marketplace-admin/designer-edit.php:148
@@ -2206,7 +2206,7 @@ msgstr ""
 #: includes/marketplace/admin/class-designers-list-table.php:35
 #: views/marketplace-admin/designers.php:47
 msgid "Featured"
-msgstr ""
+msgstr "Nổi bật"
 
 #: includes/launcher/class.launcher.php:1456 views/designs.php:158
 #: views/marketplace-admin/designers.php:50
@@ -2324,7 +2324,7 @@ msgstr ""
 
 #: includes/launcher/class.launcher.php:1481
 msgid "Payment"
-msgstr ""
+msgstr "Thanh toán"
 
 #: includes/launcher/class.launcher.php:1482
 msgid "Payment information"
@@ -2367,7 +2367,7 @@ msgstr ""
 
 #: includes/launcher/class.launcher.php:1491
 msgid "Revenue"
-msgstr ""
+msgstr "Doanh thu"
 
 #: includes/launcher/class.launcher.php:1492
 msgid "Registered since"
@@ -2428,7 +2428,7 @@ msgstr ""
 
 #: includes/launcher/class.launcher.php:1507
 msgid "Success!"
-msgstr ""
+msgstr "Thành công!"
 
 #: includes/launcher/class.launcher.php:1508
 #: includes/launcher/emails/designer_disabled.php:92
@@ -2437,7 +2437,7 @@ msgstr ""
 #: includes/launcher/emails/withdraw_cancelled.php:96
 #: includes/launcher/emails/withdraw_request.php:109
 msgid "Subject"
-msgstr ""
+msgstr "Chủ đề"
 
 #: includes/launcher/class.launcher.php:1509
 msgid "This month"
@@ -2479,7 +2479,7 @@ msgstr ""
 #: includes/launcher/class.launcher.php:1519
 #: templates/launcher/store/tabs.php:16 templates/launcher/store/withdraw.php:4
 msgid "Withdraw"
-msgstr ""
+msgstr "Rút tiền"
 
 #: includes/launcher/class.launcher.php:1520
 msgid "Withdrawals"
@@ -2705,7 +2705,7 @@ msgstr ""
 #: includes/marketplace/admin/class-designers-list-table.php:31
 #: views/menu-settings.php:759
 msgid "Username"
-msgstr ""
+msgstr "Tên đăng nhập"
 
 #: includes/marketplace/admin/class-designers-list-table.php:32
 msgid "Display name"
@@ -2713,11 +2713,11 @@ msgstr ""
 
 #: includes/marketplace/admin/class-designers-list-table.php:37
 msgid "Balance"
-msgstr ""
+msgstr "Số dư"
 
 #: includes/marketplace/admin/class-designers-list-table.php:38
 msgid "Joined"
-msgstr ""
+msgstr "Đã tham gia"
 
 #: includes/marketplace/admin/class-designers-list-table.php:44
 #: includes/marketplace/admin/class-designers-list-table.php:60
@@ -2754,7 +2754,7 @@ msgstr ""
 #: includes/marketplace/admin/class-designs-list-table.php:38
 #: views/options/edit-option.php:174
 msgid "Created"
-msgstr ""
+msgstr "Đã tạo"
 
 #: includes/marketplace/admin/class-designs-list-table.php:65
 #: includes/marketplace/admin/class-designs-list-table.php:77
@@ -2807,7 +2807,7 @@ msgstr ""
 
 #: includes/marketplace/admin/class-withdraws-list-table.php:33
 msgid "Method"
-msgstr ""
+msgstr "Phương thức"
 
 #: includes/marketplace/admin/class-withdraws-list-table.php:36
 msgid "IP"
@@ -2815,12 +2815,12 @@ msgstr ""
 
 #: includes/marketplace/admin/class-withdraws-list-table.php:37
 msgid "Requested"
-msgstr ""
+msgstr "Đã yêu cầu"
 
 #: includes/marketplace/admin/class-withdraws-list-table.php:44
 #: includes/marketplace/admin/class-withdraws-list-table.php:104
 msgid "Approve"
-msgstr ""
+msgstr "Duyệt"
 
 #: includes/marketplace/admin/class-withdraws-list-table.php:153
 msgid "No withdraw requests found."
@@ -2948,7 +2948,7 @@ msgstr ""
 
 #: includes/settings/launcher.php:96
 msgid "Completed"
-msgstr ""
+msgstr "Đã hoàn tất"
 
 #: includes/settings/launcher.php:97 views/options/edit-option.php:1129
 msgid "Processing"
@@ -2956,7 +2956,7 @@ msgstr ""
 
 #: includes/settings/launcher.php:98
 msgid "On-hold"
-msgstr ""
+msgstr "Tạm giữ"
 
 #: includes/settings/launcher.php:105
 msgid "Designer page banner width"
@@ -3267,7 +3267,7 @@ msgstr "Tiếp"
 
 #: includes/setup-wizard/class-woo-seed-controller.php:161
 msgid "Re-scan"
-msgstr ""
+msgstr "Quét lại"
 
 #: includes/setup-wizard/class-woo-seed-controller.php:162
 #, php-format
@@ -3290,7 +3290,7 @@ msgstr ""
 
 #: includes/setup-wizard/class-woo-seed-controller.php:167
 msgid "Error:"
-msgstr ""
+msgstr "Lỗi:"
 
 #: includes/setup-wizard/class-woo-seed-controller.php:225
 msgid "Job not found."
@@ -3361,7 +3361,7 @@ msgstr "Mẫu tùy chọn"
 
 #: includes/templates/class-template-library-admin.php:103
 msgid "Applying…"
-msgstr ""
+msgstr "Đang áp dụng…"
 
 #: includes/templates/class-template-library-admin.php:104
 #: views/templates/library.php:273
@@ -3411,7 +3411,7 @@ msgstr ""
 #: includes/templates/class-template-library-admin.php:116
 #: views/templates/library.php:242
 msgid "Updating…"
-msgstr ""
+msgstr "Đang cập nhật…"
 
 #. translators: %d: number of options in the template.
 #: includes/templates/class-template-library-admin.php:118
@@ -3431,7 +3431,7 @@ msgstr ""
 
 #: includes/templates/class-template-library-admin.php:126
 msgid "Long text"
-msgstr ""
+msgstr "Văn bản dài"
 
 #: includes/templates/class-template-library-admin.php:128
 #: views/templates/library.php:262
@@ -3474,7 +3474,7 @@ msgstr ""
 #: templates/launcher/emails/plain/designer_disabled.php:11
 #, php-format
 msgid "Hello %s"
-msgstr ""
+msgstr "Xin chào %s"
 
 #: templates/launcher/emails/designer_disabled.php:14
 #: templates/launcher/emails/plain/designer_disabled.php:16
@@ -3773,7 +3773,7 @@ msgstr ""
 
 #: templates/launcher/store/upload-form.php:74
 msgid "Side name"
-msgstr ""
+msgstr "Tên mặt"
 
 #: templates/launcher/store/upload-form.php:77
 msgid "Please check file extension or file size or file dimension!"
@@ -3848,7 +3848,7 @@ msgstr ""
 
 #: templates/launcher/store/withdraw-table.php:11
 msgid "Action "
-msgstr ""
+msgstr "Hành động "
 
 #: templates/launcher/store/withdraw.php:7
 msgid "Current Balance:"
@@ -3917,7 +3917,7 @@ msgstr ""
 #: templates/single-product/option-builder.php:98
 #: templates/single-product/options-builder/swatch.php:93
 msgid "Popular"
-msgstr ""
+msgstr "Phổ biến"
 
 #: templates/single-product/option-builder.php:210
 msgid "Quick pick"
@@ -4052,7 +4052,7 @@ msgstr ""
 
 #: views/box-order-metadata.php:50
 msgid "Check all"
-msgstr ""
+msgstr "Chọn hết"
 
 #: views/box-order-metadata.php:56
 msgid "png"
@@ -4266,7 +4266,7 @@ msgstr ""
 
 #: views/manager-fonts.php:89
 msgid "Font name"
-msgstr ""
+msgstr "Tên font"
 
 #: views/manager-fonts.php:93
 msgid "e.g. My Custom Font"
@@ -4310,11 +4310,11 @@ msgstr ""
 
 #: views/manager-fonts.php:242
 msgid "Clear all"
-msgstr ""
+msgstr "Xóa hết"
 
 #: views/manager-fonts.php:248
 msgid "All fonts"
-msgstr ""
+msgstr "Tất cả font"
 
 #: views/manager-fonts.php:249
 msgid "Selected only"
@@ -4326,7 +4326,7 @@ msgstr ""
 
 #: views/manager-fonts.php:253
 msgid "Per page:"
-msgstr ""
+msgstr "Mỗi trang:"
 
 #: views/manager-fonts.php:264
 msgid "Save selection"
@@ -4481,7 +4481,7 @@ msgstr ""
 
 #: views/marketplace-admin/header.php:19
 msgid "Withdraws"
-msgstr ""
+msgstr "Rút tiền"
 
 #: views/marketplace-admin/header.php:20
 msgid "Report"
@@ -4543,7 +4543,7 @@ msgstr ""
 
 #: views/menu-settings.php:46
 msgid "no logs"
-msgstr ""
+msgstr "không có log"
 
 #: views/menu-settings.php:77
 msgid "Configure display, pricing, cart and API integration settings for Storelly Product Builder."
@@ -4551,16 +4551,16 @@ msgstr ""
 
 #: views/menu-settings.php:104 views/menu-settings.php:260
 msgid "Display"
-msgstr ""
+msgstr "Hiển thị"
 
 #: views/menu-settings.php:109 views/menu-settings.php:367
 #: views/options/edit-option.php:1545
 msgid "Pricing"
-msgstr ""
+msgstr "Định giá"
 
 #: views/menu-settings.php:114 views/menu-settings.php:457
 msgid "Catalog"
-msgstr ""
+msgstr "Catalog"
 
 #: views/menu-settings.php:119 views/menu-settings.php:509
 msgid "Cart &amp; Order"
@@ -4592,7 +4592,7 @@ msgstr ""
 
 #: views/menu-settings.php:186 views/options/edit-option.php:199
 msgid "Sections"
-msgstr ""
+msgstr "Phần"
 
 #: views/menu-settings.php:190
 msgid "Table"
@@ -4820,11 +4820,11 @@ msgstr ""
 
 #: views/menu-settings.php:699
 msgid "API Keys"
-msgstr ""
+msgstr "Khóa API"
 
 #: views/menu-settings.php:704
 msgid "Connected"
-msgstr ""
+msgstr "Đã kết nối"
 
 #: views/menu-settings.php:709
 msgid "Not connected"
@@ -4840,7 +4840,7 @@ msgstr ""
 
 #: views/menu-settings.php:732
 msgid "Secret"
-msgstr ""
+msgstr "Khóa bí mật"
 
 #: views/menu-settings.php:739
 msgid "Your Store Secret key. Keep this private — never put it in client-side code or share it publicly. Rotate it in Storelly Dashboard → Settings → API Keys if compromised."
@@ -4898,7 +4898,7 @@ msgstr ""
 #: views/options/edit-option.php:61
 #, php-format
 msgid "Edit · %s"
-msgstr ""
+msgstr "Sửa · %s"
 
 #: views/options/edit-option.php:74
 msgid "Pricing Option"
@@ -4918,11 +4918,11 @@ msgstr ""
 
 #: views/options/edit-option.php:95
 msgid "Add new"
-msgstr ""
+msgstr "Thêm mới"
 
 #: views/options/edit-option.php:118
 msgid "Builder"
-msgstr ""
+msgstr "Trình dựng"
 
 #: views/options/edit-option.php:123
 msgid "Apply to products"
@@ -4950,11 +4950,11 @@ msgstr ""
 
 #: views/options/edit-option.php:178
 msgid "Modified"
-msgstr ""
+msgstr "Đã sửa"
 
 #: views/options/edit-option.php:182
 msgid "Option ID"
-msgstr ""
+msgstr "ID tùy chọn"
 
 #: views/options/edit-option.php:190
 msgid "Frontend display mode"
@@ -4978,7 +4978,7 @@ msgstr ""
 
 #: views/options/edit-option.php:218 views/options/edit-option.php:261
 msgid "Stepper"
-msgstr ""
+msgstr "Bộ tăng giảm"
 
 #: views/options/edit-option.php:219
 msgid "Wizard one-at-a-time. Best for &gt; 5 fields."
@@ -5194,7 +5194,7 @@ msgstr ""
 
 #: views/options/edit-option.php:456
 msgid "Notice"
-msgstr ""
+msgstr "Thông báo"
 
 #: views/options/edit-option.php:460
 msgid "PHP max input vars:"
@@ -5254,11 +5254,11 @@ msgstr ""
 
 #: views/options/edit-option.php:536 views/templates/library.php:223
 msgid "Mobile"
-msgstr ""
+msgstr "Di động"
 
 #: views/options/edit-option.php:540 views/templates/library.php:221
 msgid "Desktop"
-msgstr ""
+msgstr "Máy tính"
 
 #: views/options/edit-option.php:550 views/options/edit-option.php:667
 msgid "Product mockup"
@@ -5287,7 +5287,7 @@ msgstr ""
 
 #: views/options/edit-option.php:645 views/options/edit-option.php:753
 msgid "+ Options"
-msgstr ""
+msgstr "+ Tùy chọn"
 
 #: views/options/edit-option.php:649 views/options/edit-option.php:757
 msgid "Qty discount"
@@ -5412,7 +5412,7 @@ msgstr ""
 
 #: views/options/edit-option.php:968
 msgid "Add view"
-msgstr ""
+msgstr "Thêm view"
 
 #: views/options/edit-option.php:969
 msgid "Back / Inside / 3rd angle…"
@@ -5623,7 +5623,7 @@ msgstr ""
 
 #: views/options/field.php:52
 msgid "Move up"
-msgstr ""
+msgstr "Lên"
 
 #: views/options/field.php:53
 msgid "Move field up"
@@ -5631,7 +5631,7 @@ msgstr ""
 
 #: views/options/field.php:56
 msgid "Move down"
-msgstr ""
+msgstr "Xuống"
 
 #: views/options/field.php:57
 msgid "Move field down"
@@ -5675,7 +5675,7 @@ msgstr ""
 
 #: views/options/field.php:111
 msgid "Add Field"
-msgstr ""
+msgstr "Thêm trường"
 
 #: views/options/meta-box.php:11
 msgid "Enable Product builder"
@@ -5743,7 +5743,7 @@ msgstr ""
 
 #: views/options/options-list-table.php:98
 msgid "Drafts"
-msgstr ""
+msgstr "Bản nháp"
 
 #: views/options/options-list-table.php:99
 msgid "Not yet visible to customers"
@@ -5780,7 +5780,7 @@ msgstr ""
 
 #: views/options/options-list-table.php:172
 msgid "Sort by"
-msgstr ""
+msgstr "Sắp xếp theo"
 
 #: views/options/options-list-table.php:173
 msgid "Newest first"
@@ -5805,12 +5805,12 @@ msgstr ""
 #: views/options/options-list-table.php:194
 #: views/options/options-list-table.php:197 views/products.php:162
 msgid "List view"
-msgstr ""
+msgstr "Dạng danh sách"
 
 #: views/options/options-list-table.php:200
 #: views/options/options-list-table.php:203
 msgid "Card view"
-msgstr ""
+msgstr "Dạng thẻ"
 
 #: views/options/options-list-table.php:352
 msgid "No options yet."
@@ -5836,7 +5836,7 @@ msgstr ""
 
 #: views/options/options-list-table.php:391
 msgid "Next page"
-msgstr ""
+msgstr "Trang sau"
 
 #: views/options/options-list-table.php:404
 msgid "Loading"
@@ -6093,7 +6093,7 @@ msgstr ""
 
 #: views/options/templates/field-body/conditional_depend.php:20
 msgid "Show when"
-msgstr ""
+msgstr "Hiện khi"
 
 #: views/options/templates/field-body/conditional_depend.php:26
 msgid "— pick a field —"
@@ -6101,7 +6101,7 @@ msgstr ""
 
 #: views/options/templates/field-body/conditional_depend.php:38
 msgid "equals"
-msgstr ""
+msgstr "bằng"
 
 #: views/options/templates/field-body/conditional_depend.php:39
 msgid "does not equal"
@@ -6109,7 +6109,7 @@ msgstr ""
 
 #: views/options/templates/field-body/conditional_depend.php:40
 msgid "contains"
-msgstr ""
+msgstr "chứa"
 
 #: views/options/templates/field-body/conditional_depend.php:41
 msgid "does not contain"
@@ -6178,7 +6178,7 @@ msgstr ""
 
 #: views/options/templates/field-body/price_breaks.php:14
 msgid "From qty"
-msgstr ""
+msgstr "Từ số lượng"
 
 #: views/options/templates/field-body/price_type.php:7
 msgid "How the additional price is calculated. Fixed = flat amount, Percent = % of base price, Per char = each character costs the price."
@@ -6250,11 +6250,11 @@ msgstr ""
 
 #: views/options/templates/nbpb_com.php:14
 msgid "View name"
-msgstr ""
+msgstr "Tên view"
 
 #: views/options/templates/nbpb_com.php:15
 msgid "View base"
-msgstr ""
+msgstr "Nền view"
 
 #: views/options/templates/nbpb_com.php:29
 msgid "Delete View"
@@ -6262,7 +6262,7 @@ msgstr ""
 
 #: views/options/templates/nbpb_com.php:35
 msgid "Add View"
-msgstr ""
+msgstr "Thêm view"
 
 #: views/options/templates/nbpb_com.php:39
 msgid "Tip: keep all view base images the same dimensions so component layers line up correctly across views."
@@ -6371,7 +6371,7 @@ msgstr ""
 
 #: views/options/templates/nbpb_text.php:169
 msgid "Add color"
-msgstr ""
+msgstr "Thêm màu"
 
 #: views/overview.php:60
 msgid "Limited to basic product builder features"
@@ -6732,7 +6732,7 @@ msgstr ""
 
 #: views/overview.php:778
 msgid "Changelog"
-msgstr ""
+msgstr "Nhật ký thay đổi"
 
 #: views/overview.php:782
 msgid "Contact support"
@@ -6776,7 +6776,7 @@ msgstr ""
 
 #: views/product-builder/js_config.php:68
 msgid "Choose"
-msgstr ""
+msgstr "Chọn"
 
 #: views/product-builder/wrapper.php:70
 msgid "Bring Forward"
@@ -6792,15 +6792,15 @@ msgstr ""
 
 #: views/product-builder/wrapper.php:80
 msgid "Zoom out"
-msgstr ""
+msgstr "Thu nhỏ"
 
 #: views/product-builder/wrapper.php:81
 msgid "Zoom in"
-msgstr ""
+msgstr "Phóng to"
 
 #: views/product-builder/wrapper.php:84
 msgid "Rotate"
-msgstr ""
+msgstr "Xoay"
 
 #: views/product-builder/wrapper.php:91
 msgid "Angle"
@@ -6812,7 +6812,7 @@ msgstr ""
 
 #: views/product-builder/wrapper.php:138
 msgid "Content"
-msgstr ""
+msgstr "Nội dung"
 
 #: views/product-builder/wrapper.php:144
 msgid "Font family"
@@ -6828,11 +6828,11 @@ msgstr ""
 
 #: views/product-builder/wrapper.php:192
 msgid "Min size"
-msgstr ""
+msgstr "Cỡ tối thiểu"
 
 #: views/product-builder/wrapper.php:193
 msgid "Max size"
-msgstr ""
+msgstr "Cỡ tối đa"
 
 #: views/products.php:38
 msgid "Manage WooCommerce products and their printing option assignments."
@@ -6856,7 +6856,7 @@ msgstr ""
 
 #: views/products.php:87
 msgid "No Option"
-msgstr ""
+msgstr "Không có tùy chọn"
 
 #: views/products.php:97
 msgid "All Statuses"
@@ -6872,19 +6872,19 @@ msgstr ""
 
 #: views/products.php:105
 msgid "Simple"
-msgstr ""
+msgstr "Đơn giản"
 
 #: views/products.php:106
 msgid "Variable"
-msgstr ""
+msgstr "Biến thể"
 
 #: views/products.php:107
 msgid "Grouped"
-msgstr ""
+msgstr "Nhóm"
 
 #: views/products.php:108
 msgid "External"
-msgstr ""
+msgstr "Bên ngoài"
 
 #: views/products.php:111
 msgid "Filter by category"
@@ -6904,7 +6904,7 @@ msgstr ""
 
 #: views/products.php:123
 msgid "In Stock"
-msgstr ""
+msgstr "Còn hàng"
 
 #: views/products.php:124
 msgid "Out of Stock"
@@ -6924,11 +6924,11 @@ msgstr ""
 
 #: views/products.php:158
 msgid "View mode"
-msgstr ""
+msgstr "Chế độ xem"
 
 #: views/products.php:159
 msgid "Grid view"
-msgstr ""
+msgstr "Dạng lưới"
 
 #: views/products.php:207
 msgid "SKU"
@@ -6962,7 +6962,7 @@ msgstr ""
 
 #: views/setup-wizard/landing.php:45 views/setup-wizard/landing.php:72
 msgid "Open"
-msgstr ""
+msgstr "Mở"
 
 #: views/setup-wizard/landing.php:53
 msgid "Import Woo Variations (one-time)"
@@ -7057,7 +7057,7 @@ msgstr ""
 
 #: views/templates/library.php:222
 msgid "Tablet"
-msgstr ""
+msgstr "Máy tính bảng"
 
 #: views/templates/library.php:226
 msgid "Sample base price"
@@ -7093,7 +7093,7 @@ msgstr ""
 
 #: views/templates/library.php:311
 msgid "Apply to"
-msgstr ""
+msgstr "Áp dụng cho"
 
 #: views/templates/library.php:312
 msgid "(optional)"
@@ -7141,7 +7141,7 @@ msgstr ""
 
 #: views/_products-cards.php:48 views/_products-cards.php:75
 msgid "No option"
-msgstr ""
+msgstr "không có tùy chọn"
 
 #. translators: %d: option ID
 #: views/_products-cards.php:71

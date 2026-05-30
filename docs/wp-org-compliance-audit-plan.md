@@ -66,7 +66,7 @@ mỗi finding kèm file:line, severity, đề xuất fix. Cấu trúc:
 2. unpkg.com (Vue CDN) + app.storelly.com/product-data chưa declare
    trong readme.txt External services
 3. Missing git tag 1.2.6
-4. spbwc-product-builder.pot cần regenerate cho strings marketplace
+4. storelly-product-builder-for-woocommerce.pot cần regenerate cho strings marketplace
 
 ## Đã pass (clear)
 - Prefix mixing: intentional, accept
