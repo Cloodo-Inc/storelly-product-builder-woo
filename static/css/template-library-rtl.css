@@ -1,0 +1,980 @@
+/* ════════════════════════════════════════════════════════════════════
+   Template Library — admin UI (grid, dialogs, classic-style preview)
+   Tokens: uses global --st-* / --nbd-st-* / --shadow-* / --nbd-radius-*
+   from _tokens.css. No local overrides.
+   ════════════════════════════════════════════════════════════════════ */
+
+.spbwc-tl-page-header {
+	max-width: 760px;
+}
+.spbwc-tl-subtitle {
+	color: var(--nbd-st-text-soft);
+	margin: 6px 0 18px;
+	font-size: 13px;
+	line-height: 1.5;
+}
+
+/* ── Stats row (3 cards above toolbar) ────────────────────────────── */
+.spbwc-tl-stats-row {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+	gap: 14px;
+	margin: 0 0 20px;
+}
+.spbwc-tl-stat-card {
+	background: var(--nbd-st-bg);
+	border: 1px solid var(--nbd-st-border-light);
+	border-radius: var(--nbd-radius-md);
+	padding: 16px 18px;
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+	box-shadow: var(--shadow-sm);
+}
+.spbwc-tl-stat-card__icon {
+	font-size: 20px;
+	width: 20px; height: 20px;
+	color: var(--st-brand);
+	margin-bottom: 6px;
+}
+.spbwc-tl-stat-card__value {
+	font-size: 28px;
+	font-weight: 700;
+	color: var(--nbd-st-text);
+	line-height: 1;
+	font-variant-numeric: tabular-nums;
+}
+.spbwc-tl-stat-card__label {
+	font-size: 13px;
+	font-weight: 600;
+	color: var(--nbd-st-text);
+}
+.spbwc-tl-stat-card__sub {
+	font-size: 12px;
+	color: var(--nbd-st-text-soft);
+	line-height: 1.4;
+}
+/* How-to card */
+.spbwc-tl-stat-card--guide {
+	background: var(--st-brand-tint);
+	border-color: var(--st-brand-soft);
+}
+.spbwc-tl-stat-card--guide .spbwc-tl-stat-card__label {
+	color: var(--st-brand-pressed);
+	font-size: 12px;
+	font-weight: 700;
+	text-transform: uppercase;
+	letter-spacing: .05em;
+}
+.spbwc-tl-stat-card--guide .spbwc-tl-stat-card__icon { color: var(--st-brand-pressed); }
+.spbwc-tl-stat-card__steps {
+	margin: 4px 16px 0 0;
+	padding: 0;
+	font-size: 12px;
+	color: var(--nbd-st-text-soft);
+	line-height: 1.7;
+}
+
+/* ── Toolbar ───────────────────────────────────────────────────────── */
+.spbwc-tl-toolbar {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 12px;
+	align-items: center;
+	margin: 16px 0 20px;
+	padding: 12px 14px;
+	background: var(--nbd-st-bg);
+	border: 1px solid var(--nbd-st-border-light);
+	border-radius: var(--nbd-radius);
+	box-shadow: var(--shadow-sm);
+}
+.spbwc-tl-toolbar__search {
+	flex: 1 1 280px;
+	position: relative;
+	min-width: 240px;
+}
+.spbwc-tl-toolbar__search .dashicons {
+	position: absolute;
+	right: 10px; top: 50%;
+	transform: translateY(-50%);
+	color: var(--nbd-st-text-mute);
+}
+.spbwc-tl-toolbar__search input {
+	width: 100%;
+	padding: 6px 32px 6px 10px !important;
+	border: 1px solid var(--nbd-st-border-light);
+	border-radius: var(--nbd-radius);
+	background: var(--nbd-st-bg);
+	box-shadow: var(--shadow-input-inset);
+}
+.spbwc-tl-toolbar__search input:focus {
+	outline: 0;
+	border-color: var(--st-brand);
+	box-shadow: var(--shadow-input-focus);
+}
+.spbwc-tl-toolbar__filter {
+	min-width: 180px;
+	border-radius: var(--nbd-radius);
+}
+.spbwc-tl-count {
+	margin-right: auto;
+	color: var(--nbd-st-text-soft);
+	font-size: 12px;
+}
+
+/* ── Grid + cards ──────────────────────────────────────────────────── */
+.spbwc-tl-grid {
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(268px, 1fr));
+	gap: 18px;
+}
+
+/* ── Card shell ───────────────────────────────────────────────────── */
+.spbwc-tl-card {
+	background: var(--nbd-st-bg);
+	border: 1px solid var(--nbd-st-border-light);
+	border-radius: var(--nbd-radius-lg);
+	display: flex;
+	flex-direction: column;
+	overflow: hidden;
+	transition: var(--transition-card);
+	cursor: default;
+}
+.spbwc-tl-card:hover {
+	border-color: var(--st-brand);
+	box-shadow: var(--shadow-card-hover);
+	transform: translateY(-3px);
+}
+.spbwc-tl-card[hidden] { display: none !important; }
+
+/* ── Thumbnail ────────────────────────────────────────────────────── */
+.spbwc-tl-card-thumb {
+	position: relative;
+	height: 152px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	overflow: hidden;
+	background: linear-gradient(-140deg, #dbeafe 0%, #eff6ff 100%);
+	color: var(--st-brand);
+}
+/* Bottom fade so the category pill is readable over images */
+.spbwc-tl-card-thumb::after {
+	content: '';
+	position: absolute;
+	bottom: 0; right: 0; left: 0;
+	height: 56px;
+	background: linear-gradient(to bottom, transparent, rgba(0,0,0,.22));
+	pointer-events: none;
+}
+
+/* Category colour themes */
+.spbwc-tl-card-thumb--marketing    { background: linear-gradient(-140deg, #fde68a 0%, #fef9e7 100%); color: #92400e; }
+.spbwc-tl-card-thumb--stationery   { background: linear-gradient(-140deg, #c7d2fe 0%, #eef2ff 100%); color: #3730a3; }
+.spbwc-tl-card-thumb--large_format { background: linear-gradient(-140deg, #a7f3d0 0%, #ecfdf5 100%); color: #065f46; }
+.spbwc-tl-card-thumb--promotional  { background: linear-gradient(-140deg, #fbcfe8 0%, #fdf2f8 100%); color: #9d174d; }
+.spbwc-tl-card-thumb--signage      { background: linear-gradient(-140deg, #fecaca 0%, #fff1f2 100%); color: #991b1b; }
+.spbwc-tl-card-thumb--envelopes    { background: linear-gradient(-140deg, #e7e5e4 0%, #fafaf9 100%); color: #44403c; }
+
+/* Large icon (no-image state) */
+.spbwc-tl-card-thumb .dashicons {
+	font-size: 52px;
+	width: 52px; height: 52px;
+	opacity: .75;
+}
+
+/* Full-bleed image */
+.spbwc-tl-card-thumb__img {
+	position: absolute;
+	inset: 0;
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+	display: block;
+}
+
+/* Category pill — bottom-left, above the gradient overlay */
+.spbwc-tl-card-thumb__cat {
+	position: absolute;
+	bottom: 9px; right: 10px;
+	z-index: 1;
+	font-size: 10px;
+	font-weight: 700;
+	text-transform: uppercase;
+	letter-spacing: .055em;
+	color: #fff;
+	text-shadow: 0 1px 2px rgba(0,0,0,.35);
+	line-height: 1;
+}
+
+/* ── Card body ────────────────────────────────────────────────────── */
+.spbwc-tl-card-body {
+	flex: 1;
+	padding: 14px 16px 10px;
+	display: flex;
+	flex-direction: column;
+	gap: 6px;
+}
+.spbwc-tl-card-title {
+	margin: 0;
+	font-size: 14px;
+	font-weight: 700;
+	color: var(--nbd-st-text);
+	line-height: 1.3;
+}
+.spbwc-tl-card-meta {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 5px;
+	margin: 0;
+}
+
+/* ── Badges ───────────────────────────────────────────────────────── */
+.spbwc-tl-badge {
+	display: inline-flex;
+	align-items: center;
+	gap: 3px;
+	font-size: 11px;
+	font-weight: 500;
+	padding: 2px 9px;
+	border-radius: 20px;
+	line-height: 1.6;
+}
+/* Field count — blue pill */
+.spbwc-tl-badge--info {
+	background: var(--st-brand-soft);
+	color: var(--st-brand-pressed);
+	font-weight: 600;
+}
+/* Pricing method — outline pill */
+.spbwc-tl-badge--neutral {
+	background: transparent;
+	border: 1px solid var(--nbd-st-border-light);
+	color: var(--nbd-st-text-soft);
+}
+/* Warning / required */
+.spbwc-tl-badge--required {
+	background: var(--st-pill-danger-bg);
+	color: var(--st-pill-danger-text);
+}
+/* Template type — Pricing Scheme */
+.spbwc-tl-badge--scheme {
+	background: #d1fae5;
+	color: #065f46;
+	font-weight: 600;
+}
+/* Template type — Product Options */
+.spbwc-tl-badge--options {
+	background: #ede9fe;
+	color: #4c1d95;
+	font-weight: 600;
+}
+
+/* Description — 2-line clamp for consistent height */
+.spbwc-tl-card-desc {
+	margin: 0;
+	font-size: 12px;
+	color: var(--nbd-st-text-soft);
+	line-height: 1.55;
+	display: -webkit-box;
+	-webkit-box-orient: vertical;
+	-webkit-line-clamp: 2;
+	overflow: hidden;
+}
+
+/* ── Card actions ─────────────────────────────────────────────────── */
+.spbwc-tl-card-actions {
+	display: flex;
+	align-items: stretch; /* stretch both buttons to same height */
+	gap: 8px;
+	padding: 10px 16px 14px;
+	border-top: 1px solid var(--nbd-st-border-subtle);
+	margin-top: auto;
+}
+/* Target plugin-specific button classes directly — avoids all WP/WC .button conflicts */
+button.spbwc-tl-preview,
+button.spbwc-tl-apply {
+	display: flex !important;
+	align-items: center !important;
+	justify-content: center !important;
+	gap: 5px !important;
+	flex: 1 !important;
+	height: 34px !important;
+	min-height: 0 !important;
+	padding: 0 12px !important;
+	font-size: 12px !important;
+	font-weight: 600 !important;
+	line-height: 1 !important;
+	border-radius: 4px !important;
+	box-sizing: border-box !important;
+	cursor: pointer !important;
+	white-space: nowrap !important;
+	text-decoration: none !important;
+	outline: none !important;
+}
+button.spbwc-tl-preview .dashicons,
+button.spbwc-tl-apply .dashicons {
+	font-size: 14px !important;
+	width: 14px !important;
+	height: 14px !important;
+	line-height: 1 !important;
+	flex-shrink: 0 !important;
+}
+/* Preview — ghost outline */
+button.spbwc-tl-preview {
+	background: #fff !important;
+	border: 1px solid #c3c4c7 !important;
+	color: #50575e !important;
+	box-shadow: none !important;
+}
+button.spbwc-tl-preview:hover {
+	border-color: #1d4ed8 !important;
+	color: #1d4ed8 !important;
+	background: #eff6ff !important;
+}
+/* Apply — solid brand blue */
+button.spbwc-tl-apply {
+	background: #1d4ed8 !important;
+	border: 1px solid #1d4ed8 !important;
+	color: #fff !important;
+	box-shadow: none !important;
+}
+button.spbwc-tl-apply:hover {
+	background: #1e40af !important;
+	border-color: #1e40af !important;
+}
+
+/* ── Empty search state ───────────────────────────────────────────── */
+.spbwc-tl-empty-search {
+	text-align: center;
+	padding: 72px 20px;
+	color: var(--nbd-st-text-soft);
+}
+.spbwc-tl-empty-search .dashicons {
+	font-size: 40px; width: 40px; height: 40px;
+	color: var(--nbd-st-text-mute);
+	margin-bottom: 10px;
+	display: block;
+	margin-inline: auto;
+}
+
+/* ════════════════════════════════════════════════════════════════════
+   DIALOGS
+   ════════════════════════════════════════════════════════════════════ */
+
+/* Manual backdrop — used with el.show() (not showModal()) so Select2
+   dropdowns appended to <body> remain visible above the dialog.
+   showModal() places <dialog> in the CSS top-layer; any element outside
+   the top-layer (e.g. Select2 dropdown at z-index 9999) appears BEHIND it
+   regardless of z-index — breaking autocomplete entirely. */
+.spbwc-tl-backdrop {
+	display: none;
+	position: fixed;
+	inset: 0;
+	background: rgba(15, 23, 42, .52);
+	backdrop-filter: blur(2px);
+	z-index: 160000; /* above WP admin bar (99999) and Thickbox (100100) */
+}
+.spbwc-tl-backdrop.is-active { display: block; }
+
+.spbwc-tl-dialog {
+	border: 0;
+	border-radius: var(--nbd-radius-lg);
+	padding: 0;
+	width: min(560px, 92vw);
+	max-height: 90vh;
+	box-shadow: var(--shadow-xl);
+	color: var(--nbd-st-text);
+	/* Positioned above backdrop; Select2 (z 160002) appears above dialog */
+	position: fixed;
+	top: 50%;
+	right: 50%;
+	transform: translate(50%, -50%);
+	margin: 0;
+	z-index: 160001;
+	/* Override browser default overflow:auto on <dialog> so that any
+	   overflow (e.g. Select2 dropdown appended inside the element) is
+	   not clipped.  Rounded corners are handled by .spbwc-tl-dialog-form
+	   (overflow:hidden), not by the <dialog> element itself. */
+	overflow: visible;
+}
+.spbwc-tl-dialog--wide {
+	width: min(1100px, 95vw);
+}
+/* Select2 / SelectWoo dropdowns must sit above the dialog */
+.spbwc-template-library .select2-container--open .select2-dropdown,
+.select2-container--open .select2-dropdown {
+	z-index: 160002 !important;
+}
+.spbwc-tl-dialog-form {
+	display: flex;
+	flex-direction: column;
+	max-height: 90vh;
+	overflow: hidden; /* restored — no longer needed to be visible */
+}
+
+.spbwc-tl-dialog-header {
+	display: flex;
+	align-items: flex-start;
+	gap: 12px;
+	padding: 14px 18px;
+	border-bottom: 1px solid var(--nbd-st-border-light);
+	background: var(--nbd-st-bg);
+}
+.spbwc-tl-dialog-header__title {
+	flex: 1 1 auto;
+	min-width: 0;
+}
+.spbwc-tl-dialog-header__title h2 {
+	margin: 0;
+	font-size: 16px;
+	font-weight: 600;
+	color: var(--nbd-st-text);
+}
+.spbwc-tl-dialog-header__sub {
+	display: block;
+	font-size: 12px;
+	color: var(--nbd-st-text-soft);
+	margin-top: 2px;
+}
+
+.spbwc-tl-tabs {
+	display: inline-flex;
+	gap: 2px;
+	background: var(--nbd-st-bg-soft);
+	border: 1px solid var(--nbd-st-border-light);
+	border-radius: var(--nbd-radius);
+	padding: 3px;
+	flex-shrink: 0;
+}
+.spbwc-tl-tab {
+	background: none;
+	border: 0;
+	padding: 4px 12px;
+	font-size: 12px;
+	font-weight: 500;
+	color: var(--nbd-st-text-soft);
+	border-radius: var(--nbd-radius-sm);
+	cursor: pointer;
+	transition: var(--transition-fast);
+}
+.spbwc-tl-tab:hover { color: var(--nbd-st-text); }
+.spbwc-tl-tab--active {
+	background: var(--nbd-st-bg);
+	color: var(--nbd-st-text);
+	font-weight: 600;
+	box-shadow: var(--shadow-sm);
+}
+.spbwc-tl-tab:disabled {
+	opacity: .45;
+	cursor: not-allowed;
+	pointer-events: none;
+}
+
+.spbwc-tl-dialog-close {
+	background: none;
+	border: 0;
+	font-size: 24px;
+	line-height: 1;
+	cursor: pointer;
+	color: var(--nbd-st-text-soft);
+	padding: 4px 10px;
+	border-radius: var(--nbd-radius-sm);
+	flex-shrink: 0;
+}
+.spbwc-tl-dialog-close:hover {
+	background: var(--nbd-st-bg-soft);
+	color: var(--nbd-st-text);
+}
+
+.spbwc-tl-dialog-body {
+	padding: 18px 20px;
+	overflow-y: auto;
+	flex: 1;
+	min-height: 0; /* Required for flex child to shrink and enable scrolling. */
+	background: var(--nbd-st-bg-soft);
+}
+.spbwc-tl-dialog-footer {
+	display: flex;
+	gap: 8px;
+	justify-content: flex-end;
+	padding: 12px 18px;
+	border-top: 1px solid var(--nbd-st-border-light);
+	background: var(--nbd-st-bg);
+}
+.spbwc-tl-dialog-footer .button {
+	display: inline-flex !important;
+	align-items: center !important;
+	gap: 5px !important;
+	line-height: 1 !important;   /* WP .button has line-height:2.15 — reset so icon doesn't push layout */
+	vertical-align: middle;
+}
+.spbwc-tl-dialog-footer .button .dashicons {
+	font-size: 15px !important;
+	width: 15px !important;
+	height: 15px !important;
+	line-height: 1 !important;
+	flex-shrink: 0;
+}
+
+/* Apply dialog — wider than the default 560px to accommodate multi-select */
+.spbwc-tl-dialog--apply {
+	width: min(680px, 96vw);
+}
+
+/* ── Info note box ─────────────────────────────────────────────────── */
+.spbwc-tl-info-box {
+	display: flex;
+	gap: 12px;
+	padding: 12px 14px;
+	border-radius: var(--nbd-radius);
+	margin-bottom: 20px;
+}
+.spbwc-tl-info-box--note {
+	background: var(--st-brand-tint);
+	border: 1px solid var(--st-brand-soft);
+}
+.spbwc-tl-info-box__icon {
+	color: var(--st-brand);
+	flex-shrink: 0;
+	margin-top: 1px;
+}
+.spbwc-tl-info-box__body {
+	flex: 1;
+	min-width: 0;
+}
+.spbwc-tl-info-box__body strong {
+	display: block;
+	font-size: 13px;
+	font-weight: 600;
+	color: var(--st-brand-pressed);
+	margin-bottom: 4px;
+}
+.spbwc-tl-info-box__body p {
+	margin: 0;
+	font-size: 12px;
+	color: var(--nbd-st-text-soft);
+	line-height: 1.55;
+}
+
+/* ── Field label (shared across all apply-form fields) ──────────────── */
+.spbwc-tl-field__label {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	font-weight: 600;
+	font-size: 13px;
+	margin-bottom: 6px;
+	color: var(--nbd-st-text);
+}
+.spbwc-tl-field__label-badge {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	background: var(--st-brand);
+	color: #fff;
+	font-size: 10px;
+	font-weight: 700;
+	line-height: 1;
+	min-width: 18px;
+	height: 18px;
+	padding: 0 5px;
+	border-radius: 9px;
+}
+.spbwc-tl-field__label-optional {
+	font-size: 11px;
+	font-weight: 400;
+	color: var(--nbd-st-text-soft);
+	margin-right: 2px;
+}
+
+/* ── Success state ─────────────────────────────────────────────────── */
+/* IMPORTANT: display:flex overrides the browser UA [hidden]{display:none}.
+   The [hidden] rule MUST come first so the attribute wins over the flex. */
+.spbwc-tl-apply-success-state[hidden] { display: none !important; }
+.spbwc-tl-apply-success-state {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	padding: 56px 24px;
+	gap: 10px;
+	text-align: center;
+}
+.spbwc-tl-apply-success-state__icon {
+	font-size: 56px;
+	width: 56px;
+	height: 56px;
+	color: #10b981;
+	line-height: 1;
+	display: block;
+	margin-bottom: 4px;
+}
+.spbwc-tl-apply-success-state__title {
+	margin: 0;
+	font-size: 20px;
+	font-weight: 700;
+	color: var(--nbd-st-text);
+	line-height: 1.3;
+}
+.spbwc-tl-apply-success-state__sub {
+	margin: 0;
+	font-size: 13px;
+	color: var(--nbd-st-text-soft);
+}
+
+/* ── Apply form ────────────────────────────────────────────────────── */
+.spbwc-tl-field { margin-bottom: 16px; }
+.spbwc-tl-field__hint {
+	margin: 4px 0 0;
+	font-size: 12px;
+	color: var(--nbd-st-text-soft);
+}
+.spbwc-tl-field__input {
+	width: 100%;
+	padding: 8px 12px;
+	border: 1px solid var(--nbd-st-border-light);
+	border-radius: var(--nbd-radius);
+	background: var(--nbd-st-bg);
+	font-size: 13px;
+	box-shadow: var(--shadow-input-inset);
+}
+.spbwc-tl-field__input:focus {
+	outline: 0;
+	border-color: var(--st-brand);
+	box-shadow: var(--shadow-input-focus);
+}
+
+.spbwc-tl-radio-cards {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 10px;
+}
+.spbwc-tl-radio-card {
+	display: block;
+	padding: 14px 16px;
+	border: 1px solid var(--nbd-st-border-light);
+	border-radius: var(--nbd-radius);
+	background: var(--nbd-st-bg);
+	cursor: pointer;
+	transition: border-color .12s, box-shadow .12s;
+	position: relative;
+}
+.spbwc-tl-radio-card input { position: absolute; opacity: 0; pointer-events: none; }
+.spbwc-tl-radio-card:hover { border-color: var(--nbd-st-border); }
+.spbwc-tl-radio-card--active {
+	border-color: var(--st-brand);
+	box-shadow: 0 0 0 3px rgba(29, 78, 216, .12);
+	background: var(--st-brand-tint);
+}
+.spbwc-tl-radio-card__icon {
+	font-size: 20px;
+	width: 20px; height: 20px;
+	color: var(--st-brand);
+	display: inline-block;
+	margin-bottom: 6px;
+}
+.spbwc-tl-radio-card__title {
+	display: block;
+	font-weight: 600;
+	font-size: 13px;
+	color: var(--nbd-st-text);
+	margin-bottom: 2px;
+}
+.spbwc-tl-radio-card__hint {
+	display: block;
+	font-size: 11px;
+	color: var(--nbd-st-text-soft);
+}
+
+.spbwc-tl-scope[hidden] { display: none !important; }
+
+/* Match Select2 height to WP inputs. */
+.spbwc-template-library .select2-container--default .select2-selection--multiple,
+.spbwc-template-library .select2-container--admin .select2-selection--multiple {
+	min-height: 36px;
+	border-color: var(--nbd-st-border-light);
+	border-radius: var(--nbd-radius);
+}
+
+.spbwc-tl-apply-error { margin: 12px 0 0; }
+
+/* ====================================================================
+   LIVE PREVIEW (iframe — rendered by SPBWC_Template_Preview_Render
+   using the real storefront view + CSS + JS). No parallel mockup.
+   ==================================================================== */
+
+.spbwc-tl-preview-body {
+	position: relative;
+	padding: 0;
+	background: var(--nbd-st-bg-soft);
+}
+
+.spbwc-tl-tabpanel { display: none; }
+.spbwc-tl-tabpanel--active { display: block; }
+
+#spbwc-tl-preview-live {
+	display: flex;
+	flex-direction: column;
+	min-height: 0;
+}
+
+.spbwc-tl-preview-toolbar {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	flex-wrap: wrap;
+	gap: 12px;
+	padding: 12px 16px;
+	background: var(--nbd-st-bg);
+	border-bottom: 1px solid var(--nbd-st-border-light);
+	position: sticky;
+	top: 0;
+	z-index: 2;
+}
+
+.spbwc-tl-vp {
+	display: inline-flex;
+	background: var(--nbd-st-bg-soft);
+	border: 1px solid var(--nbd-st-border-light);
+	border-radius: var(--nbd-radius);
+	padding: 2px;
+	gap: 2px;
+}
+.spbwc-tl-vp__btn {
+	border: 0;
+	background: transparent;
+	cursor: pointer;
+	font-size: 12px;
+	font-weight: 600;
+	color: var(--nbd-st-text-soft);
+	padding: 6px 14px;
+	border-radius: calc(var(--nbd-radius) - 2px);
+	line-height: 1.4;
+}
+.spbwc-tl-vp__btn:hover { color: var(--nbd-st-text); }
+.spbwc-tl-vp__btn--active {
+	background: var(--nbd-st-bg);
+	color: var(--nbd-st-brand, #2563eb);
+	box-shadow: var(--nbd-shadow-sm, 0 1px 2px rgba(0,0,0,.06));
+}
+
+.spbwc-tl-baseprice {
+	display: inline-flex;
+	align-items: center;
+	gap: 8px;
+	font-size: 12px;
+	color: var(--nbd-st-text-soft);
+}
+.spbwc-tl-baseprice__label { font-weight: 600; }
+.spbwc-tl-baseprice__field {
+	display: inline-flex;
+	align-items: stretch;
+	border: 1px solid var(--nbd-st-border-light);
+	border-radius: var(--nbd-radius);
+	background: var(--nbd-st-bg);
+	overflow: hidden;
+}
+.spbwc-tl-baseprice__field:focus-within {
+	border-color: var(--nbd-st-brand, #2563eb);
+	box-shadow: 0 0 0 2px rgba(37, 99, 235, .18);
+}
+.spbwc-tl-baseprice__symbol {
+	display: inline-flex;
+	align-items: center;
+	padding: 0 8px;
+	background: var(--nbd-st-bg-soft);
+	color: var(--nbd-st-text-soft);
+	font-size: 12px;
+	font-weight: 600;
+	border-left: 1px solid var(--nbd-st-border-light);
+}
+.spbwc-tl-baseprice__input {
+	width: 100px;
+	padding: 6px 10px;
+	border: 0;
+	background: transparent;
+	font-size: 13px;
+	color: var(--nbd-st-text);
+	outline: 0;
+}
+
+.spbwc-tl-preview-stage {
+	background: #f3f4f7;
+	padding: 18px;
+	overflow: auto;
+	flex: 1 1 auto;
+}
+.spbwc-tl-preview-frame-wrap {
+	position: relative;
+	margin: 0 auto;
+	width: 100%;
+	max-width: 820px;
+	transition: max-width 180ms ease;
+}
+.spbwc-tl-preview-stage[data-viewport="tablet"] .spbwc-tl-preview-frame-wrap { max-width: 600px; }
+.spbwc-tl-preview-stage[data-viewport="mobile"] .spbwc-tl-preview-frame-wrap { max-width: 390px; }
+
+.spbwc-tl-preview-frame {
+	display: block;
+	width: 100%;
+	/* Initial height — the postMessage bridge from the preview iframe will
+	   auto-grow this up to the JS-enforced cap once the doc renders. */
+	height: 62vh;
+	min-height: 420px;
+	border: 1px solid var(--nbd-st-border-light);
+	border-radius: var(--nbd-radius-lg, 12px);
+	background: #fff;
+	box-shadow: var(--nbd-shadow-md, 0 2px 8px rgba(0,0,0,.08));
+	transition: opacity 180ms ease, height 180ms ease;
+}
+/* "Updating…" state — keep the prior content visible, just dim it and
+   show a small corner pill so base-price tweaks don't blank the frame. */
+.spbwc-tl-preview-frame-wrap.is-updating .spbwc-tl-preview-frame {
+	opacity: .55;
+}
+.spbwc-tl-preview-frame-wrap.has-error .spbwc-tl-preview-frame {
+	opacity: 0;
+	pointer-events: none;
+}
+
+.spbwc-tl-preview-frame-loading {
+	position: absolute;
+	inset: 0;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 10px;
+	background: rgba(255,255,255,.85);
+	border-radius: var(--nbd-radius-lg, 12px);
+	color: var(--nbd-st-text-soft);
+	font-size: 13px;
+}
+.spbwc-tl-preview-frame-loading[hidden] { display: none; }
+.spbwc-tl-preview-frame-loading .spinner { float: none; margin: 0; }
+
+.spbwc-tl-preview-frame-updating {
+	position: absolute;
+	top: 12px;
+	left: 12px;
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	padding: 4px 6px 4px 10px;
+	background: rgba(17, 24, 39, .82);
+	color: #fff;
+	border-radius: 999px;
+	font-size: 12px;
+	font-weight: 500;
+	pointer-events: none;
+}
+.spbwc-tl-preview-frame-updating[hidden] { display: none; }
+.spbwc-tl-preview-frame-updating .spinner {
+	float: none;
+	margin: 0;
+	transform: scale(.55);
+	filter: invert(1);
+}
+
+.spbwc-tl-preview-frame-error {
+	position: absolute;
+	inset: 0;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	gap: 10px;
+	padding: 24px;
+	text-align: center;
+	background: var(--nbd-st-bg);
+	border: 1px dashed var(--nbd-st-border-light);
+	border-radius: var(--nbd-radius-lg, 12px);
+	color: var(--nbd-st-text-soft);
+	font-size: 13px;
+}
+.spbwc-tl-preview-frame-error[hidden] { display: none; }
+.spbwc-tl-preview-frame-error .dashicons {
+	font-size: 28px;
+	width: 28px;
+	height: 28px;
+	color: #d97706;
+}
+.spbwc-tl-preview-frame-error p { margin: 0; }
+
+.spbwc-tl-preview-hint {
+	max-width: 820px;
+	margin: 12px auto 0;
+	font-size: 12px;
+	color: var(--nbd-st-text-soft);
+	text-align: center;
+}
+/* ── Fields tab (table) ────────────────────────────────────────────── */
+.spbwc-tl-fields-table {
+	width: 100%;
+	border-collapse: collapse;
+	background: var(--nbd-st-bg);
+	border-radius: var(--nbd-radius);
+	overflow: hidden;
+	box-shadow: var(--shadow-sm);
+}
+.spbwc-tl-fields-table th,
+.spbwc-tl-fields-table td {
+	padding: 10px 14px;
+	text-align: right;
+	border-bottom: 1px solid var(--nbd-st-border-subtle);
+	font-size: 13px;
+}
+.spbwc-tl-fields-table th {
+	background: var(--nbd-st-bg-soft);
+	font-weight: 600;
+	color: var(--nbd-st-text-soft);
+	font-size: 11px;
+	text-transform: uppercase;
+	letter-spacing: .04em;
+}
+.spbwc-tl-fields-table tbody tr:last-child td { border-bottom: 0; }
+.spbwc-tl-fields-table .attr-chips {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 3px;
+	max-width: 320px;
+}
+.spbwc-tl-fields-table .attr-chip {
+	background: var(--nbd-st-bg-soft);
+	border: 1px solid var(--nbd-st-border-light);
+	border-radius: 4px;
+	padding: 1px 6px;
+	font-size: 11px;
+	color: var(--nbd-st-text-soft);
+}
+
+/* ── About tab ─────────────────────────────────────────────────────── */
+.spbwc-tl-about {
+	display: grid;
+	gap: 14px;
+}
+.spbwc-tl-about__row {
+	background: var(--nbd-st-bg);
+	border: 1px solid var(--nbd-st-border-light);
+	border-radius: var(--nbd-radius);
+	padding: 12px 14px;
+}
+.spbwc-tl-about__row dt {
+	font-size: 11px;
+	font-weight: 600;
+	text-transform: uppercase;
+	letter-spacing: .04em;
+	color: var(--nbd-st-text-soft);
+	margin-bottom: 4px;
+}
+.spbwc-tl-about__row dd {
+	margin: 0;
+	color: var(--nbd-st-text);
+	font-size: 13px;
+}
+.spbwc-tl-about__pricing-note {
+	background: #fef3c7;
+	border-color: #fde68a;
+	color: #92400e;
+}
+.spbwc-tl-about__pricing-note dd { color: #78350f; }

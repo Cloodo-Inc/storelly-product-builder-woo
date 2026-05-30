@@ -1,0 +1,7180 @@
+# Copyright (C) 2026 Storelly Team
+# This file is distributed under the GPL v2 or later.
+msgid ""
+msgstr ""
+"Project-Id-Version: Storelly Product Builder for WooCommerce 1.2.7\n"
+"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/storelly-product-builder-woo\n"
+"POT-Creation-Date: 2026-05-30T03:47:06+00:00\n"
+"PO-Revision-Date: 2026-05-30T03:26:10+00:00\n"
+"Last-Translator: Automatically generated\n"
+"Language-Team: none\n"
+"Language: vi\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: WP-CLI 2.12.0\n"
+"X-Domain: storelly-product-builder-for-woocommerce\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+
+#. Plugin Name of the plugin
+#: storelly-product-builder-for-woocommerce.php
+msgid "Storelly Product Builder for WooCommerce"
+msgstr ""
+
+#. Plugin URI of the plugin
+#: storelly-product-builder-for-woocommerce.php
+msgid "https://storelly.com/product-builder"
+msgstr ""
+
+#. Description of the plugin
+#: storelly-product-builder-for-woocommerce.php
+msgid "Create product builder for Woocommerce products"
+msgstr ""
+
+#. Author of the plugin
+#: storelly-product-builder-for-woocommerce.php
+msgid "Storelly Team"
+msgstr ""
+
+#. Author URI of the plugin
+#: storelly-product-builder-for-woocommerce.php
+msgid "https://storelly.com"
+msgstr ""
+
+#: includes/class-admin-options.php:146
+msgid "Storelly Product builder Page"
+msgstr ""
+
+#: includes/class-admin-options.php:168
+msgid "Product builder designs"
+msgstr ""
+
+#: includes/class-admin-options.php:206 includes/class-admin-options.php:233
+#: includes/class-admin-options.php:3329
+#: includes/setup-wizard/class-woo-seed-controller.php:246
+msgid "You do not have permission."
+msgstr "Bạn không có quyền."
+
+#: includes/class-admin-options.php:210 includes/class-admin-options.php:237
+#: includes/class-admin-options.php:2917 includes/class-admin-options.php:3120
+#: includes/class-admin-options.php:3185 includes/class-admin-options.php:3333
+#: includes/class-product-builder-frontend.php:131
+msgid "Security error."
+msgstr "Lỗi bảo mật."
+
+#: includes/class-admin-options.php:278 includes/class-admin-options.php:279
+msgid "Overview Dashboard"
+msgstr "Tổng quan"
+
+#: includes/class-admin-options.php:286 includes/class-admin-options.php:287
+msgid "General Settings"
+msgstr "Cài đặt chung"
+
+#: includes/class-admin-options.php:294 includes/class-admin-options.php:295
+#: views/license.php:192 views/menu-settings.php:99 views/menu-settings.php:139
+#: views/options/edit-option.php:52 views/options/options-list-table.php:53
+#: views/overview.php:269
+msgid "Pricing Options"
+msgstr "Tùy chọn giá"
+
+#: includes/class-admin-options.php:302 includes/class-admin-options.php:303
+#: includes/class-admin-options.php:389
+msgid "Visual Builder"
+msgstr "Trình dựng trực quan"
+
+#: includes/class-admin-options.php:310 includes/class-admin-options.php:311
+msgid "Linked Products"
+msgstr "Sản phẩm liên kết"
+
+#: includes/class-admin-options.php:318 includes/class-admin-options.php:319
+msgid "Custom Orders"
+msgstr "Đơn tùy biến"
+
+#: includes/class-admin-options.php:326 includes/class-admin-options.php:327
+#: views/overview.php:307
+msgid "Quote Requests"
+msgstr "Yêu cầu báo giá"
+
+#: includes/class-admin-options.php:334 includes/class-admin-options.php:335
+msgid "Design Files"
+msgstr "File thiết kế"
+
+#: includes/class-admin-options.php:343 includes/class-admin-options.php:344
+msgid "License Plan"
+msgstr "Gói giấy phép"
+
+#: includes/class-admin-options.php:351 includes/class-admin-options.php:352
+#: views/manager-fonts.php:45
+msgid "Custom Fonts"
+msgstr "Font tùy biến"
+
+#: includes/class-admin-options.php:359 includes/class-admin-options.php:360
+#: views/setup-wizard/landing.php:29
+msgid "Setup Wizard"
+msgstr "Cài đặt nhanh"
+
+#: includes/class-admin-options.php:367 includes/class-admin-options.php:368
+#: includes/class-admin-options.php:1621
+msgid "System Infor"
+msgstr ""
+
+#: includes/class-admin-options.php:375 includes/class-admin-options.php:376
+#: includes/templates/class-template-library-admin.php:111
+#: views/templates/library.php:213
+msgid "About"
+msgstr "Giới thiệu"
+
+#: includes/class-admin-options.php:385 includes/class-admin-options.php:698
+#: includes/class-admin-options.php:969 includes/class-admin-options.php:1004
+#: includes/class-admin-options.php:1608 includes/class-admin-options.php:1651
+#: includes/class-admin-options.php:1680 includes/class-admin-options.php:3421
+#: includes/class-admin-options.php:3467
+#: includes/marketplace/admin/class-marketplace-admin.php:101
+#: includes/templates/class-template-library-admin.php:137
+#: views/setup-wizard/landing.php:16 views/setup-wizard/woo-seed.php:17
+msgid "You do not have permission to access this page."
+msgstr "Bạn không có quyền truy cập trang này."
+
+#: includes/class-admin-options.php:391
+msgid "Let buyers configure products visually from real product images — pick decals, colors and components and watch the preview update live. This build method sits alongside Pricing Options and Quote Requests."
+msgstr ""
+
+#: includes/class-admin-options.php:395
+msgid "Coming soon."
+msgstr "Sắp ra mắt."
+
+#: includes/class-admin-options.php:396
+msgid "The visual configurator is being prepared. In the meantime, use Pricing Options to build configurable products."
+msgstr ""
+
+#: includes/class-admin-options.php:400
+msgid "Go to Pricing Options"
+msgstr "Đi tới Tùy chọn giá"
+
+#: includes/class-admin-options.php:535
+msgid "Are you sure you want to delete this design?"
+msgstr ""
+
+#: includes/class-admin-options.php:536
+msgid "Approve this request?"
+msgstr ""
+
+#: includes/class-admin-options.php:537
+msgid "Cancel this request?"
+msgstr ""
+
+#: includes/class-admin-options.php:538
+#: includes/marketplace/admin/class-marketplace-admin.php:92
+msgid "Processing…"
+msgstr ""
+
+#: includes/class-admin-options.php:539
+msgid "Action failed. Please try again."
+msgstr "Thao tác thất bại. Vui lòng thử lại."
+
+#: includes/class-admin-options.php:555
+msgid "Option created successfully."
+msgstr ""
+
+#: includes/class-admin-options.php:566 includes/class-admin-options.php:580
+#: includes/class-admin-options.php:2999 includes/class-admin-options.php:3094
+#: includes/class-admin-options.php:3492 includes/class-admin-options.php:3520
+#: includes/class-admin-options.php:4083 includes/class-frontend-options.php:96
+#: includes/class-product-builder-frontend.php:72
+#: includes/class-request-quote.php:182
+#: includes/setup-wizard/class-woo-seed-controller.php:250
+#: includes/templates/class-template-ajax.php:97
+#: includes/templates/class-template-preview-render.php:89
+msgid "Security check failed."
+msgstr ""
+
+#: includes/class-admin-options.php:600
+msgid "Option updated."
+msgstr ""
+
+#: includes/class-admin-options.php:806 includes/class-admin-options.php:2994
+#: includes/class-admin-options.php:3089 includes/class-admin-options.php:3487
+#: includes/class-admin-options.php:3515
+#: includes/class-product-exporter.php:188
+#: includes/launcher/class.launcher.php:553
+#: includes/marketplace/admin/class-marketplace-admin-ajax.php:32
+#: views/marketplace-admin/designer-edit.php:26
+msgid "Permission denied."
+msgstr ""
+
+#: includes/class-admin-options.php:915 views/products.php:230
+msgid "No products found"
+msgstr ""
+
+#: includes/class-admin-options.php:916
+msgid "Try adjusting your search or filters."
+msgstr ""
+
+#. translators: 1: from, 2: to, 3: total
+#. translators: 1: first, 2: last, 3: total
+#: includes/class-admin-options.php:944 views/products.php:184
+#, php-format
+msgid "Showing %1$s–%2$s of %3$s products"
+msgstr ""
+
+#: includes/class-admin-options.php:1021
+msgid "Quote settings saved."
+msgstr ""
+
+#: includes/class-admin-options.php:1071
+msgid "Quote form fields saved."
+msgstr ""
+
+#: includes/class-admin-options.php:1077 includes/class-request-quote.php:264
+msgid "Your quote request has been sent successfully."
+msgstr ""
+
+#: includes/class-admin-options.php:1086 includes/class-admin-options.php:1738
+#: includes/class-global-import-admin.php:85 views/designs.php:82
+#: views/license.php:30 views/manager-fonts.php:16
+#: views/marketplace-admin/header.php:31 views/menu-settings.php:70
+#: views/options/options-list-table.php:49 views/overview.php:78
+#: views/products.php:31 views/templates/library.php:38
+msgid "Storelly Product Builder"
+msgstr ""
+
+#: includes/class-admin-options.php:1090 includes/class-request-quote.php:360
+msgid "Quotes"
+msgstr ""
+
+#: includes/class-admin-options.php:1093
+msgid "Configure Get Quote, build request forms, and review submitted quote requests."
+msgstr ""
+
+#: includes/class-admin-options.php:1104 includes/class-request-quote.php:95
+msgid "Get Quote"
+msgstr ""
+
+#: includes/class-admin-options.php:1109
+msgid "Form Builder"
+msgstr ""
+
+#: includes/class-admin-options.php:1114
+msgid "Request History"
+msgstr ""
+
+#: includes/class-admin-options.php:1123
+msgid "Get Quote Settings"
+msgstr ""
+
+#: includes/class-admin-options.php:1132
+msgid "Enable Get Quote"
+msgstr ""
+
+#: includes/class-admin-options.php:1138 includes/class-admin-options.php:2322
+#: includes/class-admin-options.php:2342 includes/class-admin-options.php:2362
+#: includes/class-admin-options.php:2524 includes/class-admin-options.php:2548
+#: includes/class-admin-options.php:2728 includes/class-admin-options.php:2751
+#: includes/marketplace/admin/class-designers-list-table.php:88
+#: includes/settings/launcher.php:16 includes/settings/launcher.php:133
+#: includes/setup-wizard/class-woo-seed-mapper.php:554
+#: includes/setup-wizard/class-woo-seed-mapper.php:672
+#: includes/setup-wizard/class-woo-seed-mapper.php:686
+#: views/menu-settings.php:166 views/menu-settings.php:206
+#: views/menu-settings.php:273 views/menu-settings.php:292
+#: views/menu-settings.php:311 views/menu-settings.php:380
+#: views/menu-settings.php:418 views/menu-settings.php:437
+#: views/menu-settings.php:470 views/menu-settings.php:489
+#: views/menu-settings.php:522 views/menu-settings.php:541
+#: views/menu-settings.php:560 views/menu-settings.php:579
+#: views/menu-settings.php:598 views/menu-settings.php:617
+#: views/menu-settings.php:653 views/menu-settings.php:680
+#: views/options/templates/nbpb_text.php:24
+#: views/options/templates/nbpb_text.php:44
+#: views/options/templates/nbpb_text.php:117
+#: views/options/templates/nbpb_text.php:134
+msgid "Yes"
+msgstr "Có"
+
+#: includes/class-admin-options.php:1142 includes/class-admin-options.php:2326
+#: includes/class-admin-options.php:2346 includes/class-admin-options.php:2366
+#: includes/class-admin-options.php:2552 includes/class-admin-options.php:2732
+#: includes/class-admin-options.php:2755
+#: includes/marketplace/admin/class-designers-list-table.php:88
+#: includes/settings/launcher.php:17 includes/settings/launcher.php:134
+#: includes/setup-wizard/class-woo-seed-mapper.php:555
+#: includes/setup-wizard/class-woo-seed-mapper.php:687
+#: views/menu-settings.php:170 views/menu-settings.php:210
+#: views/menu-settings.php:277 views/menu-settings.php:296
+#: views/menu-settings.php:315 views/menu-settings.php:384
+#: views/menu-settings.php:422 views/menu-settings.php:441
+#: views/menu-settings.php:474 views/menu-settings.php:493
+#: views/menu-settings.php:526 views/menu-settings.php:545
+#: views/menu-settings.php:564 views/menu-settings.php:583
+#: views/menu-settings.php:602 views/menu-settings.php:621
+#: views/menu-settings.php:657 views/menu-settings.php:684
+#: views/options/templates/nbpb_text.php:25
+#: views/options/templates/nbpb_text.php:45
+#: views/options/templates/nbpb_text.php:118
+#: views/options/templates/nbpb_text.php:135
+msgid "No"
+msgstr "Không"
+
+#: includes/class-admin-options.php:1146
+msgid "Allow customers to request a quote instead of buying directly. When enabled, a \"Get Quote\" button appears on product pages."
+msgstr ""
+
+#: includes/class-admin-options.php:1152
+msgid "Notification Email"
+msgstr ""
+
+#: includes/class-admin-options.php:1160
+msgid "New quote requests are sent to this address. Defaults to the site admin email if left unchanged."
+msgstr ""
+
+#: includes/class-admin-options.php:1166
+msgid "Success Message"
+msgstr ""
+
+#: includes/class-admin-options.php:1173
+msgid "Displayed on screen after the customer submits a quote request. Keep it short and reassuring."
+msgstr ""
+
+#: includes/class-admin-options.php:1179 includes/class-admin-options.php:1259
+#: views/menu-settings.php:824
+msgid "Save changes"
+msgstr ""
+
+#: includes/class-admin-options.php:1191
+msgid "Request Quote Form Builder"
+msgstr ""
+
+#: includes/class-admin-options.php:1198
+msgid "Enter field name (e.g. company)"
+msgstr ""
+
+#: includes/class-admin-options.php:1201
+msgid "Add field"
+msgstr ""
+
+#: includes/class-admin-options.php:1209
+#: includes/marketplace/admin/class-designs-list-table.php:32
+msgid "Name"
+msgstr "Tên"
+
+#: includes/class-admin-options.php:1210
+msgid "Type"
+msgstr "Loại"
+
+#: includes/class-admin-options.php:1211 includes/class-admin-options.php:2705
+#: includes/setup-wizard/class-woo-seed-mapper.php:729
+#: includes/templates/class-template-library-admin.php:123
+#: views/options/templates/field-body/attributes.php:200
+#: views/options/templates/field-body/attributes.php:208
+msgid "Label"
+msgstr ""
+
+#: includes/class-admin-options.php:1212 includes/class-admin-options.php:2495
+#: includes/setup-wizard/class-woo-seed-mapper.php:622
+#: views/options/templates/field-body/placeholder.php:6
+msgid "Placeholder"
+msgstr ""
+
+#: includes/class-admin-options.php:1213
+msgid "Validation"
+msgstr ""
+
+#: includes/class-admin-options.php:1214 includes/class-admin-options.php:2355
+#: includes/setup-wizard/class-woo-seed-mapper.php:561
+#: includes/templates/class-template-library-admin.php:119
+#: views/options/field.php:35 views/options/templates/field-body/required.php:6
+msgid "Required"
+msgstr "Bắt buộc"
+
+#: includes/class-admin-options.php:1215 includes/class-admin-options.php:2315
+#: includes/launcher/class.launcher.php:1451
+#: includes/marketplace/admin/class-designers-list-table.php:82
+#: includes/setup-wizard/class-woo-seed-mapper.php:477
+#: views/marketplace-admin/designers.php:41 views/options/edit-option.php:236
+#: views/options/templates/field-body/enabled.php:6
+msgid "Enabled"
+msgstr ""
+
+#: includes/class-admin-options.php:1216 includes/class-admin-options.php:1369
+#: includes/class-admin-options.php:1791 includes/class-request-quote.php:392
+#: includes/launcher/class.launcher.php:1408
+#: includes/marketplace/admin/class-withdraws-list-table.php:38
+#: views/products.php:208
+msgid "Actions"
+msgstr "Hành động"
+
+#: includes/class-admin-options.php:1227 includes/class-admin-options.php:2225
+#: includes/class-admin-options.php:2772
+#: includes/setup-wizard/class-woo-seed-mapper.php:578
+msgid "Text"
+msgstr ""
+
+#: includes/class-admin-options.php:1228 includes/class-admin-options.php:1239
+#: includes/class-admin-options.php:1366
+#: includes/marketplace/admin/class-designers-list-table.php:33
+msgid "Email"
+msgstr "Email"
+
+#: includes/class-admin-options.php:1229 includes/class-admin-options.php:1240
+#: views/marketplace-admin/designer-edit.php:131
+msgid "Phone"
+msgstr "Điện thoại"
+
+#: includes/class-admin-options.php:1230 includes/class-admin-options.php:2241
+#: includes/setup-wizard/class-woo-seed-mapper.php:582
+#: views/options/edit-option.php:394
+msgid "Textarea"
+msgstr ""
+
+#: includes/class-admin-options.php:1231
+#: templates/launcher/store/upload-form.php:202 views/manager-fonts.php:286
+msgid "Select"
+msgstr ""
+
+#: includes/class-admin-options.php:1238
+#: includes/options/fields-list-table.php:498
+msgid "None"
+msgstr "Không có"
+
+#: includes/class-admin-options.php:1340
+msgid "Search by name or email…"
+msgstr ""
+
+#: includes/class-admin-options.php:1342 includes/class-admin-options.php:1763
+msgid "Search"
+msgstr "Tìm kiếm"
+
+#. translators: %d: number of requests
+#: includes/class-admin-options.php:1351
+#, php-format
+msgid "%d request"
+msgid_plural "%d requests"
+msgstr[0] ""
+
+#: includes/class-admin-options.php:1364
+msgid "Quote #"
+msgstr ""
+
+#: includes/class-admin-options.php:1365 includes/class-admin-options.php:1789
+#: views/designs.php:143
+msgid "Customer"
+msgstr "Khách hàng"
+
+#: includes/class-admin-options.php:1367
+#: includes/launcher/class.launcher.php:1469
+msgid "Message"
+msgstr ""
+
+#: includes/class-admin-options.php:1368 includes/class-admin-options.php:1787
+#: includes/class-request-quote.php:389
+#: includes/launcher/class.launcher.php:1437
+#: includes/options/fields-list-table.php:45
+#: templates/launcher/store/design-table.php:16
+#: templates/launcher/store/design-table.php:37
+#: templates/launcher/store/design-table.php:40
+#: templates/launcher/store/withdraw-table.php:29
+msgid "Date"
+msgstr "Ngày"
+
+#: includes/class-admin-options.php:1393 includes/class-admin-options.php:1824
+#: views/overview.php:421
+msgid "Guest"
+msgstr ""
+
+#: includes/class-admin-options.php:1404 includes/class-admin-options.php:1829
+#: includes/class-request-quote.php:401
+#: includes/launcher/class.launcher.php:1517
+#: templates/launcher/store/design-table.php:67
+#: views/options/templates/nbpb_com.php:70 views/_products-cards.php:129
+msgid "View"
+msgstr ""
+
+#: includes/class-admin-options.php:1418
+msgid "No quote requests yet"
+msgstr ""
+
+#: includes/class-admin-options.php:1421
+msgid "When customers submit quote requests they will appear here."
+msgstr ""
+
+#: includes/class-admin-options.php:1466 views/menu-settings.php:838
+#: views/options/edit-option.php:1146
+msgid "Saving…"
+msgstr ""
+
+#: includes/class-admin-options.php:1467
+msgid "Saved successfully."
+msgstr "Đã lưu thành công."
+
+#: includes/class-admin-options.php:1468 views/menu-settings.php:840
+msgid "Save failed. Please try again."
+msgstr ""
+
+#: includes/class-admin-options.php:1469 views/menu-settings.php:841
+msgid "Network error. Please check your connection."
+msgstr ""
+
+#: includes/class-admin-options.php:1624
+msgid "Plugin Version"
+msgstr ""
+
+#: includes/class-admin-options.php:1625
+msgid "WordPress Version"
+msgstr ""
+
+#: includes/class-admin-options.php:1626
+msgid "WooCommerce Version"
+msgstr ""
+
+#: includes/class-admin-options.php:1627
+msgid "PHP Version"
+msgstr ""
+
+#: includes/class-admin-options.php:1628
+msgid "MySQL Version"
+msgstr ""
+
+#: includes/class-admin-options.php:1629
+msgid "Site URL"
+msgstr ""
+
+#: includes/class-admin-options.php:1630
+msgid "Home URL"
+msgstr ""
+
+#: includes/class-admin-options.php:1631
+msgid "WP Debug"
+msgstr ""
+
+#: includes/class-admin-options.php:1632
+msgid "WP Memory Limit"
+msgstr ""
+
+#: includes/class-admin-options.php:1633
+msgid "PHP Memory Limit"
+msgstr ""
+
+#: includes/class-admin-options.php:1634
+msgid "PHP Max Execution Time"
+msgstr ""
+
+#: includes/class-admin-options.php:1635
+msgid "PHP Max Input Vars"
+msgstr ""
+
+#: includes/class-admin-options.php:1636
+msgid "Max Upload Size"
+msgstr ""
+
+#: includes/class-admin-options.php:1637
+msgid "Timezone"
+msgstr ""
+
+#: includes/class-admin-options.php:1638
+msgid "Theme"
+msgstr ""
+
+#: includes/class-admin-options.php:1639
+msgid "Uploads Base Directory"
+msgstr ""
+
+#: includes/class-admin-options.php:1640
+msgid "Uploads Base URL"
+msgstr ""
+
+#: includes/class-admin-options.php:1641
+msgid "Storelly Data Directory"
+msgstr ""
+
+#: includes/class-admin-options.php:1642
+msgid "Storelly Data URL"
+msgstr ""
+
+#: includes/class-admin-options.php:1643
+msgid "Active Plugins"
+msgstr ""
+
+#: includes/class-admin-options.php:1670
+msgid "Storelly Product Builder for WooCommerce helps merchants create advanced printing options and product builder workflows."
+msgstr ""
+
+#: includes/class-admin-options.php:1672
+msgid "Visit Website"
+msgstr ""
+
+#: includes/class-admin-options.php:1673
+#: includes/class-productbuilder-api.php:112
+msgid "Storelly"
+msgstr ""
+
+#: includes/class-admin-options.php:1742 views/license.php:186
+#: views/overview.php:288
+msgid "Orders"
+msgstr ""
+
+#: includes/class-admin-options.php:1745
+msgid "Manage custom orders that contain pricing options."
+msgstr ""
+
+#: includes/class-admin-options.php:1761
+msgid "Search by order ID…"
+msgstr ""
+
+#. translators: %d: number of orders
+#: includes/class-admin-options.php:1772
+#, php-format
+msgid "%d order"
+msgid_plural "%d orders"
+msgstr[0] ""
+
+#: includes/class-admin-options.php:1786
+msgid "Order"
+msgstr "Đơn hàng"
+
+#: includes/class-admin-options.php:1788 includes/class-request-quote.php:390
+#: includes/launcher/class.launcher.php:1506
+#: includes/marketplace/admin/class-designers-list-table.php:34
+#: includes/marketplace/admin/class-designs-list-table.php:35
+#: includes/marketplace/admin/class-withdraws-list-table.php:35
+#: includes/options/fields-list-table.php:41
+#: templates/launcher/store/design-table.php:14
+#: templates/launcher/store/design-table.php:28
+#: templates/launcher/store/withdraw-table.php:9
+#: templates/launcher/store/withdraw-table.php:18 views/designs.php:128
+msgid "Status"
+msgstr "Trạng thái"
+
+#: includes/class-admin-options.php:1790 includes/class-request-quote.php:391
+#: includes/launcher/api/report.php:120 includes/launcher/api/report.php:127
+#: includes/launcher/class.launcher.php:195
+#: includes/launcher/class.launcher.php:202
+#: templates/launcher/store/dashboard.php:12
+#: templates/launcher/store/dashboard.php:28
+#: templates/single-product/option-builder.php:301 views/designs.php:100
+#: views/options/edit-option.php:653 views/options/edit-option.php:761
+msgid "Total"
+msgstr "Tổng"
+
+#: includes/class-admin-options.php:1843
+msgid "No orders found"
+msgstr ""
+
+#: includes/class-admin-options.php:1848
+msgid "No orders match your search. Try a different order ID."
+msgstr ""
+
+#: includes/class-admin-options.php:1850
+msgid "Orders with custom pricing options will appear here."
+msgstr ""
+
+#: includes/class-admin-options.php:2169 includes/class-admin-options.php:2170
+#: includes/class-admin-options.php:2172
+#: includes/setup-wizard/class-woo-seed-mapper.php:462
+#: views/options/edit-option.php:485
+#: views/options/templates/field-body/title.php:6
+msgid "Option name"
+msgstr ""
+
+#: includes/class-admin-options.php:2179
+msgid "Option description"
+msgstr ""
+
+#: includes/class-admin-options.php:2181
+#: includes/setup-wizard/class-woo-seed-mapper.php:530
+#: views/options/templates/field-body/attributes.php:52
+#: views/options/templates/field-body/attributes.php:239
+#: views/options/templates/field-body/description.php:6
+msgid "Description"
+msgstr "Mô tả"
+
+#: includes/class-admin-options.php:2191
+#: includes/setup-wizard/class-woo-seed-mapper.php:465
+#: views/options/templates/field-body/data_type.php:6
+#: views/options/templates/field-body/data_type.php:10
+msgid "Data type"
+msgstr ""
+
+#: includes/class-admin-options.php:2198
+#: includes/setup-wizard/class-woo-seed-mapper.php:468
+msgid "Custom input"
+msgstr ""
+
+#: includes/class-admin-options.php:2202
+#: includes/setup-wizard/class-woo-seed-mapper.php:469
+msgid "Multiple options"
+msgstr ""
+
+#: includes/class-admin-options.php:2211
+#: includes/setup-wizard/class-woo-seed-mapper.php:570
+#: views/options/templates/field-body/input_type.php:6
+#: views/options/templates/field-body/input_type.php:10
+msgid "Input type"
+msgstr ""
+
+#: includes/class-admin-options.php:2229
+#: includes/setup-wizard/class-woo-seed-mapper.php:579
+#: includes/templates/class-template-library-admin.php:127
+#: views/options/edit-option.php:374 views/options/edit-option.php:501
+msgid "Number"
+msgstr ""
+
+#: includes/class-admin-options.php:2233
+#: includes/setup-wizard/class-woo-seed-mapper.php:580
+#: views/options/templates/field-body/input_option.php:6
+msgid "Number range"
+msgstr ""
+
+#: includes/class-admin-options.php:2237
+#: includes/setup-wizard/class-woo-seed-mapper.php:581
+#: views/options/templates/field-body/attributes.php:296
+msgid "Upload"
+msgstr "Tải lên"
+
+#: includes/class-admin-options.php:2257
+#: includes/setup-wizard/class-woo-seed-mapper.php:589
+msgid "Input option"
+msgstr ""
+
+#: includes/class-admin-options.php:2293
+#: includes/setup-wizard/class-woo-seed-mapper.php:609
+msgid "Text input option"
+msgstr ""
+
+#: includes/class-admin-options.php:2316
+#: views/options/templates/field-body/enabled.php:7
+msgid "Choose whether the option is enabled or not."
+msgstr ""
+
+#: includes/class-admin-options.php:2335 includes/class-admin-options.php:3840
+#: includes/marketplace/admin/class-designs-list-table.php:95
+#: includes/options/fields-list-table.php:438
+#: includes/setup-wizard/class-woo-seed-mapper.php:478 views/designs.php:107
+#: views/designs.php:133 views/marketplace-admin/designs.php:40
+#: views/options/edit-option.php:154 views/options/options-list-table.php:88
+#: views/options/options-list-table.php:125
+#: views/options/options-list-table.php:291 views/products.php:98
+msgid "Published"
+msgstr "Đã xuất bản"
+
+#: includes/class-admin-options.php:2336
+msgid "Show in summary options or not."
+msgstr ""
+
+#: includes/class-admin-options.php:2356
+msgid "Choose whether the option is required or not."
+msgstr ""
+
+#: includes/class-admin-options.php:2387
+#: includes/setup-wizard/class-woo-seed-mapper.php:635
+msgid "Upload file option"
+msgstr ""
+
+#: includes/class-admin-options.php:2409
+#: includes/setup-wizard/class-woo-seed-mapper.php:652
+#: views/options/templates/field-body/price_type.php:6
+#: views/options/templates/field-body/price_type.php:10
+msgid "Price type"
+msgstr ""
+
+#: includes/class-admin-options.php:2410
+msgid "Here you can choose how the price is calculated. Depending on the field there various types you can choose."
+msgstr ""
+
+#: includes/class-admin-options.php:2416
+#: includes/setup-wizard/class-woo-seed-mapper.php:657
+msgid "Fixed amount"
+msgstr ""
+
+#: includes/class-admin-options.php:2420
+#: includes/setup-wizard/class-woo-seed-mapper.php:658
+msgid "Percent of the original price"
+msgstr ""
+
+#: includes/class-admin-options.php:2424
+#: includes/setup-wizard/class-woo-seed-mapper.php:659
+msgid "Percent of the original price + options"
+msgstr ""
+
+#: includes/class-admin-options.php:2428
+msgid "Current value * price"
+msgstr ""
+
+#: includes/class-admin-options.php:2454
+msgid "Price per char"
+msgstr ""
+
+#: includes/class-admin-options.php:2474
+#: includes/setup-wizard/class-woo-seed-mapper.php:694
+#: views/options/templates/field-body/price.php:6
+msgid "Additional Price"
+msgstr ""
+
+#: includes/class-admin-options.php:2475
+msgid "Enter the price for this field or leave it blank for no price."
+msgstr ""
+
+#: includes/class-admin-options.php:2517
+#: includes/setup-wizard/class-woo-seed-mapper.php:667
+#: views/options/templates/field-body/depend_qty.php:6
+msgid "Depend quantity"
+msgstr ""
+
+#: includes/class-admin-options.php:2518
+msgid "If choose No, the additional price will be apply for cart item independently with the quantity."
+msgstr ""
+
+#: includes/class-admin-options.php:2528
+#: includes/setup-wizard/class-woo-seed-mapper.php:673
+msgid "No, the additional price is cart item fee"
+msgstr ""
+
+#: includes/class-admin-options.php:2532
+#: includes/setup-wizard/class-woo-seed-mapper.php:674
+msgid "No, the additional price is fixed amount for all items"
+msgstr ""
+
+#: includes/class-admin-options.php:2541
+#: includes/setup-wizard/class-woo-seed-mapper.php:681
+#: views/options/templates/field-body/depend_quantity.php:6
+#: views/options/templates/field-body/depend_quantity.php:10
+msgid "Depend quantity breaks"
+msgstr ""
+
+#: includes/class-admin-options.php:2565
+#: includes/setup-wizard/class-woo-seed-mapper.php:707
+#: views/options/templates/field-body/price_breaks.php:6
+msgid "Price depend quantity breaks"
+msgstr ""
+
+#: includes/class-admin-options.php:2596 includes/class-admin-options.php:2774
+#: views/options/templates/field-body/attributes.php:31
+msgid "Attribute name"
+msgstr ""
+
+#: includes/class-admin-options.php:2645
+#: includes/setup-wizard/class-woo-seed-mapper.php:486
+#: views/options/edit-option.php:1547
+msgid "Attributes"
+msgstr ""
+
+#: includes/class-admin-options.php:2646
+msgid "Attributes let you define extra product data, such as size or color."
+msgstr ""
+
+#: includes/class-admin-options.php:2686
+#: includes/setup-wizard/class-woo-seed-mapper.php:721
+msgid "Display type"
+msgstr ""
+
+#: includes/class-admin-options.php:2693
+#: includes/setup-wizard/class-woo-seed-controller.php:103
+#: includes/setup-wizard/class-woo-seed-mapper.php:726
+#: includes/templates/class-template-library-admin.php:120
+#: views/options/edit-option.php:256
+#: views/options/templates/field-body/attributes.php:176
+#: views/options/templates/field-body/attributes.php:205
+msgid "Dropdown"
+msgstr ""
+
+#: includes/class-admin-options.php:2697
+#: includes/setup-wizard/class-woo-seed-mapper.php:727
+#: views/options/templates/field-body/attributes.php:206
+msgid "Radio button"
+msgstr ""
+
+#: includes/class-admin-options.php:2701
+#: includes/setup-wizard/class-woo-seed-controller.php:105
+#: includes/setup-wizard/class-woo-seed-mapper.php:728
+#: includes/templates/class-template-library-admin.php:122
+#: views/options/templates/field-body/attributes.php:192
+#: views/options/templates/field-body/attributes.php:207
+msgid "Swatch"
+msgstr ""
+
+#: includes/class-admin-options.php:2709
+#: includes/setup-wizard/class-woo-seed-mapper.php:730
+msgid "Advanced Dropdown"
+msgstr ""
+
+#: includes/class-admin-options.php:2713
+#: includes/setup-wizard/class-woo-seed-mapper.php:731
+msgid "Large label"
+msgstr ""
+
+#: includes/class-admin-options.php:2721
+#: includes/setup-wizard/class-woo-seed-mapper.php:509
+msgid "Changes product image"
+msgstr ""
+
+#: includes/class-admin-options.php:2722
+msgid "Choose whether to change the product image."
+msgstr ""
+
+#: includes/class-admin-options.php:2744
+msgid "Show in product options list"
+msgstr ""
+
+#: includes/class-admin-options.php:2745
+msgid "Also let buyers choose this design component (and see its price) in the product options, not only inside the design editor."
+msgstr ""
+
+#: includes/class-admin-options.php:2763
+#: includes/setup-wizard/class-woo-seed-mapper.php:511
+msgid "CSS Class"
+msgstr ""
+
+#: includes/class-admin-options.php:2771
+msgid "Component"
+msgstr ""
+
+#: includes/class-admin-options.php:2773
+#: views/options/templates/field-body/attributes.php:80
+#: views/options/templates/field-body/attributes.php:97
+#: views/options/templates/field-body/attributes.php:266
+#: views/options/templates/field-body/attributes.php:283
+msgid "Image"
+msgstr "Hình ảnh"
+
+#: includes/class-admin-options.php:2775
+#: views/options/templates/field-body/attributes.php:217
+msgid "Sub attribute name"
+msgstr ""
+
+#: includes/class-admin-options.php:2776
+msgid "Choose image"
+msgstr ""
+
+#. translators: %s = product name. Shown as the media picker title so the merchant knows the picker is showing that one product's images.
+#: includes/class-admin-options.php:2778
+#, php-format
+msgid "Images for: %s"
+msgstr ""
+
+#: includes/class-admin-options.php:2779
+#, fuzzy
+msgid "Error. Please try again later."
+msgstr "Thao tác thất bại. Vui lòng thử lại."
+
+#: includes/class-admin-options.php:2783
+msgid "Storelly product builder"
+msgstr ""
+
+#: includes/class-admin-options.php:2909 includes/class-admin-options.php:2921
+msgid "You do not have permission to add font!"
+msgstr ""
+
+#: includes/class-admin-options.php:2926
+msgid "Empty data."
+msgstr ""
+
+#: includes/class-admin-options.php:2980
+msgid "The google fonts have been added successfully!"
+msgstr ""
+
+#: includes/class-admin-options.php:3007
+msgid "No file received. Please try again."
+msgstr ""
+
+#: includes/class-admin-options.php:3014
+msgid "Upload error. Check PHP upload_max_filesize / post_max_size."
+msgstr ""
+
+#: includes/class-admin-options.php:3025 includes/class-admin-options.php:3164
+msgid "Invalid file type. Allowed: TTF, OTF, WOFF, WOFF2."
+msgstr ""
+
+#: includes/class-admin-options.php:3035
+msgid "Could not create upload directory."
+msgstr ""
+
+#: includes/class-admin-options.php:3048
+msgid "Failed to save file. Check server write permissions."
+msgstr ""
+
+#: includes/class-admin-options.php:3080 includes/class-admin-options.php:3161
+msgid "Font uploaded successfully!"
+msgstr ""
+
+#: includes/class-admin-options.php:3099
+msgid "Invalid font ID."
+msgstr ""
+
+#: includes/class-admin-options.php:3111 includes/class-admin-options.php:3163
+msgid "Font deleted."
+msgstr ""
+
+#: includes/class-admin-options.php:3151
+msgid "Complete!"
+msgstr ""
+
+#: includes/class-admin-options.php:3162
+msgid "Delete this font? This cannot be undone."
+msgstr ""
+
+#: includes/class-admin-options.php:3165
+msgid "An error occurred. Please try again."
+msgstr ""
+
+#: includes/class-admin-options.php:3166
+msgid "Drop font file here"
+msgstr ""
+
+#: includes/class-admin-options.php:3167 views/manager-fonts.php:123
+msgid "Uploading…"
+msgstr ""
+
+#: includes/class-admin-options.php:3192 includes/class-util.php:197
+msgid "Your settings have been saved."
+msgstr ""
+
+#: includes/class-admin-options.php:3526
+msgid "Could not connect to the license server. The Free plan is shown temporarily until sync succeeds."
+msgstr ""
+
+#: includes/class-admin-options.php:3535
+msgid "License synced successfully."
+msgstr ""
+
+#: includes/class-admin-options.php:3640 includes/class-admin-options.php:3923
+#: includes/class-admin-options.php:3943 includes/class-admin-options.php:3967
+#: includes/class-admin-options.php:3996 includes/class-admin-options.php:4028
+#: includes/class-admin-options.php:4089
+msgid "Forbidden."
+msgstr ""
+
+#: includes/class-admin-options.php:3832 includes/class-admin-options.php:3835
+#: includes/marketplace/admin/class-designs-list-table.php:45
+#: includes/options/fields-list-table.php:352
+#: includes/options/fields-list-table.php:485
+#: views/options/options-list-table.php:283
+#: views/options/options-list-table.php:286
+msgid "Unpublish"
+msgstr "Gỡ xuất bản"
+
+#: includes/class-admin-options.php:3832 includes/class-admin-options.php:3835
+#: includes/launcher/class.launcher.php:1485
+#: includes/marketplace/admin/class-designs-list-table.php:44
+#: includes/options/fields-list-table.php:351
+#: includes/options/fields-list-table.php:484
+#: views/options/edit-option.php:1117 views/options/options-list-table.php:283
+#: views/options/options-list-table.php:286
+msgid "Publish"
+msgstr "Xuất bản"
+
+#: includes/class-admin-options.php:3842
+#: includes/marketplace/admin/class-designs-list-table.php:95
+#: includes/options/fields-list-table.php:442 views/designs.php:114
+#: views/designs.php:136 views/marketplace-admin/designs.php:41
+#: views/options/edit-option.php:156 views/options/options-list-table.php:130
+#: views/options/options-list-table.php:293 views/products.php:99
+msgid "Draft"
+msgstr "Bản nháp"
+
+#. translators: %d: number of option fields.
+#. translators: %d: number of pricing fields in this option group
+#. translators: %d: number of fields
+#. translators: %d: number of fields in template
+#: includes/class-admin-options.php:3845
+#: includes/options/fields-list-table.php:451
+#: views/options/options-list-table.php:298 views/templates/library.php:165
+#, php-format
+msgid "%d field"
+msgid_plural "%d fields"
+msgstr[0] ""
+
+#. translators: %s: time difference
+#. translators: %s: human-readable time difference
+#: includes/class-admin-options.php:3859
+#: views/options/options-list-table.php:317
+#, php-format
+msgid "Updated %s ago"
+msgstr ""
+
+#: includes/class-admin-options.php:3866
+#: includes/launcher/class.launcher.php:1449
+#: includes/marketplace/admin/class-designers-list-table.php:59
+#: includes/options/fields-list-table.php:413
+#: templates/launcher/store/design-table.php:52
+#: views/options/options-list-table.php:328 views/_products-cards.php:119
+msgid "Edit"
+msgstr "Sửa"
+
+#: includes/class-admin-options.php:3872 views/options/field.php:94
+#: views/options/options-list-table.php:334
+msgid "Duplicate"
+msgstr ""
+
+#: includes/class-admin-options.php:3879
+#: includes/launcher/class.launcher.php:1438
+#: includes/marketplace/admin/class-designs-list-table.php:46
+#: includes/options/fields-list-table.php:350
+#: templates/launcher/store/design-table.php:61
+#: views/options/options-list-table.php:341
+#: views/options/options-list-table.php:428
+#: views/options/templates/field-body/attributes.php:327
+#: views/options/templates/field-body/attributes.php:349
+#: views/options/templates/nbpb_text.php:162
+#: views/product-builder/wrapper.php:175 views/product-builder/wrapper.php:198
+msgid "Delete"
+msgstr "Xóa"
+
+#: includes/class-admin-options.php:3891
+msgid "No options match your filters."
+msgstr ""
+
+#: includes/class-admin-options.php:3927 includes/class-admin-options.php:3948
+#: includes/class-admin-options.php:3971
+msgid "Missing ID."
+msgstr "Thiếu ID."
+
+#: includes/class-admin-options.php:3932
+msgid "Option moved to trash."
+msgstr ""
+
+#: includes/class-admin-options.php:3980
+msgid "Could not duplicate the option."
+msgstr ""
+
+#: includes/class-admin-options.php:3985
+msgid "Option duplicated."
+msgstr ""
+
+#: includes/class-admin-options.php:4001
+msgid "Invalid data."
+msgstr ""
+
+#: includes/class-admin-options.php:4015
+#: views/options/options-list-table.php:867
+msgid "Renamed."
+msgstr ""
+
+#: includes/class-admin-options.php:4035
+msgid "No items selected."
+msgstr ""
+
+#: includes/class-admin-options.php:4038
+msgid "Invalid action."
+msgstr ""
+
+#. translators: %d: number of option groups updated
+#: includes/class-admin-options.php:4066
+#, php-format
+msgid "%d option updated."
+msgid_plural "%d options updated."
+msgstr[0] ""
+
+#: includes/class-admin-options.php:4094
+msgid "Save failed."
+msgstr ""
+
+#: includes/class-admin-options.php:4105 views/options/edit-option.php:1147
+msgid "Option saved."
+msgstr ""
+
+#: includes/class-export-pdf.php:249
+msgid "NBStorelly"
+msgstr ""
+
+#: includes/class-frontend-options.php:387
+#: includes/templates/class-template-preview-render.php:354
+msgid "Sorry, file is too big, max size: "
+msgstr ""
+
+#: includes/class-frontend-options.php:388
+#: includes/templates/class-template-preview-render.php:355
+msgid "Sorry, file is too small, min size: "
+msgstr ""
+
+#: includes/class-frontend-options.php:389
+#: includes/templates/class-template-preview-render.php:356
+msgid "Sorry, this file type is not permitted for security reasons. Only accept: "
+msgstr ""
+
+#. translators: %1$s: product option field label
+#: includes/class-frontend-options.php:392
+#: includes/templates/class-template-preview-render.php:359
+#, php-format
+msgid "%1$s: This field is required."
+msgstr ""
+
+#. translators: 1: product option field label, 2: minimum character count
+#: includes/class-frontend-options.php:394
+#: includes/templates/class-template-preview-render.php:361
+#, php-format
+msgid "%1$s: Enter at least %2$s characters."
+msgstr ""
+
+#. translators: 1: product option field label, 2: maximum character count
+#: includes/class-frontend-options.php:396
+#: includes/templates/class-template-preview-render.php:363
+#, php-format
+msgid "%1$s: No more than %2$s characters."
+msgstr ""
+
+#. translators: 1: product option field label, 2: rejected choice label
+#: includes/class-frontend-options.php:398
+#: includes/templates/class-template-preview-render.php:365
+#, php-format
+msgid "%1$s: The choice \"%2$s\" is not available for the current product options."
+msgstr ""
+
+#: includes/class-frontend-options.php:399
+#: includes/templates/class-template-preview-render.php:366
+msgid "Enter a valid quantity (at least 1)."
+msgstr ""
+
+#: includes/class-frontend-options.php:400
+#: includes/templates/class-template-preview-render.php:367
+msgid "Please check invalid fields, quantity, or choose a different combination."
+msgstr ""
+
+#: includes/class-frontend-options.php:1009
+msgid "Update cart"
+msgstr ""
+
+#: includes/class-frontend-options.php:1126
+#: includes/class-frontend-options.php:1203
+#: templates/single-product/option-builder.php:258
+msgid "( cart fee )"
+msgstr ""
+
+#: includes/class-frontend-options.php:1129
+#: includes/class-frontend-options.php:1206
+#: templates/single-product/option-builder.php:259
+msgid "( for all items )"
+msgstr ""
+
+#: includes/class-frontend-options.php:1136
+#: includes/class-frontend-options.php:1217
+msgid "Quantity Discount"
+msgstr ""
+
+#: includes/class-frontend-options.php:1288 views/overview.php:277
+msgid "Edit options"
+msgstr ""
+
+#: includes/class-global-import-admin.php:68
+msgid "Upload file"
+msgstr ""
+
+#: includes/class-global-import-admin.php:69
+msgid "Import products"
+msgstr ""
+
+#: includes/class-global-import-admin.php:70
+msgid "Export sessions"
+msgstr ""
+
+#: includes/class-global-import-admin.php:71
+msgid "Are you sure you want to delete this export?"
+msgstr ""
+
+#: includes/class-global-import-admin.php:72
+msgid "Loading products…"
+msgstr ""
+
+#: includes/class-global-import-admin.php:89
+msgid "Global Import"
+msgstr ""
+
+#: includes/class-global-import-admin.php:92
+msgid "Bulk-import product configurations, upload design files and export sessions for migration or backup."
+msgstr ""
+
+#: includes/class-global-import-admin.php:99
+msgid "Import Guide"
+msgstr ""
+
+#: includes/class-global-import-controller.php:57
+#: includes/class-global-import-controller.php:232
+#: includes/class-global-import-controller.php:345
+#: includes/class-global-import-controller.php:429
+#: includes/class-global-import-controller.php:595
+#: includes/class-global-import-controller.php:665
+#: includes/class-global-import-controller.php:783
+#: includes/class-global-import-controller.php:801
+#: includes/class-global-import-controller.php:812
+#: includes/class-global-import-controller.php:836
+#: includes/class-global-import-controller.php:903
+msgid "Permission denied"
+msgstr ""
+
+#: includes/class-global-import-controller.php:62
+msgid "Background processing is unavailable on this site."
+msgstr ""
+
+#: includes/class-global-import-controller.php:85
+#: includes/class-global-import-controller.php:698
+msgid "No rows selected"
+msgstr ""
+
+#: includes/class-global-import-controller.php:93
+msgid "Import session not found."
+msgstr ""
+
+#: includes/class-global-import-controller.php:154
+msgid "Import session data is unavailable."
+msgstr ""
+
+#: includes/class-global-import-controller.php:348
+msgid "No file uploaded"
+msgstr ""
+
+#: includes/class-global-import-controller.php:355
+msgid "Unsupported file type"
+msgstr ""
+
+#: includes/class-global-import-controller.php:441
+#: includes/class-global-import-controller.php:607
+#: includes/class-global-import-controller.php:710
+msgid "Session not found"
+msgstr ""
+
+#: includes/class-global-import-controller.php:728
+msgid "Row not found"
+msgstr ""
+
+#: includes/class-global-import-controller.php:766
+msgid "Failed to export import session"
+msgstr ""
+
+#: includes/class-global-import-controller.php:840
+msgid "Invalid product"
+msgstr ""
+
+#: includes/class-global-import-controller.php:844
+msgid "No import source recorded for this product — cannot re-import."
+msgstr ""
+
+#: includes/class-global-import-controller.php:915
+msgid "Max execution time"
+msgstr ""
+
+#: includes/class-global-import-controller.php:916
+#: includes/class-global-import-controller.php:926
+#: includes/class-global-import-controller.php:936
+#: includes/class-global-import-controller.php:946
+msgid "unlimited"
+msgstr ""
+
+#: includes/class-global-import-controller.php:925
+msgid "Memory limit"
+msgstr ""
+
+#: includes/class-global-import-controller.php:935
+msgid "Post max size"
+msgstr ""
+
+#: includes/class-global-import-controller.php:945
+msgid "Upload max filesize"
+msgstr ""
+
+#: includes/class-global-import-controller.php:954
+msgid "ZipArchive (design templates)"
+msgstr ""
+
+#: includes/class-global-import-controller.php:955
+#: includes/class-global-import-controller.php:956
+#: includes/class-global-import-controller.php:965
+#: includes/class-global-import-controller.php:966
+msgid "available"
+msgstr ""
+
+#: includes/class-global-import-controller.php:955
+msgid "missing"
+msgstr ""
+
+#: includes/class-global-import-controller.php:964
+msgid "set_time_limit()"
+msgstr ""
+
+#: includes/class-global-import-controller.php:965
+msgid "disabled"
+msgstr ""
+
+#. translators: 1: setting label, 2: current value, 3: recommended value
+#: includes/class-global-import-controller.php:977
+#, php-format
+msgid "%1$s is %2$s (recommended %3$s)."
+msgstr ""
+
+#: includes/class-global-import-controller.php:997
+msgid "Connected to import server."
+msgstr ""
+
+#. translators: 1: row identifier, 2: WooCommerce product ID, 3: failure reason
+#: includes/class-global-import-controller.php:1409
+#, php-format
+msgid "Row %1$s: print options for product #%2$d skipped (%3$s)"
+msgstr ""
+
+#. translators: 1: row identifier from the import payload, 2: WooCommerce product ID
+#: includes/class-global-import-controller.php:1437
+#, php-format
+msgid "Row %1$s: print options payload is invalid for product #%2$d"
+msgstr ""
+
+#. translators: 1: row identifier, 2: WooCommerce product ID, 3: error message returned by the print-options save call
+#: includes/class-global-import-controller.php:1447
+#, php-format
+msgid "Row %1$s: failed to save print options for product #%2$d. %3$s"
+msgstr ""
+
+#: includes/class-global-import-controller.php:1450
+msgid "Unknown error"
+msgstr ""
+
+#. translators: 1: row identifier from the import payload, 2: failure reason
+#: includes/class-global-import-controller.php:1492
+#, php-format
+msgid "Row %1$s: product settings could not be loaded (%2$s)"
+msgstr ""
+
+#: includes/class-global-import-controller.php:1494
+msgid "payload is invalid"
+msgstr ""
+
+#. translators: 1: row identifier, 2: failure reason
+#: includes/class-global-import-controller.php:1522
+#, php-format
+msgid "Row %1$s: design templates skipped (%2$s)"
+msgstr ""
+
+#: includes/class-global-import.php:138
+msgid "Failed to encode export data"
+msgstr ""
+
+#: includes/class-global-import.php:153
+msgid "Failed to write export file"
+msgstr ""
+
+#: includes/class-global-import.php:286
+msgid "Import session not found"
+msgstr ""
+
+#: includes/class-global-import.php:292
+msgid "Failed to read export file"
+msgstr ""
+
+#: includes/class-global-import.php:331
+msgid "Import data staged successfully"
+msgstr ""
+
+#: includes/class-global-import.php:448
+msgid "File not found"
+msgstr ""
+
+#: includes/class-install.php:15
+msgid "Product Builder"
+msgstr ""
+
+#: includes/class-license-manager.php:98
+msgid "Unknown API error."
+msgstr ""
+
+#: includes/class-license-manager.php:172
+msgid "License key is required."
+msgstr ""
+
+#: includes/class-license-manager.php:199
+msgid "Unknown response."
+msgstr ""
+
+#: includes/class-license-manager.php:219
+msgid "No business ID configured."
+msgstr ""
+
+#: includes/class-license-manager.php:226
+msgid "Could not retrieve overview stats."
+msgstr ""
+
+#: includes/class-license-manager.php:281
+msgid "Temporary Free plan while the license server is unavailable. Reconnect to load live plans."
+msgstr ""
+
+#: includes/class-media-group.php:52 includes/class-media-group.php:53
+#: includes/class-media-group.php:54
+msgid "Builder Media Group"
+msgstr ""
+
+#. translators: %d: product ID used as a fallback media-group name.
+#: includes/class-media-group.php:94
+#, php-format
+msgid "Product %d"
+msgstr ""
+
+#: includes/class-media-group.php:164
+msgid "All builder media groups"
+msgstr ""
+
+#: includes/class-printcart-import-adapter.php:67
+msgid "No URL provided"
+msgstr ""
+
+#. translators: %d: HTTP status code returned by the remote server
+#: includes/class-printcart-import-adapter.php:81
+#, php-format
+msgid "Remote server returned HTTP %d"
+msgstr ""
+
+#: includes/class-printcart-import-adapter.php:88
+msgid "Empty response body"
+msgstr ""
+
+#. translators: 1: bytes received, 2: total bytes expected
+#: includes/class-printcart-import-adapter.php:100
+#, php-format
+msgid "Download was cut off: received %1$d of %2$d bytes"
+msgstr ""
+
+#. translators: %s: JSON parser error message
+#: includes/class-printcart-import-adapter.php:114
+#, php-format
+msgid "Invalid or incomplete JSON (%s)"
+msgstr ""
+
+#: includes/class-printcart-import-adapter.php:558
+msgid "Invalid product ID"
+msgstr ""
+
+#: includes/class-printcart-import-adapter.php:568
+msgid "Print option payload is empty or invalid"
+msgstr ""
+
+#. translators: %s is the product name.
+#: includes/class-printcart-import-adapter.php:649
+#, php-format
+msgid "Printing Options for %s"
+msgstr ""
+
+#: includes/class-printcart-import-adapter.php:678
+msgid "Failed to insert print option"
+msgstr ""
+
+#: includes/class-product-builder-frontend.php:76
+msgid "No file uploaded."
+msgstr ""
+
+#: includes/class-product-builder-frontend.php:81
+msgid "Upload error. Please try again."
+msgstr ""
+
+#: includes/class-product-builder-frontend.php:92
+msgid "Invalid upload."
+msgstr ""
+
+#: includes/class-product-builder-frontend.php:99
+msgid "Only image files are supported."
+msgstr ""
+
+#: includes/class-product-exporter.php:35
+msgid "Do you want to export and download reference data for this product?"
+msgstr ""
+
+#: includes/class-product-exporter.php:76
+msgid "Product not found."
+msgstr ""
+
+#: includes/class-product-exporter.php:181
+msgid "Could not create ZIP file."
+msgstr ""
+
+#: includes/class-product-exporter.php:193
+msgid "Invalid product ID."
+msgstr ""
+
+#: includes/class-productbuilder-api.php:89
+msgid "Connected successfully"
+msgstr ""
+
+#: includes/class-productbuilder-api.php:92
+msgid "Registration failed: unknown error"
+msgstr ""
+
+#: includes/class-productbuilder-api.php:97
+msgid "Connection error: could not reach Storelly API"
+msgstr ""
+
+#: includes/class-productbuilder-api.php:120
+msgid "You do not have permission to assign API Keys to the selected user."
+msgstr ""
+
+#: includes/class-request-quote.php:111
+msgid "Request a Quote"
+msgstr ""
+
+#: includes/class-request-quote.php:120
+#: includes/templates/class-template-preview-render.php:286
+#: templates/single-product/option-builder.php:209
+#: views/options/edit-option.php:303 views/options/edit-option.php:621
+#: views/options/edit-option.php:732
+msgid "Quantity"
+msgstr "Số lượng"
+
+#: includes/class-request-quote.php:145
+msgid "Submit Quote"
+msgstr ""
+
+#: includes/class-request-quote.php:159
+msgid "Sending..."
+msgstr ""
+
+#: includes/class-request-quote.php:171
+msgid "Request failed."
+msgstr ""
+
+#: includes/class-request-quote.php:188
+msgid "Quote is not available for this product."
+msgstr ""
+
+#. translators: %s: form field label of the missing required input
+#: includes/class-request-quote.php:210
+#, php-format
+msgid "%s is required."
+msgstr ""
+
+#. translators: %s: form field label of the field that failed email validation
+#: includes/class-request-quote.php:215
+#, php-format
+msgid "%s is not a valid email."
+msgstr ""
+
+#. translators: %s: form field label of the field that failed phone validation
+#: includes/class-request-quote.php:219
+#, php-format
+msgid "%s is not a valid phone."
+msgstr ""
+
+#: includes/class-request-quote.php:234
+msgid "Could not create quote order."
+msgstr ""
+
+#: includes/class-request-quote.php:308 includes/class-request-quote.php:344
+msgid "New Quote Request"
+msgstr ""
+
+#. translators: %s: number of new quote requests in the WC admin filter list
+#: includes/class-request-quote.php:314
+#, php-format
+msgid "New Quote Request <span class=\"count\">(%s)</span>"
+msgid_plural "New Quote Requests <span class=\"count\">(%s)</span>"
+msgstr[0] ""
+
+#: includes/class-request-quote.php:320 includes/class-request-quote.php:345
+msgid "Accepted Quote"
+msgstr ""
+
+#. translators: %s: number of accepted quotes in the WC admin filter list
+#: includes/class-request-quote.php:326
+#, php-format
+msgid "Accepted Quote <span class=\"count\">(%s)</span>"
+msgid_plural "Accepted Quotes <span class=\"count\">(%s)</span>"
+msgstr[0] ""
+
+#: includes/class-request-quote.php:332 includes/class-request-quote.php:346
+msgid "Rejected Quote"
+msgstr ""
+
+#. translators: %s: number of rejected quotes in the WC admin filter list
+#: includes/class-request-quote.php:338
+#, php-format
+msgid "Rejected Quote <span class=\"count\">(%s)</span>"
+msgid_plural "Rejected Quotes <span class=\"count\">(%s)</span>"
+msgstr[0] ""
+
+#: includes/class-request-quote.php:382
+msgid "My Quotes"
+msgstr ""
+
+#: includes/class-request-quote.php:384
+msgid "No quotes found."
+msgstr ""
+
+#: includes/class-request-quote.php:388
+msgid "Quote"
+msgstr ""
+
+#: includes/class-request-quote.php:416
+msgid "Quote not found."
+msgstr ""
+
+#. translators: %d: quote (WC order) ID
+#: includes/class-request-quote.php:436
+#, php-format
+msgid "Quote #%d"
+msgstr ""
+
+#: includes/class-request-quote.php:437
+msgid "Status:"
+msgstr ""
+
+#: includes/class-request-quote.php:438
+msgid "Message:"
+msgstr ""
+
+#: includes/class-request-quote.php:439
+msgid "Accept Quote"
+msgstr ""
+
+#: includes/class-request-quote.php:440
+msgid "Reject Quote"
+msgstr ""
+
+#: includes/class-request-quote.php:441
+msgid "Items"
+msgstr ""
+
+#: includes/class-request-quote.php:469
+msgid "Customer accepted the quote."
+msgstr ""
+
+#: includes/class-request-quote.php:476
+msgid "Customer rejected the quote."
+msgstr ""
+
+#: includes/class-util.php:201 includes/class-util.php:211
+#: includes/class-util.php:228
+msgid "Dismiss this notice."
+msgstr ""
+
+#: includes/class-util.php:207 includes/class-util.php:217
+msgid "Irks! An error has occurred."
+msgstr ""
+
+#: includes/class-util.php:224
+msgid "Warning."
+msgstr ""
+
+#. translators: %1$s: Template file path.
+#: includes/class-util.php:268
+#, php-format
+msgid "%1$s does not exist."
+msgstr ""
+
+#. translators: %s: archive file path.
+#: includes/class-util.php:555
+#, php-format
+msgid "Cannot open %s."
+msgstr ""
+
+#: includes/launcher/api/design.php:19 includes/launcher/api/design.php:40
+msgid "Design status"
+msgstr ""
+
+#: includes/launcher/api/design.php:30 includes/launcher/api/designer.php:35
+#: includes/launcher/api/designer.php:66 includes/launcher/api/designer.php:80
+#: includes/launcher/api/withdraw.php:28
+msgid "Unique identifier for the object."
+msgstr ""
+
+#: includes/launcher/api/design.php:187 includes/launcher/api/withdraw.php:251
+msgid "Invalid ID"
+msgstr ""
+
+#: includes/launcher/api/design.php:197
+msgid "No design found for deleting"
+msgstr ""
+
+#: includes/launcher/api/design.php:201
+msgid "Design has been delete successfully."
+msgstr ""
+
+#: includes/launcher/api/design.php:201
+msgid "Design has been delete failed"
+msgstr ""
+
+#: includes/launcher/api/design.php:212 includes/launcher/api/designer.php:275
+#: includes/launcher/api/withdraw.php:275
+msgid "No items found for bulk updating"
+msgstr ""
+
+#: includes/launcher/api/design.php:253
+msgid "Design status have been updated!"
+msgstr ""
+
+#: includes/launcher/api/designer.php:40
+msgid "Status enable for the designer object."
+msgstr ""
+
+#: includes/launcher/api/designer.php:45
+msgid "Status feature for the designer object."
+msgstr ""
+
+#: includes/launcher/api/designer.php:84
+msgid "Subject of the email."
+msgstr ""
+
+#: includes/launcher/api/designer.php:89
+msgid "Body of the email."
+msgstr ""
+
+#: includes/launcher/api/designer.php:230
+#: includes/launcher/api/designer.php:308
+msgid "No designer found"
+msgstr ""
+
+#: includes/launcher/api/designer.php:241
+#: includes/launcher/api/designer.php:266
+msgid "Designer status has been updated!"
+msgstr ""
+
+#: includes/launcher/api/designer.php:248
+msgid "Status parameter must be enabled or featured"
+msgstr ""
+
+#: includes/launcher/api/designer.php:254
+msgid "No designer found for updating status"
+msgstr ""
+
+#: includes/launcher/api/designer.php:300
+msgid "Designers status have been updated!"
+msgstr ""
+
+#: includes/launcher/api/designer.php:325
+msgid "Email has been sent successfully."
+msgstr ""
+
+#: includes/launcher/api/designer.php:325
+msgid "Email has been sent failed"
+msgstr ""
+
+#: includes/launcher/api/report.php:116
+#: includes/launcher/class.launcher.php:191
+#: templates/launcher/store/dashboard.php:8
+msgid "Created designs"
+msgstr ""
+
+#: includes/launcher/api/report.php:123
+#: includes/launcher/class.launcher.php:198
+msgid "Sold designs"
+msgstr ""
+
+#: includes/launcher/api/withdraw.php:18 includes/launcher/api/withdraw.php:38
+msgid "Withdraw status"
+msgstr ""
+
+#: includes/launcher/api/withdraw.php:43
+msgid "Withdraw note"
+msgstr ""
+
+#: includes/launcher/api/withdraw.php:187
+msgid "Can not approve this withdraw request because the balance is less than the withdraw amount."
+msgstr ""
+
+#: includes/launcher/api/withdraw.php:235
+msgid "Something wrong, Note not updated"
+msgstr ""
+
+#: includes/launcher/api/withdraw.php:239
+msgid "Withdraw note has been updated!"
+msgstr ""
+
+#: includes/launcher/api/withdraw.php:261
+msgid "No withdraw found for deleting"
+msgstr ""
+
+#: includes/launcher/api/withdraw.php:265
+msgid "Withdraw has been delete successfully."
+msgstr ""
+
+#: includes/launcher/api/withdraw.php:265
+msgid "Withdraw has been delete failed"
+msgstr ""
+
+#: includes/launcher/api/withdraw.php:333
+msgid "Withdraw status have been updated!"
+msgstr ""
+
+#: includes/launcher/class.designer.php:272
+msgid "Email is not valid"
+msgstr ""
+
+#: includes/launcher/class.launcher.php:107
+msgid "My store"
+msgstr ""
+
+#: includes/launcher/class.launcher.php:126
+msgid "Design store"
+msgstr ""
+
+#: includes/launcher/class.launcher.php:335
+#: includes/launcher/class.launcher.php:1440
+#: views/marketplace-admin/designers.php:26
+#: views/marketplace-admin/header.php:17 views/marketplace-admin/report.php:34
+msgid "Designers"
+msgstr ""
+
+#: includes/launcher/class.launcher.php:340 views/options/field.php:77
+msgid "General"
+msgstr ""
+
+#: includes/launcher/class.launcher.php:341
+msgid "Admin"
+msgstr ""
+
+#: includes/launcher/class.launcher.php:342
+#: includes/launcher/class.launcher.php:487
+#: includes/launcher/class.launcher.php:1439
+#: includes/marketplace/admin/class-designs-list-table.php:33
+#: includes/marketplace/admin/class-withdraws-list-table.php:31
+#: views/options/edit-option.php:128
+msgid "Designer"
+msgstr ""
+
+#: includes/launcher/class.launcher.php:343
+#: includes/launcher/class.launcher.php:1324
+#: includes/launcher/class.launcher.php:1325
+msgid "Design"
+msgstr ""
+
+#: includes/launcher/class.launcher.php:436
+msgid "Please choose all necessary files!"
+msgstr ""
+
+#: includes/launcher/class.launcher.php:448
+msgid "Allow designer upload and sell solid design"
+msgstr ""
+
+#: includes/launcher/class.launcher.php:544
+msgid "You want to sell your designs to earn commission?"
+msgstr ""
+
+#: includes/launcher/class.launcher.php:545
+msgid "Become designer"
+msgstr ""
+
+#: includes/launcher/class.launcher.php:557
+msgid "Invalid nonce."
+msgstr "Nonce không hợp lệ."
+
+#: includes/launcher/class.launcher.php:573
+msgid "Designer has been enabled"
+msgstr ""
+
+#: includes/launcher/class.launcher.php:573
+msgid "Designer has been disabled"
+msgstr ""
+
+#: includes/launcher/class.launcher.php:577
+msgid "Featured designer has been enabled"
+msgstr ""
+
+#: includes/launcher/class.launcher.php:577
+msgid "Featured designer has been disabled"
+msgstr ""
+
+#: includes/launcher/class.launcher.php:725
+msgid "Please select a product before upload design!"
+msgstr ""
+
+#: includes/launcher/class.launcher.php:848
+#: includes/launcher/class.launcher.php:895
+msgid "Upload file error!"
+msgstr ""
+
+#: includes/launcher/class.launcher.php:853
+msgid "File size too big"
+msgstr ""
+
+#: includes/launcher/class.launcher.php:864
+msgid "Only alllow image for product preview."
+msgstr ""
+
+#: includes/launcher/class.launcher.php:870
+msgid "Fail to create design thumbnail."
+msgstr ""
+
+#: includes/launcher/class.launcher.php:876
+msgid "Only alllow zip extension for design file."
+msgstr ""
+
+#: includes/launcher/class.launcher.php:883
+msgid "Only alllow image for content design preview."
+msgstr ""
+
+#: includes/launcher/class.launcher.php:931
+#: includes/launcher/class.launcher.php:945
+msgid "Fail to edit exist design preview image!"
+msgstr ""
+
+#: includes/launcher/class.launcher.php:965
+msgid "Design does not exist!"
+msgstr ""
+
+#: includes/launcher/class.launcher.php:1039
+msgid "Can not create design folder!"
+msgstr ""
+
+#: includes/launcher/class.launcher.php:1210
+msgid "Designed by"
+msgstr ""
+
+#: includes/launcher/class.launcher.php:1300
+msgid "Download design resource"
+msgstr ""
+
+#: includes/launcher/class.launcher.php:1409
+msgid "Add Note"
+msgstr ""
+
+#: includes/launcher/class.launcher.php:1410
+#: views/marketplace-admin/designers.php:46
+#: views/options/options-list-table.php:120 views/products.php:67
+msgid "All"
+msgstr "Tất cả"
+
+#: includes/launcher/class.launcher.php:1411
+msgid "All user"
+msgstr ""
+
+#: includes/launcher/class.launcher.php:1412
+#: includes/marketplace/admin/class-withdraws-list-table.php:32
+#: templates/launcher/store/withdraw-table.php:8
+#: templates/launcher/store/withdraw-table.php:17
+msgid "Amount"
+msgstr ""
+
+#: includes/launcher/class.launcher.php:1413
+#: includes/marketplace/admin/class-withdraws-list-table.php:81
+#: templates/launcher/store/dashboard.php:15
+#: templates/launcher/store/design-table.php:33
+#: templates/launcher/store/withdraw-table.php:23
+#: views/marketplace-admin/withdraws.php:41
+msgid "Approved"
+msgstr ""
+
+#: includes/launcher/class.launcher.php:1414
+msgid "Approve Request"
+msgstr ""
+
+#: includes/launcher/class.launcher.php:1415
+msgid "Auto publish new design"
+msgstr ""
+
+#: includes/launcher/class.launcher.php:1416
+#: includes/launcher/class.launcher.php:1419
+#: views/marketplace-admin/designer-edit.php:127
+msgid "Artist name"
+msgstr ""
+
+#: includes/launcher/class.launcher.php:1417
+msgid "At a Glance"
+msgstr ""
+
+#: includes/launcher/class.launcher.php:1418
+#: templates/single-product/option-builder.php:101
+#: views/templates/library.php:187
+msgid "Apply"
+msgstr "Áp dụng"
+
+#: includes/launcher/class.launcher.php:1420
+#: templates/launcher/store/settings.php:47
+#: views/marketplace-admin/designer-edit.php:135
+msgid "Address"
+msgstr "Địa chỉ"
+
+#: includes/launcher/class.launcher.php:1421
+msgid "awaiting approval"
+msgstr ""
+
+#: includes/launcher/class.launcher.php:1422
+msgid "Bulk actions"
+msgstr ""
+
+#: includes/launcher/class.launcher.php:1423
+#: includes/marketplace/admin/class-withdraws-list-table.php:45
+#: includes/marketplace/admin/class-withdraws-list-table.php:105
+#: includes/setup-wizard/class-woo-seed-controller.php:160
+#: templates/launcher/store/withdraw-table.php:40 views/manager-fonts.php:115
+#: views/options/edit-option.php:1109 views/options/options-list-table.php:424
+#: views/product-builder/js_config.php:69 views/templates/library.php:404
+msgid "Cancel"
+msgstr "Hủy"
+
+#: includes/launcher/class.launcher.php:1424
+msgid "Cancel request"
+msgstr ""
+
+#: includes/launcher/class.launcher.php:1425
+#: includes/marketplace/admin/class-withdraws-list-table.php:82
+#: templates/launcher/store/withdraw-table.php:25
+#: views/marketplace-admin/withdraws.php:42
+msgid "Cancelled"
+msgstr ""
+
+#: includes/launcher/class.launcher.php:1426 includes/settings/launcher.php:32
+msgid "Combine"
+msgstr ""
+
+#: includes/launcher/class.launcher.php:1427
+msgid "% + "
+msgstr ""
+
+#: includes/launcher/class.launcher.php:1428
+msgid "Do you want to delete this withdraw?"
+msgstr ""
+
+#: includes/launcher/class.launcher.php:1429
+msgid "Do you want to delete this design?"
+msgstr ""
+
+#: includes/launcher/class.launcher.php:1430
+msgid "Change Designer Avatar"
+msgstr ""
+
+#: includes/launcher/class.launcher.php:1431
+msgid "Change banner"
+msgstr ""
+
+#: includes/launcher/class.launcher.php:1432
+msgid "created this month"
+msgstr ""
+
+#: includes/launcher/class.launcher.php:1433
+msgid "created this period"
+msgstr ""
+
+#: includes/launcher/class.launcher.php:1434
+msgid "Current balance"
+msgstr ""
+
+#: includes/launcher/class.launcher.php:1435
+msgid "Custom"
+msgstr "Tùy chỉnh"
+
+#: includes/launcher/class.launcher.php:1436
+msgid "Dashboard"
+msgstr ""
+
+#: includes/launcher/class.launcher.php:1441
+#: includes/marketplace/admin/class-designers-list-table.php:36
+#: templates/launcher/store/designs.php:7 templates/launcher/store/tabs.php:13
+#: views/marketplace-admin/designs.php:25 views/marketplace-admin/header.php:18
+#: views/marketplace-admin/report.php:45
+msgid "Designs"
+msgstr ""
+
+#: includes/launcher/class.launcher.php:1442
+msgid "Designer Commission Type"
+msgstr ""
+
+#: includes/launcher/class.launcher.php:1443
+msgid "Designer Commission"
+msgstr ""
+
+#: includes/launcher/class.launcher.php:1444
+msgid "Design Launcher"
+msgstr ""
+
+#: includes/launcher/class.launcher.php:1445
+msgid "Designs sold"
+msgstr ""
+
+#: includes/launcher/class.launcher.php:1446
+#: includes/marketplace/admin/class-designers-list-table.php:83
+#: views/marketplace-admin/designers.php:42 views/options/edit-option.php:236
+#: views/options/field.php:39
+msgid "Disabled"
+msgstr ""
+
+#: includes/launcher/class.launcher.php:1447
+msgid "Download resource"
+msgstr ""
+
+#: includes/launcher/class.launcher.php:1448
+msgid "E-mail"
+msgstr ""
+
+#: includes/launcher/class.launcher.php:1450
+msgid "Editable"
+msgstr ""
+
+#: includes/launcher/class.launcher.php:1452
+msgid "Enable Selling Designs"
+msgstr ""
+
+#: includes/launcher/class.launcher.php:1453
+msgid "Error!"
+msgstr ""
+
+#: includes/launcher/class.launcher.php:1454 includes/settings/launcher.php:31
+#: views/marketplace-admin/designer-edit.php:148
+msgid "Flat"
+msgstr ""
+
+#: includes/launcher/class.launcher.php:1455
+#: includes/marketplace/admin/class-designers-list-table.php:35
+#: views/marketplace-admin/designers.php:47
+msgid "Featured"
+msgstr ""
+
+#: includes/launcher/class.launcher.php:1456 views/designs.php:158
+#: views/marketplace-admin/designers.php:50
+#: views/marketplace-admin/designs.php:45
+#: views/marketplace-admin/withdraws.php:44
+msgid "Filter"
+msgstr "Lọc"
+
+#: includes/launcher/class.launcher.php:1457
+#: templates/launcher/store/settings.php:82
+msgid "Flickr"
+msgstr ""
+
+#: includes/launcher/class.launcher.php:1458
+#: templates/launcher/store/settings.php:57
+msgid "Facebook"
+msgstr ""
+
+#: includes/launcher/class.launcher.php:1459
+msgid "Filter by registered customer"
+msgstr ""
+
+#: includes/launcher/class.launcher.php:1460
+msgid "Filter by product"
+msgstr ""
+
+#: includes/launcher/class.launcher.php:1461
+msgid "From"
+msgstr ""
+
+#: includes/launcher/class.launcher.php:1462
+#: templates/single-product/option-builder.php:39
+msgid "item"
+msgstr ""
+
+#: includes/launcher/class.launcher.php:1463
+#: templates/single-product/option-builder.php:40
+#: templates/single-product/option-builder.php:283
+msgid "items"
+msgstr ""
+
+#: includes/launcher/class.launcher.php:1464
+#: templates/launcher/store/settings.php:77
+msgid "Instagram"
+msgstr ""
+
+#: includes/launcher/class.launcher.php:1465
+msgid "Last month"
+msgstr ""
+
+#: includes/launcher/class.launcher.php:1466
+#: templates/launcher/store/settings.php:67
+msgid "LinkedIn"
+msgstr ""
+
+#: includes/launcher/class.launcher.php:1467
+msgid "Make Designer Featured"
+msgstr ""
+
+#: includes/launcher/class.launcher.php:1468
+msgid "Manage Designers"
+msgstr ""
+
+#: includes/launcher/class.launcher.php:1470
+msgid "( no name )"
+msgstr ""
+
+#: includes/launcher/class.launcher.php:1471
+#: includes/marketplace/admin/class-withdraws-list-table.php:34
+msgid "Note"
+msgstr ""
+
+#: includes/launcher/class.launcher.php:1472
+msgid "No designer found."
+msgstr ""
+
+#: includes/launcher/class.launcher.php:1473
+msgid "No transaction found."
+msgstr ""
+
+#: includes/launcher/class.launcher.php:1474
+msgid "No design found."
+msgstr ""
+
+#: includes/launcher/class.launcher.php:1475
+msgid "of"
+msgstr ""
+
+#: includes/launcher/class.launcher.php:1476
+msgid "Others"
+msgstr ""
+
+#: includes/launcher/class.launcher.php:1477
+#: templates/launcher/store/tabs.php:10 views/overview.php:82
+msgid "Overview"
+msgstr ""
+
+#: includes/launcher/class.launcher.php:1478
+#: includes/marketplace/admin/class-withdraws-list-table.php:80
+#: templates/launcher/store/dashboard.php:18
+#: templates/launcher/store/design-table.php:31
+#: templates/launcher/store/withdraw-table.php:21
+#: views/marketplace-admin/withdraws.php:40 views/products.php:100
+msgid "Pending"
+msgstr "Chờ duyệt"
+
+#: includes/launcher/class.launcher.php:1479
+msgid "Pending request"
+msgstr ""
+
+#: includes/launcher/class.launcher.php:1480 includes/settings/launcher.php:30
+#: views/marketplace-admin/designer-edit.php:147
+msgid "Percentage"
+msgstr ""
+
+#: includes/launcher/class.launcher.php:1481
+msgid "Payment"
+msgstr ""
+
+#: includes/launcher/class.launcher.php:1482
+msgid "Payment information"
+msgstr ""
+
+#: includes/launcher/class.launcher.php:1483
+msgid "PayPal Email"
+msgstr ""
+
+#: includes/launcher/class.launcher.php:1484
+#: templates/launcher/store/settings.php:52
+msgid "Phone Number"
+msgstr ""
+
+#: includes/launcher/class.launcher.php:1486
+msgid "Publish designs"
+msgstr ""
+
+#: includes/launcher/class.launcher.php:1487
+#: includes/marketplace/admin/class-designs-list-table.php:31
+#: templates/launcher/store/design-table.php:13
+#: templates/launcher/store/design-table.php:23 views/manager-fonts.php:79
+#: views/templates/library.php:181 views/templates/library.php:211
+msgid "Preview"
+msgstr "Xem trước"
+
+#: includes/launcher/class.launcher.php:1488 views/products.php:101
+msgid "Private"
+msgstr ""
+
+#: includes/launcher/class.launcher.php:1489
+#: includes/marketplace/admin/class-designs-list-table.php:34
+#: templates/launcher/store/design-table.php:15 views/products.php:205
+msgid "Product"
+msgstr "Sản phẩm"
+
+#: includes/launcher/class.launcher.php:1490
+msgid "Registered"
+msgstr ""
+
+#: includes/launcher/class.launcher.php:1491
+msgid "Revenue"
+msgstr ""
+
+#: includes/launcher/class.launcher.php:1492
+msgid "Registered since"
+msgstr ""
+
+#: includes/launcher/class.launcher.php:1493
+msgid "Re-generate design preview"
+msgstr ""
+
+#: includes/launcher/class.launcher.php:1494
+#: includes/marketplace/class-marketplace-settings-adapter.php:180
+msgid "Save Changes"
+msgstr ""
+
+#: includes/launcher/class.launcher.php:1495
+msgid "Select Image"
+msgstr ""
+
+#: includes/launcher/class.launcher.php:1496
+msgid "Select & Crop Image"
+msgstr ""
+
+#: includes/launcher/class.launcher.php:1497
+msgid "Select bulk action"
+msgstr ""
+
+#: includes/launcher/class.launcher.php:1498
+msgid "Send Email"
+msgstr ""
+
+#: includes/launcher/class.launcher.php:1499
+msgid "signup this month"
+msgstr ""
+
+#: includes/launcher/class.launcher.php:1500
+msgid "signup this period"
+msgstr ""
+
+#: includes/launcher/class.launcher.php:1501
+msgid "Show"
+msgstr "Hiện"
+
+#: includes/launcher/class.launcher.php:1502
+msgid "Social information"
+msgstr ""
+
+#: includes/launcher/class.launcher.php:1503
+msgid "sold this month"
+msgstr ""
+
+#: includes/launcher/class.launcher.php:1504
+msgid "sold this period"
+msgstr ""
+
+#: includes/launcher/class.launcher.php:1505
+msgid "Solid"
+msgstr ""
+
+#: includes/launcher/class.launcher.php:1507
+msgid "Success!"
+msgstr ""
+
+#: includes/launcher/class.launcher.php:1508
+#: includes/launcher/emails/designer_disabled.php:92
+#: includes/launcher/emails/designer_enabled.php:110
+#: includes/launcher/emails/withdraw_approved.php:96
+#: includes/launcher/emails/withdraw_cancelled.php:96
+#: includes/launcher/emails/withdraw_request.php:109
+msgid "Subject"
+msgstr ""
+
+#: includes/launcher/class.launcher.php:1509
+msgid "This month"
+msgstr ""
+
+#: includes/launcher/class.launcher.php:1510
+msgid "To"
+msgstr ""
+
+#: includes/launcher/class.launcher.php:1511
+msgid "Toggle panel"
+msgstr ""
+
+#: includes/launcher/class.launcher.php:1512
+msgid "Total designs"
+msgstr ""
+
+#: includes/launcher/class.launcher.php:1513
+msgid "Total earning"
+msgstr ""
+
+#: includes/launcher/class.launcher.php:1514
+#: templates/launcher/store/settings.php:62
+msgid "Twitter"
+msgstr ""
+
+#: includes/launcher/class.launcher.php:1515
+msgid "Upload Image"
+msgstr ""
+
+#: includes/launcher/class.launcher.php:1516
+msgid "Update Note"
+msgstr ""
+
+#: includes/launcher/class.launcher.php:1518
+msgid "View gallery"
+msgstr ""
+
+#: includes/launcher/class.launcher.php:1519
+#: templates/launcher/store/tabs.php:16 templates/launcher/store/withdraw.php:4
+msgid "Withdraw"
+msgstr ""
+
+#: includes/launcher/class.launcher.php:1520
+msgid "Withdrawals"
+msgstr ""
+
+#: includes/launcher/class.launcher.php:1521
+msgid "Year"
+msgstr ""
+
+#: includes/launcher/class.launcher.php:1522
+#: templates/launcher/store/settings.php:72
+msgid "Youtube"
+msgstr ""
+
+#: includes/launcher/class.withdraw.php:135
+#: includes/launcher/class.withdraw.php:164
+msgid "You have no permission to do this action"
+msgstr ""
+
+#: includes/launcher/emails/designer_disabled.php:13
+msgid "Designer Disable"
+msgstr ""
+
+#: includes/launcher/emails/designer_disabled.php:14
+msgid "This email is sent to a designer when his/her designer account is deactivated by admin"
+msgstr ""
+
+#: includes/launcher/emails/designer_disabled.php:26
+msgid "[{site_name}] Your account is deactivated"
+msgstr ""
+
+#: includes/launcher/emails/designer_disabled.php:30
+msgid "Your designer account is deactivated"
+msgstr ""
+
+#: includes/launcher/emails/designer_disabled.php:85
+#: includes/launcher/emails/designer_enabled.php:90
+#: includes/launcher/emails/withdraw_approved.php:90
+#: includes/launcher/emails/withdraw_cancelled.php:90
+#: includes/launcher/emails/withdraw_request.php:94
+msgid "Enable/Disable"
+msgstr ""
+
+#: includes/launcher/emails/designer_disabled.php:87
+#: includes/launcher/emails/designer_enabled.php:92
+#: includes/launcher/emails/withdraw_approved.php:92
+#: includes/launcher/emails/withdraw_cancelled.php:92
+#: includes/launcher/emails/withdraw_request.php:96
+msgid "Enable this email notification"
+msgstr ""
+
+#. translators: %s: comma-separated list of placeholder tokens like {title}, {site_name}
+#. translators: %s: list of available placeholder tags (site_name, amount, user_name)
+#: includes/launcher/emails/designer_disabled.php:96
+#: includes/launcher/emails/designer_disabled.php:105
+#: includes/launcher/emails/withdraw_approved.php:100
+#: includes/launcher/emails/withdraw_approved.php:109
+#: includes/launcher/emails/withdraw_cancelled.php:100
+#: includes/launcher/emails/withdraw_cancelled.php:109
+#: includes/launcher/emails/withdraw_request.php:113
+#: includes/launcher/emails/withdraw_request.php:122
+#, php-format
+msgid "Available placeholders: %s"
+msgstr ""
+
+#: includes/launcher/emails/designer_disabled.php:101
+#: includes/launcher/emails/withdraw_approved.php:105
+#: includes/launcher/emails/withdraw_cancelled.php:105
+#: includes/launcher/emails/withdraw_request.php:118
+msgid "Email heading"
+msgstr ""
+
+#: includes/launcher/emails/designer_disabled.php:110
+#: includes/launcher/emails/designer_enabled.php:153
+#: includes/launcher/emails/withdraw_approved.php:114
+#: includes/launcher/emails/withdraw_cancelled.php:114
+#: includes/launcher/emails/withdraw_request.php:127
+msgid "Email type"
+msgstr ""
+
+#: includes/launcher/emails/designer_disabled.php:112
+#: includes/launcher/emails/withdraw_approved.php:116
+#: includes/launcher/emails/withdraw_cancelled.php:116
+#: includes/launcher/emails/withdraw_request.php:129
+msgid "Choose which format of email to send."
+msgstr ""
+
+#: includes/launcher/emails/designer_enabled.php:18
+msgid "Designer Enable"
+msgstr ""
+
+#: includes/launcher/emails/designer_enabled.php:19
+msgid "This email is sent to a designer when his/her designer account enabled from admin settings"
+msgstr ""
+
+#: includes/launcher/emails/designer_enabled.php:20
+msgid "Your designer account is activated"
+msgstr ""
+
+#: includes/launcher/emails/designer_enabled.php:21
+msgid "[{site_name}] Your account is activated"
+msgstr ""
+
+#: includes/launcher/emails/designer_enabled.php:96
+msgid "\"From\" Name"
+msgstr ""
+
+#: includes/launcher/emails/designer_enabled.php:103
+msgid "\"From\" Email Address"
+msgstr ""
+
+#. translators: %s: default email subject text, shown inside a <code> block
+#: includes/launcher/emails/designer_enabled.php:113
+#, php-format
+msgid "This field lets you modify the email subject line. Leave it blank to use the default subject text: <code>%s</code>. You can use {site_name} as a placeholder that will show the your site address."
+msgstr ""
+
+#: includes/launcher/emails/designer_enabled.php:118
+msgid "Bcc Recipient(s)"
+msgstr ""
+
+#: includes/launcher/emails/designer_enabled.php:120
+msgid "Enter futher recipients (separated by commas) for this email. By default email to the customer"
+msgstr ""
+
+#: includes/launcher/emails/designer_enabled.php:125
+msgid "Send BCC copy"
+msgstr ""
+
+#: includes/launcher/emails/designer_enabled.php:127
+msgid "Send a blind carbon copy to the administrator"
+msgstr ""
+
+#: includes/launcher/emails/designer_enabled.php:131
+msgid "Email Heading"
+msgstr ""
+
+#. translators: %s: default email heading text, shown inside a <code> block
+#: includes/launcher/emails/designer_enabled.php:134
+#, php-format
+msgid "This field lets you change the main heading in email notification. Leave it blank to use default heading type: <code>%s</code>."
+msgstr ""
+
+#: includes/launcher/emails/designer_enabled.php:139
+msgid "Email Title"
+msgstr ""
+
+#: includes/launcher/emails/designer_enabled.php:141
+#: includes/launcher/emails/designer_enabled.php:143
+msgid "Congratulations {display_name}!"
+msgstr ""
+
+#: includes/launcher/emails/designer_enabled.php:142
+msgid "This field lets you change the main title in email notification. Available placeholders: <code>{display_name}!</code>."
+msgstr ""
+
+#: includes/launcher/emails/designer_enabled.php:146
+msgid "Email Description"
+msgstr ""
+
+#: includes/launcher/emails/designer_enabled.php:155
+msgid "Choose email format."
+msgstr ""
+
+#: includes/launcher/emails/withdraw_approved.php:12
+msgid "NBDesigner Withdraw Approved"
+msgstr ""
+
+#: includes/launcher/emails/withdraw_approved.php:13
+msgid "These emails are sent to designer when a designer withdraw request is approved"
+msgstr ""
+
+#: includes/launcher/emails/withdraw_approved.php:25
+msgid "[{site_name}] Your withdrawal request was approved"
+msgstr ""
+
+#: includes/launcher/emails/withdraw_approved.php:29
+msgid "Withdrawal request for {amount} is approved"
+msgstr ""
+
+#: includes/launcher/emails/withdraw_cancelled.php:12
+msgid "NBDesigner Withdraw cancelled"
+msgstr ""
+
+#: includes/launcher/emails/withdraw_cancelled.php:13
+msgid "These emails are sent to designer when a designer withdraw request is cancelled"
+msgstr ""
+
+#: includes/launcher/emails/withdraw_cancelled.php:25
+msgid "[{site_name}] Your withdrawal request was cancelled"
+msgstr ""
+
+#: includes/launcher/emails/withdraw_cancelled.php:29
+msgid "Withdrawal request for {amount} is cancelled"
+msgstr ""
+
+#: includes/launcher/emails/withdraw_request.php:12
+msgid "NBDesigner Withdrawal Request"
+msgstr ""
+
+#: includes/launcher/emails/withdraw_request.php:13
+msgid "These emails are sent to chosen recipient(s) when a designer send request to withdraw"
+msgstr ""
+
+#: includes/launcher/emails/withdraw_request.php:26
+msgid "[{site_name}] A New withdrawal request is made by {user_name}"
+msgstr ""
+
+#: includes/launcher/emails/withdraw_request.php:30
+msgid "New Withdraw Request from - {user_name}"
+msgstr ""
+
+#: includes/launcher/emails/withdraw_request.php:100
+msgid "Recipient(s)"
+msgstr ""
+
+#. translators: %s: site admin email address, shown inside a <code> block
+#: includes/launcher/emails/withdraw_request.php:103
+#, php-format
+msgid "Enter recipients (comma separated) for this email. Defaults to %s."
+msgstr ""
+
+#: includes/marketplace/admin/class-designers-list-table.php:31
+#: views/menu-settings.php:759
+msgid "Username"
+msgstr ""
+
+#: includes/marketplace/admin/class-designers-list-table.php:32
+msgid "Display name"
+msgstr ""
+
+#: includes/marketplace/admin/class-designers-list-table.php:37
+msgid "Balance"
+msgstr ""
+
+#: includes/marketplace/admin/class-designers-list-table.php:38
+msgid "Joined"
+msgstr ""
+
+#: includes/marketplace/admin/class-designers-list-table.php:44
+#: includes/marketplace/admin/class-designers-list-table.php:60
+msgid "Enable"
+msgstr "Bật"
+
+#: includes/marketplace/admin/class-designers-list-table.php:45
+#: includes/marketplace/admin/class-designers-list-table.php:60
+msgid "Disable"
+msgstr "Tắt"
+
+#: includes/marketplace/admin/class-designers-list-table.php:46
+msgid "Mark featured"
+msgstr ""
+
+#: includes/marketplace/admin/class-designers-list-table.php:47
+msgid "Unmark featured"
+msgstr ""
+
+#: includes/marketplace/admin/class-designers-list-table.php:166
+msgid "No designers found."
+msgstr ""
+
+#: includes/marketplace/admin/class-designs-list-table.php:36
+#: views/marketplace-admin/report.php:56 views/marketplace-admin/report.php:91
+msgid "Sales"
+msgstr ""
+
+#: includes/marketplace/admin/class-designs-list-table.php:37
+#: views/options/templates/nbpb_com.php:6
+msgid "Views"
+msgstr ""
+
+#: includes/marketplace/admin/class-designs-list-table.php:38
+#: views/options/edit-option.php:174
+msgid "Created"
+msgstr ""
+
+#: includes/marketplace/admin/class-designs-list-table.php:65
+#: includes/marketplace/admin/class-designs-list-table.php:77
+#: includes/marketplace/admin/class-designs-list-table.php:86
+#: includes/marketplace/admin/class-withdraws-list-table.php:56
+#: includes/marketplace/admin/class-withdraws-list-table.php:98
+msgid "—"
+msgstr ""
+
+#: includes/marketplace/admin/class-designs-list-table.php:155
+msgid "No designs found."
+msgstr ""
+
+#: includes/marketplace/admin/class-marketplace-admin-ajax.php:43
+#: includes/marketplace/admin/class-marketplace-admin-ajax.php:75
+#: includes/marketplace/admin/class-marketplace-admin-ajax.php:110
+msgid "Invalid request."
+msgstr ""
+
+#: includes/marketplace/admin/class-marketplace-admin-ajax.php:82
+msgid "Withdraw request not found."
+msgstr ""
+
+#: includes/marketplace/admin/class-marketplace-admin.php:46
+#: includes/marketplace/admin/class-marketplace-admin.php:47
+#: includes/marketplace/class-marketplace-settings-adapter.php:42
+#: includes/marketplace/class-marketplace-settings-adapter.php:43
+msgid "B2B Clients"
+msgstr "Khách hàng B2B"
+
+#: includes/marketplace/admin/class-marketplace-admin.php:89
+msgid "Are you sure you want to delete this item?"
+msgstr ""
+
+#: includes/marketplace/admin/class-marketplace-admin.php:90
+msgid "Approve this withdraw request?"
+msgstr ""
+
+#: includes/marketplace/admin/class-marketplace-admin.php:91
+msgid "Cancel this withdraw request?"
+msgstr ""
+
+#: includes/marketplace/admin/class-marketplace-admin.php:93
+msgid "Action failed. Check the browser console for details."
+msgstr "Thao tác thất bại. Xem console trình duyệt để biết chi tiết."
+
+#: includes/marketplace/admin/class-marketplace-admin.php:119
+msgid "Marketplace view not found."
+msgstr ""
+
+#: includes/marketplace/admin/class-withdraws-list-table.php:33
+msgid "Method"
+msgstr ""
+
+#: includes/marketplace/admin/class-withdraws-list-table.php:36
+msgid "IP"
+msgstr ""
+
+#: includes/marketplace/admin/class-withdraws-list-table.php:37
+msgid "Requested"
+msgstr ""
+
+#: includes/marketplace/admin/class-withdraws-list-table.php:44
+#: includes/marketplace/admin/class-withdraws-list-table.php:104
+msgid "Approve"
+msgstr ""
+
+#: includes/marketplace/admin/class-withdraws-list-table.php:153
+msgid "No withdraw requests found."
+msgstr ""
+
+#: includes/marketplace/class-marketplace-settings-adapter.php:105
+msgid "Marketplace settings saved."
+msgstr ""
+
+#: includes/marketplace/class-marketplace-settings-adapter.php:155
+#: views/marketplace-admin/settings.php:23
+msgid "Marketplace Settings"
+msgstr ""
+
+#: includes/marketplace/class-marketplace-settings-adapter.php:160
+msgid "No marketplace settings registered yet."
+msgstr ""
+
+#: includes/options/fields-list-table.php:12
+msgid "Printing option"
+msgstr ""
+
+#: includes/options/fields-list-table.php:13 views/overview.php:476
+msgid "Printing options"
+msgstr ""
+
+#: includes/options/fields-list-table.php:40
+msgid "Title"
+msgstr "Tiêu đề"
+
+#: includes/options/fields-list-table.php:42
+#: includes/templates/class-template-library-admin.php:110
+#: views/products.php:206 views/templates/library.php:212
+msgid "Fields"
+msgstr ""
+
+#: includes/options/fields-list-table.php:43 views/templates/library.php:353
+msgid "Categories"
+msgstr ""
+
+#: includes/options/fields-list-table.php:44 views/license.php:180
+#: views/overview.php:250 views/products.php:35 views/templates/library.php:336
+msgid "Products"
+msgstr ""
+
+#: includes/options/fields-list-table.php:191
+msgid "You do not have permission to manage these options."
+msgstr ""
+
+#: includes/options/fields-list-table.php:214
+msgid "Security error: Invalid bulk nonce."
+msgstr ""
+
+#: includes/options/fields-list-table.php:218
+msgid "Security error: Invalid nonce."
+msgstr ""
+
+#: includes/options/fields-list-table.php:227
+#: includes/options/fields-list-table.php:236
+msgid "Invalid request: Missing ID."
+msgstr ""
+
+#: includes/options/fields-list-table.php:314
+#: includes/options/fields-list-table.php:418
+msgid "Copy"
+msgstr "Sao chép"
+
+#: includes/options/fields-list-table.php:359
+msgid "No options available."
+msgstr ""
+
+#: includes/settings/launcher.php:9
+msgid "Enable designer store"
+msgstr ""
+
+#. translators: %s: URL to the WordPress Permalink admin settings screen
+#: includes/settings/launcher.php:12
+#, php-format
+msgid "Allow customers become designers who create and sell their designs. After \"Save options\" go to <a target=\"_blank\" href=\"%s\">Permalink</a> choose pretty permalinks and \"Save changes\". Default permalinks will not work."
+msgstr ""
+
+#: includes/settings/launcher.php:23
+msgid "Commission Type"
+msgstr ""
+
+#: includes/settings/launcher.php:25
+msgid "Select a commission type for designer."
+msgstr ""
+
+#: includes/settings/launcher.php:36 includes/settings/launcher.php:50
+msgid "Default commission"
+msgstr ""
+
+#: includes/settings/launcher.php:39
+msgid "Amount designers get from each sale has their designs."
+msgstr ""
+
+#: includes/settings/launcher.php:52
+msgid "Amount designers will get from sales has their designs in both percentage and fixed fee"
+msgstr ""
+
+#: includes/settings/launcher.php:58
+msgid "%  +"
+msgstr ""
+
+#: includes/settings/launcher.php:67
+msgid "Minimum Withdraw Limit"
+msgstr ""
+
+#: includes/settings/launcher.php:70
+msgid "Minimum balance required to make a withdraw request. Leave blank to set no minimum limits."
+msgstr ""
+
+#: includes/settings/launcher.php:76
+msgid "Withdraw Threshold"
+msgstr ""
+
+#: includes/settings/launcher.php:79
+msgid "Days, ( Delay time to active order designer earning )"
+msgstr ""
+
+#: includes/settings/launcher.php:85
+msgid "Order Status for Withdraw"
+msgstr ""
+
+#: includes/settings/launcher.php:96
+msgid "Completed"
+msgstr ""
+
+#: includes/settings/launcher.php:97 views/options/edit-option.php:1129
+msgid "Processing"
+msgstr ""
+
+#: includes/settings/launcher.php:98
+msgid "On-hold"
+msgstr ""
+
+#: includes/settings/launcher.php:105
+msgid "Designer page banner width"
+msgstr ""
+
+#: includes/settings/launcher.php:115
+msgid "Designer page banner height"
+msgstr ""
+
+#: includes/settings/launcher.php:127
+msgid "Generate preview for product has print option color automatically"
+msgstr ""
+
+#: includes/settings/launcher.php:129
+msgid "Beware this option turn on the process which consumes a lot of system resources"
+msgstr ""
+
+#: includes/setup-wizard/class-woo-seed-controller.php:86
+#: views/setup-wizard/woo-seed.php:34
+msgid "Scanning your products…"
+msgstr ""
+
+#: includes/setup-wizard/class-woo-seed-controller.php:87
+msgid "Scan results"
+msgstr ""
+
+#: includes/setup-wizard/class-woo-seed-controller.php:88
+msgid "Eligible (variable products)"
+msgstr ""
+
+#: includes/setup-wizard/class-woo-seed-controller.php:89
+msgid "Already linked to a Storelly option"
+msgstr ""
+
+#: includes/setup-wizard/class-woo-seed-controller.php:90
+msgid "(will be skipped)"
+msgstr ""
+
+#: includes/setup-wizard/class-woo-seed-controller.php:91
+msgid "Simple / no variation"
+msgstr ""
+
+#: includes/setup-wizard/class-woo-seed-controller.php:92
+#, fuzzy
+msgid "Attribute types"
+msgstr "Thuộc tính"
+
+#: includes/setup-wizard/class-woo-seed-controller.php:93
+msgid "Total variations"
+msgstr ""
+
+#: includes/setup-wizard/class-woo-seed-controller.php:94
+msgid "Variations with image"
+msgstr ""
+
+#: includes/setup-wizard/class-woo-seed-controller.php:95
+msgid "Multi-attribute products"
+msgstr ""
+
+#: includes/setup-wizard/class-woo-seed-controller.php:96
+msgid "price math will be lossy"
+msgstr ""
+
+#: includes/setup-wizard/class-woo-seed-controller.php:97
+#, fuzzy
+msgid "View product list"
+msgstr "Sản phẩm liên kết"
+
+#: includes/setup-wizard/class-woo-seed-controller.php:98
+#, php-format
+msgid "Showing %d of %d."
+msgstr ""
+
+#: includes/setup-wizard/class-woo-seed-controller.php:100
+#, fuzzy
+msgid "Import rules"
+msgstr "Nhập"
+
+#: includes/setup-wizard/class-woo-seed-controller.php:101
+msgid "Default display type"
+msgstr ""
+
+#: includes/setup-wizard/class-woo-seed-controller.php:102
+msgid "You can switch per field after import."
+msgstr ""
+
+#: includes/setup-wizard/class-woo-seed-controller.php:104
+#: includes/templates/class-template-library-admin.php:121
+#: views/options/templates/field-body/attributes.php:184
+msgid "Radio"
+msgstr ""
+
+#: includes/setup-wizard/class-woo-seed-controller.php:106
+msgid "Import variation images as option swatch images"
+msgstr ""
+
+#: includes/setup-wizard/class-woo-seed-controller.php:107
+#, php-format
+msgid "%d variations have images."
+msgstr ""
+
+#: includes/setup-wizard/class-woo-seed-controller.php:108
+msgid "Multi-attribute price rule"
+msgstr ""
+
+#: includes/setup-wizard/class-woo-seed-controller.php:109
+msgid "Average across variations"
+msgstr ""
+
+#: includes/setup-wizard/class-woo-seed-controller.php:110
+msgid "Leave price empty (fill in manually)"
+msgstr ""
+
+#: includes/setup-wizard/class-woo-seed-controller.php:111
+#, php-format
+msgid "Affects %d products. Final total may differ ±a few units vs original Woo combinations."
+msgstr ""
+
+#: includes/setup-wizard/class-woo-seed-controller.php:112
+msgid "Non-variation attributes (is_visible only)"
+msgstr ""
+
+#: includes/setup-wizard/class-woo-seed-controller.php:113
+msgid "Also import as 0-price dropdown"
+msgstr ""
+
+#: includes/setup-wizard/class-woo-seed-controller.php:114
+msgid "Off by default — they are typically product specs, not buyer choices."
+msgstr ""
+
+#: includes/setup-wizard/class-woo-seed-controller.php:115
+msgid "Auto"
+msgstr ""
+
+#: includes/setup-wizard/class-woo-seed-controller.php:116
+msgid "You'll do after"
+msgstr ""
+
+#: includes/setup-wizard/class-woo-seed-controller.php:118
+msgid "Field per is_variation attribute"
+msgstr ""
+
+#: includes/setup-wizard/class-woo-seed-controller.php:119
+msgid "Term name → option name"
+msgstr ""
+
+#: includes/setup-wizard/class-woo-seed-controller.php:120
+msgid "Variation image → option image"
+msgstr ""
+
+#: includes/setup-wizard/class-woo-seed-controller.php:121
+msgid "Price delta (per rule above)"
+msgstr ""
+
+#: includes/setup-wizard/class-woo-seed-controller.php:122
+msgid "Tag option set: woo_seed_<job_id>"
+msgstr ""
+
+#: includes/setup-wizard/class-woo-seed-controller.php:125
+msgid "Pick hex colors for swatch options"
+msgstr ""
+
+#: includes/setup-wizard/class-woo-seed-controller.php:126
+msgid "Swap field display type if needed"
+msgstr ""
+
+#: includes/setup-wizard/class-woo-seed-controller.php:127
+msgid "Tweak prices on multi-attribute products"
+msgstr ""
+
+#: includes/setup-wizard/class-woo-seed-controller.php:128
+msgid "Decide co-exist vs hide native Woo variation form"
+msgstr ""
+
+#: includes/setup-wizard/class-woo-seed-controller.php:131
+msgid "Ready to import"
+msgstr ""
+
+#: includes/setup-wizard/class-woo-seed-controller.php:132
+#, php-format
+msgid "Create %d Storelly option set(s) (1 per product)"
+msgstr ""
+
+#: includes/setup-wizard/class-woo-seed-controller.php:133
+#, php-format
+msgid "Skip %d product(s) already linked"
+msgstr ""
+
+#: includes/setup-wizard/class-woo-seed-controller.php:134
+msgid "Display type:"
+msgstr ""
+
+#: includes/setup-wizard/class-woo-seed-controller.php:135
+#, fuzzy
+msgid "Import images:"
+msgstr "Nhập"
+
+#: includes/setup-wizard/class-woo-seed-controller.php:136
+msgid "Multi-attr price:"
+msgstr ""
+
+#: includes/setup-wizard/class-woo-seed-controller.php:137
+#: views/options/templates/field-body/enabled.php:16
+#: views/options/templates/field-body/published.php:16
+#: views/options/templates/field-body/required.php:16
+#: views/options/templates/nbpb_text.php:21
+#: views/options/templates/nbpb_text.php:41
+#: views/options/templates/nbpb_text.php:114
+#: views/options/templates/nbpb_text.php:131
+msgid "On"
+msgstr ""
+
+#: includes/setup-wizard/class-woo-seed-controller.php:138
+#: views/options/templates/field-body/enabled.php:16
+#: views/options/templates/field-body/published.php:16
+#: views/options/templates/field-body/required.php:16
+#: views/options/templates/nbpb_text.php:21
+#: views/options/templates/nbpb_text.php:41
+#: views/options/templates/nbpb_text.php:114
+#: views/options/templates/nbpb_text.php:131
+msgid "Off"
+msgstr ""
+
+#: includes/setup-wizard/class-woo-seed-controller.php:139
+msgid "Stock / SKU per variation will NOT carry over. Woo variations still exist — you can disable them later."
+msgstr ""
+
+#: includes/setup-wizard/class-woo-seed-controller.php:140
+msgid "I understand this is one-time, not a live sync."
+msgstr ""
+
+#: includes/setup-wizard/class-woo-seed-controller.php:141
+#, php-format
+msgid "Import %d products"
+msgstr ""
+
+#: includes/setup-wizard/class-woo-seed-controller.php:143
+#, fuzzy
+msgid "Importing…"
+msgstr "Nhập"
+
+#: includes/setup-wizard/class-woo-seed-controller.php:144
+#, php-format
+msgid "%d processed · %d skipped · %d errors · %d total"
+msgstr ""
+
+#: includes/setup-wizard/class-woo-seed-controller.php:145
+#: views/menu-settings.php:805
+msgid "Log"
+msgstr ""
+
+#: includes/setup-wizard/class-woo-seed-controller.php:146
+msgid "Stop"
+msgstr ""
+
+#: includes/setup-wizard/class-woo-seed-controller.php:147
+msgid "Finishing current batch…"
+msgstr ""
+
+#: includes/setup-wizard/class-woo-seed-controller.php:149
+#: views/options/field.php:104 views/product-builder/wrapper.php:115
+msgid "Done"
+msgstr "Xong"
+
+#: includes/setup-wizard/class-woo-seed-controller.php:150
+#, php-format
+msgid "%d imported"
+msgstr ""
+
+#: includes/setup-wizard/class-woo-seed-controller.php:151
+#, php-format
+msgid "%d skipped (already linked)"
+msgstr ""
+
+#: includes/setup-wizard/class-woo-seed-controller.php:152
+#, php-format
+msgid "%d errors"
+msgstr ""
+
+#: includes/setup-wizard/class-woo-seed-controller.php:153
+#, fuzzy
+msgid "Open Pricing Options"
+msgstr "Tùy chọn giá"
+
+#: includes/setup-wizard/class-woo-seed-controller.php:154
+msgid "Undo this seed"
+msgstr ""
+
+#: includes/setup-wizard/class-woo-seed-controller.php:155
+#, php-format
+msgid "Delete %d Storelly option sets created by this seed? Linked products will be unlinked."
+msgstr ""
+
+#: includes/setup-wizard/class-woo-seed-controller.php:156
+#, php-format
+msgid "Undone: %d sets deleted, %d products unlinked."
+msgstr ""
+
+#: includes/setup-wizard/class-woo-seed-controller.php:158
+#: templates/launcher/store/upload-form.php:136
+msgid "Back"
+msgstr "Quay lại"
+
+#: includes/setup-wizard/class-woo-seed-controller.php:159
+#: templates/launcher/store/designs.php:36
+msgid "Next"
+msgstr "Tiếp"
+
+#: includes/setup-wizard/class-woo-seed-controller.php:161
+msgid "Re-scan"
+msgstr ""
+
+#: includes/setup-wizard/class-woo-seed-controller.php:162
+#, php-format
+msgid "Step %d of %d"
+msgstr ""
+
+#: includes/setup-wizard/class-woo-seed-controller.php:164
+#, fuzzy
+msgid "Scan failed. Reload the page to try again."
+msgstr "Thao tác thất bại. Vui lòng thử lại."
+
+#: includes/setup-wizard/class-woo-seed-controller.php:165
+#, fuzzy
+msgid "Import failed."
+msgstr "Nhập"
+
+#: includes/setup-wizard/class-woo-seed-controller.php:166
+msgid "Undo failed."
+msgstr ""
+
+#: includes/setup-wizard/class-woo-seed-controller.php:167
+msgid "Error:"
+msgstr ""
+
+#: includes/setup-wizard/class-woo-seed-controller.php:225
+msgid "Job not found."
+msgstr ""
+
+#: includes/setup-wizard/class-woo-seed-controller.php:234
+#, fuzzy
+msgid "Missing job id."
+msgstr "Thiếu ID."
+
+#: includes/setup-wizard/class-woo-seed-controller.php:280
+msgid "No eligible products were found."
+msgstr ""
+
+#. translators: %s: product name
+#: includes/setup-wizard/class-woo-seed-mapper.php:416
+#, php-format
+msgid "%s (Woo seed)"
+msgstr ""
+
+#: includes/setup-wizard/class-woo-seed-mapper.php:510
+msgid "Show in archive pages"
+msgstr ""
+
+#: includes/setup-wizard/class-woo-seed-mapper.php:660
+msgid "Math formula"
+msgstr ""
+
+#: includes/templates/class-template-ajax.php:44
+#: includes/templates/class-template-preview-render.php:108
+msgid "Template not found."
+msgstr ""
+
+#: includes/templates/class-template-ajax.php:48
+msgid "Template body unreadable."
+msgstr ""
+
+#: includes/templates/class-template-ajax.php:93
+#: includes/templates/class-template-applier.php:42
+msgid "Insufficient permissions."
+msgstr ""
+
+#: includes/templates/class-template-applier.php:48
+msgid "Template not found in catalog."
+msgstr ""
+
+#: includes/templates/class-template-applier.php:55
+msgid "Please select at least one product or category."
+msgstr ""
+
+#: includes/templates/class-template-applier.php:60
+msgid "Template file unreadable."
+msgstr ""
+
+#: includes/templates/class-template-applier.php:108
+msgid "Database insert failed."
+msgstr ""
+
+#: includes/templates/class-template-applier.php:133
+#: includes/templates/class-template-library-admin.php:129
+msgid "Template applied successfully."
+msgstr ""
+
+#: includes/templates/class-template-library-admin.php:40
+#: includes/templates/class-template-library-admin.php:41
+msgid "Options Templates"
+msgstr "Mẫu tùy chọn"
+
+#: includes/templates/class-template-library-admin.php:103
+msgid "Applying…"
+msgstr ""
+
+#: includes/templates/class-template-library-admin.php:104
+#: views/templates/library.php:273
+msgid "Apply template"
+msgstr ""
+
+#: includes/templates/class-template-library-admin.php:105
+#: views/options/options-list-table.php:457
+msgid "Something went wrong. Please try again."
+msgstr ""
+
+#: includes/templates/class-template-library-admin.php:106
+msgid "Search for a product…"
+msgstr ""
+
+#: includes/templates/class-template-library-admin.php:107
+msgid "Select categories…"
+msgstr ""
+
+#: includes/templates/class-template-library-admin.php:108
+msgid "Please select at least one product."
+msgstr ""
+
+#: includes/templates/class-template-library-admin.php:109
+msgid "Please select at least one category."
+msgstr ""
+
+#: includes/templates/class-template-library-admin.php:112
+#: views/options/edit-option.php:531
+msgid "Live preview"
+msgstr ""
+
+#: includes/templates/class-template-library-admin.php:113
+msgid "est."
+msgstr ""
+
+#: includes/templates/class-template-library-admin.php:114
+#: views/templates/library.php:246
+msgid "Couldn’t load the preview."
+msgstr ""
+
+#: includes/templates/class-template-library-admin.php:115
+#: views/templates/library.php:247
+msgid "Retry"
+msgstr ""
+
+#: includes/templates/class-template-library-admin.php:116
+#: views/templates/library.php:242
+msgid "Updating…"
+msgstr ""
+
+#. translators: %d: number of options in the template.
+#: includes/templates/class-template-library-admin.php:118
+#, php-format
+msgid "%d options"
+msgstr ""
+
+#: includes/templates/class-template-library-admin.php:124
+#: views/options/edit-option.php:384
+msgid "Text input"
+msgstr ""
+
+#: includes/templates/class-template-library-admin.php:125
+#: views/options/edit-option.php:404
+msgid "File upload"
+msgstr ""
+
+#: includes/templates/class-template-library-admin.php:126
+msgid "Long text"
+msgstr ""
+
+#: includes/templates/class-template-library-admin.php:128
+#: views/templates/library.php:262
+msgid "Apply this template"
+msgstr ""
+
+#: includes/templates/class-template-library-admin.php:146
+#: views/templates/library.php:42
+msgid "Template Library"
+msgstr ""
+
+#: includes/templates/class-template-library-admin.php:147
+msgid "View file missing."
+msgstr ""
+
+#: includes/templates/class-template-preview-render.php:80
+msgid "You do not have permission to preview templates."
+msgstr ""
+
+#: includes/templates/class-template-preview-render.php:103
+msgid "Template catalog unavailable."
+msgstr ""
+
+#: includes/templates/class-template-preview-render.php:289
+#: templates/single-product/option-builder.php:304
+#: views/options/edit-option.php:658 views/options/edit-option.php:766
+msgid "Add to cart"
+msgstr ""
+
+#: storelly-product-builder-for-woocommerce.php:74
+msgid "WooCommerce is not active. Please activate WooCommerce before using"
+msgstr ""
+
+#: storelly-product-builder-for-woocommerce.php:75
+msgid "Product Builder Integration"
+msgstr ""
+
+#. translators: %s: designer display name
+#: templates/launcher/emails/designer_disabled.php:10
+#: templates/launcher/emails/plain/designer_disabled.php:11
+#, php-format
+msgid "Hello %s"
+msgstr ""
+
+#: templates/launcher/emails/designer_disabled.php:14
+#: templates/launcher/emails/plain/designer_disabled.php:16
+msgid "Sorry, your designer account is deactivated."
+msgstr ""
+
+#: templates/launcher/emails/designer_disabled.php:17
+#: templates/launcher/emails/plain/designer_disabled.php:19
+msgid "You can't sell or upload design anymore. To activate your designer account please contact with the admin."
+msgstr ""
+
+#: templates/launcher/emails/designer_enabled.php:11
+msgid "login here"
+msgstr ""
+
+#. translators: %s: login link wrapped in an <a> tag
+#: templates/launcher/emails/designer_enabled.php:13
+#, php-format
+msgid "You can %s"
+msgstr ""
+
+#. translators: %s: designer username
+#: templates/launcher/emails/plain/withdraw_approved.php:8
+#: templates/launcher/emails/plain/withdraw_cancelled.php:8
+#: templates/launcher/emails/withdraw_approved.php:10
+#: templates/launcher/emails/withdraw_cancelled.php:10
+#, php-format
+msgid "Hi %s"
+msgstr ""
+
+#: templates/launcher/emails/plain/withdraw_approved.php:11
+#: templates/launcher/emails/withdraw_approved.php:14
+msgid "Your withdraw request has been approved, congrats!"
+msgstr ""
+
+#: templates/launcher/emails/plain/withdraw_approved.php:14
+#: templates/launcher/emails/plain/withdraw_cancelled.php:14
+#: templates/launcher/emails/withdraw_approved.php:17
+#: templates/launcher/emails/withdraw_cancelled.php:17
+msgid "You sent a withdraw request of:"
+msgstr ""
+
+#: templates/launcher/emails/plain/withdraw_approved.php:17
+#: templates/launcher/emails/plain/withdraw_cancelled.php:17
+#: templates/launcher/emails/withdraw_approved.php:19
+#: templates/launcher/emails/withdraw_cancelled.php:19
+msgid "Amount : "
+msgstr ""
+
+#: templates/launcher/emails/plain/withdraw_approved.php:21
+msgid "We'll transfer this amount to your preferred destination shortly."
+msgstr ""
+
+#: templates/launcher/emails/plain/withdraw_approved.php:24
+#: templates/launcher/emails/withdraw_approved.php:25
+msgid "Thanks for being with us."
+msgstr ""
+
+#: templates/launcher/emails/plain/withdraw_cancelled.php:11
+msgid "Your withdraw request was cancelled"
+msgstr ""
+
+#: templates/launcher/emails/plain/withdraw_cancelled.php:21
+#: templates/launcher/emails/withdraw_cancelled.php:23
+msgid "Here's the reason, why : "
+msgstr ""
+
+#: templates/launcher/emails/plain/withdraw_request.php:8
+#: templates/launcher/emails/withdraw_request.php:8
+msgid "Hi,"
+msgstr ""
+
+#. translators: %s: designer username
+#: templates/launcher/emails/plain/withdraw_request.php:12
+#, php-format
+msgid "A new withdraw request has been made by - %s"
+msgstr ""
+
+#: templates/launcher/emails/plain/withdraw_request.php:15
+msgid "Request Amount : "
+msgstr ""
+
+#: templates/launcher/emails/plain/withdraw_request.php:19
+#: templates/launcher/emails/withdraw_request.php:17
+msgid "Username : "
+msgstr ""
+
+#: templates/launcher/emails/plain/withdraw_request.php:23
+msgid "Profile : "
+msgstr ""
+
+#: templates/launcher/emails/plain/withdraw_request.php:27
+msgid "You can approve or deny it by going here : "
+msgstr ""
+
+#: templates/launcher/emails/withdraw_approved.php:23
+msgid "We'll transfer this amount to your preferred payment method shortly."
+msgstr ""
+
+#: templates/launcher/emails/withdraw_cancelled.php:14
+msgid "Your withdraw request was cancelled!"
+msgstr ""
+
+#: templates/launcher/emails/withdraw_request.php:11
+msgid "A new withdraw request has been made by"
+msgstr ""
+
+#: templates/launcher/emails/withdraw_request.php:25
+msgid "Request Amount:"
+msgstr ""
+
+#: templates/launcher/emails/withdraw_request.php:32
+msgid "here"
+msgstr ""
+
+#. translators: %s: link wrapped in an <a> tag
+#: templates/launcher/emails/withdraw_request.php:34
+#, php-format
+msgid "You can approve or deny it by going %s"
+msgstr ""
+
+#: templates/launcher/featured-designers-shortcode.php:63
+msgid "Visit gallery"
+msgstr ""
+
+#: templates/launcher/store/dashboard.php:24
+msgid "Design sold items"
+msgstr ""
+
+#: templates/launcher/store/dashboard.php:36
+msgid "Designs and Sales this Month"
+msgstr ""
+
+#: templates/launcher/store/design-table.php:17
+#: templates/launcher/store/design-table.php:41
+#: templates/launcher/store/withdraw-table.php:30
+#: views/options/templates/nbpb_com.php:16
+#: views/options/templates/nbpb_text.php:150
+msgid "Action"
+msgstr "Hành động"
+
+#: templates/launcher/store/design-table.php:77
+msgid "Are you sure?"
+msgstr "Bạn có chắc chắn không?"
+
+#: templates/launcher/store/design-table.php:84
+msgid "No design has been made yet."
+msgstr ""
+
+#: templates/launcher/store/designs.php:5
+msgid "Start Designing"
+msgstr ""
+
+#: templates/launcher/store/designs.php:31
+msgid "Previous"
+msgstr "Trước"
+
+#: templates/launcher/store/popup.php:9
+msgid "Choose your product"
+msgstr ""
+
+#: templates/launcher/store/popup.php:20
+msgid "Start with this"
+msgstr ""
+
+#: templates/launcher/store/popup.php:34
+msgid "What would you like to do with your design?"
+msgstr ""
+
+#: templates/launcher/store/popup.php:44
+msgid "Upload solid design"
+msgstr ""
+
+#: templates/launcher/store/popup.php:47
+msgid "Your design is perfect"
+msgstr ""
+
+#: templates/launcher/store/popup.php:48
+msgid "No need more any adjustment"
+msgstr ""
+
+#: templates/launcher/store/popup.php:63
+msgid "Create editable design"
+msgstr ""
+
+#: templates/launcher/store/popup.php:66
+msgid "Flexible to edit design"
+msgstr ""
+
+#: templates/launcher/store/popup.php:67
+msgid "Adapt to every customers"
+msgstr ""
+
+#: templates/launcher/store/settings.php:19
+msgid "Upload banner"
+msgstr ""
+
+#: templates/launcher/store/settings.php:21
+msgid "Upload a banner for your design store."
+msgstr ""
+
+#: templates/launcher/store/settings.php:22
+msgid "Size: "
+msgstr ""
+
+#: templates/launcher/store/settings.php:27
+msgid "Artist Avatar"
+msgstr ""
+
+#: templates/launcher/store/settings.php:31
+msgid "Change avatar"
+msgstr ""
+
+#: templates/launcher/store/settings.php:35
+msgid "Artist Name"
+msgstr ""
+
+#: templates/launcher/store/settings.php:39
+msgid "View own design store"
+msgstr ""
+
+#: templates/launcher/store/settings.php:43
+msgid "About the artist"
+msgstr ""
+
+#: templates/launcher/store/settings.php:87
+msgid "Payment infomation"
+msgstr ""
+
+#: templates/launcher/store/settings.php:88
+msgid "Paypal: email&#x0a;Bank account"
+msgstr ""
+
+#: templates/launcher/store/settings.php:91
+msgid "Update informations"
+msgstr ""
+
+#: templates/launcher/store/settings.php:110
+msgid "Select image"
+msgstr ""
+
+#: templates/launcher/store/tabs.php:19 views/marketplace-admin/header.php:21
+#: views/menu-settings.php:74
+msgid "Settings"
+msgstr "Cài đặt"
+
+#: templates/launcher/store/upload-form.php:16
+#: templates/launcher/store/upload-form.php:18
+msgid "Upload necessary files"
+msgstr ""
+
+#: templates/launcher/store/upload-form.php:17
+msgid "Add More Products"
+msgstr ""
+
+#: templates/launcher/store/upload-form.php:25
+msgid "Download design guidelines"
+msgstr ""
+
+#: templates/launcher/store/upload-form.php:28
+msgid "If you use our downloadable templates, delete the guide layers before saving your files. If you do not delete them, they will show up on the print."
+msgstr ""
+
+#: templates/launcher/store/upload-form.php:41
+msgid "Product preview"
+msgstr ""
+
+#: templates/launcher/store/upload-form.php:44
+msgid "It will be shown in design archive page."
+msgstr ""
+
+#: templates/launcher/store/upload-form.php:45
+msgid "Accept extension: png, jpg( jpeg )"
+msgstr ""
+
+#: templates/launcher/store/upload-form.php:49
+#: templates/launcher/store/upload-form.php:62
+msgid "Please check file extension or file size!"
+msgstr ""
+
+#: templates/launcher/store/upload-form.php:55
+msgid "Design file"
+msgstr ""
+
+#: templates/launcher/store/upload-form.php:58
+msgid "Compress all necessary files( PSD, AI, SVG, fonts... ) in one ZIP file."
+msgstr ""
+
+#: templates/launcher/store/upload-form.php:68
+msgid "Side content design previews"
+msgstr ""
+
+#: templates/launcher/store/upload-form.php:71
+msgid "Allow accept: PNG, JPG. Max image dimension: "
+msgstr ""
+
+#: templates/launcher/store/upload-form.php:74
+msgid "Side name"
+msgstr ""
+
+#: templates/launcher/store/upload-form.php:77
+msgid "Please check file extension or file size or file dimension!"
+msgstr ""
+
+#: templates/launcher/store/upload-form.php:84
+#: templates/launcher/store/upload-form.php:90
+msgid "Design name"
+msgstr ""
+
+#: templates/launcher/store/upload-form.php:87
+msgid "A short name represents for your design concept."
+msgstr ""
+
+#: templates/launcher/store/upload-form.php:96
+msgid "Tags"
+msgstr ""
+
+#: templates/launcher/store/upload-form.php:99
+msgid "Select tags for design filter"
+msgstr ""
+
+#: templates/launcher/store/upload-form.php:103
+msgid "No tag"
+msgstr ""
+
+#: templates/launcher/store/upload-form.php:105
+msgid "Search tag name"
+msgstr ""
+
+#: templates/launcher/store/upload-form.php:137
+#: templates/launcher/store/upload-form.php:138
+msgid "Continue"
+msgstr "Tiếp tục"
+
+#: templates/launcher/store/upload-form.php:137
+msgid "Submit"
+msgstr "Gửi"
+
+#: templates/launcher/store/upload-form.php:159
+msgid "Design area"
+msgstr ""
+
+#: templates/launcher/store/upload-form.php:176
+msgid "Great design. Now you can add more products!"
+msgstr ""
+
+#: templates/launcher/store/upload-form.php:177
+msgid "To help you get up and running, we’ve created some additional products based on your original design."
+msgstr ""
+
+#: templates/launcher/store/upload-form.php:209
+msgid "No related product has found yet."
+msgstr ""
+
+#: templates/launcher/store/upload-form.php:214
+#: templates/launcher/store/upload-form.php:221
+msgid "Processing..."
+msgstr ""
+
+#: templates/launcher/store/withdraw-form.php:7
+msgid "Withdraw Amount"
+msgstr ""
+
+#: templates/launcher/store/withdraw-form.php:12
+msgid "Submit Request"
+msgstr ""
+
+#: templates/launcher/store/withdraw-table.php:10
+msgid "Date "
+msgstr ""
+
+#: templates/launcher/store/withdraw-table.php:11
+msgid "Action "
+msgstr ""
+
+#: templates/launcher/store/withdraw.php:7
+msgid "Current Balance:"
+msgstr ""
+
+#: templates/launcher/store/withdraw.php:11
+msgid "Minimum Withdraw amount:"
+msgstr ""
+
+#: templates/launcher/store/withdraw.php:17
+msgid "Withdraw Request"
+msgstr ""
+
+#: templates/launcher/store/withdraw.php:18
+msgid "Approved Requests"
+msgstr ""
+
+#: templates/launcher/store/withdraw.php:19
+msgid "Cancelled Requests"
+msgstr ""
+
+#: templates/launcher/store/withdraw.php:25
+msgid "You don't have sufficient balance for a withdraw request!"
+msgstr ""
+
+#: templates/launcher/store/withdraw.php:28
+msgid "You already have pending withdraw request(s)."
+msgstr ""
+
+#: templates/launcher/store/withdraw.php:28
+msgid "Please submit your request after approval or cancellation of your previous request."
+msgstr ""
+
+#: templates/single-product/option-builder.php:33
+msgid "Your total"
+msgstr ""
+
+#: templates/single-product/option-builder.php:41
+msgid "each"
+msgstr ""
+
+#: templates/single-product/option-builder.php:42
+msgid "chosen"
+msgstr ""
+
+#: templates/single-product/option-builder.php:42
+msgid "Ready to order"
+msgstr ""
+
+#: templates/single-product/option-builder.php:54
+msgid "Secure checkout"
+msgstr ""
+
+#: templates/single-product/option-builder.php:55
+msgid "Made to order"
+msgstr ""
+
+#: templates/single-product/option-builder.php:56
+msgid "Live, transparent pricing"
+msgstr ""
+
+#: templates/single-product/option-builder.php:98
+msgid "Most-picked combo"
+msgstr ""
+
+#: templates/single-product/option-builder.php:98
+#: templates/single-product/options-builder/swatch.php:93
+msgid "Popular"
+msgstr ""
+
+#: templates/single-product/option-builder.php:210
+msgid "Quick pick"
+msgstr ""
+
+#: templates/single-product/option-builder.php:212
+msgid "Pick a common quantity, or set your own below — the total updates instantly."
+msgstr ""
+
+#: templates/single-product/option-builder.php:218
+msgid "units"
+msgstr ""
+
+#: templates/single-product/option-builder.php:226
+msgid "Clear selection"
+msgstr ""
+
+#: templates/single-product/option-builder.php:230
+msgid "Please check invalid fields and quantity input or choose a different combination!"
+msgstr ""
+
+#: templates/single-product/option-builder.php:235
+msgid "Summary options"
+msgstr ""
+
+#: templates/single-product/option-builder.php:266
+msgid "Options price"
+msgstr ""
+
+#: templates/single-product/option-builder.php:267
+#: templates/single-product/option-builder.php:273
+msgid "1 item"
+msgstr ""
+
+#: templates/single-product/option-builder.php:270
+msgid "Final price"
+msgstr ""
+
+#: templates/single-product/option-builder.php:278
+msgid "Cart item fee"
+msgstr ""
+
+#: templates/single-product/option-builder.php:279
+msgid "all items"
+msgstr ""
+
+#: templates/single-product/option-builder.php:282
+msgid "Subtotal price"
+msgstr ""
+
+#: templates/single-product/option-builder.php:292
+msgid "Save your build"
+msgstr ""
+
+#: templates/single-product/option-builder.php:293
+msgid "Store this configuration in your browser to reuse later."
+msgstr ""
+
+#: templates/single-product/option-builder.php:296
+msgid "Save build"
+msgstr ""
+
+#: templates/single-product/options-builder/advanced-dropdown.php:50
+#: templates/single-product/options-builder/advanced-dropdown.php:92
+#: templates/single-product/options-builder/xlabel.php:37
+msgid "Recommended"
+msgstr ""
+
+#: templates/single-product/options-builder/advanced-dropdown.php:105
+#: templates/single-product/options-builder/dropdown.php:29
+#: templates/single-product/options-builder/label.php:47
+#: templates/single-product/options-builder/radio.php:33
+#: templates/single-product/options-builder/xlabel.php:52
+msgid "is not available"
+msgstr ""
+
+#. translators: %d: number of available choices for this option field.
+#. translators: %d: number of option groups
+#: templates/single-product/options-builder/field-header.php:15
+#: views/options/options-list-table.php:184
+#, php-format
+msgid "%d option"
+msgid_plural "%d options"
+msgstr[0] ""
+
+#. translators: %s: list of accepted file extensions
+#: templates/single-product/options-builder/input.php:67
+#, php-format
+msgid "Accepted: %s"
+msgstr ""
+
+#. translators: %s: minimum upload size in MB
+#: templates/single-product/options-builder/input.php:68
+#, php-format
+msgid "Min %s MB"
+msgstr ""
+
+#. translators: %s: maximum upload size in MB
+#: templates/single-product/options-builder/input.php:69
+#, php-format
+msgid "Max %s MB"
+msgstr ""
+
+#. translators: %s: minimum allowed value.
+#: templates/single-product/options-builder/input.php:77
+#, php-format
+msgid "Invalid value, min: %s"
+msgstr ""
+
+#. translators: %s: maximum allowed value.
+#: templates/single-product/options-builder/input.php:79
+#, php-format
+msgid "Invalid value, max: %s"
+msgstr ""
+
+#: templates/single-product/options-builder/swatch.php:90 views/license.php:157
+#: views/options/templates/field-body/attributes.php:20
+msgid "Free"
+msgstr "Miễn phí"
+
+#: templates/single-product/options-builder/swatch.php:99
+msgid "is not available."
+msgstr ""
+
+#: views/box-order-metadata.php:17
+msgid "Product:"
+msgstr ""
+
+#: views/box-order-metadata.php:44
+msgid "View detail"
+msgstr ""
+
+#: views/box-order-metadata.php:50
+msgid "Check all"
+msgstr ""
+
+#: views/box-order-metadata.php:56
+msgid "png"
+msgstr ""
+
+#: views/box-order-metadata.php:57
+msgid "png preview"
+msgstr ""
+
+#: views/box-order-metadata.php:58
+msgid "svg"
+msgstr ""
+
+#: views/box-order-metadata.php:59
+msgid "pdf"
+msgstr ""
+
+#: views/box-order-metadata.php:60
+msgid "pdf preview"
+msgstr ""
+
+#: views/box-order-metadata.php:67
+msgid "Download"
+msgstr "Tải xuống"
+
+#: views/box-order-metadata.php:71
+msgid "No design in this order"
+msgstr ""
+
+#: views/designs.php:63
+msgid "Selected designs have been published."
+msgstr ""
+
+#: views/designs.php:64
+msgid "Selected designs have been unpublished."
+msgstr ""
+
+#: views/designs.php:65
+msgid "Selected designs have been deleted."
+msgstr ""
+
+#: views/designs.php:86
+msgid "Customer Designs"
+msgstr ""
+
+#: views/designs.php:89
+msgid "Review, manage and publish designs created by your customers."
+msgstr ""
+
+#: views/designs.php:131 views/marketplace-admin/designers.php:40
+#: views/marketplace-admin/designs.php:39
+#: views/marketplace-admin/withdraws.php:39
+msgid "All statuses"
+msgstr ""
+
+#: views/designs.php:153
+msgid "Name or email…"
+msgstr ""
+
+#: views/designs.php:164 views/products.php:153
+msgid "Clear"
+msgstr ""
+
+#: views/designs.php:174
+msgid "No customer designs yet"
+msgstr ""
+
+#: views/designs.php:177
+msgid "When customers save their designs in the product builder, they will appear here."
+msgstr ""
+
+#: views/license.php:34
+msgid "License &amp; Plans"
+msgstr ""
+
+#: views/license.php:37
+msgid "Manage your Storelly subscription, compare plans and unlock premium features for your print store."
+msgstr ""
+
+#: views/license.php:44 views/license.php:260
+#: views/marketplace-admin/header.php:45 views/menu-settings.php:84
+#: views/overview.php:91 views/overview.php:774
+msgid "Documentation"
+msgstr "Tài liệu"
+
+#: views/license.php:51
+msgid "Upgrade Now"
+msgstr ""
+
+#: views/license.php:65
+msgid "Your Current Plan"
+msgstr ""
+
+#. translators: %s: expiry date
+#: views/license.php:81
+#, php-format
+msgid "License expires: %s"
+msgstr ""
+
+#: views/license.php:86 views/overview.php:180
+msgid "Lifetime license — no expiry"
+msgstr ""
+
+#: views/license.php:88
+msgid "Free plan — limited features"
+msgstr ""
+
+#. translators: %s: last sync datetime
+#: views/license.php:95
+#, php-format
+msgid "Last synced: %s"
+msgstr ""
+
+#: views/license.php:108
+msgid "Upgrade Plan"
+msgstr ""
+
+#: views/license.php:115
+msgid "Manage Subscription"
+msgstr ""
+
+#: views/license.php:121
+msgid "Sync License"
+msgstr ""
+
+#: views/license.php:133
+msgid "Available Plans"
+msgstr ""
+
+#: views/license.php:136
+msgid "Choose the plan that fits your print business. Upgrade anytime."
+msgstr ""
+
+#: views/license.php:150 views/license.php:202
+msgid "Current Plan"
+msgstr ""
+
+#. translators: %s: plan name
+#: views/license.php:212
+#, php-format
+msgid "Upgrade to %s"
+msgstr ""
+
+#: views/license.php:219
+msgid "Free — No payment needed"
+msgstr ""
+
+#: views/license.php:232
+msgid "Manage License Subscriptions"
+msgstr ""
+
+#: views/license.php:235
+msgid "Your license is managed directly via the Storelly Dashboard. To purchase a plan or update your active subscriptions, go to your Storelly portal."
+msgstr ""
+
+#: views/license.php:241
+msgid "Go to Storelly Dashboard"
+msgstr ""
+
+#: views/license.php:250
+msgid "Need help with your license?"
+msgstr ""
+
+#: views/license.php:253
+msgid "Having trouble with activation or billing? Our support team is ready to help."
+msgstr ""
+
+#: views/license.php:265
+msgid "Contact Support"
+msgstr ""
+
+#: views/license.php:290 views/overview.php:803
+msgid "Sync failed."
+msgstr ""
+
+#: views/license.php:295 views/overview.php:807
+msgid "Request failed. Check your connection."
+msgstr ""
+
+#: views/manager-fonts.php:20
+msgid "Font Manager"
+msgstr ""
+
+#: views/manager-fonts.php:23
+msgid "Manage Google Fonts and upload custom font files for the design editor."
+msgstr ""
+
+#: views/manager-fonts.php:30 views/manager-fonts.php:179
+msgid "Google Fonts"
+msgstr ""
+
+#: views/manager-fonts.php:50 views/manager-fonts.php:112
+msgid "Upload Font"
+msgstr ""
+
+#: views/manager-fonts.php:61
+msgid "Drag & drop your font file here"
+msgstr ""
+
+#: views/manager-fonts.php:64
+msgid "or"
+msgstr ""
+
+#: views/manager-fonts.php:66
+msgid "browse to upload"
+msgstr ""
+
+#: views/manager-fonts.php:73
+msgid "Select font file"
+msgstr ""
+
+#: views/manager-fonts.php:89
+msgid "Font name"
+msgstr ""
+
+#: views/manager-fonts.php:93
+msgid "e.g. My Custom Font"
+msgstr ""
+
+#: views/manager-fonts.php:97
+msgid "Category"
+msgstr "Danh mục"
+
+#: views/manager-fonts.php:100
+msgid "Sans Serif"
+msgstr ""
+
+#: views/manager-fonts.php:133
+msgid "No custom fonts yet. Click \"Upload Font\" to add your first one."
+msgstr ""
+
+#: views/manager-fonts.php:164
+msgid "Delete font"
+msgstr ""
+
+#: views/manager-fonts.php:204
+msgid "Search font name…"
+msgstr ""
+
+#: views/manager-fonts.php:210 views/templates/library.php:113
+msgid "All categories"
+msgstr ""
+
+#: views/manager-fonts.php:219
+msgid "All subsets"
+msgstr ""
+
+#: views/manager-fonts.php:234
+msgid "fonts"
+msgstr ""
+
+#: views/manager-fonts.php:238
+msgid "Select all"
+msgstr ""
+
+#: views/manager-fonts.php:242
+msgid "Clear all"
+msgstr ""
+
+#: views/manager-fonts.php:248
+msgid "All fonts"
+msgstr ""
+
+#: views/manager-fonts.php:249
+msgid "Selected only"
+msgstr ""
+
+#: views/manager-fonts.php:250
+msgid "Not selected"
+msgstr ""
+
+#: views/manager-fonts.php:253
+msgid "Per page:"
+msgstr ""
+
+#: views/manager-fonts.php:264
+msgid "Save selection"
+msgstr ""
+
+#: views/manager-fonts.php:286
+msgid "Unselect"
+msgstr ""
+
+#: views/marketplace-admin/designer-edit.php:18
+msgid "Designer not found."
+msgstr ""
+
+#: views/marketplace-admin/designer-edit.php:64
+msgid "Designer profile saved."
+msgstr ""
+
+#. translators: %s: designer display name
+#: views/marketplace-admin/designer-edit.php:89
+#, php-format
+msgid "Edit designer: %s"
+msgstr ""
+
+#. translators: %s: designer WordPress user login
+#: views/marketplace-admin/designer-edit.php:100
+#, php-format
+msgid "@%s — update profile, commission rates and permissions."
+msgstr ""
+
+#: views/marketplace-admin/designer-edit.php:109
+msgid "Back to designers"
+msgstr ""
+
+#: views/marketplace-admin/designer-edit.php:119
+msgid "Selling enabled"
+msgstr ""
+
+#: views/marketplace-admin/designer-edit.php:120
+msgid "Allow this user to sell designs in the marketplace."
+msgstr ""
+
+#: views/marketplace-admin/designer-edit.php:123
+msgid "Featured designer"
+msgstr ""
+
+#: views/marketplace-admin/designer-edit.php:124
+msgid "Surface this designer in featured listings/shortcodes."
+msgstr ""
+
+#: views/marketplace-admin/designer-edit.php:139
+msgid "Bio / description"
+msgstr ""
+
+#: views/marketplace-admin/designer-edit.php:144
+msgid "Commission type"
+msgstr ""
+
+#: views/marketplace-admin/designer-edit.php:149
+msgid "Combine (percent | flat)"
+msgstr ""
+
+#: views/marketplace-admin/designer-edit.php:154
+msgid "Commission"
+msgstr ""
+
+#: views/marketplace-admin/designer-edit.php:158
+msgid "Commission (combine)"
+msgstr ""
+
+#: views/marketplace-admin/designer-edit.php:162
+msgid "Payment method"
+msgstr ""
+
+#: views/marketplace-admin/designer-edit.php:166
+msgid "Social"
+msgstr ""
+
+#: views/marketplace-admin/designer-edit.php:168
+msgid "Facebook URL"
+msgstr ""
+
+#: views/marketplace-admin/designer-edit.php:169
+msgid "Twitter / X URL"
+msgstr ""
+
+#: views/marketplace-admin/designer-edit.php:170
+msgid "LinkedIn URL"
+msgstr ""
+
+#: views/marketplace-admin/designer-edit.php:171
+msgid "Instagram URL"
+msgstr ""
+
+#: views/marketplace-admin/designer-edit.php:172
+msgid "YouTube URL"
+msgstr ""
+
+#: views/marketplace-admin/designer-edit.php:173
+msgid "Flickr URL"
+msgstr ""
+
+#: views/marketplace-admin/designer-edit.php:181
+msgid "Media"
+msgstr ""
+
+#: views/marketplace-admin/designer-edit.php:183
+msgid "Banner (attachment ID)"
+msgstr ""
+
+#: views/marketplace-admin/designer-edit.php:187
+msgid "Avatar (attachment ID)"
+msgstr ""
+
+#: views/marketplace-admin/designer-edit.php:192
+msgid "Save designer"
+msgstr ""
+
+#: views/marketplace-admin/designers.php:29
+msgid "Manage registered designers — enable, disable or feature their profiles."
+msgstr ""
+
+#: views/marketplace-admin/designers.php:38
+#: views/marketplace-admin/designs.php:37
+#: views/marketplace-admin/withdraws.php:37 views/products.php:96
+msgid "Filter by status"
+msgstr ""
+
+#: views/marketplace-admin/designers.php:44
+msgid "Filter by featured"
+msgstr ""
+
+#: views/marketplace-admin/designers.php:48
+msgid "Not featured"
+msgstr ""
+
+#: views/marketplace-admin/designers.php:54
+#: views/marketplace-admin/designers.php:56
+msgid "Search designers"
+msgstr ""
+
+#: views/marketplace-admin/designs.php:28
+msgid "Review, approve or reject designer submissions."
+msgstr ""
+
+#: views/marketplace-admin/designs.php:43
+msgid "Filter by designer"
+msgstr ""
+
+#: views/marketplace-admin/designs.php:44
+msgid "Designer user ID"
+msgstr ""
+
+#: views/marketplace-admin/header.php:19
+msgid "Withdraws"
+msgstr ""
+
+#: views/marketplace-admin/header.php:20
+msgid "Report"
+msgstr ""
+
+#: views/marketplace-admin/header.php:35
+msgid "Designer Marketplace"
+msgstr ""
+
+#: views/marketplace-admin/header.php:38
+msgid "Manage designers, review designs, handle withdrawals and configure marketplace settings."
+msgstr ""
+
+#: views/marketplace-admin/report.php:37
+msgid "Total registered designers"
+msgstr ""
+
+#: views/marketplace-admin/report.php:48
+msgid "Total submitted designs"
+msgstr ""
+
+#: views/marketplace-admin/report.php:59
+msgid "Total design sales"
+msgstr ""
+
+#: views/marketplace-admin/report.php:67
+msgid "Pending Withdraws"
+msgstr ""
+
+#: views/marketplace-admin/report.php:70
+msgid "Awaiting review &amp; approval"
+msgstr ""
+
+#: views/marketplace-admin/report.php:80
+msgid "Designs Created"
+msgstr ""
+
+#: views/marketplace-admin/settings.php:28
+msgid "Marketplace-wide options (enable/disable, commission rates, withdraw limits, eligible order statuses, banner sizing, color-preview generation) live on a dedicated settings page."
+msgstr ""
+
+#. translators: %s: option key shown as inline code
+#: views/marketplace-admin/settings.php:37
+#, php-format
+msgid "Tip: the master toggle is %1$s — set it to %2$s to surface the marketplace UI for designers."
+msgstr ""
+
+#: views/marketplace-admin/settings.php:47
+msgid "Open Marketplace Settings"
+msgstr ""
+
+#: views/marketplace-admin/withdraws.php:25
+msgid "Withdraw Requests"
+msgstr ""
+
+#: views/marketplace-admin/withdraws.php:28
+msgid "Review and process designer payout requests."
+msgstr ""
+
+#: views/menu-settings.php:46
+msgid "no logs"
+msgstr ""
+
+#: views/menu-settings.php:77
+msgid "Configure display, pricing, cart and API integration settings for Storelly Product Builder."
+msgstr ""
+
+#: views/menu-settings.php:104 views/menu-settings.php:260
+msgid "Display"
+msgstr ""
+
+#: views/menu-settings.php:109 views/menu-settings.php:367
+#: views/options/edit-option.php:1545
+msgid "Pricing"
+msgstr ""
+
+#: views/menu-settings.php:114 views/menu-settings.php:457
+msgid "Catalog"
+msgstr ""
+
+#: views/menu-settings.php:119 views/menu-settings.php:509
+msgid "Cart &amp; Order"
+msgstr ""
+
+#: views/menu-settings.php:124
+msgid "Integration"
+msgstr ""
+
+#: views/menu-settings.php:147
+msgid "Number of decimals"
+msgstr ""
+
+#: views/menu-settings.php:154
+msgid "How many decimal places appear in option prices on the product page (e.g. +$2 vs +$2.00). Defaults to your WooCommerce global setting."
+msgstr ""
+
+#: views/menu-settings.php:160
+msgid "Enable rich snippet price"
+msgstr ""
+
+#: views/menu-settings.php:174
+msgid "When your base product starts at $0, search engines may display \"$0\" in results. Enable this so structured data reflects the true configurable price — improves SEO click-through rate."
+msgstr ""
+
+#: views/menu-settings.php:180
+msgid "Options display style"
+msgstr ""
+
+#: views/menu-settings.php:186 views/options/edit-option.php:199
+msgid "Sections"
+msgstr ""
+
+#: views/menu-settings.php:190
+msgid "Table"
+msgstr ""
+
+#: views/menu-settings.php:194
+msgid "Sections: options stacked vertically as a form — best for 5+ distinct choices. Table: compact grid — best for simpler products with fewer options."
+msgstr ""
+
+#: views/menu-settings.php:200
+msgid "Hide Add to cart until all required options are selected"
+msgstr ""
+
+#: views/menu-settings.php:214
+msgid "Hides the \"Add to cart\" button until every required option has a value. Reduces incomplete or incorrect orders — strongly recommended for print-on-demand products."
+msgstr ""
+
+#: views/menu-settings.php:220
+msgid "Display product options on"
+msgstr ""
+
+#: views/menu-settings.php:226
+msgid "Popup"
+msgstr ""
+
+#: views/menu-settings.php:230
+msgid "Product Tab"
+msgstr ""
+
+#: views/menu-settings.php:234
+msgid "Popup: options open in a modal overlay on top of the product image. Product Tab: options appear inline below the product description as a dedicated tab."
+msgstr ""
+
+#: views/menu-settings.php:240
+msgid "Quantity button CSS selector"
+msgstr ""
+
+#: views/menu-settings.php:248
+msgid "Advanced — only needed if your theme uses custom +/− quantity buttons. Enter their CSS selector (e.g. .qty-plus, .qty-minus) so volume pricing recalculates correctly when quantity changes."
+msgstr ""
+
+#: views/menu-settings.php:267
+msgid "Hide selection summary"
+msgstr ""
+
+#: views/menu-settings.php:281
+msgid "The summary panel shows buyers a recap of every option they selected before adding to cart. Keep visible to reduce confusion; hide for very simple, self-explanatory products."
+msgstr ""
+
+#: views/menu-settings.php:286
+msgid "Float summary panel"
+msgstr ""
+
+#: views/menu-settings.php:300
+msgid "When Yes, the summary sidebar scrolls with the buyer as they configure options — keeping their selections always visible. Recommended for products with long option forms."
+msgstr ""
+
+#: views/menu-settings.php:305
+msgid "Hide swatch caption labels"
+msgstr ""
+
+#: views/menu-settings.php:319
+msgid "Swatch buttons (colour/image squares) display a text caption underneath. Hide captions if your swatch images are self-explanatory — gives a cleaner, more visual layout."
+msgstr ""
+
+#: views/menu-settings.php:324
+msgid "Tooltip position"
+msgstr ""
+
+#: views/menu-settings.php:328
+msgid "Top"
+msgstr "Trên"
+
+#: views/menu-settings.php:328 views/menu-settings.php:351
+msgid "Right"
+msgstr "Phải"
+
+#: views/menu-settings.php:328
+msgid "Bottom"
+msgstr "Dưới"
+
+#: views/menu-settings.php:328
+msgid "Left"
+msgstr "Trái"
+
+#: views/menu-settings.php:336
+msgid "When an option has a \"?\" help icon, a tooltip appears on hover. Controls which side it pops out — pick based on your layout to avoid the tooltip being clipped off-screen."
+msgstr ""
+
+#: views/menu-settings.php:341
+msgid "Dropdown sub-list direction"
+msgstr ""
+
+#: views/menu-settings.php:347
+msgid "Below"
+msgstr ""
+
+#: views/menu-settings.php:355
+msgid "For advanced dropdown fields with nested sub-options: \"Below\" opens the child list directly under the parent row; \"Right\" opens it as a side flyout. Choose based on your available page width."
+msgstr ""
+
+#: views/menu-settings.php:374
+msgid "Hide volume pricing table"
+msgstr ""
+
+#: views/menu-settings.php:388
+msgid "Volume pricing tables show tiered discounts (e.g. 10 pcs = $5 each, 50 pcs = $4 each) to motivate larger orders. Hide if you do not use quantity-based pricing on this store."
+msgstr ""
+
+#: views/menu-settings.php:393
+msgid "Volume pricing table style"
+msgstr ""
+
+#: views/menu-settings.php:399
+msgid "Quantity range"
+msgstr ""
+
+#: views/menu-settings.php:403
+msgid "Quantity breaks"
+msgstr ""
+
+#: views/menu-settings.php:407
+msgid "Quantity range: shows a span (e.g. \"10–49 units → $5 each\"). Quantity breaks: shows a minimum threshold (e.g. \"10+ units → $5 each\"). Both display the per-unit discounted price."
+msgstr ""
+
+#: views/menu-settings.php:412
+msgid "Live-update displayed product price"
+msgstr ""
+
+#: views/menu-settings.php:426
+msgid "Yes: the product's main price display updates live as buyers pick options — they always see the full total. No: only the add-on price shows separately below the base price."
+msgstr ""
+
+#: views/menu-settings.php:431
+msgid "Hide zero-value option prices"
+msgstr ""
+
+#: views/menu-settings.php:445
+msgid "When an option adds +$0.00, that line still appears in the price breakdown. Enable this to hide zero-value lines and keep the summary clean — especially useful when many options are included by default."
+msgstr ""
+
+#: views/menu-settings.php:464
+msgid "Force \"Select options\" on product cards"
+msgstr ""
+
+#: views/menu-settings.php:478
+msgid "Replaces \"Add to cart\" with \"Select options\" on shop/category listing pages for products that have required options. Prevents buyers from bypassing the option form directly from the grid view."
+msgstr ""
+
+#: views/menu-settings.php:483
+msgid "Show option swatches on shop grid"
+msgstr ""
+
+#: views/menu-settings.php:497
+msgid "Renders option swatches (colour/material pickers) directly on product cards in the shop grid. Buyers can pre-select variants before clicking through to the product page — improves engagement and conversion."
+msgstr ""
+
+#: views/menu-settings.php:516
+msgid "AJAX add to cart"
+msgstr ""
+
+#: views/menu-settings.php:530
+msgid "Adds to cart without a full page reload — faster, smoother buyer experience. Disable only if your theme or another plugin conflicts with the cart counter when using AJAX."
+msgstr ""
+
+#: views/menu-settings.php:535
+msgid "Disable persistent cart storage"
+msgstr ""
+
+#: views/menu-settings.php:549
+msgid "WooCommerce saves cart contents to the database for logged-in users. For products with hundreds of custom options, this cart data can grow very large. Enable to skip database storage and reduce load — recommended for complex print products."
+msgstr ""
+
+#: views/menu-settings.php:554
+msgid "Show \"Clear cart\" button"
+msgstr ""
+
+#: views/menu-settings.php:568
+msgid "Adds a one-click \"Clear cart\" button to the cart page so buyers can start fresh without removing items one by one. Especially helpful for print-on-demand stores where customers frequently rebuild their order from scratch."
+msgstr ""
+
+#: views/menu-settings.php:573
+msgid "Hide option details in cart"
+msgstr ""
+
+#: views/menu-settings.php:587
+msgid "By default, the cart shows each chosen option beneath the product name (e.g. \"Paper: Matte, Size: A4\"). Hide when option names are technical or internal and not meaningful to the buyer — keeps cart line items clean and readable."
+msgstr ""
+
+#: views/menu-settings.php:592
+msgid "Hide option add-on prices in cart"
+msgstr ""
+
+#: views/menu-settings.php:606
+msgid "Hides the per-option price breakdown in the cart (e.g. \"+$2.00 for Matte finish\" disappears). The line item total and order total still include all costs — only the individual add-on amounts are hidden. Useful when showing a breakdown could confuse buyers or reveal internal pricing logic."
+msgstr ""
+
+#: views/menu-settings.php:611
+msgid "Hide option add-on prices in orders &amp; emails"
+msgstr ""
+
+#: views/menu-settings.php:625
+msgid "Hides per-option pricing from order confirmation pages, customer emails, and PDF invoices. The order total remains accurate — only the breakdown by option is hidden. Recommended for quote-based workflows or when add-on pricing is internal-only and should not appear on customer-facing documents."
+msgstr ""
+
+#: views/menu-settings.php:639
+msgid "Storelly Integration"
+msgstr ""
+
+#: views/menu-settings.php:647
+msgid "Enable cloud PDF rendering"
+msgstr ""
+
+#: views/menu-settings.php:661
+msgid "Activates the Storelly cloud engine to generate print-ready PDFs from customer orders. Required if you offer downloadable print files or send jobs to a print provider via Storelly."
+msgstr ""
+
+#: views/menu-settings.php:674
+msgid "Enable Dashboard API sync"
+msgstr ""
+
+#: views/menu-settings.php:688
+msgid "Opt-in to sync order data with Storelly Dashboard for centralised print job management. Disabled by default — no data leaves your store until you enable this."
+msgstr ""
+
+#: views/menu-settings.php:699
+msgid "API Keys"
+msgstr ""
+
+#: views/menu-settings.php:704
+msgid "Connected"
+msgstr ""
+
+#: views/menu-settings.php:709
+msgid "Not connected"
+msgstr ""
+
+#: views/menu-settings.php:719
+msgid "SID"
+msgstr ""
+
+#: views/menu-settings.php:726
+msgid "Your Store ID (Consumer Key). Find it in Storelly Dashboard → Settings → API Keys. Paste the exact value — no extra spaces or line breaks."
+msgstr ""
+
+#: views/menu-settings.php:732
+msgid "Secret"
+msgstr ""
+
+#: views/menu-settings.php:739
+msgid "Your Store Secret key. Keep this private — never put it in client-side code or share it publicly. Rotate it in Storelly Dashboard → Settings → API Keys if compromised."
+msgstr ""
+
+#: views/menu-settings.php:745
+msgid "Unauth Token"
+msgstr ""
+
+#: views/menu-settings.php:751
+msgid "Auto-generated after you save a valid SID + Secret pair. Used for unauthenticated (public) API calls. Read-only — do not edit manually."
+msgstr ""
+
+#: views/menu-settings.php:765
+msgid "Your Storelly account username linked to this store. Auto-populated when the API keys are validated successfully — you do not need to enter this manually."
+msgstr ""
+
+#: views/menu-settings.php:771 views/overview.php:630
+msgid "Quick actions"
+msgstr ""
+
+#: views/menu-settings.php:779 views/menu-settings.php:790
+msgid "Login to Storelly"
+msgstr ""
+
+#: views/menu-settings.php:784 views/menu-settings.php:794
+msgid "Create first product"
+msgstr ""
+
+#: views/menu-settings.php:791
+msgid "— Open the Storelly Dashboard to manage print jobs, product templates, and customer orders."
+msgstr ""
+
+#: views/menu-settings.php:795
+msgid "— Open WooCommerce Add Product. Attach a Storelly designer template to the product to enable the builder for your customers."
+msgstr ""
+
+#: views/menu-settings.php:812
+msgid "Last API response from Storelly. Use this to diagnose connection issues — look for error codes or an empty value if sync is not working."
+msgstr ""
+
+#: views/menu-settings.php:839
+msgid "Settings saved successfully."
+msgstr ""
+
+#: views/options/edit-option.php:49
+msgid "Breadcrumb"
+msgstr ""
+
+#: views/options/edit-option.php:57 views/options/edit-option.php:79
+msgid "Create New Option"
+msgstr ""
+
+#. translators: %s: option title
+#: views/options/edit-option.php:61
+#, php-format
+msgid "Edit · %s"
+msgstr ""
+
+#: views/options/edit-option.php:74
+msgid "Pricing Option"
+msgstr ""
+
+#: views/options/edit-option.php:81
+msgid "Edit Pricing Option"
+msgstr ""
+
+#: views/options/edit-option.php:86
+msgid "Build a new printing option group with fields, pricing rules and product assignments."
+msgstr ""
+
+#: views/options/edit-option.php:88
+msgid "Define the printing attributes (paper, size, finishing, qty…) customers configure for this product."
+msgstr ""
+
+#: views/options/edit-option.php:95
+msgid "Add new"
+msgstr ""
+
+#: views/options/edit-option.php:118
+msgid "Builder"
+msgstr ""
+
+#: views/options/edit-option.php:123
+msgid "Apply to products"
+msgstr ""
+
+#: views/options/edit-option.php:133
+msgid "Output (PDF)"
+msgstr ""
+
+#: views/options/edit-option.php:137
+msgid "Import / Export"
+msgstr ""
+
+#: views/options/edit-option.php:151
+msgid "Option metadata"
+msgstr ""
+
+#: views/options/edit-option.php:162
+msgid "Option title"
+msgstr ""
+
+#: views/options/edit-option.php:169
+msgid "required"
+msgstr ""
+
+#: views/options/edit-option.php:178
+msgid "Modified"
+msgstr ""
+
+#: views/options/edit-option.php:182
+msgid "Option ID"
+msgstr ""
+
+#: views/options/edit-option.php:190
+msgid "Frontend display mode"
+msgstr ""
+
+#: views/options/edit-option.php:192
+msgid "Controls how the option group renders on the product page. Customers see one of these three layouts."
+msgstr ""
+
+#: views/options/edit-option.php:200
+msgid "Vertical list, all fields visible. Best for ≤ 6 fields."
+msgstr ""
+
+#: views/options/edit-option.php:208
+msgid "Matrix"
+msgstr ""
+
+#: views/options/edit-option.php:209
+msgid "2D grid (paper × sides). Pick a combo cell."
+msgstr ""
+
+#: views/options/edit-option.php:218 views/options/edit-option.php:261
+msgid "Stepper"
+msgstr ""
+
+#: views/options/edit-option.php:219
+msgid "Wizard one-at-a-time. Best for &gt; 5 fields."
+msgstr ""
+
+#: views/options/edit-option.php:231
+msgid "Quantity & bulk pricing"
+msgstr ""
+
+#: views/options/edit-option.php:241
+msgid "Define quantity tiers customers can pick from. Each tier can have its own discount (fixed amount or percent off)."
+msgstr ""
+
+#: views/options/edit-option.php:247
+msgid "Display as"
+msgstr ""
+
+#: views/options/edit-option.php:251
+msgid "Tier cards"
+msgstr ""
+
+#: views/options/edit-option.php:252
+msgid "100 / 250 / 500 cards w/ save%"
+msgstr ""
+
+#: views/options/edit-option.php:257
+msgid "Compact pick-one list"
+msgstr ""
+
+#: views/options/edit-option.php:262
+msgid "Free input with min/max/step"
+msgstr ""
+
+#: views/options/edit-option.php:268
+msgid "Discount type"
+msgstr ""
+
+#: views/options/edit-option.php:270
+msgid "Percent off (%)"
+msgstr ""
+
+#: views/options/edit-option.php:271
+msgid "Fixed amount off ($)"
+msgstr ""
+
+#: views/options/edit-option.php:279
+msgid "Min quantity"
+msgstr ""
+
+#: views/options/edit-option.php:283
+msgid "Max quantity"
+msgstr ""
+
+#: views/options/edit-option.php:287
+#: views/options/templates/field-body/input_option.php:20
+msgid "Step"
+msgstr ""
+
+#: views/options/edit-option.php:295
+msgid "Quantity tiers"
+msgstr ""
+
+#: views/options/edit-option.php:304
+msgid "Discount"
+msgstr "Giảm giá"
+
+#: views/options/edit-option.php:305 views/options/edit-option.php:333
+#: views/options/templates/field-body/attributes.php:44
+#: views/options/templates/field-body/attributes.php:230
+#: views/options/templates/field-body/input_option.php:24
+msgid "Default"
+msgstr "Mặc định"
+
+#: views/options/edit-option.php:313
+msgid "e.g. 100"
+msgstr ""
+
+#: views/options/edit-option.php:320
+msgid "0"
+msgstr ""
+
+#: views/options/edit-option.php:336
+msgid "Remove tier"
+msgstr ""
+
+#: views/options/edit-option.php:340
+msgid "No quantity tiers yet. Add at least one to enable bulk pricing."
+msgstr ""
+
+#: views/options/edit-option.php:346
+msgid "Add quantity tier"
+msgstr ""
+
+#: views/options/edit-option.php:354
+msgid "Add field to this option"
+msgstr ""
+
+#: views/options/edit-option.php:355
+msgid "Pick the field type that matches how the customer will choose. Hover a chip to see what it does."
+msgstr ""
+
+#: views/options/edit-option.php:360
+msgid "Pick-one selector with image or color swatches (e.g. paper, finish, color)."
+msgstr ""
+
+#: views/options/edit-option.php:361
+msgid "Example: Paper · Matte 250gsm · Soft-touch 350gsm · Glossy 300gsm"
+msgstr ""
+
+#: views/options/edit-option.php:364
+msgid "Multi-choice"
+msgstr ""
+
+#: views/options/edit-option.php:365
+msgid "Pick-one with swatches"
+msgstr ""
+
+#: views/options/edit-option.php:370
+msgid "Numeric input with a min/max range and step. For option-wide bulk pricing tiers, use the Quantity & bulk pricing card above."
+msgstr ""
+
+#: views/options/edit-option.php:371
+msgid "Example: Number of pages · min 1, max 500, step 1"
+msgstr ""
+
+#: views/options/edit-option.php:375
+msgid "Numeric stepper (min/max/step)"
+msgstr ""
+
+#: views/options/edit-option.php:380
+msgid "Single-line text the customer types — name, message, slogan. Optional price-per-character."
+msgstr ""
+
+#: views/options/edit-option.php:381
+msgid "Example: Custom name printed on the card (max 30 chars)"
+msgstr ""
+
+#: views/options/edit-option.php:385
+msgid "Single-line free text"
+msgstr ""
+
+#: views/options/edit-option.php:390
+msgid "Multi-line text for longer instructions or messages, with min/max characters."
+msgstr ""
+
+#: views/options/edit-option.php:391
+msgid "Example: Special instructions for the printer (notes, deadlines)"
+msgstr ""
+
+#: views/options/edit-option.php:395
+msgid "Multi-line message"
+msgstr ""
+
+#: views/options/edit-option.php:400
+msgid "Customer uploads their print-ready artwork. Choose accepted formats (PDF, AI, PNG…) and max size."
+msgstr ""
+
+#: views/options/edit-option.php:401
+msgid "Example: Upload print file · PDF/AI/PNG up to 25 MB"
+msgstr ""
+
+#: views/options/edit-option.php:405
+msgid "Customer artwork"
+msgstr ""
+
+#: views/options/edit-option.php:412
+msgid "Pre-built design canvas component (background, frame, shape holder) for the online Designer."
+msgstr ""
+
+#: views/options/edit-option.php:413
+msgid "Example: Background frame on the business-card designer canvas"
+msgstr ""
+
+#: views/options/edit-option.php:416 views/options/edit-option.php:986
+msgid "Designer Component"
+msgstr ""
+
+#: views/options/edit-option.php:417
+msgid "For online designer"
+msgstr ""
+
+#: views/options/edit-option.php:422
+msgid "Editable text block on the designer canvas. Choose default text, allowed fonts and colors."
+msgstr ""
+
+#: views/options/edit-option.php:423
+msgid "Example: Customer name text block on the canvas"
+msgstr ""
+
+#: views/options/edit-option.php:426 views/options/edit-option.php:993
+msgid "Designer Text"
+msgstr ""
+
+#: views/options/edit-option.php:427
+msgid "Editable text on canvas"
+msgstr ""
+
+#: views/options/edit-option.php:432
+msgid "Image placeholder on the designer canvas — customer uploads or picks from a gallery."
+msgstr ""
+
+#: views/options/edit-option.php:433
+msgid "Example: Logo placeholder positioned on the front of the card"
+msgstr ""
+
+#: views/options/edit-option.php:436 views/options/edit-option.php:1000
+msgid "Designer Image"
+msgstr ""
+
+#: views/options/edit-option.php:437 views/options/edit-option.php:1001
+msgid "Image placeholder"
+msgstr ""
+
+#: views/options/edit-option.php:456
+msgid "Notice"
+msgstr ""
+
+#: views/options/edit-option.php:460
+msgid "PHP max input vars:"
+msgstr ""
+
+#: views/options/edit-option.php:464
+msgid "Current input vars:"
+msgstr ""
+
+#: views/options/edit-option.php:467
+msgid "Please increase \"PHP max input vars\"!"
+msgstr ""
+
+#: views/options/edit-option.php:479
+msgid "How fields work:"
+msgstr ""
+
+#: views/options/edit-option.php:480
+msgid "Each field becomes a configurable option on the product page. Customers pick / type / upload — pricing recalculates live. Drag the handle to reorder, click the title to expand."
+msgstr ""
+
+#: views/options/edit-option.php:486
+msgid "Start with a common print field"
+msgstr ""
+
+#: views/options/edit-option.php:487
+msgid "Pick a pattern below — we will pre-fill the field type so you only need to add attributes."
+msgstr ""
+
+#: views/options/edit-option.php:491
+msgid "Paper / Material"
+msgstr ""
+
+#: views/options/edit-option.php:492
+msgid "Swatch picker · Matte / Glossy / Linen…"
+msgstr ""
+
+#: views/options/edit-option.php:496
+msgid "Size variant"
+msgstr ""
+
+#: views/options/edit-option.php:497
+msgid "Dropdown · Standard / Square / Mini"
+msgstr ""
+
+#: views/options/edit-option.php:502
+msgid "Numeric stepper · min / max / step"
+msgstr ""
+
+#: views/options/edit-option.php:506
+msgid "Upload print file"
+msgstr ""
+
+#: views/options/edit-option.php:507
+msgid "File upload · PDF / AI / PNG"
+msgstr ""
+
+#: views/options/edit-option.php:536 views/templates/library.php:223
+msgid "Mobile"
+msgstr ""
+
+#: views/options/edit-option.php:540 views/templates/library.php:221
+msgid "Desktop"
+msgstr ""
+
+#: views/options/edit-option.php:550 views/options/edit-option.php:667
+msgid "Product mockup"
+msgstr ""
+
+#: views/options/edit-option.php:551 views/options/edit-option.php:671
+msgid "Untitled option"
+msgstr ""
+
+#: views/options/edit-option.php:557
+msgid "No fields yet. Add a field using the palette above."
+msgstr ""
+
+#: views/options/edit-option.php:590 views/options/edit-option.php:609
+#: views/options/edit-option.php:711 views/options/edit-option.php:724
+msgid "Customer types here…"
+msgstr ""
+
+#: views/options/edit-option.php:614 views/options/edit-option.php:726
+msgid "Upload your file"
+msgstr ""
+
+#: views/options/edit-option.php:641 views/options/edit-option.php:749
+msgid "Base"
+msgstr ""
+
+#: views/options/edit-option.php:645 views/options/edit-option.php:753
+msgid "+ Options"
+msgstr ""
+
+#: views/options/edit-option.php:649 views/options/edit-option.php:757
+msgid "Qty discount"
+msgstr ""
+
+#: views/options/edit-option.php:673
+msgid "Sample product on the customer-facing page. Click swatches on the right to test interactive selection."
+msgstr ""
+
+#: views/options/edit-option.php:681
+msgid "No fields yet. Add a field using the palette."
+msgstr ""
+
+#: views/options/edit-option.php:773
+msgid "Mock base price ($)"
+msgstr ""
+
+#: views/options/edit-option.php:776
+msgid "Preview-only value to test pricing math. Real product price is set in WooCommerce."
+msgstr ""
+
+#: views/options/edit-option.php:798
+msgid "Apply this option to…"
+msgstr ""
+
+#: views/options/edit-option.php:805 views/options/edit-option.php:807
+msgid "Selection mode"
+msgstr ""
+
+#: views/options/edit-option.php:806
+msgid "Apply to specific products one-by-one, or apply to every product in chosen WooCommerce categories."
+msgstr ""
+
+#: views/options/edit-option.php:810 views/templates/library.php:318
+msgid "Specific products"
+msgstr ""
+
+#: views/options/edit-option.php:814 views/templates/library.php:90
+#: views/templates/library.php:324
+msgid "Product categories"
+msgstr ""
+
+#: views/options/edit-option.php:823
+msgid "Select products"
+msgstr ""
+
+#: views/options/edit-option.php:825
+msgid "Search by product name. The option will appear on selected product pages."
+msgstr ""
+
+#: views/options/edit-option.php:828
+msgid "Search for a product&hellip;"
+msgstr ""
+
+#: views/options/edit-option.php:844
+msgid "Select categories"
+msgstr ""
+
+#: views/options/edit-option.php:846
+msgid "Every product in the chosen categories will automatically inherit this pricing option."
+msgstr ""
+
+#: views/options/edit-option.php:848
+msgid "Pick one or more categories&hellip;"
+msgstr ""
+
+#: views/options/edit-option.php:866
+msgid "individual products mapped"
+msgstr ""
+
+#: views/options/edit-option.php:873
+msgid "categories mapped"
+msgstr ""
+
+#: views/options/edit-option.php:889
+msgid "Online Designer canvas"
+msgstr ""
+
+#: views/options/edit-option.php:891
+msgid "Views customers can decorate"
+msgstr ""
+
+#: views/options/edit-option.php:895
+msgid "Each view is a separate canvas (Front / Back / Inside …) with its own base image. Designer Component / Text / Image fields placed on the canvas will be customizable by customers."
+msgstr ""
+
+#: views/options/edit-option.php:901
+msgid "No canvas views yet"
+msgstr ""
+
+#: views/options/edit-option.php:903
+msgid "Add a view to start configuring the online designer. Each view holds the canvas base image and any designer fields you place on it."
+msgstr ""
+
+#: views/options/edit-option.php:907
+msgid "Add first view"
+msgstr ""
+
+#: views/options/edit-option.php:918
+msgid "Click to upload base image"
+msgstr ""
+
+#: views/options/edit-option.php:922
+msgid "Change base image"
+msgstr ""
+
+#: views/options/edit-option.php:931
+msgid "View name (e.g. Front)"
+msgstr ""
+
+#: views/options/edit-option.php:934
+msgid "W"
+msgstr ""
+
+#: views/options/edit-option.php:941
+msgid "H"
+msgstr ""
+
+#: views/options/edit-option.php:962
+msgid "Remove view"
+msgstr ""
+
+#: views/options/edit-option.php:968
+msgid "Add view"
+msgstr ""
+
+#: views/options/edit-option.php:969
+msgid "Back / Inside / 3rd angle…"
+msgstr ""
+
+#: views/options/edit-option.php:977
+msgid "Add designer fields to your canvas"
+msgstr ""
+
+#: views/options/edit-option.php:980
+msgid "Designer fields appear in the Builder tab. Click below to add one — then switch to Builder to position it on the canvas."
+msgstr ""
+
+#: views/options/edit-option.php:987
+msgid "Background / shape holder"
+msgstr ""
+
+#: views/options/edit-option.php:994
+msgid "Editable text block"
+msgstr ""
+
+#: views/options/edit-option.php:1018
+msgid "Output design file (PDF)"
+msgstr ""
+
+#: views/options/edit-option.php:1024
+msgid "Output resolution — DPI"
+msgstr ""
+
+#: views/options/edit-option.php:1026
+msgid "Recommended: 300 for print, 72 for web preview."
+msgstr ""
+
+#: views/options/edit-option.php:1033
+msgid "Dimensions unit"
+msgstr ""
+
+#: views/options/edit-option.php:1056
+msgid "Import / Export configuration"
+msgstr ""
+
+#: views/options/edit-option.php:1061
+msgid "Export this option as JSON to share or back up, or import a previously exported config."
+msgstr ""
+
+#: views/options/edit-option.php:1066
+msgid "Import"
+msgstr "Nhập"
+
+#: views/options/edit-option.php:1070 views/_products-cards.php:140
+msgid "Export"
+msgstr "Xuất"
+
+#. translators: %s: modified time
+#: views/options/edit-option.php:1083
+#, php-format
+msgid "Last saved %s"
+msgstr ""
+
+#: views/options/edit-option.php:1085
+msgid "Unsaved draft"
+msgstr ""
+
+#: views/options/edit-option.php:1095
+msgid "Move this option to trash?"
+msgstr ""
+
+#: views/options/edit-option.php:1097
+msgid "Trash"
+msgstr ""
+
+#: views/options/edit-option.php:1106
+msgid "Pre-builder"
+msgstr ""
+
+#: views/options/edit-option.php:1117
+msgid "Update"
+msgstr "Cập nhật"
+
+#: views/options/edit-option.php:1148
+msgid "Please fill in all required fields before saving."
+msgstr ""
+
+#: views/options/edit-option.php:1149
+msgid "Could not save. Try again."
+msgstr ""
+
+#: views/options/edit-option.php:1210
+msgid "You have unsaved changes. Leave anyway?"
+msgstr ""
+
+#: views/options/edit-option.php:1211
+msgid "Auto-saved"
+msgstr ""
+
+#: views/options/edit-option.php:1426
+msgid "Multi-choice field"
+msgstr ""
+
+#: views/options/edit-option.php:1427
+msgid "Customer picks ONE option from a list of attributes (swatches or list). Best for material, finish, color, size variants."
+msgstr ""
+
+#: views/options/edit-option.php:1428
+msgid "Example: Paper → Matte 250gsm, Soft-touch 350gsm, Glossy 300gsm"
+msgstr ""
+
+#: views/options/edit-option.php:1431
+msgid "Text input field"
+msgstr ""
+
+#: views/options/edit-option.php:1432
+msgid "Customer types a single-line value. Use min/max characters to constrain. Optional price-per-character pricing."
+msgstr ""
+
+#: views/options/edit-option.php:1433
+msgid "Example: Custom name printed on card (max 30 chars)"
+msgstr ""
+
+#: views/options/edit-option.php:1436
+msgid "Number field"
+msgstr ""
+
+#: views/options/edit-option.php:1437
+msgid "Customer enters a numeric value within a min/max range, adjustable by a stepper. Use for counts, pages, sizes."
+msgstr ""
+
+#: views/options/edit-option.php:1438
+msgid "Example: Number of pages (min 1, max 500, step 1)"
+msgstr ""
+
+#: views/options/edit-option.php:1441
+msgid "Number range field"
+msgstr ""
+
+#: views/options/edit-option.php:1442
+msgid "Customer picks a numeric value with a slider between a min and max. Uses the same min/max/step bounds as the Number field."
+msgstr ""
+
+#: views/options/edit-option.php:1443
+msgid "Example: Quantity slider from 10 to 1000, step 10"
+msgstr ""
+
+#: views/options/edit-option.php:1446
+msgid "Textarea field"
+msgstr ""
+
+#: views/options/edit-option.php:1447
+msgid "Customer types a multi-line message. Use for longer instructions or notes to the printer."
+msgstr ""
+
+#: views/options/edit-option.php:1448
+msgid "Example: Special print instructions (deadlines, color preferences)"
+msgstr ""
+
+#: views/options/edit-option.php:1451
+msgid "File upload field"
+msgstr ""
+
+#: views/options/edit-option.php:1452
+msgid "Customer uploads their print-ready artwork. Restrict accepted formats and max size to keep the production pipeline clean."
+msgstr ""
+
+#: views/options/edit-option.php:1453
+msgid "Example: Upload your print file · PDF / AI / PNG up to 25 MB"
+msgstr ""
+
+#: views/options/edit-option.php:1541
+msgid "Basics"
+msgstr ""
+
+#: views/options/edit-option.php:1543
+msgid "Configuration"
+msgstr ""
+
+#: views/options/edit-option.php:1549
+#: views/options/templates/field-body/conditional_depend.php:8
+msgid "Conditional logic"
+msgstr ""
+
+#: views/options/field.php:6 views/options/field.php:7
+msgid "Drag to reorder"
+msgstr ""
+
+#: views/options/field.php:12
+msgid "Click to expand · double-click anywhere"
+msgstr ""
+
+#: views/options/field.php:21
+msgid "Untitled field"
+msgstr ""
+
+#: views/options/field.php:22
+msgid "Field name"
+msgstr ""
+
+#: views/options/field.php:31
+msgid "attributes"
+msgstr ""
+
+#: views/options/field.php:43
+msgid "Hidden in summary"
+msgstr ""
+
+#: views/options/field.php:49
+msgid "Reorder field"
+msgstr ""
+
+#: views/options/field.php:52
+msgid "Move up"
+msgstr ""
+
+#: views/options/field.php:53
+msgid "Move field up"
+msgstr ""
+
+#: views/options/field.php:56
+msgid "Move down"
+msgstr ""
+
+#: views/options/field.php:57
+msgid "Move field down"
+msgstr ""
+
+#: views/options/field.php:60 views/options/field.php:61
+msgid "Duplicate this field"
+msgstr ""
+
+#: views/options/field.php:63 views/options/field.php:64
+msgid "Delete this field"
+msgstr ""
+
+#: views/options/field.php:66 views/options/field.php:67
+msgid "Collapse field settings"
+msgstr ""
+
+#: views/options/field.php:66 views/options/field.php:67
+msgid "Expand field settings"
+msgstr ""
+
+#: views/options/field.php:78
+msgid "Appearance"
+msgstr ""
+
+#: views/options/field.php:79
+msgid "Product builder"
+msgstr ""
+
+#: views/options/field.php:89
+msgid "Changes save when you click Update / Publish above."
+msgstr ""
+
+#: views/options/field.php:99
+msgid "Delete field"
+msgstr ""
+
+#: views/options/field.php:110
+msgid "Clear All Fields"
+msgstr ""
+
+#: views/options/field.php:111
+msgid "Add Field"
+msgstr ""
+
+#: views/options/meta-box.php:11
+msgid "Enable Product builder"
+msgstr ""
+
+#: views/options/meta-box.php:18
+msgid "Enable request quote"
+msgstr ""
+
+#: views/options/meta-box.php:26
+msgid "Mapped printing option:"
+msgstr ""
+
+#: views/options/meta-box.php:33
+msgid "Edit option"
+msgstr ""
+
+#: views/options/meta-box.php:35
+msgid "Create option"
+msgstr ""
+
+#: views/options/options-list-table.php:56
+msgid "Create and manage printing option groups. Assign them to products or categories to let customers configure their order."
+msgstr ""
+
+#: views/options/options-list-table.php:63
+msgid "Add New Option"
+msgstr ""
+
+#: views/options/options-list-table.php:74
+msgid "Show all options"
+msgstr ""
+
+#: views/options/options-list-table.php:75
+msgid "Filter: all options"
+msgstr ""
+
+#: views/options/options-list-table.php:78
+msgid "Total Options"
+msgstr ""
+
+#: views/options/options-list-table.php:79
+msgid "All pricing option groups"
+msgstr ""
+
+#: views/options/options-list-table.php:84
+msgid "Show published options"
+msgstr ""
+
+#: views/options/options-list-table.php:85
+msgid "Filter: published options"
+msgstr ""
+
+#: views/options/options-list-table.php:89
+msgid "Active on your store"
+msgstr ""
+
+#: views/options/options-list-table.php:94
+msgid "Show draft options"
+msgstr ""
+
+#: views/options/options-list-table.php:95
+msgid "Filter: draft options"
+msgstr ""
+
+#: views/options/options-list-table.php:98
+msgid "Drafts"
+msgstr ""
+
+#: views/options/options-list-table.php:99
+msgid "Not yet visible to customers"
+msgstr ""
+
+#: views/options/options-list-table.php:104 views/templates/library.php:95
+msgid "How to use"
+msgstr ""
+
+#: views/options/options-list-table.php:106
+msgid "Create a new option group"
+msgstr ""
+
+#: views/options/options-list-table.php:107
+msgid "Add pricing fields"
+msgstr ""
+
+#: views/options/options-list-table.php:108
+msgid "Assign to products or categories"
+msgstr ""
+
+#: views/options/options-list-table.php:159
+msgid "Search options…"
+msgstr ""
+
+#: views/options/options-list-table.php:160
+msgid "Search options"
+msgstr ""
+
+#: views/options/options-list-table.php:164
+#: views/options/options-list-table.php:642 views/products.php:150
+msgid "Clear search"
+msgstr ""
+
+#: views/options/options-list-table.php:172
+msgid "Sort by"
+msgstr ""
+
+#: views/options/options-list-table.php:173
+msgid "Newest first"
+msgstr ""
+
+#: views/options/options-list-table.php:174
+msgid "Oldest first"
+msgstr ""
+
+#: views/options/options-list-table.php:175
+msgid "Name A → Z"
+msgstr ""
+
+#: views/options/options-list-table.php:176
+msgid "Name Z → A"
+msgstr ""
+
+#: views/options/options-list-table.php:192
+msgid "Switch view"
+msgstr ""
+
+#: views/options/options-list-table.php:194
+#: views/options/options-list-table.php:197 views/products.php:162
+msgid "List view"
+msgstr ""
+
+#: views/options/options-list-table.php:200
+#: views/options/options-list-table.php:203
+msgid "Card view"
+msgstr ""
+
+#: views/options/options-list-table.php:352
+msgid "No options yet."
+msgstr ""
+
+#: views/options/options-list-table.php:356
+msgid "Create your first option"
+msgstr ""
+
+#: views/options/options-list-table.php:365
+msgid "Pages"
+msgstr ""
+
+#: views/options/options-list-table.php:370
+msgid "Previous page"
+msgstr ""
+
+#. translators: 1: current page number, 2: total pages
+#: views/options/options-list-table.php:381
+#, php-format
+msgid "Page %1$d of %2$d"
+msgstr ""
+
+#: views/options/options-list-table.php:391
+msgid "Next page"
+msgstr ""
+
+#: views/options/options-list-table.php:404
+msgid "Loading"
+msgstr ""
+
+#: views/options/options-list-table.php:417
+msgid "Delete option?"
+msgstr ""
+
+#: views/options/options-list-table.php:420
+#: views/options/options-list-table.php:520
+msgid "This cannot be undone."
+msgstr ""
+
+#: views/options/options-list-table.php:440
+msgid "Undo"
+msgstr ""
+
+#: views/options/options-list-table.php:455
+msgctxt "singular item count"
+msgid "option"
+msgstr ""
+
+#: views/options/options-list-table.php:456
+msgctxt "plural item count"
+msgid "options"
+msgstr ""
+
+#: views/options/options-list-table.php:756
+msgid "Option deleted."
+msgstr ""
+
+#: views/options/options-list-table.php:815
+msgid "Option published."
+msgstr ""
+
+#: views/options/options-list-table.php:816
+msgid "Option set to draft."
+msgstr ""
+
+#: views/options/options-list-table.php:846
+msgid "Rename option"
+msgstr ""
+
+#: views/options/preview.php:5
+msgid "Create Pre builder"
+msgstr ""
+
+#: views/options/templates/field-body/attributes.php:6
+msgid "Each attribute is one choice the customer can pick (e.g. paper finish, color, size variant). Add a swatch or image and an optional price surcharge."
+msgstr ""
+
+#: views/options/templates/field-body/attributes.php:17
+msgid "(unnamed)"
+msgstr ""
+
+#: views/options/templates/field-body/attributes.php:21
+msgid "★ Default"
+msgstr ""
+
+#: views/options/templates/field-body/attributes.php:23
+msgid "+ sub-attrs"
+msgstr ""
+
+#: views/options/templates/field-body/attributes.php:36
+msgid "e.g. Matte 250gsm, Glossy 300gsm"
+msgstr ""
+
+#: views/options/templates/field-body/attributes.php:52
+#: views/options/templates/field-body/attributes.php:239
+msgid "optional"
+msgstr ""
+
+#: views/options/templates/field-body/attributes.php:54
+msgid "e.g. Premium matte finish, 250gsm — best for high-end packaging."
+msgstr ""
+
+#: views/options/templates/field-body/attributes.php:56
+msgid "Shown next to the option on the product page — helps the customer pick the right one."
+msgstr ""
+
+#: views/options/templates/field-body/attributes.php:59
+#: views/options/templates/field-body/attributes.php:245
+#: views/options/templates/field-body/price_breaks.php:15
+msgid "Additional price"
+msgstr ""
+
+#: views/options/templates/field-body/attributes.php:64
+msgid "Added to the base price when the customer picks this option. Leave 0.00 for no surcharge."
+msgstr ""
+
+#: views/options/templates/field-body/attributes.php:70
+#: views/options/templates/field-body/attributes.php:72
+#: views/options/templates/field-body/attributes.php:256
+#: views/options/templates/field-body/attributes.php:258
+msgid "Swatch type"
+msgstr ""
+
+#: views/options/templates/field-body/attributes.php:81
+msgid "Photo — paper, texture, fabric…"
+msgstr ""
+
+#: views/options/templates/field-body/attributes.php:91
+#: views/options/templates/field-body/attributes.php:98
+#: views/options/templates/field-body/attributes.php:277
+#: views/options/templates/field-body/attributes.php:284
+#: views/options/templates/nbpb_text.php:149
+#: views/product-builder/wrapper.php:164
+msgid "Color"
+msgstr "Màu"
+
+#: views/options/templates/field-body/attributes.php:92
+msgid "Solid color or gradient."
+msgstr ""
+
+#: views/options/templates/field-body/attributes.php:105
+#: views/options/templates/field-body/attributes.php:291
+msgid "Click to upload or change image"
+msgstr ""
+
+#: views/options/templates/field-body/attributes.php:110
+msgid "Click to upload"
+msgstr ""
+
+#: views/options/templates/field-body/attributes.php:115
+#: views/options/templates/field-body/attributes.php:116
+#: views/options/templates/field-body/attributes.php:301
+#: views/options/templates/field-body/attributes.php:302
+msgid "Replace image"
+msgstr ""
+
+#: views/options/templates/field-body/attributes.php:121
+#: views/options/templates/field-body/attributes.php:122
+#: views/options/templates/field-body/attributes.php:307
+#: views/options/templates/field-body/attributes.php:308
+msgid "Remove image"
+msgstr ""
+
+#: views/options/templates/field-body/attributes.php:127
+msgid "Recommended 600×600px, ≤ 200KB. JPG or PNG."
+msgstr ""
+
+#: views/options/templates/field-body/attributes.php:132
+msgid "Add a second color for a gradient swatch"
+msgstr ""
+
+#: views/options/templates/field-body/attributes.php:134
+msgid "Click + to add a second color and create a gradient swatch."
+msgstr ""
+
+#: views/options/templates/field-body/attributes.php:135
+msgid "Two-color gradient — front swatch on the product page."
+msgstr ""
+
+#: views/options/templates/field-body/attributes.php:139
+msgid "Product image"
+msgstr ""
+
+#: views/options/templates/field-body/attributes.php:143
+msgid "Click to change image"
+msgstr ""
+
+#: views/options/templates/field-body/attributes.php:157
+msgid "Enable sub-attributes"
+msgstr ""
+
+#: views/options/templates/field-body/attributes.php:158
+msgid "Show extra choices that only appear when this option is selected (e.g. Size → Color)."
+msgstr ""
+
+#: views/options/templates/field-body/attributes.php:166
+#: views/options/templates/field-body/attributes.php:170
+msgid "Sub attributes display type"
+msgstr ""
+
+#: views/options/templates/field-body/attributes.php:167
+msgid "How sub-attributes appear on the product page when the parent attribute is selected."
+msgstr ""
+
+#: views/options/templates/field-body/attributes.php:177
+msgid "Compact pick-one list. Best for many options."
+msgstr ""
+
+#: views/options/templates/field-body/attributes.php:185
+msgid "All options visible. Best for 2–5 choices."
+msgstr ""
+
+#: views/options/templates/field-body/attributes.php:193
+msgid "Color / image tiles. Best for visual variants."
+msgstr ""
+
+#: views/options/templates/field-body/attributes.php:201
+msgid "Plain text labels. Minimal, no graphics."
+msgstr ""
+
+#: views/options/templates/field-body/attributes.php:222
+msgid "e.g. Glossy black, Brushed steel"
+msgstr ""
+
+#: views/options/templates/field-body/attributes.php:241
+msgid "Optional context shown next to this option"
+msgstr ""
+
+#: views/options/templates/field-body/attributes.php:250
+msgid "Added on top of the parent option price when this sub-option is picked."
+msgstr ""
+
+#: views/options/templates/field-body/attributes.php:267
+msgid "Photo"
+msgstr ""
+
+#: views/options/templates/field-body/attributes.php:278
+msgid "Solid color"
+msgstr ""
+
+#: views/options/templates/field-body/attributes.php:324
+#: views/options/templates/field-body/attributes.php:346
+msgid "Up"
+msgstr ""
+
+#: views/options/templates/field-body/attributes.php:325
+#: views/options/templates/field-body/attributes.php:347
+msgid "Down"
+msgstr ""
+
+#: views/options/templates/field-body/attributes.php:328
+#: views/options/templates/field-body/attributes.php:350
+msgid "Expend"
+msgstr ""
+
+#: views/options/templates/field-body/attributes.php:337
+msgid "Add sub-attribute"
+msgstr ""
+
+#: views/options/templates/field-body/attributes.php:339
+msgid "Appears only when the parent option above is selected."
+msgstr ""
+
+#: views/options/templates/field-body/attributes.php:360
+msgid "Add attribute"
+msgstr ""
+
+#: views/options/templates/field-body/attributes.php:362
+msgid "Add another choice the customer can pick (e.g. another paper size, color, or finish)."
+msgstr ""
+
+#: views/options/templates/field-body/conditional_depend.php:9
+msgid "Show this field only when another field in this option matches a value. All rules below must pass (AND)."
+msgstr ""
+
+#: views/options/templates/field-body/conditional_depend.php:15
+msgid "No rules — this field is always shown."
+msgstr ""
+
+#: views/options/templates/field-body/conditional_depend.php:20
+msgid "Show when"
+msgstr ""
+
+#: views/options/templates/field-body/conditional_depend.php:26
+msgid "— pick a field —"
+msgstr ""
+
+#: views/options/templates/field-body/conditional_depend.php:38
+msgid "equals"
+msgstr ""
+
+#: views/options/templates/field-body/conditional_depend.php:39
+msgid "does not equal"
+msgstr ""
+
+#: views/options/templates/field-body/conditional_depend.php:40
+msgid "contains"
+msgstr ""
+
+#: views/options/templates/field-body/conditional_depend.php:41
+msgid "does not contain"
+msgstr ""
+
+#: views/options/templates/field-body/conditional_depend.php:48
+msgid "Value (e.g. Matte, Glossy…)"
+msgstr ""
+
+#: views/options/templates/field-body/conditional_depend.php:52
+#: views/options/templates/field-body/conditional_depend.php:53
+msgid "Remove rule"
+msgstr ""
+
+#: views/options/templates/field-body/conditional_depend.php:59
+msgid "Add condition rule"
+msgstr ""
+
+#: views/options/templates/field-body/data_type.php:7
+msgid "Multiple options = customer picks one from a list (swatches/dropdown). Custom input = customer types text or uploads a file."
+msgstr ""
+
+#: views/options/templates/field-body/depend_qty.php:7
+msgid "How the additional price interacts with the cart quantity."
+msgstr ""
+
+#: views/options/templates/field-body/depend_quantity.php:7
+msgid "Set a different additional price for each quantity break tier."
+msgstr ""
+
+#: views/options/templates/field-body/description.php:7
+msgid "Optional helper text shown below the option label on the product page."
+msgstr ""
+
+#: views/options/templates/field-body/input_option.php:7
+msgid "Bounds for the numeric input. Step controls how much the value changes per stepper click."
+msgstr ""
+
+#: views/options/templates/field-body/input_option.php:12
+msgid "Min"
+msgstr ""
+
+#: views/options/templates/field-body/input_option.php:16
+msgid "Max"
+msgstr ""
+
+#: views/options/templates/field-body/input_type.php:7
+msgid "How the customer provides their value. Text = single-line, Textarea = multi-line, Upload = file picker."
+msgstr ""
+
+#: views/options/templates/field-body/placeholder.php:7
+msgid "Hint text shown inside the empty input on the product page."
+msgstr ""
+
+#: views/options/templates/field-body/placeholder.php:10
+msgid "e.g. Enter your text here…"
+msgstr ""
+
+#: views/options/templates/field-body/price.php:7
+msgid "Enter the price for this field, or leave blank for no surcharge."
+msgstr ""
+
+#: views/options/templates/field-body/price_breaks.php:7
+msgid "Additional price per quantity-break tier. Leave blank for no surcharge at that tier."
+msgstr ""
+
+#: views/options/templates/field-body/price_breaks.php:14
+msgid "From qty"
+msgstr ""
+
+#: views/options/templates/field-body/price_type.php:7
+msgid "How the additional price is calculated. Fixed = flat amount, Percent = % of base price, Per char = each character costs the price."
+msgstr ""
+
+#: views/options/templates/field-body/published.php:6
+msgid "Shown in summary"
+msgstr ""
+
+#: views/options/templates/field-body/published.php:7
+msgid "When off, customer choice is still saved but hidden from the cart summary."
+msgstr ""
+
+#: views/options/templates/field-body/required.php:7
+msgid "Customer must select / fill this field before adding to cart."
+msgstr ""
+
+#: views/options/templates/field-body/text_option.php:6
+msgid "Character limit"
+msgstr ""
+
+#: views/options/templates/field-body/text_option.php:7
+msgid "Min and max number of characters the customer can type."
+msgstr ""
+
+#: views/options/templates/field-body/text_option.php:12
+msgid "Min length"
+msgstr ""
+
+#: views/options/templates/field-body/text_option.php:16
+msgid "Max length"
+msgstr ""
+
+#: views/options/templates/field-body/title.php:7
+msgid "Label shown to the customer above the swatches / input (e.g. \"Paper\", \"Size\")."
+msgstr ""
+
+#: views/options/templates/field-body/title.php:11
+msgid "e.g. Paper, Size, Quantity…"
+msgstr ""
+
+#: views/options/templates/field-body/title.php:13
+msgid "Field name is required."
+msgstr ""
+
+#: views/options/templates/field-body/upload_option.php:6
+msgid "Upload constraints"
+msgstr ""
+
+#: views/options/templates/field-body/upload_option.php:7
+msgid "File size limits (MB) and accepted file types — comma-separated extensions, e.g. pdf,ai,png,jpg."
+msgstr ""
+
+#: views/options/templates/field-body/upload_option.php:12
+msgid "Min size (MB)"
+msgstr ""
+
+#: views/options/templates/field-body/upload_option.php:16
+msgid "Max size (MB)"
+msgstr ""
+
+#: views/options/templates/field-body/upload_option.php:20
+msgid "Allowed extensions"
+msgstr ""
+
+#: views/options/templates/nbpb_com.php:7
+msgid "Each \"view\" is one side of the product the customer can look at (Front, Back, Top, Inside…). Upload a base image per view — it sits behind all component layers and stays the same across attribute changes."
+msgstr ""
+
+#: views/options/templates/nbpb_com.php:14
+msgid "View name"
+msgstr ""
+
+#: views/options/templates/nbpb_com.php:15
+msgid "View base"
+msgstr ""
+
+#: views/options/templates/nbpb_com.php:29
+msgid "Delete View"
+msgstr ""
+
+#: views/options/templates/nbpb_com.php:35
+msgid "Add View"
+msgstr ""
+
+#: views/options/templates/nbpb_com.php:39
+msgid "Tip: keep all view base images the same dimensions so component layers line up correctly across views."
+msgstr ""
+
+#: views/options/templates/nbpb_com.php:45
+msgid "Component icon"
+msgstr ""
+
+#: views/options/templates/nbpb_com.php:46
+msgid "Small icon shown in the component picker / layers panel on the live builder. Helps customers recognise this part at a glance (e.g. a tiny wheel icon for \"Wheels\", a frame icon for \"Frame\")."
+msgstr ""
+
+#: views/options/templates/nbpb_com.php:54
+msgid "Recommended 64×64px transparent PNG or SVG. Click the thumbnail to upload."
+msgstr ""
+
+#: views/options/templates/nbpb_com.php:59
+msgid "Component configurations"
+msgstr ""
+
+#: views/options/templates/nbpb_com.php:60
+msgid "For each attribute/sub-attribute, upload the part image that appears on every view. Check \"Show in <view>\" to display this option on that view; leave unchecked to hide it (e.g. a logo only visible on the Front view)."
+msgstr ""
+
+#: views/options/templates/nbpb_com.php:61
+msgid "Important:"
+msgstr ""
+
+#: views/options/templates/nbpb_com.php:61
+msgid "all images uploaded in the same view column must share the same dimensions so layers stack precisely."
+msgstr ""
+
+#: views/options/templates/nbpb_com.php:68
+msgid "Attribute"
+msgstr "Thuộc tính"
+
+#: views/options/templates/nbpb_com.php:69
+msgid "Sub attribute"
+msgstr ""
+
+#: views/options/templates/nbpb_com.php:82
+msgid "Show in"
+msgstr ""
+
+#: views/options/templates/nbpb_image.php:6
+#: views/options/templates/nbpb_text.php:179
+msgid "Show in view"
+msgstr ""
+
+#: views/options/templates/nbpb_text.php:6
+msgid "Default text"
+msgstr ""
+
+#: views/options/templates/nbpb_text.php:14
+msgid "Allow font family change"
+msgstr ""
+
+#: views/options/templates/nbpb_text.php:15
+msgid "Let the customer pick a font for this text on the designer canvas."
+msgstr ""
+
+#: views/options/templates/nbpb_text.php:31
+msgid "Allow all fonts"
+msgstr ""
+
+#: views/options/templates/nbpb_text.php:33
+msgid "When on, all fonts are available. When off, choose a curated list below."
+msgstr ""
+
+#: views/options/templates/nbpb_text.php:34
+msgid "Manage fonts"
+msgstr ""
+
+#: views/options/templates/nbpb_text.php:51
+msgid "Custom fonts"
+msgstr ""
+
+#: views/options/templates/nbpb_text.php:85
+msgid "Google fonts"
+msgstr ""
+
+#: views/options/templates/nbpb_text.php:107
+msgid "Allow color change"
+msgstr ""
+
+#: views/options/templates/nbpb_text.php:108
+msgid "Let the customer pick a color for this text on the designer canvas."
+msgstr ""
+
+#: views/options/templates/nbpb_text.php:124
+msgid "Allow all colors"
+msgstr ""
+
+#: views/options/templates/nbpb_text.php:125
+msgid "When on, customer can pick any color. When off, only the curated palette below is offered."
+msgstr ""
+
+#: views/options/templates/nbpb_text.php:141
+msgid "Colors"
+msgstr ""
+
+#: views/options/templates/nbpb_text.php:148
+msgid "Color name"
+msgstr ""
+
+#: views/options/templates/nbpb_text.php:169
+msgid "Add color"
+msgstr ""
+
+#: views/overview.php:60
+msgid "Limited to basic product builder features"
+msgstr ""
+
+#: views/overview.php:61
+msgid "Premium templates locked"
+msgstr ""
+
+#: views/overview.php:62
+msgid "Community support only"
+msgstr ""
+
+#: views/overview.php:65
+msgid "Unlimited products and orders"
+msgstr ""
+
+#: views/overview.php:66
+msgid "Premium templates and design tools"
+msgstr ""
+
+#: views/overview.php:67
+msgid "Priority support from Storelly team"
+msgstr ""
+
+#: views/overview.php:85
+msgid "A snapshot of your Storelly Product Builder activity — license status, key metrics, and quick links to manage your store. Stats refresh hourly from your Storelly dashboard when connected."
+msgstr ""
+
+#: views/overview.php:95
+msgid "Create option group"
+msgstr ""
+
+#: views/overview.php:107
+msgid "Showing local data only"
+msgstr ""
+
+#. translators: %s: URL to license page
+#: views/overview.php:115
+#, php-format
+msgid "Couldn't reach the Storelly server. Stats below are pulled from your local database. <a href=\"%s\">Check your connection</a> to enable real-time metrics."
+msgstr ""
+
+#: views/overview.php:131
+msgid "You're on the Free plan"
+msgstr ""
+
+#. translators: %s: URL to license page
+#: views/overview.php:139
+#, php-format
+msgid "Unlock unlimited products, premium templates, and priority support by <a href=\"%s\">upgrading your license</a>. Existing customizations remain intact during the upgrade."
+msgstr ""
+
+#: views/overview.php:158
+msgid "Current license plan"
+msgstr ""
+
+#. translators: %s: expiry date
+#: views/overview.php:172
+#, php-format
+msgid "Expires on %s"
+msgstr ""
+
+#: views/overview.php:185
+msgid "No expiry — but limited feature set"
+msgstr ""
+
+#: views/overview.php:203
+msgid "Upgrade plan"
+msgstr ""
+
+#: views/overview.php:208
+msgid "Manage license"
+msgstr ""
+
+#: views/overview.php:214
+msgid "Refresh license status from the Storelly server"
+msgstr ""
+
+#: views/overview.php:216
+msgid "Sync from server"
+msgstr ""
+
+#: views/overview.php:220
+msgid "Click to verify status"
+msgstr ""
+
+#: views/overview.php:231
+msgid "Key metrics"
+msgstr ""
+
+#: views/overview.php:236
+msgid "Live numbers from your Storelly dashboard. Each card links straight to the related management screen."
+msgstr ""
+
+#: views/overview.php:238
+msgid "Local counts from your WordPress database. Connect your Storelly account to see live numbers."
+msgstr ""
+
+#: views/overview.php:254
+msgid "WooCommerce products that have the Storelly product builder enabled."
+msgstr ""
+
+#: views/overview.php:258 views/overview.php:664
+msgid "Manage products"
+msgstr ""
+
+#: views/overview.php:273
+msgid "Active option groups (material, size, finish, quantity…) configured for your products."
+msgstr ""
+
+#: views/overview.php:292
+msgid "All-time WooCommerce orders containing a customized Storelly product."
+msgstr ""
+
+#: views/overview.php:296
+msgid "View orders"
+msgstr ""
+
+#: views/overview.php:311
+msgid "Customer-submitted quote requests awaiting your response or follow-up."
+msgstr ""
+
+#: views/overview.php:315
+msgid "Respond to quotes"
+msgstr ""
+
+#: views/overview.php:328
+msgid "Recent activity"
+msgstr ""
+
+#: views/overview.php:331
+msgid "A quick look at the latest products, orders, quotes, and designs flowing through your Storelly builder. Click any card to dive in."
+msgstr ""
+
+#: views/overview.php:342
+msgid "Recent products"
+msgstr ""
+
+#: views/overview.php:344 views/overview.php:412 views/overview.php:478
+#: views/overview.php:518
+msgid "total"
+msgstr ""
+
+#: views/overview.php:364
+msgid "(no title)"
+msgstr ""
+
+#. translators: %s: human time diff like "2 hours"
+#: views/overview.php:370
+#, php-format
+msgid "updated %s ago"
+msgstr ""
+
+#: views/overview.php:385
+msgid "No products yet"
+msgstr ""
+
+#: views/overview.php:387
+msgid "Enable the product builder on a WooCommerce product to start customizing."
+msgstr ""
+
+#: views/overview.php:391
+msgid "Add first product"
+msgstr ""
+
+#: views/overview.php:398
+msgid "View all products"
+msgstr ""
+
+#: views/overview.php:401
+msgid "Last 5 updated"
+msgstr ""
+
+#: views/overview.php:410
+msgid "Recent orders"
+msgstr ""
+
+#: views/overview.php:440
+msgid "ago"
+msgstr ""
+
+#: views/overview.php:455
+msgid "No orders yet"
+msgstr ""
+
+#: views/overview.php:457
+msgid "Orders containing customized products will appear here when customers check out."
+msgstr ""
+
+#: views/overview.php:464
+msgid "View all orders"
+msgstr ""
+
+#: views/overview.php:467
+msgid "Last 5"
+msgstr ""
+
+#: views/overview.php:488
+msgid "Active option groups"
+msgstr ""
+
+#: views/overview.php:490
+msgid "No option groups yet"
+msgstr ""
+
+#: views/overview.php:495
+msgid "Build dynamic pricing — material, size, quantity, conditional logic — for your products."
+msgstr ""
+
+#: views/overview.php:499 views/overview.php:652
+msgid "Open builder"
+msgstr ""
+
+#: views/overview.php:505
+msgid "Manage options"
+msgstr ""
+
+#: views/overview.php:516
+msgid "Quote requests"
+msgstr ""
+
+#: views/overview.php:525
+msgid "No pending quotes"
+msgstr ""
+
+#: views/overview.php:527
+msgid "B2B quote requests from your customers will appear here. Respond to convert them into orders."
+msgstr ""
+
+#: views/overview.php:530
+msgid "Open quotes"
+msgstr ""
+
+#: views/overview.php:537
+msgid "View all quotes"
+msgstr ""
+
+#: views/overview.php:548
+msgid "Customer designs"
+msgstr ""
+
+#: views/overview.php:550 views/overview.php:587
+msgid "Premium feature"
+msgstr ""
+
+#: views/overview.php:552 views/overview.php:589
+msgid "Pro"
+msgstr "Pro"
+
+#: views/overview.php:560
+msgid "No saved designs yet"
+msgstr ""
+
+#: views/overview.php:562
+msgid "Print-ready design files customers create with the Storelly designer canvas will be listed here for download and review."
+msgstr ""
+
+#: views/overview.php:567 views/overview.php:604
+msgid "Upgrade to unlock"
+msgstr ""
+
+#: views/overview.php:574
+msgid "View order designs"
+msgstr ""
+
+#: views/overview.php:585
+msgid "Design templates"
+msgstr ""
+
+#: views/overview.php:597
+msgid "No templates yet"
+msgstr ""
+
+#: views/overview.php:599
+msgid "Reusable design templates speed up customer customization. Import from the Storelly marketplace or create your own."
+msgstr ""
+
+#: views/overview.php:609 views/overview.php:616
+msgid "Browse marketplace"
+msgstr ""
+
+#: views/overview.php:633
+msgid "Common tasks for managing your product builder. Pick a card to jump into the right section."
+msgstr ""
+
+#: views/overview.php:644
+msgid "Build pricing options"
+msgstr ""
+
+#: views/overview.php:648
+msgid "Create dynamic price rules — material, size, quantity tiers, conditional logic — for any WooCommerce product."
+msgstr ""
+
+#: views/overview.php:668
+msgid "Review which products have the builder enabled, assign option groups, and configure per-product designer settings."
+msgstr ""
+
+#: views/overview.php:672
+msgid "View products"
+msgstr ""
+
+#: views/overview.php:684
+msgid "Review orders"
+msgstr ""
+
+#: views/overview.php:688
+msgid "Inspect customized orders, download print-ready designs, and export PDFs for your print partners."
+msgstr ""
+
+#: views/overview.php:692
+msgid "Open orders"
+msgstr ""
+
+#: views/overview.php:704
+msgid "Handle quotes"
+msgstr ""
+
+#: views/overview.php:708
+msgid "Respond to B2B quote requests, convert approved quotes into orders, and track customer follow-ups."
+msgstr ""
+
+#: views/overview.php:712
+msgid "View quotes"
+msgstr ""
+
+#: views/overview.php:724
+msgid "License & billing"
+msgstr ""
+
+#: views/overview.php:728
+msgid "Activate or change your license key, view subscription details, and manage billing on the Storelly portal."
+msgstr ""
+
+#: views/overview.php:732
+msgid "Open license"
+msgstr ""
+
+#: views/overview.php:744
+msgid "Plugin settings"
+msgstr ""
+
+#: views/overview.php:748
+msgid "Configure global options, API sync, designer fonts, watermarks, and PDF export defaults."
+msgstr ""
+
+#: views/overview.php:752
+msgid "Open settings"
+msgstr ""
+
+#: views/overview.php:765
+msgid "Need a hand?"
+msgstr ""
+
+#: views/overview.php:768
+msgid "Read the documentation, check the latest changelog, or reach out to the Storelly team. We typically respond within one business day on weekdays."
+msgstr ""
+
+#: views/overview.php:778
+msgid "Changelog"
+msgstr ""
+
+#: views/overview.php:782
+msgid "Contact support"
+msgstr ""
+
+#: views/overview.php:795
+msgid "Syncing..."
+msgstr ""
+
+#: views/product-builder/customize-btn.php:13
+msgid "Preview & customize"
+msgstr ""
+
+#: views/product-builder/customize-btn.php:14
+msgid "See your product and make it yours before checkout."
+msgstr ""
+
+#: views/product-builder/js_config.php:62
+msgid "Only support image!"
+msgstr ""
+
+#: views/product-builder/js_config.php:63
+msgid "Max file size"
+msgstr ""
+
+#: views/product-builder/js_config.php:64
+msgid "Min file size"
+msgstr ""
+
+#: views/product-builder/js_config.php:65
+msgid "Are you sure you want to delete this image?"
+msgstr ""
+
+#: views/product-builder/js_config.php:66
+msgid "Are you sure you want to delete this text?"
+msgstr ""
+
+#: views/product-builder/js_config.php:67
+msgid "Oops! Design has not been saved!"
+msgstr ""
+
+#: views/product-builder/js_config.php:68
+msgid "Choose"
+msgstr ""
+
+#: views/product-builder/wrapper.php:70
+msgid "Bring Forward"
+msgstr ""
+
+#: views/product-builder/wrapper.php:71
+msgid "Send To Backward"
+msgstr ""
+
+#: views/product-builder/wrapper.php:72 views/product-builder/wrapper.php:79
+msgid "Zoom"
+msgstr ""
+
+#: views/product-builder/wrapper.php:80
+msgid "Zoom out"
+msgstr ""
+
+#: views/product-builder/wrapper.php:81
+msgid "Zoom in"
+msgstr ""
+
+#: views/product-builder/wrapper.php:84
+msgid "Rotate"
+msgstr ""
+
+#: views/product-builder/wrapper.php:91
+msgid "Angle"
+msgstr ""
+
+#: views/product-builder/wrapper.php:96
+msgid "Clear all layer"
+msgstr ""
+
+#: views/product-builder/wrapper.php:138
+msgid "Content"
+msgstr ""
+
+#: views/product-builder/wrapper.php:144
+msgid "Font family"
+msgstr ""
+
+#: views/product-builder/wrapper.php:190
+msgid "Click or drop file here"
+msgstr ""
+
+#: views/product-builder/wrapper.php:191
+msgid "Allow extensions"
+msgstr ""
+
+#: views/product-builder/wrapper.php:192
+msgid "Min size"
+msgstr ""
+
+#: views/product-builder/wrapper.php:193
+msgid "Max size"
+msgstr ""
+
+#: views/products.php:38
+msgid "Manage WooCommerce products and their printing option assignments."
+msgstr ""
+
+#: views/products.php:44 views/products.php:245
+msgid "Add Product"
+msgstr ""
+
+#: views/products.php:48
+msgid "Printing Options"
+msgstr ""
+
+#: views/products.php:59
+msgid "Filter products"
+msgstr ""
+
+#: views/products.php:77
+msgid "Has Option"
+msgstr ""
+
+#: views/products.php:87
+msgid "No Option"
+msgstr ""
+
+#: views/products.php:97
+msgid "All Statuses"
+msgstr ""
+
+#: views/products.php:103
+msgid "Filter by type"
+msgstr ""
+
+#: views/products.php:104
+msgid "All Types"
+msgstr ""
+
+#: views/products.php:105
+msgid "Simple"
+msgstr ""
+
+#: views/products.php:106
+msgid "Variable"
+msgstr ""
+
+#: views/products.php:107
+msgid "Grouped"
+msgstr ""
+
+#: views/products.php:108
+msgid "External"
+msgstr ""
+
+#: views/products.php:111
+msgid "Filter by category"
+msgstr ""
+
+#: views/products.php:112
+msgid "All Categories"
+msgstr ""
+
+#: views/products.php:121
+msgid "Filter by stock"
+msgstr ""
+
+#: views/products.php:122
+msgid "All Stock"
+msgstr ""
+
+#: views/products.php:123
+msgid "In Stock"
+msgstr ""
+
+#: views/products.php:124
+msgid "Out of Stock"
+msgstr ""
+
+#: views/products.php:125
+msgid "On Backorder"
+msgstr ""
+
+#: views/products.php:140
+msgid "Search products…"
+msgstr ""
+
+#: views/products.php:141
+msgid "Search products"
+msgstr ""
+
+#: views/products.php:158
+msgid "View mode"
+msgstr ""
+
+#: views/products.php:159
+msgid "Grid view"
+msgstr ""
+
+#: views/products.php:207
+msgid "SKU"
+msgstr ""
+
+#. translators: %s: search term
+#: views/products.php:235
+#, php-format
+msgid "No products matched \"%s\". Try a different keyword."
+msgstr ""
+
+#: views/products.php:241
+msgid "No WooCommerce products found"
+msgstr ""
+
+#: views/products.php:242
+msgid "Create your first product to get started."
+msgstr ""
+
+#: views/setup-wizard/landing.php:31
+msgid "One-time tools to get your store ready for Storelly. Pick what you need — both can be run independently."
+msgstr ""
+
+#: views/setup-wizard/landing.php:38
+msgid "Import Sample Products"
+msgstr ""
+
+#: views/setup-wizard/landing.php:41
+msgid "Get started with ready-made product templates from the bundled library. Useful when you are evaluating Storelly on a fresh store."
+msgstr ""
+
+#: views/setup-wizard/landing.php:45 views/setup-wizard/landing.php:72
+msgid "Open"
+msgstr ""
+
+#: views/setup-wizard/landing.php:53
+msgid "Import Woo Variations (one-time)"
+msgstr ""
+
+#: views/setup-wizard/landing.php:56
+msgid "Convert existing WooCommerce variable products into Storelly pricing options in a single pass. This is a one-time migration, not a live sync — re-running is safe but skips products already linked to a Storelly option."
+msgstr ""
+
+#. translators: 1: human-readable date, 2: number of imported products
+#: views/setup-wizard/landing.php:63
+#, php-format
+msgid "Last run: %1$s — %2$d products"
+msgstr ""
+
+#: views/setup-wizard/woo-seed.php:26
+#, fuzzy
+msgid "← Setup Wizard"
+msgstr "Cài đặt nhanh"
+
+#: views/setup-wizard/woo-seed.php:28
+msgid "Import Woo Variations"
+msgstr ""
+
+#: views/templates/library.php:45
+msgid "Pick a pre-built printing option, apply it to your products or categories, then customize freely. Global templates stay read-only — your applied copy is yours to edit."
+msgstr ""
+
+#: views/templates/library.php:52
+msgid "Template Docs"
+msgstr ""
+
+#: views/templates/library.php:60
+msgid "No bundled templates found. Make sure storage/print-templates/catalog.json ships with the plugin."
+msgstr ""
+
+#: views/templates/library.php:84
+msgid "Ready-to-use templates"
+msgstr ""
+
+#: views/templates/library.php:85
+msgid "Pricing schemes &amp; product option sets"
+msgstr ""
+
+#: views/templates/library.php:97
+msgid "Browse and preview templates"
+msgstr ""
+
+#: views/templates/library.php:98
+msgid "Click Apply → choose products"
+msgstr ""
+
+#: views/templates/library.php:99
+msgid "Edit your copy freely"
+msgstr ""
+
+#: views/templates/library.php:109
+msgid "Search templates…"
+msgstr ""
+
+#. translators: %d: number of templates
+#: views/templates/library.php:124
+#, php-format
+msgid "%d template"
+msgid_plural "%d templates"
+msgstr[0] ""
+
+#: views/templates/library.php:157
+msgid "Pricing Scheme"
+msgstr ""
+
+#: views/templates/library.php:158
+msgid "Product Options"
+msgstr ""
+
+#: views/templates/library.php:196
+msgid "No templates match your search."
+msgstr ""
+
+#: views/templates/library.php:207
+msgid "Template Preview"
+msgstr ""
+
+#: views/templates/library.php:215 views/templates/library.php:259
+#: views/templates/library.php:277
+msgid "Close"
+msgstr "Đóng"
+
+#: views/templates/library.php:220
+msgid "Preview viewport"
+msgstr ""
+
+#: views/templates/library.php:222
+msgid "Tablet"
+msgstr ""
+
+#: views/templates/library.php:226
+msgid "Sample base price"
+msgstr ""
+
+#: views/templates/library.php:235
+msgid "Live template preview"
+msgstr ""
+
+#: views/templates/library.php:238
+msgid "Loading preview…"
+msgstr ""
+
+#: views/templates/library.php:251
+msgid "This is the exact storefront UI buyers see — change the sample base price to preview the live total."
+msgstr ""
+
+#: views/templates/library.php:290
+msgid "Global template — you get your own editable copy"
+msgstr ""
+
+#: views/templates/library.php:291
+msgid "Storelly creates a private copy of this template on your store. The original stays read-only and shared. You can rename fields, adjust prices, and change which products or categories use it at any time from the Pricing Options screen."
+msgstr ""
+
+#: views/templates/library.php:297
+msgid "Name for your copy"
+msgstr ""
+
+#: views/templates/library.php:305
+msgid "Shown in your Pricing Options list — you can rename it any time."
+msgstr ""
+
+#: views/templates/library.php:311
+msgid "Apply to"
+msgstr ""
+
+#: views/templates/library.php:312
+msgid "(optional)"
+msgstr ""
+
+#: views/templates/library.php:319
+msgid "Only products without an existing Pricing Option"
+msgstr ""
+
+#: views/templates/library.php:325
+msgid "Applied to every product in the selected categories"
+msgstr ""
+
+#: views/templates/library.php:330
+msgid "Selection is optional — you can skip and assign products or categories later from Pricing Options."
+msgstr ""
+
+#: views/templates/library.php:344
+msgid "Type a product name or SKU to search…"
+msgstr ""
+
+#: views/templates/library.php:347
+msgid "Search and select as many products as you like. Only products without an existing Pricing Option are recommended."
+msgstr ""
+
+#: views/templates/library.php:379
+msgid "Select one or more categories — the template applies to every product within them."
+msgstr ""
+
+#: views/templates/library.php:392
+msgid "Template applied!"
+msgstr ""
+
+#: views/templates/library.php:395
+msgid "Opening the editor…"
+msgstr ""
+
+#: views/templates/library.php:408
+msgid "Apply &amp; Edit"
+msgstr ""
+
+#: views/_products-cards.php:48
+msgid "Has option"
+msgstr ""
+
+#: views/_products-cards.php:48 views/_products-cards.php:75
+msgid "No option"
+msgstr ""
+
+#. translators: %d: option ID
+#: views/_products-cards.php:71
+#, php-format
+msgid "Option #%d"
+msgstr ""
+
+#: views/_products-cards.php:79
+msgid "Number of fields in this option"
+msgstr ""
+
+#. translators: %d: number of fields
+#: views/_products-cards.php:83
+#, php-format
+msgid "%d fields"
+msgstr ""
+
+#: views/_products-cards.php:116
+msgid "Edit product"
+msgstr ""
+
+#: views/_products-cards.php:126
+msgid "View product"
+msgstr ""
+
+#: views/_products-cards.php:136
+msgid "Export reference data"
+msgstr ""
+
+#: views/_products-cards.php:148
+msgid "Edit Option"
+msgstr ""
+
+#: views/_products-cards.php:148
+msgid "Create Option"
+msgstr ""

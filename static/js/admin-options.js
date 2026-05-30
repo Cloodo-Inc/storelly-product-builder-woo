@@ -929,7 +929,7 @@ angular
             callback(res.images);
           } else {
             jQuery(".nbp-loading-wrap").removeClass("nbp-show");
-            alert("Error, Try again later!");
+            alert((typeof storelly_options !== "undefined" && storelly_options.storelly_options_lang && storelly_options.storelly_options_lang.error_try_again) || "Error. Please try again later.");
           }
         });
     };
@@ -1144,7 +1144,7 @@ angular
       function update_media_false() {
         jQuery(".nbp-loading-wrap").removeClass("nbp-show");
         jQuery("#nbp-processing").hide();
-        alert("Error, Try again later!");
+        alert((typeof storelly_options !== "undefined" && storelly_options.storelly_options_lang && storelly_options.storelly_options_lang.error_try_again) || "Error. Please try again later.");
       }
       function merge_new_media() {
         var new_options = $scope.merge_new_media(options, newMediaObject, "id");
