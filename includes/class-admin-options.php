@@ -381,22 +381,29 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
             }
         }
         public function spbwc_visual_builder() {
+            // Delegate to the dedicated Visual Builder admin class loaded from
+            // includes/visual-builder/. The class handles its own capability
+            // check, routing (?action=list|create|edit) and view rendering.
+            // Kept as a thin shim so the submenu callback registration above
+            // does not need to change. If the file is somehow missing, fall
+            // back to a minimal "coming soon" notice so the menu never errors.
+            if ( class_exists( 'SPBWC_Visual_Builder_Admin' ) ) {
+                SPBWC_Visual_Builder_Admin::render();
+                return;
+            }
             if ( ! current_user_can( 'spbwc_manage_product_builder' ) ) {
                 wp_die( esc_html__( 'You do not have permission to access this page.', 'storelly-product-builder-for-woocommerce' ) );
             }
             ?>
             <div class="wrap">
                 <h1><?php esc_html_e( 'Visual Builder', 'storelly-product-builder-for-woocommerce' ); ?></h1>
-                <p style="max-width:720px;font-size:14px;line-height:1.6;">
-                    <?php esc_html_e( 'Let buyers configure products visually from real product images — pick decals, colors and components and watch the preview update live. This build method sits alongside Pricing Options and Quote Requests.', 'storelly-product-builder-for-woocommerce' ); ?>
-                </p>
+                <div class="notice notice-error inline">
+                    <p>
+                        <?php esc_html_e( 'Visual Builder module is not loaded. Please reinstall the plugin or contact support.', 'storelly-product-builder-for-woocommerce' ); ?>
+                    </p>
+                </div>
                 <p>
-                    <span class="dashicons dashicons-format-image" aria-hidden="true" style="color:#1971c2;"></span>
-                    <strong><?php esc_html_e( 'Coming soon.', 'storelly-product-builder-for-woocommerce' ); ?></strong>
-                    <?php esc_html_e( 'The visual configurator is being prepared. In the meantime, use Pricing Options to build configurable products.', 'storelly-product-builder-for-woocommerce' ); ?>
-                </p>
-                <p>
-                    <a class="button button-primary" href="<?php echo esc_url( admin_url( 'admin.php?page=' . SPBWC_PB_BUILDER_SLUG ) ); ?>">
+                    <a class="button" href="<?php echo esc_url( admin_url( 'admin.php?page=' . SPBWC_PB_BUILDER_SLUG ) ); ?>">
                         <?php esc_html_e( 'Go to Pricing Options', 'storelly-product-builder-for-woocommerce' ); ?>
                     </a>
                 </p>
@@ -2776,6 +2783,7 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
                 'choose_image'          => esc_html__('Choose image', 'storelly-product-builder-for-woocommerce'),
                 /* translators: %s = product name. Shown as the media picker title so the merchant knows the picker is showing that one product's images. */
                 'media_scope_title'     => esc_html__('Images for: %s', 'storelly-product-builder-for-woocommerce'),
+                'error_try_again'       => esc_html__('Error. Please try again later.', 'storelly-product-builder-for-woocommerce'),
             );
         }
         public function spbwc_add_meta_boxes() {
@@ -3249,9 +3257,34 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
         }
         
         public function spbwc_global_import() {
-            // Delegate to the global import admin class
-            $global_import_admin = SPBWC_Global_Import_Admin::instance();
-            $global_import_admin->render_global_import_page();
+            // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only tab routing; capability is enforced by add_submenu_page + the views themselves.
+            $tab = isset( $_GET['tab'] ) ? sanitize_key( wp_unslash( $_GET['tab'] ) ) : 'landing';
+
+            if ( 'sample' === $tab ) {
+                // Original sample-products importer — preserved unchanged.
+                $global_import_admin = SPBWC_Global_Import_Admin::instance();
+                $global_import_admin->render_global_import_page();
+                return;
+            }
+
+            if ( 'woo' === $tab ) {
+                $woo_seed_view = SPBWC_PB_PLUGIN_DIR . 'views/setup-wizard/woo-seed.php';
+                if ( file_exists( $woo_seed_view ) ) {
+                    include $woo_seed_view;
+                    return;
+                }
+            }
+
+            // Default: the wizard hub (landing).
+            $landing_view = SPBWC_PB_PLUGIN_DIR . 'views/setup-wizard/landing.php';
+            if ( file_exists( $landing_view ) ) {
+                include $landing_view;
+                return;
+            }
+
+            // Fallback for older deployments that don't yet have the new
+            // landing — keep showing Sample Products so the menu never 404s.
+            SPBWC_Global_Import_Admin::instance()->render_global_import_page();
         }
         
         public function spbwc_convert_svg_embed($path) {

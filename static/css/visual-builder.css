@@ -1,0 +1,385 @@
+/**
+ * Visual Builder admin — listing + create picker chrome.
+ *
+ * Scoped under .spbwc-vb to keep any rule-set from leaking into the classic
+ * Pricing Options editor or other Storelly admin screens. Mobile-first.
+ *
+ * Depends on:
+ *   - spbwc-admin-ui (shared hero / button / token foundations)
+ *   - dashicons
+ *
+ * Tokens — reuse design-system vars when available, fall back to literals so
+ * this stylesheet still renders if loaded standalone.
+ */
+
+.spbwc-vb {
+    --vb-card-radius: 12px;
+    --vb-card-shadow: 0 1px 3px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04);
+    --vb-card-shadow-hover: 0 4px 14px rgba(0, 0, 0, 0.08), 0 2px 4px rgba(0, 0, 0, 0.06);
+    --vb-card-border: #e5e7eb;
+    --vb-gap: 16px;
+    --vb-text-mute: #6b7280;
+    --vb-text-strong: #1d2327;
+    --vb-link: #1971c2;
+    --vb-bg-soft: #f3f4f6;
+    --vb-warn: #b45309;
+    --vb-warn-bg: #fef3c7;
+    max-width: 1320px;
+}
+
+/* ───────────── Hero ───────────── */
+
+.spbwc-vb__hero {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: var(--vb-gap);
+    padding: 20px 0 24px;
+    border-bottom: 1px solid var(--vb-card-border);
+    margin: 0 0 24px;
+}
+
+.spbwc-vb__hero-left {
+    flex: 1 1 320px;
+    min-width: 0;
+}
+
+.spbwc-vb__title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 23px;
+    line-height: 1.3;
+    margin: 0 0 8px;
+    color: var(--vb-text-strong);
+}
+
+.spbwc-vb__title .dashicons {
+    font-size: 24px;
+    width: 24px;
+    height: 24px;
+    line-height: 24px;
+    color: var(--vb-link);
+}
+
+.spbwc-vb__subtitle {
+    margin: 0;
+    color: var(--vb-text-mute);
+    max-width: 760px;
+    font-size: 14px;
+    line-height: 1.6;
+}
+
+.spbwc-vb__create-btn .dashicons {
+    line-height: inherit;
+    margin-top: 3px;
+}
+
+/* ───────────── Backbar ───────────── */
+
+.spbwc-vb__backbar {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    margin: 12px 0 4px;
+}
+
+.spbwc-vb__backbar a {
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    color: var(--vb-link);
+}
+
+.spbwc-vb__backbar a:hover {
+    text-decoration: underline;
+}
+
+.spbwc-vb__backbar-sep {
+    color: #9ca3af;
+}
+
+.spbwc-vb__backbar-current {
+    color: var(--vb-text-mute);
+}
+
+/* ───────────── Empty / stub state ───────────── */
+
+.spbwc-vb__empty,
+.spbwc-vb__stub {
+    background: #fff;
+    border: 1px dashed #d1d5db;
+    border-radius: var(--vb-card-radius);
+    padding: 48px 24px;
+    text-align: center;
+    margin: 24px 0;
+}
+
+.spbwc-vb__empty-icon,
+.spbwc-vb__stub-icon {
+    font-size: 48px;
+    line-height: 1;
+    margin-bottom: 16px;
+}
+
+.spbwc-vb__empty-title,
+.spbwc-vb__stub-title {
+    margin: 0 0 8px;
+    font-size: 18px;
+    color: var(--vb-text-strong);
+}
+
+.spbwc-vb__empty-body,
+.spbwc-vb__stub-body {
+    margin: 0 auto 20px;
+    max-width: 520px;
+    color: var(--vb-text-mute);
+    font-size: 14px;
+    line-height: 1.6;
+}
+
+.spbwc-vb__empty-actions,
+.spbwc-vb__stub-actions {
+    margin: 0;
+    display: inline-flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    justify-content: center;
+}
+
+/* ───────────── Card grid ───────────── */
+
+.spbwc-vb__grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--vb-gap);
+    margin: 0 0 32px;
+}
+
+@media (min-width: 600px) {
+    .spbwc-vb__grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (min-width: 960px) {
+    .spbwc-vb__grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+@media (min-width: 1280px) {
+    .spbwc-vb__grid {
+        grid-template-columns: repeat(4, 1fr);
+    }
+}
+
+.spbwc-vb__card {
+    background: #fff;
+    border: 1px solid var(--vb-card-border);
+    border-radius: var(--vb-card-radius);
+    box-shadow: var(--vb-card-shadow);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    transition: box-shadow 0.18s ease, transform 0.18s ease;
+}
+
+.spbwc-vb__card:hover {
+    box-shadow: var(--vb-card-shadow-hover);
+    transform: translateY(-1px);
+}
+
+.spbwc-vb__card-thumb {
+    display: block;
+    aspect-ratio: 16 / 10;
+    background: var(--vb-bg-soft);
+    overflow: hidden;
+    text-decoration: none;
+}
+
+.spbwc-vb__card-thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.spbwc-vb__card-body {
+    padding: 14px 16px 8px;
+    flex: 1;
+    min-width: 0;
+}
+
+.spbwc-vb__card-title {
+    margin: 0 0 8px;
+    font-size: 15px;
+    line-height: 1.4;
+    word-break: break-word;
+}
+
+.spbwc-vb__card-title a {
+    text-decoration: none;
+    color: var(--vb-text-strong);
+}
+
+.spbwc-vb__card-title a:hover {
+    color: var(--vb-link);
+}
+
+.spbwc-vb__card-target {
+    margin: 0 0 10px;
+    font-size: 13px;
+    color: var(--vb-text-mute);
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    min-width: 0;
+}
+
+.spbwc-vb__card-target .dashicons {
+    font-size: 14px;
+    height: 14px;
+    width: 14px;
+    line-height: 14px;
+    flex-shrink: 0;
+}
+
+.spbwc-vb__card-target-text {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    min-width: 0;
+}
+
+.spbwc-vb__card-target.is-empty {
+    color: var(--vb-warn);
+}
+
+.spbwc-vb__card-stats {
+    margin: 0;
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+}
+
+.spbwc-vb__chip {
+    display: inline-block;
+    padding: 2px 8px;
+    background: var(--vb-bg-soft);
+    color: #374151;
+    border-radius: 999px;
+    font-size: 12px;
+    line-height: 1.6;
+}
+
+.spbwc-vb__chip--draft {
+    background: var(--vb-warn-bg);
+    color: var(--vb-warn);
+}
+
+.spbwc-vb__card-actions {
+    padding: 10px 16px 16px;
+    display: flex;
+    gap: 6px;
+}
+
+.spbwc-vb__card-actions .button {
+    flex: 1;
+    text-align: center;
+    justify-content: center;
+}
+
+/* ───────────── Picker form ───────────── */
+
+.spbwc-vb__picker {
+    background: #fff;
+    border: 1px solid var(--vb-card-border);
+    border-radius: var(--vb-card-radius);
+    padding: 24px;
+    max-width: 640px;
+    box-shadow: var(--vb-card-shadow);
+}
+
+.spbwc-vb__picker-field {
+    margin: 0 0 20px;
+}
+
+.spbwc-vb__picker-label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 6px;
+    font-size: 13px;
+    color: var(--vb-text-strong);
+}
+
+.spbwc-vb__required {
+    color: #dc2626;
+    margin-left: 2px;
+}
+
+.spbwc-vb__picker-select {
+    width: 100%;
+    padding: 8px 10px;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    font-size: 14px;
+    background: #fff;
+    line-height: 1.4;
+    min-height: 38px;
+}
+
+.spbwc-vb__picker-select:focus {
+    outline: none;
+    border-color: var(--vb-link);
+    box-shadow: 0 0 0 3px rgba(25, 113, 194, 0.15);
+}
+
+.spbwc-vb__picker-help {
+    margin: 6px 0 0;
+    font-size: 12px;
+    color: var(--vb-text-mute);
+    line-height: 1.5;
+}
+
+.spbwc-vb__picker-actions {
+    display: flex;
+    gap: 8px;
+    justify-content: flex-end;
+    padding-top: 16px;
+    border-top: 1px solid var(--vb-card-border);
+}
+
+/* ───────────── Mobile safety ───────────── */
+
+@media (max-width: 480px) {
+    .spbwc-vb__hero {
+        flex-direction: column;
+    }
+
+    .spbwc-vb__hero-right {
+        width: 100%;
+    }
+
+    .spbwc-vb__create-btn {
+        width: 100%;
+        justify-content: center;
+        text-align: center;
+    }
+
+    .spbwc-vb__picker {
+        padding: 16px;
+    }
+
+    .spbwc-vb__picker-actions {
+        flex-direction: column-reverse;
+    }
+
+    .spbwc-vb__picker-actions .button {
+        width: 100%;
+        text-align: center;
+    }
+}

@@ -18,6 +18,7 @@ Author URI:             https://storelly.com
 License:                GPL v2 or later
 License URI:            https://www.gnu.org/licenses/gpl-2.0.html 
 Text Domain:            storelly-product-builder-for-woocommerce
+Domain Path:            /languages
 */
 
 $spbwc_upload_dir = wp_upload_dir();
@@ -54,6 +55,16 @@ define('SPBWC_PB_TEMPLATE_LIBRARY_SLUG',    'storelly-product-builder-for-woocom
 define('SPBWC_PB_DESIGNS_SLUG',             'storelly-product-builder-for-woocommerce-designs');
 define('SPBWC_PB_VISUAL_BUILDER_SLUG',      'storelly-product-builder-for-woocommerce-visual-builder');
 
+// Load translations (bundled .mo files from /languages, plus WP.org language packs).
+add_action( 'init', 'spbwc_load_textdomain' );
+function spbwc_load_textdomain() {
+    load_plugin_textdomain(
+        'storelly-product-builder-for-woocommerce',
+        false,
+        dirname( plugin_basename( __FILE__ ) ) . '/languages'
+    );
+}
+
 
 // check if woocommerce works
 register_activation_hook(__FILE__, 'spbwc_plugin_activation');
@@ -84,6 +95,20 @@ require_once(SPBWC_PB_PLUGIN_DIR .  'includes/class-request-quote.php');
 require_once(SPBWC_PB_PLUGIN_DIR .  'includes/class-global-import.php');
 require_once(SPBWC_PB_PLUGIN_DIR .  'includes/class-global-import-admin.php');
 require_once(SPBWC_PB_PLUGIN_DIR .  'includes/class-global-import-controller.php');
+
+/* Visual Builder — separate admin entry point that re-presents the existing
+ * product-builder data (views + nbpb_* fields + pb_config) under its own menu.
+ * Read-only at M6.1 (listing + create picker); edit screen lands in M6.2.
+ * Does NOT modify classic Pricing Options editor, data schema, or AJAX. */
+require_once(SPBWC_PB_PLUGIN_DIR .  'includes/visual-builder/class-visual-builder-admin.php');
+
+/* Setup Wizard › Import Woo Variations — one-time seeder that converts
+ * existing WooCommerce variable products into Storelly pricing options.
+ * Read-only scanner + transactional mapper + AJAX controller w/ undo. */
+require_once(SPBWC_PB_PLUGIN_DIR .  'includes/setup-wizard/class-woo-seed-scanner.php');
+require_once(SPBWC_PB_PLUGIN_DIR .  'includes/setup-wizard/class-woo-seed-mapper.php');
+require_once(SPBWC_PB_PLUGIN_DIR .  'includes/setup-wizard/class-woo-seed-controller.php');
+
 require_once(SPBWC_PB_PLUGIN_DIR .  'includes/class-media-group.php');
 require_once(SPBWC_PB_PLUGIN_DIR .  'includes/class-printcart-import-adapter.php');
 require_once(SPBWC_PB_PLUGIN_DIR .  'includes/class-printcart-import-schema.php');
@@ -140,6 +165,12 @@ if ( class_exists( 'SPBWC_Template_Ajax' ) ) {
 }
 if ( class_exists( 'SPBWC_Template_Preview_Render' ) ) {
     SPBWC_Template_Preview_Render::instance()->init();
+}
+
+/* Setup Wizard › Import Woo Variations — AJAX endpoints + wizard asset
+ * enqueue. Tied to the existing Setup Wizard menu (no new menu item). */
+if ( class_exists( 'SPBWC_Woo_Seed_Controller' ) ) {
+    SPBWC_Woo_Seed_Controller::instance()->init();
 }
 
 
