@@ -802,6 +802,47 @@ button.spbwc-tl-apply:hover {
 	color: var(--nbd-st-text);
 	outline: 0;
 }
+/* When a real product is the preview source, the sample input goes inert. */
+.spbwc-tl-baseprice__input.is-disabled,
+.spbwc-tl-baseprice__input:disabled {
+	color: var(--nbd-st-text-soft);
+	cursor: not-allowed;
+}
+.spbwc-tl-baseprice__field:has(.is-disabled),
+.spbwc-tl-baseprice__field:has(:disabled) {
+	background: var(--nbd-st-bg-soft);
+	opacity: .75;
+}
+
+/* "Preview against product" picker — Select2 fed by the WC product search. */
+.spbwc-tl-product-picker {
+	display: inline-flex;
+	flex-direction: column;
+	gap: 4px;
+	font-size: 12px;
+	color: var(--nbd-st-text-soft);
+}
+.spbwc-tl-product-picker__label { font-weight: 600; line-height: 1.2; }
+.spbwc-tl-product-picker .select2-container {
+	min-width: 220px;
+}
+.spbwc-tl-product-picker .select2-selection--single {
+	height: 32px !important;
+	border: 1px solid var(--nbd-st-border-light) !important;
+	border-radius: var(--nbd-radius);
+	background: var(--nbd-st-bg);
+}
+.spbwc-tl-product-picker .select2-selection--single .select2-selection__rendered {
+	line-height: 30px !important;
+	padding-left: 10px;
+	color: var(--nbd-st-text);
+}
+.spbwc-tl-product-picker .select2-selection--single .select2-selection__arrow {
+	height: 30px !important;
+}
+.spbwc-tl-product-picker .select2-selection__clear {
+	margin-right: 6px;
+}
 
 .spbwc-tl-preview-stage {
 	background: #f3f4f7;

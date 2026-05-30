@@ -135,6 +135,9 @@ if ( ! class_exists( 'SPBWC_Template_Library_Admin' ) ) {
 						'aboutVersion'       => esc_html__( 'Template version', 'storelly-product-builder-for-woocommerce' ),
 						'aboutDescription'   => esc_html__( 'Description', 'storelly-product-builder-for-woocommerce' ),
 						'aboutPricingSource' => esc_html__( 'Pricing source', 'storelly-product-builder-for-woocommerce' ),
+						/* translators: shown in the subtitle: "Stationery · 4 fields · with <product name>" */
+						'previewWith'        => esc_html__( 'with', 'storelly-product-builder-for-woocommerce' ),
+						'previewAgainstProduct' => esc_html__( 'Use sample base price', 'storelly-product-builder-for-woocommerce' ),
 					),
 				)
 			);

@@ -70,48 +70,107 @@ if ( ! class_exists( 'SPBWC_Template_Preview_Render' ) ) {
 		 * document and exit. Otherwise return and let WP continue normally.
 		 */
 		public function maybe_render_preview() {
-			// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Presence check only; nonce verified below.
+			// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Presence check only; nonce verified in resolve_preview_request().
 			if ( ! isset( $_GET[ self::QUERY_VAR ] ) ) {
 				return;
 			}
+			// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Sanitization + nonce check handled inside.
+			$resolved = $this->resolve_preview_request( $_GET );
+			if ( 200 !== $resolved['status'] ) {
+				wp_die(
+					esc_html( $resolved['error'] ),
+					'',
+					array( 'response' => (int) $resolved['status'] )
+				);
+			}
+			$this->render_document(
+				$resolved['options'],
+				(float) $resolved['base_price'],
+				(int) $resolved['product_id'],
+				(string) $resolved['product_name']
+			);
+			exit;
+		}
+
+		/**
+		 * Validate a preview request and return the resolved payload (or an
+		 * error status + message). Split out from maybe_render_preview() so
+		 * the gating logic — cap, nonce, slug lookup — is unit-testable
+		 * without having to swallow wp_die() or output buffering exits.
+		 *
+		 * @param array $input Untrusted input map (typically $_GET).
+		 * @return array {
+		 *     @type int    $status       HTTP status code (200 on success).
+		 *     @type string $error        Empty on success, human-readable on failure.
+		 *     @type array  $options      Runtime options blob (only on success).
+		 *     @type float  $base_price   Effective base price (only on success).
+		 *     @type int    $product_id   Resolved product ID, 0 if none (only on success).
+		 *     @type string $product_name Resolved product name (only on success).
+		 * }
+		 */
+		public function resolve_preview_request( $input ) {
+			$input = is_array( $input ) ? $input : array();
 
 			if ( ! current_user_can( 'spbwc_manage_product_builder' ) ) {
-				wp_die(
-					esc_html__( 'You do not have permission to preview templates.', 'storelly-product-builder-for-woocommerce' ),
-					'',
-					array( 'response' => 403 )
+				return array(
+					'status' => 403,
+					'error'  => __( 'You do not have permission to preview templates.', 'storelly-product-builder-for-woocommerce' ),
 				);
 			}
 
-			$nonce = isset( $_GET['_spbwcnonce'] ) ? sanitize_text_field( wp_unslash( $_GET['_spbwcnonce'] ) ) : '';
+			$nonce = isset( $input['_spbwcnonce'] ) ? sanitize_text_field( wp_unslash( $input['_spbwcnonce'] ) ) : '';
 			if ( ! wp_verify_nonce( $nonce, self::NONCE_ACTION ) ) {
-				wp_die(
-					esc_html__( 'Security check failed.', 'storelly-product-builder-for-woocommerce' ),
-					'',
-					array( 'response' => 403 )
+				return array(
+					'status' => 403,
+					'error'  => __( 'Security check failed.', 'storelly-product-builder-for-woocommerce' ),
 				);
 			}
 
-			$slug = isset( $_GET['slug'] ) ? sanitize_text_field( wp_unslash( $_GET['slug'] ) ) : '';
-			// Sample base price the merchant can type to see a realistic grand total.
-			$base_price = isset( $_GET['base'] ) ? (float) wp_unslash( $_GET['base'] ) : 0.0; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Cast to float sanitizes.
+			$slug       = isset( $input['slug'] ) ? sanitize_text_field( wp_unslash( $input['slug'] ) ) : '';
+			$base_price = isset( $input['base'] ) ? (float) wp_unslash( $input['base'] ) : 0.0; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Cast to float sanitizes.
 			if ( $base_price < 0 ) {
 				$base_price = 0.0;
 			}
 
+			$product_id   = isset( $input['product_id'] ) ? absint( $input['product_id'] ) : 0;
+			$product_name = '';
+			if ( $product_id > 0 && function_exists( 'wc_get_product' ) ) {
+				$product = wc_get_product( $product_id );
+				if ( $product && ! is_wp_error( $product ) ) {
+					$pp = (float) $product->get_price( 'edit' );
+					if ( $pp >= 0 ) {
+						$base_price = $pp;
+					}
+					$product_name = (string) $product->get_name();
+				} else {
+					// Bad ID → fall back to sample base price; don't error out.
+					$product_id = 0;
+				}
+			}
+
 			if ( ! class_exists( 'SPBWC_Template_Catalog' ) ) {
-				wp_die( esc_html__( 'Template catalog unavailable.', 'storelly-product-builder-for-woocommerce' ), '', array( 'response' => 500 ) );
+				return array(
+					'status' => 500,
+					'error'  => __( 'Template catalog unavailable.', 'storelly-product-builder-for-woocommerce' ),
+				);
 			}
 			$catalog = SPBWC_Template_Catalog::instance();
 			$data    = $catalog->get_template_data( $slug );
 			if ( ! is_array( $data ) ) {
-				wp_die( esc_html__( 'Template not found.', 'storelly-product-builder-for-woocommerce' ), '', array( 'response' => 404 ) );
+				return array(
+					'status' => 404,
+					'error'  => __( 'Template not found.', 'storelly-product-builder-for-woocommerce' ),
+				);
 			}
 
-			$options = $this->build_runtime_options( $data );
-
-			$this->render_document( $options, $base_price );
-			exit;
+			return array(
+				'status'       => 200,
+				'error'        => '',
+				'options'      => $this->build_runtime_options( $data ),
+				'base_price'   => $base_price,
+				'product_id'   => $product_id,
+				'product_name' => $product_name,
+			);
 		}
 
 		/**
@@ -180,12 +239,12 @@ if ( ! class_exists( 'SPBWC_Template_Preview_Render' ) ) {
 		 * @param array $options    Runtime options blob (with 'fields').
 		 * @param float $base_price Sample base product price.
 		 */
-		protected function render_document( $options, $base_price ) {
+		protected function render_document( $options, $base_price, $product_id = 0, $product_name = '' ) {
 			$appid = 'nbo-app-preview';
 
 			// Enqueue the storefront stack — identical handles to
 			// STORELLY_FRONTEND_OPTIONS::spbwc_frontend_enqueue_scripts().
-			$this->enqueue_storefront_assets( $options, $appid, $base_price );
+			$this->enqueue_storefront_assets( $options, $appid, $base_price, $product_id, $product_name );
 
 			// Render the SAME storefront template into a buffer first, so its
 			// do_action('spbwc_head', …) enqueues land before wp_head() prints.
@@ -303,7 +362,7 @@ if ( ! class_exists( 'SPBWC_Template_Preview_Render' ) ) {
 		 * @param string $appid      DOM id the Angular app bootstraps on.
 		 * @param float  $base_price Sample base product price.
 		 */
-		protected function enqueue_storefront_assets( $options, $appid, $base_price ) {
+		protected function enqueue_storefront_assets( $options, $appid, $base_price, $product_id = 0, $product_name = '' ) {
 			// Vendor deps (registered here so the preview doesn't depend on the
 			// product-page enqueue path having run on this request).
 			if ( function_exists( 'WC' ) && ! wp_script_is( 'wc-accounting', 'registered' ) ) {
@@ -382,6 +441,20 @@ if ( ! class_exists( 'SPBWC_Template_Preview_Render' ) ) {
 			$bridge_path = SPBWC_PB_PLUGIN_DIR . 'static/js/template-preview-bridge.js';
 			$bridge_ver  = file_exists( $bridge_path ) ? filemtime( $bridge_path ) : SPBWC_PB_VERSION;
 			wp_register_script( 'spbwc-tpl-preview-bridge', SPBWC_PB_JS_URL . 'template-preview-bridge.js', array( 'spbwc-storefront-enhance' ), $bridge_ver, true );
+			// Forward the preview context (product name) so the admin dialog can
+			// surface it in the subtitle. product_id is intentionally not used
+			// inside the iframe — the buyer core reads localized product_id and
+			// could try to query the product, which would skew the preview; we
+			// only need the real product's *price* (already folded into
+			// $base_price) and its display name (posted via the bridge).
+			wp_localize_script(
+				'spbwc-tpl-preview-bridge',
+				'spbwc_tpl_preview_context',
+				array(
+					'product_id'   => (int) $product_id,
+					'product_name' => (string) $product_name,
+				)
+			);
 			wp_enqueue_script( 'spbwc-tpl-preview-bridge' );
 
 			if ( ! wp_style_is( 'spbwc-tokens', 'registered' ) ) {

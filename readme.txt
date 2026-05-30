@@ -4,8 +4,8 @@ Donate link: https://storelly.com/
 Tags: product builder, product customize, product customizer, woocommerce custom product
 Requires at least: 4.7
 Tested up to: 7.0
-Stable tag: 1.2.7
-Version: 1.2.7
+Stable tag: 1.3.0
+Version: 1.3.0
 Requires PHP: 7.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -100,6 +100,15 @@ This plugin connects to the following external services:
 3. Storelly settings page with API keys and sync options
 
 == Changelog ==
+= 1.3.0 =
+* Template Library: WYSIWYG live preview — the "Preview" tab now renders the real Cloodo storefront (same option-builder template, same storefront CSS/JS) inside a sandboxed iframe, so any change to the buyer-facing UI flows through automatically. No parallel mockup, no drift.
+* Template Library preview UX: debounced "Sample base price" with currency-symbol affordance and per-merchant localStorage persistence; subtle in-place "Updating…" pill instead of a full-overlay flash on reloads; friendly error card with Retry on failed loads; iframe auto-grows to content height via a postMessage bridge; live "YOUR TOTAL" surfaces in the dialog subtitle ("est. $X").
+* Template Library preview: new "Preview against product" picker — pick any WooCommerce product and the preview uses its real price as the base so you can see exactly what applying this template to that product would look like.
+* Template Library Fields tab: replaced the flat 5-column table with a scannable card list (numbered title, Type/Required pills, description, attribute chips with overflow). About tab: 2-column metadata grid with monospace slug + version, dedicated description block, and an amber callout for the pricing-source caveat.
+* Storefront option fields restyled (Cloodo): each field is now a soft card with a strong-dark title, dark "chosen value", and the price delta in a tinted brand pill. Dropdowns fill the card width with a clearer chevron and hover/focus states.
+* Compliance: removed the previous mockup's "Save X%" quantity-break label that wasn't backed by any pricing engine.
+* Smoke tests: tools/smoke-template-preview-render.php exercises the preview endpoint's cap + nonce + slug-lookup gates so future refactors can't silently break it.
+
 = 1.2.7 =
 * Compatibility: replace hardcoded Asia/Ho_Chi_Minh timezone with site-configured wp_timezone_string().
 * Compliance: declare unpkg.com (Vue.js CDN) and Storelly demo-data endpoint in External services.

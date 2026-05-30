@@ -229,6 +229,17 @@ $catalog = SPBWC_Template_Catalog::instance();
 									<input type="number" id="spbwc-tl-baseprice" class="spbwc-tl-baseprice__input" min="0" step="0.01" value="0" inputmode="decimal" />
 								</span>
 							</label>
+							<div class="spbwc-tl-product-picker">
+								<label for="spbwc-tl-preview-product" class="spbwc-tl-product-picker__label">
+									<?php esc_html_e( 'Preview against product', 'storelly-product-builder-for-woocommerce' ); ?>
+								</label>
+								<select id="spbwc-tl-preview-product"
+									class="spbwc-tl-product-picker__select wc-product-search"
+									style="width: 240px;"
+									data-placeholder="<?php esc_attr_e( 'Use sample base price', 'storelly-product-builder-for-woocommerce' ); ?>"
+									data-allow_clear="true"
+									data-action="woocommerce_json_search_products_and_variations"></select>
+							</div>
 						</div>
 						<div class="spbwc-tl-preview-stage" data-viewport="desktop">
 							<div class="spbwc-tl-preview-frame-wrap" id="spbwc-tl-preview-frame-wrap">

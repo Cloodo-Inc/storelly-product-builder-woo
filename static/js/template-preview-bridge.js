@@ -58,7 +58,31 @@
 		}
 	}
 
+	function postProductContext() {
+		// One-shot — the product context for this preview load doesn't change.
+		var ctx = ( typeof window.spbwc_tpl_preview_context !== 'undefined' )
+			? window.spbwc_tpl_preview_context
+			: null;
+		if ( ! ctx ) { return; }
+		try {
+			window.parent.postMessage(
+				{
+					source: 'spbwc-tpl-preview',
+					type:   'product',
+					value:  {
+						product_id:   parseInt( ctx.product_id, 10 ) || 0,
+						product_name: String( ctx.product_name || '' )
+					}
+				},
+				parentOrigin
+			);
+		} catch ( e ) { /* parent gone */ }
+	}
+
 	function ready() {
+		// One-shot context push (lets the dialog subtitle pick up the product
+		// name when previewing against a real product).
+		postProductContext();
 		// Initial post — Angular needs a beat to bootstrap, so wait one tick
 		// and then a slightly longer delay to catch the first hero animation.
 		setTimeout( function () { postHeight(); postTotal(); }, 50 );

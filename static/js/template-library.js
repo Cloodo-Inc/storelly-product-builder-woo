@@ -33,6 +33,9 @@
 	var lastFrameBase  = null;
 	var heroBase       = '';       // subtitle text built from meta (without total)
 	var lastLiveTotal  = '';
+	var currentProductId   = 0;   // optional "preview against this real product"
+	var currentProductName = '';
+	var previewProductSelectInited = false;
 
 	function readStoredBase() {
 		try {
@@ -142,6 +145,33 @@
 			}
 		});
 
+		// Preview-against-product picker — Select2 ajax for WC products.
+		// When the merchant picks one, the endpoint uses that product's real
+		// price as the base; clearing it falls back to the sample input.
+		$previewDialog.on('change', '#spbwc-tl-preview-product', function (ev) {
+			// `change.spbwc-internal` is fired by our own cleanup → don't loop.
+			if (ev && ev.namespace === 'spbwc-internal') { return; }
+			var $sel = $(this);
+			var val  = parseInt($sel.val(), 10);
+			if (val > 0) {
+				currentProductId = val;
+				var $opt = $sel.find('option:selected');
+				currentProductName = $opt.length ? $opt.text().replace(/\s*\(#\d+\)\s*$/, '') : '';
+				// Manual sample base no longer drives the preview while a real
+				// product is selected — disable the input as a visual cue.
+				$('#spbwc-tl-baseprice').prop('disabled', true).addClass('is-disabled');
+			} else {
+				currentProductId   = 0;
+				currentProductName = '';
+				$('#spbwc-tl-baseprice').prop('disabled', false).removeClass('is-disabled');
+			}
+			refreshSubtitle();
+			if (currentTemplate) {
+				var manualBase = parseFloat($('#spbwc-tl-baseprice').val()) || 0;
+				loadPreviewFrame(currentTemplate.slug, currentProductId > 0 ? 0 : manualBase);
+			}
+		});
+
 		// Postmessage bridge — auto-grow iframe to content + reflect live total
 		// in the subtitle. Same origin verified before trusting the payload.
 		window.addEventListener('message', onPreviewMessage);
@@ -158,7 +188,56 @@
 		var base = parseFloat(rawVal);
 		if (isNaN(base) || base < 0) base = 0;
 		writeStoredBase(base);
+		// Typing a manual base means the merchant wants the synthetic mode —
+		// clear any "preview against product" selection so the two inputs
+		// don't fight for which price wins.
+		clearPreviewProduct();
 		if (currentTemplate) loadPreviewFrame(currentTemplate.slug, base);
+	}
+
+	function clearPreviewProduct() {
+		if (currentProductId === 0 && !currentProductName) return;
+		currentProductId   = 0;
+		currentProductName = '';
+		var $sel = $('#spbwc-tl-preview-product');
+		if (previewProductSelectInited && $sel.length) {
+			try {
+				var fn = $.fn.selectWoo ? 'selectWoo' : ($.fn.select2 ? 'select2' : null);
+				if (fn) { $sel.val(null).trigger('change.spbwc-internal'); }
+			} catch (e) {}
+		}
+		refreshSubtitle();
+	}
+
+	function initPreviewProductSelect($el) {
+		if (!$.fn.selectWoo && !$.fn.select2) { return; }
+		var fn = $.fn.selectWoo ? 'selectWoo' : 'select2';
+		try { if ($el.data(fn) || $el.hasClass('select2-hidden-accessible')) { $el[fn]('destroy'); } } catch (e) {}
+		var action = $el.data('action') || 'woocommerce_json_search_products_and_variations';
+		$el[fn]({
+			placeholder: $el.data('placeholder') || L.i18n.previewAgainstProduct || 'Use sample base price',
+			allowClear: true,
+			minimumInputLength: 1,
+			width: '100%',
+			dropdownParent: $('body'),
+			ajax: {
+				url: L.ajaxUrl,
+				dataType: 'json',
+				delay: 250,
+				cache: true,
+				data: function (params) {
+					return { term: params.term, action: action, security: L.searchProductsNonce };
+				},
+				processResults: function (data) {
+					var results = [];
+					if (data && typeof data === 'object') {
+						$.each(data, function (id, txt) { results.push({ id: id, text: txt }); });
+					}
+					return { results: results };
+				}
+			},
+			escapeMarkup: function (m) { return m; }
+		});
 	}
 
 	function onFrameLoad() {
@@ -198,11 +277,25 @@
 		} else if (ev.data.type === 'total') {
 			lastLiveTotal = (ev.data.value || '').trim();
 			refreshSubtitle();
+		} else if (ev.data.type === 'product' && ev.data.value) {
+			// Bridge confirms the server resolved the product context — use the
+			// authoritative name from the server in case the dropdown text drifted.
+			var pid  = parseInt(ev.data.value.product_id, 10) || 0;
+			var pname = String(ev.data.value.product_name || '').trim();
+			if (pid > 0 && pname) {
+				currentProductId = pid;
+				currentProductName = pname;
+				refreshSubtitle();
+			}
 		}
 	}
 
 	function refreshSubtitle() {
 		var sub = heroBase || '';
+		if (currentProductId > 0 && currentProductName) {
+			var withLbl = L.i18n.previewWith || 'with';
+			sub = sub ? (sub + ' · ' + withLbl + ' ' + currentProductName) : (withLbl + ' ' + currentProductName);
+		}
 		if (lastLiveTotal) {
 			var prefix = L.i18n.estimatedTotal || 'est.';
 			sub = sub ? (sub + ' · ' + prefix + ' ' + lastLiveTotal) : (prefix + ' ' + lastLiveTotal);
@@ -235,6 +328,11 @@
 		$('#spbwc-tl-preview-frame-error').prop('hidden', true);
 		$('#spbwc-tl-preview-frame-updating').prop('hidden', true);
 
+		// Reset the "preview against product" picker between templates so each
+		// preview starts in the sample-base-price mode.
+		clearPreviewProduct();
+		$('#spbwc-tl-baseprice').prop('disabled', false).removeClass('is-disabled');
+
 		// Restore the merchant's last-typed sample base price so reopening
 		// the dialog keeps the live total they were comparing against.
 		var startBase = readStoredBase();
@@ -244,6 +342,13 @@
 		loadPreviewFrame(slug, startBase);
 
 		openDialog($previewDialog);
+
+		// Lazy-init the product picker after the dialog is open (Select2
+		// reads width:0 on hidden elements otherwise).
+		if (!previewProductSelectInited) {
+			initPreviewProductSelect($('#spbwc-tl-preview-product'));
+			previewProductSelectInited = true;
+		}
 
 		// Fields + About come from the lightweight metadata endpoint; the live
 		// UI itself is rendered by the iframe (real storefront view).
@@ -295,6 +400,9 @@
 		var url = L.previewUrl +
 			'&slug=' + encodeURIComponent(slug) +
 			'&base=' + encodeURIComponent(base || 0);
+		if (currentProductId > 0) {
+			url += '&product_id=' + encodeURIComponent(currentProductId);
+		}
 		$frame.attr('src', url);
 		firstFrameLoad = false; // any subsequent reload is an update
 	}
