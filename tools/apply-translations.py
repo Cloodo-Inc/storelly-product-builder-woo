@@ -12,7 +12,8 @@ import re
 from pathlib import Path
 
 LANG_DIR = Path("languages")
-LOCALES = ["vi", "fr_FR", "de_DE", "es_ES", "pt_BR", "it_IT", "ja", "zh_CN", "ru_RU", "ar"]
+LOCALES = ["vi", "fr_FR", "de_DE", "es_ES", "pt_BR", "it_IT", "ja", "zh_CN", "ru_RU", "ar",
+           "nl_NL", "pl_PL", "tr_TR", "sv_SE", "id_ID"]
 TEXTDOMAIN = "storelly-product-builder-for-woocommerce"
 
 
@@ -188,6 +189,136 @@ CORE = {
     },
 }
 
+# ---- 5 extra popular WP locales (Dutch, Polish, Turkish, Swedish, Indonesian) ----
+# Layout: locale -> {msgid: msgstr}. Same coverage as CORE.
+EXTRA_BY_LOCALE = {
+    "nl_NL": {
+        "Overview Dashboard": "Overzichtsdashboard",
+        "General Settings": "Algemene instellingen",
+        "Pricing Options": "Prijsopties",
+        "Visual Builder": "Visuele builder",
+        "Linked Products": "Gekoppelde producten",
+        "Custom Orders": "Aangepaste bestellingen",
+        "Quote Requests": "Offerteaanvragen",
+        "Design Files": "Ontwerpbestanden",
+        "License Plan": "Licentieplan",
+        "Custom Fonts": "Aangepaste lettertypes",
+        "Setup Wizard": "Installatieassistent",
+        "Options Templates": "Optiesjablonen",
+        "B2B Clients": "B2B-klanten",
+        "About": "Over",
+        "Coming soon.": "Binnenkort beschikbaar.",
+        "Go to Pricing Options": "Ga naar Prijsopties",
+        "You do not have permission to access this page.": "Je hebt geen toestemming om deze pagina te bekijken.",
+        "Security error.": "Beveiligingsfout.",
+        "Save": "Opslaan", "Cancel": "Annuleren", "Delete": "Verwijderen",
+        "Edit": "Bewerken", "Add": "Toevoegen", "Update": "Bijwerken",
+        "Close": "Sluiten", "Yes": "Ja", "No": "Nee",
+        "Action": "Actie", "Actions": "Acties", "Settings": "Instellingen",
+        "Loading...": "Laden...",
+    },
+    "pl_PL": {
+        "Overview Dashboard": "Pulpit przeglądowy",
+        "General Settings": "Ustawienia ogólne",
+        "Pricing Options": "Opcje cenowe",
+        "Visual Builder": "Kreator wizualny",
+        "Linked Products": "Powiązane produkty",
+        "Custom Orders": "Zamówienia niestandardowe",
+        "Quote Requests": "Zapytania ofertowe",
+        "Design Files": "Pliki projektowe",
+        "License Plan": "Plan licencyjny",
+        "Custom Fonts": "Czcionki niestandardowe",
+        "Setup Wizard": "Kreator konfiguracji",
+        "Options Templates": "Szablony opcji",
+        "B2B Clients": "Klienci B2B",
+        "About": "O wtyczce",
+        "Coming soon.": "Już wkrótce.",
+        "Go to Pricing Options": "Przejdź do Opcji cenowych",
+        "You do not have permission to access this page.": "Nie masz uprawnień do tej strony.",
+        "Security error.": "Błąd bezpieczeństwa.",
+        "Save": "Zapisz", "Cancel": "Anuluj", "Delete": "Usuń",
+        "Edit": "Edytuj", "Add": "Dodaj", "Update": "Aktualizuj",
+        "Close": "Zamknij", "Yes": "Tak", "No": "Nie",
+        "Action": "Akcja", "Actions": "Działania", "Settings": "Ustawienia",
+        "Loading...": "Ładowanie...",
+    },
+    "tr_TR": {
+        "Overview Dashboard": "Genel bakış paneli",
+        "General Settings": "Genel ayarlar",
+        "Pricing Options": "Fiyatlandırma seçenekleri",
+        "Visual Builder": "Görsel oluşturucu",
+        "Linked Products": "Bağlantılı ürünler",
+        "Custom Orders": "Özel siparişler",
+        "Quote Requests": "Teklif istekleri",
+        "Design Files": "Tasarım dosyaları",
+        "License Plan": "Lisans planı",
+        "Custom Fonts": "Özel fontlar",
+        "Setup Wizard": "Kurulum sihirbazı",
+        "Options Templates": "Seçenek şablonları",
+        "B2B Clients": "B2B müşterileri",
+        "About": "Hakkında",
+        "Coming soon.": "Yakında.",
+        "Go to Pricing Options": "Fiyatlandırma seçeneklerine git",
+        "You do not have permission to access this page.": "Bu sayfaya erişim izniniz yok.",
+        "Security error.": "Güvenlik hatası.",
+        "Save": "Kaydet", "Cancel": "İptal", "Delete": "Sil",
+        "Edit": "Düzenle", "Add": "Ekle", "Update": "Güncelle",
+        "Close": "Kapat", "Yes": "Evet", "No": "Hayır",
+        "Action": "Eylem", "Actions": "İşlemler", "Settings": "Ayarlar",
+        "Loading...": "Yükleniyor...",
+    },
+    "sv_SE": {
+        "Overview Dashboard": "Översiktspanel",
+        "General Settings": "Allmänna inställningar",
+        "Pricing Options": "Prisalternativ",
+        "Visual Builder": "Visuell byggare",
+        "Linked Products": "Länkade produkter",
+        "Custom Orders": "Anpassade beställningar",
+        "Quote Requests": "Offertförfrågningar",
+        "Design Files": "Designfiler",
+        "License Plan": "Licensplan",
+        "Custom Fonts": "Anpassade typsnitt",
+        "Setup Wizard": "Installationsguide",
+        "Options Templates": "Alternativmallar",
+        "B2B Clients": "B2B-kunder",
+        "About": "Om",
+        "Coming soon.": "Kommer snart.",
+        "Go to Pricing Options": "Gå till Prisalternativ",
+        "You do not have permission to access this page.": "Du har inte behörighet att komma åt den här sidan.",
+        "Security error.": "Säkerhetsfel.",
+        "Save": "Spara", "Cancel": "Avbryt", "Delete": "Radera",
+        "Edit": "Redigera", "Add": "Lägg till", "Update": "Uppdatera",
+        "Close": "Stäng", "Yes": "Ja", "No": "Nej",
+        "Action": "Åtgärd", "Actions": "Åtgärder", "Settings": "Inställningar",
+        "Loading...": "Laddar...",
+    },
+    "id_ID": {
+        "Overview Dashboard": "Dasbor ringkasan",
+        "General Settings": "Pengaturan umum",
+        "Pricing Options": "Opsi harga",
+        "Visual Builder": "Pembuat visual",
+        "Linked Products": "Produk terhubung",
+        "Custom Orders": "Pesanan khusus",
+        "Quote Requests": "Permintaan penawaran",
+        "Design Files": "Berkas desain",
+        "License Plan": "Paket lisensi",
+        "Custom Fonts": "Font khusus",
+        "Setup Wizard": "Wisaya pengaturan",
+        "Options Templates": "Templat opsi",
+        "B2B Clients": "Klien B2B",
+        "About": "Tentang",
+        "Coming soon.": "Segera hadir.",
+        "Go to Pricing Options": "Buka Opsi harga",
+        "You do not have permission to access this page.": "Anda tidak memiliki izin untuk mengakses halaman ini.",
+        "Security error.": "Kesalahan keamanan.",
+        "Save": "Simpan", "Cancel": "Batal", "Delete": "Hapus",
+        "Edit": "Edit", "Add": "Tambah", "Update": "Perbarui",
+        "Close": "Tutup", "Yes": "Ya", "No": "Tidak",
+        "Action": "Aksi", "Actions": "Tindakan", "Settings": "Pengaturan",
+        "Loading...": "Memuat...",
+    },
+}
+
 VI_EXTRA = {
     "You do not have permission.": "Bạn không có quyền.",
     "Invalid nonce.": "Nonce không hợp lệ.",
@@ -321,6 +452,8 @@ def main():
             print(f"SKIP: {po}")
             continue
         table = {msgid: locs[loc] for msgid, locs in CORE.items() if loc in locs}
+        if loc in EXTRA_BY_LOCALE:
+            table.update(EXTRA_BY_LOCALE[loc])
         if loc == "vi":
             table.update(VI_EXTRA)
         n = patch_po(po, table)
