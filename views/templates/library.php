@@ -215,7 +215,31 @@ $catalog = SPBWC_Template_Catalog::instance();
 					<button type="button" class="spbwc-tl-dialog-close" data-close="preview" aria-label="<?php esc_attr_e( 'Close', 'storelly-product-builder-for-woocommerce' ); ?>">&times;</button>
 				</header>
 				<div class="spbwc-tl-dialog-body spbwc-tl-preview-body" id="spbwc-tl-preview-body">
-					<div class="spbwc-tl-tabpanel spbwc-tl-tabpanel--active" data-tabpanel="live" id="spbwc-tl-preview-live"></div>
+					<div class="spbwc-tl-tabpanel spbwc-tl-tabpanel--active" data-tabpanel="live" id="spbwc-tl-preview-live">
+						<div class="spbwc-tl-preview-toolbar">
+							<div class="spbwc-tl-vp" role="group" aria-label="<?php esc_attr_e( 'Preview viewport', 'storelly-product-builder-for-woocommerce' ); ?>">
+								<button type="button" class="spbwc-tl-vp__btn spbwc-tl-vp__btn--active" data-pv="desktop"><?php esc_html_e( 'Desktop', 'storelly-product-builder-for-woocommerce' ); ?></button>
+								<button type="button" class="spbwc-tl-vp__btn" data-pv="tablet"><?php esc_html_e( 'Tablet', 'storelly-product-builder-for-woocommerce' ); ?></button>
+								<button type="button" class="spbwc-tl-vp__btn" data-pv="mobile"><?php esc_html_e( 'Mobile', 'storelly-product-builder-for-woocommerce' ); ?></button>
+							</div>
+							<label class="spbwc-tl-baseprice">
+								<span class="spbwc-tl-baseprice__label"><?php esc_html_e( 'Sample base price', 'storelly-product-builder-for-woocommerce' ); ?></span>
+								<input type="number" id="spbwc-tl-baseprice" class="spbwc-tl-baseprice__input" min="0" step="0.01" value="0" inputmode="decimal" />
+							</label>
+						</div>
+						<div class="spbwc-tl-preview-stage" data-viewport="desktop">
+							<div class="spbwc-tl-preview-frame-wrap">
+								<iframe id="spbwc-tl-preview-frame" class="spbwc-tl-preview-frame" title="<?php esc_attr_e( 'Live template preview', 'storelly-product-builder-for-woocommerce' ); ?>"></iframe>
+								<div class="spbwc-tl-preview-frame-loading" id="spbwc-tl-preview-frame-loading">
+									<span class="spinner is-active" aria-hidden="true"></span>
+									<span><?php esc_html_e( 'Loading preview…', 'storelly-product-builder-for-woocommerce' ); ?></span>
+								</div>
+							</div>
+							<p class="spbwc-tl-preview-hint">
+								<?php esc_html_e( 'This is the exact storefront UI buyers see — change the sample base price to preview the live total.', 'storelly-product-builder-for-woocommerce' ); ?>
+							</p>
+						</div>
+					</div>
 					<div class="spbwc-tl-tabpanel" data-tabpanel="fields" id="spbwc-tl-preview-fields"></div>
 					<div class="spbwc-tl-tabpanel" data-tabpanel="about" id="spbwc-tl-preview-about"></div>
 				</div>

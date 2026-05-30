@@ -52,6 +52,7 @@ define('SPBWC_PB_LICENSE_SLUG',             'storelly-product-builder-for-woocom
 define('SPBWC_PB_OVERVIEW_SLUG',            'storelly-product-builder-for-woocommerce-overview');
 define('SPBWC_PB_TEMPLATE_LIBRARY_SLUG',    'storelly-product-builder-for-woocommerce-templates');
 define('SPBWC_PB_DESIGNS_SLUG',             'storelly-product-builder-for-woocommerce-designs');
+define('SPBWC_PB_VISUAL_BUILDER_SLUG',      'storelly-product-builder-for-woocommerce-visual-builder');
 
 
 // check if woocommerce works
@@ -96,6 +97,7 @@ require_once(SPBWC_PB_PLUGIN_DIR .  'includes/templates/class-template-catalog.p
 require_once(SPBWC_PB_PLUGIN_DIR .  'includes/templates/class-template-applier.php');
 require_once(SPBWC_PB_PLUGIN_DIR .  'includes/templates/class-template-library-admin.php');
 require_once(SPBWC_PB_PLUGIN_DIR .  'includes/templates/class-template-ajax.php');
+require_once(SPBWC_PB_PLUGIN_DIR .  'includes/templates/class-template-preview-render.php');
 
 /* Designer marketplace module — adapted from pc-designer "launcher".
  * Bridge loads first so its constant aliases and helper stubs are
@@ -135,6 +137,9 @@ if ( class_exists( 'SPBWC_Template_Library_Admin' ) ) {
 }
 if ( class_exists( 'SPBWC_Template_Ajax' ) ) {
     SPBWC_Template_Ajax::instance()->init();
+}
+if ( class_exists( 'SPBWC_Template_Preview_Render' ) ) {
+    SPBWC_Template_Preview_Render::instance()->init();
 }
 
 

@@ -37,8 +37,8 @@ if ( ! class_exists( 'SPBWC_Template_Library_Admin' ) ) {
 			}
 			add_submenu_page(
 				SPBWC_PB_OVERVIEW_SLUG,
-				esc_html__( 'Template Library', 'storelly-product-builder-for-woocommerce' ),
-				esc_html__( 'Template Library', 'storelly-product-builder-for-woocommerce' ),
+				esc_html__( 'Options Templates', 'storelly-product-builder-for-woocommerce' ),
+				esc_html__( 'Options Templates', 'storelly-product-builder-for-woocommerce' ),
 				'manage_options',
 				SPBWC_PB_TEMPLATE_LIBRARY_SLUG,
 				array( $this, 'render_page' ),
@@ -65,6 +65,8 @@ if ( ! class_exists( 'SPBWC_Template_Library_Admin' ) ) {
 			// manual version bump (production builds pin version via SPBWC_PB_VERSION).
 			$css_file = SPBWC_PB_PLUGIN_DIR . 'static/css/template-library.css';
 			$css_ver  = file_exists( $css_file ) ? filemtime( $css_file ) : SPBWC_PB_VERSION;
+			$js_file  = SPBWC_PB_PLUGIN_DIR . 'static/js/template-library.js';
+			$js_ver   = file_exists( $js_file ) ? filemtime( $js_file ) : SPBWC_PB_VERSION;
 
 			wp_enqueue_style(
 				'spbwc-template-library',
@@ -76,14 +78,9 @@ if ( ! class_exists( 'SPBWC_Template_Library_Admin' ) ) {
 				'spbwc-template-library',
 				SPBWC_PB_JS_URL . 'template-library.js',
 				array( 'jquery', 'wc-enhanced-select', 'selectWoo' ),
-				SPBWC_PB_VERSION,
+				$js_ver,
 				true
 			);
-
-			// Build a currency string used by the classic preview render.
-			$currency_symbol = function_exists( 'get_woocommerce_currency_symbol' )
-				? get_woocommerce_currency_symbol()
-				: '$';
 
 			wp_localize_script(
 				'spbwc-template-library',
@@ -92,7 +89,7 @@ if ( ! class_exists( 'SPBWC_Template_Library_Admin' ) ) {
 					'ajaxUrl'             => admin_url( 'admin-ajax.php' ),
 					'nonce'               => wp_create_nonce( 'spbwc_template_library' ),
 					'searchProductsNonce' => wp_create_nonce( 'search-products' ),
-					'currencySymbol'      => $currency_symbol,
+					'previewUrl'          => class_exists( 'SPBWC_Template_Preview_Render' ) ? SPBWC_Template_Preview_Render::preview_url() : '',
 					'i18n'                => array(
 						'applying'           => esc_html__( 'Applying…', 'storelly-product-builder-for-woocommerce' ),
 						'apply'              => esc_html__( 'Apply template', 'storelly-product-builder-for-woocommerce' ),
@@ -101,16 +98,12 @@ if ( ! class_exists( 'SPBWC_Template_Library_Admin' ) ) {
 						'selectCategory'     => esc_html__( 'Select categories…', 'storelly-product-builder-for-woocommerce' ),
 						'noProductSelected'  => esc_html__( 'Please select at least one product.', 'storelly-product-builder-for-woocommerce' ),
 						'noCategorySelected' => esc_html__( 'Please select at least one category.', 'storelly-product-builder-for-woocommerce' ),
-						'loadingPreview'     => esc_html__( 'Loading preview…', 'storelly-product-builder-for-woocommerce' ),
-						'previewFailed'      => esc_html__( 'Failed to load preview.', 'storelly-product-builder-for-woocommerce' ),
 						'fieldsTab'          => esc_html__( 'Fields', 'storelly-product-builder-for-woocommerce' ),
 						'aboutTab'           => esc_html__( 'About', 'storelly-product-builder-for-woocommerce' ),
 						'previewTab'         => esc_html__( 'Live preview', 'storelly-product-builder-for-woocommerce' ),
 						// translators: %d: number of options in the template.
 						'optionsCount'       => esc_html__( '%d options', 'storelly-product-builder-for-woocommerce' ),
 						'required'           => esc_html__( 'Required', 'storelly-product-builder-for-woocommerce' ),
-						'free'               => esc_html__( 'Free', 'storelly-product-builder-for-woocommerce' ),
-						'popular'            => esc_html__( 'Popular', 'storelly-product-builder-for-woocommerce' ),
 						'displayDropdown'    => esc_html__( 'Dropdown', 'storelly-product-builder-for-woocommerce' ),
 						'displayRadio'       => esc_html__( 'Radio', 'storelly-product-builder-for-woocommerce' ),
 						'displaySwatch'      => esc_html__( 'Swatch', 'storelly-product-builder-for-woocommerce' ),
