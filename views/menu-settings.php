@@ -828,6 +828,11 @@ if ( ! in_array($spbwc_settings_tab, $spbwc_valid_tabs, true) ) {
                 </div>
             </div>
         </form>
+
+        <?php // Help & Languages — always-visible section explaining i18n + RTL
+        if ( class_exists( 'SPBWC_I18n_Notice' ) ) {
+            SPBWC_I18n_Notice::render_language_widget();
+        } ?>
 </div>
 <script>
 (function () {

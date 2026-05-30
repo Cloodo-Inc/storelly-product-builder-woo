@@ -88,6 +88,7 @@ require_once(SPBWC_PB_PLUGIN_DIR .  'includes/class-install.php');
 require_once(SPBWC_PB_PLUGIN_DIR .  'includes/class-product-builder-backend.php');
 require_once(SPBWC_PB_PLUGIN_DIR .  'includes/class-product-builder-frontend.php');
 require_once(SPBWC_PB_PLUGIN_DIR .  'includes/class-admin-options.php');
+require_once(SPBWC_PB_PLUGIN_DIR .  'includes/class-i18n-notice.php');
 require_once(SPBWC_PB_PLUGIN_DIR .  'includes/class-frontend-options.php');
 require_once(SPBWC_PB_PLUGIN_DIR .  'includes/class-http.php');
 require_once(SPBWC_PB_PLUGIN_DIR .  'includes/class-productbuilder-api.php');

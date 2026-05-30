@@ -29,13 +29,45 @@ This plugin is especially useful for businesses offering:
 - **Front-end product builder:** Customers can design and customize products visually.
 - **WooCommerce integration:** Compatible with the latest WooCommerce versions.
 - **Easy to use:** Simple interface suitable for both store owners and customers.
-- **Free version limitation:** The free version allows creating or modifying up to **five customizable products**. You may upgrade to the premium version for unlimited usage:  
+- **Free version limitation:** The free version allows creating or modifying up to **five customizable products**. You may upgrade to the premium version for unlimited usage:
 https://storelly.com/product-builder
+
+### Languages
+
+Storelly Product Builder ships with translations for **15 languages** out of the box and follows your WordPress Site Language automatically — no extra setup required:
+
+- **Extended coverage (200+ strings):** Vietnamese (vi)
+- **Menu labels + core admin verbs (~30 strings):** French (fr_FR), German (de_DE), Spanish (es_ES), Portuguese-Brazil (pt_BR), Italian (it_IT), Japanese (ja), Chinese-Simplified (zh_CN), Russian (ru_RU), Arabic (ar), Dutch (nl_NL), Polish (pl_PL), Turkish (tr_TR), Swedish (sv_SE), Indonesian (id_ID)
+
+**RTL languages** (Arabic, Hebrew) automatically render with right-to-left layout — 18 companion RTL stylesheets ship with the plugin.
+
+**Want to help translate?** Contribute on translate.wordpress.org once the plugin lands there, or send your `.po` file to support@storelly.com.
 
 == Frequently Asked Questions ==
 
 = How can I contact support? =
 You can reach the Storelly team via email: support@storelly.com
+
+= How do I use this plugin in my language? =
+
+Go to **Settings → General → Site Language**, pick your language, and save. The plugin admin sidebar, settings pages and Visual Builder will switch to that language immediately. No restart, no cache clearing, no extra plugin needed.
+
+Supported languages: Vietnamese, French, German, Spanish, Portuguese (Brazil), Italian, Japanese, Chinese (Simplified), Russian, Arabic, Dutch, Polish, Turkish, Swedish, Indonesian. If your language is not in WordPress's installed list, install it from the same Settings → General page (WordPress will download it).
+
+= Can each WP user have a different plugin language? =
+
+Yes. Go to **Users → Your Profile → Language** and pick a per-user language different from the site default — useful when the storefront serves customers in one language but the admin reads another.
+
+= My language is missing or incomplete — how do I improve it? =
+
+Two paths:
+
+1. **Quick (just you):** Translate the `.pot` file in `wp-content/plugins/storelly-product-builder-for-woocommerce/languages/` using a tool like Poedit, save as `storelly-product-builder-for-woocommerce-{your-locale}.mo`, and drop it in the same folder.
+2. **Permanent (helps everyone):** Submit your translation to the WordPress.org GlotPress project once the plugin is listed there, or email `.po` files to support@storelly.com — we bundle community translations in the next release.
+
+= Does RTL (Arabic, Hebrew) work? =
+
+Yes. The plugin ships 18 companion `*-rtl.css` files that WordPress core auto-loads when `is_rtl()` returns true. Switch your site to Arabic / Hebrew and the entire plugin UI mirrors right-to-left.
 
 = What third-party resources does this plugin use? =
 

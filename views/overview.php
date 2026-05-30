@@ -123,6 +123,11 @@ $plan_benefits = $is_free
         </div>
     <?php endif; ?>
 
+    <?php // Always-visible language widget — see includes/class-i18n-notice.php
+    if ( class_exists( 'SPBWC_I18n_Notice' ) ) {
+        SPBWC_I18n_Notice::render_language_widget();
+    } ?>
+
     <?php if ( $is_free ) : ?>
         <div class="spbwc-notice-banner spbwc-notice-banner--warn" role="status">
             <span class="dashicons dashicons-star-filled" aria-hidden="true"></span>
