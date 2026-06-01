@@ -51,7 +51,6 @@ $recent_orders = function_exists( 'wc_get_orders' ) ? wc_get_orders( array(
 //   $recent_options, $recent_designs, $recent_quotes, $recent_templates
 $recent_options   = array();
 $recent_designs   = array();
-$recent_quotes_l  = array();
 $recent_templates = array();
 
 // Helpful benefits text per plan tier.
