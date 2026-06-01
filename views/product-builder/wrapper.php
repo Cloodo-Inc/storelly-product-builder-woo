@@ -80,13 +80,29 @@
             $spbwc_v3_product_categories        = ( ! is_wp_error( $spbwc_v3_cats ) && ! empty( $spbwc_v3_cats ) ) ? implode( ', ', $spbwc_v3_cats ) : '';
             $spbwc_v3_product_weight            = $spbwc_v3_product->get_weight();
             $spbwc_v3_product_dimensions        = $spbwc_v3_product->has_dimensions() ? wc_format_dimensions( $spbwc_v3_product->get_dimensions( false ) ) : '';
-            /* Spec line — short categorical hint (e.g. "Bicycles · Frame builder"). */
-            $cats = wp_get_post_terms( $spbwc_v3_product->get_id(), 'product_cat', array( 'fields' => 'names' ) );
-            if ( ! is_wp_error( $cats ) && ! empty( $cats ) ) {
-                $spbwc_v3_product_specs = implode( ' · ', array_slice( $cats, 0, 2 ) ) . ' · ' . esc_html__( 'Custom builder', 'storelly-product-builder-for-woocommerce' );
-            } else {
-                $spbwc_v3_product_specs = esc_html__( 'Custom builder', 'storelly-product-builder-for-woocommerce' );
+
+            /* Spec line under the product name in the summary header.
+             * "Uncategorized" is the WP default for products without a
+             * real category, so we skip it. Falls back to SKU when the
+             * product has no useful category — and finally to a generic
+             * "Made to order" tag if neither exists. */
+            $spbwc_v3_specs_bits = array();
+            if ( ! is_wp_error( $spbwc_v3_cats ) && ! empty( $spbwc_v3_cats ) ) {
+                $spbwc_v3_real_cats = array_filter( $spbwc_v3_cats, function ( $name ) {
+                    return strtolower( $name ) !== 'uncategorized';
+                } );
+                if ( ! empty( $spbwc_v3_real_cats ) ) {
+                    $spbwc_v3_specs_bits[] = implode( ' · ', array_slice( $spbwc_v3_real_cats, 0, 2 ) );
+                }
             }
+            if ( ! empty( $spbwc_v3_product_sku ) ) {
+                /* translators: %s: product SKU */
+                $spbwc_v3_specs_bits[] = sprintf( esc_html__( 'SKU %s', 'storelly-product-builder-for-woocommerce' ), $spbwc_v3_product_sku );
+            }
+            if ( empty( $spbwc_v3_specs_bits ) ) {
+                $spbwc_v3_specs_bits[] = esc_html__( 'Made to order', 'storelly-product-builder-for-woocommerce' );
+            }
+            $spbwc_v3_product_specs = implode( ' · ', $spbwc_v3_specs_bits );
         }
     }
 ?>
@@ -430,49 +446,6 @@
                                 </div>
                             </div>
                         </div>
-                        <!-- Zoom bar (Printcart `.zoom-bar` — bottom-right of canvas).
-                             Wires into the existing scope.zoomCanvas() so the
-                             buyer can scale the preview without dragging into
-                             the option panel. The scale-out / scale-in values
-                             pipe through the same updateLayerAttribute path. -->
-                        <div class="spbwc-cust-zoom" aria-label="<?php esc_attr_e( 'Zoom', 'storelly-product-builder-for-woocommerce' ); ?>">
-                            <button type="button" class="spbwc-cust-zoom__btn" ng-click="zoomCanvas(-0.1)" aria-label="<?php esc_attr_e( 'Zoom out', 'storelly-product-builder-for-woocommerce' ); ?>" title="<?php esc_attr_e( 'Zoom out', 'storelly-product-builder-for-woocommerce' ); ?>">
-                                <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/><path d="M8 11h6"/></svg>
-                            </button>
-                            <span class="spbwc-cust-zoom__value" data-spbwc-zoom-value>100%</span>
-                            <button type="button" class="spbwc-cust-zoom__btn" ng-click="zoomCanvas(0.1)" aria-label="<?php esc_attr_e( 'Zoom in', 'storelly-product-builder-for-woocommerce' ); ?>" title="<?php esc_attr_e( 'Zoom in', 'storelly-product-builder-for-woocommerce' ); ?>">
-                                <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/><path d="M8 11h6"/><path d="M11 8v6"/></svg>
-                            </button>
-                            <button type="button" class="spbwc-cust-zoom__btn spbwc-cust-zoom__btn--reset" ng-click="zoomCanvas(0, true)" aria-label="<?php esc_attr_e( 'Fit', 'storelly-product-builder-for-woocommerce' ); ?>" title="<?php esc_attr_e( 'Fit to screen', 'storelly-product-builder-for-woocommerce' ); ?>">
-                                <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3h6"/><path d="M3 3v6"/><path d="M21 3h-6"/><path d="M21 3v6"/><path d="M3 21h6"/><path d="M3 21v-6"/><path d="M21 21h-6"/><path d="M21 21v-6"/></svg>
-                            </button>
-                        </div>
-
-                        <!-- View switcher (Printcart Canva Front/Back pattern).
-                             Shown only when product has ≥2 stages/views — uses the
-                             existing scope.changeStage(idx) handler. -->
-                        <div class="spbwc-cust-viewswitch" ng-if="stages.length > 1">
-                            <button type="button" class="spbwc-cust-viewswitch__btn" ng-click="changeStage(($index - 1 + stages.length) % stages.length)" ng-disabled="stages.length < 2" title="<?php esc_attr_e( 'Previous view', 'storelly-product-builder-for-woocommerce' ); ?>" aria-label="<?php esc_attr_e( 'Previous view', 'storelly-product-builder-for-woocommerce' ); ?>">
-                                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
-                            </button>
-                            <div class="spbwc-cust-viewswitch__pills" role="tablist">
-                                <button type="button" ng-repeat="stage in stages" ng-click="changeStage($index)" ng-class="{'is-active': $index == currentStage}" class="spbwc-cust-viewswitch__pill" role="tab" aria-selected="{{$index == currentStage ? 'true' : 'false'}}">
-                                    <span ng-bind="resource.views[$index].name || ('View ' + ($index + 1))"></span>
-                                </button>
-                            </div>
-                            <button type="button" class="spbwc-cust-viewswitch__btn" ng-click="changeStage((currentStage + 1) % stages.length)" ng-disabled="stages.length < 2" title="<?php esc_attr_e( 'Next view', 'storelly-product-builder-for-woocommerce' ); ?>" aria-label="<?php esc_attr_e( 'Next view', 'storelly-product-builder-for-woocommerce' ); ?>">
-                                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
-                            </button>
-                        </div>
-
-                        <!-- Auto-saved pill (Printcart Canva pattern): bottom-left affordance
-                             that signals draft persistence; remains static for now (no
-                             autosave backend) but reads honestly as "Live preview". -->
-                        <div class="spbwc-cust-autosave" aria-hidden="true">
-                            <span class="spbwc-cust-autosave__dot"></span>
-                            <span><?php esc_html_e( 'Live preview', 'storelly-product-builder-for-woocommerce' ); ?></span>
-                        </div>
-
                         <!-- Admin tools (layer transform): only when a layer is selected. -->
                         <div class="design-admin-tool spbwc-cust-tools nbdpb-show" ng-if="stages[currentStage].states.showAdminTool">
                             <div class="tools">
@@ -489,6 +462,48 @@
                                     </div>
                                 </div>
                                 <div class="tool-item" title="<?php esc_html_e('Clear all layer', 'storelly-product-builder-for-woocommerce'); ?>" ng-click="clearAllStages()"><i class="icon-nbd icon-nbd-clear"></i></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Canvas toolbar row — DEDICATED 48px row below the stage so
+                         the artwork never gets hidden under floating bars. Contains:
+                         live-preview pill (left), Front/Back view switcher (centre),
+                         zoom controls (right). All inline-flex children of the row. -->
+                    <div class="spbwc-cust-canvas__toolbar">
+                        <div class="spbwc-cust-canvas__toolbar-left">
+                            <span class="spbwc-cust-autosave" aria-hidden="true">
+                                <span class="spbwc-cust-autosave__dot"></span>
+                                <span><?php esc_html_e( 'Live preview', 'storelly-product-builder-for-woocommerce' ); ?></span>
+                            </span>
+                        </div>
+                        <div class="spbwc-cust-canvas__toolbar-center">
+                            <div class="spbwc-cust-viewswitch" ng-if="stages.length > 1">
+                                <button type="button" class="spbwc-cust-viewswitch__btn" ng-click="changeStage((currentStage - 1 + stages.length) % stages.length)" ng-disabled="stages.length < 2" title="<?php esc_attr_e( 'Previous view', 'storelly-product-builder-for-woocommerce' ); ?>" aria-label="<?php esc_attr_e( 'Previous view', 'storelly-product-builder-for-woocommerce' ); ?>">
+                                    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+                                </button>
+                                <div class="spbwc-cust-viewswitch__pills" role="tablist">
+                                    <button type="button" ng-repeat="stage in stages" ng-click="changeStage($index)" ng-class="{'is-active': $index == currentStage}" class="spbwc-cust-viewswitch__pill" role="tab" aria-selected="{{$index == currentStage ? 'true' : 'false'}}">
+                                        <span ng-bind="resource.views[$index].name || ('View ' + ($index + 1))"></span>
+                                    </button>
+                                </div>
+                                <button type="button" class="spbwc-cust-viewswitch__btn" ng-click="changeStage((currentStage + 1) % stages.length)" ng-disabled="stages.length < 2" title="<?php esc_attr_e( 'Next view', 'storelly-product-builder-for-woocommerce' ); ?>" aria-label="<?php esc_attr_e( 'Next view', 'storelly-product-builder-for-woocommerce' ); ?>">
+                                    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="spbwc-cust-canvas__toolbar-right">
+                            <div class="spbwc-cust-zoom" aria-label="<?php esc_attr_e( 'Zoom', 'storelly-product-builder-for-woocommerce' ); ?>">
+                                <button type="button" class="spbwc-cust-zoom__btn" ng-click="zoomCanvas(-0.1)" aria-label="<?php esc_attr_e( 'Zoom out', 'storelly-product-builder-for-woocommerce' ); ?>" title="<?php esc_attr_e( 'Zoom out', 'storelly-product-builder-for-woocommerce' ); ?>">
+                                    <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/><path d="M8 11h6"/></svg>
+                                </button>
+                                <span class="spbwc-cust-zoom__value" data-spbwc-zoom-value>100%</span>
+                                <button type="button" class="spbwc-cust-zoom__btn" ng-click="zoomCanvas(0.1)" aria-label="<?php esc_attr_e( 'Zoom in', 'storelly-product-builder-for-woocommerce' ); ?>" title="<?php esc_attr_e( 'Zoom in', 'storelly-product-builder-for-woocommerce' ); ?>">
+                                    <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/><path d="M8 11h6"/><path d="M11 8v6"/></svg>
+                                </button>
+                                <button type="button" class="spbwc-cust-zoom__btn spbwc-cust-zoom__btn--reset" ng-click="zoomCanvas(0, true)" aria-label="<?php esc_attr_e( 'Fit', 'storelly-product-builder-for-woocommerce' ); ?>" title="<?php esc_attr_e( 'Fit to screen', 'storelly-product-builder-for-woocommerce' ); ?>">
+                                    <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3h6"/><path d="M3 3v6"/><path d="M21 3h-6"/><path d="M21 3v6"/><path d="M3 21h6"/><path d="M3 21v-6"/><path d="M21 21h-6"/><path d="M21 21v-6"/></svg>
+                                </button>
                             </div>
                         </div>
                     </div>

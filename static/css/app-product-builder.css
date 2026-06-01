@@ -8756,7 +8756,10 @@ select.ng-invalid {
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 32px 32px 72px;
+    /* Tightened bottom padding — bars now live in a dedicated 48px
+     * toolbar row BELOW the stage, so we no longer need 72px to clear
+     * floating bars on top of artwork. */
+    padding: 24px;
     box-sizing: border-box;
 }
 /* Constrain the design-zone (artwork canvas) to fit inside the stage.
@@ -8807,22 +8810,28 @@ select.ng-invalid {
  * .spbwc-cust-summary__* to keep CSS isolation, but every property
  * and value below mirrors Printcart 1:1.
  * ================================================================ */
-.spbwc-cust-summary {
+.spbwc-cust-v3 .spbwc-cust-summary,
+aside.spbwc-cust-summary {
     background: var(--spbwc-c-bg);
     border-left: 1px solid var(--spbwc-c-line);
-    padding: 16px;
+    /* Generous padding so blocks breathe; gap 20px between sections so
+     * the breakdown box, item card, and CTA never run into each other.
+     * Padding pinned with !important — Cloodo theme zeros out generic
+     * `aside` / `.summary` padding at high specificity. */
+    padding: 20px 18px !important;
     overflow-y: auto;
     display: flex;
     flex-direction: column;
-    gap: 16px;
+    gap: 20px !important;
+    box-shadow: inset 1px 0 0 var(--spbwc-c-line);
 }
 
 /* `.summary-product-head` — product hero block at top of summary */
 .spbwc-cust-summary__head {
     display: flex;
     flex-direction: column;
-    gap: 8px;
-    padding-bottom: 12px;
+    gap: 10px;
+    padding-bottom: 16px;
     border-bottom: 1px solid var(--spbwc-c-line-subtle);
 }
 .spbwc-cust-summary__head-row {
@@ -8846,52 +8855,65 @@ select.ng-invalid {
     margin-top: 2px;
     font-weight: 500;
 }
-/* Progress pill — moved here from the left panel (sits top-right of
- * summary head, replacing Printcart's "Retail/B2B tier" pill slot). */
+/* Progress pill — moved here from the left panel. Sits top-right of
+ * the product name. Status pill UI: brand-soft bg + brand text + dot,
+ * flips to emerald when 100% configured. */
 .spbwc-cust-summary__progress-pill {
     display: inline-flex;
     align-items: center;
     gap: 6px;
-    padding: 4px 10px;
-    background: var(--spbwc-c-bg-soft);
-    border: 1px solid var(--spbwc-c-line);
+    padding: 5px 10px 5px 9px;
+    background: var(--spbwc-c-brand-soft);
+    border: 1px solid #93c5fd;
     border-radius: 9999px;
-    font-size: 11px;
-    font-weight: 600;
-    color: var(--spbwc-c-text);
+    font-size: 11.5px;
+    font-weight: 700;
+    color: var(--spbwc-c-brand-dark);
     flex-shrink: 0;
+    line-height: 1.2;
+    letter-spacing: 0.01em;
+    transition: background 200ms, border-color 200ms, color 200ms;
 }
 .spbwc-cust-summary__progress-pill.is-complete {
     background: var(--spbwc-c-success-soft);
-    border-color: var(--spbwc-c-success);
-    color: #064e3b;
+    border-color: #6ee7b7;
+    color: #065f46;
 }
 .spbwc-cust-summary__progress-dot {
-    width: 6px;
-    height: 6px;
+    width: 8px;
+    height: 8px;
     border-radius: 50%;
     background: var(--spbwc-c-brand);
     flex-shrink: 0;
+    box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.25);
+    animation: spbwcPillPulse 2s ease-in-out infinite;
 }
 .spbwc-cust-summary__progress-pill.is-complete .spbwc-cust-summary__progress-dot {
     background: var(--spbwc-c-success);
+    box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.25);
+    animation: none;
+}
+@keyframes spbwcPillPulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.55; }
 }
 .spbwc-cust-summary__progress-track {
-    height: 4px;
+    height: 6px;
     background: var(--spbwc-c-bg-mute);
     border-radius: 9999px;
     overflow: hidden;
+    box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.04);
 }
 .spbwc-cust-summary__progress-fill {
     display: block;
     height: 100%;
-    background: var(--spbwc-c-brand);
-    transition: width 220ms ease, background 220ms ease;
+    background: linear-gradient(90deg, var(--spbwc-c-brand) 0%, #3b82f6 100%);
+    transition: width 300ms cubic-bezier(0.4, 0, 0.2, 1), background 300ms;
     border-radius: 9999px;
+    min-width: 4px; /* always visible nub */
 }
-.spbwc-cust-summary__progress-track.is-complete .spbwc-cust-summary__progress-fill,
-.spbwc-cust-summary__head:has(.spbwc-cust-summary__progress-pill.is-complete) .spbwc-cust-summary__progress-fill {
-    background: var(--spbwc-c-success);
+.spbwc-cust-summary__progress-track.is-complete .spbwc-cust-summary__progress-fill {
+    background: linear-gradient(90deg, var(--spbwc-c-success) 0%, #34d399 100%);
 }
 
 /* `.summary-section` */
@@ -8914,9 +8936,9 @@ select.ng-invalid {
     background: var(--spbwc-c-bg);
     border: 1px solid var(--spbwc-c-line);
     border-radius: var(--spbwc-c-radius-md); /* 8px */
-    padding: 12px;
+    padding: 14px;
     display: flex;
-    gap: 12px;
+    gap: 14px;
     box-shadow: var(--spbwc-c-shadow-sm);
 }
 .spbwc-cust-summary__thumb {
@@ -8953,13 +8975,15 @@ select.ng-invalid {
 .spbwc-cust-summary__price-block {
     background: var(--spbwc-c-bg-soft);
     border-radius: var(--spbwc-c-radius-md); /* 8px */
-    padding: 12px;
+    padding: 14px 16px;
     border: 1px solid var(--spbwc-c-line);
 }
 .spbwc-cust-summary__price-row {
     display: flex;
     justify-content: space-between;
-    padding: 4px 0;
+    align-items: baseline;
+    gap: 12px;
+    padding: 5px 0;
     font-size: 13px;
 }
 .spbwc-cust-summary__price-row .lbl { color: var(--spbwc-c-text); }
@@ -9040,22 +9064,33 @@ select.ng-invalid {
     display: inline;
 }
 
-/* Zoom bar — direct port of Printcart `.zoom-bar`.
- * Glass pill at bottom-right of canvas. 32x32 buttons, blur backdrop. */
+/* Canvas toolbar — DEDICATED 48px row below the stage that holds the
+ * live-preview pill, view switcher, and zoom bar. Replaces the earlier
+ * absolute-positioned approach which was overlaying the artwork. */
+.spbwc-cust-canvas__toolbar {
+    flex: 0 0 auto;
+    height: 48px;
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+    padding: 0 16px;
+    gap: 12px;
+    background: var(--spbwc-c-bg);
+    border-top: 1px solid var(--spbwc-c-line);
+}
+.spbwc-cust-canvas__toolbar-left { justify-self: start; }
+.spbwc-cust-canvas__toolbar-center { justify-self: center; }
+.spbwc-cust-canvas__toolbar-right { justify-self: end; }
+
+/* Zoom bar — Printcart `.zoom-bar` styling, in-flow inside toolbar row. */
 .spbwc-cust-zoom {
-    position: absolute;
-    bottom: 16px;
-    right: 16px;
     display: inline-flex;
     align-items: center;
-    background: rgba(255, 255, 255, 0.95);
-    -webkit-backdrop-filter: blur(8px);
-    backdrop-filter: blur(8px);
+    background: var(--spbwc-c-bg);
     border: 1px solid var(--spbwc-c-line);
-    border-radius: var(--spbwc-c-radius-md); /* 8px Printcart radius-lg */
+    border-radius: var(--spbwc-c-radius-md);
     overflow: hidden;
-    box-shadow: var(--spbwc-c-shadow); /* 0 2px 4px 0 rgba(0,0,0,0.08) */
-    z-index: 5;
+    box-shadow: var(--spbwc-c-shadow-sm);
 }
 .spbwc-cust-zoom__btn {
     width: 32px;
@@ -9312,25 +9347,16 @@ span.spbwc-cust-cta__price[data-spbwc-cta-price] {
     top: auto !important;
 }
 
-/* View switcher under canvas (Printcart Front/Back pattern).
- * Floats centered at canvas bottom; only renders when product has
- * ≥2 stages (ng-if in wrapper.php). */
+/* View switcher (Printcart Front/Back pattern) — in-flow inside the
+ * canvas toolbar row, centered. Pill style. */
 .spbwc-cust-viewswitch {
-    position: absolute;
-    bottom: 16px;
-    left: 50%;
-    transform: translateX(-50%);
     display: inline-flex;
     align-items: center;
     gap: 4px;
-    padding: 4px;
-    background: rgba(255, 255, 255, 0.96);
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
+    padding: 3px;
+    background: var(--spbwc-c-bg-soft);
     border: 1px solid var(--spbwc-c-line);
-    border-radius: 999px;
-    box-shadow: var(--spbwc-c-shadow);
-    z-index: 4;
+    border-radius: 9999px;
 }
 .spbwc-cust-viewswitch__btn {
     appearance: none;
@@ -9376,25 +9402,18 @@ span.spbwc-cust-cta__price[data-spbwc-cta-price] {
     color: #fff;
 }
 
-/* Auto-saved pill (Printcart Canva pattern, bottom-left of canvas). */
+/* "Live preview" pill — in-flow inside canvas toolbar row, left side. */
 .spbwc-cust-autosave {
-    position: absolute;
-    bottom: 16px;
-    left: 16px;
     display: inline-flex;
     align-items: center;
     gap: 6px;
-    padding: 5px 10px;
-    background: rgba(255, 255, 255, 0.96);
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
-    border: 1px solid var(--spbwc-c-line);
-    border-radius: 999px;
+    padding: 4px 10px;
+    background: var(--spbwc-c-success-soft);
+    border: 1px solid #a7f3d0;
+    border-radius: 9999px;
     font-size: 11.5px;
     font-weight: 600;
-    color: var(--spbwc-c-success);
-    box-shadow: var(--spbwc-c-shadow-sm);
-    z-index: 4;
+    color: #064e3b;
 }
 .spbwc-cust-autosave__dot {
     width: 6px;

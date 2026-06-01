@@ -4,8 +4,8 @@ Donate link: https://storelly.com/
 Tags: product builder, product customize, product customizer, woocommerce custom product
 Requires at least: 4.7
 Tested up to: 7.0
-Stable tag: 1.4.1
-Version: 1.4.1
+Stable tag: 1.4.2
+Version: 1.4.2
 Requires PHP: 7.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -132,6 +132,12 @@ This plugin connects to the following external services:
 3. Storelly settings page with API keys and sync options
 
 == Changelog ==
+= 1.4.2 =
+* Customizer V3 — Summary blocks now have generous breathing room: column padding 20×18px, 20px gap between sections, price-block padding 14×16px, item-card padding 14px with 14px gap. No more dense glued-together rows next to the canvas.
+* Spec line under the product name skips the WP default "Uncategorized" term and shows the SKU instead (or "Made to order" if no SKU). The earlier hardcoded "Custom builder" tag is gone.
+* Status progress pill polished: brand-soft bg + pulsing brand dot + 11.5px 700 letter-spacing 0.01em label. Flips to emerald success palette + box-shadow ring when 100% configured. Progress track also bumped 4→6px with inset-shadow + gradient fill for visual weight.
+* Canvas toolbar moved OUT of the artwork stage into a dedicated 48px row below the stage. View switcher (centre), live-preview pill (left), zoom bar (right) now sit in their own band — the product image is never hidden under floating affordances again.
+
 = 1.4.1 =
 * Customizer V3: accordion step rows now toggle — clicking an already-open step closes it (was open-only). Driven by a new `$scope.toggleAccordion(idx)` so the legacy `showAttribute` save pipeline stays untouched.
 * Panel head "CUSTOMIZE PARTS" alignment fixed: no longer drifts left of the accordion items.
