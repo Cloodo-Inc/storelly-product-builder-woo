@@ -7940,3 +7940,64 @@ select.ng-invalid {
         max-height: 45vh;
     }
 }
+
+/* V2 — overrides for the legacy editor-canvas chain ------------------- *
+ * Legacy CSS expects .design-main to host a 75% canvas + 25% sidebar in
+ * one flex row. In V2 the sidebar lives in a separate grid column, so
+ * design-main has only one child (.design-layer) and we must give it a
+ * usable height — otherwise canvas-N collapses to 1×1 and Fabric renders
+ * an empty stage. These rules are scoped under .spbwc-cust-v2 so the
+ * legacy wrapper-legacy.php fallback is unaffected.                     */
+.spbwc-cust-v2 .nbdpb-product-builder { height: 100%; }
+.spbwc-cust-v2 .spbwc-cust-canvas .design-main {
+    flex: 1 1 auto;
+    min-height: 0;
+    height: 100%;
+    width: 100%;
+    display: block; /* override legacy flex-wrap row */
+    flex-wrap: nowrap;
+    position: relative;
+}
+.spbwc-cust-v2 .spbwc-cust-canvas .design-layer {
+    width: 100%;
+    height: 100%;
+    position: relative;
+}
+.spbwc-cust-v2 .spbwc-cust-canvas .design-stages {
+    height: 100%;
+    width: 100%;
+    margin: 0;
+    border: 0;
+}
+.spbwc-cust-v2 .spbwc-cust-canvas .nbdpb-carousel-outer,
+.spbwc-cust-v2 .spbwc-cust-canvas .nbdpb-carousel,
+.spbwc-cust-v2 .spbwc-cust-canvas .nbdpb-carousel-item.nbdpb-active,
+.spbwc-cust-v2 .spbwc-cust-canvas .nbdpb-active .stage {
+    height: 100%;
+}
+
+/* Header / footer close-popup overrides.
+ * Legacy CSS at line 3634 makes ANY .close-popup inside .nbdpb-popup
+ * absolutely positioned at top:10px, left:10px — which overlapped my
+ * header X icon with the title text AND dragged the footer "Cancel"
+ * button to the top-left corner. Reset positioning for V2 close affs. */
+.spbwc-cust-v2 .spbwc-cust-header__close.close-popup,
+.spbwc-cust-v2 .spbwc-cust-footer .close-popup,
+.spbwc-cust-v2 .spbwc-cust-btn.close-popup {
+    position: static !important;
+    left: auto !important;
+    top: auto !important;
+}
+
+/* Swatch background-image fix.
+ * Legacy ng-style binding uses the `background` SHORTHAND, which resets
+ * background-size to the initial `auto` — so my .spbwc-cust-val__swatch
+ * rule of `background-size: cover` was being overridden by the inline
+ * style and option images rendered 1:1 from the top-left. Tagging the
+ * sizing rules with !important keeps the binding simple (no template
+ * surgery) and only applies inside the V2 wrapper.                     */
+.spbwc-cust-v2 .spbwc-cust-val__swatch {
+    background-size: cover !important;
+    background-position: center !important;
+    background-repeat: no-repeat !important;
+}

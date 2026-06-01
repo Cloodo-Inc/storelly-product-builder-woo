@@ -4,8 +4,8 @@ Donate link: https://storelly.com/
 Tags: product builder, product customize, product customizer, woocommerce custom product
 Requires at least: 4.7
 Tested up to: 7.0
-Stable tag: 1.3.0
-Version: 1.3.0
+Stable tag: 1.3.1
+Version: 1.3.1
 Requires PHP: 7.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -132,6 +132,11 @@ This plugin connects to the following external services:
 3. Storelly settings page with API keys and sync options
 
 == Changelog ==
+= 1.3.1 =
+* Customizer (designer modal): rebuilt with a Cloodo-style 3-column layout — the parts list now stays visible on the left while options appear on the right, so customers no longer lose context when picking a part. Each option choice now shows its upcharge price (or "Free") as a coloured pill, formatted with the store currency.
+* Customizer footer reworked: the confusing "Done" button is now a primary "Save & continue" CTA next to a "Cancel" affordance.
+* Compatibility/rollback: the legacy single-pane customizer is preserved at `views/product-builder/wrapper-legacy.php` and can be re-enabled via the `spbwc_use_legacy_customizer` filter or the `SPBWC_USE_LEGACY_CUSTOMIZER` constant.
+
 = 1.3.0 =
 * Template Library: WYSIWYG live preview — the "Preview" tab now renders the real Cloodo storefront (same option-builder template, same storefront CSS/JS) inside a sandboxed iframe, so any change to the buyer-facing UI flows through automatically. No parallel mockup, no drift.
 * Template Library preview UX: debounced "Sample base price" with currency-symbol affordance and per-merchant localStorage persistence; subtle in-place "Updating…" pill instead of a full-overlay flash on reloads; friendly error card with Retry on failed loads; iframe auto-grows to content height via a postMessage bridge; live "YOUR TOTAL" surfaces in the dialog subtitle ("est. $X").
