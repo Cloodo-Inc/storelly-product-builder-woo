@@ -1815,6 +1815,23 @@ nbdpbApp.controller("nbpbCtrl", [
       var dec = (parseInt(cfg.currency_decimals, 10) >= 0) ? parseInt(cfg.currency_decimals, 10) : 2;
       return sym + n.toFixed(dec);
     };
+    /* V3 — whether a single component counts as "configured". Mirrors
+     * Printcart Canva v2.0 step-status pattern: ✓ when the customer has
+     * actually picked / typed / uploaded; ○ when still pending. nbpb_com
+     * defaults to currentConfig=0 on init (first option auto-selected),
+     * so we treat it as configured as long as that index resolves to a
+     * real entry — keeps the green-check affordance honest. */
+    $scope.isComponentConfigured = function (c) {
+      if (!c || !c.enable) return false;
+      if (c.nbpb_type === 'nbpb_com') {
+        return !!(c.current_pb_configs && c.current_pb_configs[c.currentConfig]);
+      }
+      if (c.nbpb_type === 'nbpb_text') { return !!c.currentContent; }
+      if (c.nbpb_type === 'nbpb_image') {
+        return !!($scope.resource && $scope.resource.uploaded && $scope.resource.uploaded.length);
+      }
+      return false;
+    };
     /* V3 — live grand total = base price + Σ(picked component upcharge).
      * Base price is injected via SPBWC_PB_CONFIG.base_price_raw from
      * js_config.php (set by wc_get_product()->get_price()). Adds-on are read
@@ -1858,6 +1875,14 @@ nbdpbApp.controller("nbpbCtrl", [
         jQuery('[data-spbwc-progress-label]').text(lbl);
         var pct = info.total > 0 ? Math.round((info.configured / info.total) * 100) : 0;
         jQuery('[data-spbwc-progress-fill]').css('width', pct + '%');
+        /* Printcart Canva v2.0 visual cue — progress bar flips to GREEN
+         * when 100% configured, signalling "ready to add to cart". */
+        var $panel = jQuery('.spbwc-cust-panel__progress');
+        if (info.total > 0 && info.configured >= info.total) {
+          $panel.addClass('is-complete');
+        } else {
+          $panel.removeClass('is-complete');
+        }
       } catch (e) { /* never let UI math break the customizer */ }
     };
     /* Reset every component to its first option (a_index 0 / sa_index 0) and
@@ -2424,4 +2449,33 @@ jQuery(function ($) {
       } catch (e) {}
     }, 400);
   });
+
+  /* Teaching toast (Printcart Canva pattern). Reveals on first real
+   * modal open via the storefront "Preview & customize" button; hides
+   * on first option pick or after a 10-second auto-dismiss. The toast
+   * lives at body-level (sibling of the .nbdpb-popup wrapper), so its
+   * visibility is driven by an `is-visible` class — NOT by a CSS
+   * sibling-of-modal selector — which keeps the logic robust against
+   * Angular re-renders inside the modal. */
+  var teachToastDismissed = false;
+  var teachToastShown = false;
+  function showTeachToast() {
+    if (teachToastShown) return;
+    teachToastShown = true;
+    $('.spbwc-cust-teachtoast').addClass('is-visible');
+    setTimeout(function () { dismissTeachToast(); }, 10000);
+  }
+  function dismissTeachToast() {
+    if (teachToastDismissed) return;
+    teachToastDismissed = true;
+    var $t = $('.spbwc-cust-teachtoast');
+    $t.addClass('is-out');
+    setTimeout(function () { $t.removeClass('is-visible is-out'); }, 350);
+  }
+  $(document).on('click', '#pcpb-start-design', function () {
+    /* Modal-open trigger — reveal the toast on first paint of the modal. */
+    setTimeout(showTeachToast, 600);
+  });
+  $(document).on('click', '[data-spbwc-teachtoast-close]', dismissTeachToast);
+  $(document).on('click', '.spbwc-cust-v3 .spbwc-cust-val', dismissTeachToast);
 });

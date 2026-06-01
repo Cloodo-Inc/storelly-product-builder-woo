@@ -185,9 +185,12 @@
 
                         <div class="spbwc-cust-acc">
                             <!-- One accordion item per component. ng-click toggles via $scope.showAttribute($index). -->
-                            <div ng-repeat="component in resource.components" ng-show="component.enable" class="spbwc-cust-acc-item" ng-class="{'is-open': resource.showValue && $index == resource.currentComponent}">
+                            <div ng-repeat="component in resource.components" ng-show="component.enable" class="spbwc-cust-acc-item" ng-class="{'is-open': resource.showValue && $index == resource.currentComponent, 'is-done': isComponentConfigured(component)}">
                                 <button type="button" class="spbwc-cust-acc-head" ng-click="showAttribute($index)" aria-expanded="{{resource.showValue && $index == resource.currentComponent ? 'true' : 'false'}}">
-                                    <span class="spbwc-cust-acc-step">{{$index + 1}}</span>
+                                    <span class="spbwc-cust-acc-step" aria-hidden="true">
+                                        <svg ng-if="isComponentConfigured(component)" viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                                        <span ng-if="!isComponentConfigured(component)" class="spbwc-cust-acc-step__dot"></span>
+                                    </span>
                                     <span class="spbwc-cust-acc-info">
                                         <span class="spbwc-cust-acc-name">{{component.general.title}}</span>
                                         <span class="spbwc-cust-acc-value" ng-switch="component.nbpb_type">
@@ -448,4 +451,26 @@
             </div>
         </div>
     </div>
+
 </div>
+<?php if( $is_creating_task == 0 ): // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Global variable defined by parent template. ?>
+<!-- Teaching toast (Printcart Canva pattern). Rendered as a sibling of
+     the .nbdpb-popup wrapper — NOT inside it — because the legacy
+     `.nbdpb-carousel.nbdpbCarousel()` plugin DOM-rewrites the popup's
+     subtree on init and strips out any non-managed elements. Sitting at
+     body-level keeps the toast safe; it stays hidden until the modal is
+     active via the `.spbwc-cust-v3.nbdpb-show ~ .spbwc-cust-teachtoast`
+     sibling selector in app-product-builder.css. -->
+<div class="spbwc-cust-teachtoast" data-spbwc-teachtoast role="status" aria-live="polite">
+    <span class="spbwc-cust-teachtoast__icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 8v4"/><path d="M12 16h.01"/></svg>
+    </span>
+    <span class="spbwc-cust-teachtoast__body">
+        <strong><?php esc_html_e( 'Live pricing', 'storelly-product-builder-for-woocommerce' ); ?></strong>
+        <span><?php esc_html_e( 'Pick any option — the total on the right updates instantly.', 'storelly-product-builder-for-woocommerce' ); ?></span>
+    </span>
+    <button type="button" class="spbwc-cust-teachtoast__close" data-spbwc-teachtoast-close aria-label="<?php esc_attr_e( 'Dismiss', 'storelly-product-builder-for-woocommerce' ); ?>">
+        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+    </button>
+</div>
+<?php endif; ?>

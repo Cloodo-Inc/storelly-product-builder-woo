@@ -8284,7 +8284,13 @@ select.ng-invalid {
     display: block;
     height: 100%;
     background: linear-gradient(90deg, var(--spbwc-c-brand) 0%, var(--spbwc-c-brand-dark) 100%);
-    transition: width .3s ease;
+    transition: width .3s ease, background .3s ease;
+}
+/* Flip to GREEN when every component is configured — Printcart Canva
+ * pattern: signals "ready to add to cart" with the same colour as the
+ * step-done checks. The class is toggled by $scope.refreshSummary(). */
+.spbwc-cust-panel__progress.is-complete .spbwc-cust-panel__progress-fill {
+    background: linear-gradient(90deg, var(--spbwc-c-success) 0%, #15803d 100%);
 }
 .spbwc-cust-tabpanel {
     flex: 1 1 auto;
@@ -8318,9 +8324,15 @@ select.ng-invalid {
 }
 .spbwc-cust-acc-head:hover { background: var(--spbwc-c-bg-mute); border-radius: var(--spbwc-c-radius-sm); }
 .spbwc-cust-acc-item.is-open .spbwc-cust-acc-head { background: transparent; }
+/* Step status icon — Printcart Canva v2.0 pattern.
+ *   • Done   → green check on light green disc
+ *   • Pending → empty grey disc with a small dot
+ *   • Open   → brand-blue ring (active focus, regardless of done state)
+ * The .is-done class is set in wrapper.php via ng-class based on
+ * $scope.isComponentConfigured(component). */
 .spbwc-cust-acc-step {
-    width: 24px;
-    height: 24px;
+    width: 22px;
+    height: 22px;
     flex: 0 0 auto;
     display: inline-flex;
     align-items: center;
@@ -8328,12 +8340,24 @@ select.ng-invalid {
     border-radius: 50%;
     background: var(--spbwc-c-bg-mute);
     color: var(--spbwc-c-muted);
-    font-size: 12px;
-    font-weight: 700;
+    transition: background .15s ease, color .15s ease, box-shadow .15s ease;
 }
-.spbwc-cust-acc-item.is-open .spbwc-cust-acc-step,
-.spbwc-cust-acc-item:hover .spbwc-cust-acc-step {
-    background: var(--spbwc-c-brand);
+.spbwc-cust-acc-step__dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: currentColor;
+    opacity: .5;
+}
+.spbwc-cust-acc-item.is-done .spbwc-cust-acc-step {
+    background: var(--spbwc-c-success-soft);
+    color: var(--spbwc-c-success);
+}
+.spbwc-cust-acc-item.is-open .spbwc-cust-acc-step {
+    box-shadow: 0 0 0 2px var(--spbwc-c-brand-soft);
+}
+.spbwc-cust-acc-item.is-open.is-done .spbwc-cust-acc-step {
+    background: var(--spbwc-c-success);
     color: #fff;
 }
 .spbwc-cust-acc-info {
@@ -8772,26 +8796,26 @@ select.ng-invalid {
 .spbwc-cust-summary__choice--missing { color: var(--spbwc-c-muted); font-weight: 500; font-style: italic; }
 .spbwc-cust-summary__price--inc { color: var(--spbwc-c-muted); font-size: 11px; font-weight: 600; }
 .spbwc-cust-summary__price--add { color: var(--spbwc-c-success); font-size: 12px; font-weight: 700; }
-/* YOUR PRICE — prominent hero row above the CTA. The label is a small
- * uppercase caption; the value is the largest type in the column so the
- * customer's eye lands on it as the conversion anchor. */
+/* YOUR PRICE — Printcart Canva v2.0 pattern: a clean baseline-aligned
+ * row, no tinted panel. The label is a small uppercase caption, the
+ * value is the largest type in the column so the customer's eye lands
+ * on the conversion anchor. Sits on a 2px top border that separates it
+ * from the line-item rows above. */
 .spbwc-cust-summary__total {
     display: flex;
-    align-items: center;
+    align-items: baseline;
     justify-content: space-between;
     gap: 10px;
-    padding: 12px 14px;
-    margin: 4px 0 12px;
-    background: var(--spbwc-c-brand-tint);
-    border: 1px solid var(--spbwc-c-brand-soft);
-    border-radius: var(--spbwc-c-radius);
+    padding: 12px 0 14px;
+    margin: 0 0 12px;
+    border-top: 2px solid var(--spbwc-c-line-strong);
 }
 .spbwc-cust-summary__total-label {
-    font-size: 11px;
+    font-size: 13px;
     font-weight: 700;
-    color: var(--spbwc-c-brand-dark);
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
+    color: var(--spbwc-c-ink);
+    text-transform: none;
+    letter-spacing: -0.01em;
 }
 .spbwc-cust-summary__total-val {
     font-size: 24px;
@@ -8916,6 +8940,82 @@ select.ng-invalid {
     gap: 6px;
 }
 .spbwc-cust-summary__trust-item svg { color: var(--spbwc-c-success); flex: 0 0 auto; }
+
+/* Teaching toast (Printcart Canva pattern). Floats at bottom-right of
+ * the viewport — explains the live-pricing behaviour on first load.
+ * Lives as a body-level sibling of the .nbdpb-popup (not inside) because
+ * the legacy `.nbdpb-carousel.nbdpbCarousel()` plugin strips siblings
+ * inside the popup on init. Hidden by default; revealed by the
+ * `is-visible` class that JS toggles when the modal opens. */
+.spbwc-cust-teachtoast {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    max-width: 320px;
+    display: none;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 12px 14px 12px 12px;
+    background: #1d2327;
+    color: #fff;
+    border-radius: 12px;
+    box-shadow: 0 12px 32px rgba(15, 23, 42, 0.25);
+    z-index: 1000000000; /* above .nbdpb-popup.nbdpb-show (z 999999999) */
+    font-size: 13px;
+    line-height: 1.45;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    transition: opacity .35s ease, transform .35s ease;
+}
+.spbwc-cust-teachtoast.is-visible {
+    display: flex;
+    animation: spbwcTeachIn .4s ease both;
+}
+.spbwc-cust-teachtoast.is-out {
+    opacity: 0;
+    transform: translateY(8px);
+    pointer-events: none;
+}
+@keyframes spbwcTeachIn {
+    from { opacity: 0; transform: translateY(12px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+.spbwc-cust-teachtoast__icon {
+    flex: 0 0 auto;
+    color: #93c5fd; /* brand-soft on dark ink */
+    padding-top: 1px;
+}
+.spbwc-cust-teachtoast__body {
+    flex: 1 1 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+    min-width: 0;
+}
+.spbwc-cust-teachtoast__body strong {
+    font-size: 13px;
+    font-weight: 700;
+    color: #fff;
+}
+.spbwc-cust-teachtoast__body span {
+    font-size: 12.5px;
+    color: rgba(255, 255, 255, 0.78);
+}
+.spbwc-cust-teachtoast__close {
+    appearance: none;
+    background: transparent;
+    border: 0;
+    color: rgba(255, 255, 255, 0.7);
+    cursor: pointer;
+    padding: 2px;
+    margin: -2px -4px 0 0;
+    border-radius: 50%;
+    flex: 0 0 auto;
+    transition: background .15s ease, color .15s ease;
+}
+.spbwc-cust-teachtoast__close:hover {
+    background: rgba(255, 255, 255, 0.12);
+    color: #fff;
+}
 
 /* Toast (coming-soon) */
 .spbwc-cust-v3 .spbwc-cust-toast {
