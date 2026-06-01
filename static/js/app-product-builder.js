@@ -1821,6 +1821,22 @@ nbdpbApp.controller("nbpbCtrl", [
      * defaults to currentConfig=0 on init (first option auto-selected),
      * so we treat it as configured as long as that index resolves to a
      * real entry — keeps the green-check affordance honest. */
+    /* V3 — Front/Back view switcher (Printcart Canva pattern).
+     * Drives the legacy nbdpbCarousel by calling activeItemByIndex on
+     * the cached slider instance (set at jQuery(".nbdpb-carousel")
+     * .nbdpbCarousel() bootstrap). Safe to call before the carousel
+     * exists — no-op until then. */
+    $scope.changeStage = function (idx) {
+      var stages = $scope.stages || [];
+      if (!stages.length) return;
+      var i = Math.max(0, Math.min(stages.length - 1, idx));
+      $scope.currentStage = i;
+      try {
+        if (typeof appConfig !== 'undefined' && appConfig.slider && typeof appConfig.slider.activeItemByIndex === 'function') {
+          appConfig.slider.activeItemByIndex(i);
+        }
+      } catch (e) { /* slider not ready yet — currentStage update is enough */ }
+    };
     $scope.isComponentConfigured = function (c) {
       if (!c || !c.enable) return false;
       if (c.nbpb_type === 'nbpb_com') {
