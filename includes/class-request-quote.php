@@ -450,7 +450,7 @@ if ( ! class_exists( 'SPBWC_Request_Quote' ) ) {
             );
             update_post_meta( $quote_id, '_spbwc_quote_product_id', $product_id );
 
-            $this->notify_admin_new_quote( $quote_id, $request );
+            do_action( 'spbwc_quote_new_notification', $quote_id );
 
             $settings        = get_option( 'spbwc_quote_settings', array() );
             $success_message = ( isset( $settings['success_message'] ) && '' !== $settings['success_message'] )
@@ -463,43 +463,6 @@ if ( ! class_exists( 'SPBWC_Request_Quote' ) ) {
                     'quote_id' => $quote_id,
                 )
             );
-        }
-
-        /**
-         * Lightweight plain-text admin notification for a new CPT quote.
-         * Replaced by a WC_Email subclass in a later milestone (M6).
-         *
-         * @param int   $quote_id Quote post ID.
-         * @param array $request  Canonical request payload.
-         */
-        protected function notify_admin_new_quote( $quote_id, array $request ) {
-            $settings    = get_option( 'spbwc_quote_settings', array() );
-            $admin_email = isset( $settings['admin_email'] ) ? sanitize_email( $settings['admin_email'] ) : get_option( 'admin_email' );
-            if ( ! is_email( $admin_email ) ) {
-                return;
-            }
-            $number   = get_post_meta( $quote_id, SPBWC_Quote::META_NUMBER, true );
-            $customer = class_exists( 'SPBWC_Quotes_List_Table' )
-                ? SPBWC_Quotes_List_Table::derive_customer( $request, (int) get_post_field( 'post_author', $quote_id ) )
-                : '';
-            /* translators: 1: site name, 2: quote number */
-            $subject = sprintf( __( '[%1$s] New quote request %2$s', 'storelly-product-builder-for-woocommerce' ), get_bloginfo( 'name' ), $number ? $number : '#' . $quote_id );
-            $admin_url = class_exists( 'SPBWC_Quote_Admin' )
-                ? SPBWC_Quote_Admin::page_url( array( 'quote' => $quote_id ) )
-                : admin_url();
-            $body  = sprintf( "%s\n", $subject );
-            $body .= sprintf( "%s: %s\n", __( 'Customer', 'storelly-product-builder-for-woocommerce' ), $customer ? $customer : __( 'Guest', 'storelly-product-builder-for-woocommerce' ) );
-            if ( ! empty( $request['email'] ) ) {
-                $body .= sprintf( "%s: %s\n", __( 'Email', 'storelly-product-builder-for-woocommerce' ), $request['email'] );
-            }
-            if ( ! empty( $request['product_name'] ) ) {
-                $body .= sprintf( "%s: %s x %d\n", __( 'Product', 'storelly-product-builder-for-woocommerce' ), $request['product_name'], isset( $request['quantity'] ) ? (int) $request['quantity'] : 1 );
-            }
-            if ( ! empty( $request['message'] ) ) {
-                $body .= sprintf( "%s: %s\n", __( 'Message', 'storelly-product-builder-for-woocommerce' ), $request['message'] );
-            }
-            $body .= sprintf( "\n%s %s\n", __( 'Reply here:', 'storelly-product-builder-for-woocommerce' ), $admin_url );
-            wp_mail( $admin_email, $subject, $body );
         }
 
         protected function send_quote_notification_email( $order, $event = 'new' ) {
@@ -893,20 +856,19 @@ if ( ! class_exists( 'SPBWC_Request_Quote' ) ) {
                 if ( $order_id ) {
                     SPBWC_Quote::set_status( $quote_id, SPBWC_Quote::STATUS_CONVERTED, sprintf( /* translators: %d: order ID */ __( 'Order #%d created from accepted quote.', 'storelly-product-builder-for-woocommerce' ), $order_id ) );
                 }
-                $this->notify_quote_event( $quote_id, 'accepted' );
+                do_action( 'spbwc_quote_accepted_notification', $quote_id );
                 $this->redirect_view_quote( $quote_id, 'accepted' );
             } elseif ( 'decline' === $action ) {
                 $reason = isset( $_POST['reason'] ) ? sanitize_key( wp_unslash( $_POST['reason'] ) ) : 'other';
                 update_post_meta( $quote_id, SPBWC_Quote::META_DECLINE_REASON, $reason );
                 SPBWC_Quote::set_status( $quote_id, SPBWC_Quote::STATUS_DECLINED, __( 'Customer declined the quote.', 'storelly-product-builder-for-woocommerce' ) );
-                $this->notify_quote_event( $quote_id, 'declined' );
+                do_action( 'spbwc_quote_declined_notification', $quote_id );
                 $this->redirect_view_quote( $quote_id, 'declined' );
             } elseif ( 'request_changes' === $action ) {
                 $asks    = isset( $_POST['asks'] ) ? array_map( 'sanitize_key', (array) wp_unslash( $_POST['asks'] ) ) : array();
                 $details = isset( $_POST['details'] ) ? sanitize_textarea_field( wp_unslash( $_POST['details'] ) ) : '';
                 update_post_meta( $quote_id, '_spbwc_quote_change_request', array( 'asks' => $asks, 'details' => $details ) );
                 SPBWC_Quote::set_status( $quote_id, SPBWC_Quote::STATUS_NEGOTIATING, __( 'Customer requested changes.', 'storelly-product-builder-for-woocommerce' ) );
-                $this->notify_quote_event( $quote_id, 'changes' );
                 $this->redirect_view_quote( $quote_id, 'changes' );
             }
         }
@@ -986,28 +948,6 @@ if ( ! class_exists( 'SPBWC_Request_Quote' ) ) {
          * @param int    $quote_id Quote post ID.
          * @param string $event    accepted|declined|changes.
          */
-        protected function notify_quote_event( $quote_id, $event ) {
-            $settings    = get_option( 'spbwc_quote_settings', array() );
-            $admin_email = isset( $settings['admin_email'] ) ? sanitize_email( $settings['admin_email'] ) : get_option( 'admin_email' );
-            if ( ! is_email( $admin_email ) ) {
-                return;
-            }
-            $number = get_post_meta( $quote_id, SPBWC_Quote::META_NUMBER, true );
-            $labels = array(
-                'accepted' => __( 'accepted', 'storelly-product-builder-for-woocommerce' ),
-                'declined' => __( 'declined', 'storelly-product-builder-for-woocommerce' ),
-                'changes'  => __( 'requested changes on', 'storelly-product-builder-for-woocommerce' ),
-            );
-            $verb = isset( $labels[ $event ] ) ? $labels[ $event ] : $event;
-            /* translators: 1: site name, 2: quote number */
-            $subject = sprintf( __( '[%1$s] Quote %2$s update', 'storelly-product-builder-for-woocommerce' ), get_bloginfo( 'name' ), $number ? $number : '#' . $quote_id );
-            /* translators: 1: quote number, 2: action verb (accepted/declined/...) */
-            $body  = sprintf( __( 'The customer has %2$s quote %1$s.', 'storelly-product-builder-for-woocommerce' ), $number ? $number : '#' . $quote_id, $verb ) . "\n";
-            if ( class_exists( 'SPBWC_Quote_Admin' ) ) {
-                $body .= "\n" . SPBWC_Quote_Admin::page_url( array( 'quote' => $quote_id ) ) . "\n";
-            }
-            wp_mail( $admin_email, $subject, $body );
-        }
     }
 }
 

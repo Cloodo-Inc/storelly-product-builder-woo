@@ -150,6 +150,9 @@ if ( ! class_exists( 'SPBWC_Quote_Admin' ) ) {
                     update_post_meta( $quote_id, SPBWC_Quote::META_REVISION, $rev + 1 );
                 }
                 $res = SPBWC_Quote::set_status( $quote_id, SPBWC_Quote::STATUS_SENT, $note );
+                if ( ! is_wp_error( $res ) ) {
+                    do_action( 'spbwc_quote_sent_notification', $quote_id );
+                }
                 $this->redirect_detail( $quote_id, is_wp_error( $res ) ? 'error' : 'sent' );
                 return;
             }

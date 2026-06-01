@@ -103,11 +103,19 @@ require_once(SPBWC_PB_PLUGIN_DIR .  'includes/quote/class-quote-model.php');
 require_once(SPBWC_PB_PLUGIN_DIR .  'includes/quote/class-quote-post-type.php');
 require_once(SPBWC_PB_PLUGIN_DIR .  'includes/quote/class-quotes-list-table.php');
 require_once(SPBWC_PB_PLUGIN_DIR .  'includes/quote/class-quote-admin.php');
+require_once(SPBWC_PB_PLUGIN_DIR .  'includes/quote/class-quote-emails.php');
+require_once(SPBWC_PB_PLUGIN_DIR .  'includes/quote/class-quote-scheduler.php');
 if ( class_exists( 'SPBWC_Quote_Post_Type' ) ) {
     SPBWC_Quote_Post_Type::instance()->init();
 }
 if ( is_admin() && class_exists( 'SPBWC_Quote_Admin' ) ) {
     SPBWC_Quote_Admin::instance()->init();
+}
+if ( class_exists( 'SPBWC_Quote_Emails' ) ) {
+    SPBWC_Quote_Emails::init();
+}
+if ( class_exists( 'SPBWC_Quote_Scheduler' ) ) {
+    SPBWC_Quote_Scheduler::init();
 }
 
 require_once(SPBWC_PB_PLUGIN_DIR .  'includes/class-global-import.php');
