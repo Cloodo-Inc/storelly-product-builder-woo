@@ -4,8 +4,8 @@ Donate link: https://storelly.com/
 Tags: product builder, product customize, product customizer, woocommerce custom product
 Requires at least: 4.7
 Tested up to: 7.0
-Stable tag: 1.3.9
-Version: 1.3.9
+Stable tag: 1.4.0
+Version: 1.4.0
 Requires PHP: 7.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -132,6 +132,11 @@ This plugin connects to the following external services:
 3. Storelly settings page with API keys and sync options
 
 == Changelog ==
+= 1.4.0 =
+* Customizer V3 — Summary column rewritten 1:1 with Printcart Canva v2.0 reference. New structure: product hero block at top (22px bold name + small variant line + live progress pill on the right) → ORDER SUMMARY · 1 ITEM section with thumb item card → light-gray "price-block" containing Base + every component row + Shipping + a YOUR PRICE total row inside (Printcart `.price-row.total` 15px label, 20px bold value) → big Add to cart CTA (17px label / 20px price stacked) → Reset / Cancel link row → blue trust note. Padding, gaps, fonts, weights, radii, shadows all use the Printcart `--nbd-space-*`, `--nbd-radius-*`, and `--nbd-shadow-*` scale values verbatim.
+* Status "5/5 configured" affordance moved from the left panel into the Summary head. It now lives as a pill at the top-right of the product name + a 4px progress track underneath — the customer sees it together with the price they're committing to.
+* Removed the heavy box-shadow on the canvas artwork. The product image now sits flush on the dotted-grid stage exactly like Printcart Canva — no "boxed thumbnail" treatment.
+
 = 1.3.9 =
 * Customizer V3 — premium polish pass to match Printcart Canva v2.0 reference HTML 1:1:
   - Canvas now sits on a 24×24 dotted grid background (`linear-gradient` cross-hatch over `--nbd-mb-bg-canvas` #f3f4f6) so the artwork "floats" with depth — no more flat white wall behind the product image.

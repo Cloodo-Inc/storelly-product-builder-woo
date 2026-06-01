@@ -177,11 +177,7 @@
                     <div class="spbwc-cust-tabpanel" data-spbwc-tabpanel="customize">
                         <header class="spbwc-cust-panel__head">
                             <div class="spbwc-cust-panel__title"><?php esc_html_e( 'Customize parts', 'storelly-product-builder-for-woocommerce' ); ?></div>
-                            <div class="spbwc-cust-panel__meta" data-spbwc-progress-label>0 / 0 <?php esc_html_e( 'configured', 'storelly-product-builder-for-woocommerce' ); ?></div>
                         </header>
-                        <div class="spbwc-cust-panel__progress" aria-hidden="true">
-                            <span class="spbwc-cust-panel__progress-fill" data-spbwc-progress-fill style="width:0"></span>
-                        </div>
 
                         <div class="spbwc-cust-acc">
                             <!-- One accordion item per component. ng-click toggles via $scope.showAttribute($index). -->
@@ -422,92 +418,106 @@
                     </div>
                 </section>
 
-                <!-- ========== SUMMARY 300px (Printcart Canva pattern) ========== -->
+                <!-- ============== SUMMARY — Printcart `.summary-col` 1:1 ============== -->
                 <aside class="spbwc-cust-summary">
-                    <!-- ORDER SUMMARY · 1 ITEM section -->
+
+                    <!-- Product hero block (Printcart `.summary-product-head`) -->
+                    <div class="spbwc-cust-summary__head">
+                        <div class="spbwc-cust-summary__head-row">
+                            <div class="spbwc-cust-summary__head-name-block">
+                                <h1 class="spbwc-cust-summary__product-name"><?php echo esc_html( $spbwc_v3_product_name ?: esc_html__( 'Custom product', 'storelly-product-builder-for-woocommerce' ) ); ?></h1>
+                                <?php if ( $spbwc_v3_product_specs ) : ?>
+                                    <div class="spbwc-cust-summary__product-variant"><?php echo esc_html( $spbwc_v3_product_specs ); ?></div>
+                                <?php endif; ?>
+                            </div>
+                            <!-- Live progress pill (moved here from left panel) -->
+                            <span class="spbwc-cust-summary__progress-pill" data-spbwc-progress-pill>
+                                <span class="spbwc-cust-summary__progress-dot" data-spbwc-progress-dot></span>
+                                <span data-spbwc-progress-label>0 / 0</span>
+                            </span>
+                        </div>
+                        <div class="spbwc-cust-summary__progress-track" aria-hidden="true">
+                            <span class="spbwc-cust-summary__progress-fill" data-spbwc-progress-fill style="width:0"></span>
+                        </div>
+                    </div>
+
+                    <!-- ORDER SUMMARY · 1 ITEM — Printcart `.summary-section` + `.summary-item` -->
                     <div class="spbwc-cust-summary__section">
-                        <div class="spbwc-cust-summary__caption"><?php esc_html_e( 'Order summary · 1 item', 'storelly-product-builder-for-woocommerce' ); ?></div>
+                        <div class="spbwc-cust-summary__title"><?php esc_html_e( 'Order summary · 1 item', 'storelly-product-builder-for-woocommerce' ); ?></div>
                         <div class="spbwc-cust-summary__item">
                             <?php if ( $spbwc_v3_product_thumb ) : ?>
-                                <img class="spbwc-cust-summary__item-thumb" src="<?php echo esc_url( $spbwc_v3_product_thumb ); ?>" alt="" />
+                                <img class="spbwc-cust-summary__thumb" src="<?php echo esc_url( $spbwc_v3_product_thumb ); ?>" alt="" />
                             <?php else : ?>
-                                <span class="spbwc-cust-summary__item-thumb spbwc-cust-summary__item-thumb--ph" aria-hidden="true">
-                                    <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></svg>
+                                <span class="spbwc-cust-summary__thumb spbwc-cust-summary__thumb--ph" aria-hidden="true">
+                                    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></svg>
                                 </span>
                             <?php endif; ?>
-                            <div class="spbwc-cust-summary__item-body">
-                                <div class="spbwc-cust-summary__item-name"><?php echo esc_html( $spbwc_v3_product_name ?: esc_html__( 'Custom item', 'storelly-product-builder-for-woocommerce' ) ); ?> #1</div>
-                                <div class="spbwc-cust-summary__item-spec" data-spbwc-summary-spec>
+                            <div class="spbwc-cust-summary__item-info">
+                                <div class="spbwc-cust-summary__item-title"><?php echo esc_html( $spbwc_v3_product_name ?: esc_html__( 'Custom item', 'storelly-product-builder-for-woocommerce' ) ); ?> #1</div>
+                                <div class="spbwc-cust-summary__item-specs" data-spbwc-summary-spec>
                                     <span ng-repeat="component in resource.components" ng-show="component.enable && component.nbpb_type == 'nbpb_com' && component.current_pb_configs[component.currentConfig]"><span ng-if="!$first"> · </span>{{(component.current_pb_configs[component.currentConfig].sattr_name) || (component.current_pb_configs[component.currentConfig].attr_name)}}</span>
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Price breakdown — Printcart Canva pattern -->
-                    <div class="spbwc-cust-summary__breakdown">
-                        <div class="spbwc-cust-summary__row spbwc-cust-summary__row--base">
-                            <span class="spbwc-cust-summary__label"><?php esc_html_e( 'Base price', 'storelly-product-builder-for-woocommerce' ); ?></span>
-                            <span class="spbwc-cust-summary__val" data-spbwc-base-price><?php echo wp_kses_post( $spbwc_v3_base_price_html ); ?></span>
+                    <!-- Price block — Printcart `.price-block` + `.price-row` -->
+                    <div class="spbwc-cust-summary__price-block">
+                        <div class="spbwc-cust-summary__price-row">
+                            <span class="lbl"><?php esc_html_e( 'Base price', 'storelly-product-builder-for-woocommerce' ); ?></span>
+                            <span class="val" data-spbwc-base-price><?php echo wp_kses_post( $spbwc_v3_base_price_html ); ?></span>
                         </div>
-                        <div class="spbwc-cust-summary__row" ng-repeat="component in resource.components" ng-show="component.enable">
-                            <span class="spbwc-cust-summary__label" ng-bind="component.general.title"></span>
-                            <span class="spbwc-cust-summary__val" ng-switch="component.nbpb_type">
+                        <div class="spbwc-cust-summary__price-row" ng-repeat="component in resource.components" ng-show="component.enable">
+                            <span class="lbl">{{component.general.title}}</span>
+                            <span class="val" ng-switch="component.nbpb_type">
                                 <span ng-switch-when="nbpb_com">
-                                    <span class="spbwc-cust-summary__choice" ng-if="component.current_pb_configs[component.currentConfig]" ng-bind="(component.current_pb_configs[component.currentConfig].sattr_name) || (component.current_pb_configs[component.currentConfig].attr_name)"></span>
-                                    <span class="spbwc-cust-summary__price spbwc-cust-summary__price--inc" ng-if="component.current_pb_configs[component.currentConfig] && !component.current_pb_configs[component.currentConfig].price"><?php esc_html_e( 'Included', 'storelly-product-builder-for-woocommerce' ); ?></span>
-                                    <span class="spbwc-cust-summary__price spbwc-cust-summary__price--add" ng-if="component.current_pb_configs[component.currentConfig] && component.current_pb_configs[component.currentConfig].price > 0" ng-bind="formatPrice(component.current_pb_configs[component.currentConfig].price)"></span>
-                                    <span class="spbwc-cust-summary__choice spbwc-cust-summary__choice--missing" ng-if="!component.current_pb_configs[component.currentConfig]"><?php esc_html_e( '— pick one', 'storelly-product-builder-for-woocommerce' ); ?></span>
+                                    <span class="val-sub" ng-if="component.current_pb_configs[component.currentConfig] && !component.current_pb_configs[component.currentConfig].price"><?php esc_html_e( 'Included', 'storelly-product-builder-for-woocommerce' ); ?></span>
+                                    <span class="val-add" ng-if="component.current_pb_configs[component.currentConfig] && component.current_pb_configs[component.currentConfig].price > 0" ng-bind="formatPrice(component.current_pb_configs[component.currentConfig].price)"></span>
+                                    <span class="val-sub val-sub--missing" ng-if="!component.current_pb_configs[component.currentConfig]"><?php esc_html_e( '— pick one', 'storelly-product-builder-for-woocommerce' ); ?></span>
                                 </span>
                                 <span ng-switch-when="nbpb_text">
-                                    <span class="spbwc-cust-summary__choice" ng-if="component.currentContent">"{{component.currentContent}}"</span>
-                                    <span class="spbwc-cust-summary__choice spbwc-cust-summary__choice--missing" ng-if="!component.currentContent"><?php esc_html_e( '— add text', 'storelly-product-builder-for-woocommerce' ); ?></span>
+                                    <span class="val-sub" ng-if="component.currentContent">{{component.currentContent}}</span>
+                                    <span class="val-sub val-sub--missing" ng-if="!component.currentContent"><?php esc_html_e( '— add text', 'storelly-product-builder-for-woocommerce' ); ?></span>
                                 </span>
                                 <span ng-switch-when="nbpb_image">
-                                    <span class="spbwc-cust-summary__choice" ng-if="resource.uploaded.length"><?php esc_html_e( 'Uploaded', 'storelly-product-builder-for-woocommerce' ); ?></span>
-                                    <span class="spbwc-cust-summary__choice spbwc-cust-summary__choice--missing" ng-if="!resource.uploaded.length"><?php esc_html_e( '— upload image', 'storelly-product-builder-for-woocommerce' ); ?></span>
+                                    <span class="val-sub" ng-if="resource.uploaded.length"><?php esc_html_e( 'Uploaded', 'storelly-product-builder-for-woocommerce' ); ?></span>
+                                    <span class="val-sub val-sub--missing" ng-if="!resource.uploaded.length"><?php esc_html_e( '— upload', 'storelly-product-builder-for-woocommerce' ); ?></span>
                                 </span>
                             </span>
                         </div>
-                        <div class="spbwc-cust-summary__row spbwc-cust-summary__row--meta">
-                            <span class="spbwc-cust-summary__label"><?php esc_html_e( 'Shipping', 'storelly-product-builder-for-woocommerce' ); ?></span>
-                            <span class="spbwc-cust-summary__val spbwc-cust-summary__val--muted"><?php esc_html_e( 'at checkout', 'storelly-product-builder-for-woocommerce' ); ?></span>
+                        <div class="spbwc-cust-summary__price-row spbwc-cust-summary__price-row--subtle">
+                            <span class="lbl"><?php esc_html_e( 'Shipping', 'storelly-product-builder-for-woocommerce' ); ?></span>
+                            <span class="val"><?php esc_html_e( 'at checkout', 'storelly-product-builder-for-woocommerce' ); ?></span>
+                        </div>
+                        <!-- "Your price" total row — Printcart `.price-row.total` -->
+                        <div class="spbwc-cust-summary__price-row spbwc-cust-summary__price-row--total">
+                            <span class="lbl"><?php esc_html_e( 'Your price', 'storelly-product-builder-for-woocommerce' ); ?></span>
+                            <span class="val" data-spbwc-grand-total><?php echo wp_kses_post( $spbwc_v3_base_price_html ); ?></span>
                         </div>
                     </div>
 
-                    <!-- YOUR PRICE — Printcart Canva pattern: large bold total -->
-                    <div class="spbwc-cust-summary__total">
-                        <span class="spbwc-cust-summary__total-label"><?php esc_html_e( 'Your price', 'storelly-product-builder-for-woocommerce' ); ?></span>
-                        <span class="spbwc-cust-summary__total-val" data-spbwc-grand-total><?php echo wp_kses_post( $spbwc_v3_base_price_html ); ?></span>
-                    </div>
-
+                    <!-- BIG primary Add to cart — Printcart `.summary-cta-big` -->
                     <button class="spbwc-cust-cta" type="button" data-spbwc-action="add-to-cart" ng-click="saveData()" aria-live="polite">
                         <span class="spbwc-cust-cta__content">
                             <span class="spbwc-cust-cta__label"><?php esc_html_e( 'Add to cart', 'storelly-product-builder-for-woocommerce' ); ?></span>
                             <span class="spbwc-cust-cta__price" data-spbwc-cta-price><?php echo wp_kses_post( $spbwc_v3_base_price_html ); ?></span>
                         </span>
-                        <svg class="spbwc-cust-cta__arrow" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+                        <svg class="spbwc-cust-cta__arrow" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
                     </button>
 
+                    <!-- Reset / Cancel link row -->
                     <div class="spbwc-cust-summary__actions">
                         <button type="button" class="spbwc-cust-linkbtn" data-spbwc-action="reset-all">
                             <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7L3 9"/><path d="M3 3v6h6"/></svg>
                             <?php esc_html_e( 'Reset all', 'storelly-product-builder-for-woocommerce' ); ?>
                         </button>
-                        <button type="button" class="close-popup spbwc-cust-linkbtn">
-                            <?php esc_html_e( 'Cancel', 'storelly-product-builder-for-woocommerce' ); ?>
-                        </button>
+                        <button type="button" class="close-popup spbwc-cust-linkbtn"><?php esc_html_e( 'Cancel', 'storelly-product-builder-for-woocommerce' ); ?></button>
                     </div>
 
-                    <div class="spbwc-cust-summary__trust">
-                        <span class="spbwc-cust-summary__trust-item">
-                            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
-                            <?php esc_html_e( 'Free design preview', 'storelly-product-builder-for-woocommerce' ); ?>
-                        </span>
-                        <span class="spbwc-cust-summary__trust-item">
-                            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
-                            <?php esc_html_e( 'Quick turnaround', 'storelly-product-builder-for-woocommerce' ); ?>
-                        </span>
+                    <!-- Trust note — Printcart `.prod-note` blue info card -->
+                    <div class="spbwc-cust-summary__note">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+                        <span><strong><?php esc_html_e( 'Free design preview', 'storelly-product-builder-for-woocommerce' ); ?></strong> — <?php esc_html_e( 'no charge until your design is locked in.', 'storelly-product-builder-for-woocommerce' ); ?></span>
                     </div>
                 </aside>
 

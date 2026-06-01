@@ -1916,11 +1916,14 @@ nbdpbApp.controller("nbpbCtrl", [
         jQuery('[data-spbwc-progress-fill]').css('width', pct + '%');
         /* Printcart Canva v2.0 visual cue — progress bar flips to GREEN
          * when 100% configured, signalling "ready to add to cart". */
-        var $panel = jQuery('.spbwc-cust-panel__progress');
+        var $panel = jQuery('.spbwc-cust-panel__progress, .spbwc-cust-summary__progress-track');
+        var $pill  = jQuery('[data-spbwc-progress-pill], .spbwc-cust-summary__progress-pill');
         if (info.total > 0 && info.configured >= info.total) {
           $panel.addClass('is-complete');
+          $pill.addClass('is-complete');
         } else {
           $panel.removeClass('is-complete');
+          $pill.removeClass('is-complete');
         }
       } catch (e) { /* never let UI math break the customizer */ }
     };

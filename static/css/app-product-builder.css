@@ -8751,15 +8751,13 @@ select.ng-invalid {
     padding: 32px 32px 72px;
     box-sizing: border-box;
 }
-/* Constrain the design-zone (artwork canvas) to fit inside the stage —
- * Printcart `.canvas-wrap` pattern: aspect-ratio + max constraints +
- * shadow-xl so the artwork "floats" on the dotted grid. */
+/* Constrain the design-zone (artwork canvas) to fit inside the stage.
+ * Shadow intentionally OFF — Printcart leaves the artwork flush with
+ * the dotted-grid stage; adding a card shadow turns the product photo
+ * into a "boxed thumbnail" which dilutes the design itself. */
 .spbwc-cust-v3 .spbwc-cust-canvas .design-zone {
     max-width: calc(100% - 32px) !important;
     max-height: calc(100% - 32px) !important;
-    box-shadow: 0 8px 24px 0 rgba(0, 0, 0, 0.16);
-    border-radius: 2px;
-    background-color: #fff;
     margin: auto;
 }
 .spbwc-cust-v3 .spbwc-cust-canvas canvas {
@@ -8794,170 +8792,236 @@ select.ng-invalid {
 }
 .spbwc-cust-v3 .spbwc-cust-tools .tool-item:hover { background: #fff; box-shadow: var(--spbwc-c-shadow-sm); }
 
-/* SUMMARY column — direct port of Printcart `.summary-col`.
- * Padding space-4 (16px) all sides, gap space-4 between sections. */
+/* ====================================================================
+ * SUMMARY column — DIRECT PORT of Printcart Canva v2.0 `.summary-col`.
+ * Values copied verbatim from D:\PRINTCART\API Printcart\
+ * printcart-canva-v2.0.html. Class names re-namespaced under
+ * .spbwc-cust-summary__* to keep CSS isolation, but every property
+ * and value below mirrors Printcart 1:1.
+ * ================================================================ */
 .spbwc-cust-summary {
     background: var(--spbwc-c-bg);
     border-left: 1px solid var(--spbwc-c-line);
+    padding: 16px;
+    overflow-y: auto;
     display: flex;
     flex-direction: column;
-    min-height: 0;
-    overflow-y: auto;
-    padding: 16px;
     gap: 16px;
 }
-.spbwc-cust-summary__section { /* outer block wrapper */ }
-.spbwc-cust-summary__caption {
-    font-size: 11px;
-    font-weight: 700;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-    color: var(--spbwc-c-muted);
-    margin-bottom: 8px;
+
+/* `.summary-product-head` — product hero block at top of summary */
+.spbwc-cust-summary__head {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--spbwc-c-line-subtle);
 }
-.spbwc-cust-summary__item {
+.spbwc-cust-summary__head-row {
     display: flex;
     align-items: flex-start;
-    gap: 12px;
-    padding: 12px;
+    justify-content: space-between;
+    gap: 8px;
+}
+.spbwc-cust-summary__head-name-block { flex: 1; min-width: 0; }
+.spbwc-cust-summary__product-name {
+    font-size: 22px;
+    font-weight: 700;
+    line-height: 1.15;
+    letter-spacing: -0.01em;
+    color: var(--spbwc-c-ink);
+    margin: 0;
+}
+.spbwc-cust-summary__product-variant {
+    font-size: 13px;
+    color: var(--spbwc-c-text);
+    margin-top: 2px;
+    font-weight: 500;
+}
+/* Progress pill — moved here from the left panel (sits top-right of
+ * summary head, replacing Printcart's "Retail/B2B tier" pill slot). */
+.spbwc-cust-summary__progress-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 10px;
+    background: var(--spbwc-c-bg-soft);
+    border: 1px solid var(--spbwc-c-line);
+    border-radius: 9999px;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--spbwc-c-text);
+    flex-shrink: 0;
+}
+.spbwc-cust-summary__progress-pill.is-complete {
+    background: var(--spbwc-c-success-soft);
+    border-color: var(--spbwc-c-success);
+    color: #064e3b;
+}
+.spbwc-cust-summary__progress-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--spbwc-c-brand);
+    flex-shrink: 0;
+}
+.spbwc-cust-summary__progress-pill.is-complete .spbwc-cust-summary__progress-dot {
+    background: var(--spbwc-c-success);
+}
+.spbwc-cust-summary__progress-track {
+    height: 4px;
+    background: var(--spbwc-c-bg-mute);
+    border-radius: 9999px;
+    overflow: hidden;
+}
+.spbwc-cust-summary__progress-fill {
+    display: block;
+    height: 100%;
+    background: var(--spbwc-c-brand);
+    transition: width 220ms ease, background 220ms ease;
+    border-radius: 9999px;
+}
+.spbwc-cust-summary__progress-track.is-complete .spbwc-cust-summary__progress-fill,
+.spbwc-cust-summary__head:has(.spbwc-cust-summary__progress-pill.is-complete) .spbwc-cust-summary__progress-fill {
+    background: var(--spbwc-c-success);
+}
+
+/* `.summary-section` */
+.spbwc-cust-summary__section {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+/* `.summary-title` — small uppercase caption */
+.spbwc-cust-summary__title {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--spbwc-c-text);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+}
+
+/* `.summary-item` — order item card with thumb */
+.spbwc-cust-summary__item {
     background: var(--spbwc-c-bg);
     border: 1px solid var(--spbwc-c-line);
     border-radius: var(--spbwc-c-radius-md); /* 8px */
-}
-.spbwc-cust-summary__item-thumb {
-    flex: 0 0 auto;
-    width: 56px;
-    height: 56px;
-    border-radius: var(--spbwc-c-radius-sm);
-    object-fit: cover;
-    border: 1px solid var(--spbwc-c-line);
-    background: var(--spbwc-c-bg);
-    color: var(--spbwc-c-muted);
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-}
-.spbwc-cust-summary__item-thumb--ph { padding: 8px; }
-.spbwc-cust-summary__item-body {
-    flex: 1 1 auto;
-    min-width: 0;
+    padding: 12px;
     display: flex;
-    flex-direction: column;
-    gap: 2px;
+    gap: 12px;
+    box-shadow: var(--spbwc-c-shadow-sm);
 }
-.spbwc-cust-summary__item-name {
-    font-size: 14px;
-    font-weight: 700;
+.spbwc-cust-summary__thumb {
+    width: 48px;
+    height: 48px;
+    border-radius: var(--spbwc-c-radius-sm); /* 6px */
+    object-fit: cover;
+    flex-shrink: 0;
+    background: var(--spbwc-c-bg-mute);
+    color: var(--spbwc-c-text);
+    display: grid;
+    place-items: center;
+}
+.spbwc-cust-summary__thumb--ph svg { opacity: .6; }
+.spbwc-cust-summary__item-info { flex: 1; min-width: 0; }
+.spbwc-cust-summary__item-title {
+    font-size: 13px;
+    font-weight: 600;
     color: var(--spbwc-c-ink);
-    letter-spacing: -0.01em;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+    line-height: 1.2;
 }
-.spbwc-cust-summary__item-spec {
-    font-size: 12px;
-    color: var(--spbwc-c-muted);
+.spbwc-cust-summary__item-specs {
+    font-size: 11px;
+    color: var(--spbwc-c-text);
+    margin-top: 2px;
     line-height: 1.4;
     display: -webkit-box;
     -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
 }
-.spbwc-cust-summary__breakdown {
-    list-style: none;
-    margin: 0;
-    padding: 12px 0;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    border-top: 1px solid var(--spbwc-c-line-subtle);
-    border-bottom: 1px solid var(--spbwc-c-line-subtle);
+
+/* `.price-block` — light bg-soft box */
+.spbwc-cust-summary__price-block {
+    background: var(--spbwc-c-bg-soft);
+    border-radius: var(--spbwc-c-radius-md); /* 8px */
+    padding: 12px;
+    border: 1px solid var(--spbwc-c-line);
 }
-/* row baseline tighten */
-.spbwc-cust-summary__row { font-size: 13px; padding: 0; }
-.spbwc-cust-summary__row .spbwc-cust-summary__label { color: var(--spbwc-c-text); }
-.spbwc-cust-summary__row .spbwc-cust-summary__choice { color: var(--spbwc-c-ink); font-weight: 500; }
-.spbwc-cust-summary__row .spbwc-cust-summary__price--inc { color: var(--spbwc-c-text); font-weight: 400; }
-.spbwc-cust-summary__row .spbwc-cust-summary__price--add { color: var(--spbwc-c-success); font-weight: 600; }
-.spbwc-cust-summary__row {
+.spbwc-cust-summary__price-row {
     display: flex;
-    align-items: baseline;
     justify-content: space-between;
-    gap: 10px;
+    padding: 4px 0;
     font-size: 13px;
 }
-.spbwc-cust-summary__row--base { font-weight: 600; color: var(--spbwc-c-ink-soft); }
-.spbwc-cust-summary__label {
-    color: var(--spbwc-c-text);
-    flex: 0 0 auto;
-    max-width: 50%;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-}
-.spbwc-cust-summary__val {
-    text-align: right;
-    color: var(--spbwc-c-ink-soft);
-    display: inline-flex;
-    flex-direction: column;
-    align-items: flex-end;
-    gap: 1px;
-    flex: 1 1 auto;
-    min-width: 0;
-}
-.spbwc-cust-summary__choice {
-    font-weight: 600;
-    color: var(--spbwc-c-ink-soft);
-    font-size: 12.5px;
-    max-width: 180px;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-}
-.spbwc-cust-summary__choice--missing { color: var(--spbwc-c-muted); font-weight: 500; font-style: italic; }
-.spbwc-cust-summary__price--inc { color: var(--spbwc-c-muted); font-size: 11px; font-weight: 600; }
-.spbwc-cust-summary__price--add { color: var(--spbwc-c-success); font-size: 12px; font-weight: 700; }
-/* YOUR PRICE — Printcart Canva v2.0 pattern: large bold total. */
-.spbwc-cust-summary__total {
-    display: flex;
-    align-items: baseline;
-    justify-content: space-between;
-    gap: 10px;
-    padding: 4px 0 6px;
-}
-.spbwc-cust-summary__total-label {
-    font-size: 14px;
-    font-weight: 700;
+.spbwc-cust-summary__price-row .lbl { color: var(--spbwc-c-text); }
+.spbwc-cust-summary__price-row .val {
     color: var(--spbwc-c-ink);
-    text-transform: none;
-    letter-spacing: -0.01em;
+    font-weight: 500;
+    font-variant-numeric: tabular-nums;
+    text-align: right;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 60%;
 }
-.spbwc-cust-v3 .spbwc-cust-summary .spbwc-cust-summary__total .spbwc-cust-summary__total-val,
-span.spbwc-cust-summary__total-val[data-spbwc-grand-total] {
-    font-size: 28px !important;
-    font-weight: 800 !important;
+.spbwc-cust-summary__price-row .val-sub { color: var(--spbwc-c-text); font-weight: 400; }
+.spbwc-cust-summary__price-row .val-sub--missing { color: var(--spbwc-c-text); font-style: italic; opacity: .8; }
+.spbwc-cust-summary__price-row .val-add { color: var(--spbwc-c-success); font-weight: 600; }
+.spbwc-cust-summary__price-row--subtle { font-size: 12px; }
+.spbwc-cust-summary__price-row--subtle .lbl,
+.spbwc-cust-summary__price-row--subtle .val { color: var(--spbwc-c-text); }
+
+/* `.price-row.total` — Your price grand total */
+.spbwc-cust-summary__price-row--total {
+    padding-top: 8px;
+    margin-top: 8px;
+    border-top: 1px solid var(--spbwc-c-line);
+    font-size: 15px;
+}
+.spbwc-cust-summary__price-row--total .lbl {
+    color: var(--spbwc-c-ink);
+    font-weight: 600;
+}
+.spbwc-cust-v3 .spbwc-cust-summary__price-row--total .val,
+.spbwc-cust-v3 .spbwc-cust-summary__price-row--total[data-spbwc-grand-total] .val,
+.spbwc-cust-v3 .spbwc-cust-summary__price-row--total .val[data-spbwc-grand-total] {
     color: var(--spbwc-c-ink) !important;
-    letter-spacing: -0.02em !important;
-    line-height: 1.05 !important;
+    font-weight: 700 !important;
+    font-size: 20px !important;
+    max-width: none;
 }
-.spbwc-cust-summary__total-val .amount,
-.spbwc-cust-summary__total-val bdi,
-.spbwc-cust-summary__total-val .woocommerce-Price-amount,
-.spbwc-cust-summary__total-val .woocommerce-Price-currencySymbol {
+.spbwc-cust-summary__price-row--total .amount,
+.spbwc-cust-summary__price-row--total bdi,
+.spbwc-cust-summary__price-row--total .woocommerce-Price-amount {
     color: var(--spbwc-c-ink) !important;
     text-decoration: none !important;
 }
-/* Row meta variant (shipping) - smaller muted */
-.spbwc-cust-summary__row--meta { font-size: 12px; }
-.spbwc-cust-summary__val--muted { color: var(--spbwc-c-muted); }
 
-/* Force single-line money values everywhere in the V3 — WC sometimes
- * wraps the amount in <bdi><span class="…currencySymbol">$</span>X</bdi>
- * which can break onto two lines inside narrow columns. */
-.spbwc-cust-v3 .spbwc-cust-summary__val .woocommerce-Price-amount,
-.spbwc-cust-v3 .spbwc-cust-summary__val .amount,
-.spbwc-cust-v3 .spbwc-cust-topbar__base .woocommerce-Price-amount,
-.spbwc-cust-v3 .spbwc-cust-topbar__base .amount,
+/* `.prod-note` — info-soft card at summary bottom */
+.spbwc-cust-summary__note {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    padding: 12px;
+    background: var(--spbwc-c-brand-soft);
+    border-radius: var(--spbwc-c-radius-sm); /* 6px */
+    font-size: 12px;
+    color: #1e3a8a;
+    line-height: 1.4;
+}
+.spbwc-cust-summary__note svg {
+    width: 16px;
+    height: 16px;
+    stroke: var(--spbwc-c-brand);
+    flex-shrink: 0;
+    margin-top: 1px;
+}
+.spbwc-cust-summary__note strong { color: #1e3a8a; font-weight: 700; }
+
+/* Force single-line money values */
+.spbwc-cust-v3 .spbwc-cust-summary__price-row .val .woocommerce-Price-amount,
+.spbwc-cust-v3 .spbwc-cust-summary__price-row .val .amount,
 .spbwc-cust-v3 [data-spbwc-base-price] .woocommerce-Price-amount,
 .spbwc-cust-v3 [data-spbwc-base-price] .amount,
 .spbwc-cust-v3 [data-spbwc-grand-total] .woocommerce-Price-amount,
@@ -9065,23 +9129,36 @@ span.spbwc-cust-summary__total-val[data-spbwc-grand-total] {
 .spbwc-cust-cta__arrow {
     color: #fff !important;
 }
+/* CTA inner — Printcart `.summary-cta-big .cta-content/.cta-label/.cta-price` 1:1 */
 .spbwc-cust-cta__content {
     display: flex;
     flex-direction: column;
     align-items: flex-start;
-    gap: 1px;
-    flex: 1 1 auto;
+    gap: 2px;
+    line-height: 1.1;
+    flex: 1;
     text-align: left;
 }
-.spbwc-cust-cta__label {
+.spbwc-cust-v3 .spbwc-cust-cta__label,
+span.spbwc-cust-cta__label {
+    font-size: 17px !important;
+    font-weight: 700 !important;
     letter-spacing: -0.01em;
-    font-size: 16px;
+    line-height: 1.2;
 }
-.spbwc-cust-cta__price {
-    font-size: 14px;
-    font-weight: 700;
-    color: rgba(255,255,255,.92) !important;
+.spbwc-cust-v3 .spbwc-cust-cta__price,
+span.spbwc-cust-cta__price[data-spbwc-cta-price] {
+    font-size: 20px !important;
+    font-weight: 800 !important;
+    font-variant-numeric: tabular-nums;
+    line-height: 1;
+    color: #fff !important;
+    border: 0;
+    padding: 0;
+    margin: 0;
 }
+.spbwc-cust-cta__arrow { transition: transform 120ms; flex-shrink: 0; }
+.spbwc-cust-cta:hover .spbwc-cust-cta__arrow { transform: translateX(3px); }
 .spbwc-cust-cta__price .amount,
 .spbwc-cust-cta__price bdi,
 .spbwc-cust-cta__price .woocommerce-Price-amount,
