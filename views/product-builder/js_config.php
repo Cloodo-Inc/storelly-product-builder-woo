@@ -51,10 +51,14 @@ wp_localize_script( 'product-builder', 'SPBWC_PB_CONFIG', array(
         'plg_url' => SPBWC_PB_PLUGIN_URL,
         'ajax_url' => admin_url('admin-ajax.php'),
         'nonce' => wp_create_nonce('spbwc_save_design_action'),
-        /* Currency context for the V2 customizer sidebar — used by
+        /* Currency context for the V2/V3 customizer sidebar — used by
          * $scope.formatPrice() to render per-option price tags. */
         'currency_symbol' => html_entity_decode( (string) get_woocommerce_currency_symbol(), ENT_QUOTES, 'UTF-8' ),
         'currency_decimals' => SPBWC_Storelly_PB_Util::spbwc_get_option_decimals(),
+        /* V3 — base price (raw float) for $scope.computeBuildTotal().
+         * Lives outside i18n so the JS can read it as a number. Falls
+         * back to 0 outside a product context (admin create-task flow). */
+        'base_price_raw' => ( function_exists( 'wc_get_product' ) && is_singular( 'product' ) && wc_get_product( get_the_ID() ) ) ? (float) wc_get_product( get_the_ID() )->get_price() : 0,
         'pcpb_cart_item_key' => $pcpb_cart_item_key,
         'oid' => $oid, 
         'redirect_url' => $redirect_url,

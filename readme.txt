@@ -4,8 +4,8 @@ Donate link: https://storelly.com/
 Tags: product builder, product customize, product customizer, woocommerce custom product
 Requires at least: 4.7
 Tested up to: 7.0
-Stable tag: 1.3.1
-Version: 1.3.1
+Stable tag: 1.3.2
+Version: 1.3.2
 Requires PHP: 7.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -132,6 +132,13 @@ This plugin connects to the following external services:
 3. Storelly settings page with API keys and sync options
 
 == Changelog ==
+= 1.3.2 =
+* Customizer V3 — major UX overhaul: new 4-zone layout (top product header, vertical tab nav, accordion options panel, canvas, right summary column). Tabs are future-proof — placeholder tabs for "Design with AI", "Templates", and "Help & FAQ" are already wired up.
+* Live grand total in the Summary column: base product price + every picked option upcharge recompute in real time as customers change selections. The "Add to cart" CTA shows the live total inline.
+* Per-component reset link inside each accordion item, plus a global "Reset all" button in both the topbar and the Summary column.
+* Progress meter (e.g. "2 / 5 configured") so customers can see how far through the build they are.
+* The two earlier layouts remain available as fallback (`views/product-builder/wrapper-v2-1.php` and `wrapper-legacy.php`) via the `spbwc_use_legacy_customizer` filter or the `SPBWC_USE_LEGACY_CUSTOMIZER` constant.
+
 = 1.3.1 =
 * Customizer (designer modal): rebuilt with a Cloodo-style 3-column layout — the parts list now stays visible on the left while options appear on the right, so customers no longer lose context when picking a part. Each option choice now shows its upcharge price (or "Free") as a coloured pill, formatted with the store currency.
 * Customizer footer reworked: the confusing "Done" button is now a primary "Save & continue" CTA next to a "Cancel" affordance.

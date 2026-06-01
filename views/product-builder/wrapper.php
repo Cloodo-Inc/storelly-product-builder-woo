@@ -1,35 +1,73 @@
 <?php
     /**
-     * Designer Customizer — V2 (Cloodo-style) modal wrapper.
+     * Designer Customizer — V3 (Tab Nav + Accordion + Summary).
      *
-     * Layout:
-     *   ┌──────────────────────── header (title + meta + close) ────────────────┐
-     *   │  parts list (left)  │       canvas + stages       │  options (right)  │
-     *   ├───────────────────────────────────────────────────────────────────────┤
-     *   │                              footer (cancel · save)                   │
-     *   └───────────────────────────────────────────────────────────────────────┘
+     * Pattern reference: Printcart Canva v2.0 — a 5-zone editor layout.
      *
-     * Both side columns are ALWAYS visible (no more single-pane swap that hides
-     * the component list when you pick a part). All Angular bindings & DOM IDs
-     * (#nbdpb-app, #nbpb-container, ng-controller="nbpbCtrl", #canvas-N,
-     * .nbpb-stage-loading, .close-popup, .nbdpb-load-page, etc.) are preserved
-     * verbatim so app-product-builder.js works unchanged.
+     *   ┌────────────────────── TOPBAR ───────────────────────────────────┐
+     *   │ Brand · product spec line · base price        Undo Redo  Close  │
+     *   ├──────┬────────────────┬─────────────────────┬─────────────────────┤
+     *   │ TAB  │  ACCORDION     │                     │  SUMMARY            │
+     *   │ NAV  │  PANEL 280px   │     CANVAS          │  340px              │
+     *   │ 64px │                │                     │   design summary    │
+     *   │      │  Components    │                     │   breakdown rows    │
+     *   │ 🖌️  │  ▾ Frame Color │                     │   live total        │
+     *   │ T   │   • Solid Blue │                     │   Add to cart CTA   │
+     *   │ 📷  │   • Solid Green│                     │   Reset all (ghost) │
+     *   │ 🎨  │   ↻ Reset part │                     │                     │
+     *   │ ⚡  │  ▸ Decals      │                     │                     │
+     *   │     │  ▸ Logos       │                     │                     │
+     *   │     │  Progress: ▓▓▒ │                     │                     │
+     *   └──────┴────────────────┴─────────────────────┴─────────────────────┘
      *
-     * The legacy single-pane UI lives at wrapper-legacy.php as a backup; the
-     * modal handler can switch to it via the `spbwc_use_legacy_customizer`
-     * filter or `SPBWC_USE_LEGACY_CUSTOMIZER` constant.
+     * Why Tab Nav vertical (not just accordion):
+     *   Future expansion — extra tabs (Design by AI, FAQ, Templates,
+     *   Cliparts) can be added without restructuring the layout. Today
+     *   we ship only the "Customize" tab + placeholders for "AI" and
+     *   "Help" so the affordance is visible.
      *
-     * Price tags on each option come from `sattr.price` (added by
-     * $scope.getComponentConfigs in app-product-builder.js) and are rendered via
-     * $scope.formatPrice($value).
+     * All Angular bindings, DOM IDs (#nbdpb-app, #nbpb-container, #canvas-N,
+     * .nbpb-stage-loading, .nbdpb-carousel, .close-popup, .nbdpb-load-page)
+     * and ng-* directives are preserved verbatim so app-product-builder.js
+     * works without changes to bootstrapping or popup logic. Two earlier
+     * wrappers remain available for rollback via the
+     * `spbwc_use_legacy_customizer` filter or `SPBWC_USE_LEGACY_CUSTOMIZER`
+     * constant — wrapper-legacy.php (single-pane) and wrapper-v2-1.php
+     * (V2 3-column without summary).
      */
     if ( ! defined( 'ABSPATH' ) ) exit;
     if( !(isset($is_nbpb_creating_task) && $is_nbpb_creating_task) ){
         $is_creating_task = 0; // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Global variable defined by parent template.
         include 'js_config.php';
     }
-    if($is_creating_task == 1): // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Global variable defined by parent template.
+
+    /* Compose product display data for the V3 TOPBAR + Summary header. The
+     * customizer modal lives in wp_footer on single-product pages, so we can
+     * safely call WC product helpers here. Fall back to neutral strings if
+     * outside a product context (admin create-task flow). */
+    $spbwc_v3_product_name = '';
+    $spbwc_v3_product_specs = '';
+    $spbwc_v3_base_price_html = '';
+    $spbwc_v3_base_price_raw = 0;
+    $spbwc_v3_product_thumb = '';
+    if ( $is_creating_task == 0 && function_exists( 'wc_get_product' ) ) { // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Global variable defined by parent template.
+        $spbwc_v3_product = wc_get_product( get_the_ID() );
+        if ( $spbwc_v3_product ) {
+            $spbwc_v3_product_name    = $spbwc_v3_product->get_name();
+            $spbwc_v3_base_price_html = $spbwc_v3_product->get_price_html();
+            $spbwc_v3_base_price_raw  = (float) $spbwc_v3_product->get_price();
+            $spbwc_v3_product_thumb   = get_the_post_thumbnail_url( $spbwc_v3_product->get_id(), 'thumbnail' );
+            /* Spec line — short categorical hint (e.g. "Bicycles · Frame builder"). */
+            $cats = wp_get_post_terms( $spbwc_v3_product->get_id(), 'product_cat', array( 'fields' => 'names' ) );
+            if ( ! is_wp_error( $cats ) && ! empty( $cats ) ) {
+                $spbwc_v3_product_specs = implode( ' · ', array_slice( $cats, 0, 2 ) ) . ' · ' . esc_html__( 'Custom builder', 'storelly-product-builder-for-woocommerce' );
+            } else {
+                $spbwc_v3_product_specs = esc_html__( 'Custom builder', 'storelly-product-builder-for-woocommerce' );
+            }
+        }
+    }
 ?>
+<?php if($is_creating_task == 1): // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Global variable defined by parent template. ?>
 <div class="nbdpb-load-page nbdpb-show">
     <div class="nbpb-loader-card">
         <div class="nbpb-loader">
@@ -42,9 +80,9 @@
     </div>
 </div>
 <?php endif; ?>
-<div class="nbdpb-popup popup-design spbwc-cust-v2 <?php echo esc_attr($is_creating_task == 0 && is_admin_bar_showing()) ? 'is-admin-bar' : ''; // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Global variable defined by parent template. ?>" data-animate="scale">
+<div class="nbdpb-popup popup-design spbwc-cust-v3 <?php echo esc_attr($is_creating_task == 0 && is_admin_bar_showing()) ? 'is-admin-bar' : ''; // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Global variable defined by parent template. ?>" data-animate="scale">
     <?php if( $is_creating_task == 0 ): // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Global variable defined by parent template. ?>
-    <!-- Loader: same multi-step progress card as the storefront (driven by $scope.setBuilderProgress). -->
+    <!-- Loader (same multi-step progress card; driven by $scope.setBuilderProgress). -->
     <div class="nbdpb-load-page">
         <div class="nbpb-loader-card">
             <div class="nbpb-loader">
@@ -57,15 +95,38 @@
         </div>
     </div>
 
-    <!-- Header bar — title + close. .close-popup retained for legacy click handler. -->
-    <header class="spbwc-cust-header">
-        <div class="spbwc-cust-header__title">
-            <span class="spbwc-cust-header__brand"><?php esc_html_e( 'Customize', 'storelly-product-builder-for-woocommerce' ); ?></span>
-            <span class="spbwc-cust-header__sub" ng-show="resource.components.length"><?php esc_html_e( 'Pick a part, then choose how it looks.', 'storelly-product-builder-for-woocommerce' ); ?></span>
+    <!-- ======================== TOPBAR ============================== -->
+    <header class="spbwc-cust-topbar">
+        <div class="spbwc-cust-topbar__brand">
+            <?php if ( $spbwc_v3_product_thumb ) : ?>
+                <img class="spbwc-cust-topbar__thumb" src="<?php echo esc_url( $spbwc_v3_product_thumb ); ?>" alt="" />
+            <?php else : ?>
+                <span class="spbwc-cust-topbar__thumb spbwc-cust-topbar__thumb--ph" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9V3h12v6"/><rect x="4" y="9" width="16" height="9" rx="2"/><rect x="7" y="14" width="10" height="8"/></svg>
+                </span>
+            <?php endif; ?>
+            <div class="spbwc-cust-topbar__title">
+                <div class="spbwc-cust-topbar__name"><?php echo esc_html( $spbwc_v3_product_name ?: esc_html__( 'Customize', 'storelly-product-builder-for-woocommerce' ) ); ?></div>
+                <div class="spbwc-cust-topbar__sub">
+                    <?php if ( $spbwc_v3_product_specs ) : ?>
+                        <span class="spbwc-cust-topbar__spec"><?php echo esc_html( $spbwc_v3_product_specs ); ?></span>
+                    <?php endif; ?>
+                    <?php if ( $spbwc_v3_base_price_html ) : ?>
+                        <span class="spbwc-cust-topbar__sep">·</span>
+                        <span class="spbwc-cust-topbar__base"><?php /* translators: %s: base product price */ printf( esc_html__( 'From %s base', 'storelly-product-builder-for-woocommerce' ), wp_kses_post( $spbwc_v3_base_price_html ) ); ?></span>
+                    <?php endif; ?>
+                </div>
+            </div>
         </div>
-        <button class="close-popup spbwc-cust-header__close" type="button" aria-label="<?php esc_attr_e( 'Close', 'storelly-product-builder-for-woocommerce' ); ?>">
-            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
-        </button>
+
+        <div class="spbwc-cust-topbar__actions">
+            <button type="button" class="spbwc-cust-iconbtn" data-spbwc-action="reset-all" title="<?php esc_attr_e( 'Reset all customizations', 'storelly-product-builder-for-woocommerce' ); ?>" aria-label="<?php esc_attr_e( 'Reset all customizations', 'storelly-product-builder-for-woocommerce' ); ?>">
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 3-6.7L3 9"/><path d="M3 3v6h6"/></svg>
+            </button>
+            <button class="close-popup spbwc-cust-iconbtn spbwc-cust-iconbtn--close" type="button" aria-label="<?php esc_attr_e( 'Close', 'storelly-product-builder-for-woocommerce' ); ?>">
+                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+            </button>
+        </div>
     </header>
     <?php endif; ?>
 
@@ -73,26 +134,192 @@
         <div ng-controller="nbpbCtrl" class="spbwc-cust-body">
             <div id="nbpb-container" class="spbwc-cust-container">
 
-                <!-- LEFT: parts list (always visible) -->
-                <aside class="spbwc-cust-parts">
-                    <h3 class="spbwc-cust-parts__title"><?php esc_html_e( 'Parts', 'storelly-product-builder-for-woocommerce' ); ?></h3>
-                    <div class="spbwc-cust-parts__list">
-                        <button type="button" nbpb-hover="{{component.id}}" ng-show="component.enable" ng-repeat="component in resource.components" ng-click="showAttribute($index)" ng-class="{'is-active': resource.showValue && $index == resource.currentComponent}" class="spbwc-cust-part">
-                            <span class="spbwc-cust-part__icon" ng-if="component.nbpb_type == 'nbpb_com'">
-                                <img ng-src="{{component.general.component_icon_url}}" alt="">
-                            </span>
-                            <span class="spbwc-cust-part__icon spbwc-cust-part__icon--text" ng-if="component.nbpb_type == 'nbpb_text'" aria-hidden="true">
-                                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7V4h16v3"/><path d="M9 20h6"/><path d="M12 4v16"/></svg>
-                            </span>
-                            <span class="spbwc-cust-part__icon spbwc-cust-part__icon--image" ng-if="component.nbpb_type == 'nbpb_image'" aria-hidden="true">
-                                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></svg>
-                            </span>
-                            <span class="spbwc-cust-part__name">{{component.general.title}}</span>
-                        </button>
+                <!-- ========== LEFT TAB NAV 64px ========== -->
+                <nav class="spbwc-cust-tabnav" role="tablist" aria-label="<?php esc_attr_e( 'Editor tools', 'storelly-product-builder-for-woocommerce' ); ?>">
+                    <button type="button" class="spbwc-cust-tabbtn is-active" role="tab" aria-selected="true" data-spbwc-tab="customize" title="<?php esc_attr_e( 'Customize', 'storelly-product-builder-for-woocommerce' ); ?>">
+                        <span class="spbwc-cust-tabbtn__icon" aria-hidden="true">
+                            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 19 7-7 3 3-7 7-3-3Z"/><path d="m18 13-1.5-7.5L2 2l3.5 14.5L13 18Z"/><path d="m2 2 7.586 7.586"/><circle cx="11" cy="11" r="2"/></svg>
+                        </span>
+                        <span class="spbwc-cust-tabbtn__label"><?php esc_html_e( 'Customize', 'storelly-product-builder-for-woocommerce' ); ?></span>
+                    </button>
+                    <button type="button" class="spbwc-cust-tabbtn" role="tab" aria-selected="false" data-spbwc-tab="ai" data-spbwc-coming-soon="1" title="<?php esc_attr_e( 'Design with AI — coming soon', 'storelly-product-builder-for-woocommerce' ); ?>">
+                        <span class="spbwc-cust-tabbtn__icon" aria-hidden="true">
+                            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v4"/><path d="m4.93 4.93 2.83 2.83"/><path d="M2 12h4"/><path d="m4.93 19.07 2.83-2.83"/><path d="M12 18v4"/><path d="m19.07 19.07-2.83-2.83"/><path d="M22 12h-4"/><path d="m19.07 4.93-2.83 2.83"/><circle cx="12" cy="12" r="3"/></svg>
+                        </span>
+                        <span class="spbwc-cust-tabbtn__label"><?php esc_html_e( 'AI', 'storelly-product-builder-for-woocommerce' ); ?></span>
+                        <span class="spbwc-cust-tabbtn__badge"><?php esc_html_e( 'Soon', 'storelly-product-builder-for-woocommerce' ); ?></span>
+                    </button>
+                    <button type="button" class="spbwc-cust-tabbtn" role="tab" aria-selected="false" data-spbwc-tab="templates" data-spbwc-coming-soon="1" title="<?php esc_attr_e( 'Templates — coming soon', 'storelly-product-builder-for-woocommerce' ); ?>">
+                        <span class="spbwc-cust-tabbtn__icon" aria-hidden="true">
+                            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9" rx="1"/><rect x="14" y="3" width="7" height="5" rx="1"/><rect x="14" y="12" width="7" height="9" rx="1"/><rect x="3" y="16" width="7" height="5" rx="1"/></svg>
+                        </span>
+                        <span class="spbwc-cust-tabbtn__label"><?php esc_html_e( 'Templates', 'storelly-product-builder-for-woocommerce' ); ?></span>
+                    </button>
+                    <button type="button" class="spbwc-cust-tabbtn" role="tab" aria-selected="false" data-spbwc-tab="help" title="<?php esc_attr_e( 'Help & FAQ', 'storelly-product-builder-for-woocommerce' ); ?>">
+                        <span class="spbwc-cust-tabbtn__icon" aria-hidden="true">
+                            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><path d="M12 17h.01"/></svg>
+                        </span>
+                        <span class="spbwc-cust-tabbtn__label"><?php esc_html_e( 'Help', 'storelly-product-builder-for-woocommerce' ); ?></span>
+                    </button>
+                </nav>
+
+                <!-- ========== ACCORDION PANEL 280px ========== -->
+                <aside class="spbwc-cust-panel">
+                    <!-- Tab content: Customize (default) -->
+                    <div class="spbwc-cust-tabpanel" data-spbwc-tabpanel="customize">
+                        <header class="spbwc-cust-panel__head">
+                            <div class="spbwc-cust-panel__title"><?php esc_html_e( 'Customize parts', 'storelly-product-builder-for-woocommerce' ); ?></div>
+                            <div class="spbwc-cust-panel__meta" data-spbwc-progress-label>0 / 0 <?php esc_html_e( 'configured', 'storelly-product-builder-for-woocommerce' ); ?></div>
+                        </header>
+                        <div class="spbwc-cust-panel__progress" aria-hidden="true">
+                            <span class="spbwc-cust-panel__progress-fill" data-spbwc-progress-fill style="width:0"></span>
+                        </div>
+
+                        <div class="spbwc-cust-acc">
+                            <!-- One accordion item per component. ng-click toggles via $scope.showAttribute($index). -->
+                            <div ng-repeat="component in resource.components" ng-show="component.enable" class="spbwc-cust-acc-item" ng-class="{'is-open': resource.showValue && $index == resource.currentComponent}">
+                                <button type="button" class="spbwc-cust-acc-head" ng-click="showAttribute($index)" aria-expanded="{{resource.showValue && $index == resource.currentComponent ? 'true' : 'false'}}">
+                                    <span class="spbwc-cust-acc-step">{{$index + 1}}</span>
+                                    <span class="spbwc-cust-acc-info">
+                                        <span class="spbwc-cust-acc-name">{{component.general.title}}</span>
+                                        <span class="spbwc-cust-acc-value" ng-switch="component.nbpb_type">
+                                            <span ng-switch-when="nbpb_com">{{(component.current_pb_configs[component.currentConfig].sattr_name) || (component.current_pb_configs[component.currentConfig].attr_name) || ('— ' + 'pick' )}}</span>
+                                            <span ng-switch-when="nbpb_text">{{component.currentContent || ('— ' + 'add text')}}</span>
+                                            <span ng-switch-when="nbpb_image"><span ng-if="resource.uploaded.length"><?php esc_html_e( 'Image uploaded', 'storelly-product-builder-for-woocommerce' ); ?></span><span ng-if="!resource.uploaded.length"><?php esc_html_e( '— upload image', 'storelly-product-builder-for-woocommerce' ); ?></span></span>
+                                        </span>
+                                    </span>
+                                    <span class="spbwc-cust-acc-chevron" aria-hidden="true">
+                                        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+                                    </span>
+                                </button>
+
+                                <div class="spbwc-cust-acc-body" ng-if="resource.showValue && $index == resource.currentComponent">
+
+                                    <!-- nbpb_com: grid of option cards with prices -->
+                                    <div class="spbwc-cust-val-grid" ng-if="component.nbpb_type == 'nbpb_com'">
+                                        <button type="button" ng-repeat="sattr in component.current_pb_configs" ng-click="selectAttribute($index)" ng-class="{'is-active': $index == component.currentConfig}" class="spbwc-cust-val">
+                                            <span class="spbwc-cust-val__swatch" ng-style="{'background': sattr.bg_type == 'i' ? 'url(' + sattr.icon_bg + ')' : sattr.icon_color}"></span>
+                                            <span class="spbwc-cust-val__body">
+                                                <span class="spbwc-cust-val__name" ng-bind="sattr.attr_name || sattr.sattr_name"></span>
+                                                <span class="spbwc-cust-val__sub" ng-show="sattr.attr_name && sattr.sattr_name">{{sattr.sattr_name}}</span>
+                                            </span>
+                                            <span class="spbwc-cust-val__price" ng-if="sattr.price > 0" ng-bind="formatPrice(sattr.price)"></span>
+                                            <span class="spbwc-cust-val__price spbwc-cust-val__price--free" ng-if="!sattr.price"><?php esc_html_e( 'Free', 'storelly-product-builder-for-woocommerce' ); ?></span>
+                                            <span class="spbwc-cust-val__check" aria-hidden="true">✓</span>
+                                        </button>
+                                    </div>
+
+                                    <!-- nbpb_text: form fields -->
+                                    <div class="spbwc-cust-form spbwc-cust-form--text" ng-if="component.nbpb_type == 'nbpb_text'">
+                                        <div class="spbwc-cust-field">
+                                            <label class="spbwc-cust-field__label"><?php esc_html_e( 'Content', 'storelly-product-builder-for-woocommerce' ); ?></label>
+                                            <input class="spbwc-cust-field__input" ng-change="updateText()" maxlength="{{component.general.text_option.max}}" placeholder="{{component.general.nbpb_text_configs.default_text}}" ng-model="component.currentContent" />
+                                        </div>
+                                        <div class="spbwc-cust-field" ng-if="resource.currentComponentObj.general.nbpb_text_configs.allow_font_family == 'y' || settings.is_creating_task == 1">
+                                            <label class="spbwc-cust-field__label"><?php esc_html_e( 'Font family', 'storelly-product-builder-for-woocommerce' ); ?></label>
+                                            <select class="spbwc-cust-field__select" ng-change="updateText()" ng-model="component.currentFontId" ng-if="resource.currentComponentObj.general.nbpb_text_configs.allow_all_font == 'y'">
+                                                <?php foreach($fonts as $font): // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Global variable defined by parent template. ?>
+                                                    <?php
+                                                        $font_prefix = ($font->type == 'google') ? 'g' : 'c'; // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Local template variable.
+                                                        $font_value  = $font_prefix . $font->id; // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Local template variable.
+                                                    ?>
+                                                <option value="<?php echo esc_attr( $font_value ); ?>"><?php echo esc_html($font->name ); ?></option>
+                                                <?php endforeach; ?>
+                                            </select>
+                                            <select class="spbwc-cust-field__select" ng-change="updateText()" ng-model="component.currentFontId" ng-if="resource.currentComponentObj.general.nbpb_text_configs.allow_all_font == 'n'">
+                                                <option ng-if="settings.custom_fonts[font]" ng-repeat="font in resource.currentComponentObj.general.nbpb_text_configs.custom_fonts" value="{{'c' + font }}">{{settings.custom_fonts[font].name}}</option>
+                                                <option ng-if="settings.google_fonts[font]" ng-repeat="font in resource.currentComponentObj.general.nbpb_text_configs.google_fonts" value="{{'g' + font }}">{{settings.google_fonts[font].name}}</option>
+                                            </select>
+                                        </div>
+                                        <div class="spbwc-cust-field" ng-if="resource.currentComponentObj.general.nbpb_text_configs.allow_change_color == 'y' || settings.is_creating_task == 1">
+                                            <label class="spbwc-cust-field__label"><?php esc_html_e( 'Colour', 'storelly-product-builder-for-woocommerce' ); ?></label>
+                                            <div class="spbwc-cust-color-row" ng-if="resource.currentComponentObj.general.nbpb_text_configs.allow_all_color == 'n'">
+                                                <span class="spbwc-cust-color" ng-click="component.currentColor = color.color;updateText()" ng-class="{'is-active': component.currentColor == color.color}" ng-repeat="color in resource.currentComponentObj.general.nbpb_text_configs.colors" ng-style="{'background': color.color}" title="{{color.name}}"></span>
+                                            </div>
+                                            <div ng-show="resource.currentComponentObj.general.nbpb_text_configs.allow_all_color == 'y' || settings.is_creating_task == 1">
+                                                <input class="nbpb-color-picker" on-change="selectColor(color)" options="resource.colorOptions" />
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- nbpb_image: upload zone -->
+                                    <div class="spbwc-cust-form spbwc-cust-form--image" ng-if="component.nbpb_type == 'nbpb_image'">
+                                        <div class="spbwc-cust-upload upload-zone" data-field-id="{{resource.currentComponentObj.id}}" nbd-dnd-file="uploadImage(field_id, files)">
+                                            <input type="file" autocomplete="off" class="inputfile" accept=".png,.jpg,.jpeg"/>
+                                            <label>
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" x2="12" y1="3" y2="15"/></svg>
+                                                <span class="spbwc-cust-upload__title"><?php esc_html_e( 'Click or drop file here', 'storelly-product-builder-for-woocommerce' ); ?></span>
+                                                <span class="spbwc-cust-upload__note" ng-if="resource.currentComponentObj.general.upload_option.allow_type != ''"><?php esc_html_e( 'Allow extensions', 'storelly-product-builder-for-woocommerce' ); ?>: {{resource.currentComponentObj.general.upload_option.allow_type}}</span>
+                                                <span class="spbwc-cust-upload__note" ng-if="resource.currentComponentObj.general.upload_option.min_size != ''"><?php esc_html_e( 'Min size', 'storelly-product-builder-for-woocommerce' ); ?> {{resource.currentComponentObj.general.upload_option.min_size}} MB</span>
+                                                <span class="spbwc-cust-upload__note" ng-if="resource.currentComponentObj.general.upload_option.max_size != ''"><?php esc_html_e( 'Max size', 'storelly-product-builder-for-woocommerce' ); ?> {{resource.currentComponentObj.general.upload_option.max_size}} MB</span>
+                                            </label>
+                                            <svg class="nbd-upload-loading" xmlns="http://www.w3.org/2000/svg" width="50px" height="50px" viewBox="0 0 50 50"><circle fill="none" opacity="0.05" stroke="#000000" stroke-width="3" cx="25" cy="25" r="20"/><g transform="translate(25,25) rotate(-90)"><circle  style="stroke:#48B0F7; fill:none; stroke-width: 3px; stroke-linecap: round" stroke-dasharray="110" stroke-dashoffset="0"  cx="0" cy="0" r="20"><animate attributeName="stroke-dashoffset" values="360;140" dur="2.2s" keyTimes="0;1" calcMode="spline" fill="freeze" keySplines="0.41,0.314,0.8,0.54" repeatCount="indefinite" begin="0"/><animateTransform attributeName="transform" type="rotate" values="0;274;360" keyTimes="0;0.74;1" calcMode="linear" dur="2.2s" repeatCount="indefinite" begin="0"/><animate attributeName="stroke" values="#10CFBD;#48B0F7;#ff0066;#48B0F7;#10CFBD" fill="freeze" dur="3s" begin="0" repeatCount="indefinite"/></circle></g></svg>
+                                        </div>
+                                        <div class="nbpb-uploaded spbwc-cust-uploaded" ng-show="resource.uploaded.length">
+                                            <img ng-click="addImage(img)" ng-repeat="img in resource.uploaded" ng-src="{{img}}" />
+                                        </div>
+                                    </div>
+
+                                    <!-- Per-part reset + delete affordances -->
+                                    <div class="spbwc-cust-acc-foot">
+                                        <button type="button" class="spbwc-cust-linkbtn" data-spbwc-action="reset-part" data-spbwc-part-index="{{$index}}" title="<?php esc_attr_e( 'Reset this part to its default', 'storelly-product-builder-for-woocommerce' ); ?>">
+                                            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7L3 9"/><path d="M3 3v6h6"/></svg>
+                                            <?php esc_html_e( 'Reset this part', 'storelly-product-builder-for-woocommerce' ); ?>
+                                        </button>
+                                        <button ng-if="component.nbpb_type == 'nbpb_text'" ng-click="deleteLayer('text')" class="spbwc-cust-linkbtn spbwc-cust-linkbtn--danger" type="button"><?php esc_html_e( 'Delete text', 'storelly-product-builder-for-woocommerce' ); ?></button>
+                                        <button ng-if="component.nbpb_type == 'nbpb_image'" ng-click="deleteLayer('image')" class="spbwc-cust-linkbtn spbwc-cust-linkbtn--danger" type="button"><?php esc_html_e( 'Delete image', 'storelly-product-builder-for-woocommerce' ); ?></button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Legacy "save layer" affordance kept for compat -->
+                        <div class="product-value-act" style="display:none">
+                            <div class="value-act-finish value-act-item" ng-click="saveLayer()"></div>
+                        </div>
+                    </div>
+
+                    <!-- Tab content: AI (placeholder) -->
+                    <div class="spbwc-cust-tabpanel" data-spbwc-tabpanel="ai" hidden>
+                        <div class="spbwc-cust-comingsoon">
+                            <svg viewBox="0 0 24 24" width="48" height="48" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 3v4M3 5h4M6 17v4M4 19h4M13 3l1.5 4.5L19 9l-4.5 1.5L13 15l-1.5-4.5L7 9l4.5-1.5z"/></svg>
+                            <h3><?php esc_html_e( 'Design with AI', 'storelly-product-builder-for-woocommerce' ); ?></h3>
+                            <p><?php esc_html_e( 'Describe what you want and AI will suggest a starting design. Coming soon.', 'storelly-product-builder-for-woocommerce' ); ?></p>
+                        </div>
+                    </div>
+
+                    <!-- Tab content: Templates (placeholder) -->
+                    <div class="spbwc-cust-tabpanel" data-spbwc-tabpanel="templates" hidden>
+                        <div class="spbwc-cust-comingsoon">
+                            <svg viewBox="0 0 24 24" width="48" height="48" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="7" height="9"/><rect x="14" y="3" width="7" height="5"/><rect x="14" y="12" width="7" height="9"/><rect x="3" y="16" width="7" height="5"/></svg>
+                            <h3><?php esc_html_e( 'Pre-made templates', 'storelly-product-builder-for-woocommerce' ); ?></h3>
+                            <p><?php esc_html_e( 'Start from a designer-curated configuration. Coming soon.', 'storelly-product-builder-for-woocommerce' ); ?></p>
+                        </div>
+                    </div>
+
+                    <!-- Tab content: Help -->
+                    <div class="spbwc-cust-tabpanel" data-spbwc-tabpanel="help" hidden>
+                        <header class="spbwc-cust-panel__head">
+                            <div class="spbwc-cust-panel__title"><?php esc_html_e( 'How it works', 'storelly-product-builder-for-woocommerce' ); ?></div>
+                        </header>
+                        <div class="spbwc-cust-help">
+                            <details class="spbwc-cust-faq" open>
+                                <summary><?php esc_html_e( 'How do I customize?', 'storelly-product-builder-for-woocommerce' ); ?></summary>
+                                <p><?php esc_html_e( 'Open each part on the left, pick your option, and watch the preview update on the right. The total updates in real time.', 'storelly-product-builder-for-woocommerce' ); ?></p>
+                            </details>
+                            <details class="spbwc-cust-faq">
+                                <summary><?php esc_html_e( 'Will my design be saved?', 'storelly-product-builder-for-woocommerce' ); ?></summary>
+                                <p><?php esc_html_e( 'Click "Add to cart" and we lock in your configuration with the order. You can re-order the exact same design from your account.', 'storelly-product-builder-for-woocommerce' ); ?></p>
+                            </details>
+                            <details class="spbwc-cust-faq">
+                                <summary><?php esc_html_e( 'Can I undo a change?', 'storelly-product-builder-for-woocommerce' ); ?></summary>
+                                <p><?php esc_html_e( 'Use "Reset this part" inside each option, or "Reset all" in the top right to start over.', 'storelly-product-builder-for-woocommerce' ); ?></p>
+                            </details>
+                        </div>
                     </div>
                 </aside>
 
-                <!-- MIDDLE: canvas + stages -->
+                <!-- ========== CANVAS ========== -->
                 <section class="spbwc-cust-canvas">
                     <div class="design-main">
                         <div class="design-layer">
@@ -120,7 +347,7 @@
                                 </div>
                             </div>
                         </div>
-                        <!-- Admin tools: only when a layer is selected. Same ng-bindings as legacy. -->
+                        <!-- Admin tools (layer transform): only when a layer is selected. -->
                         <div class="design-admin-tool spbwc-cust-tools nbdpb-show" ng-if="stages[currentStage].states.showAdminTool">
                             <div class="tools">
                                 <div class="tool-item" title="<?php esc_html_e('Bring Forward', 'storelly-product-builder-for-woocommerce'); ?>" ng-click="setStackPosition('bring-forward')"><i class="icon-nbd icon-nbd-bring-forward"></i></div>
@@ -135,124 +362,82 @@
                                         <span class="nbpb-zoom-act" ng-click="updateLayerAttribute('scaleX', stages[currentStage].states.scaleX * 1.1);updateLayerAttribute('scaleY', stages[currentStage].states.scaleY * 1.1)" title="<?php esc_html_e('Zoom in', 'storelly-product-builder-for-woocommerce'); ?>">+</span>
                                     </div>
                                 </div>
-                                <div class="tool-item" title="<?php esc_html_e('Rotate', 'storelly-product-builder-for-woocommerce'); ?>">
-                                    <i class="icon-nbd nbpb-rotate-icon">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="#666" d="M5.46899843,18.5310016 L18.5310016,5.46899843 C19.4496661,4.55033391 20.5031311,4.20999878 21.4148051,4.58520207 C22.3264792,4.96040535 22.9395946,5.95385041 22.9395946,7.27264838 L22.9395946,16.7273516 C22.9395946,18.0461496 22.3264792,19.0395946 21.4148051,19.4147979 C20.5031311,19.7900012 19.4496661,19.4496661 18.5310016,18.5310016 L5.46899843,5.46899843 C4.55033391,4.55033391 4.20999878,5.49462891 4.58520207,4.58520207 C4.96040535,3.67577522 5.95385041,3.06265981 7.27264838,3.06265981 L16.7273516,3.06265981 C18.0461496,3.06265981 19.0395946,3.67577522 19.4147979,4.58520207 C19.7900012,5.49462891 19.4496661,6.54809456 18.5310016,7.4667591 L5.46899843,20.5287623 C4.55033391,21.4474269 3.49686826,21.7877619 2.58520207,21.4125586 C1.67577522,21.0373553 1.06265981,20.0439104 1.06265981,18.7251123 L1.06265981,9.27246094 C1.06265981,7.95366296 1.67577522,6.96021791 2.58520207,6.58501462 C3.49462891,6.20981134 4.55033391,6.55014648 5.46899843,7.4667591"></path></svg>
-                                    </i>
-                                    <div class="nbpb-config-panel">
-                                        <span style="margin-right: 10px;line-height: 30px;"><?php esc_html_e('Rotate', 'storelly-product-builder-for-woocommerce'); ?></span>
-                                        <span class="nbpb-rotate-act" ng-click="updateLayerAttribute('angle', stages[currentStage].states.angle - 10)" title="<?php esc_html_e('Rotate left', 'storelly-product-builder-for-woocommerce'); ?>">↺</span>
-                                        <span class="nbpb-rotate-act" ng-click="updateLayerAttribute('angle', stages[currentStage].states.angle + 10)" title="<?php esc_html_e('Rotate right', 'storelly-product-builder-for-woocommerce'); ?>">↻</span>
-                                    </div>
-                                </div>
                                 <div class="tool-item" title="<?php esc_html_e('Clear all layer', 'storelly-product-builder-for-woocommerce'); ?>" ng-click="clearAllStages()"><i class="icon-nbd icon-nbd-clear"></i></div>
                             </div>
                         </div>
                     </div>
                 </section>
 
-                <!-- RIGHT: options of the selected component (always visible; empty-state when none picked) -->
-                <aside class="spbwc-cust-options">
-                    <div class="spbwc-cust-empty" ng-if="!resource.showValue">
-                        <div class="spbwc-cust-empty__icon" aria-hidden="true">
-                            <svg viewBox="0 0 24 24" width="40" height="40" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11V6a3 3 0 0 1 6 0v5"/><path d="M9 11h6a4 4 0 0 1 4 4v3a4 4 0 0 1-4 4H9a4 4 0 0 1-4-4v-3a4 4 0 0 1 4-4Z"/></svg>
-                        </div>
-                        <h3 class="spbwc-cust-empty__title"><?php esc_html_e( 'Pick a part to customize', 'storelly-product-builder-for-woocommerce' ); ?></h3>
-                        <p class="spbwc-cust-empty__desc"><?php esc_html_e( 'Choose any part on the left, then customize its colour, text or image — your design updates in real-time on the canvas.', 'storelly-product-builder-for-woocommerce' ); ?></p>
+                <!-- ========== SUMMARY 340px ========== -->
+                <aside class="spbwc-cust-summary">
+                    <header class="spbwc-cust-summary__head">
+                        <h3 class="spbwc-cust-summary__title"><?php esc_html_e( 'Your design', 'storelly-product-builder-for-woocommerce' ); ?></h3>
+                        <p class="spbwc-cust-summary__sub"><?php esc_html_e( 'Live total updates as you customize.', 'storelly-product-builder-for-woocommerce' ); ?></p>
+                    </header>
+
+                    <ul class="spbwc-cust-summary__list">
+                        <li class="spbwc-cust-summary__row spbwc-cust-summary__row--base">
+                            <span class="spbwc-cust-summary__label"><?php esc_html_e( 'Base price', 'storelly-product-builder-for-woocommerce' ); ?></span>
+                            <span class="spbwc-cust-summary__val" data-spbwc-base-price><?php echo wp_kses_post( $spbwc_v3_base_price_html ); ?></span>
+                        </li>
+                        <li class="spbwc-cust-summary__row" ng-repeat="component in resource.components" ng-show="component.enable">
+                            <span class="spbwc-cust-summary__label" ng-bind="component.general.title"></span>
+                            <span class="spbwc-cust-summary__val" ng-switch="component.nbpb_type">
+                                <!-- Picked option (nbpb_com) -->
+                                <span ng-switch-when="nbpb_com">
+                                    <span class="spbwc-cust-summary__choice" ng-if="component.current_pb_configs[component.currentConfig]" ng-bind="(component.current_pb_configs[component.currentConfig].sattr_name) || (component.current_pb_configs[component.currentConfig].attr_name)"></span>
+                                    <span class="spbwc-cust-summary__price spbwc-cust-summary__price--inc" ng-if="component.current_pb_configs[component.currentConfig] && !component.current_pb_configs[component.currentConfig].price"><?php esc_html_e( 'Included', 'storelly-product-builder-for-woocommerce' ); ?></span>
+                                    <span class="spbwc-cust-summary__price spbwc-cust-summary__price--add" ng-if="component.current_pb_configs[component.currentConfig] && component.current_pb_configs[component.currentConfig].price > 0" ng-bind="formatPrice(component.current_pb_configs[component.currentConfig].price)"></span>
+                                    <span class="spbwc-cust-summary__choice spbwc-cust-summary__choice--missing" ng-if="!component.current_pb_configs[component.currentConfig]"><?php esc_html_e( '— pick one', 'storelly-product-builder-for-woocommerce' ); ?></span>
+                                </span>
+                                <!-- Custom text -->
+                                <span ng-switch-when="nbpb_text">
+                                    <span class="spbwc-cust-summary__choice" ng-if="component.currentContent">"{{component.currentContent}}"</span>
+                                    <span class="spbwc-cust-summary__choice spbwc-cust-summary__choice--missing" ng-if="!component.currentContent"><?php esc_html_e( '— add text', 'storelly-product-builder-for-woocommerce' ); ?></span>
+                                </span>
+                                <!-- Custom image -->
+                                <span ng-switch-when="nbpb_image">
+                                    <span class="spbwc-cust-summary__choice" ng-if="resource.uploaded.length"><?php esc_html_e( 'Uploaded', 'storelly-product-builder-for-woocommerce' ); ?></span>
+                                    <span class="spbwc-cust-summary__choice spbwc-cust-summary__choice--missing" ng-if="!resource.uploaded.length"><?php esc_html_e( '— upload image', 'storelly-product-builder-for-woocommerce' ); ?></span>
+                                </span>
+                            </span>
+                        </li>
+                    </ul>
+
+                    <div class="spbwc-cust-summary__total">
+                        <span class="spbwc-cust-summary__total-label"><?php esc_html_e( 'Your price', 'storelly-product-builder-for-woocommerce' ); ?></span>
+                        <span class="spbwc-cust-summary__total-val" data-spbwc-grand-total><?php echo wp_kses_post( $spbwc_v3_base_price_html ); ?></span>
                     </div>
 
-                    <div class="spbwc-cust-vals" ng-if="resource.showValue">
-                        <header class="spbwc-cust-vals__header">
-                            <h3 class="spbwc-cust-vals__title">{{resource.components[resource.currentComponent].general.title}}</h3>
-                            <p class="spbwc-cust-vals__desc" ng-show="resource.components[resource.currentComponent].general.description">{{resource.components[resource.currentComponent].general.description}}</p>
-                        </header>
+                    <button class="spbwc-cust-cta" type="button" data-spbwc-action="add-to-cart" ng-click="saveData()" aria-live="polite">
+                        <span class="spbwc-cust-cta__label"><?php esc_html_e( 'Add to cart', 'storelly-product-builder-for-woocommerce' ); ?></span>
+                        <span class="spbwc-cust-cta__price" data-spbwc-cta-price><?php echo wp_kses_post( $spbwc_v3_base_price_html ); ?></span>
+                        <svg class="spbwc-cust-cta__arrow" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+                    </button>
 
-                        <!-- nbpb_com: grid of choice cards WITH PRICES -->
-                        <div class="spbwc-cust-val-grid" ng-if="resource.components[resource.currentComponent].nbpb_type == 'nbpb_com'">
-                            <button type="button" ng-repeat="sattr in resource.components[resource.currentComponent].current_pb_configs" ng-click="selectAttribute($index)" ng-class="{'is-active': $index == resource.components[resource.currentComponent].currentConfig}" class="spbwc-cust-val">
-                                <span class="spbwc-cust-val__swatch" ng-style="{'background': sattr.bg_type == 'i' ? 'url(' + sattr.icon_bg + ')' : sattr.icon_color}"></span>
-                                <span class="spbwc-cust-val__body">
-                                    <span class="spbwc-cust-val__name" ng-bind="sattr.attr_name || sattr.sattr_name"></span>
-                                    <span class="spbwc-cust-val__sub" ng-show="sattr.attr_name && sattr.sattr_name">{{sattr.sattr_name}}</span>
-                                </span>
-                                <span class="spbwc-cust-val__price" ng-if="sattr.price > 0" ng-bind="formatPrice(sattr.price)"></span>
-                                <span class="spbwc-cust-val__price spbwc-cust-val__price--free" ng-if="!sattr.price"><?php esc_html_e( 'Free', 'storelly-product-builder-for-woocommerce' ); ?></span>
-                                <span class="spbwc-cust-val__check" aria-hidden="true">✓</span>
-                            </button>
-                        </div>
+                    <div class="spbwc-cust-summary__actions">
+                        <button type="button" class="spbwc-cust-linkbtn" data-spbwc-action="reset-all">
+                            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7L3 9"/><path d="M3 3v6h6"/></svg>
+                            <?php esc_html_e( 'Reset all', 'storelly-product-builder-for-woocommerce' ); ?>
+                        </button>
+                        <button type="button" class="close-popup spbwc-cust-linkbtn">
+                            <?php esc_html_e( 'Cancel', 'storelly-product-builder-for-woocommerce' ); ?>
+                        </button>
+                    </div>
 
-                        <!-- nbpb_text: form fields -->
-                        <div class="spbwc-cust-form spbwc-cust-form--text" ng-if="resource.components[resource.currentComponent].nbpb_type == 'nbpb_text'">
-                            <div class="spbwc-cust-field">
-                                <label class="spbwc-cust-field__label"><?php esc_html_e( 'Content', 'storelly-product-builder-for-woocommerce' ); ?></label>
-                                <input class="spbwc-cust-field__input" ng-change="updateText()" maxlength="{{resource.components[resource.currentComponent].general.text_option.max}}" placeholder="{{resource.components[resource.currentComponent].general.nbpb_text_configs.default_text}}" ng-model="resource.components[resource.currentComponent].currentContent" />
-                            </div>
-                            <div class="spbwc-cust-field" ng-if="resource.currentComponentObj.general.nbpb_text_configs.allow_font_family == 'y' || settings.is_creating_task == 1">
-                                <label class="spbwc-cust-field__label"><?php esc_html_e( 'Font family', 'storelly-product-builder-for-woocommerce' ); ?></label>
-                                <select class="spbwc-cust-field__select" ng-change="updateText()" ng-model="resource.components[resource.currentComponent].currentFontId" ng-if="resource.currentComponentObj.general.nbpb_text_configs.allow_all_font == 'y'">
-                                    <?php foreach($fonts as $font): // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Global variable defined by parent template. ?>
-                                        <?php
-                                            $font_prefix = ($font->type == 'google') ? 'g' : 'c'; // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Local template variable.
-                                            $font_value  = $font_prefix . $font->id; // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Local template variable.
-                                        ?>
-                                    <option value="<?php echo esc_attr( $font_value ); ?>"><?php echo esc_html($font->name ); ?></option>
-                                    <?php endforeach; ?>
-                                </select>
-                                <select class="spbwc-cust-field__select" ng-change="updateText()" ng-model="resource.components[resource.currentComponent].currentFontId" ng-if="resource.currentComponentObj.general.nbpb_text_configs.allow_all_font == 'n'">
-                                    <option ng-if="settings.custom_fonts[font]" ng-repeat="font in resource.currentComponentObj.general.nbpb_text_configs.custom_fonts" value="{{'c' + font }}">{{settings.custom_fonts[font].name}}</option>
-                                    <option ng-if="settings.google_fonts[font]" ng-repeat="font in resource.currentComponentObj.general.nbpb_text_configs.google_fonts" value="{{'g' + font }}">{{settings.google_fonts[font].name}}</option>
-                                </select>
-                            </div>
-                            <div class="spbwc-cust-field" ng-if="resource.currentComponentObj.general.nbpb_text_configs.allow_change_color == 'y' || settings.is_creating_task == 1">
-                                <label class="spbwc-cust-field__label"><?php esc_html_e( 'Colour', 'storelly-product-builder-for-woocommerce' ); ?></label>
-                                <div class="spbwc-cust-color-row" ng-if="resource.currentComponentObj.general.nbpb_text_configs.allow_all_color == 'n'">
-                                    <span class="spbwc-cust-color" ng-click="resource.components[resource.currentComponent].currentColor = color.color;updateText()" ng-class="{'is-active': resource.components[resource.currentComponent].currentColor == color.color}" ng-repeat="color in resource.currentComponentObj.general.nbpb_text_configs.colors" ng-style="{'background': color.color}" title="{{color.name}}"></span>
-                                </div>
-                                <div ng-show="resource.currentComponentObj.general.nbpb_text_configs.allow_all_color == 'y' || settings.is_creating_task == 1">
-                                    <input class="nbpb-color-picker" on-change="selectColor(color)" options="resource.colorOptions" />
-                                </div>
-                            </div>
-                            <button ng-click="deleteLayer('text')" class="spbwc-cust-btn spbwc-cust-btn--danger" type="button"><?php esc_html_e( 'Delete this text', 'storelly-product-builder-for-woocommerce' ); ?></button>
-                        </div>
-
-                        <!-- nbpb_image: upload zone -->
-                        <div class="spbwc-cust-form spbwc-cust-form--image" ng-if="resource.components[resource.currentComponent].nbpb_type == 'nbpb_image'">
-                            <div class="spbwc-cust-upload upload-zone" data-field-id="{{resource.currentComponentObj.id}}" nbd-dnd-file="uploadImage(field_id, files)">
-                                <input type="file" autocomplete="off" class="inputfile" accept=".png,.jpg,.jpeg"/>
-                                <label>
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" x2="12" y1="3" y2="15"/></svg>
-                                    <span class="spbwc-cust-upload__title"><?php esc_html_e( 'Click or drop file here', 'storelly-product-builder-for-woocommerce' ); ?></span>
-                                    <span class="spbwc-cust-upload__note" ng-if="resource.currentComponentObj.general.upload_option.allow_type != ''"><?php esc_html_e( 'Allow extensions', 'storelly-product-builder-for-woocommerce' ); ?>: {{resource.currentComponentObj.general.upload_option.allow_type}}</span>
-                                    <span class="spbwc-cust-upload__note" ng-if="resource.currentComponentObj.general.upload_option.min_size != ''"><?php esc_html_e( 'Min size', 'storelly-product-builder-for-woocommerce' ); ?> {{resource.currentComponentObj.general.upload_option.min_size}} MB</span>
-                                    <span class="spbwc-cust-upload__note" ng-if="resource.currentComponentObj.general.upload_option.max_size != ''"><?php esc_html_e( 'Max size', 'storelly-product-builder-for-woocommerce' ); ?> {{resource.currentComponentObj.general.upload_option.max_size}} MB</span>
-                                </label>
-                                <svg class="nbd-upload-loading" xmlns="http://www.w3.org/2000/svg" width="50px" height="50px" viewBox="0 0 50 50"><circle fill="none" opacity="0.05" stroke="#000000" stroke-width="3" cx="25" cy="25" r="20"/><g transform="translate(25,25) rotate(-90)"><circle  style="stroke:#48B0F7; fill:none; stroke-width: 3px; stroke-linecap: round" stroke-dasharray="110" stroke-dashoffset="0"  cx="0" cy="0" r="20"><animate attributeName="stroke-dashoffset" values="360;140" dur="2.2s" keyTimes="0;1" calcMode="spline" fill="freeze" keySplines="0.41,0.314,0.8,0.54" repeatCount="indefinite" begin="0"/><animateTransform attributeName="transform" type="rotate" values="0;274;360" keyTimes="0;0.74;1" calcMode="linear" dur="2.2s" repeatCount="indefinite" begin="0"/><animate attributeName="stroke" values="#10CFBD;#48B0F7;#ff0066;#48B0F7;#10CFBD" fill="freeze" dur="3s" begin="0" repeatCount="indefinite"/></circle></g></svg>
-                            </div>
-                            <div class="nbpb-uploaded spbwc-cust-uploaded" ng-show="resource.uploaded.length">
-                                <img ng-click="addImage(img)" ng-repeat="img in resource.uploaded" ng-src="{{img}}" />
-                            </div>
-                            <button ng-click="deleteLayer('image')" class="spbwc-cust-btn spbwc-cust-btn--danger" type="button"><?php esc_html_e( 'Delete this image', 'storelly-product-builder-for-woocommerce' ); ?></button>
-                        </div>
-
-                        <!-- Legacy "save layer" affordance kept for compat -->
-                        <div class="product-value-act" style="display:none">
-                            <div class="value-act-finish value-act-item" ng-click="saveLayer()"></div>
-                        </div>
+                    <div class="spbwc-cust-summary__trust">
+                        <span class="spbwc-cust-summary__trust-item">
+                            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
+                            <?php esc_html_e( 'Free design preview', 'storelly-product-builder-for-woocommerce' ); ?>
+                        </span>
+                        <span class="spbwc-cust-summary__trust-item">
+                            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
+                            <?php esc_html_e( 'Quick turnaround', 'storelly-product-builder-for-woocommerce' ); ?>
+                        </span>
                     </div>
                 </aside>
 
             </div>
         </div>
     </div>
-
-    <?php if( $is_creating_task == 0 ): // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Global variable defined by parent template. ?>
-    <!-- Footer: primary action is "Save & continue"; "Cancel" closes via legacy .close-popup. -->
-    <footer class="spbwc-cust-footer">
-        <button class="close-popup spbwc-cust-btn spbwc-cust-btn--ghost" type="button"><?php esc_html_e( 'Cancel', 'storelly-product-builder-for-woocommerce' ); ?></button>
-        <button class="spbwc-cust-btn spbwc-cust-btn--primary" ng-click="saveData()" type="button">
-            <span><?php esc_html_e( 'Save &amp; continue', 'storelly-product-builder-for-woocommerce' ); ?></span>
-            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
-        </button>
-    </footer>
-    <?php endif; ?>
 </div>

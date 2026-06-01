@@ -1795,7 +1795,7 @@ nbdpbApp.controller("nbpbCtrl", [
       }
       return config_index;
     };
-    /* Pretty-print a per-option upcharge for the V2 customizer sidebar.
+    /* Pretty-print a per-option upcharge for the V2/V3 customizer sidebar.
      * Reads currency formatting from SPBWC_PB_CONFIG (added in js_config.php).
      * Falls back to plain "+$X.XX" if config missing. */
     $scope.formatPrice = function (val) {
@@ -1805,6 +1805,116 @@ nbdpbApp.controller("nbpbCtrl", [
       var dec = (typeof SPBWC_PB_CONFIG !== 'undefined' && parseInt(SPBWC_PB_CONFIG.currency_decimals, 10) >= 0) ? parseInt(SPBWC_PB_CONFIG.currency_decimals, 10) : 2;
       return '+' + sym + n.toFixed(dec);
     };
+    /* Pretty-print a money value with the store currency. Mirrors WC formatting
+     * (symbol position + decimals) for the V3 Summary "Your price" row + CTA. */
+    $scope.formatMoney = function (val) {
+      var n = parseFloat(val);
+      if (isNaN(n)) { n = 0; }
+      var cfg = (typeof SPBWC_PB_CONFIG !== 'undefined') ? SPBWC_PB_CONFIG : {};
+      var sym = cfg.currency_symbol || '$';
+      var dec = (parseInt(cfg.currency_decimals, 10) >= 0) ? parseInt(cfg.currency_decimals, 10) : 2;
+      return sym + n.toFixed(dec);
+    };
+    /* V3 — live grand total = base price + Σ(picked component upcharge).
+     * Base price is injected via SPBWC_PB_CONFIG.base_price_raw from
+     * js_config.php (set by wc_get_product()->get_price()). Adds-on are read
+     * from .price (set by getComponentConfigs above). Custom text/image
+     * contribute 0 in this MVP — pricing for those lives at admin-options
+     * level and is applied by Woo at add-to-cart time, not here. */
+    $scope.computeBuildTotal = function () {
+      var cfg = (typeof SPBWC_PB_CONFIG !== 'undefined') ? SPBWC_PB_CONFIG : {};
+      var base = parseFloat(cfg.base_price_raw) || 0;
+      var addons = 0;
+      var configured = 0, total = 0;
+      var comps = ($scope.resource && $scope.resource.components) || [];
+      _.each(comps, function (c) {
+        if (!c || !c.enable) return;
+        total++;
+        if (c.nbpb_type === 'nbpb_com') {
+          var picked = c.current_pb_configs && c.current_pb_configs[c.currentConfig];
+          if (picked) {
+            addons += (parseFloat(picked.price) || 0);
+            configured++;
+          }
+        } else if (c.nbpb_type === 'nbpb_text') {
+          if (c.currentContent) { configured++; }
+        } else if (c.nbpb_type === 'nbpb_image') {
+          if ($scope.resource.uploaded && $scope.resource.uploaded.length) { configured++; }
+        }
+      });
+      return { base: base, addons: addons, grand: base + addons, configured: configured, total: total };
+    };
+    /* Push the live total into the DOM Summary nodes. Avoids a $watch chain
+     * by piggy-backing on $scope.$evalAsync after every selectAttribute /
+     * updateText / uploadImage callback (we install a single $watch for
+     * deep changes on resource.components and resource.uploaded below). */
+    $scope.refreshSummary = function () {
+      try {
+        var info = $scope.computeBuildTotal();
+        var grand = $scope.formatMoney(info.grand);
+        jQuery('[data-spbwc-grand-total]').text(grand);
+        jQuery('[data-spbwc-cta-price]').text(grand);
+        var lbl = info.configured + ' / ' + info.total + ' configured';
+        jQuery('[data-spbwc-progress-label]').text(lbl);
+        var pct = info.total > 0 ? Math.round((info.configured / info.total) * 100) : 0;
+        jQuery('[data-spbwc-progress-fill]').css('width', pct + '%');
+      } catch (e) { /* never let UI math break the customizer */ }
+    };
+    /* Reset every component to its first option (a_index 0 / sa_index 0) and
+     * clear text + uploaded images. Called from the topbar ↻ icon and the
+     * Summary "Reset all" link. A native confirm() is enough for this MVP —
+     * upgrade to a custom modal if the design system gets one. */
+    $scope.resetAll = function () {
+      var msg = (SPBWC_PB_CONFIG && SPBWC_PB_CONFIG.i18n && SPBWC_PB_CONFIG.i18n.confirm_reset_all)
+        || 'Reset all customizations to default?';
+      if (typeof window !== 'undefined' && window.confirm && !window.confirm(msg)) { return; }
+      var prev = $scope.resource.currentComponent;
+      var comps = ($scope.resource && $scope.resource.components) || [];
+      _.each(comps, function (c, idx) {
+        if (!c || !c.enable) return;
+        if (c.nbpb_type === 'nbpb_com' && c.current_pb_configs && c.current_pb_configs.length) {
+          $scope.resource.currentComponent = idx;
+          $scope.selectAttribute(0);
+        } else if (c.nbpb_type === 'nbpb_text') {
+          c.currentContent = '';
+          $scope.resource.currentComponent = idx;
+          if (typeof $scope.updateText === 'function') { $scope.updateText(); }
+        }
+      });
+      $scope.resource.uploaded = [];
+      $scope.resource.currentComponent = prev;
+      $scope.refreshSummary();
+    };
+    /* Reset a single component (per-part ↻ link inside each accordion). */
+    $scope.resetComponent = function (idx) {
+      var c = $scope.resource && $scope.resource.components && $scope.resource.components[idx];
+      if (!c) return;
+      var prev = $scope.resource.currentComponent;
+      $scope.resource.currentComponent = idx;
+      if (c.nbpb_type === 'nbpb_com' && c.current_pb_configs && c.current_pb_configs.length) {
+        $scope.selectAttribute(0);
+      } else if (c.nbpb_type === 'nbpb_text') {
+        c.currentContent = '';
+        if (typeof $scope.updateText === 'function') { $scope.updateText(); }
+      } else if (c.nbpb_type === 'nbpb_image') {
+        $scope.resource.uploaded = [];
+      }
+      $scope.resource.currentComponent = prev;
+      $scope.refreshSummary();
+    };
+    /* Install a single deep $watch so the Summary refreshes whenever ANY
+     * component selection or uploaded-image list changes — no need to call
+     * refreshSummary() from every individual handler. */
+    $scope.$watch(function () {
+      var comps = ($scope.resource && $scope.resource.components) || [];
+      var sig = comps.map(function (c) {
+        if (!c) return 'x';
+        if (c.nbpb_type === 'nbpb_com') { return c.currentConfig; }
+        if (c.nbpb_type === 'nbpb_text') { return c.currentContent || ''; }
+        return '';
+      }).join('|') + '#' + (($scope.resource && $scope.resource.uploaded) ? $scope.resource.uploaded.length : 0);
+      return sig;
+    }, function () { $scope.refreshSummary(); });
     $scope.init();
   },
 ]);
@@ -2242,4 +2352,76 @@ jQuery(document).on("update_nbo_options", function (e, data) {
     .scope();
   $scope.initValues(false, data.pro);
   $scope.updateApp();
+});
+
+/* =====================================================================
+ * V3 — Tab nav switching + Reset hooks + Coming-soon affordance
+ * --------------------------------------------------------------------
+ * Lives OUTSIDE the Angular controller because:
+ *   (a) the tab nav swaps between an Angular panel ("customize") and
+ *       static placeholder panels (AI / Templates / Help) — no scope
+ *       state is needed
+ *   (b) the reset/coming-soon buttons are simple jQuery handlers
+ * Bindings are namespaced under .spbwc-cust-v3 so legacy wrappers stay
+ * untouched. Falls back to a no-op if the V3 markup isn't present.
+ * ===================================================================== */
+jQuery(function ($) {
+  /* Tab switch — flip aria-selected + show/hide tabpanels. */
+  $(document).on('click', '.spbwc-cust-v3 .spbwc-cust-tabbtn', function () {
+    var $btn = $(this);
+    var tab = $btn.data('spbwc-tab');
+    if (!tab) return;
+    if ($btn.data('spbwc-coming-soon')) {
+      /* Friendly hint — keep on the active tab, just inform. */
+      try {
+        var $tip = $('<div class="spbwc-cust-toast">' + ($btn.attr('title') || 'Coming soon') + '</div>');
+        $('.spbwc-cust-v3').append($tip);
+        setTimeout(function () { $tip.addClass('is-out'); }, 1800);
+        setTimeout(function () { $tip.remove(); }, 2200);
+      } catch (e) {}
+      return;
+    }
+    var $root = $btn.closest('.spbwc-cust-v3');
+    $root.find('.spbwc-cust-tabbtn').removeClass('is-active').attr('aria-selected', 'false');
+    $btn.addClass('is-active').attr('aria-selected', 'true');
+    $root.find('.spbwc-cust-tabpanel').attr('hidden', true);
+    $root.find('.spbwc-cust-tabpanel[data-spbwc-tabpanel="' + tab + '"]').removeAttr('hidden');
+  });
+
+  /* Reset-all — wired to both the topbar ↻ icon and the Summary "Reset all" link. */
+  $(document).on('click', '.spbwc-cust-v3 [data-spbwc-action="reset-all"]', function () {
+    var el = document.getElementById('nbpb-container');
+    if (!el || typeof angular === 'undefined') return;
+    var s = angular.element(el).scope();
+    if (s && typeof s.resetAll === 'function') {
+      s.$apply(function () { s.resetAll(); });
+    }
+  });
+
+  /* Reset-this-part — per-component link inside each accordion body. */
+  $(document).on('click', '.spbwc-cust-v3 [data-spbwc-action="reset-part"]', function (e) {
+    e.preventDefault();
+    e.stopPropagation();
+    var idx = parseInt($(this).data('spbwc-part-index'), 10);
+    if (isNaN(idx)) return;
+    var el = document.getElementById('nbpb-container');
+    if (!el || typeof angular === 'undefined') return;
+    var s = angular.element(el).scope();
+    if (s && typeof s.resetComponent === 'function') {
+      s.$apply(function () { s.resetComponent(idx); });
+    }
+  });
+
+  /* Initial Summary push after the modal becomes visible — covers the case
+   * where the first paint happens before the deep $watch establishes. */
+  $(document).on('initialed_nbo_options nbdpb-show', function () {
+    setTimeout(function () {
+      var el = document.getElementById('nbpb-container');
+      if (!el || typeof angular === 'undefined') return;
+      try {
+        var s = angular.element(el).scope();
+        if (s && typeof s.refreshSummary === 'function') { s.refreshSummary(); }
+      } catch (e) {}
+    }, 400);
+  });
 });
