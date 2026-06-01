@@ -1821,6 +1821,16 @@ nbdpbApp.controller("nbpbCtrl", [
      * defaults to currentConfig=0 on init (first option auto-selected),
      * so we treat it as configured as long as that index resolves to a
      * real entry — keeps the green-check affordance honest. */
+    /* V3 — Accordion toggle. Clicking an already-open step closes it
+     * (Printcart step-row toggle behaviour). New step opens via the
+     * legacy $scope.showAttribute(idx). */
+    $scope.toggleAccordion = function (idx) {
+      if ($scope.resource.showValue && $scope.resource.currentComponent === idx) {
+        $scope.resource.showValue = false;
+        return;
+      }
+      $scope.showAttribute(idx);
+    };
     /* V3 — Canvas zoom (Printcart `.zoom-bar` pattern).
      * Tracks a buyer-driven scale factor and applies it to .design-zone
      * via CSS transform. Doesn't touch Fabric internals — just visual

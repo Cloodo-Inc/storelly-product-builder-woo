@@ -52,19 +52,34 @@
     $spbwc_v3_regular_price_raw = 0;
     $spbwc_v3_is_on_sale = false;
     $spbwc_v3_product_thumb = '';
+    $spbwc_v3_product_short_description = '';
+    $spbwc_v3_product_description = '';
+    $spbwc_v3_product_sku = '';
+    $spbwc_v3_product_categories = '';
     if ( $is_creating_task == 0 && function_exists( 'wc_get_product' ) ) { // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Global variable defined by parent template.
         $spbwc_v3_product = wc_get_product( get_the_ID() );
         if ( $spbwc_v3_product ) {
-            $spbwc_v3_product_name      = $spbwc_v3_product->get_name();
-            $spbwc_v3_base_price_raw    = (float) $spbwc_v3_product->get_price();
-            $spbwc_v3_regular_price_raw = (float) $spbwc_v3_product->get_regular_price();
-            $spbwc_v3_is_on_sale        = $spbwc_v3_product->is_on_sale();
+            $spbwc_v3_product_name              = $spbwc_v3_product->get_name();
+            $spbwc_v3_base_price_raw            = (float) $spbwc_v3_product->get_price();
+            $spbwc_v3_regular_price_raw         = (float) $spbwc_v3_product->get_regular_price();
+            $spbwc_v3_is_on_sale                = $spbwc_v3_product->is_on_sale();
             /* Use wc_price() to get just the current price formatted with the
              * store currency — no strikethrough markup. The sale-vs-regular
              * is surfaced as a small "Save $X" badge elsewhere, not as two
              * stacked amounts inside the customizer. */
-            $spbwc_v3_base_price_html   = wc_price( $spbwc_v3_base_price_raw );
-            $spbwc_v3_product_thumb     = get_the_post_thumbnail_url( $spbwc_v3_product->get_id(), 'thumbnail' );
+            $spbwc_v3_base_price_html           = wc_price( $spbwc_v3_base_price_raw );
+            $spbwc_v3_product_thumb             = get_the_post_thumbnail_url( $spbwc_v3_product->get_id(), 'thumbnail' );
+            /* Content tabs (Details + Shipping). short_description = the
+             * concise tagline shown above the WC tab block on the product
+             * page; description = the long body. SKU + categories + weight
+             * + dimensions fill out the Details tab. */
+            $spbwc_v3_product_short_description = $spbwc_v3_product->get_short_description();
+            $spbwc_v3_product_description       = $spbwc_v3_product->get_description();
+            $spbwc_v3_product_sku               = $spbwc_v3_product->get_sku();
+            $spbwc_v3_cats                      = wp_get_post_terms( $spbwc_v3_product->get_id(), 'product_cat', array( 'fields' => 'names' ) );
+            $spbwc_v3_product_categories        = ( ! is_wp_error( $spbwc_v3_cats ) && ! empty( $spbwc_v3_cats ) ) ? implode( ', ', $spbwc_v3_cats ) : '';
+            $spbwc_v3_product_weight            = $spbwc_v3_product->get_weight();
+            $spbwc_v3_product_dimensions        = $spbwc_v3_product->has_dimensions() ? wc_format_dimensions( $spbwc_v3_product->get_dimensions( false ) ) : '';
             /* Spec line — short categorical hint (e.g. "Bicycles · Frame builder"). */
             $cats = wp_get_post_terms( $spbwc_v3_product->get_id(), 'product_cat', array( 'fields' => 'names' ) );
             if ( ! is_wp_error( $cats ) && ! empty( $cats ) ) {
@@ -150,18 +165,17 @@
                         </span>
                         <span class="spbwc-cust-tabbtn__label"><?php esc_html_e( 'Customize', 'storelly-product-builder-for-woocommerce' ); ?></span>
                     </button>
-                    <button type="button" class="spbwc-cust-tabbtn" role="tab" aria-selected="false" data-spbwc-tab="ai" data-spbwc-coming-soon="1" title="<?php esc_attr_e( 'Design with AI — coming soon', 'storelly-product-builder-for-woocommerce' ); ?>">
+                    <button type="button" class="spbwc-cust-tabbtn" role="tab" aria-selected="false" data-spbwc-tab="details" title="<?php esc_attr_e( 'Product details', 'storelly-product-builder-for-woocommerce' ); ?>">
                         <span class="spbwc-cust-tabbtn__icon" aria-hidden="true">
-                            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v4"/><path d="m4.93 4.93 2.83 2.83"/><path d="M2 12h4"/><path d="m4.93 19.07 2.83-2.83"/><path d="M12 18v4"/><path d="m19.07 19.07-2.83-2.83"/><path d="M22 12h-4"/><path d="m19.07 4.93-2.83 2.83"/><circle cx="12" cy="12" r="3"/></svg>
+                            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><line x1="10" y1="9" x2="8" y2="9"/></svg>
                         </span>
-                        <span class="spbwc-cust-tabbtn__label"><?php esc_html_e( 'AI', 'storelly-product-builder-for-woocommerce' ); ?></span>
-                        <span class="spbwc-cust-tabbtn__badge"><?php esc_html_e( 'Soon', 'storelly-product-builder-for-woocommerce' ); ?></span>
+                        <span class="spbwc-cust-tabbtn__label"><?php esc_html_e( 'Details', 'storelly-product-builder-for-woocommerce' ); ?></span>
                     </button>
-                    <button type="button" class="spbwc-cust-tabbtn" role="tab" aria-selected="false" data-spbwc-tab="templates" data-spbwc-coming-soon="1" title="<?php esc_attr_e( 'Templates — coming soon', 'storelly-product-builder-for-woocommerce' ); ?>">
+                    <button type="button" class="spbwc-cust-tabbtn" role="tab" aria-selected="false" data-spbwc-tab="shipping" title="<?php esc_attr_e( 'Shipping & returns', 'storelly-product-builder-for-woocommerce' ); ?>">
                         <span class="spbwc-cust-tabbtn__icon" aria-hidden="true">
-                            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9" rx="1"/><rect x="14" y="3" width="7" height="5" rx="1"/><rect x="14" y="12" width="7" height="9" rx="1"/><rect x="3" y="16" width="7" height="5" rx="1"/></svg>
+                            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 18h14V8H5z"/><path d="M5 8 7 4h10l2 4"/><circle cx="8" cy="18" r="2"/><circle cx="16" cy="18" r="2"/></svg>
                         </span>
-                        <span class="spbwc-cust-tabbtn__label"><?php esc_html_e( 'Templates', 'storelly-product-builder-for-woocommerce' ); ?></span>
+                        <span class="spbwc-cust-tabbtn__label"><?php esc_html_e( 'Shipping', 'storelly-product-builder-for-woocommerce' ); ?></span>
                     </button>
                     <button type="button" class="spbwc-cust-tabbtn" role="tab" aria-selected="false" data-spbwc-tab="help" title="<?php esc_attr_e( 'Help & FAQ', 'storelly-product-builder-for-woocommerce' ); ?>">
                         <span class="spbwc-cust-tabbtn__icon" aria-hidden="true">
@@ -182,7 +196,7 @@
                         <div class="spbwc-cust-acc">
                             <!-- One accordion item per component. ng-click toggles via $scope.showAttribute($index). -->
                             <div ng-repeat="component in resource.components" ng-show="component.enable" class="spbwc-cust-acc-item" ng-class="{'is-open': resource.showValue && $index == resource.currentComponent, 'is-done': isComponentConfigured(component)}">
-                                <button type="button" class="spbwc-cust-acc-head" ng-click="showAttribute($index)" aria-expanded="{{resource.showValue && $index == resource.currentComponent ? 'true' : 'false'}}">
+                                <button type="button" class="spbwc-cust-acc-head" ng-click="toggleAccordion($index)" aria-expanded="{{resource.showValue && $index == resource.currentComponent ? 'true' : 'false'}}">
                                     <span class="spbwc-cust-acc-step" aria-hidden="true">
                                         <svg ng-if="isComponentConfigured(component)" viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
                                         <span ng-if="!isComponentConfigured(component)" class="spbwc-cust-acc-step__dot"></span>
@@ -286,21 +300,83 @@
                         </div>
                     </div>
 
-                    <!-- Tab content: AI (placeholder) -->
-                    <div class="spbwc-cust-tabpanel" data-spbwc-tabpanel="ai" hidden>
-                        <div class="spbwc-cust-comingsoon">
-                            <svg viewBox="0 0 24 24" width="48" height="48" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 3v4M3 5h4M6 17v4M4 19h4M13 3l1.5 4.5L19 9l-4.5 1.5L13 15l-1.5-4.5L7 9l4.5-1.5z"/></svg>
-                            <h3><?php esc_html_e( 'Design with AI', 'storelly-product-builder-for-woocommerce' ); ?></h3>
-                            <p><?php esc_html_e( 'Describe what you want and AI will suggest a starting design. Coming soon.', 'storelly-product-builder-for-woocommerce' ); ?></p>
+                    <!-- Tab content: Details — sources from $product->get_description() + meta -->
+                    <div class="spbwc-cust-tabpanel" data-spbwc-tabpanel="details" hidden>
+                        <header class="spbwc-cust-panel__head">
+                            <div class="spbwc-cust-panel__title"><?php esc_html_e( 'Product details', 'storelly-product-builder-for-woocommerce' ); ?></div>
+                        </header>
+                        <div class="spbwc-cust-content">
+                            <?php if ( ! empty( $spbwc_v3_product_short_description ) ) : ?>
+                                <div class="spbwc-cust-content__lede"><?php echo wp_kses_post( wpautop( $spbwc_v3_product_short_description ) ); ?></div>
+                            <?php endif; ?>
+
+                            <?php if ( ! empty( $spbwc_v3_product_description ) ) : ?>
+                                <div class="spbwc-cust-content__body"><?php echo wp_kses_post( wpautop( $spbwc_v3_product_description ) ); ?></div>
+                            <?php endif; ?>
+
+                            <?php if ( empty( $spbwc_v3_product_short_description ) && empty( $spbwc_v3_product_description ) ) : ?>
+                                <p class="spbwc-cust-content__empty"><?php esc_html_e( 'No product description has been added yet.', 'storelly-product-builder-for-woocommerce' ); ?></p>
+                            <?php endif; ?>
+
+                            <dl class="spbwc-cust-spec">
+                                <?php if ( ! empty( $spbwc_v3_product_sku ) ) : ?>
+                                    <div class="spbwc-cust-spec__row">
+                                        <dt><?php esc_html_e( 'SKU', 'storelly-product-builder-for-woocommerce' ); ?></dt>
+                                        <dd><?php echo esc_html( $spbwc_v3_product_sku ); ?></dd>
+                                    </div>
+                                <?php endif; ?>
+                                <?php if ( ! empty( $spbwc_v3_product_categories ) ) : ?>
+                                    <div class="spbwc-cust-spec__row">
+                                        <dt><?php esc_html_e( 'Category', 'storelly-product-builder-for-woocommerce' ); ?></dt>
+                                        <dd><?php echo esc_html( $spbwc_v3_product_categories ); ?></dd>
+                                    </div>
+                                <?php endif; ?>
+                                <?php if ( ! empty( $spbwc_v3_product_weight ) ) : ?>
+                                    <div class="spbwc-cust-spec__row">
+                                        <dt><?php esc_html_e( 'Weight', 'storelly-product-builder-for-woocommerce' ); ?></dt>
+                                        <dd><?php echo esc_html( $spbwc_v3_product_weight . ' ' . get_option( 'woocommerce_weight_unit' ) ); ?></dd>
+                                    </div>
+                                <?php endif; ?>
+                                <?php if ( ! empty( $spbwc_v3_product_dimensions ) ) : ?>
+                                    <div class="spbwc-cust-spec__row">
+                                        <dt><?php esc_html_e( 'Dimensions', 'storelly-product-builder-for-woocommerce' ); ?></dt>
+                                        <dd><?php echo esc_html( $spbwc_v3_product_dimensions ); ?></dd>
+                                    </div>
+                                <?php endif; ?>
+                            </dl>
                         </div>
                     </div>
 
-                    <!-- Tab content: Templates (placeholder) -->
-                    <div class="spbwc-cust-tabpanel" data-spbwc-tabpanel="templates" hidden>
-                        <div class="spbwc-cust-comingsoon">
-                            <svg viewBox="0 0 24 24" width="48" height="48" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="7" height="9"/><rect x="14" y="3" width="7" height="5"/><rect x="14" y="12" width="7" height="9"/><rect x="3" y="16" width="7" height="5"/></svg>
-                            <h3><?php esc_html_e( 'Pre-made templates', 'storelly-product-builder-for-woocommerce' ); ?></h3>
-                            <p><?php esc_html_e( 'Start from a designer-curated configuration. Coming soon.', 'storelly-product-builder-for-woocommerce' ); ?></p>
+                    <!-- Tab content: Shipping — generic Printcart-style sales-policy card.
+                         Merchants can override the copy via the `spbwc_customizer_shipping_html`
+                         filter without touching the template. -->
+                    <div class="spbwc-cust-tabpanel" data-spbwc-tabpanel="shipping" hidden>
+                        <header class="spbwc-cust-panel__head">
+                            <div class="spbwc-cust-panel__title"><?php esc_html_e( 'Shipping & returns', 'storelly-product-builder-for-woocommerce' ); ?></div>
+                        </header>
+                        <div class="spbwc-cust-content">
+                            <?php
+                                $spbwc_v3_shipping_default = ''
+                                    . '<div class="spbwc-cust-policy">'
+                                    . '  <div class="spbwc-cust-policy__row">'
+                                    . '    <span class="spbwc-cust-policy__icon"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg></span>'
+                                    . '    <div><strong>' . esc_html__( 'Production lead time', 'storelly-product-builder-for-woocommerce' ) . '</strong><br><span>' . esc_html__( 'Your design enters production within 24 hours of order confirmation.', 'storelly-product-builder-for-woocommerce' ) . '</span></div>'
+                                    . '  </div>'
+                                    . '  <div class="spbwc-cust-policy__row">'
+                                    . '    <span class="spbwc-cust-policy__icon"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg></span>'
+                                    . '    <div><strong>' . esc_html__( 'Delivery options', 'storelly-product-builder-for-woocommerce' ) . '</strong><br><span>' . esc_html__( 'Standard 3–7 business days · Express available at checkout · Free over $80.', 'storelly-product-builder-for-woocommerce' ) . '</span></div>'
+                                    . '  </div>'
+                                    . '  <div class="spbwc-cust-policy__row">'
+                                    . '    <span class="spbwc-cust-policy__icon"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></span>'
+                                    . '    <div><strong>' . esc_html__( 'Custom-print returns', 'storelly-product-builder-for-woocommerce' ) . '</strong><br><span>' . esc_html__( 'Personalised items are made-to-order. Defects or print errors qualify for a free reprint or refund within 30 days.', 'storelly-product-builder-for-woocommerce' ) . '</span></div>'
+                                    . '  </div>'
+                                    . '  <div class="spbwc-cust-policy__row">'
+                                    . '    <span class="spbwc-cust-policy__icon"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></span>'
+                                    . '    <div><strong>' . esc_html__( 'Secure checkout', 'storelly-product-builder-for-woocommerce' ) . '</strong><br><span>' . esc_html__( 'All payments are processed by WooCommerce over a TLS 1.3 connection — we never store card data.', 'storelly-product-builder-for-woocommerce' ) . '</span></div>'
+                                    . '  </div>'
+                                    . '</div>';
+                                echo wp_kses_post( apply_filters( 'spbwc_customizer_shipping_html', $spbwc_v3_shipping_default ) );
+                            ?>
                         </div>
                     </div>
 

@@ -8273,15 +8273,19 @@ select.ng-invalid {
     position: relative; /* allows the active-tab tongue to overlap */
     z-index: 2;         /* above tab-nav so the white tongue covers the rail border cleanly */
 }
-/* Panel head — direct port of Printcart `.panel-head` + `.panel-title`. */
+/* Panel head — Printcart `.panel-head` + `.panel-title`.
+ * The progress-meta affordance lives in the Summary now, so the head
+ * is a single uppercase caption row — no longer needs space-between
+ * justify for a missing right-side meta. */
 .spbwc-cust-panel__head {
     flex: 0 0 auto;
     padding: 16px 16px 12px;
     border-bottom: 1px solid var(--spbwc-c-line-subtle);
     display: flex;
-    align-items: baseline;
-    justify-content: space-between;
+    align-items: center;
+    justify-content: flex-start;
     gap: 10px;
+    margin: 0;
 }
 .spbwc-cust-panel__title {
     font-size: 12px;
@@ -8289,11 +8293,15 @@ select.ng-invalid {
     color: var(--spbwc-c-text);
     text-transform: uppercase;
     letter-spacing: 0.06em;
+    line-height: 1.4;
+    margin: 0;
+    padding: 0;
 }
 .spbwc-cust-panel__meta {
     font-size: 11px;
     font-weight: 500;
     color: var(--spbwc-c-text);
+    margin-left: auto;
 }
 /* Progress affordance — Printcart `.progress-mini` style: a thin
  * 4px capsule with smooth fill. The N/M label sits in panel__meta. */
@@ -9463,4 +9471,114 @@ span.spbwc-cust-cta__price[data-spbwc-cta-price] {
     }
     .spbwc-cust-v3 .spbwc-cust-canvas { display: none; }
     .spbwc-cust-summary { border-left: 0; border-top: 1px solid var(--spbwc-c-line); }
+}
+
+/* =====================================================================
+ * Content tabs (Details / Shipping / Help) — Printcart-style typography
+ * for buyer-facing copy. Lives inside .spbwc-cust-tabpanel siblings,
+ * sharing the panel scroll container so the head stays sticky.
+ * ===================================================================== */
+.spbwc-cust-content {
+    padding: 16px;
+    overflow-y: auto;
+    color: var(--spbwc-c-ink);
+    font-size: 13px;
+    line-height: 1.55;
+}
+.spbwc-cust-content__lede {
+    font-size: 13.5px;
+    color: var(--spbwc-c-ink);
+    font-weight: 500;
+    margin: 0 0 12px;
+}
+.spbwc-cust-content__lede p:last-child,
+.spbwc-cust-content__body p:last-child { margin-bottom: 0; }
+.spbwc-cust-content__body {
+    font-size: 12.5px;
+    color: var(--spbwc-c-text);
+    line-height: 1.6;
+    padding: 12px 0;
+    border-top: 1px solid var(--spbwc-c-line-subtle);
+    margin-top: 4px;
+}
+.spbwc-cust-content__body p { margin: 0 0 10px; }
+.spbwc-cust-content__body ul,
+.spbwc-cust-content__body ol { margin: 0 0 10px; padding-left: 20px; }
+.spbwc-cust-content__body strong { color: var(--spbwc-c-ink); }
+.spbwc-cust-content__body a { color: var(--spbwc-c-brand); text-decoration: underline; }
+.spbwc-cust-content__empty {
+    font-size: 12.5px;
+    color: var(--spbwc-c-text);
+    font-style: italic;
+    text-align: center;
+    padding: 24px 0;
+    margin: 0;
+}
+
+/* Spec grid (SKU / Category / Weight / Dimensions) */
+.spbwc-cust-spec {
+    margin: 14px 0 0;
+    padding: 14px 0 0;
+    border-top: 1px solid var(--spbwc-c-line-subtle);
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 8px;
+}
+.spbwc-cust-spec__row {
+    display: grid;
+    grid-template-columns: 110px 1fr;
+    gap: 12px;
+    align-items: baseline;
+    font-size: 12.5px;
+}
+.spbwc-cust-spec__row dt {
+    color: var(--spbwc-c-text);
+    font-weight: 500;
+    margin: 0;
+}
+.spbwc-cust-spec__row dd {
+    color: var(--spbwc-c-ink);
+    font-weight: 600;
+    margin: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* Shipping & returns policy card */
+.spbwc-cust-policy {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+.spbwc-cust-policy__row {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 12px;
+    background: var(--spbwc-c-bg-soft);
+    border: 1px solid var(--spbwc-c-line);
+    border-radius: var(--spbwc-c-radius-md); /* 8px */
+}
+.spbwc-cust-policy__icon {
+    flex: 0 0 auto;
+    width: 32px;
+    height: 32px;
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    background: var(--spbwc-c-brand-soft);
+    color: var(--spbwc-c-brand);
+}
+.spbwc-cust-policy__row > div {
+    flex: 1;
+    min-width: 0;
+    font-size: 12.5px;
+    line-height: 1.5;
+    color: var(--spbwc-c-text);
+}
+.spbwc-cust-policy__row strong {
+    color: var(--spbwc-c-ink);
+    font-weight: 600;
+    font-size: 13px;
 }
