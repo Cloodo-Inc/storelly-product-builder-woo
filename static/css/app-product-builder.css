@@ -8192,14 +8192,28 @@ select.ng-invalid {
  * than a cramped icon column. */
 .spbwc-cust-tabnav {
     flex: 0 0 auto;
-    background: var(--spbwc-c-bg);
-    border-right: 1px solid var(--spbwc-c-line);
+    background: var(--spbwc-c-bg-soft);
+    border-right: 1px solid var(--spbwc-c-line-strong);
     display: flex;
     flex-direction: column;
     overflow-y: auto;
     scrollbar-width: thin;
-    padding: 8px 0;
-    gap: 2px;
+    padding: 8px 6px;
+    gap: 4px;
+    box-shadow: inset -1px 0 0 var(--spbwc-c-line);
+}
+/* Each tab button gets a subtle 1px border so it reads as a distinct
+ * "chip" against the rail bg — separates it visually from the white
+ * accordion cards in the panel beside it. */
+.spbwc-cust-tabbtn {
+    border-radius: 8px;
+}
+.spbwc-cust-tabbtn:hover {
+    border: 1px solid transparent;
+}
+.spbwc-cust-tabbtn.is-active,
+.spbwc-cust-tabbtn[aria-selected="true"] {
+    border: 1px solid var(--spbwc-c-brand-soft);
 }
 .spbwc-cust-tabbtn {
     position: relative;
@@ -8237,19 +8251,9 @@ select.ng-invalid {
     background: var(--spbwc-c-brand-tint);
     color: var(--spbwc-c-brand);
 }
-.spbwc-cust-tabbtn.is-active::before,
-.spbwc-cust-tabbtn[aria-selected="true"]::before {
-    /* 3px brand accent rail on the right edge (panel side) — elegant
-     * connection between the active tab and the panel beside it. */
-    content: '';
-    position: absolute;
-    top: 12px;
-    bottom: 12px;
-    right: 0;
-    width: 3px;
-    border-radius: 2px 0 0 2px;
-    background: var(--spbwc-c-brand);
-}
+/* (Removed in 1.4.4 per user feedback: the 3px brand accent rail on the
+ * right edge of the active tab. Active state now relies on the brand-
+ * tint background + brand text — cleaner, no extra ornament.) */
 .spbwc-cust-tabbtn__icon {
     width: 32px;
     height: 32px;
@@ -8301,12 +8305,16 @@ select.ng-invalid {
 
 /* PANEL (accordion options) — must be a flex column with min-height:0
  * so the inner tab panels can take all remaining height and host their
- * own scroll containers without overflowing the whole modal. */
-.spbwc-cust-panel {
+ * own scroll containers without overflowing the whole modal. !important
+ * defeats the Cloodo theme reset that was forcing `display: block` on
+ * <aside> elements (which collapsed our flex chain — inner tabpanel
+ * was growing to content height 1462px instead of constrained 513px). */
+.spbwc-cust-v3 aside.spbwc-cust-panel,
+aside.spbwc-cust-panel {
     background: var(--spbwc-c-bg);
     border-right: 1px solid var(--spbwc-c-line);
-    display: flex;
-    flex-direction: column;
+    display: flex !important;
+    flex-direction: column !important;
     min-height: 0;
     height: 100%;
     overflow: hidden;
@@ -8376,11 +8384,11 @@ select.ng-invalid {
 .spbwc-cust-panel__progress.is-complete .spbwc-cust-panel__progress-fill {
     background: var(--spbwc-c-success);
 }
-.spbwc-cust-tabpanel {
-    flex: 1 1 auto;
-    overflow-y: auto;
-    min-height: 0;
-}
+/* (Removed in 1.4.4: a stale `.spbwc-cust-tabpanel { overflow-y: auto }`
+ * lived here from an earlier polish pass — it scrolled the WHOLE
+ * tabpanel including the head, AND fought the inner .spbwc-cust-acc
+ * scroll. Canonical rule lives at line ~8318 — flex column with
+ * overflow:hidden, so the inner list owns the scroll.) */
 
 /* Accordion items — direct port of Printcart Canva `.step-item` +
  * `.step-row`. White card, 6px radius, 1px subtle border. Open state =
@@ -8406,8 +8414,11 @@ select.ng-invalid {
     border: 1px solid var(--spbwc-c-line);
     border-radius: var(--spbwc-c-radius-sm); /* 6px — Printcart radius-md */
     background: var(--spbwc-c-bg);
-    overflow: hidden;
     transition: border-color 120ms;
+    /* No overflow:hidden — the open body needs to render its full
+     * height so the outer .spbwc-cust-acc scroll container handles
+     * the actual scrolling. (1.4.4: this was clipping option grids
+     * to ~315px, hiding everything past the 5th colour swatch.) */
 }
 .spbwc-cust-acc-item.is-open {
     border-color: var(--spbwc-c-brand);

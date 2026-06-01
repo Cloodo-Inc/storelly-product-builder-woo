@@ -4,8 +4,8 @@ Donate link: https://storelly.com/
 Tags: product builder, product customize, product customizer, woocommerce custom product
 Requires at least: 4.7
 Tested up to: 7.0
-Stable tag: 1.4.3
-Version: 1.4.3
+Stable tag: 1.4.4
+Version: 1.4.4
 Requires PHP: 7.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -132,6 +132,10 @@ This plugin connects to the following external services:
 3. Storelly settings page with API keys and sync options
 
 == Changelog ==
+= 1.4.4 =
+* Customizer V3: fixed accordion scroll regression — a stale duplicate `.spbwc-cust-tabpanel { overflow-y: auto }` rule was scrolling the whole tab panel (including the pinned head) and fighting the inner accordion list, so products with many options (e.g. a colour picker with 10+ swatches) had their bottom options cut off at the viewport edge. Removed the duplicate; the inner accordion list now owns the scroll exclusively, head stays pinned.
+* Customizer V3: tab nav polish per buyer feedback — dropped the 3px brand-blue accent rail on the active tab's right edge. The rail had become visual noise next to the accordion cards in the panel. Active state now relies on the brand-tint bg + brand text + a 1px brand-soft border around the button. Tab nav rail also gets a slightly darker `--nbd-mb-border-strong` right border + `--nbd-mb-bg-soft` background so it reads as a distinct rail (not the same surface as the white accordion cards).
+
 = 1.4.3 =
 * Customizer V3 — scroll containment + UI elegance pass:
   - The accordion list inside the Customize tab is now the proper scroll container for the panel column. Many components (or many options inside an open step) push the whole list, which scrolls smoothly while the panel head stays pinned. The earlier nested `max-height: 360px` inner scroll was removed — single scroll container, no nested-touch fights.
