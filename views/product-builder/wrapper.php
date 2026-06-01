@@ -56,6 +56,8 @@
     $spbwc_v3_product_description = '';
     $spbwc_v3_product_sku = '';
     $spbwc_v3_product_categories = '';
+    $spbwc_v3_product_image_url = '';       // medium_large hero (Details tab)
+    $spbwc_v3_product_gallery_urls = array(); // gallery thumbs (Details tab)
     if ( $is_creating_task == 0 && function_exists( 'wc_get_product' ) ) { // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Global variable defined by parent template.
         $spbwc_v3_product = wc_get_product( get_the_ID() );
         if ( $spbwc_v3_product ) {
@@ -80,6 +82,21 @@
             $spbwc_v3_product_categories        = ( ! is_wp_error( $spbwc_v3_cats ) && ! empty( $spbwc_v3_cats ) ) ? implode( ', ', $spbwc_v3_cats ) : '';
             $spbwc_v3_product_weight            = $spbwc_v3_product->get_weight();
             $spbwc_v3_product_dimensions        = $spbwc_v3_product->has_dimensions() ? wc_format_dimensions( $spbwc_v3_product->get_dimensions( false ) ) : '';
+            /* Details tab — bigger hero + gallery thumbs. */
+            $spbwc_v3_image_id = $spbwc_v3_product->get_image_id();
+            if ( $spbwc_v3_image_id ) {
+                $spbwc_v3_product_image_url = wp_get_attachment_image_url( $spbwc_v3_image_id, 'medium_large' );
+            }
+            $spbwc_v3_gallery_ids = $spbwc_v3_product->get_gallery_image_ids();
+            if ( ! empty( $spbwc_v3_gallery_ids ) ) {
+                foreach ( $spbwc_v3_gallery_ids as $spbwc_v3_g_id ) {
+                    $url = wp_get_attachment_image_url( $spbwc_v3_g_id, 'medium_large' );
+                    $thumb = wp_get_attachment_image_url( $spbwc_v3_g_id, 'thumbnail' );
+                    if ( $url ) {
+                        $spbwc_v3_product_gallery_urls[] = array( 'full' => $url, 'thumb' => $thumb ?: $url );
+                    }
+                }
+            }
 
             /* Spec line under the product name in the summary header.
              * "Uncategorized" is the WP default for products without a
@@ -207,11 +224,24 @@
                     <div class="spbwc-cust-tabpanel" data-spbwc-tabpanel="customize">
                         <header class="spbwc-cust-panel__head">
                             <div class="spbwc-cust-panel__title"><?php esc_html_e( 'Customize parts', 'storelly-product-builder-for-woocommerce' ); ?></div>
+                            <!-- View filter toggle — show only parts that affect the
+                                 currently-shown view. Only rendered when product has
+                                 ≥2 stages. Defaults to "current view only" so the
+                                 buyer doesn't see options that don't visually change
+                                 what they're looking at. -->
+                            <div class="spbwc-cust-viewfilter" ng-if="stages.length > 1" role="tablist" aria-label="<?php esc_attr_e( 'Filter parts by view', 'storelly-product-builder-for-woocommerce' ); ?>">
+                                <button type="button" class="spbwc-cust-viewfilter__btn" ng-click="viewFilter = 'current'" ng-class="{'is-active': viewFilter == 'current'}" role="tab" aria-selected="{{viewFilter == 'current'}}">
+                                    <?php esc_html_e( 'This view', 'storelly-product-builder-for-woocommerce' ); ?>
+                                </button>
+                                <button type="button" class="spbwc-cust-viewfilter__btn" ng-click="viewFilter = 'all'" ng-class="{'is-active': viewFilter == 'all'}" role="tab" aria-selected="{{viewFilter == 'all'}}">
+                                    <?php esc_html_e( 'All', 'storelly-product-builder-for-woocommerce' ); ?>
+                                </button>
+                            </div>
                         </header>
 
                         <div class="spbwc-cust-acc">
                             <!-- One accordion item per component. ng-click toggles via $scope.showAttribute($index). -->
-                            <div ng-repeat="component in resource.components" ng-show="component.enable" class="spbwc-cust-acc-item" ng-class="{'is-open': resource.showValue && $index == resource.currentComponent, 'is-done': isComponentConfigured(component)}">
+                            <div ng-repeat="component in resource.components" ng-show="component.enable && componentVisibleInFilter(component)" class="spbwc-cust-acc-item" ng-class="{'is-open': resource.showValue && $index == resource.currentComponent, 'is-done': isComponentConfigured(component)}">
                                 <button type="button" class="spbwc-cust-acc-head" ng-click="toggleAccordion($index)" aria-expanded="{{resource.showValue && $index == resource.currentComponent ? 'true' : 'false'}}">
                                     <span class="spbwc-cust-acc-step" aria-hidden="true">
                                         <svg ng-if="isComponentConfigured(component)" viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
@@ -316,50 +346,89 @@
                         </div>
                     </div>
 
-                    <!-- Tab content: Details — sources from $product->get_description() + meta -->
+                    <!-- Tab content: Details — product hero + gallery + meta -->
                     <div class="spbwc-cust-tabpanel" data-spbwc-tabpanel="details" hidden>
                         <header class="spbwc-cust-panel__head">
                             <div class="spbwc-cust-panel__title"><?php esc_html_e( 'Product details', 'storelly-product-builder-for-woocommerce' ); ?></div>
                         </header>
-                        <div class="spbwc-cust-content">
+                        <div class="spbwc-cust-content spbwc-cust-details">
+                            <?php if ( ! empty( $spbwc_v3_product_image_url ) ) : ?>
+                                <div class="spbwc-cust-details__hero">
+                                    <img class="spbwc-cust-details__hero-img" data-spbwc-hero src="<?php echo esc_url( $spbwc_v3_product_image_url ); ?>" alt="<?php echo esc_attr( $spbwc_v3_product_name ); ?>" />
+                                </div>
+                                <?php if ( ! empty( $spbwc_v3_product_gallery_urls ) ) : ?>
+                                    <div class="spbwc-cust-details__gallery">
+                                        <button type="button" class="spbwc-cust-details__thumb is-active" data-spbwc-thumb data-full="<?php echo esc_url( $spbwc_v3_product_image_url ); ?>" aria-label="<?php esc_attr_e( 'Main image', 'storelly-product-builder-for-woocommerce' ); ?>">
+                                            <img src="<?php echo esc_url( $spbwc_v3_product_thumb ?: $spbwc_v3_product_image_url ); ?>" alt="" />
+                                        </button>
+                                        <?php foreach ( $spbwc_v3_product_gallery_urls as $spbwc_v3_g_idx => $spbwc_v3_g ) : ?>
+                                            <button type="button" class="spbwc-cust-details__thumb" data-spbwc-thumb data-full="<?php echo esc_url( $spbwc_v3_g['full'] ); ?>" aria-label="<?php /* translators: %d gallery image number */ echo esc_attr( sprintf( __( 'Gallery image %d', 'storelly-product-builder-for-woocommerce' ), $spbwc_v3_g_idx + 2 ) ); ?>">
+                                                <img src="<?php echo esc_url( $spbwc_v3_g['thumb'] ); ?>" alt="" />
+                                            </button>
+                                        <?php endforeach; ?>
+                                    </div>
+                                <?php endif; ?>
+                            <?php endif; ?>
+
+                            <div class="spbwc-cust-details__heading">
+                                <h2 class="spbwc-cust-details__name"><?php echo esc_html( $spbwc_v3_product_name ?: esc_html__( 'Custom product', 'storelly-product-builder-for-woocommerce' ) ); ?></h2>
+                                <?php if ( $spbwc_v3_base_price_html ) : ?>
+                                    <div class="spbwc-cust-details__price"><?php
+                                        /* translators: %s: base product price */
+                                        printf( esc_html__( 'From %s base', 'storelly-product-builder-for-woocommerce' ), wp_kses_post( $spbwc_v3_base_price_html ) );
+                                    ?></div>
+                                <?php endif; ?>
+                            </div>
+
                             <?php if ( ! empty( $spbwc_v3_product_short_description ) ) : ?>
-                                <div class="spbwc-cust-content__lede"><?php echo wp_kses_post( wpautop( $spbwc_v3_product_short_description ) ); ?></div>
+                                <div class="spbwc-cust-details__section">
+                                    <h3 class="spbwc-cust-details__h"><?php esc_html_e( 'About this product', 'storelly-product-builder-for-woocommerce' ); ?></h3>
+                                    <div class="spbwc-cust-content__lede"><?php echo wp_kses_post( wpautop( $spbwc_v3_product_short_description ) ); ?></div>
+                                </div>
                             <?php endif; ?>
 
                             <?php if ( ! empty( $spbwc_v3_product_description ) ) : ?>
-                                <div class="spbwc-cust-content__body"><?php echo wp_kses_post( wpautop( $spbwc_v3_product_description ) ); ?></div>
+                                <div class="spbwc-cust-details__section">
+                                    <h3 class="spbwc-cust-details__h"><?php esc_html_e( 'Full description', 'storelly-product-builder-for-woocommerce' ); ?></h3>
+                                    <div class="spbwc-cust-content__body"><?php echo wp_kses_post( wpautop( $spbwc_v3_product_description ) ); ?></div>
+                                </div>
                             <?php endif; ?>
 
                             <?php if ( empty( $spbwc_v3_product_short_description ) && empty( $spbwc_v3_product_description ) ) : ?>
                                 <p class="spbwc-cust-content__empty"><?php esc_html_e( 'No product description has been added yet.', 'storelly-product-builder-for-woocommerce' ); ?></p>
                             <?php endif; ?>
 
-                            <dl class="spbwc-cust-spec">
-                                <?php if ( ! empty( $spbwc_v3_product_sku ) ) : ?>
-                                    <div class="spbwc-cust-spec__row">
-                                        <dt><?php esc_html_e( 'SKU', 'storelly-product-builder-for-woocommerce' ); ?></dt>
-                                        <dd><?php echo esc_html( $spbwc_v3_product_sku ); ?></dd>
-                                    </div>
-                                <?php endif; ?>
-                                <?php if ( ! empty( $spbwc_v3_product_categories ) ) : ?>
-                                    <div class="spbwc-cust-spec__row">
-                                        <dt><?php esc_html_e( 'Category', 'storelly-product-builder-for-woocommerce' ); ?></dt>
-                                        <dd><?php echo esc_html( $spbwc_v3_product_categories ); ?></dd>
-                                    </div>
-                                <?php endif; ?>
-                                <?php if ( ! empty( $spbwc_v3_product_weight ) ) : ?>
-                                    <div class="spbwc-cust-spec__row">
-                                        <dt><?php esc_html_e( 'Weight', 'storelly-product-builder-for-woocommerce' ); ?></dt>
-                                        <dd><?php echo esc_html( $spbwc_v3_product_weight . ' ' . get_option( 'woocommerce_weight_unit' ) ); ?></dd>
-                                    </div>
-                                <?php endif; ?>
-                                <?php if ( ! empty( $spbwc_v3_product_dimensions ) ) : ?>
-                                    <div class="spbwc-cust-spec__row">
-                                        <dt><?php esc_html_e( 'Dimensions', 'storelly-product-builder-for-woocommerce' ); ?></dt>
-                                        <dd><?php echo esc_html( $spbwc_v3_product_dimensions ); ?></dd>
-                                    </div>
-                                <?php endif; ?>
-                            </dl>
+                            <?php if ( ! empty( $spbwc_v3_product_sku ) || ! empty( $spbwc_v3_product_categories ) || ! empty( $spbwc_v3_product_weight ) || ! empty( $spbwc_v3_product_dimensions ) ) : ?>
+                                <div class="spbwc-cust-details__section">
+                                    <h3 class="spbwc-cust-details__h"><?php esc_html_e( 'Specifications', 'storelly-product-builder-for-woocommerce' ); ?></h3>
+                                    <dl class="spbwc-cust-spec">
+                                        <?php if ( ! empty( $spbwc_v3_product_sku ) ) : ?>
+                                            <div class="spbwc-cust-spec__row">
+                                                <dt><?php esc_html_e( 'SKU', 'storelly-product-builder-for-woocommerce' ); ?></dt>
+                                                <dd><?php echo esc_html( $spbwc_v3_product_sku ); ?></dd>
+                                            </div>
+                                        <?php endif; ?>
+                                        <?php if ( ! empty( $spbwc_v3_product_categories ) ) : ?>
+                                            <div class="spbwc-cust-spec__row">
+                                                <dt><?php esc_html_e( 'Category', 'storelly-product-builder-for-woocommerce' ); ?></dt>
+                                                <dd><?php echo esc_html( $spbwc_v3_product_categories ); ?></dd>
+                                            </div>
+                                        <?php endif; ?>
+                                        <?php if ( ! empty( $spbwc_v3_product_weight ) ) : ?>
+                                            <div class="spbwc-cust-spec__row">
+                                                <dt><?php esc_html_e( 'Weight', 'storelly-product-builder-for-woocommerce' ); ?></dt>
+                                                <dd><?php echo esc_html( $spbwc_v3_product_weight . ' ' . get_option( 'woocommerce_weight_unit' ) ); ?></dd>
+                                            </div>
+                                        <?php endif; ?>
+                                        <?php if ( ! empty( $spbwc_v3_product_dimensions ) ) : ?>
+                                            <div class="spbwc-cust-spec__row">
+                                                <dt><?php esc_html_e( 'Dimensions', 'storelly-product-builder-for-woocommerce' ); ?></dt>
+                                                <dd><?php echo esc_html( $spbwc_v3_product_dimensions ); ?></dd>
+                                            </div>
+                                        <?php endif; ?>
+                                    </dl>
+                                </div>
+                            <?php endif; ?>
                         </div>
                     </div>
 
@@ -645,6 +714,13 @@
                         <div class="spbwc-cust-summary__price-row spbwc-cust-summary__price-row--subtle">
                             <span class="lbl"><?php esc_html_e( 'Shipping', 'storelly-product-builder-for-woocommerce' ); ?></span>
                             <span class="val"><?php esc_html_e( 'at checkout', 'storelly-product-builder-for-woocommerce' ); ?></span>
+                        </div>
+                        <!-- Volume discount row — shown by refreshSummary() only when the
+                             selected quantity reaches a quantity_breaks tier. Mirrors the
+                             cart-side discount so the customizer price stays honest. -->
+                        <div class="spbwc-cust-summary__price-row spbwc-cust-summary__price-row--discount" data-spbwc-volume-row style="display:none;">
+                            <span class="lbl"><?php esc_html_e( 'Volume discount', 'storelly-product-builder-for-woocommerce' ); ?> <span data-spbwc-volume-label></span></span>
+                            <span class="val" data-spbwc-volume-val></span>
                         </div>
                         <!-- "Your price" total row — Printcart `.price-row.total` -->
                         <div class="spbwc-cust-summary__price-row spbwc-cust-summary__price-row--total">

@@ -4,8 +4,8 @@ Donate link: https://storelly.com/
 Tags: product builder, product customize, product customizer, woocommerce custom product
 Requires at least: 4.7
 Tested up to: 7.0
-Stable tag: 1.4.5
-Version: 1.4.5
+Stable tag: 1.4.6
+Version: 1.4.6
 Requires PHP: 7.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -132,6 +132,11 @@ This plugin connects to the following external services:
 3. Storelly settings page with API keys and sync options
 
 == Changelog ==
+= 1.4.6 =
+* Customizer V3 — view-aware accordion + Details tab redesign:
+  - When a product has 2+ views (Front / Back / Side), the Customize tab now auto-filters the accordion to show ONLY parts that visually affect the view the buyer is currently looking at. Detection runs on each component's `pb_config.views[currentStage]` — if no option has a visible asset on that view, the component is hidden in "This view" mode. A small `[This view] [All]` toggle in the panel head lets buyers flip to the unfiltered list. Defaults to "This view".
+  - Details tab redesigned with a real product hero: full-width 4:3 hero image (medium_large), clickable gallery thumbs below the hero (click to swap the hero), product name + "From $X base" price line, "About this product" lede (short_description), "Full description" body, and a "Specifications" key-value grid (SKU / Category / Weight / Dimensions).
+
 = 1.4.5 =
 * Customizer V3 — three UX refinements:
   - Removed the `border-bottom` line under the panel head "Customize parts" caption per user feedback. The head now flows visually into the accordion list with just padding separation.

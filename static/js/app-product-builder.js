@@ -1821,6 +1821,37 @@ nbdpbApp.controller("nbpbCtrl", [
      * defaults to currentConfig=0 on init (first option auto-selected),
      * so we treat it as configured as long as that index resolves to a
      * real entry — keeps the green-check affordance honest. */
+    /* V3 — view filter (auto-detect which components affect the
+     * currently-shown stage). Buyer sees only parts that visually change
+     * what they're looking at; toggle to "All" to see every part.
+     *
+     * Detection rule: for nbpb_com components, check pb_config — if any
+     * option in any attribute has a non-empty `views[currentStage]`
+     * (image_url, image, or color), the component is relevant to that
+     * view. nbpb_text and nbpb_image components are considered relevant
+     * to all views. Components with no pb_config default to relevant
+     * (legacy safety). */
+    $scope.viewFilter = 'current';
+    $scope.componentAffectsView = function (component, stageIdx) {
+      if (!component || !component.enable) return false;
+      if (component.nbpb_type !== 'nbpb_com') return true;
+      var pb = component.general && component.general.pb_config;
+      if (!_.isArray(pb) || !pb.length) return true;
+      return _.some(pb, function (attr) {
+        if (!_.isArray(attr)) return false;
+        return _.some(attr, function (s) {
+          if (!s || !_.isArray(s.views)) return false;
+          var v = s.views[stageIdx];
+          if (!v) return false;
+          return !!(v.image_url || v.image || v.color);
+        });
+      });
+    };
+    $scope.componentVisibleInFilter = function (component) {
+      if (!$scope.stages || $scope.stages.length < 2) return true;
+      if ($scope.viewFilter === 'all') return true;
+      return $scope.componentAffectsView(component, $scope.currentStage);
+    };
     /* V3 — Accordion toggle. Clicking an already-open step closes it
      * (Printcart step-row toggle behaviour). New step opens via the
      * legacy $scope.showAttribute(idx). */
@@ -1887,6 +1918,38 @@ nbdpbApp.controller("nbpbCtrl", [
      * from .price (set by getComponentConfigs above). Custom text/image
      * contribute 0 in this MVP — pricing for those lives at admin-options
      * level and is applied by Woo at add-to-cart time, not here. */
+    /* Current buy quantity from the WooCommerce product form. The V3 customizer
+     * lives on the single-product page, so the qty input is in the DOM; default
+     * to 1 when absent (e.g. admin create-task flow). */
+    $scope.getBuyQty = function () {
+      var q = 1;
+      try {
+        var $q = jQuery('form.cart input[name="quantity"], .variations_form input[name="quantity"]').filter(':visible').first();
+        if (!$q.length) { $q = jQuery('input[name="quantity"]').first(); }
+        var v = parseInt($q.val(), 10);
+        if (!isNaN(v) && v > 0) { q = v; }
+      } catch (e) { /* default 1 */ }
+      return q;
+    };
+    /* Per-item volume discount — MUST mirror the server engine in
+     * class-frontend-options.php::option_processing(): highest tier where
+     * qty >= val wins; 'p' = percent of (base+addons) per item, 'f' = fixed
+     * per item. Tiers come pre-filtered (val>0 && dis>0) from SPBWC_PB_CONFIG. */
+    $scope.getVolumeDiscount = function (perItemBeforeDiscount, qty) {
+      var cfg = (typeof SPBWC_PB_CONFIG !== 'undefined') ? SPBWC_PB_CONFIG : {};
+      var breaks = (cfg.quantity_breaks && cfg.quantity_breaks.length) ? cfg.quantity_breaks : [];
+      var type = cfg.quantity_discount_type || 'f';
+      var tierVal = 0, tierDis = 0;
+      for (var i = 0; i < breaks.length; i++) {
+        var bv = parseInt(breaks[i].val, 10), bd = parseFloat(breaks[i].dis);
+        if (isNaN(bv) || isNaN(bd)) { continue; }
+        if (bv > 0 && bd > 0 && qty >= bv && bv > tierVal) { tierVal = bv; tierDis = bd; }
+      }
+      var amount = 0;
+      if (tierDis > 0) { amount = (type === 'p') ? (perItemBeforeDiscount * tierDis / 100) : tierDis; }
+      if (amount > perItemBeforeDiscount) { amount = perItemBeforeDiscount; }
+      return { amount: amount, tierVal: tierVal, dis: tierDis, type: type };
+    };
     $scope.computeBuildTotal = function () {
       var cfg = (typeof SPBWC_PB_CONFIG !== 'undefined') ? SPBWC_PB_CONFIG : {};
       var base = parseFloat(cfg.base_price_raw) || 0;
@@ -1908,7 +1971,16 @@ nbdpbApp.controller("nbpbCtrl", [
           if ($scope.resource.uploaded && $scope.resource.uploaded.length) { configured++; }
         }
       });
-      return { base: base, addons: addons, grand: base + addons, configured: configured, total: total };
+      var preDiscount = base + addons;
+      var qty = $scope.getBuyQty();
+      var vol = $scope.getVolumeDiscount(preDiscount, qty);
+      var grand = preDiscount - vol.amount;
+      if (grand < 0) { grand = 0; }
+      return {
+        base: base, addons: addons, preDiscount: preDiscount,
+        discount: vol.amount, discountTier: vol.tierVal, discountPct: vol.dis, discountType: vol.type,
+        qty: qty, grand: grand, configured: configured, total: total
+      };
     };
     /* Push the live total into the DOM Summary nodes. Avoids a $watch chain
      * by piggy-backing on $scope.$evalAsync after every selectAttribute /
@@ -1916,10 +1988,29 @@ nbdpbApp.controller("nbpbCtrl", [
      * deep changes on resource.components and resource.uploaded below). */
     $scope.refreshSummary = function () {
       try {
+        /* Recompute the live total whenever the WooCommerce qty input changes,
+         * so the volume discount preview tracks quantity. Bound once. */
+        if (!$scope._spbwcQtyBound) {
+          $scope._spbwcQtyBound = true;
+          jQuery(document).on('input.spbwcVol change.spbwcVol', 'input[name="quantity"]', function () {
+            $scope.refreshSummary();
+          });
+        }
         var info = $scope.computeBuildTotal();
         var grand = $scope.formatMoney(info.grand);
         jQuery('[data-spbwc-grand-total]').text(grand);
         jQuery('[data-spbwc-cta-price]').text(grand);
+        /* Volume-discount row: show only when a tier is active. */
+        var $volRow = jQuery('[data-spbwc-volume-row]');
+        if (info.discount > 0) {
+          var tierLbl = info.discountTier > 0 ? ('(' + info.discountTier + '+)') : '';
+          var pctLbl = (info.discountType === 'p' && info.discountPct > 0) ? (' · ' + info.discountPct + '%') : '';
+          jQuery('[data-spbwc-volume-label]').text(tierLbl + pctLbl);
+          jQuery('[data-spbwc-volume-val]').text('-' + $scope.formatMoney(info.discount));
+          $volRow.css('display', '');
+        } else {
+          $volRow.css('display', 'none');
+        }
         var lbl = info.configured + ' / ' + info.total + ' configured';
         jQuery('[data-spbwc-progress-label]').text(lbl);
         var pct = info.total > 0 ? Math.round((info.configured / info.total) * 100) : 0;
@@ -2500,6 +2591,15 @@ jQuery(function ($) {
         if (s && typeof s.refreshSummary === 'function') { s.refreshSummary(); }
       } catch (e) {}
     }, 400);
+  });
+
+  /* Details tab — gallery thumb click swaps the hero image. */
+  $(document).on('click', '.spbwc-cust-v3 [data-spbwc-thumb]', function () {
+    var url = $(this).attr('data-full');
+    if (!url) return;
+    $('.spbwc-cust-v3 [data-spbwc-hero]').attr('src', url);
+    $('.spbwc-cust-v3 [data-spbwc-thumb]').removeClass('is-active');
+    $(this).addClass('is-active');
   });
 
   /* Teaching toast (Printcart Canva pattern). Reveals on first real

@@ -8364,6 +8364,141 @@ aside.spbwc-cust-panel {
     color: var(--spbwc-c-text);
     margin-left: auto;
 }
+
+/* View filter toggle — right of the panel head caption */
+.spbwc-cust-viewfilter {
+    margin-left: auto;
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+    padding: 2px;
+    background: var(--spbwc-c-bg-soft);
+    border: 1px solid var(--spbwc-c-line);
+    border-radius: 9999px;
+}
+.spbwc-cust-viewfilter__btn {
+    appearance: none;
+    background: transparent;
+    border: 0;
+    cursor: pointer;
+    padding: 3px 10px;
+    border-radius: 9999px;
+    font: inherit;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--spbwc-c-text);
+    transition: background 120ms, color 120ms;
+    line-height: 1.4;
+}
+.spbwc-cust-viewfilter__btn:hover { color: var(--spbwc-c-ink); }
+.spbwc-cust-viewfilter__btn.is-active {
+    background: var(--spbwc-c-bg);
+    color: var(--spbwc-c-brand);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
+}
+
+/* ====================================================================
+ * Details tab — product hero + gallery thumbs + name + price + specs.
+ * Lives inside .spbwc-cust-content (existing scroll container).
+ * ================================================================ */
+.spbwc-cust-details {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+.spbwc-cust-details__hero {
+    width: 100%;
+    aspect-ratio: 4 / 3;
+    background: var(--spbwc-c-bg-mute);
+    border: 1px solid var(--spbwc-c-line);
+    border-radius: var(--spbwc-c-radius-md);
+    overflow: hidden;
+    display: grid;
+    place-items: center;
+}
+.spbwc-cust-details__hero-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+.spbwc-cust-details__gallery {
+    display: flex;
+    gap: 6px;
+    overflow-x: auto;
+    padding-bottom: 2px;
+}
+.spbwc-cust-details__thumb {
+    flex: 0 0 auto;
+    width: 52px;
+    height: 52px;
+    padding: 0;
+    background: var(--spbwc-c-bg);
+    border: 2px solid var(--spbwc-c-line);
+    border-radius: var(--spbwc-c-radius-sm);
+    cursor: pointer;
+    overflow: hidden;
+    transition: border-color 150ms, transform 120ms;
+}
+.spbwc-cust-details__thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+.spbwc-cust-details__thumb:hover { border-color: var(--spbwc-c-brand-soft); transform: translateY(-1px); }
+.spbwc-cust-details__thumb.is-active {
+    border-color: var(--spbwc-c-brand);
+    box-shadow: 0 0 0 1px var(--spbwc-c-brand);
+}
+
+.spbwc-cust-details__heading {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--spbwc-c-line-subtle);
+}
+.spbwc-cust-details__name {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 700;
+    line-height: 1.2;
+    color: var(--spbwc-c-ink);
+    letter-spacing: -0.01em;
+}
+.spbwc-cust-details__price {
+    font-size: 13px;
+    color: var(--spbwc-c-text);
+    font-weight: 500;
+}
+.spbwc-cust-details__price .amount,
+.spbwc-cust-details__price bdi,
+.spbwc-cust-details__price .woocommerce-Price-amount {
+    color: var(--spbwc-c-brand-dark);
+    font-weight: 700;
+    text-decoration: none !important;
+}
+
+.spbwc-cust-details__section {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+.spbwc-cust-details__h {
+    margin: 0;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--spbwc-c-text);
+}
+.spbwc-cust-details .spbwc-cust-spec {
+    margin: 0;
+    padding: 0;
+    border-top: 0;
+    gap: 6px;
+}
 /* Progress affordance — Printcart `.progress-mini` style: a thin
  * 4px capsule with smooth fill. The N/M label sits in panel__meta. */
 .spbwc-cust-panel__progress {
