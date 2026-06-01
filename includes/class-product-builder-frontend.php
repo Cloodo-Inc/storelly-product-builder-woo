@@ -581,7 +581,20 @@ if (!class_exists('SPBWC_Storelly_Product_Builder_Frontend')) {
             $product_id = get_the_ID();
             $option_id = get_transient('spbwc_product_builder_' . $product_id);
             if (SPBWC_Storelly_PB_Util::spbwc_is_product_builder($product_id)) {
-                include(SPBWC_PB_PLUGIN_DIR . 'views/product-builder/wrapper.php');
+                /* V2 customizer (Cloodo-style 3-column layout) is the default.
+                 * Legacy single-pane UI is preserved at wrapper-legacy.php for
+                 * emergency rollback — opt-in via filter or constant:
+                 *   add_filter( 'spbwc_use_legacy_customizer', '__return_true' );
+                 *   define( 'SPBWC_USE_LEGACY_CUSTOMIZER', true );
+                 */
+                $use_legacy = ( defined( 'SPBWC_USE_LEGACY_CUSTOMIZER' ) && SPBWC_USE_LEGACY_CUSTOMIZER )
+                    || apply_filters( 'spbwc_use_legacy_customizer', false );
+                $wrapper_file = $use_legacy ? 'wrapper-legacy.php' : 'wrapper.php';
+                $wrapper_path = SPBWC_PB_PLUGIN_DIR . 'views/product-builder/' . $wrapper_file;
+                if ( ! file_exists( $wrapper_path ) ) {
+                    $wrapper_path = SPBWC_PB_PLUGIN_DIR . 'views/product-builder/wrapper.php';
+                }
+                include $wrapper_path;
             }
         }
     }

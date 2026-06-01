@@ -1755,6 +1755,10 @@ nbdpbApp.controller("nbpbCtrl", [
               config.level = 2;
               config.bg_type = attribute.sub_attributes[sa_index].preview_type;
               config.icon_color = attribute.sub_attributes[sa_index].color;
+              /* Surface the option price into the config so the V2 customizer
+               * sidebar can render the price tag next to each choice. Price is
+               * stored as an array ([0] = value) in the option schema. */
+              config.price = (function (p) { var v = p && p[0]; v = parseFloat(v); return isNaN(v) ? 0 : v; })(attribute.sub_attributes[sa_index].price);
             } else {
               config.icon_bg = attribute.image_url;
               config.sattr_name = attribute.name;
@@ -1768,6 +1772,8 @@ nbdpbApp.controller("nbpbCtrl", [
               } else {
                 config.bg_type = "i";
               }
+              /* Same price-surfacing for top-level attribute (no sub-attributes). */
+              config.price = (function (p) { var v = p && p[0]; v = parseFloat(v); return isNaN(v) ? 0 : v; })(attribute.price);
             }
             configs.push(config);
           }
@@ -1788,6 +1794,16 @@ nbdpbApp.controller("nbpbCtrl", [
         });
       }
       return config_index;
+    };
+    /* Pretty-print a per-option upcharge for the V2 customizer sidebar.
+     * Reads currency formatting from SPBWC_PB_CONFIG (added in js_config.php).
+     * Falls back to plain "+$X.XX" if config missing. */
+    $scope.formatPrice = function (val) {
+      var n = parseFloat(val);
+      if (isNaN(n) || n <= 0) { return ''; }
+      var sym = (typeof SPBWC_PB_CONFIG !== 'undefined' && SPBWC_PB_CONFIG.currency_symbol) ? SPBWC_PB_CONFIG.currency_symbol : '$';
+      var dec = (typeof SPBWC_PB_CONFIG !== 'undefined' && parseInt(SPBWC_PB_CONFIG.currency_decimals, 10) >= 0) ? parseInt(SPBWC_PB_CONFIG.currency_decimals, 10) : 2;
+      return '+' + sym + n.toFixed(dec);
     };
     $scope.init();
   },
