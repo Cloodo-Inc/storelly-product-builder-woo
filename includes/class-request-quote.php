@@ -101,14 +101,20 @@ if ( ! class_exists( 'SPBWC_Request_Quote' ) ) {
          * single product pages.
          */
         public function enqueue_assets() {
-            if ( ! function_exists( 'is_product' ) || ! is_product() ) {
+            $is_account = function_exists( 'is_account_page' ) && is_account_page();
+            $is_quote_product = false;
+            if ( function_exists( 'is_product' ) && is_product() ) {
+                global $product; // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- WooCommerce global.
+                $is_quote_product = $product && $this->is_product_quote_enabled( $product->get_id() );
+            }
+            if ( ! $is_account && ! $is_quote_product ) {
                 return;
             }
-            global $product; // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- WooCommerce global.
-            if ( ! $product || ! $this->is_product_quote_enabled( $product->get_id() ) ) {
-                return;
-            }
+            // The My Account quote views only need the stylesheet.
             wp_enqueue_style( 'spbwc-quote-storefront', SPBWC_PB_CSS_URL . 'quote-storefront.css', array(), SPBWC_PB_VERSION );
+            if ( ! $is_quote_product ) {
+                return;
+            }
             wp_enqueue_script( 'spbwc-quote-storefront', SPBWC_PB_JS_URL . 'quote-storefront.js', array(), SPBWC_PB_VERSION, true );
             wp_localize_script(
                 'spbwc-quote-storefront',
@@ -445,44 +451,74 @@ if ( ! class_exists( 'SPBWC_Request_Quote' ) ) {
             return $items;
         }
 
+        /**
+         * Buyer-facing status pill markup (storefront).
+         *
+         * @param string $status Quote status slug.
+         * @return string HTML.
+         */
+        protected function buyer_pill( $status ) {
+            $map = array(
+                SPBWC_Quote::STATUS_NEW         => 'warn',
+                SPBWC_Quote::STATUS_REVIEW      => 'info',
+                SPBWC_Quote::STATUS_SENT        => 'info',
+                SPBWC_Quote::STATUS_NEGOTIATING => 'warn',
+                SPBWC_Quote::STATUS_ACCEPTED    => 'ok',
+                SPBWC_Quote::STATUS_CONVERTED   => 'ok',
+                SPBWC_Quote::STATUS_DECLINED    => 'danger',
+            );
+            $statuses = SPBWC_Quote::statuses();
+            $variant  = isset( $map[ $status ] ) ? $map[ $status ] : '';
+            $label    = isset( $statuses[ $status ] ) ? $statuses[ $status ] : $status;
+            return '<span class="spbwc-rfq-pill' . ( $variant ? ' spbwc-rfq-pill--' . esc_attr( $variant ) : '' ) . '">' . esc_html( $label ) . '</span>';
+        }
+
+        /**
+         * Quotes belonging to the current user are stored as spbwc_quote posts
+         * authored by the user. List them in My Account.
+         */
         public function render_quotes_endpoint() {
             if ( ! is_user_logged_in() ) {
                 wc_get_template( 'myaccount/form-login.php' );
                 return;
             }
-            $orders = wc_get_orders(
+            $quotes = get_posts(
                 array(
-                    'customer_id' => get_current_user_id(),
-                    'limit'       => 50,
-                    'orderby'     => 'date',
-                    'order'       => 'DESC',
-                    'meta_key'    => '_spbwc_quote_request',
-                    'meta_compare'=> 'EXISTS',
+                    'post_type'      => SPBWC_Quote::POST_TYPE,
+                    'post_status'    => array_keys( SPBWC_Quote::statuses() ),
+                    'author'         => get_current_user_id(),
+                    'numberposts'    => 50,
+                    'orderby'        => 'modified',
+                    'order'          => 'DESC',
                 )
             );
+            echo '<div class="spbwc-rfq spbwc-rfq-account">';
             echo '<h2>' . esc_html__( 'My Quotes', 'storelly-product-builder-for-woocommerce' ) . '</h2>';
-            if ( empty( $orders ) ) {
-                echo '<p>' . esc_html__( 'No quotes found.', 'storelly-product-builder-for-woocommerce' ) . '</p>';
+            if ( empty( $quotes ) ) {
+                echo '<p>' . esc_html__( 'You have not requested any quotes yet.', 'storelly-product-builder-for-woocommerce' ) . '</p></div>';
                 return;
             }
-            echo '<table class="shop_table shop_table_responsive my_account_orders"><thead><tr>';
+            echo '<table class="shop_table shop_table_responsive spbwc-rfq-table"><thead><tr>';
             echo '<th>' . esc_html__( 'Quote', 'storelly-product-builder-for-woocommerce' ) . '</th>';
             echo '<th>' . esc_html__( 'Date', 'storelly-product-builder-for-woocommerce' ) . '</th>';
             echo '<th>' . esc_html__( 'Status', 'storelly-product-builder-for-woocommerce' ) . '</th>';
-            echo '<th>' . esc_html__( 'Total', 'storelly-product-builder-for-woocommerce' ) . '</th>';
-            echo '<th>' . esc_html__( 'Actions', 'storelly-product-builder-for-woocommerce' ) . '</th>';
+            echo '<th class="spbwc-rfq-num">' . esc_html__( 'Total', 'storelly-product-builder-for-woocommerce' ) . '</th>';
+            echo '<th></th>';
             echo '</tr></thead><tbody>';
-            foreach ( $orders as $order ) {
-                $view_url = wc_get_endpoint_url( 'view-quote', $order->get_id(), wc_get_page_permalink( 'myaccount' ) );
+            foreach ( $quotes as $quote ) {
+                $totals   = SPBWC_Quote::get_totals( $quote->ID );
+                $number   = get_post_meta( $quote->ID, SPBWC_Quote::META_NUMBER, true );
+                $view_url = wc_get_endpoint_url( 'view-quote', $quote->ID, wc_get_page_permalink( 'myaccount' ) );
+                $total    = isset( $totals['total'] ) ? (float) $totals['total'] : 0;
                 echo '<tr>';
-                echo '<td>#' . esc_html( (string) $order->get_id() ) . '</td>';
-                echo '<td>' . esc_html( wc_format_datetime( $order->get_date_created() ) ) . '</td>';
-                echo '<td>' . esc_html( wc_get_order_status_name( $order->get_status() ) ) . '</td>';
-                echo '<td>' . wp_kses_post( $order->get_formatted_order_total() ) . '</td>';
-                echo '<td><a class="button" href="' . esc_url( $view_url ) . '">' . esc_html__( 'View', 'storelly-product-builder-for-woocommerce' ) . '</a></td>';
+                echo '<td><a href="' . esc_url( $view_url ) . '">' . esc_html( $number ? $number : '#' . $quote->ID ) . '</a></td>';
+                echo '<td>' . esc_html( get_the_date( get_option( 'date_format' ), $quote ) ) . '</td>';
+                echo '<td>' . $this->buyer_pill( $quote->post_status ) . '</td>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- buyer_pill returns escaped markup.
+                echo '<td class="spbwc-rfq-num">' . ( $total > 0 ? wp_kses_post( wc_price( $total, array( 'currency' => isset( $totals['currency'] ) ? $totals['currency'] : '' ) ) ) : '—' ) . '</td>';
+                echo '<td><a class="spbwc-rfq-btn spbwc-rfq-btn--ghost" href="' . esc_url( $view_url ) . '">' . esc_html__( 'View', 'storelly-product-builder-for-woocommerce' ) . '</a></td>';
                 echo '</tr>';
             }
-            echo '</tbody></table>';
+            echo '</tbody></table></div>';
         }
 
         public function render_view_quote_endpoint() {
@@ -492,77 +528,345 @@ if ( ! class_exists( 'SPBWC_Request_Quote' ) ) {
                 return;
             }
             $quote_id = isset( $wp->query_vars['view-quote'] ) ? absint( $wp->query_vars['view-quote'] ) : 0;
-            $order = $quote_id ? wc_get_order( $quote_id ) : false;
-            if ( ! $order || (int) $order->get_customer_id() !== get_current_user_id() ) {
+            $post     = $quote_id ? get_post( $quote_id ) : null;
+            if ( ! $post || SPBWC_Quote::POST_TYPE !== $post->post_type || (int) $post->post_author !== get_current_user_id() ) {
                 echo '<p>' . esc_html__( 'Quote not found.', 'storelly-product-builder-for-woocommerce' ) . '</p>';
                 return;
             }
-            $accept_url = add_query_arg(
-                array(
-                    'spbwc_quote_action' => 'accept',
-                    'quote_id'           => $quote_id,
-                    '_wpnonce'           => wp_create_nonce( 'spbwc_quote_action_' . $quote_id ),
-                ),
-                wc_get_endpoint_url( 'view-quote', $quote_id, wc_get_page_permalink( 'myaccount' ) )
-            );
-            $reject_url = add_query_arg(
-                array(
-                    'spbwc_quote_action' => 'reject',
-                    'quote_id'           => $quote_id,
-                    '_wpnonce'           => wp_create_nonce( 'spbwc_quote_action_' . $quote_id ),
-                ),
-                wc_get_endpoint_url( 'view-quote', $quote_id, wc_get_page_permalink( 'myaccount' ) )
-            );
-            /* translators: %d: quote (WC order) ID */
-            echo '<h2>' . esc_html( sprintf( __( 'Quote #%d', 'storelly-product-builder-for-woocommerce' ), $quote_id ) ) . '</h2>';
-            echo '<p><strong>' . esc_html__( 'Status:', 'storelly-product-builder-for-woocommerce' ) . '</strong> ' . esc_html( wc_get_order_status_name( $order->get_status() ) ) . '</p>';
-            echo '<p><strong>' . esc_html__( 'Message:', 'storelly-product-builder-for-woocommerce' ) . '</strong> ' . esc_html( (string) $order->get_meta( '_spbwc_quote_request' ) ) . '</p>';
-            echo '<p><a class="button" href="' . esc_url( $accept_url ) . '">' . esc_html__( 'Accept Quote', 'storelly-product-builder-for-woocommerce' ) . '</a> ';
-            echo '<a class="button" href="' . esc_url( $reject_url ) . '">' . esc_html__( 'Reject Quote', 'storelly-product-builder-for-woocommerce' ) . '</a></p>';
-            echo '<h3>' . esc_html__( 'Items', 'storelly-product-builder-for-woocommerce' ) . '</h3>';
-            echo '<ul>';
-            foreach ( $order->get_items() as $item ) {
-                echo '<li>' . esc_html( $item->get_name() . ' x ' . $item->get_quantity() ) . '</li>';
+            $status   = $post->post_status;
+            $number   = get_post_meta( $quote_id, SPBWC_Quote::META_NUMBER, true );
+            $lines    = SPBWC_Quote::get_lines( $quote_id );
+            $totals   = SPBWC_Quote::get_totals( $quote_id );
+            $valid    = (string) get_post_meta( $quote_id, SPBWC_Quote::META_VALID_UNTIL, true );
+            $note     = (string) get_post_meta( $quote_id, SPBWC_Quote::META_CUSTOMER_NOTE, true );
+            $currency = isset( $totals['currency'] ) && $totals['currency'] ? $totals['currency'] : get_woocommerce_currency();
+            $cur      = array( 'currency' => $currency );
+
+            echo '<div class="spbwc-rfq spbwc-rfq-account">';
+            $this->render_view_notice();
+
+            echo '<div class="spbwc-rfq-acc-head">';
+            /* translators: %s: quote number e.g. Q-2026-0001 */
+            echo '<h2>' . esc_html( sprintf( __( 'Quote %s', 'storelly-product-builder-for-woocommerce' ), $number ? $number : '#' . $quote_id ) ) . '</h2>';
+            echo $this->buyer_pill( $status ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- buyer_pill returns escaped markup.
+            echo '</div>';
+
+            // Validity countdown (only meaningful while awaiting the buyer).
+            if ( SPBWC_Quote::STATUS_SENT === $status && '' !== $valid ) {
+                $ts   = strtotime( $valid . ' 23:59:59' );
+                $days = (int) ceil( ( $ts - current_time( 'timestamp' ) ) / DAY_IN_SECONDS );
+                if ( $days >= 0 ) {
+                    echo '<p class="spbwc-rfq-countdown">' . sprintf(
+                        /* translators: 1: number of days, 2: expiry date */
+                        esc_html__( 'Valid for %1$s — expires %2$s', 'storelly-product-builder-for-woocommerce' ),
+                        '<strong>' . esc_html( sprintf( _n( '%d day', '%d days', $days, 'storelly-product-builder-for-woocommerce' ), $days ) ) . '</strong>',
+                        esc_html( date_i18n( get_option( 'date_format' ), $ts ) )
+                    ) . '</p>';
+                }
             }
-            echo '</ul>';
+
+            // Priced line items.
+            if ( ! empty( $lines ) ) {
+                echo '<table class="shop_table spbwc-rfq-table"><thead><tr>';
+                echo '<th>' . esc_html__( 'Item', 'storelly-product-builder-for-woocommerce' ) . '</th>';
+                echo '<th class="spbwc-rfq-num">' . esc_html__( 'Qty', 'storelly-product-builder-for-woocommerce' ) . '</th>';
+                echo '<th class="spbwc-rfq-num">' . esc_html__( 'Unit', 'storelly-product-builder-for-woocommerce' ) . '</th>';
+                echo '<th class="spbwc-rfq-num">' . esc_html__( 'Total', 'storelly-product-builder-for-woocommerce' ) . '</th>';
+                echo '</tr></thead><tbody>';
+                foreach ( $lines as $line ) {
+                    echo '<tr>';
+                    echo '<td>' . esc_html( isset( $line['label'] ) ? $line['label'] : '' ) . '</td>';
+                    echo '<td class="spbwc-rfq-num">' . esc_html( isset( $line['qty'] ) ? (string) ( 0 + $line['qty'] ) : '' ) . '</td>';
+                    echo '<td class="spbwc-rfq-num">' . wp_kses_post( wc_price( isset( $line['unit_price'] ) ? (float) $line['unit_price'] : 0, $cur ) ) . '</td>';
+                    echo '<td class="spbwc-rfq-num">' . wp_kses_post( wc_price( isset( $line['line_total'] ) ? (float) $line['line_total'] : 0, $cur ) ) . '</td>';
+                    echo '</tr>';
+                }
+                echo '</tbody></table>';
+
+                echo '<div class="spbwc-rfq-totals">';
+                echo '<div class="spbwc-rfq-totals__row"><span>' . esc_html__( 'Subtotal', 'storelly-product-builder-for-woocommerce' ) . '</span><span>' . wp_kses_post( wc_price( isset( $totals['subtotal'] ) ? (float) $totals['subtotal'] : 0, $cur ) ) . '</span></div>';
+                if ( ! empty( $totals['discount'] ) ) {
+                    echo '<div class="spbwc-rfq-totals__row"><span>' . esc_html__( 'Discount', 'storelly-product-builder-for-woocommerce' ) . '</span><span>-' . wp_kses_post( wc_price( (float) $totals['discount'], $cur ) ) . '</span></div>';
+                }
+                if ( ! empty( $totals['tax'] ) ) {
+                    echo '<div class="spbwc-rfq-totals__row"><span>' . esc_html__( 'Tax', 'storelly-product-builder-for-woocommerce' ) . '</span><span>' . wp_kses_post( wc_price( (float) $totals['tax'], $cur ) ) . '</span></div>';
+                }
+                echo '<div class="spbwc-rfq-totals__row spbwc-rfq-totals__row--grand"><span>' . esc_html__( 'Total', 'storelly-product-builder-for-woocommerce' ) . '</span><span>' . wp_kses_post( wc_price( isset( $totals['total'] ) ? (float) $totals['total'] : 0, $cur ) ) . '</span></div>';
+                echo '</div>';
+            }
+
+            if ( '' !== $note ) {
+                echo '<div class="spbwc-rfq-card"><h3>' . esc_html__( 'Note from us', 'storelly-product-builder-for-woocommerce' ) . '</h3><p>' . nl2br( esc_html( $note ) ) . '</p></div>';
+            }
+
+            // Action area depends on status.
+            if ( SPBWC_Quote::STATUS_SENT === $status ) {
+                $this->render_buyer_actions( $quote_id );
+            } elseif ( SPBWC_Quote::STATUS_NEGOTIATING === $status ) {
+                echo '<div class="spbwc-rfq-banner spbwc-rfq-banner--info">' . esc_html__( 'Your change request has been sent. We will get back to you with a revised quote.', 'storelly-product-builder-for-woocommerce' ) . '</div>';
+            } elseif ( SPBWC_Quote::STATUS_CONVERTED === $status ) {
+                $order_id = (int) get_post_meta( $quote_id, SPBWC_Quote::META_ORDER_ID, true );
+                $order    = $order_id ? wc_get_order( $order_id ) : false;
+                echo '<div class="spbwc-rfq-banner spbwc-rfq-banner--ok">' . esc_html__( 'You accepted this quote — an order has been created.', 'storelly-product-builder-for-woocommerce' ) . '</div>';
+                if ( $order && $order->needs_payment() ) {
+                    echo '<p><a class="spbwc-rfq-paybtn" href="' . esc_url( $order->get_checkout_payment_url() ) . '">' . esc_html__( 'Pay now', 'storelly-product-builder-for-woocommerce' ) . '</a></p>';
+                } elseif ( $order ) {
+                    echo '<p><a class="spbwc-rfq-btn spbwc-rfq-btn--ghost" href="' . esc_url( $order->get_view_order_url() ) . '">' . esc_html__( 'View order', 'storelly-product-builder-for-woocommerce' ) . '</a></p>';
+                }
+            } elseif ( SPBWC_Quote::STATUS_DECLINED === $status ) {
+                echo '<div class="spbwc-rfq-banner spbwc-rfq-banner--danger">' . esc_html__( 'You declined this quote.', 'storelly-product-builder-for-woocommerce' ) . '</div>';
+            } else {
+                echo '<div class="spbwc-rfq-banner">' . esc_html( $this->buyer_status_message( $status ) ) . '</div>';
+            }
+            echo '</div>';
         }
 
+        protected function buyer_status_message( $status ) {
+            switch ( $status ) {
+                case SPBWC_Quote::STATUS_NEW:
+                case SPBWC_Quote::STATUS_REVIEW:
+                    return __( 'We have received your request and are preparing a price.', 'storelly-product-builder-for-woocommerce' );
+                case SPBWC_Quote::STATUS_ACCEPTED:
+                    return __( 'You accepted this quote — your order is being prepared.', 'storelly-product-builder-for-woocommerce' );
+                case SPBWC_Quote::STATUS_EXPIRED:
+                    return __( 'This quote has expired. Please request a new one if you are still interested.', 'storelly-product-builder-for-woocommerce' );
+                case SPBWC_Quote::STATUS_WITHDRAWN:
+                    return __( 'This quote was withdrawn.', 'storelly-product-builder-for-woocommerce' );
+                default:
+                    return __( 'This quote is no longer active.', 'storelly-product-builder-for-woocommerce' );
+            }
+        }
+
+        /**
+         * Render the Accept / Request-changes / Decline forms.
+         *
+         * @param int $quote_id Quote post ID.
+         */
+        protected function render_buyer_actions( $quote_id ) {
+            $action_url = wc_get_endpoint_url( 'view-quote', $quote_id, wc_get_page_permalink( 'myaccount' ) );
+            $decline_reasons = array(
+                'price'     => __( 'Price too high', 'storelly-product-builder-for-woocommerce' ),
+                'timeline'  => __( "Timeline doesn't work", 'storelly-product-builder-for-woocommerce' ),
+                'vendor'    => __( 'Going with another vendor', 'storelly-product-builder-for-woocommerce' ),
+                'cancelled' => __( 'Project cancelled', 'storelly-product-builder-for-woocommerce' ),
+                'budget'    => __( 'Budget changed', 'storelly-product-builder-for-woocommerce' ),
+                'other'     => __( 'Other', 'storelly-product-builder-for-woocommerce' ),
+            );
+            $change_asks = array(
+                'qty'       => __( 'Reduce quantity', 'storelly-product-builder-for-woocommerce' ),
+                'material'  => __( 'Different material', 'storelly-product-builder-for-woocommerce' ),
+                'dimension' => __( 'Different dimensions', 'storelly-product-builder-for-woocommerce' ),
+                'rush'      => __( 'Skip rush production', 'storelly-product-builder-for-woocommerce' ),
+                'shipping'  => __( 'Change shipping method', 'storelly-product-builder-for-woocommerce' ),
+                'terms'     => __( 'Adjust payment terms', 'storelly-product-builder-for-woocommerce' ),
+                'other'     => __( 'Other', 'storelly-product-builder-for-woocommerce' ),
+            );
+            ?>
+            <div class="spbwc-rfq-actions">
+                <div class="spbwc-rfq-card">
+                    <h3><?php esc_html_e( 'Accept this quote', 'storelly-product-builder-for-woocommerce' ); ?></h3>
+                    <form method="post" action="<?php echo esc_url( $action_url ); ?>">
+                        <?php wp_nonce_field( 'spbwc_quote_buyer_' . $quote_id, 'spbwc_quote_buyer_nonce' ); ?>
+                        <input type="hidden" name="quote_id" value="<?php echo esc_attr( $quote_id ); ?>" />
+                        <input type="hidden" name="spbwc_quote_buyer_action" value="accept" />
+                        <label for="spbwc-rfq-po"><?php esc_html_e( 'PO number (optional)', 'storelly-product-builder-for-woocommerce' ); ?></label>
+                        <input type="text" id="spbwc-rfq-po" name="po_number" value="" />
+                        <p style="margin-top:10px;"><button type="submit" class="spbwc-rfq-btn"><?php esc_html_e( 'Accept &amp; create order', 'storelly-product-builder-for-woocommerce' ); ?></button></p>
+                    </form>
+                </div>
+
+                <div class="spbwc-rfq-card">
+                    <h3><?php esc_html_e( 'Request changes', 'storelly-product-builder-for-woocommerce' ); ?></h3>
+                    <form method="post" action="<?php echo esc_url( $action_url ); ?>">
+                        <?php wp_nonce_field( 'spbwc_quote_buyer_' . $quote_id, 'spbwc_quote_buyer_nonce' ); ?>
+                        <input type="hidden" name="quote_id" value="<?php echo esc_attr( $quote_id ); ?>" />
+                        <input type="hidden" name="spbwc_quote_buyer_action" value="request_changes" />
+                        <div class="spbwc-rfq-checks">
+                            <?php foreach ( $change_asks as $key => $label ) : ?>
+                                <label><input type="checkbox" name="asks[]" value="<?php echo esc_attr( $key ); ?>" /> <?php echo esc_html( $label ); ?></label>
+                            <?php endforeach; ?>
+                        </div>
+                        <label for="spbwc-rfq-asks"><?php esc_html_e( 'Details', 'storelly-product-builder-for-woocommerce' ); ?></label>
+                        <textarea id="spbwc-rfq-asks" name="details" rows="2"></textarea>
+                        <p style="margin-top:10px;"><button type="submit" class="spbwc-rfq-btn spbwc-rfq-btn--ghost"><?php esc_html_e( 'Send change request', 'storelly-product-builder-for-woocommerce' ); ?></button></p>
+                    </form>
+                </div>
+
+                <div class="spbwc-rfq-card">
+                    <h3><?php esc_html_e( 'Decline', 'storelly-product-builder-for-woocommerce' ); ?></h3>
+                    <form method="post" action="<?php echo esc_url( $action_url ); ?>">
+                        <?php wp_nonce_field( 'spbwc_quote_buyer_' . $quote_id, 'spbwc_quote_buyer_nonce' ); ?>
+                        <input type="hidden" name="quote_id" value="<?php echo esc_attr( $quote_id ); ?>" />
+                        <input type="hidden" name="spbwc_quote_buyer_action" value="decline" />
+                        <label for="spbwc-rfq-reason"><?php esc_html_e( 'Reason', 'storelly-product-builder-for-woocommerce' ); ?></label>
+                        <select id="spbwc-rfq-reason" name="reason">
+                            <?php foreach ( $decline_reasons as $key => $label ) : ?>
+                                <option value="<?php echo esc_attr( $key ); ?>"><?php echo esc_html( $label ); ?></option>
+                            <?php endforeach; ?>
+                        </select>
+                        <p style="margin-top:10px;"><button type="submit" class="spbwc-rfq-btn spbwc-rfq-btn--danger"><?php esc_html_e( 'Decline quote', 'storelly-product-builder-for-woocommerce' ); ?></button></p>
+                    </form>
+                </div>
+            </div>
+            <?php
+        }
+
+        protected function render_view_notice() {
+            // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only notice flag after redirect.
+            $msg = isset( $_GET['msg'] ) ? sanitize_key( wp_unslash( $_GET['msg'] ) ) : '';
+            $map = array(
+                'accepted' => array( 'ok', __( 'Quote accepted. Your order is ready below.', 'storelly-product-builder-for-woocommerce' ) ),
+                'declined' => array( 'danger', __( 'You have declined this quote.', 'storelly-product-builder-for-woocommerce' ) ),
+                'changes'  => array( 'info', __( 'Your change request has been sent.', 'storelly-product-builder-for-woocommerce' ) ),
+            );
+            if ( isset( $map[ $msg ] ) ) {
+                echo '<div class="spbwc-rfq-banner spbwc-rfq-banner--' . esc_attr( $map[ $msg ][0] ) . '">' . esc_html( $map[ $msg ][1] ) . '</div>';
+            }
+        }
+
+        /**
+         * Process buyer Accept / Decline / Request-changes (POST from the
+         * My Account quote detail). Operates on the spbwc_quote CPT.
+         */
         public function handle_quote_action() {
-            if ( ! is_user_logged_in() ) {
+            if ( ! is_user_logged_in() || ! isset( $_POST['spbwc_quote_buyer_action'] ) ) {
                 return;
             }
-            $action = isset( $_GET['spbwc_quote_action'] ) ? sanitize_key( wp_unslash( $_GET['spbwc_quote_action'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Nonce validated below.
-            $quote_id = isset( $_GET['quote_id'] ) ? absint( wp_unslash( $_GET['quote_id'] ) ) : 0; // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Nonce validated below.
-            if ( ! in_array( $action, array( 'accept', 'reject' ), true ) || ! $quote_id ) {
+            $quote_id = isset( $_POST['quote_id'] ) ? absint( wp_unslash( $_POST['quote_id'] ) ) : 0;
+            if ( ! $quote_id || ! isset( $_POST['spbwc_quote_buyer_nonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['spbwc_quote_buyer_nonce'] ) ), 'spbwc_quote_buyer_' . $quote_id ) ) {
                 return;
             }
-            $nonce = isset( $_GET['_wpnonce'] ) ? sanitize_text_field( wp_unslash( $_GET['_wpnonce'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Nonce validated below.
-            if ( ! $nonce || ! wp_verify_nonce( $nonce, 'spbwc_quote_action_' . $quote_id ) ) {
+            $post = get_post( $quote_id );
+            if ( ! $post || SPBWC_Quote::POST_TYPE !== $post->post_type || (int) $post->post_author !== get_current_user_id() ) {
                 return;
             }
-            $order = wc_get_order( $quote_id );
-            if ( ! $order || (int) $order->get_customer_id() !== get_current_user_id() ) {
-                return;
+            // Buyer actions are only valid on a sent quote.
+            if ( SPBWC_Quote::STATUS_SENT !== $post->post_status ) {
+                $this->redirect_view_quote( $quote_id, '' );
             }
-            $email = sanitize_email( $order->get_meta( '_raq_customer_email' ) );
+            $action = sanitize_key( wp_unslash( $_POST['spbwc_quote_buyer_action'] ) );
+
             if ( 'accept' === $action ) {
-                $order->update_status( 'spbwc-quote-accepted' );
-                $order->add_order_note( __( 'Customer accepted the quote.', 'storelly-product-builder-for-woocommerce' ) );
-                $this->send_quote_notification_email( $order, 'accepted' );
-                if ( $email ) {
-                    $this->send_quote_customer_email( $order, 'accepted', $email );
+                $po = isset( $_POST['po_number'] ) ? sanitize_text_field( wp_unslash( $_POST['po_number'] ) ) : '';
+                SPBWC_Quote::set_status( $quote_id, SPBWC_Quote::STATUS_ACCEPTED, __( 'Customer accepted the quote.', 'storelly-product-builder-for-woocommerce' ) );
+                $order_id = $this->spawn_order_from_quote( $quote_id, $po );
+                if ( $order_id ) {
+                    SPBWC_Quote::set_status( $quote_id, SPBWC_Quote::STATUS_CONVERTED, sprintf( /* translators: %d: order ID */ __( 'Order #%d created from accepted quote.', 'storelly-product-builder-for-woocommerce' ), $order_id ) );
                 }
-            } else {
-                $order->update_status( 'spbwc-quote-rejected' );
-                $order->add_order_note( __( 'Customer rejected the quote.', 'storelly-product-builder-for-woocommerce' ) );
-                $this->send_quote_notification_email( $order, 'rejected' );
-                if ( $email ) {
-                    $this->send_quote_customer_email( $order, 'rejected', $email );
-                }
+                $this->notify_quote_event( $quote_id, 'accepted' );
+                $this->redirect_view_quote( $quote_id, 'accepted' );
+            } elseif ( 'decline' === $action ) {
+                $reason = isset( $_POST['reason'] ) ? sanitize_key( wp_unslash( $_POST['reason'] ) ) : 'other';
+                update_post_meta( $quote_id, SPBWC_Quote::META_DECLINE_REASON, $reason );
+                SPBWC_Quote::set_status( $quote_id, SPBWC_Quote::STATUS_DECLINED, __( 'Customer declined the quote.', 'storelly-product-builder-for-woocommerce' ) );
+                $this->notify_quote_event( $quote_id, 'declined' );
+                $this->redirect_view_quote( $quote_id, 'declined' );
+            } elseif ( 'request_changes' === $action ) {
+                $asks    = isset( $_POST['asks'] ) ? array_map( 'sanitize_key', (array) wp_unslash( $_POST['asks'] ) ) : array();
+                $details = isset( $_POST['details'] ) ? sanitize_textarea_field( wp_unslash( $_POST['details'] ) ) : '';
+                update_post_meta( $quote_id, '_spbwc_quote_change_request', array( 'asks' => $asks, 'details' => $details ) );
+                SPBWC_Quote::set_status( $quote_id, SPBWC_Quote::STATUS_NEGOTIATING, __( 'Customer requested changes.', 'storelly-product-builder-for-woocommerce' ) );
+                $this->notify_quote_event( $quote_id, 'changes' );
+                $this->redirect_view_quote( $quote_id, 'changes' );
             }
-            $redirect = wc_get_endpoint_url( 'view-quote', $quote_id, wc_get_page_permalink( 'myaccount' ) );
-            wp_safe_redirect( $redirect );
+        }
+
+        protected function redirect_view_quote( $quote_id, $msg ) {
+            $url = wc_get_endpoint_url( 'view-quote', $quote_id, wc_get_page_permalink( 'myaccount' ) );
+            if ( $msg ) {
+                $url = add_query_arg( 'msg', $msg, $url );
+            }
+            wp_safe_redirect( $url );
             exit;
+        }
+
+        /**
+         * Create a payable WooCommerce order from an accepted quote's line items.
+         * Each quote line is added as a tax-exempt fee so the buyer pays exactly
+         * the quoted total. The order is linked back to the quote both ways.
+         *
+         * @param int    $quote_id Quote post ID.
+         * @param string $po       Optional PO number.
+         * @return int|false Order ID on success.
+         */
+        protected function spawn_order_from_quote( $quote_id, $po = '' ) {
+            $lines  = SPBWC_Quote::get_lines( $quote_id );
+            $totals = SPBWC_Quote::get_totals( $quote_id );
+            $order  = wc_create_order( array( 'customer_id' => (int) get_post_field( 'post_author', $quote_id ) ) );
+            if ( is_wp_error( $order ) || ! $order ) {
+                return false;
+            }
+            foreach ( $lines as $line ) {
+                $amount = isset( $line['line_total'] ) ? (float) $line['line_total'] : 0;
+                $label  = isset( $line['label'] ) ? $line['label'] : '';
+                $qty    = isset( $line['qty'] ) ? (float) $line['qty'] : 0;
+                if ( '' === $label && 0.0 === $amount ) {
+                    continue;
+                }
+                $name = ( $qty > 1 ) ? sprintf( '%s × %s', $label, 0 + $qty ) : $label;
+                $fee  = new WC_Order_Item_Fee();
+                $fee->set_name( $name ? $name : __( 'Quote item', 'storelly-product-builder-for-woocommerce' ) );
+                $fee->set_amount( $amount );
+                $fee->set_total( $amount );
+                $fee->set_tax_status( 'none' );
+                $order->add_item( $fee );
+            }
+            if ( ! empty( $totals['discount'] ) ) {
+                $fee = new WC_Order_Item_Fee();
+                $fee->set_name( __( 'Discount', 'storelly-product-builder-for-woocommerce' ) );
+                $fee->set_amount( -1 * (float) $totals['discount'] );
+                $fee->set_total( -1 * (float) $totals['discount'] );
+                $fee->set_tax_status( 'none' );
+                $order->add_item( $fee );
+            }
+            if ( ! empty( $totals['tax'] ) ) {
+                $fee = new WC_Order_Item_Fee();
+                $fee->set_name( __( 'Tax', 'storelly-product-builder-for-woocommerce' ) );
+                $fee->set_amount( (float) $totals['tax'] );
+                $fee->set_total( (float) $totals['tax'] );
+                $fee->set_tax_status( 'none' );
+                $order->add_item( $fee );
+            }
+            if ( '' !== $po ) {
+                $order->update_meta_data( '_spbwc_quote_po_number', $po );
+                update_post_meta( $quote_id, SPBWC_Quote::META_PO_NUMBER, $po );
+            }
+            $order->update_meta_data( '_spbwc_source_quote', $quote_id );
+            $order->set_status( 'pending' );
+            $order->calculate_totals( false );
+            $order->save();
+            update_post_meta( $quote_id, SPBWC_Quote::META_ORDER_ID, $order->get_id() );
+            return $order->get_id();
+        }
+
+        /**
+         * Lightweight admin notification on a buyer quote decision.
+         * Replaced by WC_Email subclasses in M6.
+         *
+         * @param int    $quote_id Quote post ID.
+         * @param string $event    accepted|declined|changes.
+         */
+        protected function notify_quote_event( $quote_id, $event ) {
+            $settings    = get_option( 'spbwc_quote_settings', array() );
+            $admin_email = isset( $settings['admin_email'] ) ? sanitize_email( $settings['admin_email'] ) : get_option( 'admin_email' );
+            if ( ! is_email( $admin_email ) ) {
+                return;
+            }
+            $number = get_post_meta( $quote_id, SPBWC_Quote::META_NUMBER, true );
+            $labels = array(
+                'accepted' => __( 'accepted', 'storelly-product-builder-for-woocommerce' ),
+                'declined' => __( 'declined', 'storelly-product-builder-for-woocommerce' ),
+                'changes'  => __( 'requested changes on', 'storelly-product-builder-for-woocommerce' ),
+            );
+            $verb = isset( $labels[ $event ] ) ? $labels[ $event ] : $event;
+            /* translators: 1: site name, 2: quote number */
+            $subject = sprintf( __( '[%1$s] Quote %2$s update', 'storelly-product-builder-for-woocommerce' ), get_bloginfo( 'name' ), $number ? $number : '#' . $quote_id );
+            /* translators: 1: quote number, 2: action verb (accepted/declined/...) */
+            $body  = sprintf( __( 'The customer has %2$s quote %1$s.', 'storelly-product-builder-for-woocommerce' ), $number ? $number : '#' . $quote_id, $verb ) . "\n";
+            if ( class_exists( 'SPBWC_Quote_Admin' ) ) {
+                $body .= "\n" . SPBWC_Quote_Admin::page_url( array( 'quote' => $quote_id ) ) . "\n";
+            }
+            wp_mail( $admin_email, $subject, $body );
         }
     }
 }
