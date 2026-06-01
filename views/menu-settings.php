@@ -59,7 +59,7 @@ if ( ! in_array($spbwc_settings_tab, $spbwc_valid_tabs, true) ) {
 }
 ?>
 
-<div class="spbwc-settings-wrap">
+<div class="wrap spbwc-settings-wrap">
 
     <!-- ── Page hero ── -->
     <header class="spbwc-page-hero">

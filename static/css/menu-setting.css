@@ -1,9 +1,69 @@
 /* Storelly Settings Page - Professional Styling */
 
 .spbwc-settings-wrap {
-    margin: 20px 20px 20px 0;
-    padding: 0 24px 32px;
-    max-width: 1200px;
+    /* Use WP's standard .wrap left alignment (matches Overview/Products/etc.);
+       only add bottom breathing room. No horizontal padding so the page hero
+       and blocks line up with every other Storelly admin page. */
+    max-width: 1280px;
+    padding-bottom: 32px;
+}
+
+/* ── About page card — token-styled (replaces former inline hex) ── */
+.spbwc-about-container {
+    max-width: 600px;
+    margin: 40px auto 0;
+    background: var(--nbd-st-bg);
+    border: 1px solid var(--nbd-st-border-light);
+    border-radius: var(--nbd-radius-lg);
+    box-shadow: var(--shadow-md);
+    padding: 40px 32px;
+    text-align: center;
+    font-family: var(--st-font-sans);
+}
+.spbwc-about-icon svg { max-width: 200px; height: auto; }
+.spbwc-about-title {
+    font-size: 1.9em;
+    font-weight: 700;
+    margin-bottom: 10px;
+    color: var(--st-brand);
+    letter-spacing: -0.5px;
+}
+.spbwc-about-desc {
+    font-size: 1.05em;
+    color: var(--nbd-st-text-mute);
+    margin-bottom: 28px;
+}
+.spbwc-about-btns {
+    display: flex;
+    justify-content: center;
+    gap: 16px;
+    margin-bottom: 0;
+}
+.spbwc-about-btns a {
+    padding: 10px 28px;
+    font-size: 1em;
+    border-radius: var(--nbd-radius);
+    font-weight: 600;
+    transition: background 0.2s, color 0.2s, box-shadow 0.2s;
+}
+.spbwc-about-btns .button-primary {
+    background: var(--st-brand);
+    border: none;
+    box-shadow: var(--shadow-sm);
+    color: var(--nbd-st-text-inverse);
+}
+.spbwc-about-btns .button-primary:hover {
+    background: var(--st-brand-pressed);
+    color: var(--nbd-st-text-inverse);
+}
+.spbwc-about-btns .button {
+    background: var(--st-brand-soft);
+    color: var(--st-brand);
+    border: 1px solid var(--nbd-st-border);
+}
+.spbwc-about-btns .button:hover {
+    background: var(--st-brand-tint);
+    color: var(--st-brand);
 }
 
 
@@ -423,7 +483,7 @@ h2.spbwc-settings-tabs,
     }
     
     .spbwc-settings-wrap {
-        padding: 0 16px 24px;
+        padding-bottom: 24px;
     }
 }
 
