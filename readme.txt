@@ -4,8 +4,8 @@ Donate link: https://storelly.com/
 Tags: product builder, product customize, product customizer, woocommerce custom product
 Requires at least: 4.7
 Tested up to: 7.0
-Stable tag: 1.3.2
-Version: 1.3.2
+Stable tag: 1.3.3
+Version: 1.3.3
 Requires PHP: 7.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -132,6 +132,9 @@ This plugin connects to the following external services:
 3. Storelly settings page with API keys and sync options
 
 == Changelog ==
+= 1.3.3 =
+* Customizer V3: aligned the modal colours, spacing, and shadows with the official `_tokens.css` design system (`--st-*` / `--nbd-st-*`). The self-contained `--spbwc-c-*` tokens are now aliases that resolve to the official tokens — so when site owners theme `_tokens.css`, the customizer follows automatically.
+
 = 1.3.2 =
 * Customizer V3 — major UX overhaul: new 4-zone layout (top product header, vertical tab nav, accordion options panel, canvas, right summary column). Tabs are future-proof — placeholder tabs for "Design with AI", "Templates", and "Help & FAQ" are already wired up.
 * Live grand total in the Summary column: base product price + every picked option upcharge recompute in real time as customers change selections. The "Add to cart" CTA shows the live total inline.

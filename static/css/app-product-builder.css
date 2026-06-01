@@ -7334,27 +7334,29 @@ select.ng-invalid {
  * preserved inside the new layout so app-product-builder.js works unchanged.
  * ===================================================================== */
 .spbwc-cust-v2 {
-    /* Cloodo design tokens — kept in sync with detail-page customize gateway */
-    --spbwc-c-brand:        #2563eb;
-    --spbwc-c-brand-dark:   #1d4ed8;
-    --spbwc-c-brand-tint:   #eff6ff;
-    --spbwc-c-brand-soft:   #dbeafe;
-    --spbwc-c-ink:          #0f172a;
-    --spbwc-c-ink-soft:     #1e293b;
-    --spbwc-c-text:         #334155;
-    --spbwc-c-muted:        #64748b;
-    --spbwc-c-line:         #e2e8f0;
-    --spbwc-c-line-strong:  #cbd5e1;
-    --spbwc-c-bg:           #ffffff;
-    --spbwc-c-bg-soft:      #f8fafc;
-    --spbwc-c-bg-mute:      #f1f5f9;
-    --spbwc-c-success:      #15803d;
-    --spbwc-c-danger:       #dc2626;
-    --spbwc-c-radius:       12px;
-    --spbwc-c-radius-sm:    8px;
-    --spbwc-c-shadow-sm:    0 1px 2px rgba(15,23,42,.06);
-    --spbwc-c-shadow:       0 10px 30px -10px rgba(15,23,42,.18);
-    --spbwc-c-font:         system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    /* Alias to the official _tokens.css design system (--st-* / --nbd-st-*).
+     * Hardcoded values are FALLBACKS only — they kick in if _tokens.css
+     * fails to enqueue. Brand color matches Storelly --st-brand (#1d4ed8). */
+    --spbwc-c-brand:        var(--st-brand,            #1d4ed8);
+    --spbwc-c-brand-dark:   var(--st-brand-pressed,    #1e40af);
+    --spbwc-c-brand-tint:   var(--st-brand-tint,       #eff6ff);
+    --spbwc-c-brand-soft:   var(--st-brand-soft,       #dbeafe);
+    --spbwc-c-ink:          var(--nbd-st-text,         #1d2327);
+    --spbwc-c-ink-soft:     var(--nbd-st-text,         #1d2327);
+    --spbwc-c-text:         var(--nbd-st-text-soft,    #50575e);
+    --spbwc-c-muted:        var(--nbd-st-text-mute,    #8c8f94);
+    --spbwc-c-line:         var(--nbd-st-border-light, #dcdcde);
+    --spbwc-c-line-strong:  var(--nbd-st-border,       #c3c4c7);
+    --spbwc-c-bg:           var(--nbd-st-bg,           #ffffff);
+    --spbwc-c-bg-soft:      var(--nbd-st-bg-soft,      #f6f7f7);
+    --spbwc-c-bg-mute:      var(--nbd-st-bg-canvas,    #f0f0f1);
+    --spbwc-c-success:      var(--nbd-color-success,   #16a34a);
+    --spbwc-c-danger:       var(--nbd-color-danger,    #dc2626);
+    --spbwc-c-radius:       var(--nbd-radius-lg,       12px);
+    --spbwc-c-radius-sm:    var(--nbd-radius-md,       8px);
+    --spbwc-c-shadow-sm:    var(--shadow-sm,           0 1px 2px rgba(0,0,0,.04));
+    --spbwc-c-shadow:       var(--shadow-card,         0 1px 2px rgba(16,24,40,.04), 0 6px 16px rgba(16,24,40,.06));
+    --spbwc-c-font:         var(--st-font-sans, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif);
 
     display: flex;
     flex-direction: column;
@@ -8018,29 +8020,34 @@ select.ng-invalid {
  * spbwc_use_legacy_customizer filter / SPBWC_USE_LEGACY_CUSTOMIZER define.
  * ===================================================================== */
 .spbwc-cust-v3 {
-    --spbwc-c-brand:        #2563eb;
-    --spbwc-c-brand-dark:   #1d4ed8;
-    --spbwc-c-brand-tint:   #eff6ff;
-    --spbwc-c-brand-soft:   #dbeafe;
-    --spbwc-c-ink:          #0f172a;
-    --spbwc-c-ink-soft:     #1e293b;
-    --spbwc-c-text:         #334155;
-    --spbwc-c-muted:        #64748b;
-    --spbwc-c-line:         #e2e8f0;
-    --spbwc-c-line-strong:  #cbd5e1;
-    --spbwc-c-bg:           #ffffff;
-    --spbwc-c-bg-soft:      #f8fafc;
-    --spbwc-c-bg-mute:      #f1f5f9;
-    --spbwc-c-success:      #15803d;
-    --spbwc-c-success-soft: #ecfdf5;
-    --spbwc-c-danger:       #dc2626;
-    --spbwc-c-accent:       #fbbf24;
-    --spbwc-c-radius:       12px;
-    --spbwc-c-radius-sm:    8px;
-    --spbwc-c-radius-xs:    6px;
-    --spbwc-c-shadow-sm:    0 1px 2px rgba(15,23,42,.06);
-    --spbwc-c-shadow:       0 10px 30px -10px rgba(15,23,42,.18);
-    --spbwc-c-font:         system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    /* Alias to the official _tokens.css design system (--st-* / --nbd-st-*)
+     * — see storelly-product-builder-woo-design-tokens.md. Hardcoded values
+     * are FALLBACKS for the rare case _tokens.css fails to enqueue. Brand
+     * blue matches --st-brand (Storelly corporate blue #1d4ed8), slightly
+     * deeper than WP admin blue so the customizer chrome stands apart. */
+    --spbwc-c-brand:        var(--st-brand,            #1d4ed8);
+    --spbwc-c-brand-dark:   var(--st-brand-pressed,    #1e40af);
+    --spbwc-c-brand-tint:   var(--st-brand-tint,       #eff6ff);
+    --spbwc-c-brand-soft:   var(--st-brand-soft,       #dbeafe);
+    --spbwc-c-ink:          var(--nbd-st-text,         #1d2327);
+    --spbwc-c-ink-soft:     var(--nbd-st-text,         #1d2327);
+    --spbwc-c-text:         var(--nbd-st-text-soft,    #50575e);
+    --spbwc-c-muted:        var(--nbd-st-text-mute,    #8c8f94);
+    --spbwc-c-line:         var(--nbd-st-border-light, #dcdcde);
+    --spbwc-c-line-strong:  var(--nbd-st-border,       #c3c4c7);
+    --spbwc-c-bg:           var(--nbd-st-bg,           #ffffff);
+    --spbwc-c-bg-soft:      var(--nbd-st-bg-soft,      #f6f7f7);
+    --spbwc-c-bg-mute:      var(--nbd-st-bg-canvas,    #f0f0f1);
+    --spbwc-c-success:      var(--nbd-color-success,   #16a34a);
+    --spbwc-c-success-soft: var(--st-pill-active-bg,   #dcfce7);
+    --spbwc-c-danger:       var(--nbd-color-danger,    #dc2626);
+    --spbwc-c-accent:       var(--st-accent,           #f59e0b);
+    --spbwc-c-radius:       var(--nbd-radius-lg,       12px);
+    --spbwc-c-radius-sm:    var(--nbd-radius-md,       8px);
+    --spbwc-c-radius-xs:    var(--nbd-radius,          6px);
+    --spbwc-c-shadow-sm:    var(--shadow-sm,           0 1px 2px rgba(0,0,0,.04));
+    --spbwc-c-shadow:       var(--shadow-card,         0 1px 2px rgba(16,24,40,.04), 0 6px 16px rgba(16,24,40,.06));
+    --spbwc-c-font:         var(--st-font-sans, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif);
 
     --spbwc-topbar-h:       68px;
     --spbwc-tabnav-w:       72px;
