@@ -1821,6 +1821,29 @@ nbdpbApp.controller("nbpbCtrl", [
      * defaults to currentConfig=0 on init (first option auto-selected),
      * so we treat it as configured as long as that index resolves to a
      * real entry — keeps the green-check affordance honest. */
+    /* V3 — Canvas zoom (Printcart `.zoom-bar` pattern).
+     * Tracks a buyer-driven scale factor and applies it to .design-zone
+     * via CSS transform. Doesn't touch Fabric internals — just visual
+     * preview scale, so it can't break the save pipeline. */
+    $scope.zoomLevel = 1.0;
+    $scope.zoomCanvas = function (delta, fitReset) {
+      if (fitReset) {
+        $scope.zoomLevel = 1.0;
+      } else {
+        $scope.zoomLevel = Math.max(0.5, Math.min(2.0, $scope.zoomLevel + (delta || 0)));
+      }
+      try {
+        var zone = document.querySelector('.spbwc-cust-v3 .design-zone');
+        if (zone) {
+          zone.style.transformOrigin = 'center center';
+          zone.style.transform = 'scale(' + $scope.zoomLevel + ')';
+          zone.style.transition = 'transform 180ms ease';
+        }
+        var pct = Math.round($scope.zoomLevel * 100);
+        var label = document.querySelector('[data-spbwc-zoom-value]');
+        if (label) { label.textContent = pct + '%'; }
+      } catch (e) { /* canvas not ready — no-op */ }
+    };
     /* V3 — Front/Back view switcher (Printcart Canva pattern).
      * Drives the legacy nbdpbCarousel by calling activeItemByIndex on
      * the cached slider instance (set at jQuery(".nbdpb-carousel")

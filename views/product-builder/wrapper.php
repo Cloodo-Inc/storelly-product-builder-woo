@@ -358,6 +358,24 @@
                                 </div>
                             </div>
                         </div>
+                        <!-- Zoom bar (Printcart `.zoom-bar` — bottom-right of canvas).
+                             Wires into the existing scope.zoomCanvas() so the
+                             buyer can scale the preview without dragging into
+                             the option panel. The scale-out / scale-in values
+                             pipe through the same updateLayerAttribute path. -->
+                        <div class="spbwc-cust-zoom" aria-label="<?php esc_attr_e( 'Zoom', 'storelly-product-builder-for-woocommerce' ); ?>">
+                            <button type="button" class="spbwc-cust-zoom__btn" ng-click="zoomCanvas(-0.1)" aria-label="<?php esc_attr_e( 'Zoom out', 'storelly-product-builder-for-woocommerce' ); ?>" title="<?php esc_attr_e( 'Zoom out', 'storelly-product-builder-for-woocommerce' ); ?>">
+                                <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/><path d="M8 11h6"/></svg>
+                            </button>
+                            <span class="spbwc-cust-zoom__value" data-spbwc-zoom-value>100%</span>
+                            <button type="button" class="spbwc-cust-zoom__btn" ng-click="zoomCanvas(0.1)" aria-label="<?php esc_attr_e( 'Zoom in', 'storelly-product-builder-for-woocommerce' ); ?>" title="<?php esc_attr_e( 'Zoom in', 'storelly-product-builder-for-woocommerce' ); ?>">
+                                <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/><path d="M8 11h6"/><path d="M11 8v6"/></svg>
+                            </button>
+                            <button type="button" class="spbwc-cust-zoom__btn spbwc-cust-zoom__btn--reset" ng-click="zoomCanvas(0, true)" aria-label="<?php esc_attr_e( 'Fit', 'storelly-product-builder-for-woocommerce' ); ?>" title="<?php esc_attr_e( 'Fit to screen', 'storelly-product-builder-for-woocommerce' ); ?>">
+                                <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3h6"/><path d="M3 3v6"/><path d="M21 3h-6"/><path d="M21 3v6"/><path d="M3 21h6"/><path d="M3 21v-6"/><path d="M21 21h-6"/><path d="M21 21v-6"/></svg>
+                            </button>
+                        </div>
+
                         <!-- View switcher (Printcart Canva Front/Back pattern).
                              Shown only when product has ≥2 stages/views — uses the
                              existing scope.changeStage(idx) handler. -->

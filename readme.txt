@@ -4,8 +4,8 @@ Donate link: https://storelly.com/
 Tags: product builder, product customize, product customizer, woocommerce custom product
 Requires at least: 4.7
 Tested up to: 7.0
-Stable tag: 1.3.8
-Version: 1.3.8
+Stable tag: 1.3.9
+Version: 1.3.9
 Requires PHP: 7.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -132,6 +132,15 @@ This plugin connects to the following external services:
 3. Storelly settings page with API keys and sync options
 
 == Changelog ==
+= 1.3.9 =
+* Customizer V3 — premium polish pass to match Printcart Canva v2.0 reference HTML 1:1:
+  - Canvas now sits on a 24×24 dotted grid background (`linear-gradient` cross-hatch over `--nbd-mb-bg-canvas` #f3f4f6) so the artwork "floats" with depth — no more flat white wall behind the product image.
+  - Artwork is clipped to fit the stage (`max-width: calc(100% - 32px)`) with a soft `shadow-xl` lift; it never spills past the canvas border.
+  - New zoom bar (`.spbwc-cust-zoom`) at the bottom-right: −/% label/+/fit, glass pill with backdrop-blur — direct port of Printcart `.zoom-bar`. Wired to a new `$scope.zoomCanvas(delta, fitReset)` that drives a CSS-transform scale 0.5–2.0 on the design-zone.
+  - "Add to cart" CTA bumped to 64px min-height with branded `0 6px 16px 0 rgba(37,99,235,0.3)` shadow — matches `.summary-cta-big` from the reference. Hover lifts; active presses.
+  - Topbar now has Printcart `shadow-md`, summary padding evened out to 16px on all sides, breakdown rows aligned to space-3.
+  - Long option lists inside an open accordion now scroll INSIDE the step body (max-height 360px, `overscroll-behavior: contain`) — the panel head + Summary stay fixed.
+
 = 1.3.8 =
 * Customizer V3 — design tokens now ported VERBATIM from the Printcart Canva v2.0 reference HTML (`--nbd-mb-primary` #2563eb, `--nbd-mb-bg-soft` #f9fafb, `--nbd-color-success` #10b981 emerald, Printcart radius/shadow scale). The tab nav and step accordion CSS rules are direct ports of the reference `.tab-btn` and `.step-item` styles — no creative additions (dropped the white-card active tab, the panel "tongue" bridge, and the brand-tint glow ring around open steps).
 
