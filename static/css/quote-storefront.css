@@ -1,0 +1,193 @@
+/**
+ * Request a Quote — storefront modal (B2B quote redesign, M3).
+ *
+ * Self-contained: the storefront does not load the admin design tokens, so this
+ * file defines its own small set of CSS variables (overridable by a theme) and
+ * keeps styling neutral so it blends with any WooCommerce theme.
+ *
+ * @package Storelly
+ */
+
+.spbwc-rfq {
+    --spbwc-rfq-accent: #1d4ed8;
+    --spbwc-rfq-accent-text: #ffffff;
+    --spbwc-rfq-radius: 10px;
+    --spbwc-rfq-danger: #d63638;
+    --spbwc-rfq-text: #1d2327;
+    --spbwc-rfq-muted: #6b7280;
+    --spbwc-rfq-border: #e2e4e7;
+}
+
+/* Trigger button inherits theme button styling; just spacing. */
+.spbwc-rfq-trigger { margin-top: 10px; }
+
+/* ── Overlay ───────────────────────────────────────────────────────────── */
+.spbwc-rfq-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 100000;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    padding: 6vh 16px 16px;
+    background: rgba(17, 24, 39, .55);
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity .18s ease, visibility .18s ease;
+    overflow-y: auto;
+}
+.spbwc-rfq-overlay.is-open { opacity: 1; visibility: visible; }
+
+/* ── Modal ─────────────────────────────────────────────────────────────── */
+.spbwc-rfq-modal {
+    width: 100%;
+    max-width: 560px;
+    background: #fff;
+    color: var(--spbwc-rfq-text);
+    border-radius: var(--spbwc-rfq-radius);
+    box-shadow: 0 20px 60px rgba(0, 0, 0, .25);
+    transform: translateY(-8px);
+    transition: transform .18s ease;
+    overflow: hidden;
+}
+.spbwc-rfq-overlay.is-open .spbwc-rfq-modal { transform: translateY(0); }
+
+.spbwc-rfq-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--spbwc-rfq-border);
+}
+.spbwc-rfq-title { margin: 0; font-size: 18px; line-height: 1.3; }
+.spbwc-rfq-close {
+    border: 0;
+    background: transparent;
+    font-size: 24px;
+    line-height: 1;
+    cursor: pointer;
+    color: var(--spbwc-rfq-muted);
+    padding: 4px 8px;
+    border-radius: 6px;
+}
+.spbwc-rfq-close:hover { background: #f3f4f6; color: var(--spbwc-rfq-text); }
+
+.spbwc-rfq-body { padding: 18px 20px; }
+
+/* ── Product context ───────────────────────────────────────────────────── */
+.spbwc-rfq-product {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 12px;
+    margin-bottom: 16px;
+    background: #f8fafc;
+    border: 1px solid var(--spbwc-rfq-border);
+    border-radius: 8px;
+}
+.spbwc-rfq-product img {
+    width: 52px;
+    height: 52px;
+    object-fit: cover;
+    border-radius: 6px;
+    flex: 0 0 auto;
+}
+.spbwc-rfq-product__name { font-weight: 600; font-size: 14px; }
+.spbwc-rfq-product__meta { font-size: 12px; color: var(--spbwc-rfq-muted); }
+
+/* ── Fields ────────────────────────────────────────────────────────────── */
+.spbwc-rfq-field { margin-bottom: 14px; }
+.spbwc-rfq-field > label {
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+    margin-bottom: 5px;
+}
+.spbwc-rfq-req { color: var(--spbwc-rfq-danger); }
+.spbwc-rfq-field input,
+.spbwc-rfq-field textarea {
+    width: 100%;
+    padding: 9px 12px;
+    font-size: 14px;
+    border: 1px solid var(--spbwc-rfq-border);
+    border-radius: 8px;
+    background: #fff;
+    box-sizing: border-box;
+}
+.spbwc-rfq-field input:focus,
+.spbwc-rfq-field textarea:focus {
+    outline: none;
+    border-color: var(--spbwc-rfq-accent);
+    box-shadow: 0 0 0 3px rgba(29, 78, 216, .15);
+}
+.spbwc-rfq-field textarea { min-height: 90px; resize: vertical; }
+.spbwc-rfq-field.has-error input,
+.spbwc-rfq-field.has-error textarea { border-color: var(--spbwc-rfq-danger); }
+.spbwc-rfq-error {
+    display: none;
+    margin-top: 4px;
+    font-size: 12px;
+    color: var(--spbwc-rfq-danger);
+}
+.spbwc-rfq-field.has-error .spbwc-rfq-error { display: block; }
+
+.spbwc-rfq-qty { max-width: 130px; }
+
+/* ── Footer / submit ───────────────────────────────────────────────────── */
+.spbwc-rfq-foot { margin-top: 4px; }
+.spbwc-rfq-submit {
+    width: 100%;
+    padding: 12px 16px;
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--spbwc-rfq-accent-text);
+    background: var(--spbwc-rfq-accent);
+    border: 0;
+    border-radius: 8px;
+    cursor: pointer;
+}
+.spbwc-rfq-submit:hover { filter: brightness(1.05); }
+.spbwc-rfq-submit:disabled { opacity: .6; cursor: default; }
+
+.spbwc-rfq-alert {
+    display: none;
+    margin-bottom: 14px;
+    padding: 10px 12px;
+    border-radius: 8px;
+    font-size: 13px;
+}
+.spbwc-rfq-alert.is-error {
+    display: block;
+    background: #fef2f2;
+    color: #991b1b;
+    border: 1px solid #fecaca;
+}
+
+/* ── Success state ─────────────────────────────────────────────────────── */
+.spbwc-rfq-success {
+    display: none;
+    text-align: center;
+    padding: 24px 12px;
+}
+.spbwc-rfq-success.is-visible { display: block; }
+.spbwc-rfq-success__icon {
+    width: 56px;
+    height: 56px;
+    margin: 0 auto 14px;
+    border-radius: 50%;
+    background: #dcfce7;
+    color: #16a34a;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 30px;
+    line-height: 1;
+}
+.spbwc-rfq-success__title { font-size: 17px; font-weight: 700; margin: 0 0 6px; }
+.spbwc-rfq-success__text { font-size: 14px; color: var(--spbwc-rfq-muted); margin: 0; }
+
+@media (max-width: 480px) {
+    .spbwc-rfq-overlay { padding: 0; align-items: stretch; }
+    .spbwc-rfq-modal { max-width: none; border-radius: 0; min-height: 100%; }
+}
