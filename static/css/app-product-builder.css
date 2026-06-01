@@ -8333,13 +8333,12 @@ aside.spbwc-cust-panel {
 .spbwc-cust-tabpanel[hidden] { display: none; }
 /* Panel head — pinned top bar for the active tab panel.
  * flex:0 0 auto keeps it from squishing when content below scrolls.
- * Padding tightened to 14×16 so the caption sits flush in a clear band
- * with a 1px subtle separator beneath. */
+ * No border-bottom — caption flows into the accordion list with just
+ * padding for separation (per user feedback). */
 .spbwc-cust-v3 .spbwc-cust-panel__head {
     flex: 0 0 auto;
     height: 44px;
     padding: 0 16px;
-    border-bottom: 1px solid var(--spbwc-c-line-subtle);
     background: var(--spbwc-c-bg);
     display: flex;
     align-items: center;
@@ -8748,39 +8747,128 @@ aside.spbwc-cust-panel {
     line-height: 1.5;
 }
 
-/* Help FAQ */
-.spbwc-cust-help { padding: 12px 16px 16px; }
-.spbwc-cust-faq {
-    padding: 10px 0;
-    border-bottom: 1px solid var(--spbwc-c-bg-mute);
+/* ====================================================================
+ * Help / FAQ tab — buyer-facing accordion card list. Each Q is a
+ * bordered card that opens to reveal its A, with a chevron rotating
+ * on toggle. Tone-setting intro banner above the list explains what
+ * the tab is for so the buyer doesn't have to guess.
+ * ================================================================ */
+.spbwc-cust-help {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
 }
-.spbwc-cust-faq:last-child { border-bottom: 0; }
+
+/* Quick-help intro banner — brand-tint card at top of FAQ list. */
+.spbwc-cust-help__intro {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 14px;
+    background: var(--spbwc-c-brand-tint);
+    border: 1px solid var(--spbwc-c-brand-soft);
+    border-radius: var(--spbwc-c-radius-md);
+    margin-bottom: 4px;
+}
+.spbwc-cust-help__intro-icon {
+    flex: 0 0 auto;
+    width: 36px;
+    height: 36px;
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    background: var(--spbwc-c-bg);
+    color: var(--spbwc-c-brand);
+    box-shadow: 0 1px 2px rgba(37, 99, 235, 0.15);
+}
+.spbwc-cust-help__intro-body {
+    flex: 1 1 auto;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    font-size: 12.5px;
+    line-height: 1.5;
+    color: var(--spbwc-c-text);
+}
+.spbwc-cust-help__intro-body strong {
+    color: var(--spbwc-c-brand-dark);
+    font-weight: 700;
+    font-size: 13.5px;
+}
+
+/* FAQ card — bordered question/answer accordion */
+.spbwc-cust-faq {
+    border: 1px solid var(--spbwc-c-line);
+    border-radius: var(--spbwc-c-radius-sm); /* 6px */
+    background: var(--spbwc-c-bg);
+    transition: border-color 150ms, box-shadow 150ms;
+}
+.spbwc-cust-faq:hover { border-color: var(--spbwc-c-line-strong); }
+.spbwc-cust-faq[open] {
+    border-color: var(--spbwc-c-brand-soft);
+    box-shadow: 0 1px 3px rgba(37, 99, 235, 0.06);
+}
 .spbwc-cust-faq summary {
-    cursor: pointer;
-    font-weight: 600;
-    color: var(--spbwc-c-ink-soft);
-    font-size: 13px;
     list-style: none;
-    padding-right: 18px;
-    position: relative;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 12px 14px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--spbwc-c-ink);
+    line-height: 1.4;
+    border-radius: var(--spbwc-c-radius-sm);
+    transition: background 120ms;
+    -webkit-tap-highlight-color: transparent;
 }
 .spbwc-cust-faq summary::-webkit-details-marker { display: none; }
-.spbwc-cust-faq summary::after {
-    content: '+';
-    position: absolute;
-    right: 0;
-    top: 0;
-    color: var(--spbwc-c-muted);
-    font-weight: 400;
-    font-size: 16px;
+.spbwc-cust-faq summary::marker { display: none; }
+.spbwc-cust-faq summary:hover { background: var(--spbwc-c-bg-soft); }
+.spbwc-cust-faq[open] summary {
+    background: var(--spbwc-c-brand-tint);
+    color: var(--spbwc-c-brand-dark);
+    border-bottom: 1px solid var(--spbwc-c-brand-soft);
+    border-radius: var(--spbwc-c-radius-sm) var(--spbwc-c-radius-sm) 0 0;
 }
-.spbwc-cust-faq[open] summary::after { content: '−'; }
-.spbwc-cust-faq p {
-    margin: 6px 0 0;
+.spbwc-cust-faq__q {
+    flex: 1 1 auto;
+    min-width: 0;
+}
+.spbwc-cust-faq__chev {
+    flex: 0 0 auto;
+    color: var(--spbwc-c-muted);
+    transition: transform 200ms ease, color 200ms;
+}
+.spbwc-cust-faq[open] .spbwc-cust-faq__chev {
+    transform: rotate(180deg);
+    color: var(--spbwc-c-brand);
+}
+.spbwc-cust-faq__a {
+    padding: 12px 14px 14px;
+    color: var(--spbwc-c-text);
     font-size: 12.5px;
-    color: var(--spbwc-c-muted);
-    line-height: 1.55;
+    line-height: 1.6;
 }
+.spbwc-cust-faq__a p {
+    margin: 0;
+}
+.spbwc-cust-faq__a p + p { margin-top: 8px; }
+.spbwc-cust-faq__a a {
+    color: var(--spbwc-c-brand);
+    text-decoration: underline;
+    font-weight: 500;
+}
+.spbwc-cust-faq__a a:hover { color: var(--spbwc-c-brand-dark); }
 
 /* CANVAS column — direct port of Printcart `.stage`.
  * Background is bg-canvas (#f3f4f6) with a 24x24 cross-hatch dotted
@@ -8892,25 +8980,66 @@ aside.spbwc-cust-panel {
 aside.spbwc-cust-summary {
     background: var(--spbwc-c-bg);
     border-left: 1px solid var(--spbwc-c-line);
-    /* Generous padding so blocks breathe; gap 20px between sections so
-     * the breakdown box, item card, and CTA never run into each other.
-     * Padding pinned with !important — Cloodo theme zeros out generic
-     * `aside` / `.summary` padding at high specificity. */
-    padding: 20px 18px !important;
-    overflow-y: auto;
-    display: flex;
-    flex-direction: column;
-    gap: 20px !important;
+    /* Summary is now a 3-row flex column: sticky-top + scrollable
+     * middle + sticky-bottom. Padding lives on each inner band so the
+     * scroll edge sits right against the column border. */
+    padding: 0 !important;
+    overflow: hidden;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 0 !important;
     box-shadow: inset 1px 0 0 var(--spbwc-c-line);
+    min-height: 0;
+    height: 100%;
 }
 
-/* `.summary-product-head` — product hero block at top of summary */
+/* STICKY TOP — product head + progress pill + track. Pinned at top
+ * with a subtle bottom shadow so the band reads as a sticky header
+ * once the middle starts scrolling. */
+.spbwc-cust-summary__sticky-top {
+    flex: 0 0 auto;
+    padding: 20px 18px 14px;
+    background: var(--spbwc-c-bg);
+    border-bottom: 1px solid var(--spbwc-c-line-subtle);
+    position: relative;
+    z-index: 2;
+}
+/* SCROLLABLE MIDDLE — order summary card + price breakdown. */
+.spbwc-cust-summary__scroll {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+    padding: 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+/* STICKY BOTTOM — CTA + Reset/Cancel + trust note. Pinned at bottom
+ * with a top separator + slight upward shadow so the customer always
+ * sees the Add-to-cart button no matter how tall the price breakdown
+ * grows. */
+.spbwc-cust-summary__sticky-bottom {
+    flex: 0 0 auto;
+    padding: 14px 18px 18px;
+    background: var(--spbwc-c-bg);
+    border-top: 1px solid var(--spbwc-c-line-subtle);
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    box-shadow: 0 -4px 12px -8px rgba(15, 23, 42, 0.08);
+    position: relative;
+    z-index: 2;
+}
+
+/* `.summary-product-head` — product hero block at top of summary.
+ * Padding + border now live on .spbwc-cust-summary__sticky-top, so this
+ * just stacks the name + progress pill inside that band. */
 .spbwc-cust-summary__head {
     display: flex;
     flex-direction: column;
     gap: 10px;
-    padding-bottom: 16px;
-    border-bottom: 1px solid var(--spbwc-c-line-subtle);
 }
 .spbwc-cust-summary__head-row {
     display: flex;

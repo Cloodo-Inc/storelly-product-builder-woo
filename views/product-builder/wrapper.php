@@ -396,23 +396,80 @@
                         </div>
                     </div>
 
-                    <!-- Tab content: Help -->
+                    <!-- Tab content: Help / FAQ — card-style accordion list -->
                     <div class="spbwc-cust-tabpanel" data-spbwc-tabpanel="help" hidden>
                         <header class="spbwc-cust-panel__head">
                             <div class="spbwc-cust-panel__title"><?php esc_html_e( 'How it works', 'storelly-product-builder-for-woocommerce' ); ?></div>
                         </header>
                         <div class="spbwc-cust-help">
+                            <!-- Quick-help banner — sets the tone before the FAQ list. -->
+                            <div class="spbwc-cust-help__intro">
+                                <div class="spbwc-cust-help__intro-icon" aria-hidden="true">
+                                    <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><path d="M12 17h.01"/></svg>
+                                </div>
+                                <div class="spbwc-cust-help__intro-body">
+                                    <strong><?php esc_html_e( 'Need a hand?', 'storelly-product-builder-for-woocommerce' ); ?></strong>
+                                    <span><?php esc_html_e( 'Quick answers to the most common questions when customizing this product.', 'storelly-product-builder-for-woocommerce' ); ?></span>
+                                </div>
+                            </div>
+
                             <details class="spbwc-cust-faq" open>
-                                <summary><?php esc_html_e( 'How do I customize?', 'storelly-product-builder-for-woocommerce' ); ?></summary>
-                                <p><?php esc_html_e( 'Open each part on the left, pick your option, and watch the preview update on the right. The total updates in real time.', 'storelly-product-builder-for-woocommerce' ); ?></p>
+                                <summary>
+                                    <span class="spbwc-cust-faq__q"><?php esc_html_e( 'How do I customize this product?', 'storelly-product-builder-for-woocommerce' ); ?></span>
+                                    <svg class="spbwc-cust-faq__chev" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
+                                </summary>
+                                <div class="spbwc-cust-faq__a">
+                                    <p><?php esc_html_e( 'Open each part on the left, pick the option you want, and the preview in the centre updates in real time. The "Your price" total on the right also updates as you go — so you always know what you\'re paying.', 'storelly-product-builder-for-woocommerce' ); ?></p>
+                                </div>
                             </details>
+
                             <details class="spbwc-cust-faq">
-                                <summary><?php esc_html_e( 'Will my design be saved?', 'storelly-product-builder-for-woocommerce' ); ?></summary>
-                                <p><?php esc_html_e( 'Click "Add to cart" and we lock in your configuration with the order. You can re-order the exact same design from your account.', 'storelly-product-builder-for-woocommerce' ); ?></p>
+                                <summary>
+                                    <span class="spbwc-cust-faq__q"><?php esc_html_e( 'Will my design be saved?', 'storelly-product-builder-for-woocommerce' ); ?></span>
+                                    <svg class="spbwc-cust-faq__chev" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
+                                </summary>
+                                <div class="spbwc-cust-faq__a">
+                                    <p><?php esc_html_e( 'Yes. Click "Add to cart" and we lock your full configuration in with the order. You can re-order the same design any time from your account — just look for "Reorder this design" on the order detail page.', 'storelly-product-builder-for-woocommerce' ); ?></p>
+                                </div>
                             </details>
+
                             <details class="spbwc-cust-faq">
-                                <summary><?php esc_html_e( 'Can I undo a change?', 'storelly-product-builder-for-woocommerce' ); ?></summary>
-                                <p><?php esc_html_e( 'Use "Reset this part" inside each option, or "Reset all" in the top right to start over.', 'storelly-product-builder-for-woocommerce' ); ?></p>
+                                <summary>
+                                    <span class="spbwc-cust-faq__q"><?php esc_html_e( 'Can I undo a change?', 'storelly-product-builder-for-woocommerce' ); ?></span>
+                                    <svg class="spbwc-cust-faq__chev" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
+                                </summary>
+                                <div class="spbwc-cust-faq__a">
+                                    <p><?php esc_html_e( 'Inside any open step you\'ll see a "Reset this part" link to undo just that part. To start over completely, click the ↻ icon in the top-right of the modal, or "Reset all" under the Add-to-cart button.', 'storelly-product-builder-for-woocommerce' ); ?></p>
+                                </div>
+                            </details>
+
+                            <details class="spbwc-cust-faq">
+                                <summary>
+                                    <span class="spbwc-cust-faq__q"><?php esc_html_e( 'How is the final price calculated?', 'storelly-product-builder-for-woocommerce' ); ?></span>
+                                    <svg class="spbwc-cust-faq__chev" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
+                                </summary>
+                                <div class="spbwc-cust-faq__a">
+                                    <p><?php esc_html_e( 'Your final price = base product price + any per-option upcharges. The summary on the right shows each line item ("Included" means no extra cost, "+$X" means it adds to the total). Shipping is calculated at checkout based on your address.', 'storelly-product-builder-for-woocommerce' ); ?></p>
+                                </div>
+                            </details>
+
+                            <details class="spbwc-cust-faq">
+                                <summary>
+                                    <span class="spbwc-cust-faq__q"><?php esc_html_e( 'Still need help?', 'storelly-product-builder-for-woocommerce' ); ?></span>
+                                    <svg class="spbwc-cust-faq__chev" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
+                                </summary>
+                                <div class="spbwc-cust-faq__a">
+                                    <p><?php
+                                        /* translators: %s: HTML link */
+                                        printf(
+                                            wp_kses(
+                                                __( 'Contact our support team via the %s — we typically reply within one business day.', 'storelly-product-builder-for-woocommerce' ),
+                                                array( 'a' => array( 'href' => true, 'target' => true, 'rel' => true ) )
+                                            ),
+                                            '<a href="' . esc_url( apply_filters( 'spbwc_customizer_contact_url', '/contact' ) ) . '" target="_blank" rel="noopener">' . esc_html__( 'Contact page', 'storelly-product-builder-for-woocommerce' ) . '</a>'
+                                        );
+                                    ?></p>
+                                </div>
                             </details>
                         </div>
                     </div>
@@ -512,6 +569,9 @@
                 <!-- ============== SUMMARY — Printcart `.summary-col` 1:1 ============== -->
                 <aside class="spbwc-cust-summary">
 
+                  <!-- STICKY TOP — product head pins so the customer always sees
+                       which product + how many parts they've configured. -->
+                  <div class="spbwc-cust-summary__sticky-top">
                     <!-- Product hero block (Printcart `.summary-product-head`) -->
                     <div class="spbwc-cust-summary__head">
                         <div class="spbwc-cust-summary__head-row">
@@ -531,7 +591,13 @@
                             <span class="spbwc-cust-summary__progress-fill" data-spbwc-progress-fill style="width:0"></span>
                         </div>
                     </div>
+                  </div>
 
+                  <!-- SCROLLABLE MIDDLE — order summary + price breakdown.
+                       If the customer has 10+ components, this is where the
+                       price block grows; the customer scrolls inside this band
+                       while the product head and CTA stay visible. -->
+                  <div class="spbwc-cust-summary__scroll">
                     <!-- ORDER SUMMARY · 1 ITEM — Printcart `.summary-section` + `.summary-item` -->
                     <div class="spbwc-cust-summary__section">
                         <div class="spbwc-cust-summary__title"><?php esc_html_e( 'Order summary · 1 item', 'storelly-product-builder-for-woocommerce' ); ?></div>
@@ -586,7 +652,12 @@
                             <span class="val" data-spbwc-grand-total><?php echo wp_kses_post( $spbwc_v3_base_price_html ); ?></span>
                         </div>
                     </div>
+                  </div>
 
+                  <!-- STICKY BOTTOM — CTA + Reset/Cancel + trust note pin to
+                       the bottom so the Add to cart button is ALWAYS visible
+                       no matter how tall the price breakdown grows. -->
+                  <div class="spbwc-cust-summary__sticky-bottom">
                     <!-- BIG primary Add to cart — Printcart `.summary-cta-big` -->
                     <button class="spbwc-cust-cta" type="button" data-spbwc-action="add-to-cart" ng-click="saveData()" aria-live="polite">
                         <span class="spbwc-cust-cta__content">
@@ -610,6 +681,7 @@
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
                         <span><strong><?php esc_html_e( 'Free design preview', 'storelly-product-builder-for-woocommerce' ); ?></strong> — <?php esc_html_e( 'no charge until your design is locked in.', 'storelly-product-builder-for-woocommerce' ); ?></span>
                     </div>
+                  </div>
                 </aside>
 
             </div>

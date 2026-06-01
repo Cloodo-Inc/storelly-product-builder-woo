@@ -4,8 +4,8 @@ Donate link: https://storelly.com/
 Tags: product builder, product customize, product customizer, woocommerce custom product
 Requires at least: 4.7
 Tested up to: 7.0
-Stable tag: 1.4.4
-Version: 1.4.4
+Stable tag: 1.4.5
+Version: 1.4.5
 Requires PHP: 7.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -132,6 +132,12 @@ This plugin connects to the following external services:
 3. Storelly settings page with API keys and sync options
 
 == Changelog ==
+= 1.4.5 =
+* Customizer V3 — three UX refinements:
+  - Removed the `border-bottom` line under the panel head "Customize parts" caption per user feedback. The head now flows visually into the accordion list with just padding separation.
+  - Summary column is now a 3-row layout — sticky top (product name + progress pill + track), scrollable middle (order summary card + price breakdown), sticky bottom (Add to cart CTA + Reset/Cancel + trust note). The CTA stays visible no matter how tall the price-breakdown grows; only the middle band scrolls.
+  - FAQ tab redesigned: brand-tint intro banner ("Need a hand?") above the Q&A list, bordered card-per-question with a chevron that rotates on toggle, open question gets a tinted header strip + soft blue border. Five seed Q&As ship by default; the contact link at the bottom is filterable via `spbwc_customizer_contact_url`.
+
 = 1.4.4 =
 * Customizer V3: fixed accordion scroll regression — a stale duplicate `.spbwc-cust-tabpanel { overflow-y: auto }` rule was scrolling the whole tab panel (including the pinned head) and fighting the inner accordion list, so products with many options (e.g. a colour picker with 10+ swatches) had their bottom options cut off at the viewport edge. Removed the duplicate; the inner accordion list now owns the scroll exclusively, head stays pinned.
 * Customizer V3: tab nav polish per buyer feedback — dropped the 3px brand-blue accent rail on the active tab's right edge. The rail had become visual noise next to the accordion cards in the panel. Active state now relies on the brand-tint bg + brand text + a 1px brand-soft border around the button. Tab nav rail also gets a slightly darker `--nbd-mb-border-strong` right border + `--nbd-mb-bg-soft` background so it reads as a distinct rail (not the same surface as the white accordion cards).
