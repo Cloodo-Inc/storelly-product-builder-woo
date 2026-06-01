@@ -145,99 +145,105 @@ if ( ! class_exists( 'SPBWC_I18n_Notice' ) ) {
 			$contribute_url = 'https://translate.wordpress.org/projects/wp-plugins/storelly-product-builder-for-woocommerce/';
 
 			if ( $is_english ) {
-				$status_label = esc_html__( 'Source language', 'storelly-product-builder-for-woocommerce' );
-				$status_tone  = 'info';
+				$status_label    = esc_html__( 'Source language', 'storelly-product-builder-for-woocommerce' );
+				$block_modifier  = 'brand';
 			} elseif ( 'vi' === $locale ) {
-				$status_label = esc_html__( 'Extended translation', 'storelly-product-builder-for-woocommerce' );
-				$status_tone  = 'success';
+				$status_label    = esc_html__( 'Extended translation', 'storelly-product-builder-for-woocommerce' );
+				$block_modifier  = 'success';
 			} elseif ( $is_supported ) {
-				$status_label = esc_html__( 'Core translation', 'storelly-product-builder-for-woocommerce' );
-				$status_tone  = 'success';
+				$status_label    = esc_html__( 'Core translation', 'storelly-product-builder-for-woocommerce' );
+				$block_modifier  = 'success';
 			} else {
-				$status_label = esc_html__( 'Not yet translated', 'storelly-product-builder-for-woocommerce' );
-				$status_tone  = 'warn';
+				$status_label    = esc_html__( 'Not yet translated', 'storelly-product-builder-for-woocommerce' );
+				$block_modifier  = 'warning';
 			}
 
 			$details_id = 'spbwc-i18n-all-locales';
 			?>
-			<div class="spbwc-lang-widget">
-				<div class="spbwc-lang-widget__head">
-					<h3 class="spbwc-lang-widget__title">
+			<section class="spbwc-block spbwc-block--<?php echo esc_attr( $block_modifier ); ?> spbwc-lang-block">
+				<header class="spbwc-block__head">
+					<h3 class="spbwc-block__title">
 						<span class="dashicons dashicons-translation" aria-hidden="true"></span>
 						<?php esc_html_e( 'Plugin Language', 'storelly-product-builder-for-woocommerce' ); ?>
 					</h3>
-					<span class="spbwc-lang-widget__pill spbwc-lang-widget__pill--<?php echo esc_attr( $status_tone ); ?>">
+					<span class="spbwc-block__badge">
 						<?php echo esc_html( $status_label ); ?>
 					</span>
-				</div>
+				</header>
 
-				<div class="spbwc-lang-widget__grid">
-					<div>
-						<div class="spbwc-lang-widget__cell-label">
-							<?php esc_html_e( 'Current locale', 'storelly-product-builder-for-woocommerce' ); ?>
+				<div class="spbwc-block__body">
+					<div class="spbwc-lang-block__grid">
+						<div class="spbwc-lang-block__cell">
+							<div class="spbwc-lang-block__cell-label">
+								<?php esc_html_e( 'Current locale', 'storelly-product-builder-for-woocommerce' ); ?>
+							</div>
+							<div class="spbwc-lang-block__cell-value spbwc-lang-block__cell-value--code">
+								<?php echo esc_html( $locale ); ?>
+							</div>
 						</div>
-						<div class="spbwc-lang-widget__cell-value spbwc-lang-widget__cell-value--code">
-							<?php echo esc_html( $locale ); ?>
+						<div class="spbwc-lang-block__cell">
+							<div class="spbwc-lang-block__cell-label">
+								<?php esc_html_e( 'Layout direction', 'storelly-product-builder-for-woocommerce' ); ?>
+							</div>
+							<div class="spbwc-lang-block__cell-value">
+								<?php echo $is_rtl_locale
+									? esc_html__( 'RTL (right-to-left)', 'storelly-product-builder-for-woocommerce' )
+									: esc_html__( 'LTR (left-to-right)', 'storelly-product-builder-for-woocommerce' ); ?>
+							</div>
+						</div>
+						<div class="spbwc-lang-block__cell">
+							<div class="spbwc-lang-block__cell-label">
+								<?php esc_html_e( 'Bundled languages', 'storelly-product-builder-for-woocommerce' ); ?>
+							</div>
+							<div class="spbwc-lang-block__cell-value">
+								<?php
+								printf(
+									/* translators: %d: number of locales bundled with the plugin (not counting English source). */
+									esc_html__( '%d + English source', 'storelly-product-builder-for-woocommerce' ),
+									(int) $bundled_count
+								);
+								?>
+							</div>
 						</div>
 					</div>
-					<div>
-						<div class="spbwc-lang-widget__cell-label">
-							<?php esc_html_e( 'Layout direction', 'storelly-product-builder-for-woocommerce' ); ?>
-						</div>
-						<div class="spbwc-lang-widget__cell-value">
-							<?php echo $is_rtl_locale
-								? esc_html__( 'RTL (right-to-left)', 'storelly-product-builder-for-woocommerce' )
-								: esc_html__( 'LTR (left-to-right)', 'storelly-product-builder-for-woocommerce' ); ?>
-						</div>
-					</div>
-					<div>
-						<div class="spbwc-lang-widget__cell-label">
-							<?php esc_html_e( 'Bundled languages', 'storelly-product-builder-for-woocommerce' ); ?>
-						</div>
-						<div class="spbwc-lang-widget__cell-value">
-							<?php
-							printf(
-								/* translators: %d: number of locales bundled with the plugin (not counting English source). */
-								esc_html__( '%d + English source', 'storelly-product-builder-for-woocommerce' ),
-								(int) $bundled_count
-							);
-							?>
-						</div>
+
+					<div id="<?php echo esc_attr( $details_id ); ?>" class="spbwc-lang-block__details" hidden>
+						<strong><?php esc_html_e( '15 bundled locales', 'storelly-product-builder-for-woocommerce' ); ?></strong>
+						<code>vi</code> Vietnamese (extended, ~210 strings) ·
+						<code>fr_FR</code> French · <code>de_DE</code> German ·
+						<code>es_ES</code> Spanish · <code>pt_BR</code> Portuguese (Brazil) ·
+						<code>it_IT</code> Italian · <code>ja</code> Japanese ·
+						<code>zh_CN</code> Chinese (Simplified) · <code>ru_RU</code> Russian ·
+						<code>ar</code> Arabic (RTL) · <code>nl_NL</code> Dutch ·
+						<code>pl_PL</code> Polish · <code>tr_TR</code> Turkish ·
+						<code>sv_SE</code> Swedish · <code>id_ID</code> Indonesian
 					</div>
 				</div>
 
-				<div class="spbwc-lang-widget__foot">
-					<a class="button" href="<?php echo esc_url( $lang_settings ); ?>">
-						<?php esc_html_e( 'Change Site Language', 'storelly-product-builder-for-woocommerce' ); ?>
-					</a>
-					<a class="button" href="<?php echo esc_url( $profile_lang ); ?>">
-						<?php esc_html_e( 'Per-User Language', 'storelly-product-builder-for-woocommerce' ); ?>
-					</a>
-					<a class="button button-link" href="<?php echo esc_url( $contribute_url ); ?>" target="_blank" rel="noopener noreferrer">
-						<?php esc_html_e( 'Help Translate', 'storelly-product-builder-for-woocommerce' ); ?>
-						<span class="dashicons dashicons-external" aria-hidden="true"></span>
-					</a>
-					<button type="button"
-						class="spbwc-lang-widget__see-all"
-						aria-expanded="false"
-						aria-controls="<?php echo esc_attr( $details_id ); ?>"
-						onclick="var el=document.getElementById('<?php echo esc_js( $details_id ); ?>');var open=el.hasAttribute('hidden');if(open){el.removeAttribute('hidden');this.setAttribute('aria-expanded','true');this.textContent='<?php echo esc_js( __( 'Hide all locales', 'storelly-product-builder-for-woocommerce' ) ); ?>';}else{el.setAttribute('hidden','');this.setAttribute('aria-expanded','false');this.textContent='<?php echo esc_js( __( 'See all 15 bundled locales', 'storelly-product-builder-for-woocommerce' ) ); ?>';}return false;">
-						<?php esc_html_e( 'See all 15 bundled locales', 'storelly-product-builder-for-woocommerce' ); ?>
-					</button>
-				</div>
-
-				<div id="<?php echo esc_attr( $details_id ); ?>" class="spbwc-lang-widget__details" hidden>
-					<strong><?php esc_html_e( '15 bundled locales', 'storelly-product-builder-for-woocommerce' ); ?></strong>
-					<code>vi</code> Vietnamese (extended, ~210 strings) ·
-					<code>fr_FR</code> French · <code>de_DE</code> German ·
-					<code>es_ES</code> Spanish · <code>pt_BR</code> Portuguese (Brazil) ·
-					<code>it_IT</code> Italian · <code>ja</code> Japanese ·
-					<code>zh_CN</code> Chinese (Simplified) · <code>ru_RU</code> Russian ·
-					<code>ar</code> Arabic (RTL) · <code>nl_NL</code> Dutch ·
-					<code>pl_PL</code> Polish · <code>tr_TR</code> Turkish ·
-					<code>sv_SE</code> Swedish · <code>id_ID</code> Indonesian
-				</div>
-			</div>
+				<footer class="spbwc-block__foot spbwc-lang-block__foot">
+					<div class="spbwc-lang-block__actions">
+						<a class="button" href="<?php echo esc_url( $lang_settings ); ?>">
+							<?php esc_html_e( 'Change Site Language', 'storelly-product-builder-for-woocommerce' ); ?>
+						</a>
+						<a class="button" href="<?php echo esc_url( $profile_lang ); ?>">
+							<?php esc_html_e( 'Per-User Language', 'storelly-product-builder-for-woocommerce' ); ?>
+						</a>
+					</div>
+					<div class="spbwc-lang-block__meta">
+						<button type="button"
+							class="spbwc-block__foot-link spbwc-lang-block__see-all"
+							aria-expanded="false"
+							aria-controls="<?php echo esc_attr( $details_id ); ?>"
+							onclick="var el=document.getElementById('<?php echo esc_js( $details_id ); ?>');var open=el.hasAttribute('hidden');if(open){el.removeAttribute('hidden');this.setAttribute('aria-expanded','true');this.textContent='<?php echo esc_js( __( 'Hide all locales', 'storelly-product-builder-for-woocommerce' ) ); ?>';}else{el.setAttribute('hidden','');this.setAttribute('aria-expanded','false');this.textContent='<?php echo esc_js( __( 'See all 15 bundled locales', 'storelly-product-builder-for-woocommerce' ) ); ?>';}return false;">
+							<?php esc_html_e( 'See all 15 bundled locales', 'storelly-product-builder-for-woocommerce' ); ?>
+						</button>
+						<a class="spbwc-block__foot-link" href="<?php echo esc_url( $contribute_url ); ?>" target="_blank" rel="noopener noreferrer">
+							<?php esc_html_e( 'Help Translate', 'storelly-product-builder-for-woocommerce' ); ?>
+							<span class="dashicons dashicons-external" aria-hidden="true"></span>
+						</a>
+					</div>
+				</footer>
+			</section>
 			<?php
 		}
 

@@ -1,22 +1,30 @@
 /**
- * Storelly Product Builder — Plugin Language widget + welcome notice.
+ * Storelly Product Builder — Plugin Language surfaces.
  *
- * Used by SPBWC_I18n_Notice (includes/class-i18n-notice.php):
- *   - .spbwc-lang-widget   : always-visible card on Overview + Settings.
- *   - .spbwc-i18n-notice   : dismissible one-shot banner on WP Dashboard.
+ * Two surfaces:
+ *   - .spbwc-lang-block  : always-visible card on Overview + Settings. Extends
+ *                          the shared .spbwc-block component (storelly-admin-ui.css)
+ *                          — same chrome, head, badge, body, foot. This file only
+ *                          adds the bits unique to the language widget:
+ *                          the 3-column metric grid, the collapsible "all locales"
+ *                          details panel, and the foot's two-column action layout.
+ *   - .spbwc-i18n-notice : dismissible welcome notice on the WP Dashboard. Uses
+ *                          WP core's `.notice` chrome and only adds light token
+ *                          touches (brand border-left, dismiss link styling).
  *
- * All values flow through the design tokens in _tokens.css — no hardcoded
- * hex colors, no inline `style="…"` attributes. Edit tokens, not this file,
- * to retheme.
+ * Every color, spacing, radius, font value flows through the design tokens in
+ * _tokens.css. Zero hardcoded hex; zero inline style="" attrs in the PHP.
+ *
+ * Load order: depends on `spbwc-admin-ui` (which already pulls in `spbwc-tokens`).
+ * Lazy-enqueued by SPBWC_I18n_Notice::ensure_css().
  */
 
 /* =====================================================================
-   Welcome notice (dismissible — WP Dashboard only)
+   Welcome notice (WP Dashboard only)
    ===================================================================== */
 
 .spbwc-i18n-notice {
 	border-left-color: var(--st-brand) !important;
-	padding: var(--nbd-space-3) var(--nbd-space-4);
 }
 
 .spbwc-i18n-notice__title {
@@ -24,8 +32,8 @@
 	align-items: center;
 	gap: var(--nbd-space-2);
 	margin: 0 0 var(--nbd-space-1) 0;
-	font-size: 14px;
-	font-weight: 600;
+	font-size: var(--text-md, 14px);
+	font-weight: var(--font-bold, 600);
 	color: var(--nbd-st-text);
 }
 
@@ -63,7 +71,7 @@
 	color: var(--nbd-st-text-mute);
 	text-decoration: none;
 	margin-left: auto;
-	font-size: 13px;
+	font-size: var(--text-sm, 13px);
 }
 
 .spbwc-i18n-notice__dismiss-link:hover,
@@ -73,157 +81,105 @@
 }
 
 /* =====================================================================
-   Always-visible language widget (Overview + Settings)
+   Language block — extends .spbwc-block, only the deltas live here
    ===================================================================== */
 
-.spbwc-lang-widget {
-	background: var(--nbd-st-bg);
-	border: 1px solid var(--nbd-st-border-subtle);
-	border-radius: var(--nbd-radius-lg);
-	padding: var(--nbd-space-5);
+/* Top-of-page spacing — matches the rhythm used by other blocks in
+   the Overview view. */
+.spbwc-lang-block {
 	margin-top: var(--nbd-space-4);
 }
 
-.spbwc-lang-widget__head {
-	display: flex;
-	align-items: center;
-	justify-content: space-between;
-	gap: var(--nbd-space-3);
-	margin: 0 0 var(--nbd-space-4) 0;
-}
-
-.spbwc-lang-widget__title {
-	display: flex;
-	align-items: center;
-	gap: var(--nbd-space-2);
-	margin: 0;
-	font-size: 15px;
-	font-weight: 600;
-	color: var(--nbd-st-text);
-}
-
-.spbwc-lang-widget__title .dashicons {
-	color: var(--st-brand);
-	font-size: 18px;
-	width: 18px;
-	height: 18px;
-}
-
-.spbwc-lang-widget__pill {
-	display: inline-block;
-	padding: 3px var(--nbd-space-3);
-	border-radius: var(--nbd-radius-pill);
-	font-size: 11px;
-	font-weight: 600;
-	text-transform: uppercase;
-	letter-spacing: 0.4px;
-	white-space: nowrap;
-}
-
-.spbwc-lang-widget__pill--success {
-	background: #dcfce7;
-	color: #166534;
-}
-
-.spbwc-lang-widget__pill--warn {
-	background: #fef3c7;
-	color: #92400e;
-}
-
-.spbwc-lang-widget__pill--info {
-	background: var(--st-brand-soft);
-	color: var(--nbd-st-text-brand);
-}
-
-.spbwc-lang-widget__grid {
+/* 3-column metric grid: Current locale · Layout direction · Bundled languages */
+.spbwc-lang-block__grid {
 	display: grid;
 	grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
 	gap: var(--nbd-space-5);
-	padding: var(--nbd-space-4) 0;
-	border-top: 1px solid var(--nbd-st-border-subtle);
-	border-bottom: 1px solid var(--nbd-st-border-subtle);
 }
 
-.spbwc-lang-widget__cell-label {
-	font-size: 11px;
+.spbwc-lang-block__cell {
+	display: flex;
+	flex-direction: column;
+	gap: var(--nbd-space-1);
+}
+
+.spbwc-lang-block__cell-label {
+	font-size: var(--text-xs, 11px);
 	text-transform: uppercase;
 	color: var(--nbd-st-text-mute);
-	letter-spacing: 0.4px;
-	font-weight: 600;
-	margin-bottom: var(--nbd-space-1);
+	letter-spacing: 0.04em;
+	font-weight: var(--font-bold, 600);
 }
 
-.spbwc-lang-widget__cell-value {
-	font-size: 15px;
-	font-weight: 600;
+.spbwc-lang-block__cell-value {
+	font-size: var(--text-lg, 15px);
+	font-weight: var(--font-bold, 600);
 	color: var(--nbd-st-text);
 }
 
-.spbwc-lang-widget__cell-value--code {
-	font-family: Menlo, Consolas, "SF Mono", monospace;
+.spbwc-lang-block__cell-value--code {
+	font-family: var(--font-mono, Menlo, Consolas, "SF Mono", monospace);
 }
 
-.spbwc-lang-widget__foot {
+/* Foot: actions on the left, link/meta on the right — mirrors the
+   space-between layout of .spbwc-block__foot but with two flexible
+   action groups instead of a single foot-link. */
+.spbwc-lang-block__foot {
+	flex-wrap: wrap;
+	gap: var(--nbd-space-3);
+}
+
+.spbwc-lang-block__actions,
+.spbwc-lang-block__meta {
 	display: flex;
 	flex-wrap: wrap;
-	gap: var(--nbd-space-2);
-	padding-top: var(--nbd-space-4);
 	align-items: center;
+	gap: var(--nbd-space-3);
 }
 
-.spbwc-lang-widget__foot .dashicons-external {
-	font-size: 14px;
-	width: 14px;
-	height: 14px;
-	vertical-align: middle;
-	margin-left: 2px;
-}
-
-.spbwc-lang-widget__see-all {
-	color: var(--st-brand);
-	text-decoration: none;
-	font-size: 13px;
-	background: none;
-	border: none;
-	padding: 0 var(--nbd-space-2);
-	cursor: pointer;
+.spbwc-lang-block__meta {
 	margin-left: auto;
 }
 
-.spbwc-lang-widget__see-all:hover,
-.spbwc-lang-widget__see-all:focus {
-	color: var(--st-brand-pressed);
-	text-decoration: underline;
+/* The "See all" toggle is a real <button>, so we strip native button
+   chrome to inherit the .spbwc-block__foot-link look. */
+.spbwc-lang-block__see-all {
+	background: none;
+	border: 0;
+	padding: 0;
+	font: inherit;
+	cursor: pointer;
 }
 
-.spbwc-lang-widget__details {
+/* Collapsible "all 15 locales" details panel inside the body. */
+.spbwc-lang-block__details {
 	margin-top: var(--nbd-space-4);
 	padding: var(--nbd-space-4);
 	background: var(--nbd-st-bg-soft);
 	border: 1px solid var(--nbd-st-border-subtle);
-	border-radius: var(--nbd-radius-md);
-	font-size: 13px;
+	border-radius: var(--nbd-radius);
+	font-size: var(--text-sm, 13px);
 	line-height: 1.8;
 	color: var(--nbd-st-text-soft);
 }
 
-.spbwc-lang-widget__details strong {
+.spbwc-lang-block__details strong {
 	display: block;
 	color: var(--nbd-st-text);
 	margin-bottom: var(--nbd-space-2);
-	font-size: 13px;
+	font-size: var(--text-sm, 13px);
 }
 
-.spbwc-lang-widget__details code {
+.spbwc-lang-block__details code {
 	background: var(--nbd-st-bg);
 	border: 1px solid var(--nbd-st-border-subtle);
 	padding: 1px 6px;
 	border-radius: var(--nbd-radius-sm);
-	font-size: 12px;
-	font-family: Menlo, Consolas, "SF Mono", monospace;
+	font-size: var(--text-xs, 12px);
+	font-family: var(--font-mono, Menlo, Consolas, "SF Mono", monospace);
 	color: var(--nbd-st-text-brand);
 }
 
-.spbwc-lang-widget__details[hidden] {
+.spbwc-lang-block__details[hidden] {
 	display: none;
 }
