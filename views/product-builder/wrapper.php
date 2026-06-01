@@ -47,16 +47,24 @@
      * outside a product context (admin create-task flow). */
     $spbwc_v3_product_name = '';
     $spbwc_v3_product_specs = '';
-    $spbwc_v3_base_price_html = '';
+    $spbwc_v3_base_price_html = ''; // Single current price formatted via wc_price() — no del/ins strike markup. JS overwrites with live total via $scope.formatMoney().
     $spbwc_v3_base_price_raw = 0;
+    $spbwc_v3_regular_price_raw = 0;
+    $spbwc_v3_is_on_sale = false;
     $spbwc_v3_product_thumb = '';
     if ( $is_creating_task == 0 && function_exists( 'wc_get_product' ) ) { // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Global variable defined by parent template.
         $spbwc_v3_product = wc_get_product( get_the_ID() );
         if ( $spbwc_v3_product ) {
-            $spbwc_v3_product_name    = $spbwc_v3_product->get_name();
-            $spbwc_v3_base_price_html = $spbwc_v3_product->get_price_html();
-            $spbwc_v3_base_price_raw  = (float) $spbwc_v3_product->get_price();
-            $spbwc_v3_product_thumb   = get_the_post_thumbnail_url( $spbwc_v3_product->get_id(), 'thumbnail' );
+            $spbwc_v3_product_name      = $spbwc_v3_product->get_name();
+            $spbwc_v3_base_price_raw    = (float) $spbwc_v3_product->get_price();
+            $spbwc_v3_regular_price_raw = (float) $spbwc_v3_product->get_regular_price();
+            $spbwc_v3_is_on_sale        = $spbwc_v3_product->is_on_sale();
+            /* Use wc_price() to get just the current price formatted with the
+             * store currency — no strikethrough markup. The sale-vs-regular
+             * is surfaced as a small "Save $X" badge elsewhere, not as two
+             * stacked amounts inside the customizer. */
+            $spbwc_v3_base_price_html   = wc_price( $spbwc_v3_base_price_raw );
+            $spbwc_v3_product_thumb     = get_the_post_thumbnail_url( $spbwc_v3_product->get_id(), 'thumbnail' );
             /* Spec line — short categorical hint (e.g. "Bicycles · Frame builder"). */
             $cats = wp_get_post_terms( $spbwc_v3_product->get_id(), 'product_cat', array( 'fields' => 'names' ) );
             if ( ! is_wp_error( $cats ) && ! empty( $cats ) ) {

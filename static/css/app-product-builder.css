@@ -8221,23 +8221,25 @@ select.ng-invalid {
     align-items: center;
     justify-content: center;
 }
+/* "Coming soon" indicator — a small dot, not text. Text labels like
+ * "Soon" overflow the 72px tab column even at 8px font, so the affordance
+ * is a single accent-coloured dot at top-right + a tooltip on the tab. */
 .spbwc-cust-tabbtn__badge {
     position: absolute;
-    top: 4px;
-    right: 4px;
+    top: 6px;
+    right: 8px;
+    width: 8px;
+    height: 8px;
     background: var(--spbwc-c-accent);
-    color: #7c2d12;
-    font-size: 8px;
-    font-weight: 800;
-    padding: 1px 4px;
-    border-radius: 999px;
-    letter-spacing: 0.02em;
-    text-transform: uppercase;
-    line-height: 1.3;
-    max-width: calc(100% - 8px);
-    white-space: nowrap;
+    border-radius: 50%;
+    border: 2px solid var(--spbwc-c-bg);
+    box-sizing: content-box;
+    /* Visually-hidden text for screen readers — keep the word but hide it */
+    color: transparent;
+    font-size: 0;
     overflow: hidden;
-    text-overflow: clip;
+    padding: 0;
+    line-height: 0;
 }
 
 /* PANEL (accordion options) ----------------------------------------- */
@@ -8348,6 +8350,10 @@ select.ng-invalid {
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+    /* Preserve the admin-set title case verbatim — themes commonly
+     * uppercase nav-item / button text via `text-transform: uppercase`
+     * which would mangle "Frame Color" → "FRAME COLOR". */
+    text-transform: none;
 }
 .spbwc-cust-acc-value {
     font-size: 12px;
@@ -8766,30 +8772,64 @@ select.ng-invalid {
 .spbwc-cust-summary__choice--missing { color: var(--spbwc-c-muted); font-weight: 500; font-style: italic; }
 .spbwc-cust-summary__price--inc { color: var(--spbwc-c-muted); font-size: 11px; font-weight: 600; }
 .spbwc-cust-summary__price--add { color: var(--spbwc-c-success); font-size: 12px; font-weight: 700; }
+/* YOUR PRICE — prominent hero row above the CTA. The label is a small
+ * uppercase caption; the value is the largest type in the column so the
+ * customer's eye lands on it as the conversion anchor. */
 .spbwc-cust-summary__total {
     display: flex;
-    align-items: baseline;
+    align-items: center;
     justify-content: space-between;
     gap: 10px;
-    padding: 6px 0 14px;
+    padding: 12px 14px;
+    margin: 4px 0 12px;
+    background: var(--spbwc-c-brand-tint);
+    border: 1px solid var(--spbwc-c-brand-soft);
+    border-radius: var(--spbwc-c-radius);
 }
 .spbwc-cust-summary__total-label {
-    font-size: 13px;
-    font-weight: 600;
-    color: var(--spbwc-c-muted);
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--spbwc-c-brand-dark);
     text-transform: uppercase;
-    letter-spacing: 0.04em;
+    letter-spacing: 0.06em;
 }
 .spbwc-cust-summary__total-val {
-    font-size: 22px;
+    font-size: 24px;
     font-weight: 800;
-    color: var(--spbwc-c-ink);
-    letter-spacing: -0.015em;
+    color: var(--spbwc-c-brand-dark) !important;
+    letter-spacing: -0.02em;
+    line-height: 1.1;
 }
 .spbwc-cust-summary__total-val .amount,
-.spbwc-cust-summary__total-val bdi { color: var(--spbwc-c-brand-dark); }
+.spbwc-cust-summary__total-val bdi,
+.spbwc-cust-summary__total-val .woocommerce-Price-amount,
+.spbwc-cust-summary__total-val .woocommerce-Price-currencySymbol {
+    color: var(--spbwc-c-brand-dark) !important;
+    text-decoration: none !important;
+}
 
-/* CTA — primary Add to cart with live price + arrow */
+/* Force single-line money values everywhere in the V3 — WC sometimes
+ * wraps the amount in <bdi><span class="…currencySymbol">$</span>X</bdi>
+ * which can break onto two lines inside narrow columns. */
+.spbwc-cust-v3 .spbwc-cust-summary__val .woocommerce-Price-amount,
+.spbwc-cust-v3 .spbwc-cust-summary__val .amount,
+.spbwc-cust-v3 .spbwc-cust-topbar__base .woocommerce-Price-amount,
+.spbwc-cust-v3 .spbwc-cust-topbar__base .amount,
+.spbwc-cust-v3 [data-spbwc-base-price] .woocommerce-Price-amount,
+.spbwc-cust-v3 [data-spbwc-base-price] .amount,
+.spbwc-cust-v3 [data-spbwc-grand-total] .woocommerce-Price-amount,
+.spbwc-cust-v3 [data-spbwc-grand-total] .amount,
+.spbwc-cust-v3 [data-spbwc-cta-price] .woocommerce-Price-amount,
+.spbwc-cust-v3 [data-spbwc-cta-price] .amount {
+    white-space: nowrap;
+    display: inline;
+}
+
+/* CTA — primary Add to cart with live price + arrow.
+ * !important on text colors because Cloodo / WP themes commonly set
+ * `button { color: #000 }` with higher specificity, which would render
+ * the white label as black on the blue gradient. Also wraps any
+ * .amount / bdi (WC price markup) in the same white. */
 .spbwc-cust-cta {
     appearance: none;
     border: 0;
@@ -8797,8 +8837,8 @@ select.ng-invalid {
     width: 100%;
     padding: 14px 18px;
     border-radius: var(--spbwc-c-radius);
-    background: linear-gradient(180deg, var(--spbwc-c-brand) 0%, var(--spbwc-c-brand-dark) 100%);
-    color: #fff;
+    background: linear-gradient(180deg, var(--spbwc-c-brand) 0%, var(--spbwc-c-brand-dark) 100%) !important;
+    color: #fff !important;
     font: inherit;
     font-size: 15px;
     font-weight: 700;
@@ -8806,18 +8846,25 @@ select.ng-invalid {
     align-items: center;
     justify-content: space-between;
     gap: 10px;
-    box-shadow: 0 4px 14px -4px rgba(37, 99, 235, .45);
+    box-shadow: 0 4px 14px -4px rgba(29, 78, 216, .45);
     transition: transform .12s ease, box-shadow .15s ease, opacity .15s ease;
+    text-decoration: none;
 }
 .spbwc-cust-cta:hover {
     transform: translateY(-1px);
-    box-shadow: 0 6px 20px -6px rgba(37, 99, 235, .6);
+    box-shadow: 0 6px 20px -6px rgba(29, 78, 216, .6);
+    color: #fff !important;
 }
-.spbwc-cust-cta:active { transform: translateY(0); }
+.spbwc-cust-cta:active { transform: translateY(0); color: #fff !important; }
 .spbwc-cust-cta:disabled {
     opacity: .65;
     cursor: not-allowed;
     transform: none;
+}
+.spbwc-cust-cta__label,
+.spbwc-cust-cta__price,
+.spbwc-cust-cta__arrow {
+    color: #fff !important;
 }
 .spbwc-cust-cta__label { letter-spacing: -0.01em; }
 .spbwc-cust-cta__price {
@@ -8828,8 +8875,23 @@ select.ng-invalid {
     margin-left: auto;
 }
 .spbwc-cust-cta__price .amount,
-.spbwc-cust-cta__price bdi { color: #fff; }
-.spbwc-cust-cta__arrow { flex: 0 0 auto; opacity: .9; }
+.spbwc-cust-cta__price bdi,
+.spbwc-cust-cta__price .woocommerce-Price-amount,
+.spbwc-cust-cta__price .woocommerce-Price-currencySymbol {
+    color: #fff !important;
+    text-decoration: none !important;
+}
+.spbwc-cust-cta__arrow { flex: 0 0 auto; opacity: .95; }
+
+/* Neutralize WooCommerce price-markup decoration inside the customizer.
+ * WC ships `<del>` for old price and `<ins>` for new price; default
+ * browser style underlines <ins> and strikes-through <del>, which looks
+ * bad when both render inline in the customizer. Our wrapper.php uses
+ * wc_price() (single current price, no del/ins) so this is a defensive
+ * override for any future template that re-introduces the markup. */
+.spbwc-cust-v3 .woocommerce-Price-amount { text-decoration: none !important; }
+.spbwc-cust-v3 ins { text-decoration: none !important; background: transparent !important; }
+.spbwc-cust-v3 del { display: none !important; }
 
 .spbwc-cust-summary__actions {
     display: flex;

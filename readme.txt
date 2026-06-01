@@ -4,8 +4,8 @@ Donate link: https://storelly.com/
 Tags: product builder, product customize, product customizer, woocommerce custom product
 Requires at least: 4.7
 Tested up to: 7.0
-Stable tag: 1.3.3
-Version: 1.3.3
+Stable tag: 1.3.4
+Version: 1.3.4
 Requires PHP: 7.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -132,6 +132,9 @@ This plugin connects to the following external services:
 3. Storelly settings page with API keys and sync options
 
 == Changelog ==
+= 1.3.4 =
+* Customizer V3 polish: the "Add to cart" CTA now renders with white text on the blue gradient even when the active theme applies its own button colour. Sale-price markup is normalized inside the customizer so on-sale products no longer render two stacked prices in the topbar / summary. The "YOUR PRICE" row is now a tinted hero block so customers can see the live total at a glance. The vertical tab-nav "coming soon" indicator is now a small dot instead of a clipped text badge.
+
 = 1.3.3 =
 * Customizer V3: aligned the modal colours, spacing, and shadows with the official `_tokens.css` design system (`--st-*` / `--nbd-st-*`). The self-contained `--spbwc-c-*` tokens are now aliases that resolve to the official tokens — so when site owners theme `_tokens.css`, the customizer follows automatically.
 
