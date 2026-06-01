@@ -93,6 +93,18 @@ require_once(SPBWC_PB_PLUGIN_DIR .  'includes/class-frontend-options.php');
 require_once(SPBWC_PB_PLUGIN_DIR .  'includes/class-http.php');
 require_once(SPBWC_PB_PLUGIN_DIR .  'includes/class-productbuilder-api.php');
 require_once(SPBWC_PB_PLUGIN_DIR .  'includes/class-request-quote.php');
+
+/* B2B Quote redesign (CPT `spbwc_quote`) — see docs/SPEC_QUOTE_USER_FLOW_UX.md
+ * Part C. M1 = headless CPT + post statuses + SPBWC_Quote model. Admin reply
+ * (M2), storefront writer (M3), and buyer My-Account (M4) build on this. The
+ * legacy WC-order quote flow in class-request-quote.php stays until M7 migrates
+ * existing quotes into the CPT. */
+require_once(SPBWC_PB_PLUGIN_DIR .  'includes/quote/class-quote-model.php');
+require_once(SPBWC_PB_PLUGIN_DIR .  'includes/quote/class-quote-post-type.php');
+if ( class_exists( 'SPBWC_Quote_Post_Type' ) ) {
+    SPBWC_Quote_Post_Type::instance()->init();
+}
+
 require_once(SPBWC_PB_PLUGIN_DIR .  'includes/class-global-import.php');
 require_once(SPBWC_PB_PLUGIN_DIR .  'includes/class-global-import-admin.php');
 require_once(SPBWC_PB_PLUGIN_DIR .  'includes/class-global-import-controller.php');
