@@ -1,0 +1,215 @@
+/**
+ * Custom Quotes workspace (B2B quote redesign) — admin list + detail.
+ *
+ * Built entirely on the Storelly design tokens (_tokens.css) and the shared
+ * component library (storelly-admin-ui.css). This file only adds the few
+ * quote-specific pieces that the shared library does not provide: extra status
+ * pill variants, the two-column detail layout, the line-item builder table,
+ * the totals block, and the activity timeline.
+ *
+ * @package Storelly
+ */
+
+/* ── Status pill variants (extend .spbwc-pill from the shared library) ── */
+.spbwc-pill--info {
+    background: var(--st-pill-featured-bg);
+    color: var(--st-pill-featured-text);
+}
+.spbwc-pill--danger {
+    background: var(--st-pill-danger-bg);
+    color: var(--st-pill-danger-text);
+}
+.spbwc-pill--success {
+    background: var(--st-pill-active-bg);
+    color: var(--st-pill-active-text);
+}
+
+/* ── List: per-row action links ───────────────────────────────────────── */
+.spbwc-q-rowtitle {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+.spbwc-q-rowtitle__num {
+    font-weight: var(--font-bold);
+    color: var(--nbd-st-text-brand);
+}
+.spbwc-q-rowtitle__sub {
+    font-size: var(--text-xs);
+    color: var(--nbd-st-text-mute);
+}
+.spbwc-q-expires--soon { color: var(--nbd-color-danger); font-weight: var(--font-semibold); }
+
+/* ── Detail: two-column layout ────────────────────────────────────────── */
+.spbwc-q-detail {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 320px;
+    gap: var(--nbd-space-5);
+    align-items: start;
+}
+@media (max-width: 1100px) {
+    .spbwc-q-detail { grid-template-columns: 1fr; }
+}
+.spbwc-q-detail__main,
+.spbwc-q-detail__side {
+    display: flex;
+    flex-direction: column;
+    gap: var(--nbd-space-5);
+    min-width: 0;
+}
+
+/* ── Request recap (definition list) ──────────────────────────────────── */
+.spbwc-q-recap {
+    display: grid;
+    grid-template-columns: 160px 1fr;
+    gap: var(--nbd-space-2) var(--nbd-space-4);
+}
+.spbwc-q-recap__label {
+    font-size: var(--text-xs);
+    text-transform: uppercase;
+    letter-spacing: .03em;
+    color: var(--nbd-st-text-mute);
+    font-weight: var(--font-semibold);
+    padding-top: 2px;
+}
+.spbwc-q-recap__value {
+    font-size: 13px;
+    color: var(--nbd-st-text);
+    word-break: break-word;
+}
+
+/* ── Line-item builder ────────────────────────────────────────────────── */
+.spbwc-q-lines { width: 100%; border-collapse: collapse; }
+.spbwc-q-lines th {
+    font-size: var(--text-xs);
+    text-transform: uppercase;
+    letter-spacing: .03em;
+    color: var(--nbd-st-text-mute);
+    text-align: left;
+    padding: var(--nbd-space-2) var(--nbd-space-3);
+    border-bottom: 1px solid var(--nbd-st-border-light);
+}
+.spbwc-q-lines th.spbwc-q-num,
+.spbwc-q-lines td.spbwc-q-num { text-align: right; width: 110px; }
+.spbwc-q-lines th.spbwc-q-act,
+.spbwc-q-lines td.spbwc-q-act { width: 40px; text-align: center; }
+.spbwc-q-lines td {
+    padding: var(--nbd-space-2) var(--nbd-space-3);
+    border-bottom: 1px solid var(--nbd-st-border-subtle);
+    vertical-align: top;
+}
+.spbwc-q-line-input {
+    width: 100%;
+    padding: 7px 10px;
+    border: 1px solid var(--nbd-st-border-light);
+    border-radius: var(--nbd-radius-sm);
+    font-size: 13px;
+    background: var(--nbd-st-bg-input);
+    box-shadow: var(--shadow-input-inset);
+}
+.spbwc-q-line-input:focus {
+    border-color: var(--st-brand);
+    box-shadow: var(--shadow-input-focus);
+    outline: none;
+}
+.spbwc-q-line-input--num { text-align: right; }
+.spbwc-q-line-total {
+    font-variant-numeric: tabular-nums;
+    font-weight: var(--font-semibold);
+    color: var(--nbd-st-text);
+    white-space: nowrap;
+}
+
+/* ── Totals block ─────────────────────────────────────────────────────── */
+.spbwc-q-totals {
+    margin-left: auto;
+    width: 320px;
+    max-width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: var(--nbd-space-1);
+}
+.spbwc-q-totals__row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: var(--nbd-space-4);
+    padding: 4px 0;
+    font-size: 13px;
+    color: var(--nbd-st-text-soft);
+}
+.spbwc-q-totals__row input {
+    width: 120px;
+    text-align: right;
+}
+.spbwc-q-totals__row--grand {
+    border-top: 1px solid var(--nbd-st-border-light);
+    margin-top: var(--nbd-space-1);
+    padding-top: var(--nbd-space-2);
+    font-size: var(--text-lg);
+    font-weight: var(--font-bold);
+    color: var(--nbd-st-text);
+}
+
+/* ── Terms grid ───────────────────────────────────────────────────────── */
+.spbwc-q-terms {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: var(--nbd-space-4);
+}
+.spbwc-q-field { display: flex; flex-direction: column; gap: 6px; }
+.spbwc-q-field > label {
+    font-size: var(--text-xs);
+    text-transform: uppercase;
+    letter-spacing: .03em;
+    color: var(--nbd-st-text-mute);
+    font-weight: var(--font-semibold);
+}
+
+/* ── Activity timeline ────────────────────────────────────────────────── */
+.spbwc-q-timeline { display: flex; flex-direction: column; gap: 0; }
+.spbwc-q-timeline__item {
+    position: relative;
+    padding: 0 0 var(--nbd-space-4) var(--nbd-space-5);
+    border-left: 2px solid var(--nbd-st-border-light);
+}
+.spbwc-q-timeline__item:last-child { border-left-color: transparent; padding-bottom: 0; }
+.spbwc-q-timeline__dot {
+    position: absolute;
+    left: -6px;
+    top: 2px;
+    width: 10px;
+    height: 10px;
+    border-radius: var(--nbd-radius-pill);
+    background: var(--st-brand);
+    box-shadow: 0 0 0 3px var(--st-brand-tint);
+}
+.spbwc-q-timeline__body { font-size: 13px; color: var(--nbd-st-text); }
+.spbwc-q-timeline__time { font-size: var(--text-xs); color: var(--nbd-st-text-mute); margin-top: 2px; }
+
+/* ── Sidebar meta card ────────────────────────────────────────────────── */
+.spbwc-q-meta { display: flex; flex-direction: column; gap: var(--nbd-space-2); }
+.spbwc-q-meta__row { display: flex; justify-content: space-between; gap: var(--nbd-space-3); font-size: 13px; }
+.spbwc-q-meta__label { color: var(--nbd-st-text-mute); }
+.spbwc-q-meta__value { color: var(--nbd-st-text); font-weight: var(--font-medium); text-align: right; word-break: break-word; }
+
+/* ── Action bar (detail footer) ───────────────────────────────────────── */
+.spbwc-q-actionbar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--nbd-space-3);
+    align-items: center;
+}
+.spbwc-q-actionbar .spbwc-q-spacer { flex: 1; }
+
+/* ── Back link ────────────────────────────────────────────────────────── */
+.spbwc-q-back {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    margin-bottom: var(--nbd-space-3);
+    font-size: 13px;
+    text-decoration: none;
+    color: var(--nbd-st-text-soft);
+}
+.spbwc-q-back:hover { color: var(--st-brand); }

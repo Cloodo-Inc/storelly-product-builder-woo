@@ -489,6 +489,11 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
                 wp_enqueue_style('spbwc-products-css');
             }
 
+            // Custom Quotes workspace (B2B quote redesign) — list + detail screens.
+            if ( class_exists( 'SPBWC_Quote_Admin' ) && false !== strpos( $hook, SPBWC_Quote_Admin::PAGE_SLUG ) ) {
+                wp_enqueue_style( 'spbwc-quotes-admin', SPBWC_PB_CSS_URL . 'quotes-admin.css', array( 'spbwc-admin-ui' ), SPBWC_PB_VERSION );
+            }
+
             wp_localize_script('spbwc-general-js', 'storelly_admin', array(
                 'url'       => admin_url('admin-ajax.php'),
                 'nonce'     => wp_create_nonce( 'spbwc_download_order_designs' ),
