@@ -97,7 +97,7 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
             $product_cats = array_map('absint', $product_cats);
             return array_filter(array_unique($product_cats));
         }
-        protected function spbwc_flush_option_caches($option_id = 0, $product_ids = array()) {
+        public function spbwc_flush_option_caches($option_id = 0, $product_ids = array()) {
             if ($option_id > 0) {
                 wp_cache_delete($this->spbwc_cache_key_option($option_id), self::CACHE_GROUP);
             }
@@ -2011,6 +2011,23 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
             if ($result) {
                 $affected_products = array_merge($product_ids, $previous_product_ids);
                 $this->spbwc_flush_option_caches($id, $affected_products);
+
+                // Sync the per-product authoritative pointer (_spbwc_option_id)
+                // so the resolver short-circuits to this option without scanning
+                // the table. See docs/SPEC_PRICING_OPTION_ASSIGNMENT.md §3.3.
+                $new_set      = ('p' === $apply_for) ? array_map('absint', $product_ids) : array();
+                $previous_set = array_map('absint', $previous_product_ids);
+                foreach ($new_set as $pid) {
+                    if ($pid > 0) {
+                        update_post_meta($pid, '_spbwc_option_id', $id);
+                    }
+                }
+                $removed = array_diff($previous_set, $new_set);
+                foreach ($removed as $pid) {
+                    if ($pid > 0 && (int) get_post_meta($pid, '_spbwc_option_id', true) === (int) $id) {
+                        delete_post_meta($pid, '_spbwc_option_id');
+                    }
+                }
             }
             do_action('storelly_save_print_option', $arr);
             return array(
@@ -2812,6 +2829,10 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
                 $option_row = $this->spbwc_get_option($option_id);
                 $option_title = is_array($option_row) && !empty($option_row['title']) ? $option_row['title'] : '';
             }
+            // Defensive: surface legacy data where more than one product-level
+            // option still claims this product. The new apply/save paths prevent
+            // this; the warning helps merchants clean up older duplicates.
+            $extra_options = $this->spbwc_find_extra_product_level_options($post_id, $option_id);
             $link_edit_option   = add_query_arg(
                 array(
                     'product_id'    => $post_id,
@@ -2824,47 +2845,128 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
             include_once(SPBWC_PB_PLUGIN_DIR . 'views/options/meta-box.php');
         }
         public function spbwc_get_product_option($product_id) {
-            $option_id = get_transient('spbwc_product_builder_' . $product_id);
-            if (false === $option_id) {
-                $options   = $this->spbwc_get_cached_published_options();
-                $option_id = '';
-                if (!empty($options)) {
-                    $_options = array();
-                    $product_cat_ids = array();
+            $product_id = absint($product_id);
+            if ($product_id <= 0) {
+                return '';
+            }
+            $cache_key = 'spbwc_product_builder_' . $product_id;
+            $cached    = get_transient($cache_key);
+            if (false !== $cached) {
+                return $cached;
+            }
 
-                    foreach ($options as $option) {
-                        $apply_for = isset($option['apply_for']) ? $option['apply_for'] : 'p';
-                        if ('p' === $apply_for) {
-                            $products = $this->spbwc_extract_product_ids_from_option($option);
-                            if (in_array($product_id, $products, true)) {
-                                $_options[] = $option;
-                            }
-                        } else {
-                            if (empty($product_cat_ids)) {
-                                $terms = get_the_terms($product_id, 'product_cat');
-                                if (!is_wp_error($terms) && !empty($terms)) {
-                                    foreach ($terms as $term) {
-                                        $product_cat_ids[] = $term->term_id;
-                                    }
+            // Step 1 — authoritative per-product pointer. Written whenever a
+            // product is explicitly added to a product-level option (via the
+            // builder save handler or the template applier). Validated against
+            // the option still existing and still being published.
+            // See docs/SPEC_PRICING_OPTION_ASSIGNMENT.md §3.2.
+            $pointer = (int) get_post_meta($product_id, '_spbwc_option_id', true);
+            if ($pointer > 0) {
+                $pointed = $this->spbwc_get_option($pointer);
+                if (is_array($pointed) && isset($pointed['published']) && 1 === (int) $pointed['published']) {
+                    set_transient($cache_key, $pointer);
+                    return $pointer;
+                }
+            }
+
+            // Step 2 — fallback scan for legacy data with no pointer. Product-
+            // level ('p') matches always beat category-level ('c') matches
+            // (Rule 3); newest id wins inside the chosen tier as the
+            // deterministic tiebreaker.
+            $options   = $this->spbwc_get_cached_published_options();
+            $option_id = '';
+            if (!empty($options)) {
+                $p_bucket        = array();
+                $c_bucket        = array();
+                $product_cat_ids = null;
+
+                foreach ($options as $option) {
+                    $apply_for = isset($option['apply_for']) ? $option['apply_for'] : 'p';
+                    if ('p' === $apply_for) {
+                        $products = $this->spbwc_extract_product_ids_from_option($option);
+                        if (in_array($product_id, $products, true)) {
+                            $p_bucket[] = $option;
+                        }
+                    } elseif ('c' === $apply_for) {
+                        if (null === $product_cat_ids) {
+                            $product_cat_ids = array();
+                            $terms = get_the_terms($product_id, 'product_cat');
+                            if (!is_wp_error($terms) && !empty($terms)) {
+                                foreach ($terms as $term) {
+                                    $product_cat_ids[] = (int) $term->term_id;
                                 }
                             }
+                        }
+                        if (!empty($product_cat_ids)) {
                             $option_cats = $this->spbwc_extract_product_cats_from_option($option);
-                            $intersect = array_intersect($product_cat_ids, $option_cats);
+                            $intersect   = array_intersect($product_cat_ids, $option_cats);
                             if (!empty($intersect)) {
-                                $_options[] = $option;
+                                $c_bucket[] = $option;
                             }
                         }
                     }
-                    if (!empty($_options)) {
-                        $_options = array_reverse($_options);
-                        $option_id = isset($_options[0]['id']) ? absint($_options[0]['id']) : '';
+                }
+
+                $bucket = !empty($p_bucket) ? $p_bucket : $c_bucket;
+                if (!empty($bucket)) {
+                    $picked = $bucket[0];
+                    foreach ($bucket as $row) {
+                        if (isset($row['id'], $picked['id']) && (int) $row['id'] > (int) $picked['id']) {
+                            $picked = $row;
+                        }
                     }
-                    if ($option_id) {
-                        set_transient('spbwc_product_builder_' . $product_id, $option_id);
-                    }
+                    $option_id = isset($picked['id']) ? absint($picked['id']) : '';
+                }
+                if ($option_id) {
+                    set_transient($cache_key, $option_id);
                 }
             }
             return $option_id;
+        }
+
+        /**
+         * Find published product-level ('p') options that still list this product
+         * besides the currently-rendered one. Used by the product edit metabox to
+         * surface legacy duplicates so the merchant can clean them up.
+         *
+         * @param int $product_id        Product post ID.
+         * @param int $exclude_option_id Option ID to omit from results (usually the
+         *                               currently rendered one).
+         * @return array<int, array{id:int, title:string}>
+         */
+        public function spbwc_find_extra_product_level_options($product_id, $exclude_option_id = 0) {
+            $product_id        = absint($product_id);
+            $exclude_option_id = absint($exclude_option_id);
+            if ($product_id <= 0) {
+                return array();
+            }
+            $extras  = array();
+            $options = $this->spbwc_get_cached_published_options();
+            foreach ((array) $options as $option) {
+                $apply_for = isset($option['apply_for']) ? $option['apply_for'] : 'p';
+                if ('p' !== $apply_for) {
+                    continue;
+                }
+                $oid = isset($option['id']) ? absint($option['id']) : 0;
+                if ($oid <= 0 || $oid === $exclude_option_id) {
+                    continue;
+                }
+                $pids = $this->spbwc_extract_product_ids_from_option($option);
+                if (!in_array($product_id, $pids, true)) {
+                    continue;
+                }
+                $full     = $this->spbwc_get_option($oid);
+                $fallback = sprintf(
+                    /* translators: %d is the numeric option id used as a fallback when an option row has no title. */
+                    esc_html__('Option #%d', 'storelly-product-builder-for-woocommerce'),
+                    $oid
+                );
+                $extras[] = array(
+                    'id'    => $oid,
+                    'title' => is_array($full) && !empty($full['title']) ? (string) $full['title'] : $fallback,
+                );
+            }
+            return $extras;
         }
         public function spbwc_save_product_option($post_id) {
             if (

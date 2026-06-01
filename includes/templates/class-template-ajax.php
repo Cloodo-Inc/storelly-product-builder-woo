@@ -79,9 +79,17 @@ if ( ! class_exists( 'SPBWC_Template_Ajax' ) ) {
 			// phpcs:ignore WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Nonce verified above; array values sanitized with absint on next line.
 			$scope_raw = isset( $_POST['scope_ids'] ) ? (array) wp_unslash( $_POST['scope_ids'] ) : array();
 			$scope_ids = array_map( 'absint', $scope_raw );
+			// phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce verified in verify_request() called above.
+			$force = isset( $_POST['force'] ) && '1' === (string) wp_unslash( $_POST['force'] );
 
-			$result = SPBWC_Template_Applier::instance()->apply( $slug, $apply_for, $scope_ids, $custom_title );
+			$result = SPBWC_Template_Applier::instance()->apply( $slug, $apply_for, $scope_ids, $custom_title, $force );
 
+			// Conflict — HTTP 200 with success:false + conflict:true so the JS
+			// client can render a confirm dialog without treating it as an error.
+			// See docs/SPEC_PRICING_OPTION_ASSIGNMENT.md §3.4.
+			if ( ! empty( $result['conflict'] ) ) {
+				wp_send_json_success( $result );
+			}
 			if ( empty( $result['success'] ) ) {
 				wp_send_json_error( array( 'message' => $result['message'] ?? '' ), 400 );
 			}

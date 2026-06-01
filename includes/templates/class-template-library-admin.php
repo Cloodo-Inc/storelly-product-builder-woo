@@ -138,6 +138,14 @@ if ( ! class_exists( 'SPBWC_Template_Library_Admin' ) ) {
 						/* translators: shown in the subtitle: "Stationery · 4 fields · with <product name>" */
 						'previewWith'        => esc_html__( 'with', 'storelly-product-builder-for-woocommerce' ),
 						'previewAgainstProduct' => esc_html__( 'Use sample base price', 'storelly-product-builder-for-woocommerce' ),
+						/* translators: confirm-dialog heading shown when one or more selected products are already assigned to another pricing option. */
+						'applyConflictTitle'    => esc_html__( 'Replace existing pricing option?', 'storelly-product-builder-for-woocommerce' ),
+						'applyConflictIntro'    => esc_html__( 'The following products are already assigned to another pricing option. Continuing will move them to the new option.', 'storelly-product-builder-for-woocommerce' ),
+						/* translators: 1: product title, 2: current pricing option title. Format used as a bullet item in the confirm dialog. */
+						'applyConflictItem'     => esc_html__( '%1$s — currently uses "%2$s"', 'storelly-product-builder-for-woocommerce' ),
+						'applyConflictConfirm'  => esc_html__( 'Yes, replace', 'storelly-product-builder-for-woocommerce' ),
+						'applyConflictCancel'   => esc_html__( 'Cancel', 'storelly-product-builder-for-woocommerce' ),
+						'applyConflictUntitled' => esc_html__( '(untitled)', 'storelly-product-builder-for-woocommerce' ),
 					),
 				)
 			);

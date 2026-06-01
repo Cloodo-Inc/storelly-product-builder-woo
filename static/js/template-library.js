@@ -683,6 +683,16 @@
 		// assignment later from the Pricing Options screen.
 		// (No validation block here — empty scope_ids is a valid submission.)
 
+		postApply(mode, scope, false);
+	}
+
+	// Issues the apply POST (with optional force=1 after the conflict confirm).
+	// Splitting this out lets the conflict dialog re-invoke the same flow
+	// without rebuilding the form state.
+	function postApply(mode, scope, force) {
+		var $err    = $('#spbwc-tl-apply-error');
+		var $submit = $('#spbwc-tl-apply-submit');
+		$err.prop('hidden', true).find('p').text('');
 		$submit.prop('disabled', true).text(L.i18n.applying);
 
 		$.post(L.ajaxUrl, {
@@ -691,8 +701,20 @@
 			slug: $('#spbwc-tl-apply-slug').val(),
 			title: $('#spbwc-tl-apply-title').val(),
 			apply_for: mode,
-			scope_ids: scope
+			scope_ids: scope,
+			force: force ? 1 : 0
 		}).done(function (resp) {
+			// Conflict — server detected products already assigned to another
+			// product-level option. Ask the merchant whether to move them, and
+			// resubmit with force=1 on confirm.
+			if (resp && resp.success && resp.data && resp.data.conflict) {
+				if (confirmConflict(resp.data.conflicts || [])) {
+					postApply(mode, scope, true);
+				} else {
+					$submit.prop('disabled', false).html(applySubmitHtml);
+				}
+				return;
+			}
 			if (!resp || !resp.success) {
 				$err.find('p').text((resp && resp.data && resp.data.message) || L.i18n.genericError);
 				$err.prop('hidden', false);
@@ -730,6 +752,33 @@
 				applySubmitHtml
 			);
 		});
+	}
+
+	// Show a blocking confirm listing each product → its current pricing option.
+	// We deliberately use window.confirm() rather than building another <dialog>
+	// — the message is short, keyboard-accessible, and avoids stacking on top
+	// of the Apply dialog. Returns true if the merchant accepts the replacement.
+	function confirmConflict(conflicts) {
+		var title    = L.i18n.applyConflictTitle || 'Replace existing pricing option?';
+		var intro    = L.i18n.applyConflictIntro || '';
+		var itemTpl  = L.i18n.applyConflictItem || '%1$s — currently uses "%2$s"';
+		var untitled = L.i18n.applyConflictUntitled || '(untitled)';
+
+		var lines = conflicts.map(function (c) {
+			var productName = (c.product_title && String(c.product_title).trim()) ||
+				('#' + (c.product_id || ''));
+			var optionName  = (c.current_option_title && String(c.current_option_title).trim()) ||
+				untitled;
+			return '• ' + itemTpl
+				.replace('%1$s', productName)
+				.replace('%2$s', optionName);
+		});
+
+		var body = title + '\n\n' + intro + (intro ? '\n\n' : '') + lines.join('\n');
+		// `confirm` returns true on OK and false on Cancel — matches the
+		// caller's truthy/falsy branch.
+		// eslint-disable-next-line no-alert
+		return window.confirm(body);
 	}
 
 	// ─── Dialog helpers ──────────────────────────────────────────────
