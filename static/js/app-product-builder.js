@@ -797,55 +797,99 @@ nbdpbApp.controller("nbpbCtrl", [
       }
       return new Blob([uInt8Array], { type: contentType });
     };
+    /* Update the loader card produced by views/product-builder/wrapper.php — the
+     * label drives the buyer's perception of progress, the bar grows through the
+     * fixed phases below. No-op if the elements aren't present (e.g. inside the
+     * creating-task wizard which uses a different loader). */
+    $scope.setBuilderProgress = function (text, percent) {
+      var lab = document.querySelector('[data-spbwc-loader-label]');
+      var bar = document.querySelector('[data-spbwc-loader-fill]');
+      if (lab && typeof text === 'string') { lab.textContent = text; }
+      if (bar && typeof percent === 'number') { bar.style.width = Math.max(0, Math.min(100, percent)) + '%'; }
+    };
+    /* Lightweight timing — logs each phase of the "Done" flow to the console so we
+     * can see where wall-clock time is actually going. Pair with server-side
+     * `error_log` profiling in spbwc_save_product_builder_design (WP_DEBUG or
+     * SPBWC_PB_PROFILE_SAVE). */
+    var spbwcSaveT0 = 0, spbwcSavePrev = 0;
+    $scope.spbwcMarkSave = function (label) {
+      var now = (window.performance && performance.now) ? performance.now() : Date.now();
+      var step = (now - spbwcSavePrev) | 0, total = (now - spbwcSaveT0) | 0;
+      try { console.log('[SPBWC save] %s  step=%dms  total=%dms', label, step, total); } catch (e) {}
+      spbwcSavePrev = now;
+    };
     $scope.saveData = function () {
+      var i18n = (SPBWC_PB_CONFIG && SPBWC_PB_CONFIG.i18n) || {};
+      spbwcSaveT0 = (window.performance && performance.now) ? performance.now() : Date.now();
+      spbwcSavePrev = spbwcSaveT0;
+      $scope.spbwcMarkSave('saveData() start');
       $scope.toggleAppLoading();
+      $scope.setBuilderProgress(i18n.preparing_design || 'Preparing your design…', 5);
       jQuery(".pcpb-custom-design").empty().hide();
-      $scope.saveDesign();
-      $scope.resource.config.views = $scope.resource.views;
-      $scope.resource.config.viewport = $scope.calcViewport();
-      var dataObj = {};
-      dataObj.design = new Blob([JSON.stringify($scope.resource.jsonDesign)], {
-        type: "application/json",
-      });
-      _.each($scope.stages, function (stage, index) {
-        var key = "frame_" + index;
-        var svgKey = "frame_" + index + "_svg";
-        dataObj[key] = $scope.makeblob(stage.design);
-        dataObj[svgKey] = new Blob([stage.svg], { type: "image/svg+xml" });
-      });
-      ["pcpb_cart_item_key", "is_creating_task", "oid"].forEach(function (key) {
-        dataObj[key] = SPBWC_PB_CONFIG[key];
-      });
-      var $prcpbFolder = jQuery(".variations_form, form.cart").find(
-        'input[name="prcpb-folder"]'
-      );
-      if ($prcpbFolder.length && $prcpbFolder.val()) {
-        dataObj.prcpb_folder = $prcpbFolder.val();
-      }
-      dataObj.config = new Blob([JSON.stringify($scope.resource.config)], {
-        type: "application/json",
-      });
-      dataObj.used_font = new Blob(
-        [JSON.stringify($scope.resource.used_font)],
-        {
+      var totalStages = ($scope.stages && $scope.stages.length) || 1;
+      /* saveDesign() per-stage callback: drives 5% → 45% across N stages. */
+      $scope.onStageProcessed = function (done) {
+        var pct = 5 + Math.round((done / totalStages) * 40);
+        var tmpl = i18n.preparing_view || 'Preparing view %1 of %2…';
+        $scope.setBuilderProgress(tmpl.replace('%1', done).replace('%2', totalStages), pct);
+      };
+      /* saveDesign now returns a Promise — toBlob() is async, so we await it. */
+      Promise.resolve($scope.saveDesign()).then(function () {
+        $scope.spbwcMarkSave('saveDesign() done (canvas → blobs)');
+        $scope.setBuilderProgress(i18n.uploading || 'Uploading your design…', 50);
+        $scope.resource.config.views = $scope.resource.views;
+        $scope.resource.config.viewport = $scope.calcViewport();
+        var dataObj = {};
+        dataObj.design = new Blob([JSON.stringify($scope.resource.jsonDesign)], {
           type: "application/json",
+        });
+        _.each($scope.stages, function (stage, index) {
+          var key = "frame_" + index;
+          var svgKey = "frame_" + index + "_svg";
+          /* Prefer the Blob produced by toBlob() (no base64 decode), fall back to
+           * makeblob(dataURL) for the older sync path when toBlob isn't available. */
+          dataObj[key] = stage.designBlob || $scope.makeblob(stage.design);
+          dataObj[svgKey] = new Blob([stage.svg], { type: "image/svg+xml" });
+        });
+        ["pcpb_cart_item_key", "is_creating_task", "oid"].forEach(function (key) {
+          dataObj[key] = SPBWC_PB_CONFIG[key];
+        });
+        var $prcpbFolder = jQuery(".variations_form, form.cart").find(
+          'input[name="prcpb-folder"]'
+        );
+        if ($prcpbFolder.length && $prcpbFolder.val()) {
+          dataObj.prcpb_folder = $prcpbFolder.val();
         }
-      );
-      dataObj.design_output = new Blob(
-        [JSON.stringify($scope.resource.design_output)],
-        {
+        dataObj.config = new Blob([JSON.stringify($scope.resource.config)], {
           type: "application/json",
-        }
-      );
-      var action = "spbwc_save_product_builder_design";
-      NBDDataFactory.get(action, dataObj, function (data) {
+        });
+        dataObj.used_font = new Blob(
+          [JSON.stringify($scope.resource.used_font)],
+          {
+            type: "application/json",
+          }
+        );
+        dataObj.design_output = new Blob(
+          [JSON.stringify($scope.resource.design_output)],
+          {
+            type: "application/json",
+          }
+        );
+        /* From here the server takes over (rasterize + composite + write files). */
+        $scope.spbwcMarkSave('FormData built; about to POST');
+        $scope.setBuilderProgress(i18n.generating_preview || 'Generating preview…', 80);
+        var action = "spbwc_save_product_builder_design";
+        NBDDataFactory.get(action, dataObj, function (data) {
+        $scope.spbwcMarkSave('server response received');
         data = JSON.parse(data);
         if (data.flag == "success") {
+          $scope.setBuilderProgress(i18n.done || 'Done', 100);
           if ($scope.settings.is_creating_task == 1) {
             if ($scope.settings.redirect_url != "")
               window.location = $scope.settings.redirect_url;
           } else {
-            $scope.toggleAppLoading();
+            /* small delay so the user catches "Done" before the overlay fades. */
+            setTimeout(function () { $scope.toggleAppLoading(); }, 220);
             jQuery(".pcpb-custom-design").empty().show();
             _.each(data.image, function (image) {
               image += "?t=" + Math.random();
@@ -891,32 +935,62 @@ nbdpbApp.controller("nbpbCtrl", [
           $scope.toggleAppLoading();
           alert(SPBWC_PB_CONFIG.i18n.can_not_save_design);
         }
-      });
+        });   // close NBDDataFactory.get callback
+      });     // close Promise.resolve(saveDesign).then(...)
     };
+    /* saveDesign: now async (returns Promise) — canvas.toBlob() is async, so we
+     * gather all stages' Blobs via Promise.all. The Blob path avoids the sync
+     * canvas.toDataURL() + base64 → ArrayBuffer roundtrip that was blocking the
+     * main thread per stage. SVG still uses canvas.toSVG() (the rare fallback
+     * path lazily encodes a dataURL only if toSVG() throws). Older browsers /
+     * fabric versions without toCanvasElement/toBlob fall back to the sync path. */
     $scope.saveDesign = function () {
       var used_font = [];
-      _.each($scope.stages, function (stage, index) {
-        $scope.deactiveAllLayer(index);
-        var _canvas = stage.canvas;
-        $scope.renderStage(index);
-        $scope.resource.jsonDesign[index] = _canvas.toJSON(
-          $scope.includeExport
-        );
-        _canvas.getObjects().forEach(function (obj) {
-          if (
-            ["i-text", "text", "textbox", "curvedText"].indexOf(obj.type) > -1
-          ) {
-            if (!_.filter(used_font, ["alias", obj.fontFamily]).length) {
-              var font = $scope.getFontInfo(obj.fontFamily);
-              used_font.push(font);
+      var stages = $scope.stages || [];
+      var promises = stages.map(function (stage, index) {
+        return new Promise(function (resolve) {
+          $scope.deactiveAllLayer(index);
+          var _canvas = stage.canvas;
+          $scope.renderStage(index);
+          $scope.resource.jsonDesign[index] = _canvas.toJSON($scope.includeExport);
+          _canvas.getObjects().forEach(function (obj) {
+            if (["i-text", "text", "textbox", "curvedText"].indexOf(obj.type) > -1) {
+              if (!_.filter(used_font, ["alias", obj.fontFamily]).length) {
+                used_font.push($scope.getFontInfo(obj.fontFamily));
+              }
             }
+          });
+          var bufferCanvas = (typeof _canvas.toCanvasElement === 'function')
+            ? _canvas.toCanvasElement(1)
+            : (_canvas.lowerCanvasEl || null);
+          var done = function () {
+            if (typeof $scope.onStageProcessed === 'function') {
+              $scope.onStageProcessed(index + 1);
+            }
+            resolve();
+          };
+          if (bufferCanvas && typeof bufferCanvas.toBlob === 'function') {
+            bufferCanvas.toBlob(function (blob) {
+              stage.designBlob = blob;
+              try {
+                stage.svg = _canvas.toSVG();
+              } catch (e) {
+                var raster = bufferCanvas.toDataURL ? bufferCanvas.toDataURL() : '';
+                stage.svg = spbwcFabricCanvasToSVGOrFallback(_canvas, raster);
+              }
+              done();
+            }, 'image/png');
+          } else {
+            /* Sync fallback for environments without canvas.toBlob(). */
+            var raster = _canvas.toDataURL();
+            stage.design = raster;
+            stage.svg = spbwcFabricCanvasToSVGOrFallback(_canvas, raster);
+            done();
           }
         });
-        var raster = _canvas.toDataURL();
-        stage.design = raster;
-        stage.svg = spbwcFabricCanvasToSVGOrFallback(_canvas, raster);
       });
       $scope.resource.used_font = used_font;
+      return Promise.all(promises);
     };
     $scope.getFontInfo = function (alias) {
       var font = _.filter(SPBWC_PB_CONFIG.fonts, { alias: alias })[0],

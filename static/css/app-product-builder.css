@@ -7244,3 +7244,81 @@ select.ng-invalid {
     overflow-x: scroll;
   }
 }
+
+/* ════════════════════════════════════════════════════════════
+   Designer Customizer loader: multi-step progress card.
+   Replaces the bare spinner that gave buyers no feedback during the
+   "Done" flow (Preparing design → Preparing view N/M → Uploading →
+   Generating preview → Done). The label + bar are driven from
+   app-product-builder.js > $scope.setBuilderProgress(text, percent).
+   `!important` is needed in a few places because the legacy
+   `.nbdpb-load-page .nbpb-loader` rule above sets `top:50%; left:50%;
+   margin:-50px auto 0 -50px` for a full-screen-overlay-centered spinner
+   layout — that pushes the spinner off-axis when nested inside the new
+   card. We override per-element back to a normal flex flow. */
+.nbdpb-load-page {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+}
+.nbpb-loader-card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 18px;
+    padding: 36px 40px;
+    min-width: 320px;
+    max-width: 420px;
+    background: #ffffff;
+    border-radius: 18px;
+    box-shadow: 0 24px 56px rgba(0, 0, 0, 0.22), 0 4px 14px rgba(0, 0, 0, 0.08);
+}
+/* Override legacy `.nbdpb-load-page .nbpb-loader` so the spinner sits as a
+   normal flex item inside the card, not absolutely-positioned. */
+.nbpb-loader-card .nbpb-loader {
+    position: relative !important;
+    top: auto !important;
+    left: auto !important;
+    margin: 0 !important;
+    width: 56px !important;
+    height: 56px !important;
+}
+.nbpb-loader-card .nbpb-loader::before { display: none !important; }
+/* Same override for the inner SVG. */
+.nbpb-loader-card .circular {
+    position: relative !important;
+    top: auto !important;
+    left: auto !important;
+    right: auto !important;
+    bottom: auto !important;
+    margin: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+}
+.nbpb-loader-label {
+    font-size: 15px;
+    font-weight: 600;
+    color: #1c1917;
+    text-align: center;
+    line-height: 1.45;
+    min-height: 1.45em;
+    letter-spacing: -0.005em;
+}
+.nbpb-loader-track {
+    width: 100%;
+    height: 8px;
+    background: #eef0f3;
+    border-radius: 999px;
+    overflow: hidden;
+}
+.nbpb-loader-fill {
+    height: 100%;
+    width: 5%;
+    background: linear-gradient(90deg, #3b82f6 0%, #1d4ed8 100%);
+    border-radius: 999px;
+    transition: width 0.28s ease;
+}
+@media (prefers-reduced-motion: reduce) {
+    .nbpb-loader-fill { transition: none; }
+}

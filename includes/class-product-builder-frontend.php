@@ -129,6 +129,20 @@ if (!class_exists('SPBWC_Storelly_Product_Builder_Frontend')) {
         }
         public function spbwc_save_product_builder_design()
         {
+            // Lightweight timing instrumentation — toggle via WP_DEBUG. Helps pinpoint
+            // which step of the "Done" save flow dominates real wall-clock time so we
+            // optimize the actual bottleneck instead of guessing. Set
+            //   define('SPBWC_PB_PROFILE_SAVE', true);
+            // in wp-config.php to enable logging without WP_DEBUG.
+            $spbwc_profile = ( defined('WP_DEBUG') && WP_DEBUG ) || ( defined('SPBWC_PB_PROFILE_SAVE') && SPBWC_PB_PROFILE_SAVE );
+            $spbwc_t0 = microtime(true);
+            $spbwc_t_prev = $spbwc_t0;
+            $spbwc_mark = function ( $label ) use ( $spbwc_profile, $spbwc_t0, &$spbwc_t_prev ) {
+                if ( ! $spbwc_profile ) { return; }
+                $now = microtime(true);
+                error_log(sprintf('[SPBWC save] %-26s  step=%6.0fms  total=%6.0fms', $label, ($now - $spbwc_t_prev) * 1000, ($now - $spbwc_t0) * 1000)); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+                $spbwc_t_prev = $now;
+            };
             // 1. SECURITY & PERMISSIONS
 
 
@@ -136,6 +150,7 @@ if (!class_exists('SPBWC_Storelly_Product_Builder_Frontend')) {
             if (!$nonce_value || !wp_verify_nonce($nonce_value, 'spbwc_save_design_action')) {
                 wp_send_json_error(array('message' => __('Security error.', 'storelly-product-builder-for-woocommerce')), 403);
             }
+            $spbwc_mark('nonce verified');
 
             // 2. INITIALIZE VARIABLES
             $result = array(
@@ -215,11 +230,14 @@ if (!class_exists('SPBWC_Storelly_Product_Builder_Frontend')) {
                 }
             }
 
+            $spbwc_mark('files filtered (' . count($filtered_files) . ')');
             // 5. SAVE DATA
             $save_status = $this->spbwc_store_product_builder_design_data($pcpb_item_pb_key, $filtered_files);
+            $spbwc_mark('store_design_data (disk)');
 
             if (false != $save_status) {
                 $result['image'] = $this->spbwc_create_preview($path);
+                $spbwc_mark('create_preview (Imagick/GD)');
 
                 if (is_array($result['image'])) {
                     asort($result['image']);
@@ -271,35 +289,71 @@ if (!class_exists('SPBWC_Storelly_Product_Builder_Frontend')) {
             $config_raw = SPBWC_Storelly_IO::spbwc_get_local_file_contents($path . '/config.json');
             $config = (false !== $config_raw) ? json_decode($config_raw) : null;
             $images = array();
-            if (wp_mkdir_p($path . '/preview')) {
-                foreach ($config->views as $index => $view) {
-                    $design_path = $path . '/frame_' . $index . '.png';
-                    if (file_exists($design_path)) {
-                        list($width, $height) = getimagesize($design_path);
-                        $width = intval($width);
-                        $height = intval($height);
-                        $base_img_path = SPBWC_Storelly_IO::spbwc_convert_url_to_path($view->base_url);
-                        if (is_file($base_img_path)) {
-                            $base_img_info = pathinfo($base_img_path);
-                            if ($base_img_info['extension'] == "png") {
-                                $base_img = SPBWC_Storelly_Image::resize_imagepng($base_img_path, $width, $height);
-                            } else {
-                                $base_img = SPBWC_Storelly_Image::resize_imagepng($base_img_path, $width, $height);
-                            }
-                            $design = imagecreatefrompng($design_path);
-                            imagecopy($base_img, $design, 0, 0, 0, 0, $width, $height);
-                            imagepng($base_img, $path . '/preview/' . $index . '.png');
-                            imagedestroy($base_img);
-                            imagedestroy($design);
-                        } else {
-                            copy($design_path, $path . '/preview/' . $index . '.png');
-                        }
-                        $images[] = SPBWC_Storelly_IO::spbwc_convert_path_to_url($path . '/preview/' . $index . '.png');
-                    }
-                }
+            if (!wp_mkdir_p($path . '/preview') || !isset($config->views)) {
+                return $images;
             }
-            ;
+            // Imagick is typically 3–5× faster than GD for resize + composite + PNG
+            // encode. We prefer it when available; gracefully fall back to GD when not.
+            $use_imagick = class_exists('Imagick') && extension_loaded('imagick');
+            foreach ($config->views as $index => $view) {
+                $design_path  = $path . '/frame_' . $index . '.png';
+                $preview_path = $path . '/preview/' . $index . '.png';
+                if (!file_exists($design_path)) {
+                    continue;
+                }
+                list($width, $height) = getimagesize($design_path);
+                $width  = intval($width);
+                $height = intval($height);
+                $base_img_path = SPBWC_Storelly_IO::spbwc_convert_url_to_path($view->base_url);
+                if (!is_file($base_img_path)) {
+                    // No base image — the design alone IS the preview.
+                    copy($design_path, $preview_path);
+                    $images[] = SPBWC_Storelly_IO::spbwc_convert_path_to_url($preview_path);
+                    continue;
+                }
+                if ($use_imagick) {
+                    try {
+                        $base = new Imagick($base_img_path);
+                        // FILTER_TRIANGLE = speed/quality sweet spot, much faster than LANCZOS.
+                        $base->resizeImage($width, $height, Imagick::FILTER_TRIANGLE, 1);
+                        $design = new Imagick($design_path);
+                        $base->compositeImage($design, Imagick::COMPOSITE_OVER, 0, 0);
+                        $base->setImageFormat('png');
+                        // PNG encode speed-ups for previews — default zlib compression-level
+                        // is 6 which dominates encode time; level 1 is ~3-5× faster and the
+                        // ~20% size bump is fine for a small preview. compression-filter 0
+                        // disables adaptive filtering for another speed bump.
+                        $base->setOption('png:compression-level',  '1');
+                        $base->setOption('png:compression-filter', '0');
+                        $base->setImageCompressionQuality(80);
+                        $base->writeImage($preview_path);
+                        $design->clear(); $design->destroy();
+                        $base->clear();   $base->destroy();
+                    } catch (Exception $e) {
+                        // Imagick blew up for some reason — fall back to GD on this view.
+                        $this->spbwc_gd_composite_preview($base_img_path, $design_path, $preview_path, $width, $height);
+                    }
+                } else {
+                    $this->spbwc_gd_composite_preview($base_img_path, $design_path, $preview_path, $width, $height);
+                }
+                $images[] = SPBWC_Storelly_IO::spbwc_convert_path_to_url($preview_path);
+            }
             return $images;
+        }
+        /**
+         * GD-based composite (resize base → overlay design → write PNG).
+         * Extracted so spbwc_create_preview can call either Imagick or GD via the same shape.
+         */
+        private function spbwc_gd_composite_preview($base_img_path, $design_path, $preview_path, $width, $height) {
+            $base_img = SPBWC_Storelly_Image::resize_imagepng($base_img_path, $width, $height);
+            if (!$base_img) { return; }
+            $design = imagecreatefrompng($design_path);
+            if ($design) {
+                imagecopy($base_img, $design, 0, 0, 0, 0, $width, $height);
+                imagedestroy($design);
+            }
+            imagepng($base_img, $preview_path);
+            imagedestroy($base_img);
         }
         private function spbwc_store_product_builder_design_data($pcpb_item_pb_key, $data)
         {

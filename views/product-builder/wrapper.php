@@ -17,10 +17,17 @@
 <div class="nbdpb-popup popup-design <?php echo esc_attr($is_creating_task == 0 && is_admin_bar_showing()) ? 'is-admin-bar' : ''; // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Global variable defined by parent template. ?>" data-animate="scale">
     <?php if( $is_creating_task == 0 ): // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Global variable defined by parent template. ?>
     <div class="nbdpb-load-page">
-        <div class="nbpb-loader">
-            <svg class="circular" viewBox="25 25 50 50">
-                <circle class="path" cx="50" cy="50" r="20" fill="none" stroke-width="2" stroke-miterlimit="10"/>
-            </svg>
+        <!-- Multi-step progress card: spinner + phase label + progress bar.
+             JS (saveData) drives setBuilderProgress(text, percent) through:
+             Preparing design → Preparing view N/M → Uploading → Generating preview → Done. -->
+        <div class="nbpb-loader-card">
+            <div class="nbpb-loader">
+                <svg class="circular" viewBox="25 25 50 50">
+                    <circle class="path" cx="50" cy="50" r="20" fill="none" stroke-width="2" stroke-miterlimit="10"/>
+                </svg>
+            </div>
+            <div class="nbpb-loader-label" data-spbwc-loader-label><?php esc_html_e( 'Loading…', 'storelly-product-builder-for-woocommerce' ); ?></div>
+            <div class="nbpb-loader-track" aria-hidden="true"><div class="nbpb-loader-fill" data-spbwc-loader-fill></div></div>
         </div>
     </div>
     <?php endif; ?>
