@@ -8020,34 +8020,47 @@ select.ng-invalid {
  * spbwc_use_legacy_customizer filter / SPBWC_USE_LEGACY_CUSTOMIZER define.
  * ===================================================================== */
 .spbwc-cust-v3 {
-    /* Alias to the official _tokens.css design system (--st-* / --nbd-st-*)
-     * — see storelly-product-builder-woo-design-tokens.md. Hardcoded values
-     * are FALLBACKS for the rare case _tokens.css fails to enqueue. Brand
-     * blue matches --st-brand (Storelly corporate blue #1d4ed8), slightly
-     * deeper than WP admin blue so the customizer chrome stands apart. */
-    --spbwc-c-brand:        var(--st-brand,            #1d4ed8);
-    --spbwc-c-brand-dark:   var(--st-brand-pressed,    #1e40af);
-    --spbwc-c-brand-tint:   var(--st-brand-tint,       #eff6ff);
-    --spbwc-c-brand-soft:   var(--st-brand-soft,       #dbeafe);
-    --spbwc-c-ink:          var(--nbd-st-text,         #1d2327);
-    --spbwc-c-ink-soft:     var(--nbd-st-text,         #1d2327);
-    --spbwc-c-text:         var(--nbd-st-text-soft,    #50575e);
-    --spbwc-c-muted:        var(--nbd-st-text-mute,    #8c8f94);
-    --spbwc-c-line:         var(--nbd-st-border-light, #dcdcde);
-    --spbwc-c-line-strong:  var(--nbd-st-border,       #c3c4c7);
-    --spbwc-c-bg:           var(--nbd-st-bg,           #ffffff);
-    --spbwc-c-bg-soft:      var(--nbd-st-bg-soft,      #f6f7f7);
-    --spbwc-c-bg-mute:      var(--nbd-st-bg-canvas,    #f0f0f1);
-    --spbwc-c-success:      var(--nbd-color-success,   #16a34a);
-    --spbwc-c-success-soft: var(--st-pill-active-bg,   #dcfce7);
-    --spbwc-c-danger:       var(--nbd-color-danger,    #dc2626);
-    --spbwc-c-accent:       var(--st-accent,           #f59e0b);
-    --spbwc-c-radius:       var(--nbd-radius-lg,       12px);
-    --spbwc-c-radius-sm:    var(--nbd-radius-md,       8px);
-    --spbwc-c-radius-xs:    var(--nbd-radius,          6px);
-    --spbwc-c-shadow-sm:    var(--shadow-sm,           0 1px 2px rgba(0,0,0,.04));
-    --spbwc-c-shadow:       var(--shadow-card,         0 1px 2px rgba(16,24,40,.04), 0 6px 16px rgba(16,24,40,.06));
-    --spbwc-c-font:         var(--st-font-sans, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif);
+    /* ====================================================================
+     * EXACT design tokens from Printcart Canva v2.0
+     *   D:\PRINTCART\API Printcart\printcart-canva-v2.0.html → :root
+     * Values pinned verbatim so the customizer reads as the same surface.
+     * --spbwc-c-* names are kept for internal rule references; the values
+     * are sourced from Printcart's --nbd-mb-* palette, NOT from the
+     * Storelly admin _tokens.css. (Customizer is a buyer-facing modal,
+     * not a WP-admin screen, so the Printcart consumer palette fits.)
+     * =================================================================== */
+    --spbwc-c-brand:        #2563eb;            /* --nbd-mb-primary */
+    --spbwc-c-brand-dark:   #1d4ed8;            /* --nbd-mb-primary-pressed */
+    --spbwc-c-brand-tint:   rgba(37, 99, 235, 0.08); /* tab-btn active bg */
+    --spbwc-c-brand-soft:   #dbeafe;            /* --nbd-mb-primary-soft */
+    --spbwc-c-ink:          #1f2937;            /* --nbd-mb-text */
+    --spbwc-c-ink-soft:     #1f2937;
+    --spbwc-c-text:         #6b7280;            /* --nbd-mb-text-soft */
+    --spbwc-c-muted:        #6b7280;
+    --spbwc-c-line:         #e5e7eb;            /* --nbd-mb-border */
+    --spbwc-c-line-strong:  #d1d5db;            /* --nbd-mb-border-strong */
+    --spbwc-c-line-subtle:  #f3f4f6;            /* --nbd-mb-border-subtle */
+    --spbwc-c-bg:           #ffffff;            /* --nbd-mb-bg */
+    --spbwc-c-bg-soft:      #f9fafb;            /* --nbd-mb-bg-soft */
+    --spbwc-c-bg-mute:      #f3f4f6;            /* --nbd-mb-bg-canvas */
+    --spbwc-c-success:      #10b981;            /* --nbd-color-success */
+    --spbwc-c-success-soft: #d1fae5;            /* --nbd-color-success-soft */
+    --spbwc-c-warning:      #f59e0b;            /* --nbd-color-warning */
+    --spbwc-c-warning-soft: #fef3c7;
+    --spbwc-c-danger:       #ef4444;            /* --nbd-color-error */
+    --spbwc-c-danger-soft:  #fee2e2;
+    --spbwc-c-accent:       #f59e0b;
+    /* Radii — Printcart scale */
+    --spbwc-c-radius:       12px;               /* --nbd-radius-xl */
+    --spbwc-c-radius-md:    8px;                /* --nbd-radius-lg */
+    --spbwc-c-radius-sm:    6px;                /* --nbd-radius-md */
+    --spbwc-c-radius-xs:    4px;                /* --nbd-radius-sm */
+    /* Shadows — Printcart scale */
+    --spbwc-c-shadow-sm:    0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    --spbwc-c-shadow:       0 2px 4px 0 rgba(0, 0, 0, 0.08);
+    --spbwc-c-shadow-lg:    0 4px 12px 0 rgba(0, 0, 0, 0.08);
+    --spbwc-c-shadow-focus: 0 0 0 3px rgba(37, 99, 235, 0.25);
+    --spbwc-c-font:         -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
 
     --spbwc-topbar-h:       64px;
     --spbwc-tabnav-w:       72px;
@@ -8170,75 +8183,54 @@ select.ng-invalid {
     background: var(--spbwc-c-bg-soft);
 }
 
-/* TAB NAV (vertical icon column) — Canva pattern -------------------
- * Distinct darker-neutral background so the nav reads as a separate
- * "rail" from the white panel beside it. Active tab is a WHITE CARD
- * with a brand-blue left accent — looks like the panel is attached to
- * the active tab. */
+/* TAB NAV — direct port of Printcart Canva v2.0 `.tab-nav` + `.tab-btn`.
+ * White rail (NOT gray-soft), simple icon column. Active state is a
+ * subtle blue tint background + primary text color — no card, no
+ * shadow, no tongue, no extras. Matches Printcart 1:1. */
 .spbwc-cust-tabnav {
-    background: var(--spbwc-c-bg-soft);
+    background: var(--spbwc-c-bg);
     border-right: 1px solid var(--spbwc-c-line);
-    padding: 12px 8px;
     display: flex;
     flex-direction: column;
-    align-items: stretch;
-    gap: 4px;
     overflow-y: auto;
-    box-shadow: inset -1px 0 0 var(--spbwc-c-line);
+    scrollbar-width: thin;
 }
 .spbwc-cust-tabbtn {
     position: relative;
-    background: transparent;
-    border: 0;
-    padding: 12px 6px 10px;
-    border-radius: var(--spbwc-c-radius-sm);
+    width: 100%;
+    height: 64px;
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 5px;
-    cursor: pointer;
-    color: var(--spbwc-c-muted);
+    justify-content: center;
+    gap: 4px;
+    background: transparent;
+    border: 0;
+    border-radius: 0;
+    color: var(--spbwc-c-text);
     font: inherit;
-    font-size: 11.5px;
-    font-weight: 600;
-    line-height: 1.2;
-    letter-spacing: 0.01em;
-    transition: background .15s ease, color .15s ease, box-shadow .15s ease;
+    font-size: 11px;
+    font-weight: 500;
+    transition: all 120ms;
+    cursor: pointer;
 }
-.spbwc-cust-tabbtn:hover:not(.is-active) {
-    background: rgba(255, 255, 255, 0.7);
-    color: var(--spbwc-c-ink-soft);
+.spbwc-cust-tabbtn:hover {
+    background: rgba(0, 0, 0, 0.03);
+    color: var(--spbwc-c-ink);
 }
-.spbwc-cust-tabbtn.is-active {
-    /* White card extending almost edge-to-edge inside the rail */
-    background: var(--spbwc-c-bg);
-    color: var(--spbwc-c-brand-dark);
-    box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04), 0 4px 12px rgba(29, 78, 216, 0.08);
+.spbwc-cust-tabbtn:focus-visible {
+    outline: 2px solid var(--spbwc-c-brand);
+    outline-offset: -2px;
+    z-index: 1;
 }
-.spbwc-cust-tabbtn.is-active::before {
-    content: '';
-    position: absolute;
-    left: -8px;
-    top: 10px;
-    bottom: 10px;
-    width: 3px;
-    border-radius: 0 3px 3px 0;
-    background: var(--spbwc-c-brand);
+.spbwc-cust-tabbtn.is-active,
+.spbwc-cust-tabbtn[aria-selected="true"] {
+    background: var(--spbwc-c-brand-tint);
+    color: var(--spbwc-c-brand);
 }
-.spbwc-cust-tabbtn.is-active::after {
-    /* "Tongue" that visually bridges the active tab into the panel —
-     * Canva / Stripe sidebar pattern. */
-    content: '';
-    position: absolute;
-    right: -9px;
-    top: 50%;
-    width: 9px;
-    height: 24px;
-    background: var(--spbwc-c-bg);
-    transform: translateY(-50%);
-    border-top: 1px solid transparent;
-    border-bottom: 1px solid transparent;
-}
+.spbwc-cust-tabbtn__icon { width: 22px; height: 22px; }
+.spbwc-cust-tabbtn__icon svg { width: 22px; height: 22px; stroke-width: 1.5; }
+.spbwc-cust-tabbtn__label { font-size: 11px; }
 .spbwc-cust-tabbtn__icon {
     width: 28px;
     height: 28px;
@@ -8278,27 +8270,27 @@ select.ng-invalid {
     position: relative; /* allows the active-tab tongue to overlap */
     z-index: 2;         /* above tab-nav so the white tongue covers the rail border cleanly */
 }
+/* Panel head — direct port of Printcart `.panel-head` + `.panel-title`. */
 .spbwc-cust-panel__head {
     flex: 0 0 auto;
-    padding: 14px 16px 8px;
-    border-bottom: 1px solid var(--spbwc-c-bg-mute);
+    padding: 16px 16px 12px;
+    border-bottom: 1px solid var(--spbwc-c-line-subtle);
     display: flex;
     align-items: baseline;
     justify-content: space-between;
     gap: 10px;
 }
 .spbwc-cust-panel__title {
-    font-size: 13px;
-    font-weight: 700;
-    color: var(--spbwc-c-ink);
-    letter-spacing: -0.01em;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--spbwc-c-text);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
 }
 .spbwc-cust-panel__meta {
     font-size: 11px;
-    font-weight: 600;
-    color: var(--spbwc-c-muted);
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
+    font-weight: 500;
+    color: var(--spbwc-c-text);
 }
 .spbwc-cust-panel__progress {
     height: 4px;
@@ -8325,21 +8317,21 @@ select.ng-invalid {
     min-height: 0;
 }
 
-/* Accordion items — Canva step-row pattern. Each row is a self-
- * contained card with its own border + bg. Hover is contained to
- * the head button only (not stuck on the item wrapper). */
-.spbwc-cust-acc { padding: 8px 12px 20px; display: flex; flex-direction: column; gap: 8px; }
+/* Accordion items — direct port of Printcart Canva `.step-item` +
+ * `.step-row`. White card, 6px radius, 1px subtle border. Open state =
+ * primary border + 1px box-shadow primary + light-blue row bg.
+ * Hover is contained to the row only — no stuck-gray. */
+.spbwc-cust-acc { padding: 12px; display: flex; flex-direction: column; gap: 8px; }
 .spbwc-cust-acc-item {
-    border-radius: var(--spbwc-c-radius-sm);
-    background: var(--spbwc-c-bg);
     border: 1px solid var(--spbwc-c-line);
-    transition: border-color .15s ease, box-shadow .15s ease;
+    border-radius: var(--spbwc-c-radius-sm); /* 6px — Printcart radius-md */
+    background: var(--spbwc-c-bg);
     overflow: hidden;
+    transition: border-color 120ms;
 }
-.spbwc-cust-acc-item:hover { border-color: var(--spbwc-c-line-strong); }
 .spbwc-cust-acc-item.is-open {
     border-color: var(--spbwc-c-brand);
-    box-shadow: 0 0 0 3px var(--spbwc-c-brand-tint);
+    box-shadow: 0 0 0 1px var(--spbwc-c-brand);
 }
 .spbwc-cust-acc-head {
     width: 100%;
@@ -8347,50 +8339,49 @@ select.ng-invalid {
     border: 0;
     text-align: left;
     cursor: pointer;
-    padding: 11px 12px;
+    padding: 12px;
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 12px;
     font: inherit;
-    transition: background .12s ease;
+    min-height: 52px;
+    transition: background 120ms;
 }
 .spbwc-cust-acc-head:hover { background: var(--spbwc-c-bg-soft); }
-.spbwc-cust-acc-item.is-open .spbwc-cust-acc-head { background: transparent; }
-/* Step status icon — Printcart Canva v2.0 pattern.
- *   • Done   → green check on light green disc
- *   • Pending → empty grey disc with a small dot
- *   • Open   → brand-blue ring (active focus, regardless of done state)
- * The .is-done class is set in wrapper.php via ng-class based on
- * $scope.isComponentConfigured(component). */
+.spbwc-cust-acc-item.is-open .spbwc-cust-acc-head {
+    background: var(--spbwc-c-brand-soft);
+}
+/* Step status badge — direct port of Printcart `.step-row-badge`.
+ * 20x20 circle. Done = solid green w/ white check. Pending = bg-soft
+ * + 1px subtle border + muted dot. Active (open) overrides done to
+ * primary blue. */
 .spbwc-cust-acc-step {
-    width: 22px;
-    height: 22px;
-    flex: 0 0 auto;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 50%;
-    background: var(--spbwc-c-bg-mute);
-    color: var(--spbwc-c-muted);
-    transition: background .15s ease, color .15s ease, box-shadow .15s ease;
+    width: 20px;
+    height: 20px;
+    flex-shrink: 0;
+    display: grid;
+    place-items: center;
+    border-radius: 9999px;
+    background: var(--spbwc-c-bg-soft);
+    color: var(--spbwc-c-text);
+    border: 1px solid var(--spbwc-c-line);
+    transition: background 120ms, color 120ms, border-color 120ms;
 }
 .spbwc-cust-acc-step__dot {
-    width: 6px;
-    height: 6px;
+    width: 5px;
+    height: 5px;
     border-radius: 50%;
     background: currentColor;
-    opacity: .5;
 }
 .spbwc-cust-acc-item.is-done .spbwc-cust-acc-step {
-    background: var(--spbwc-c-success-soft);
-    color: var(--spbwc-c-success);
-}
-.spbwc-cust-acc-item.is-open .spbwc-cust-acc-step {
-    box-shadow: 0 0 0 2px var(--spbwc-c-brand-soft);
-}
-.spbwc-cust-acc-item.is-open.is-done .spbwc-cust-acc-step {
     background: var(--spbwc-c-success);
     color: #fff;
+    border-color: var(--spbwc-c-success);
+}
+.spbwc-cust-acc-item.is-open:not(.is-done) .spbwc-cust-acc-step {
+    background: var(--spbwc-c-brand);
+    color: #fff;
+    border-color: var(--spbwc-c-brand);
 }
 .spbwc-cust-acc-info {
     flex: 1 1 auto;
@@ -8400,20 +8391,21 @@ select.ng-invalid {
     gap: 2px;
 }
 .spbwc-cust-acc-name {
-    font-size: 13.5px;
+    font-size: 12px;
     font-weight: 600;
-    color: var(--spbwc-c-ink-soft);
+    color: var(--spbwc-c-ink);
+    line-height: 1.2;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
-    /* Preserve the admin-set title case verbatim — themes commonly
-     * uppercase nav-item / button text via `text-transform: uppercase`
-     * which would mangle "Frame Color" → "FRAME COLOR". */
+    /* Preserve admin-set title case verbatim. */
     text-transform: none;
 }
 .spbwc-cust-acc-value {
-    font-size: 12px;
-    color: var(--spbwc-c-muted);
+    font-size: 11px;
+    color: var(--spbwc-c-text);
+    line-height: 1.3;
+    margin-top: 1px;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
