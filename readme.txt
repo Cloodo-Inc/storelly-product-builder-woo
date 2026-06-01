@@ -4,8 +4,8 @@ Donate link: https://storelly.com/
 Tags: product builder, product customize, product customizer, woocommerce custom product
 Requires at least: 4.7
 Tested up to: 7.0
-Stable tag: 1.3.6
-Version: 1.3.6
+Stable tag: 1.3.7
+Version: 1.3.7
 Requires PHP: 7.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -132,6 +132,9 @@ This plugin connects to the following external services:
 3. Storelly settings page with API keys and sync options
 
 == Changelog ==
+= 1.3.7 =
+* Customizer V3 — tab nav vs panel separation pass: the left tab rail is now a gray-soft background so the white panel reads as a distinct surface (was hard to tell apart). The active tab is a raised white card with a brand-blue accent on the left and a "tongue" bridge into the panel so it's obvious which view is open. Accordion items are now individual bordered cards (matching the Canva step-row pattern) with a brand-blue glow when open and a contained hover so the gray hover state no longer "sticks" on previously-clicked items.
+
 = 1.3.6 =
 * Customizer V3 — Canva-style polish pass: new "ORDER SUMMARY · 1 ITEM" card with product thumb + live spec readout sits at the top of the right column; YOUR PRICE total bumped to 28px bold so it reads as the conversion anchor; summary column tightened 340→300px to give more room to the central canvas. A floating "Live preview" pill and a Front/Back view switcher (only when product has ≥2 views) now sit at the bottom of the canvas — matching the Printcart Canva v2.0 reference. The save / preview loader overlay gained a premium backdrop-blur effect.
 

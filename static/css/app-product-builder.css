@@ -8170,49 +8170,74 @@ select.ng-invalid {
     background: var(--spbwc-c-bg-soft);
 }
 
-/* TAB NAV (vertical icon column) ------------------------------------ */
+/* TAB NAV (vertical icon column) — Canva pattern -------------------
+ * Distinct darker-neutral background so the nav reads as a separate
+ * "rail" from the white panel beside it. Active tab is a WHITE CARD
+ * with a brand-blue left accent — looks like the panel is attached to
+ * the active tab. */
 .spbwc-cust-tabnav {
-    background: var(--spbwc-c-bg);
+    background: var(--spbwc-c-bg-soft);
     border-right: 1px solid var(--spbwc-c-line);
     padding: 12px 8px;
     display: flex;
     flex-direction: column;
     align-items: stretch;
-    gap: 6px;
+    gap: 4px;
     overflow-y: auto;
+    box-shadow: inset -1px 0 0 var(--spbwc-c-line);
 }
 .spbwc-cust-tabbtn {
     position: relative;
     background: transparent;
     border: 0;
-    padding: 10px 6px;
+    padding: 12px 6px 10px;
     border-radius: var(--spbwc-c-radius-sm);
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 4px;
+    gap: 5px;
     cursor: pointer;
     color: var(--spbwc-c-muted);
     font: inherit;
-    font-size: 11px;
+    font-size: 11.5px;
     font-weight: 600;
     line-height: 1.2;
-    transition: background .15s ease, color .15s ease;
+    letter-spacing: 0.01em;
+    transition: background .15s ease, color .15s ease, box-shadow .15s ease;
 }
-.spbwc-cust-tabbtn:hover { background: var(--spbwc-c-bg-mute); color: var(--spbwc-c-ink-soft); }
+.spbwc-cust-tabbtn:hover:not(.is-active) {
+    background: rgba(255, 255, 255, 0.7);
+    color: var(--spbwc-c-ink-soft);
+}
 .spbwc-cust-tabbtn.is-active {
-    background: var(--spbwc-c-brand-tint);
+    /* White card extending almost edge-to-edge inside the rail */
+    background: var(--spbwc-c-bg);
     color: var(--spbwc-c-brand-dark);
+    box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04), 0 4px 12px rgba(29, 78, 216, 0.08);
 }
 .spbwc-cust-tabbtn.is-active::before {
     content: '';
     position: absolute;
-    left: 0;
-    top: 8px;
-    bottom: 8px;
+    left: -8px;
+    top: 10px;
+    bottom: 10px;
     width: 3px;
     border-radius: 0 3px 3px 0;
     background: var(--spbwc-c-brand);
+}
+.spbwc-cust-tabbtn.is-active::after {
+    /* "Tongue" that visually bridges the active tab into the panel —
+     * Canva / Stripe sidebar pattern. */
+    content: '';
+    position: absolute;
+    right: -9px;
+    top: 50%;
+    width: 9px;
+    height: 24px;
+    background: var(--spbwc-c-bg);
+    transform: translateY(-50%);
+    border-top: 1px solid transparent;
+    border-bottom: 1px solid transparent;
 }
 .spbwc-cust-tabbtn__icon {
     width: 28px;
@@ -8250,6 +8275,8 @@ select.ng-invalid {
     flex-direction: column;
     min-height: 0;
     overflow: hidden;
+    position: relative; /* allows the active-tab tongue to overlap */
+    z-index: 2;         /* above tab-nav so the white tongue covers the rail border cleanly */
 }
 .spbwc-cust-panel__head {
     flex: 0 0 auto;
@@ -8298,17 +8325,21 @@ select.ng-invalid {
     min-height: 0;
 }
 
-/* Accordion items */
-.spbwc-cust-acc { padding: 4px 8px 16px; }
+/* Accordion items — Canva step-row pattern. Each row is a self-
+ * contained card with its own border + bg. Hover is contained to
+ * the head button only (not stuck on the item wrapper). */
+.spbwc-cust-acc { padding: 8px 12px 20px; display: flex; flex-direction: column; gap: 8px; }
 .spbwc-cust-acc-item {
     border-radius: var(--spbwc-c-radius-sm);
-    margin: 4px 0;
-    background: transparent;
-    transition: background .15s ease;
+    background: var(--spbwc-c-bg);
+    border: 1px solid var(--spbwc-c-line);
+    transition: border-color .15s ease, box-shadow .15s ease;
+    overflow: hidden;
 }
+.spbwc-cust-acc-item:hover { border-color: var(--spbwc-c-line-strong); }
 .spbwc-cust-acc-item.is-open {
-    background: var(--spbwc-c-bg-soft);
-    box-shadow: inset 0 0 0 1px var(--spbwc-c-line);
+    border-color: var(--spbwc-c-brand);
+    box-shadow: 0 0 0 3px var(--spbwc-c-brand-tint);
 }
 .spbwc-cust-acc-head {
     width: 100%;
@@ -8316,13 +8347,14 @@ select.ng-invalid {
     border: 0;
     text-align: left;
     cursor: pointer;
-    padding: 10px 12px;
+    padding: 11px 12px;
     display: flex;
     align-items: center;
     gap: 10px;
     font: inherit;
+    transition: background .12s ease;
 }
-.spbwc-cust-acc-head:hover { background: var(--spbwc-c-bg-mute); border-radius: var(--spbwc-c-radius-sm); }
+.spbwc-cust-acc-head:hover { background: var(--spbwc-c-bg-soft); }
 .spbwc-cust-acc-item.is-open .spbwc-cust-acc-head { background: transparent; }
 /* Step status icon — Printcart Canva v2.0 pattern.
  *   • Done   → green check on light green disc
