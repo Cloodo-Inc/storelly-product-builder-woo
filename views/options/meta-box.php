@@ -21,6 +21,18 @@ if (!defined('ABSPATH')) {
                     <input type="checkbox" value="1" name="_spbwc_enable_quote" id="_spbwc_enable_quote" <?php checked(!empty($spbwc_enable_quote)); ?> class="short" />
                 </span>
             </p>
+            <p class="storelly-form-field">
+                <label for="_spbwc_quote_display_mode"><?php esc_html_e ('Quote display', 'storelly-product-builder-for-woocommerce'); ?></label>
+                <span class="storelly-option-val">
+                    <select name="_spbwc_quote_display_mode" id="_spbwc_quote_display_mode" class="short">
+                        <option value="" <?php selected( empty( $spbwc_quote_display_mode ) ); ?>><?php esc_html_e( 'Use global default', 'storelly-product-builder-for-woocommerce' ); ?></option>
+                        <option value="both" <?php selected( isset( $spbwc_quote_display_mode ) ? $spbwc_quote_display_mode : '', 'both' ); ?>><?php esc_html_e( 'Add to cart + Get Quote', 'storelly-product-builder-for-woocommerce' ); ?></option>
+                        <option value="replace" <?php selected( isset( $spbwc_quote_display_mode ) ? $spbwc_quote_display_mode : '', 'replace' ); ?>><?php esc_html_e( 'Get Quote replaces Add to cart (keep price)', 'storelly-product-builder-for-woocommerce' ); ?></option>
+                        <option value="quote_only" <?php selected( isset( $spbwc_quote_display_mode ) ? $spbwc_quote_display_mode : '', 'quote_only' ); ?>><?php esc_html_e( 'Quote only — hide price &amp; cart', 'storelly-product-builder-for-woocommerce' ); ?></option>
+                    </select>
+                    <span class="description" style="display:block;margin-top:4px;"><?php esc_html_e( 'Only applies when request quote is enabled above.', 'storelly-product-builder-for-woocommerce' ); ?></span>
+                </span>
+            </p>
             <?php if ($option_id > 0 && !empty($option_title)) : ?>
             <p class="storelly-form-field">
                 <label><?php esc_html_e('Mapped printing option:', 'storelly-product-builder-for-woocommerce'); ?> <strong><?php echo esc_html($option_title); ?></strong></label>

@@ -26,7 +26,15 @@ if ( ! class_exists( 'SPBWC_Request_Quote' ) ) {
 
             add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_assets' ) );
             add_action( 'woocommerce_after_add_to_cart_button', array( $this, 'render_quote_button' ), 25 );
+            add_action( 'woocommerce_single_product_summary', array( $this, 'render_quote_button_standalone' ), 31 );
             add_action( 'wp_footer', array( $this, 'render_quote_popup' ) );
+
+            // D3 display modes — hide cart/price for "replace" / "quote_only".
+            add_filter( 'woocommerce_is_purchasable', array( $this, 'filter_is_purchasable' ), 10, 2 );
+            add_filter( 'woocommerce_get_price_html', array( $this, 'filter_price_html' ), 99, 2 );
+            add_filter( 'woocommerce_loop_add_to_cart_link', array( $this, 'filter_loop_add_to_cart' ), 10, 2 );
+            add_filter( 'woocommerce_add_to_cart_validation', array( $this, 'filter_add_to_cart_validation' ), 10, 2 );
+            add_filter( 'woocommerce_structured_data_product', array( $this, 'filter_structured_data' ), 10, 2 );
 
             add_action( 'wp_ajax_spbwc_submit_quote', array( $this, 'ajax_submit_quote' ) );
             add_action( 'wp_ajax_nopriv_spbwc_submit_quote', array( $this, 'ajax_submit_quote' ) );
@@ -85,15 +93,147 @@ if ( ! class_exists( 'SPBWC_Request_Quote' ) ) {
             return '1' === get_post_meta( $product_id, '_spbwc_enable_quote', true );
         }
 
+        /**
+         * Resolve the effective D3 display mode for a product.
+         *
+         * @param int $product_id Product ID.
+         * @return string off|both|replace|quote_only
+         */
+        public function get_display_mode( $product_id ) {
+            if ( ! $this->is_product_quote_enabled( $product_id ) ) {
+                return 'off';
+            }
+            $modes = array( 'both', 'replace', 'quote_only' );
+            $per   = get_post_meta( $product_id, '_spbwc_quote_display_mode', true );
+            if ( in_array( $per, $modes, true ) ) {
+                return $per;
+            }
+            $settings = get_option( 'spbwc_quote_settings', array() );
+            $global   = isset( $settings['display_mode'] ) ? $settings['display_mode'] : 'both';
+            return in_array( $global, $modes, true ) ? $global : 'both';
+        }
+
+        /** Shared Get Quote trigger markup. */
+        protected function quote_button_markup() {
+            echo '<p class="spbwc-rfq-trigger"><button type="button" class="button alt" id="spbwc-open-quote-popup" aria-haspopup="dialog">' . esc_html__( 'Get Quote', 'storelly-product-builder-for-woocommerce' ) . '</button></p>';
+        }
+
+        /** "Both" mode — button rendered inside the add-to-cart form. */
         public function render_quote_button() {
             if ( ! is_product() ) {
                 return;
             }
             global $product; // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- WooCommerce global variable.
-            if ( ! $product || ! $this->is_product_quote_enabled( $product->get_id() ) ) {
+            if ( ! $product || 'both' !== $this->get_display_mode( $product->get_id() ) ) {
                 return;
             }
-            echo '<p class="spbwc-rfq-trigger"><button type="button" class="button alt" id="spbwc-open-quote-popup" aria-haspopup="dialog">' . esc_html__( 'Get Quote', 'storelly-product-builder-for-woocommerce' ) . '</button></p>';
+            $this->quote_button_markup();
+        }
+
+        /**
+         * "Replace" / "quote_only" modes — the add-to-cart form is removed, so
+         * the button is rendered standalone in the product summary.
+         */
+        public function render_quote_button_standalone() {
+            if ( ! is_product() ) {
+                return;
+            }
+            global $product; // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- WooCommerce global variable.
+            if ( ! $product ) {
+                return;
+            }
+            $mode = $this->get_display_mode( $product->get_id() );
+            if ( 'replace' !== $mode && 'quote_only' !== $mode ) {
+                return;
+            }
+            $this->quote_button_markup();
+        }
+
+        /* ── D3 filters ───────────────────────────────────────────── */
+
+        /**
+         * Hide Add to cart for replace / quote_only modes.
+         *
+         * @param bool       $purchasable Current value.
+         * @param WC_Product $product     Product.
+         * @return bool
+         */
+        public function filter_is_purchasable( $purchasable, $product ) {
+            if ( ! $purchasable || ! is_object( $product ) ) {
+                return $purchasable;
+            }
+            $mode = $this->get_display_mode( $product->get_id() );
+            return ( 'replace' === $mode || 'quote_only' === $mode ) ? false : $purchasable;
+        }
+
+        /**
+         * Replace the price with "Price on request" for quote_only mode.
+         *
+         * @param string     $html    Price HTML.
+         * @param WC_Product $product Product.
+         * @return string
+         */
+        public function filter_price_html( $html, $product ) {
+            if ( ! is_object( $product ) ) {
+                return $html;
+            }
+            if ( 'quote_only' === $this->get_display_mode( $product->get_id() ) ) {
+                return '<span class="spbwc-rfq-price-onrequest">' . esc_html__( 'Price on request', 'storelly-product-builder-for-woocommerce' ) . '</span>';
+            }
+            return $html;
+        }
+
+        /**
+         * Swap the loop add-to-cart link for a "View product" link when the
+         * cart is hidden.
+         *
+         * @param string     $html    Link HTML.
+         * @param WC_Product $product Product.
+         * @return string
+         */
+        public function filter_loop_add_to_cart( $html, $product ) {
+            if ( ! is_object( $product ) ) {
+                return $html;
+            }
+            $mode = $this->get_display_mode( $product->get_id() );
+            if ( 'replace' === $mode || 'quote_only' === $mode ) {
+                return '<a href="' . esc_url( get_permalink( $product->get_id() ) ) . '" class="button spbwc-rfq-loop-view">' . esc_html__( 'View product', 'storelly-product-builder-for-woocommerce' ) . '</a>';
+            }
+            return $html;
+        }
+
+        /**
+         * Block direct add-to-cart (e.g. via ?add-to-cart= URL) when the cart
+         * is hidden for this product.
+         *
+         * @param bool $valid      Whether adding is valid.
+         * @param int  $product_id Product ID.
+         * @return bool
+         */
+        public function filter_add_to_cart_validation( $valid, $product_id ) {
+            $mode = $this->get_display_mode( (int) $product_id );
+            if ( 'replace' === $mode || 'quote_only' === $mode ) {
+                if ( function_exists( 'wc_add_notice' ) ) {
+                    wc_add_notice( __( 'This product is available by quote only.', 'storelly-product-builder-for-woocommerce' ), 'error' );
+                }
+                return false;
+            }
+            return $valid;
+        }
+
+        /**
+         * Strip price/offers from product structured data for quote_only mode
+         * so search engines do not show a misleading price.
+         *
+         * @param array      $markup  Structured data.
+         * @param WC_Product $product Product.
+         * @return array
+         */
+        public function filter_structured_data( $markup, $product ) {
+            if ( is_object( $product ) && 'quote_only' === $this->get_display_mode( $product->get_id() ) && isset( $markup['offers'] ) ) {
+                unset( $markup['offers'] );
+            }
+            return $markup;
         }
 
         /**

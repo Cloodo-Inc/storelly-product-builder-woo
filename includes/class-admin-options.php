@@ -1024,10 +1024,15 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
 
             if ( isset( $_SERVER['REQUEST_METHOD'] ) && 'POST' === $_SERVER['REQUEST_METHOD'] && isset( $_POST['spbwc_save_quote_settings'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce checked below.
                 check_admin_referer( 'spbwc_quote_settings_action', 'spbwc_quote_settings_nonce' );
+                $posted_mode = isset( $_POST['display_mode'] ) ? sanitize_key( wp_unslash( $_POST['display_mode'] ) ) : 'both'; // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce checked above.
+                if ( ! in_array( $posted_mode, array( 'both', 'replace', 'quote_only' ), true ) ) {
+                    $posted_mode = 'both';
+                }
                 $settings = array(
                     'enable_quote'      => isset( $_POST['enable_quote'] ) ? sanitize_text_field( wp_unslash( $_POST['enable_quote'] ) ) : 'no', // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce checked above.
                     'admin_email'       => isset( $_POST['admin_email'] ) ? sanitize_email( wp_unslash( $_POST['admin_email'] ) ) : '', // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce checked above.
                     'success_message'   => isset( $_POST['success_message'] ) ? sanitize_textarea_field( wp_unslash( $_POST['success_message'] ) ) : '', // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce checked above.
+                    'display_mode'      => $posted_mode,
                 );
                 update_option( 'spbwc_quote_settings', $settings );
                 echo '<div class="notice notice-success is-dismissible"><p>' . esc_html__( 'Quote settings saved.', 'storelly-product-builder-for-woocommerce' ) . '</p></div>';
@@ -1087,6 +1092,7 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
             $enable_quote = isset( $settings['enable_quote'] ) ? $settings['enable_quote'] : 'no';
             $admin_email = isset( $settings['admin_email'] ) ? $settings['admin_email'] : get_option( 'admin_email' );
             $success_message = isset( $settings['success_message'] ) ? $settings['success_message'] : __( 'Your quote request has been sent successfully.', 'storelly-product-builder-for-woocommerce' );
+            $display_mode = isset( $settings['display_mode'] ) ? $settings['display_mode'] : 'both';
             $form_fields = get_option( 'spbwc_quote_form_fields', $this->spbwc_get_default_quote_form_fields() );
             ?>
             <div class="wrap spbwc-settings-wrap">
@@ -1183,6 +1189,22 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
                                             rows="4" class="spbwc-input" style="width:420px;resize:vertical;"><?php echo esc_textarea( $success_message ); ?></textarea>
                                     </div>
                                     <p class="spbwc-setting-row__hint"><?php esc_html_e( 'Displayed on screen after the customer submits a quote request. Keep it short and reassuring.', 'storelly-product-builder-for-woocommerce' ); ?></p>
+                                </div>
+                                <!-- Default display mode -->
+                                <div class="spbwc-setting-row">
+                                    <div class="spbwc-setting-row__label">
+                                        <label for="spbwc_quote_display_mode">
+                                            <?php esc_html_e( 'Default display', 'storelly-product-builder-for-woocommerce' ); ?>
+                                        </label>
+                                    </div>
+                                    <div class="spbwc-setting-row__control">
+                                        <select id="spbwc_quote_display_mode" name="display_mode" class="spbwc-input" style="width:340px;">
+                                            <option value="both" <?php selected( $display_mode, 'both' ); ?>><?php esc_html_e( 'Add to cart + Get Quote button', 'storelly-product-builder-for-woocommerce' ); ?></option>
+                                            <option value="replace" <?php selected( $display_mode, 'replace' ); ?>><?php esc_html_e( 'Get Quote replaces Add to cart (keep price)', 'storelly-product-builder-for-woocommerce' ); ?></option>
+                                            <option value="quote_only" <?php selected( $display_mode, 'quote_only' ); ?>><?php esc_html_e( 'Quote only — hide price & cart', 'storelly-product-builder-for-woocommerce' ); ?></option>
+                                        </select>
+                                    </div>
+                                    <p class="spbwc-setting-row__hint"><?php esc_html_e( 'How quote-enabled products appear by default. Each product can override this in its Storelly settings.', 'storelly-product-builder-for-woocommerce' ); ?></p>
                                 </div>
                             </div>
                             <div class="spbwc-block__foot">
@@ -2719,10 +2741,11 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
             return $configs;
         }
         public function build_config_appearance_display_type($value = null) {
-            // Default new fields to Label (chip cards) rather than a plain dropdown:
-            // cards read better on the storefront and work for any option set. Existing
-            // fields keep whatever type they were saved with.
-            if (is_null($value)) $value = 'l';
+            // Default new fields to Swatch (visual tiles) rather than a plain list.
+            // swatch.php renders a tasteful gradient/colour tile even for text-only
+            // attributes (no image required), so it reads well for any option set.
+            // Existing fields keep whatever type they were saved with.
+            if (is_null($value)) $value = 's';
             return array(
                 'title'         => __('Display type', 'storelly-product-builder-for-woocommerce'),
                 'description'   => '',
@@ -2827,6 +2850,7 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
             $post_id            = get_the_ID();
             $nbdpb_enable       = get_post_meta($post_id, '_storelly_pb_enable', true);
             $spbwc_enable_quote = get_post_meta($post_id, '_spbwc_enable_quote', true);
+            $spbwc_quote_display_mode = get_post_meta($post_id, '_spbwc_quote_display_mode', true);
             $option_id          = $this->spbwc_get_product_option($post_id);
             $option_id          = $option_id ? $option_id : 0;
             $option_title       = '';
@@ -3000,6 +3024,13 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
             if (isset($_POST['_spbwc_enable_quote'])) { // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce verified in surrounding save_post handler.
                 $enable_quote = sanitize_text_field( wp_unslash( $_POST['_spbwc_enable_quote'] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce verified in surrounding save_post handler.
                 update_post_meta($post_id, '_spbwc_enable_quote', $enable_quote);
+            }
+            if (isset($_POST['_spbwc_quote_display_mode'])) { // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce verified in surrounding save_post handler.
+                $display_mode = sanitize_key( wp_unslash( $_POST['_spbwc_quote_display_mode'] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce verified in surrounding save_post handler.
+                if ( ! in_array( $display_mode, array( 'both', 'replace', 'quote_only' ), true ) ) {
+                    $display_mode = '';
+                }
+                update_post_meta($post_id, '_spbwc_quote_display_mode', $display_mode);
             }
         }
         public function spbwc_hidden_custom_order_item_metada($order_items) {
