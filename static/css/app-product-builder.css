@@ -8186,39 +8186,45 @@ select.ng-invalid {
     background: var(--spbwc-c-bg-soft);
 }
 
-/* TAB NAV — direct port of Printcart Canva v2.0 `.tab-nav` + `.tab-btn`.
- * White rail (NOT gray-soft), simple icon column. Active state is a
- * subtle blue tint background + primary text color — no card, no
- * shadow, no tongue, no extras. Matches Printcart 1:1. */
+/* TAB NAV — Printcart `.tab-nav` + `.tab-btn` baseline + elegance pass.
+ * Bigger tap targets (72px), more vertical breathing room between tabs,
+ * 24px icon, label letter-spaced for a "navigation chip" feel rather
+ * than a cramped icon column. */
 .spbwc-cust-tabnav {
+    flex: 0 0 auto;
     background: var(--spbwc-c-bg);
     border-right: 1px solid var(--spbwc-c-line);
     display: flex;
     flex-direction: column;
     overflow-y: auto;
     scrollbar-width: thin;
+    padding: 8px 0;
+    gap: 2px;
 }
 .spbwc-cust-tabbtn {
     position: relative;
     width: 100%;
-    height: 64px;
+    min-height: 72px;
+    padding: 10px 8px;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 4px;
+    gap: 6px;
     background: transparent;
     border: 0;
     border-radius: 0;
     color: var(--spbwc-c-text);
     font: inherit;
-    font-size: 11px;
-    font-weight: 500;
-    transition: all 120ms;
+    font-size: 11.5px;
+    font-weight: 600;
+    line-height: 1.2;
+    letter-spacing: 0.02em;
+    transition: background 120ms, color 120ms;
     cursor: pointer;
 }
 .spbwc-cust-tabbtn:hover {
-    background: rgba(0, 0, 0, 0.03);
+    background: var(--spbwc-c-bg-soft);
     color: var(--spbwc-c-ink);
 }
 .spbwc-cust-tabbtn:focus-visible {
@@ -8231,9 +8237,40 @@ select.ng-invalid {
     background: var(--spbwc-c-brand-tint);
     color: var(--spbwc-c-brand);
 }
-.spbwc-cust-tabbtn__icon { width: 22px; height: 22px; }
-.spbwc-cust-tabbtn__icon svg { width: 22px; height: 22px; stroke-width: 1.5; }
-.spbwc-cust-tabbtn__label { font-size: 11px; }
+.spbwc-cust-tabbtn.is-active::before,
+.spbwc-cust-tabbtn[aria-selected="true"]::before {
+    /* 3px brand accent rail on the right edge (panel side) — elegant
+     * connection between the active tab and the panel beside it. */
+    content: '';
+    position: absolute;
+    top: 12px;
+    bottom: 12px;
+    right: 0;
+    width: 3px;
+    border-radius: 2px 0 0 2px;
+    background: var(--spbwc-c-brand);
+}
+.spbwc-cust-tabbtn__icon {
+    width: 32px;
+    height: 32px;
+    display: grid;
+    place-items: center;
+    border-radius: 8px;
+    transition: background 120ms;
+}
+.spbwc-cust-tabbtn:hover .spbwc-cust-tabbtn__icon { background: var(--spbwc-c-bg); }
+.spbwc-cust-tabbtn.is-active .spbwc-cust-tabbtn__icon { background: var(--spbwc-c-bg); }
+.spbwc-cust-tabbtn__icon svg {
+    width: 22px;
+    height: 22px;
+    stroke-width: 1.6;
+}
+.spbwc-cust-tabbtn__label {
+    font-size: 11.5px;
+    line-height: 1.1;
+    letter-spacing: 0.02em;
+    white-space: nowrap;
+}
 .spbwc-cust-tabbtn__icon {
     width: 28px;
     height: 28px;
@@ -8262,40 +8299,57 @@ select.ng-invalid {
     line-height: 0;
 }
 
-/* PANEL (accordion options) ----------------------------------------- */
+/* PANEL (accordion options) — must be a flex column with min-height:0
+ * so the inner tab panels can take all remaining height and host their
+ * own scroll containers without overflowing the whole modal. */
 .spbwc-cust-panel {
     background: var(--spbwc-c-bg);
     border-right: 1px solid var(--spbwc-c-line);
     display: flex;
     flex-direction: column;
     min-height: 0;
+    height: 100%;
     overflow: hidden;
-    position: relative; /* allows the active-tab tongue to overlap */
-    z-index: 2;         /* above tab-nav so the white tongue covers the rail border cleanly */
+    position: relative;
+    z-index: 2;
 }
-/* Panel head — Printcart `.panel-head` + `.panel-title`.
- * The progress-meta affordance lives in the Summary now, so the head
- * is a single uppercase caption row — no longer needs space-between
- * justify for a missing right-side meta. */
-.spbwc-cust-panel__head {
+/* Tab panels — only the active one is visible. Make each a flex column
+ * itself so its head pins to the top and the body scrolls. */
+.spbwc-cust-tabpanel {
+    flex: 1 1 auto;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+.spbwc-cust-tabpanel[hidden] { display: none; }
+/* Panel head — pinned top bar for the active tab panel.
+ * flex:0 0 auto keeps it from squishing when content below scrolls.
+ * Padding tightened to 14×16 so the caption sits flush in a clear band
+ * with a 1px subtle separator beneath. */
+.spbwc-cust-v3 .spbwc-cust-panel__head {
     flex: 0 0 auto;
-    padding: 16px 16px 12px;
+    height: 44px;
+    padding: 0 16px;
     border-bottom: 1px solid var(--spbwc-c-line-subtle);
+    background: var(--spbwc-c-bg);
     display: flex;
     align-items: center;
     justify-content: flex-start;
     gap: 10px;
-    margin: 0;
+    margin: 0 !important;
+    box-sizing: border-box;
 }
-.spbwc-cust-panel__title {
-    font-size: 12px;
-    font-weight: 600;
-    color: var(--spbwc-c-text);
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
-    line-height: 1.4;
-    margin: 0;
-    padding: 0;
+.spbwc-cust-v3 .spbwc-cust-panel__title {
+    font-size: 12px !important;
+    font-weight: 600 !important;
+    color: var(--spbwc-c-text) !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.06em !important;
+    line-height: 1 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    text-align: left;
 }
 .spbwc-cust-panel__meta {
     font-size: 11px;
@@ -8332,7 +8386,22 @@ select.ng-invalid {
  * `.step-row`. White card, 6px radius, 1px subtle border. Open state =
  * primary border + 1px box-shadow primary + light-blue row bg.
  * Hover is contained to the row only — no stuck-gray. */
-.spbwc-cust-acc { padding: 12px; display: flex; flex-direction: column; gap: 8px; }
+/* Accordion list — THIS is the scroll container for the Customize tab.
+ * Takes all available height inside the tab panel (flex 1) and scrolls
+ * vertically so a product with many components doesn't push the head
+ * out of view. Long option grids inside an open step push the LIST,
+ * not a nested scroll inside the body — feels more natural. */
+.spbwc-cust-acc {
+    flex: 1 1 auto;
+    min-height: 0;
+    padding: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+}
 .spbwc-cust-acc-item {
     border: 1px solid var(--spbwc-c-line);
     border-radius: var(--spbwc-c-radius-sm); /* 6px — Printcart radius-md */
@@ -8429,17 +8498,15 @@ select.ng-invalid {
     transform: rotate(180deg);
     color: var(--spbwc-c-brand);
 }
-/* Open accordion body — Printcart step expanded body. Scrolls
- * INTERNALLY when option list is long (Color picker can be 12-20+
- * options), so the customer never loses the panel head. */
+/* Open accordion body — Printcart step expanded body. Lets the option
+ * grid grow naturally; scroll is owned by the .spbwc-cust-acc parent
+ * (the whole list scrolls), so the head stays fixed at top while the
+ * rest pushes down. Avoids nested scroll containers that fight each
+ * other on touch devices. */
 .spbwc-cust-acc-body {
     padding: 12px;
     background: var(--spbwc-c-bg);
     border-top: 1px solid var(--spbwc-c-line);
-    max-height: 360px;
-    overflow-y: auto;
-    -webkit-overflow-scrolling: touch;
-    overscroll-behavior: contain;
 }
 .spbwc-cust-acc-foot {
     margin-top: 8px;
@@ -9451,12 +9518,12 @@ span.spbwc-cust-cta__price[data-spbwc-cta-price] {
     -webkit-overflow-scrolling: touch;
     overscroll-behavior: contain;
 }
-.spbwc-cust-v3 .spbwc-cust-acc-body { overflow: visible; }
+/* .spbwc-cust-acc-body — canonical rule lives in the accordion section
+ * above; this stale duplicate was removed in 1.4.3. */
 
-/* Tab nav refinement — make icons larger, active state more solid */
-.spbwc-cust-tabbtn { padding: 12px 6px 10px; gap: 5px; }
-.spbwc-cust-tabbtn__icon { width: 24px; height: 24px; }
-.spbwc-cust-tabbtn__label { font-size: 11.5px; letter-spacing: 0.01em; }
+/* Stale tab-nav override removed in 1.4.3 — the canonical .spbwc-cust-tabbtn
+ * rule above this stylesheet now owns padding/gap/icon sizing. Keeping this
+ * comment in place so the diff is reviewable. */
 
 /* Responsive ------------------------------------------------------- */
 @media (max-width: 1280px) {

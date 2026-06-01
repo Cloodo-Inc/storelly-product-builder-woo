@@ -4,8 +4,8 @@ Donate link: https://storelly.com/
 Tags: product builder, product customize, product customizer, woocommerce custom product
 Requires at least: 4.7
 Tested up to: 7.0
-Stable tag: 1.4.2
-Version: 1.4.2
+Stable tag: 1.4.3
+Version: 1.4.3
 Requires PHP: 7.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -132,6 +132,12 @@ This plugin connects to the following external services:
 3. Storelly settings page with API keys and sync options
 
 == Changelog ==
+= 1.4.3 =
+* Customizer V3 — scroll containment + UI elegance pass:
+  - The accordion list inside the Customize tab is now the proper scroll container for the panel column. Many components (or many options inside an open step) push the whole list, which scrolls smoothly while the panel head stays pinned. The earlier nested `max-height: 360px` inner scroll was removed — single scroll container, no nested-touch fights.
+  - Panel head ("CUSTOMIZE PARTS" caption) pinned with `flex: 0 0 auto`, fixed 44px height, left-aligned 12px uppercase letter-spacing 0.06em. `!important` defeats theme overrides that were nudging it.
+  - Vertical tab nav buttons bumped to 72px min-height with 10×8 padding, 32px rounded icon plate (8px radius, fills with white on active), 11.5px label, 6px gap stack — more breathing room, less cramped. Active tab also gets a 3px brand-blue accent rail on the right edge (panel side) — visually "connects" the active tab to the panel.
+
 = 1.4.2 =
 * Customizer V3 — Summary blocks now have generous breathing room: column padding 20×18px, 20px gap between sections, price-block padding 14×16px, item-card padding 14px with 14px gap. No more dense glued-together rows next to the canvas.
 * Spec line under the product name skips the WP default "Uncategorized" term and shows the SKU instead (or "Made to order" if no SKU). The earlier hardcoded "Custom builder" tag is gone.
