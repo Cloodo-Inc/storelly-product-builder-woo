@@ -101,6 +101,22 @@ if ( class_exists( 'SPBWC_Order_PDF' ) ) {
     SPBWC_Order_PDF::init();
 }
 
+/* Buyer-facing design preview download on My Account order detail — preview
+ * images only; full print files stay admin-only. See docs/SPEC_CUSTOM_ORDER.md
+ * Part C (M3). Nonce + order-ownership checked; streamed then deleted. */
+require_once(SPBWC_PB_PLUGIN_DIR .  'includes/class-buyer-downloads.php');
+if ( class_exists( 'SPBWC_Buyer_Downloads' ) ) {
+    SPBWC_Buyer_Downloads::init();
+}
+
+/* Saved designs — buyer can persist a configured design to their account and
+ * reload it into the cart. CPT spbwc_saved_design + My Account tab; every reuse
+ * clones the design folder (copy-on-write). See docs/SPEC_CUSTOM_ORDER.md (M4). */
+require_once(SPBWC_PB_PLUGIN_DIR .  'includes/class-saved-designs.php');
+if ( class_exists( 'SPBWC_Saved_Designs' ) ) {
+    SPBWC_Saved_Designs::init();
+}
+
 require_once(SPBWC_PB_PLUGIN_DIR .  'includes/class-request-quote.php');
 
 /* B2B Quote redesign (CPT `spbwc_quote`) — see docs/SPEC_QUOTE_USER_FLOW_UX.md
