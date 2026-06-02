@@ -166,12 +166,12 @@ if ( ! class_exists( 'SPBWC_Quote_Admin' ) ) {
          * @param int $quote_id Quote post ID.
          */
         protected function save_reply( $quote_id ) {
-            // phpcs:disable WordPress.Security.NonceVerification.Missing -- Nonce verified in maybe_handle_actions().
+            // phpcs:disable WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Nonce verified in maybe_handle_actions(); each value sanitized below.
             $labels = isset( $_POST['line_label'] ) ? (array) wp_unslash( $_POST['line_label'] ) : array();
             $descs  = isset( $_POST['line_desc'] ) ? (array) wp_unslash( $_POST['line_desc'] ) : array();
             $qtys   = isset( $_POST['line_qty'] ) ? (array) wp_unslash( $_POST['line_qty'] ) : array();
             $prices = isset( $_POST['line_price'] ) ? (array) wp_unslash( $_POST['line_price'] ) : array();
-            // phpcs:enable WordPress.Security.NonceVerification.Missing
+            // phpcs:enable WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 
             $rows  = array();
             $count = max( count( $labels ), count( $qtys ), count( $prices ) );
@@ -186,13 +186,13 @@ if ( ! class_exists( 'SPBWC_Quote_Admin' ) ) {
             SPBWC_Quote::set_lines( $quote_id, $rows );
 
             // Apply manual discount + tax on top of the recomputed subtotal.
-            // phpcs:disable WordPress.Security.NonceVerification.Missing -- Nonce verified in maybe_handle_actions().
+            // phpcs:disable WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Nonce verified in maybe_handle_actions(); each value sanitized below.
             $discount = isset( $_POST['quote_discount'] ) ? (float) wp_unslash( $_POST['quote_discount'] ) : 0;
             $tax      = isset( $_POST['quote_tax'] ) ? (float) wp_unslash( $_POST['quote_tax'] ) : 0;
             $valid    = isset( $_POST['quote_valid_until'] ) ? sanitize_text_field( wp_unslash( $_POST['quote_valid_until'] ) ) : '';
             $terms    = isset( $_POST['quote_payment_terms'] ) ? sanitize_key( wp_unslash( $_POST['quote_payment_terms'] ) ) : 'prepay';
             $note     = isset( $_POST['quote_customer_note'] ) ? sanitize_textarea_field( wp_unslash( $_POST['quote_customer_note'] ) ) : '';
-            // phpcs:enable WordPress.Security.NonceVerification.Missing
+            // phpcs:enable WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 
             $totals             = SPBWC_Quote::get_totals( $quote_id );
             $subtotal           = isset( $totals['subtotal'] ) ? (float) $totals['subtotal'] : 0;

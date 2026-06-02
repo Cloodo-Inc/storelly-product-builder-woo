@@ -364,7 +364,8 @@ if ( ! class_exists( 'SPBWC_Request_Quote' ) ) {
                 wp_send_json_error( array( 'message' => esc_html__( 'Quote is not available for this product.', 'storelly-product-builder-for-woocommerce' ) ) );
             }
 
-            $raw_fields = isset( $_POST['quote_fields'] ) ? (array) wp_unslash( $_POST['quote_fields'] ) : array(); // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce verified above.
+            // phpcs:ignore WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Nonce verified above; each element sanitized in the loop below.
+            $raw_fields = isset( $_POST['quote_fields'] ) ? (array) wp_unslash( $_POST['quote_fields'] ) : array();
             $fields     = array();
             foreach ( $raw_fields as $k => $v ) {
                 $key = sanitize_key( $k );
@@ -659,10 +660,15 @@ if ( ! class_exists( 'SPBWC_Request_Quote' ) ) {
                 $ts   = strtotime( $valid . ' 23:59:59' );
                 $days = (int) ceil( ( $ts - current_time( 'timestamp' ) ) / DAY_IN_SECONDS );
                 if ( $days >= 0 ) {
+                    $days_label = sprintf(
+                        /* translators: %d: number of days a quote remains valid */
+                        _n( '%d day', '%d days', $days, 'storelly-product-builder-for-woocommerce' ),
+                        $days
+                    );
                     echo '<p class="spbwc-rfq-countdown">' . sprintf(
                         /* translators: 1: number of days, 2: expiry date */
                         esc_html__( 'Valid for %1$s — expires %2$s', 'storelly-product-builder-for-woocommerce' ),
-                        '<strong>' . esc_html( sprintf( _n( '%d day', '%d days', $days, 'storelly-product-builder-for-woocommerce' ), $days ) ) . '</strong>',
+                        '<strong>' . esc_html( $days_label ) . '</strong>',
                         esc_html( date_i18n( get_option( 'date_format' ), $ts ) )
                     ) . '</p>';
                 }
