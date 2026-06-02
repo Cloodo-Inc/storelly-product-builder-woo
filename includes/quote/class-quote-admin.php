@@ -46,8 +46,8 @@ if ( ! class_exists( 'SPBWC_Quote_Admin' ) ) {
         public function register_menu() {
             add_submenu_page(
                 SPBWC_PB_OVERVIEW_SLUG,
-                esc_html__( 'Custom Quotes', 'storelly-product-builder-for-woocommerce' ),
-                esc_html__( 'Custom Quotes', 'storelly-product-builder-for-woocommerce' ),
+                esc_html__( 'Quotes', 'storelly-product-builder-for-woocommerce' ),
+                esc_html__( 'Quotes', 'storelly-product-builder-for-woocommerce' ),
                 self::CAPABILITY,
                 self::PAGE_SLUG,
                 array( $this, 'render' )
@@ -295,7 +295,7 @@ if ( ! class_exists( 'SPBWC_Quote_Admin' ) ) {
             <div class="wrap spbwc-settings-wrap">
                 <?php
                 $this->render_hero(
-                    __( 'Custom Quotes', 'storelly-product-builder-for-woocommerce' ),
+                    __( 'Quotes', 'storelly-product-builder-for-woocommerce' ),
                     __( 'Review quote requests, reply with pricing, and track them through to conversion.', 'storelly-product-builder-for-woocommerce' )
                 );
                 $this->notice_html();
