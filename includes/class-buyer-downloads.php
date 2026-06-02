@@ -26,6 +26,20 @@ if ( ! class_exists( 'SPBWC_Buyer_Downloads' ) ) {
         public static function init() {
             add_action( 'init', array( __CLASS__, 'maybe_handle_download' ) );
             add_action( 'woocommerce_order_item_meta_end', array( __CLASS__, 'render_download_link' ), 10, 4 );
+            add_action( 'wp_enqueue_scripts', array( __CLASS__, 'enqueue_assets' ) );
+        }
+
+        /**
+         * Load the shared Custom Order stylesheet wherever its surfaces appear:
+         * My Account (order detail, Saved designs tab) and the order-received page.
+         */
+        public static function enqueue_assets() {
+            $is_account = function_exists( 'is_account_page' ) && is_account_page();
+            $is_thanks  = function_exists( 'is_order_received_page' ) && is_order_received_page();
+            if ( ! $is_account && ! $is_thanks ) {
+                return;
+            }
+            wp_enqueue_style( 'spbwc-custom-order', SPBWC_PB_CSS_URL . 'custom-order.css', array(), SPBWC_PB_VERSION );
         }
 
         /**
@@ -68,8 +82,10 @@ if ( ! class_exists( 'SPBWC_Buyer_Downloads' ) ) {
                 self::ACTION . '_' . $order->get_id() . '_' . (int) $item_id
             );
 
-            echo '<p class="spbwc-buyer-preview-dl"><a href="' . esc_url( $url ) . '">'
-                . esc_html__( 'Download design preview', 'storelly-product-builder-for-woocommerce' )
+            $icon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>';
+            echo '<p class="spbwc-co-action spbwc-buyer-preview-dl"><a class="spbwc-co-chip" href="' . esc_url( $url ) . '">'
+                . $icon // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static inline SVG icon, no dynamic data.
+                . '<span>' . esc_html__( 'Download design preview', 'storelly-product-builder-for-woocommerce' ) . '</span>'
                 . '</a></p>';
         }
 

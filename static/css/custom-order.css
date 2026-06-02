@@ -1,0 +1,147 @@
+/**
+ * Custom Order — storefront / My Account surfaces.
+ *
+ * Self-contained like quote-storefront.css: the storefront does not load the admin
+ * design tokens, so each component root re-declares a small token set (overridable by a
+ * theme) and mirrors the spbwc-rfq visual language so the two features feel native together.
+ *
+ * Covers:
+ *   - .spbwc-co-action     "Download preview" / "Save design" chips on order line items
+ *   - .spbwc-saved-designs the My Account "Saved designs" tab (card grid)
+ *
+ * @package Storelly
+ */
+
+.spbwc-co-action,
+.spbwc-saved-designs {
+    --co-accent:      #1d4ed8;
+    --co-accent-text: #ffffff;
+    --co-text:        #1d2327;
+    --co-muted:       #6b7280;
+    --co-border:      #e2e4e7;
+    --co-bg-soft:     #f8fafc;
+    --co-danger:      #d63638;
+    --co-radius:      10px;
+}
+
+/* ── Order line-item action chips (download / save) ─────────────────────── */
+.spbwc-co-action {
+    margin: 6px 0 0;
+}
+.spbwc-co-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    font-size: 13px;
+    font-weight: 600;
+    line-height: 1.2;
+    text-decoration: none;
+    color: var(--co-accent);
+    background: #fff;
+    border: 1px solid var(--co-accent);
+    border-radius: 999px;
+    transition: background .15s ease, color .15s ease, box-shadow .15s ease;
+}
+.spbwc-co-chip:hover,
+.spbwc-co-chip:focus {
+    background: var(--co-accent);
+    color: var(--co-accent-text);
+    box-shadow: 0 2px 8px rgba(29, 78, 216, .25);
+}
+.spbwc-co-chip:focus-visible {
+    outline: 2px solid var(--co-accent);
+    outline-offset: 2px;
+}
+.spbwc-co-chip svg { width: 15px; height: 15px; flex: 0 0 auto; }
+.spbwc-co-chip--ghost {
+    color: var(--co-text);
+    border-color: var(--co-border);
+}
+.spbwc-co-chip--ghost:hover,
+.spbwc-co-chip--ghost:focus {
+    background: var(--co-bg-soft);
+    color: var(--co-text);
+    border-color: var(--co-muted);
+    box-shadow: none;
+}
+
+/* ── Saved designs tab ──────────────────────────────────────────────────── */
+.spbwc-saved-designs h2 { margin: 0 0 14px; }
+.spbwc-saved-designs__list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 16px;
+}
+.spbwc-saved-designs__item {
+    display: flex;
+    flex-direction: column;
+    border: 1px solid var(--co-border);
+    border-radius: var(--co-radius);
+    overflow: hidden;
+    background: #fff;
+    transition: box-shadow .18s ease, border-color .18s ease, transform .18s ease;
+}
+.spbwc-saved-designs__item:hover {
+    box-shadow: 0 6px 20px rgba(16, 24, 40, .10);
+    border-color: #cdd3da;
+    transform: translateY(-2px);
+}
+.spbwc-saved-designs__thumb {
+    width: 100%;
+    aspect-ratio: 4 / 3;
+    object-fit: contain;
+    background: var(--co-bg-soft);
+    border-bottom: 1px solid var(--co-border);
+    display: block;
+}
+.spbwc-saved-designs__body {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 12px 14px 14px;
+    flex: 1 1 auto;
+}
+.spbwc-saved-designs__title {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--co-text);
+    line-height: 1.3;
+}
+.spbwc-saved-designs__date {
+    font-size: 12px;
+    color: var(--co-muted);
+}
+.spbwc-saved-designs__actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: auto;
+    padding-top: 10px;
+}
+.spbwc-saved-designs__form { margin: 0; }
+.spbwc-saved-designs__actions .button {
+    margin: 0;
+    cursor: pointer;
+}
+.spbwc-saved-designs__delete {
+    background: #fff !important;
+    color: var(--co-danger) !important;
+    border: 1px solid #fecaca !important;
+    box-shadow: none !important;
+}
+.spbwc-saved-designs__delete:hover {
+    background: #fef2f2 !important;
+}
+.spbwc-saved-designs__unavailable {
+    font-size: 12px;
+    color: var(--co-muted);
+    font-style: italic;
+}
+
+@media (max-width: 480px) {
+    .spbwc-saved-designs__list { grid-template-columns: 1fr 1fr; gap: 12px; }
+}

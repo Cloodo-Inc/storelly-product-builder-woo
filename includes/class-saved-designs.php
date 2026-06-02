@@ -126,8 +126,10 @@ if ( ! class_exists( 'SPBWC_Saved_Designs' ) ) {
                 ),
                 'spbwc_save_design_' . $order->get_id() . '_' . (int) $item_id
             );
-            echo '<p class="spbwc-saved-design-save"><a href="' . esc_url( $url ) . '">'
-                . esc_html__( 'Save design to my account', 'storelly-product-builder-for-woocommerce' )
+            $icon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>';
+            echo '<p class="spbwc-co-action spbwc-saved-design-save"><a class="spbwc-co-chip spbwc-co-chip--ghost" href="' . esc_url( $url ) . '">'
+                . $icon // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static inline SVG icon, no dynamic data.
+                . '<span>' . esc_html__( 'Save design to my account', 'storelly-product-builder-for-woocommerce' ) . '</span>'
                 . '</a></p>';
         }
 
@@ -153,7 +155,7 @@ if ( ! class_exists( 'SPBWC_Saved_Designs' ) ) {
                 )
             );
 
-            echo '<div class="spbwc-saved-designs">';
+            echo '<div class="spbwc-co spbwc-saved-designs">';
             echo '<h2>' . esc_html__( 'Saved designs', 'storelly-product-builder-for-woocommerce' ) . '</h2>';
             if ( empty( $designs ) ) {
                 echo '<p>' . esc_html__( 'You have not saved any designs yet.', 'storelly-product-builder-for-woocommerce' ) . '</p></div>';
