@@ -9063,6 +9063,17 @@ aside.spbwc-cust-panel {
     padding: 24px;
     box-sizing: border-box;
 }
+/* Hide legacy carousel `<` / `>` nav arrows inside the V3 canvas —
+ * they overlap the artwork and duplicate the new view-thumb strip
+ * (top-right of canvas). View thumbs are the canonical view-switcher
+ * affordance now. */
+.spbwc-cust-v3 .spbwc-cust-canvas .nbdpb-owl-nav,
+.spbwc-cust-v3 .spbwc-cust-canvas .nbdpb-owl-prev,
+.spbwc-cust-v3 .spbwc-cust-canvas .nbdpb-owl-next,
+.spbwc-cust-v3 .spbwc-cust-canvas .nbdpb-owl-dots {
+    display: none !important;
+}
+
 /* Constrain the design-zone (artwork canvas) to fit inside the stage.
  * Shadow intentionally OFF — Printcart leaves the artwork flush with
  * the dotted-grid stage; adding a card shadow turns the product photo

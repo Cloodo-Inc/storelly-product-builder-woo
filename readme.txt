@@ -4,8 +4,8 @@ Donate link: https://storelly.com/
 Tags: product builder, product customize, product customizer, woocommerce custom product
 Requires at least: 4.7
 Tested up to: 7.0
-Stable tag: 1.4.7
-Version: 1.4.7
+Stable tag: 1.4.8
+Version: 1.4.8
 Requires PHP: 7.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -132,6 +132,9 @@ This plugin connects to the following external services:
 3. Storelly settings page with API keys and sync options
 
 == Changelog ==
+= 1.4.8 =
+* Customizer V3: hide the legacy carousel `<` / `>` arrows + dot pagination inside the canvas. They were duplicating the new view-thumb strip (top-right of canvas) and overlapping the artwork — making it look like switching views broke the main image. View thumbs are now the only view-switcher affordance.
+
 = 1.4.7 =
 * Customizer V3 — direction refinement:
   - View thumbnails moved INTO the design zone (top-right corner of canvas). Each thumbnail is the view's base image; click to switch sides of the product. Replaces the previous text-pill view switcher in the canvas toolbar.
