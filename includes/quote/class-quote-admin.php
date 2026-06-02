@@ -300,19 +300,29 @@ if ( ! class_exists( 'SPBWC_Quote_Admin' ) ) {
                 );
                 $this->notice_html();
                 ?>
-                <div class="spbwc-block">
-                    <?php $table->views(); ?>
-                    <form method="get">
-                        <input type="hidden" name="page" value="<?php echo esc_attr( self::PAGE_SLUG ); ?>" />
-                        <?php
-                        // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Preserve status tab on search (read-only).
-                        $status = isset( $_GET['status'] ) ? sanitize_key( wp_unslash( $_GET['status'] ) ) : '';
-                        if ( $status ) {
-                            echo '<input type="hidden" name="status" value="' . esc_attr( $status ) . '" />';
-                        }
-                        $table->search_box( esc_html__( 'Search quotes', 'storelly-product-builder-for-woocommerce' ), 'spbwc-quote' );
-                        ?>
-                    </form>
+                <div class="spbwc-block spbwc-quotes-listwrap">
+                    <div class="spbwc-list-toolbar">
+                        <?php $table->views(); ?>
+                        <form method="get" role="search" class="spbwc-quotes-searchform">
+                            <input type="hidden" name="page" value="<?php echo esc_attr( self::PAGE_SLUG ); ?>" />
+                            <?php
+                            // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Preserve status tab on search (read-only).
+                            $status = isset( $_GET['status'] ) ? sanitize_key( wp_unslash( $_GET['status'] ) ) : '';
+                            if ( $status ) {
+                                echo '<input type="hidden" name="status" value="' . esc_attr( $status ) . '" />';
+                            }
+                            // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only search value.
+                            $search = isset( $_GET['s'] ) ? sanitize_text_field( wp_unslash( $_GET['s'] ) ) : '';
+                            ?>
+                            <div class="spbwc-search-bar">
+                                <span class="spbwc-search-bar__icon" aria-hidden="true"><span class="dashicons dashicons-search"></span></span>
+                                <input class="spbwc-search-bar__input" type="search" name="s"
+                                    value="<?php echo esc_attr( $search ); ?>"
+                                    placeholder="<?php esc_attr_e( 'Search quotes…', 'storelly-product-builder-for-woocommerce' ); ?>" />
+                                <button class="spbwc-search-bar__btn" type="submit"><?php esc_html_e( 'Search', 'storelly-product-builder-for-woocommerce' ); ?></button>
+                            </div>
+                        </form>
+                    </div>
                     <form method="post">
                         <?php
                         if ( empty( $table->items ) ) {

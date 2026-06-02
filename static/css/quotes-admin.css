@@ -202,6 +202,89 @@
 }
 .spbwc-q-actionbar .spbwc-q-spacer { flex: 1; }
 
+/* ── List screen: bridge WP_List_Table to the design system ───────────── */
+.spbwc-quotes-listwrap .spbwc-list-toolbar {
+    justify-content: space-between;
+    gap: var(--nbd-space-4);
+    flex-wrap: wrap;
+}
+.spbwc-quotes-searchform { margin: 0; display: flex; }
+
+/* Status tabs (WP .subsubsub) → token text */
+.spbwc-quotes-listwrap .subsubsub {
+    float: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 2px 4px;
+    font-size: 13px;
+    color: var(--nbd-st-text-mute);
+}
+.spbwc-quotes-listwrap .subsubsub li { margin: 0; color: var(--nbd-st-border); }
+.spbwc-quotes-listwrap .subsubsub a {
+    text-decoration: none;
+    color: var(--nbd-st-text-soft);
+    padding: 2px 4px;
+    border-radius: var(--nbd-radius-sm);
+}
+.spbwc-quotes-listwrap .subsubsub a:hover { color: var(--st-brand); background: var(--nbd-st-bg-brand); }
+.spbwc-quotes-listwrap .subsubsub a.current { color: var(--st-brand); font-weight: var(--font-semibold); }
+.spbwc-quotes-listwrap .subsubsub .count { color: var(--nbd-st-text-mute); font-weight: var(--font-normal); }
+
+/* Bulk-action toolbar (WP .tablenav): keep only the bottom one, tokenized */
+.spbwc-quotes-listwrap .tablenav.top { display: none; }
+.spbwc-quotes-listwrap .tablenav {
+    height: auto;
+    margin: 0;
+    padding: var(--nbd-space-3) var(--nbd-space-5);
+    background: var(--nbd-st-bg-soft);
+    border-top: 1px solid var(--nbd-st-border-subtle);
+    display: flex;
+    align-items: center;
+    gap: var(--nbd-space-3);
+}
+.spbwc-quotes-listwrap .tablenav .clear { display: none; }
+.spbwc-quotes-listwrap .tablenav .actions { padding: 0; }
+.spbwc-quotes-listwrap .tablenav .tablenav-pages { margin: 0 0 0 auto; float: none; }
+.spbwc-quotes-listwrap .tablenav select,
+.spbwc-quotes-listwrap .tablenav input.button {
+    height: 32px;
+    line-height: 1;
+    border-radius: var(--nbd-radius-sm);
+}
+
+/* The list table itself → match .spbwc-admin-table */
+.spbwc-quotes-listwrap .wp-list-table { border: 0; background: transparent; }
+.spbwc-quotes-listwrap .wp-list-table thead th,
+.spbwc-quotes-listwrap .wp-list-table thead td {
+    font-size: var(--text-xs);
+    text-transform: uppercase;
+    letter-spacing: .03em;
+    font-weight: var(--font-semibold);
+    color: var(--nbd-st-text-mute);
+    background: transparent;
+    border-bottom: 1px solid var(--nbd-st-border-light);
+    padding: var(--nbd-space-3) var(--nbd-space-4);
+}
+.spbwc-quotes-listwrap .wp-list-table tbody td {
+    padding: var(--nbd-space-3) var(--nbd-space-4);
+    font-size: 13px;
+    color: var(--nbd-st-text);
+    border-top: 0;
+    border-bottom: 1px solid var(--nbd-st-border-subtle);
+    vertical-align: middle;
+}
+.spbwc-quotes-listwrap .wp-list-table.striped > tbody > :nth-child(odd),
+.spbwc-quotes-listwrap .wp-list-table > tbody > tr { background: transparent; }
+.spbwc-quotes-listwrap .wp-list-table tbody tr:hover td { background: var(--nbd-st-bg-brand); }
+.spbwc-quotes-listwrap .wp-list-table tfoot { display: none; }   /* drop the duplicate header row */
+.spbwc-quotes-listwrap .wp-list-table .check-column { padding-left: var(--nbd-space-5); width: 2.2em; }
+.spbwc-quotes-listwrap .wp-list-table thead .check-column { vertical-align: middle; }
+.spbwc-quotes-listwrap .wp-list-table .row-actions { color: var(--nbd-st-text-mute); font-size: var(--text-xs); }
+.spbwc-quotes-listwrap .wp-list-table .row-actions a { color: var(--nbd-st-text-soft); }
+
 /* ── Back link ────────────────────────────────────────────────────────── */
 .spbwc-q-back {
     display: inline-flex;
