@@ -92,6 +92,15 @@ require_once(SPBWC_PB_PLUGIN_DIR .  'includes/class-i18n-notice.php');
 require_once(SPBWC_PB_PLUGIN_DIR .  'includes/class-frontend-options.php');
 require_once(SPBWC_PB_PLUGIN_DIR .  'includes/class-http.php');
 require_once(SPBWC_PB_PLUGIN_DIR .  'includes/class-productbuilder-api.php');
+
+/* Order print-PDF generation — decoupled from launcher "API sync" and queued via
+ * Action Scheduler. Gated by the dedicated "Enable cloud PDF rendering" opt-in
+ * (enable_cloud2print_api). See docs/SPEC_CUSTOM_ORDER.md Part C (M1). */
+require_once(SPBWC_PB_PLUGIN_DIR .  'includes/class-order-pdf.php');
+if ( class_exists( 'SPBWC_Order_PDF' ) ) {
+    SPBWC_Order_PDF::init();
+}
+
 require_once(SPBWC_PB_PLUGIN_DIR .  'includes/class-request-quote.php');
 
 /* B2B Quote redesign (CPT `spbwc_quote`) — see docs/SPEC_QUOTE_USER_FLOW_UX.md

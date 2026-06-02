@@ -1236,6 +1236,25 @@ if (!class_exists('STORELLY_FRONTEND_OPTIONS')) {
                     if ($options = wc_get_order_item_meta($order_item_id, '_pcpb_options')) {
                         $arr['pcpb_meta']['options'] = $options;
                     }
+                    // Clone the design folder so the re-ordered item is an INDEPENDENT instance.
+                    // Without this the new cart item either loses its artwork (folder dropped) or
+                    // shares the original order's folder — re-editing would then overwrite the
+                    // artwork of the past order. The clone gives it its own copy-on-write folder.
+                    if ($folder = wc_get_order_item_meta($order_item_id, '_pcpb_folder')) {
+                        $cloned     = SPBWC_Storelly_IO::spbwc_clone_design_folder($folder);
+                        $new_folder = $cloned ? $cloned : $folder;
+                        $arr['pcpb_meta']['pcpb'] = $new_folder;
+                        // Re-point the cart preview thumbnail to the clone's own preview images.
+                        $preview_path = SPBWC_PB_CUSTOMER_DIR . '/' . $new_folder . '/preview';
+                        $images       = SPBWC_Storelly_IO::spbwc_get_list_images($preview_path, 1);
+                        if (count($images)) {
+                            ksort($images);
+                            if (!isset($arr['pcpb_meta']['option_price']) || !is_array($arr['pcpb_meta']['option_price'])) {
+                                $arr['pcpb_meta']['option_price'] = array();
+                            }
+                            $arr['pcpb_meta']['option_price']['cart_image'] = SPBWC_Storelly_IO::spbwc_convert_path_to_url(end($images));
+                        }
+                    }
                     if ($original_price = wc_get_order_item_meta($order_item_id, '_pcpb_original_price')) {
                         $arr['pcpb_meta']['original_price'] = $original_price;
                         $arr['pcpb_meta']['price'] = $this->format_price($original_price + $option_price['total_price'] - $option_price['discount_price']);

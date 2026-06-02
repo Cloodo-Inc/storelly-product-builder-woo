@@ -46,15 +46,51 @@ if (!class_exists('SPBWC_Storelly_IO')) {
             @closedir($dir);
             return $files;
         }
-        public static function spbwc_copy_dir($src, $dst) {
+        public static function spbwc_copy_dir($src, $dst, $skip = array()) {
             if (file_exists($dst)) self::spbwc_delete_folder($dst);
             if (is_dir($src)) {
                 wp_mkdir_p($dst);
                 $files = scandir($src);
                 foreach ($files as $file) {
-                    if ($file != "." && $file != "..") self::spbwc_copy_dir("$src/$file", "$dst/$file");
+                    if ($file == "." || $file == "..") continue;
+                    if (in_array($file, $skip, true)) continue;
+                    self::spbwc_copy_dir("$src/$file", "$dst/$file", $skip);
                 }
-            } else if (file_exists($src)) copy($src, $dst);
+            } else if (file_exists($src)) copy($src, $dst); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_copy -- Direct copy within plugin data dir; WP_Filesystem not required for binary design assets.
+        }
+
+        /**
+         * Copy-on-write clone of a customer design folder.
+         *
+         * Every design instance must own its own folder so that re-order, re-edit and
+         * saved-design loads never mutate the artwork of an existing order. This deep-copies
+         * SPBWC_PB_CUSTOMER_DIR/{src} into a freshly generated folder id and returns that id.
+         *
+         * Generated sub-folders (customer-pdfs, pdf-templates) are intentionally skipped so the
+         * new instance regenerates its own print files instead of inheriting stale ones.
+         *
+         * @param string $src Source design folder id (basename only).
+         * @return string New folder id on success, '' on failure.
+         */
+        public static function spbwc_clone_design_folder($src) {
+            $src = is_string($src) ? trim($src) : '';
+            // Reject empty, path-traversal or nested values; only a bare folder id is valid.
+            if ('' === $src || $src !== basename($src)) {
+                return '';
+            }
+            $src_path = SPBWC_PB_CUSTOMER_DIR . '/' . $src;
+            if (!is_dir($src_path)) {
+                return '';
+            }
+            // Mirror the folder-id convention used when a design is first saved
+            // (class-product-builder-frontend.php) so clones are indistinguishable from originals.
+            $rand    = wp_rand(1, 100); // phpcs:ignore WordPress.WP.AlternativeFunctions.rand_rand -- wp_rand() is always available in WordPress.
+            $new_id  = substr(md5(uniqid('', true)), 0, 5) . $rand . time();
+            $dst_path = SPBWC_PB_CUSTOMER_DIR . '/' . $new_id;
+
+            self::spbwc_copy_dir($src_path, $dst_path, array('customer-pdfs', 'pdf-templates', 'download'));
+
+            return is_dir($dst_path) ? $new_id : '';
         }
         public static function spbwc_mkdir($dir) {
             if (!file_exists($dir)) {

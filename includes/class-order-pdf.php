@@ -1,0 +1,137 @@
+<?php
+/**
+ * Order print-PDF generation (decoupled + queued).
+ *
+ * Renders the print-ready PDF for every builder line item of an order and ties it to the
+ * order, independent of the unrelated launcher "API sync" toggle. Generation runs in the
+ * background via Action Scheduler (which ships with WooCommerce) so it never adds latency to
+ * checkout; on this dev box WP-Cron is disabled and a Windows task drives the queue
+ * (see project memory localhost_wpcron_fix).
+ *
+ * Gated by the dedicated "Enable cloud PDF rendering" opt-in (`enable_cloud2print_api`),
+ * because the underlying engine calls the external Cloud2Print service.
+ *
+ * @package Storelly
+ */
+
+if ( ! defined( 'ABSPATH' ) ) {
+    exit;
+}
+
+if ( ! class_exists( 'SPBWC_Order_PDF' ) ) {
+
+    class SPBWC_Order_PDF {
+
+        /** Action Scheduler hook that renders an order's PDFs. */
+        const GENERATE_HOOK = 'spbwc_generate_order_pdfs';
+
+        /** Order meta flag marking that generation has already been queued. */
+        const SCHEDULED_FLAG = '_pcpb_pdf_scheduled';
+
+        /** Action Scheduler group. */
+        const GROUP = 'spbwc-order-pdf';
+
+        public static function init() {
+            // payment_complete covers gateways that capture immediately; the status hooks
+            // cover offline gateways (BACS/cheque/COD) that move to processing/completed
+            // without ever firing payment_complete. The per-order flag de-dupes overlaps.
+            add_action( 'woocommerce_payment_complete', array( __CLASS__, 'maybe_schedule' ) );
+            add_action( 'woocommerce_order_status_processing', array( __CLASS__, 'maybe_schedule' ) );
+            add_action( 'woocommerce_order_status_completed', array( __CLASS__, 'maybe_schedule' ) );
+            add_action( self::GENERATE_HOOK, array( __CLASS__, 'generate' ) );
+        }
+
+        /** Whether the cloud PDF engine is opted in. */
+        public static function is_enabled() {
+            $settings = get_option( 'spbwc_pb_settings', array() );
+            return isset( $settings['enable_cloud2print_api'] ) && 'yes' === $settings['enable_cloud2print_api'];
+        }
+
+        /**
+         * Queue PDF generation for an order once it is paid/processing.
+         *
+         * @param int $order_id Order ID.
+         */
+        public static function maybe_schedule( $order_id ) {
+            $order_id = absint( $order_id );
+            if ( ! $order_id || ! self::is_enabled() ) {
+                return;
+            }
+            $order = wc_get_order( $order_id );
+            if ( ! $order ) {
+                return;
+            }
+            // Already queued/generated for this order — never enqueue twice.
+            if ( $order->get_meta( self::SCHEDULED_FLAG ) ) {
+                return;
+            }
+            // Only act on orders that actually carry a builder design.
+            if ( ! self::order_has_design( $order ) ) {
+                return;
+            }
+
+            $order->update_meta_data( self::SCHEDULED_FLAG, current_time( 'mysql' ) );
+            $order->save();
+
+            if ( function_exists( 'as_enqueue_async_action' ) ) {
+                as_enqueue_async_action( self::GENERATE_HOOK, array( $order_id ), self::GROUP );
+            } else {
+                // No Action Scheduler available — render inline as a last resort.
+                self::generate( $order_id );
+            }
+        }
+
+        /**
+         * True when at least one line item references a design folder.
+         *
+         * @param WC_Order $order Order object.
+         * @return bool
+         */
+        protected static function order_has_design( $order ) {
+            foreach ( $order->get_items() as $item ) {
+                if ( '' !== (string) $item->get_meta( '_pcpb_folder' ) ) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        /**
+         * Render print PDFs for every builder line item of an order.
+         *
+         * Records a per-item status (`_pcpb_pdf_status` = done|failed) so the admin can spot
+         * and re-trigger failed renders. Hidden from order screens via
+         * `woocommerce_hidden_order_itemmeta`.
+         *
+         * @param int $order_id Order ID.
+         */
+        public static function generate( $order_id ) {
+            $order_id = absint( $order_id );
+            if ( ! $order_id || ! self::is_enabled() ) {
+                return;
+            }
+            $order = wc_get_order( $order_id );
+            if ( ! $order ) {
+                return;
+            }
+
+            foreach ( $order->get_items() as $item_id => $item ) {
+                $folder = (string) $item->get_meta( '_pcpb_folder' );
+                if ( '' === $folder ) {
+                    continue;
+                }
+                $design_path = SPBWC_PB_CUSTOMER_DIR . '/' . $folder;
+                if ( ! is_dir( $design_path ) ) {
+                    wc_update_order_item_meta( $item_id, '_pcpb_pdf_status', 'failed' );
+                    continue;
+                }
+
+                SPBWC_Storelly_Export_PDF::spbwc_export_pdf( $folder );
+
+                $pdf_path = $design_path . '/customer-pdfs';
+                $pdfs     = SPBWC_Storelly_IO::spbwc_get_list_files_by_type( $pdf_path, 'pdf', 1 );
+                wc_update_order_item_meta( $item_id, '_pcpb_pdf_status', empty( $pdfs ) ? 'failed' : 'done' );
+            }
+        }
+    }
+}
