@@ -44,6 +44,50 @@ if (false !== $google_fonts_json) {
 }
 $fonts      = $google_fonts; // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Local template variable.
 $font_url   = SPBWC_PB_FONT_URL; // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Local template variable.
+
+// Volume-discount tiers for the V3 customizer's live total. Mirror of the
+// server engine (SPBWC_Storelly_Frontend_Options::option_processing): only
+// non-empty tiers with val>0 && dis>0 are surfaced; the JS picks the highest
+// tier where qty>=val. Display-only — the cart re-computes authoritatively at
+// add-to-cart, so this just keeps the shown price honest.
+// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Local template variable.
+$spbwc_qbreaks_cfg = array();
+// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Local template variable.
+$spbwc_qdtype_cfg  = 'f';
+if ( $oid > 0 ) {
+    // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Local template variable.
+    $spbwc_qb_cache_key = 'spbwc_pb_qbreaks_' . $oid;
+    // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Local template variable.
+    $spbwc_optblob = wp_cache_get( $spbwc_qb_cache_key, 'storelly_product_builder' );
+    if ( false === $spbwc_optblob ) {
+        global $wpdb; // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Global variable $wpdb.
+        // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Local template variable.
+        $spbwc_qb_table = $wpdb->prefix . 'storelly_product_builder_options';
+        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Table name from $wpdb->prefix; value parameterized; result cached on next line.
+        $spbwc_qb_raw  = $wpdb->get_var( $wpdb->prepare( "SELECT fields FROM {$spbwc_qb_table} WHERE `id` = %d LIMIT 1", $oid ) );
+        $spbwc_optblob = $spbwc_qb_raw ? maybe_unserialize( $spbwc_qb_raw ) : array();
+        wp_cache_set( $spbwc_qb_cache_key, $spbwc_optblob, 'storelly_product_builder', HOUR_IN_SECONDS );
+    }
+    if ( is_array( $spbwc_optblob ) ) {
+        $spbwc_qdtype_cfg = isset( $spbwc_optblob['quantity_discount_type'] ) ? (string) $spbwc_optblob['quantity_discount_type'] : 'f';
+        if ( isset( $spbwc_optblob['quantity_breaks'] ) && is_array( $spbwc_optblob['quantity_breaks'] ) ) {
+            foreach ( $spbwc_optblob['quantity_breaks'] as $spbwc_qb ) {
+                if ( ! is_array( $spbwc_qb ) ) { continue; }
+                $spbwc_qb_v = isset( $spbwc_qb['val'] ) ? $spbwc_qb['val'] : '';
+                $spbwc_qb_d = isset( $spbwc_qb['dis'] ) ? $spbwc_qb['dis'] : '';
+                $spbwc_qb_v = is_array( $spbwc_qb_v ) ? ( isset( $spbwc_qb_v['value'] ) ? $spbwc_qb_v['value'] : '' ) : $spbwc_qb_v;
+                $spbwc_qb_d = is_array( $spbwc_qb_d ) ? ( isset( $spbwc_qb_d['value'] ) ? $spbwc_qb_d['value'] : '' ) : $spbwc_qb_d;
+                if ( '' === (string) $spbwc_qb_v || '' === (string) $spbwc_qb_d ) { continue; }
+                $spbwc_qb_v = (int) $spbwc_qb_v;
+                $spbwc_qb_d = (float) $spbwc_qb_d;
+                if ( $spbwc_qb_v > 0 && $spbwc_qb_d > 0 ) {
+                    $spbwc_qbreaks_cfg[] = array( 'val' => $spbwc_qb_v, 'dis' => $spbwc_qb_d );
+                }
+            }
+        }
+    }
+}
+
 wp_localize_script( 'product-builder', 'SPBWC_PB_CONFIG', array(
         'is_mobile' => wp_is_mobile(),
         'is_creating_task' => $is_creating_task,
@@ -59,6 +103,10 @@ wp_localize_script( 'product-builder', 'SPBWC_PB_CONFIG', array(
          * Lives outside i18n so the JS can read it as a number. Falls
          * back to 0 outside a product context (admin create-task flow). */
         'base_price_raw' => ( function_exists( 'wc_get_product' ) && is_singular( 'product' ) && wc_get_product( get_the_ID() ) ) ? (float) wc_get_product( get_the_ID() )->get_price() : 0,
+        /* V3 — volume-discount tiers + type for $scope.getVolumeDiscount().
+         * Empty array when the option set defines no quantity breaks. */
+        'quantity_breaks'        => $spbwc_qbreaks_cfg,
+        'quantity_discount_type' => $spbwc_qdtype_cfg,
         'pcpb_cart_item_key' => $pcpb_cart_item_key,
         'oid' => $oid, 
         'redirect_url' => $redirect_url,
