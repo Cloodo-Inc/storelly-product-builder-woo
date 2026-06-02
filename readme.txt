@@ -4,8 +4,8 @@ Donate link: https://storelly.com/
 Tags: product builder, product customize, product customizer, woocommerce custom product
 Requires at least: 4.7
 Tested up to: 7.0
-Stable tag: 1.4.6
-Version: 1.4.6
+Stable tag: 1.4.7
+Version: 1.4.7
 Requires PHP: 7.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -132,6 +132,12 @@ This plugin connects to the following external services:
 3. Storelly settings page with API keys and sync options
 
 == Changelog ==
+= 1.4.7 =
+* Customizer V3 — direction refinement:
+  - View thumbnails moved INTO the design zone (top-right corner of canvas). Each thumbnail is the view's base image; click to switch sides of the product. Replaces the previous text-pill view switcher in the canvas toolbar.
+  - The "This view / All" view filter pill in the panel head is removed; per-component filter chips inside the open option grid replace it.
+  - New filter chips per accordion body: when a component has 2+ parent attribute groups (e.g. SIDE PANELS = Leather / Cotton / Suede), a chip row appears above the option grid — All / Leather / Cotton / Suede. Click to filter sub-options to that parent family. Backed by a new `$scope.getAttrFilters(component)` helper.
+
 = 1.4.6 =
 * Customizer V3 — view-aware accordion + Details tab redesign:
   - When a product has 2+ views (Front / Back / Side), the Customize tab now auto-filters the accordion to show ONLY parts that visually affect the view the buyer is currently looking at. Detection runs on each component's `pb_config.views[currentStage]` — if no option has a visible asset on that view, the component is hidden in "This view" mode. A small `[This view] [All]` toggle in the panel head lets buyers flip to the unfiltered list. Defaults to "This view".

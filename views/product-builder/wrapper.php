@@ -224,24 +224,11 @@
                     <div class="spbwc-cust-tabpanel" data-spbwc-tabpanel="customize">
                         <header class="spbwc-cust-panel__head">
                             <div class="spbwc-cust-panel__title"><?php esc_html_e( 'Customize parts', 'storelly-product-builder-for-woocommerce' ); ?></div>
-                            <!-- View filter toggle — show only parts that affect the
-                                 currently-shown view. Only rendered when product has
-                                 ≥2 stages. Defaults to "current view only" so the
-                                 buyer doesn't see options that don't visually change
-                                 what they're looking at. -->
-                            <div class="spbwc-cust-viewfilter" ng-if="stages.length > 1" role="tablist" aria-label="<?php esc_attr_e( 'Filter parts by view', 'storelly-product-builder-for-woocommerce' ); ?>">
-                                <button type="button" class="spbwc-cust-viewfilter__btn" ng-click="viewFilter = 'current'" ng-class="{'is-active': viewFilter == 'current'}" role="tab" aria-selected="{{viewFilter == 'current'}}">
-                                    <?php esc_html_e( 'This view', 'storelly-product-builder-for-woocommerce' ); ?>
-                                </button>
-                                <button type="button" class="spbwc-cust-viewfilter__btn" ng-click="viewFilter = 'all'" ng-class="{'is-active': viewFilter == 'all'}" role="tab" aria-selected="{{viewFilter == 'all'}}">
-                                    <?php esc_html_e( 'All', 'storelly-product-builder-for-woocommerce' ); ?>
-                                </button>
-                            </div>
                         </header>
 
                         <div class="spbwc-cust-acc">
                             <!-- One accordion item per component. ng-click toggles via $scope.showAttribute($index). -->
-                            <div ng-repeat="component in resource.components" ng-show="component.enable && componentVisibleInFilter(component)" class="spbwc-cust-acc-item" ng-class="{'is-open': resource.showValue && $index == resource.currentComponent, 'is-done': isComponentConfigured(component)}">
+                            <div ng-repeat="component in resource.components" ng-show="component.enable" class="spbwc-cust-acc-item" ng-class="{'is-open': resource.showValue && $index == resource.currentComponent, 'is-done': isComponentConfigured(component)}">
                                 <button type="button" class="spbwc-cust-acc-head" ng-click="toggleAccordion($index)" aria-expanded="{{resource.showValue && $index == resource.currentComponent ? 'true' : 'false'}}">
                                     <span class="spbwc-cust-acc-step" aria-hidden="true">
                                         <svg ng-if="isComponentConfigured(component)" viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
@@ -262,9 +249,21 @@
 
                                 <div class="spbwc-cust-acc-body" ng-if="resource.showValue && $index == resource.currentComponent">
 
-                                    <!-- nbpb_com: grid of option cards with prices -->
+                                    <!-- nbpb_com: filter chips (by parent attribute) +
+                                         grid of option cards with prices. Filter
+                                         chips only render when the component has 2+
+                                         unique parent attribute names (e.g. SIDE
+                                         PANELS = Leather / Cotton / Suede). -->
+                                    <div class="spbwc-cust-filter-chips" ng-if="component.nbpb_type == 'nbpb_com' && getAttrFilters(component).length > 1">
+                                        <button type="button" class="spbwc-cust-filter-chip" ng-click="component.optionFilter = ''" ng-class="{'is-active': !component.optionFilter}">
+                                            <?php esc_html_e( 'All', 'storelly-product-builder-for-woocommerce' ); ?>
+                                        </button>
+                                        <button type="button" class="spbwc-cust-filter-chip" ng-repeat="attr in getAttrFilters(component)" ng-click="component.optionFilter = attr" ng-class="{'is-active': component.optionFilter === attr}">
+                                            {{attr}}
+                                        </button>
+                                    </div>
                                     <div class="spbwc-cust-val-grid" ng-if="component.nbpb_type == 'nbpb_com'">
-                                        <button type="button" ng-repeat="sattr in component.current_pb_configs" ng-click="selectAttribute($index)" ng-class="{'is-active': $index == component.currentConfig}" class="spbwc-cust-val">
+                                        <button type="button" ng-repeat="sattr in component.current_pb_configs" ng-show="!component.optionFilter || sattr.attr_name === component.optionFilter" ng-click="selectAttribute($index)" ng-class="{'is-active': $index == component.currentConfig}" class="spbwc-cust-val">
                                             <span class="spbwc-cust-val__swatch" ng-style="{'background': sattr.bg_type == 'i' ? 'url(' + sattr.icon_bg + ')' : sattr.icon_color}"></span>
                                             <span class="spbwc-cust-val__body">
                                                 <span class="spbwc-cust-val__name" ng-bind="sattr.attr_name || sattr.sattr_name"></span>
@@ -571,6 +570,24 @@
                                     </div>
                                 </div>
                             </div>
+
+                            <!-- View thumbnails — floating inside the design zone.
+                                 Each thumb is the view's base image; click to switch
+                                 stages. Only renders when product has >= 2 views.
+                                 Each view is essentially one SIDE of the product. -->
+                            <div class="spbwc-cust-viewthumbs" ng-if="stages.length > 1" role="tablist" aria-label="<?php esc_attr_e( 'Product views', 'storelly-product-builder-for-woocommerce' ); ?>">
+                                <button type="button"
+                                        ng-repeat="stage in stages"
+                                        ng-click="changeStage($index)"
+                                        ng-class="{'is-active': $index == currentStage}"
+                                        class="spbwc-cust-viewthumb"
+                                        role="tab"
+                                        aria-selected="{{$index == currentStage ? 'true' : 'false'}}"
+                                        title="{{resource.views[$index].name || ('View ' + ($index + 1))}}">
+                                    <img class="spbwc-cust-viewthumb__img" ng-src="{{resource.views[$index].base_url}}" alt="" />
+                                    <span class="spbwc-cust-viewthumb__label" ng-bind="resource.views[$index].name || ('View ' + ($index + 1))"></span>
+                                </button>
+                            </div>
                         </div>
                         <!-- Admin tools (layer transform): only when a layer is selected. -->
                         <div class="design-admin-tool spbwc-cust-tools nbdpb-show" ng-if="stages[currentStage].states.showAdminTool">
@@ -604,19 +621,9 @@
                             </span>
                         </div>
                         <div class="spbwc-cust-canvas__toolbar-center">
-                            <div class="spbwc-cust-viewswitch" ng-if="stages.length > 1">
-                                <button type="button" class="spbwc-cust-viewswitch__btn" ng-click="changeStage((currentStage - 1 + stages.length) % stages.length)" ng-disabled="stages.length < 2" title="<?php esc_attr_e( 'Previous view', 'storelly-product-builder-for-woocommerce' ); ?>" aria-label="<?php esc_attr_e( 'Previous view', 'storelly-product-builder-for-woocommerce' ); ?>">
-                                    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
-                                </button>
-                                <div class="spbwc-cust-viewswitch__pills" role="tablist">
-                                    <button type="button" ng-repeat="stage in stages" ng-click="changeStage($index)" ng-class="{'is-active': $index == currentStage}" class="spbwc-cust-viewswitch__pill" role="tab" aria-selected="{{$index == currentStage ? 'true' : 'false'}}">
-                                        <span ng-bind="resource.views[$index].name || ('View ' + ($index + 1))"></span>
-                                    </button>
-                                </div>
-                                <button type="button" class="spbwc-cust-viewswitch__btn" ng-click="changeStage((currentStage + 1) % stages.length)" ng-disabled="stages.length < 2" title="<?php esc_attr_e( 'Next view', 'storelly-product-builder-for-woocommerce' ); ?>" aria-label="<?php esc_attr_e( 'Next view', 'storelly-product-builder-for-woocommerce' ); ?>">
-                                    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
-                                </button>
-                            </div>
+                            <!-- View switcher pills moved INSIDE the design zone
+                                 as floating thumbnails (.spbwc-cust-viewthumbs).
+                                 This slot reserved for future contextual tools. -->
                         </div>
                         <div class="spbwc-cust-canvas__toolbar-right">
                             <div class="spbwc-cust-zoom" aria-label="<?php esc_attr_e( 'Zoom', 'storelly-product-builder-for-woocommerce' ); ?>">

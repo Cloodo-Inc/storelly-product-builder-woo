@@ -1821,6 +1821,25 @@ nbdpbApp.controller("nbpbCtrl", [
      * defaults to currentConfig=0 on init (first option auto-selected),
      * so we treat it as configured as long as that index resolves to a
      * real entry — keeps the green-check affordance honest. */
+    /* V3 — filter chips per nbpb_com component. Returns the unique
+     * parent attribute names so the buyer can filter sub-options by
+     * material/family (e.g. SIDE PANELS → Leather / Cotton / Suede).
+     * Used by the chip row that renders above the option grid; auto-
+     * hidden when the component has fewer than 2 parent groups. */
+    $scope.getAttrFilters = function (component) {
+      if (!component || component.nbpb_type !== 'nbpb_com') return [];
+      var configs = component.current_pb_configs || [];
+      var seen = {};
+      var out = [];
+      for (var i = 0; i < configs.length; i++) {
+        var name = configs[i] && configs[i].attr_name;
+        if (name && !seen[name]) {
+          seen[name] = true;
+          out.push(name);
+        }
+      }
+      return out;
+    };
     /* V3 — view filter (auto-detect which components affect the
      * currently-shown stage). Buyer sees only parts that visually change
      * what they're looking at; toggle to "All" to see every part.
