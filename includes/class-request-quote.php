@@ -251,7 +251,8 @@ if ( ! class_exists( 'SPBWC_Request_Quote' ) ) {
                 return;
             }
             // The My Account quote views only need the stylesheet.
-            wp_enqueue_style( 'spbwc-quote-storefront', SPBWC_PB_CSS_URL . 'quote-storefront.css', array(), SPBWC_PB_VERSION );
+            $spbwc_rfq_css = SPBWC_PB_PLUGIN_DIR . 'static/css/quote-storefront.css';
+            wp_enqueue_style( 'spbwc-quote-storefront', SPBWC_PB_CSS_URL . 'quote-storefront.css', array(), file_exists( $spbwc_rfq_css ) ? filemtime( $spbwc_rfq_css ) : SPBWC_PB_VERSION );
             if ( ! $is_quote_product ) {
                 return;
             }
@@ -676,6 +677,7 @@ if ( ! class_exists( 'SPBWC_Request_Quote' ) ) {
 
             // Priced line items.
             if ( ! empty( $lines ) ) {
+                echo '<div class="spbwc-rfq-summary"><h3>' . esc_html__( "What's included", 'storelly-product-builder-for-woocommerce' ) . '</h3>';
                 echo '<table class="shop_table spbwc-rfq-table"><thead><tr>';
                 echo '<th>' . esc_html__( 'Item', 'storelly-product-builder-for-woocommerce' ) . '</th>';
                 echo '<th class="spbwc-rfq-num">' . esc_html__( 'Qty', 'storelly-product-builder-for-woocommerce' ) . '</th>';
@@ -701,7 +703,8 @@ if ( ! class_exists( 'SPBWC_Request_Quote' ) ) {
                     echo '<div class="spbwc-rfq-totals__row"><span>' . esc_html__( 'Tax', 'storelly-product-builder-for-woocommerce' ) . '</span><span>' . wp_kses_post( wc_price( (float) $totals['tax'], $cur ) ) . '</span></div>';
                 }
                 echo '<div class="spbwc-rfq-totals__row spbwc-rfq-totals__row--grand"><span>' . esc_html__( 'Total', 'storelly-product-builder-for-woocommerce' ) . '</span><span>' . wp_kses_post( wc_price( isset( $totals['total'] ) ? (float) $totals['total'] : 0, $cur ) ) . '</span></div>';
-                echo '</div>';
+                echo '</div>'; // .spbwc-rfq-totals
+                echo '</div>'; // .spbwc-rfq-summary
             }
 
             if ( '' !== $note ) {
