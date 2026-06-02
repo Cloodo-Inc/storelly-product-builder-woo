@@ -1808,10 +1808,36 @@ angular
             required: field.general.required.value,
             price_type: field.general.price_type.value,
             price: field.general.price.value,
+            // Field-level keys the editor authors via direct inputs. They live
+            // in the model as {value:…} (see build_config_general_*), but this
+            // serializer is whitelist-based and the PHP save lets jsonFields
+            // overwrite the whole fields[] array — so anything omitted here is
+            // silently dropped on every save. Carry them through.
+            placeholder: field.general.placeholder
+              ? field.general.placeholder.value
+              : "",
+            depend_qty: field.general.depend_qty
+              ? field.general.depend_qty.value
+              : "",
+            depend_quantity: field.general.depend_quantity
+              ? field.general.depend_quantity.value
+              : "",
+            price_breaks: field.general.price_breaks
+              ? field.general.price_breaks.value
+              : "",
             attributes: {},
           },
           appearance: {},
         };
+
+        // Conditional-logic rules (V2 feature, consumed by conditional-logic.js
+        // on the storefront). Stored as a plain array of {id,operator,val} on
+        // field.general.conditional_depend (NOT value-wrapped). Without this the
+        // merchant's rules are wiped on every save.
+        if (angular.isDefined(field.general.conditional_depend)) {
+          fields[fieldIndex].general.conditional_depend =
+            field.general.conditional_depend;
+        }
 
         if (field.general.attributes.options.length > 0) {
           fields[fieldIndex].general.attributes.options = [];
@@ -1826,6 +1852,44 @@ angular
                 des: op.des,
                 price: op.price,
               };
+
+              // Preserve sub-attributes on save. The editor whitelists option
+              // keys above, so without this the entire sub_attributes tree
+              // (color/pattern swatches + their images) is dropped on every
+              // save — silently flattening multi-level options. Sub-attributes
+              // are still authored in the classic editor, but the model holds
+              // them regardless, so we must round-trip them here.
+              if (
+                angular.isDefined(op.enable_subattr) &&
+                (op.enable_subattr === true ||
+                  op.enable_subattr === "on" ||
+                  op.enable_subattr === 1) &&
+                angular.isArray(op.sub_attributes) &&
+                op.sub_attributes.length > 0
+              ) {
+                var built_subs = [];
+                angular.forEach(op.sub_attributes, function (sop, sopIndex) {
+                  built_subs[sopIndex] = {
+                    name: sop.name,
+                    des: sop.des,
+                    price: sop.price,
+                    preview_type: sop.preview_type,
+                    image: sop.image,
+                    color: sop.color,
+                  };
+                });
+                fields[fieldIndex].general.attributes.options[
+                  opIndex
+                ].enable_subattr = op.enable_subattr;
+                fields[fieldIndex].general.attributes.options[
+                  opIndex
+                ].sattr_display_type = angular.isDefined(op.sattr_display_type)
+                  ? op.sattr_display_type
+                  : "s";
+                fields[fieldIndex].general.attributes.options[
+                  opIndex
+                ].sub_attributes = built_subs;
+              }
 
               if (field.appearance.change_image_product.value == "y") {
                 fields[fieldIndex].general.attributes.options[
