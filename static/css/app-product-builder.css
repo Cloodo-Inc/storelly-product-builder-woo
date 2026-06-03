@@ -8045,6 +8045,11 @@ select.ng-invalid {
     --spbwc-c-bg-mute:      #f3f4f6;            /* --nbd-mb-bg-canvas */
     --spbwc-c-success:      #10b981;            /* --nbd-color-success */
     --spbwc-c-success-soft: #d1fae5;            /* --nbd-color-success-soft */
+    --spbwc-c-success-mid:  #34d399;            /* gradient mid-stop */
+    --spbwc-c-success-deep: #065f46;            /* text on success-soft */
+    --spbwc-c-success-line: #6ee7b7;            /* border on success-soft */
+    --spbwc-c-brand-mid:    #3b82f6;            /* gradient mid-stop */
+    --spbwc-c-brand-line:   #93c5fd;            /* border on brand-soft */
     --spbwc-c-warning:      #f59e0b;            /* --nbd-color-warning */
     --spbwc-c-warning-soft: #fef3c7;
     --spbwc-c-danger:       #ef4444;            /* --nbd-color-error */
@@ -9229,8 +9234,8 @@ aside.spbwc-cust-summary {
 }
 .spbwc-cust-summary__progress-pill.is-complete {
     background: var(--spbwc-c-success-soft);
-    border-color: #6ee7b7;
-    color: #065f46;
+    border-color: var(--spbwc-c-success-line);
+    color: var(--spbwc-c-success-deep);
 }
 .spbwc-cust-summary__progress-dot {
     width: 8px;
@@ -9260,13 +9265,13 @@ aside.spbwc-cust-summary {
 .spbwc-cust-summary__progress-fill {
     display: block;
     height: 100%;
-    background: linear-gradient(90deg, var(--spbwc-c-brand) 0%, #3b82f6 100%);
+    background: linear-gradient(90deg, var(--spbwc-c-brand) 0%, var(--spbwc-c-brand-mid) 100%);
     transition: width 300ms cubic-bezier(0.4, 0, 0.2, 1), background 300ms;
     border-radius: 9999px;
     min-width: 4px; /* always visible nub */
 }
 .spbwc-cust-summary__progress-track.is-complete .spbwc-cust-summary__progress-fill {
-    background: linear-gradient(90deg, var(--spbwc-c-success) 0%, #34d399 100%);
+    background: linear-gradient(90deg, var(--spbwc-c-success) 0%, var(--spbwc-c-success-mid) 100%);
 }
 
 /* `.summary-section` */
@@ -9869,11 +9874,11 @@ span.spbwc-cust-cta__price[data-spbwc-cta-price] {
     gap: 6px;
     padding: 4px 10px;
     background: var(--spbwc-c-success-soft);
-    border: 1px solid #a7f3d0;
+    border: 1px solid var(--spbwc-c-success-line);
     border-radius: 9999px;
     font-size: 11.5px;
     font-weight: 600;
-    color: #064e3b;
+    color: var(--spbwc-c-success-deep);
 }
 .spbwc-cust-autosave__dot {
     width: 6px;

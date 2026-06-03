@@ -4,8 +4,8 @@ Donate link: https://storelly.com/
 Tags: product builder, product customize, product customizer, woocommerce custom product
 Requires at least: 4.7
 Tested up to: 7.0
-Stable tag: 1.4.9
-Version: 1.4.9
+Stable tag: 1.5.0
+Version: 1.5.0
 Requires PHP: 7.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -132,6 +132,12 @@ This plugin connects to the following external services:
 3. Storelly settings page with API keys and sync options
 
 == Changelog ==
+= 1.5.0 =
+* Customizer V3 — full UX audit + token consistency cleanup:
+  - Added five new design tokens (`--spbwc-c-success-mid/deep/line`, `--spbwc-c-brand-mid/line`) so every accent colour in the customizer comes from the token system. Replaced the last five hardcoded hex values that lived in the V3 CSS — the entire customizer surface now re-themes from a single token block.
+  - Audit pass confirmed every base token resolves to the Printcart Canva v2.0 palette (brand #2563eb, ink #1f2937, text #6b7280, line #e5e7eb, bg-soft #f9fafb, success #10b981, radius 12/8/6, shadow scale).
+  - All major flows verified working: open modal, view thumb swap (0↔1↔2 deterministic), accordion open/close/toggle, sub-option pick + auto-view-switch, filter chips per attribute, tab swap Customize/Details/Shipping/Help, reset all with confirm, sticky-CTA summary.
+
 = 1.4.9 =
 * Customizer V3 — two view-switching bugs fixed:
   1. View thumb click sometimes left the carousel stuck — root cause was the legacy `nbdpbCarousel.itemActive()` calculating the transform from *current* (already-transformed) offsets, which produced inconsistent results going 0→1→2→0. Rewrote `$scope.changeStage(idx)` to set the carousel transform directly with `index × first-item-width`, independent of past state. Switching is now deterministic regardless of click order.
