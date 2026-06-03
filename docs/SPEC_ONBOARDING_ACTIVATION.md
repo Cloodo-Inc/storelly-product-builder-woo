@@ -202,7 +202,13 @@ M4  ✅ DONE  Auto-scan(ngầm) Woo → bản chờ published=0 + auto-link + "P
             Trigger khi mở Welcome (maybe_schedule). Slug woo_prep_ riêng. Default: empty+swatch+ảnh.
             Verify full-cycle PASS (prepare ẩn → publish hiện → undo ẩn, 0 sót). Bắt+vá 2 bug cache
             (publish_all & undo phải bust spbwc_option_<id> + delete_transient WP-API, không direct SQL).
-M5  Cloud 1-click consent: đăng ký + store ID + PDF + email + readme External svc   (yc #4)
+M5  ✅ CLIENT DONE  Cloud 1-click consent: đăng ký + store UUID tất định + bật PDF+order-sync   (yc #4)
+            → includes/class-cloud-connect.php (SPBWC_Cloud_Connect: connect/disconnect/link_manual,
+            consent log), store_uuid tất định hash(url+email) giữ qua uninstall (class-onboarding.php),
+            payload register +store_uuid (class-productbuilder-api.php), card consent overview.php,
+            readme External services sửa "chỉ sau khi bấm Enable Cloud". Spec: docs/SPEC_M5_CLOUD_CONSENT.md.
+            Lint + test non-network PASS. CÒN PHỤ THUỘC BACKEND: /api/v1/register idempotent-by-store_uuid
+            (team Storelly) để reinstall re-link + email welcome. uninstall cleanup secrets → để M8.
 M6  Request Quote auto-publish + site-wide CTA badge                                (yc #11)
 M7  Freemium contextual upsell tại limit                                           (yc #10)
 M8  Compliance: plugin check 0 error + POT regen + readme + version bump

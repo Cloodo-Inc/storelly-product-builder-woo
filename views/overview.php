@@ -214,6 +214,96 @@ $plan_benefits = $is_free
                 <?php endforeach; ?>
             </ul>
         </div>
+
+        <?php
+        // Cloud 1-click consent (M5). No network call happens until the
+        // merchant clicks Enable — see includes/class-cloud-connect.php.
+        $spbwc_cloud_connected = class_exists( 'SPBWC_Cloud_Connect' ) && SPBWC_Cloud_Connect::is_connected();
+        $spbwc_cloud_nonce     = wp_create_nonce( 'spbwc_cloud_connect' );
+        $spbwc_privacy_url     = 'https://storelly.com/privacy';
+        ?>
+        <div class="spbwc-welcome__cloud<?php echo $spbwc_cloud_connected ? ' is-connected' : ''; ?>"
+             id="spbwc-cloud-card" data-nonce="<?php echo esc_attr( $spbwc_cloud_nonce ); ?>">
+            <?php if ( $spbwc_cloud_connected ) : ?>
+                <div class="spbwc-welcome__cloud-row">
+                    <span class="dashicons dashicons-cloud-saved" aria-hidden="true"></span>
+                    <div>
+                        <strong><?php esc_html_e( 'Cloud connected', 'storelly-product-builder-for-woocommerce' ); ?></strong>
+                        <p class="spbwc-welcome__cloud-desc">
+                            <?php esc_html_e( 'High-quality print PDF and your saved store profile are active.', 'storelly-product-builder-for-woocommerce' ); ?>
+                        </p>
+                    </div>
+                    <button type="button" class="spbwc-cta-btn spbwc-cta-btn--link" id="spbwc-cloud-disconnect">
+                        <?php esc_html_e( 'Disconnect', 'storelly-product-builder-for-woocommerce' ); ?>
+                    </button>
+                </div>
+            <?php else : ?>
+                <div class="spbwc-welcome__cloud-row">
+                    <span class="dashicons dashicons-cloud" aria-hidden="true"></span>
+                    <div class="spbwc-welcome__cloud-main">
+                        <strong><?php esc_html_e( 'Enable Cloud — high-quality print PDF + saved store profile', 'storelly-product-builder-for-woocommerce' ); ?></strong>
+                        <p class="spbwc-welcome__cloud-desc">
+                            <?php esc_html_e( 'One click connects your store to Storelly so you get print-ready PDFs and your setup is safely backed up.', 'storelly-product-builder-for-woocommerce' ); ?>
+                        </p>
+                        <p class="spbwc-welcome__cloud-fine">
+                            <?php
+                            printf(
+                                /* translators: %s: link to the privacy policy. */
+                                wp_kses(
+                                    /* translators: %s: link to the privacy policy. */
+                                    __( 'On click we share your admin email, store URL and a store ID with Storelly to create your profile. <a href="%s" target="_blank" rel="noopener noreferrer">Privacy</a>.', 'storelly-product-builder-for-woocommerce' ),
+                                    array( 'a' => array( 'href' => array(), 'target' => array(), 'rel' => array() ) )
+                                ),
+                                esc_url( $spbwc_privacy_url )
+                            );
+                            ?>
+                        </p>
+                        <p class="spbwc-welcome__cloud-manual">
+                            <a href="#" id="spbwc-cloud-manual-toggle"><?php esc_html_e( 'Already have a Store ID? Link it', 'storelly-product-builder-for-woocommerce' ); ?></a>
+                        </p>
+                        <div class="spbwc-welcome__cloud-manual-box" id="spbwc-cloud-manual-box" hidden>
+                            <input type="text" id="spbwc-cloud-store-id" placeholder="<?php esc_attr_e( 'Store ID from your Storelly dashboard', 'storelly-product-builder-for-woocommerce' ); ?>">
+                            <button type="button" class="spbwc-cta-btn" id="spbwc-cloud-link"><?php esc_html_e( 'Link', 'storelly-product-builder-for-woocommerce' ); ?></button>
+                        </div>
+                    </div>
+                    <button type="button" class="spbwc-cta-btn spbwc-cta-btn--solid" id="spbwc-cloud-connect">
+                        <span class="dashicons dashicons-cloud" aria-hidden="true"></span>
+                        <?php esc_html_e( 'Enable Cloud', 'storelly-product-builder-for-woocommerce' ); ?>
+                    </button>
+                </div>
+            <?php endif; ?>
+        </div>
+        <script>
+        (function($){
+            var $c = $('#spbwc-cloud-card');
+            if ( ! $c.length ) { return; }
+            var nonce = $c.data('nonce');
+            function send(action, extra, btn){
+                var data = $.extend({ action: action, nonce: nonce }, extra || {});
+                if ( btn ) { $(btn).addClass('is-loading').prop('disabled', true); }
+                $.post(ajaxurl, data, function(res){
+                    if ( res && res.success ) { location.reload(); }
+                    else {
+                        alert( (res && res.data && res.data.message) ? res.data.message : '<?php echo esc_js( __( 'Something went wrong. Please try again.', 'storelly-product-builder-for-woocommerce' ) ); ?>' );
+                        if ( btn ) { $(btn).removeClass('is-loading').prop('disabled', false); }
+                    }
+                }).fail(function(){
+                    alert('<?php echo esc_js( __( 'Request failed. Check your connection.', 'storelly-product-builder-for-woocommerce' ) ); ?>');
+                    if ( btn ) { $(btn).removeClass('is-loading').prop('disabled', false); }
+                });
+            }
+            $('#spbwc-cloud-connect').on('click', function(){ send('spbwc_cloud_connect', {}, this); });
+            $('#spbwc-cloud-disconnect').on('click', function(){
+                if ( window.confirm('<?php echo esc_js( __( 'Disconnect from Storelly Cloud? PDF and sync will stop.', 'storelly-product-builder-for-woocommerce' ) ); ?>') ) { send('spbwc_cloud_disconnect', {}, this); }
+            });
+            $('#spbwc-cloud-manual-toggle').on('click', function(e){ e.preventDefault(); $('#spbwc-cloud-manual-box').prop('hidden', false); });
+            $('#spbwc-cloud-link').on('click', function(){
+                var id = $.trim($('#spbwc-cloud-store-id').val() || '');
+                if ( ! id ) { return; }
+                send('spbwc_cloud_link_manual', { store_id: id }, this);
+            });
+        })(jQuery);
+        </script>
     </section>
     <?php endif; ?>
 

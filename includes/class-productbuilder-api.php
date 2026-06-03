@@ -75,7 +75,18 @@ if (!class_exists('SPBWC_Storelly_Product_Builder_API')) {
                         "woocommerce_consumer_secret" => isset($option['consumer_secret']) ? sanitize_text_field($option['consumer_secret']) : ''
                     )
                 );
-                
+
+                // Stable store identifier so a reinstall re-links to the same
+                // Storelly store instead of creating a duplicate. Server is
+                // expected to treat register as idempotent by store_uuid.
+                // See docs/SPEC_M5_CLOUD_CONSENT.md §3.2.
+                if (class_exists('SPBWC_Onboarding')) {
+                    $datas['store_uuid'] = SPBWC_Onboarding::get_store_uuid();
+                }
+                if (!empty($option['store_id'])) {
+                    $datas['store_id'] = sanitize_text_field($option['store_id']); // manual re-link hint
+                }
+
                 $api_url = SPBWC_API_URL . '/api/v1/register';
                 $resp = SPBWC_Storelly_HTTP::spbwc_post_data_without_auth($api_url, $datas);
                 if (isset($resp) && is_array($resp)) {
@@ -85,6 +96,11 @@ if (!class_exists('SPBWC_Storelly_Product_Builder_API')) {
                         }
                         if (isset($resp['unauth_token'])) {
                             $option['unauth_token'] = sanitize_text_field($resp['unauth_token']);
+                        }
+                        // Adopt the canonical store id the server resolved (idempotent
+                        // by store_uuid) so this site is pinned to the same store.
+                        if (isset($resp['store_id'])) {
+                            $option['store_id'] = sanitize_text_field($resp['store_id']);
                         }
                         $option['log'] = esc_html__('Connected successfully', 'storelly-product-builder-for-woocommerce') . ' - ' . current_time('mysql');
                         update_option('spbwc_connect_api_keys', $option);

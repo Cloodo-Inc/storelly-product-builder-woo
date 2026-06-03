@@ -93,11 +93,11 @@ This plugin connects to the following external services:
     - Privacy Policy: http://cloud2print.net/privacy-policy
     - Terms of Service: http://cloud2print.net/terms-of-service
 
-- **Storelly Dashboard API (`https://app.storelly.com/public`)**  
-  - **What it is used for**: Used to register your Storelly account from inside WooCommerce and to synchronise WooCommerce order information with the Storelly Dashboard.  
-  - **What data is sent and when**:  
-    - On first activation/initialisation, the plugin can create or connect a Storelly account by sending your store owner details (name, email address, billing address fields, time zone and WooCommerce API keys) to the Storelly Dashboard API.  
-    - When an order is placed or processed in WooCommerce, the plugin can send order data (order totals, discount amounts, product and variation identifiers, quantities, unit prices and links to the generated design PDF files) to the Storelly Dashboard API so that orders can be tracked and managed there.  
+- **Storelly Dashboard API (`https://app.storelly.com/public`)**
+  - **What it is used for**: Used to register your Storelly account from inside WooCommerce and to synchronise WooCommerce order information with the Storelly Dashboard.
+  - **What data is sent and when**:
+    - **Only after** a store administrator explicitly opts in — by clicking "Enable Cloud" on the plugin's Welcome screen (or connecting the account on the settings page) — the plugin registers your store by sending your store owner details (name, email address, billing address fields, time zone, WooCommerce API keys) and a non-secret store identifier (a stable store ID derived from your site URL and admin email, so reinstalling re-links to the same store) to the Storelly Dashboard API. Nothing is sent before this explicit opt-in.
+    - When an order is placed or processed in WooCommerce **and order sync is enabled**, the plugin sends order data (order totals, discount amounts, product and variation identifiers, quantities, unit prices and links to the generated design PDF files) to the Storelly Dashboard API so that orders can be tracked and managed there.
   - **Service owner and policies**: This service is operated by Storelly. Please review policies:
     - Terms of Service: https://app.storelly.com/terms
     - Privacy Policy: https://app.storelly.com/privacy

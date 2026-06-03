@@ -100,9 +100,9 @@ if ( ! class_exists( 'SPBWC_Onboarding' ) ) {
 				add_option( self::OPT_ACTIVATED_AT, time() );
 			}
 
-			// Generate the stable store UUID once and keep it. Local only.
+			// Persist the stable store UUID once and keep it. Local only.
 			if ( ! get_option( self::OPT_STORE_UUID ) ) {
-				add_option( self::OPT_STORE_UUID, wp_generate_uuid4(), '', false );
+				add_option( self::OPT_STORE_UUID, self::derive_store_uuid(), '', false );
 			}
 
 			// Arm the one-shot Welcome redirect for the next admin page load.
@@ -166,14 +166,41 @@ if ( ! class_exists( 'SPBWC_Onboarding' ) ) {
 			return ! self::is_onboarding_complete();
 		}
 
-		/** Stable store UUID (local identifier; never auto-transmitted). */
+		/**
+		 * Stable store UUID (local identifier; never auto-transmitted — only
+		 * sent after the explicit Cloud consent in M5).
+		 *
+		 * A previously stored value always wins (kept across uninstall so a
+		 * reinstall on the same DB re-links). When absent — e.g. a full DB
+		 * wipe — we DERIVE it deterministically from the site URL + admin
+		 * email, so the very same id is reproduced and the store re-links with
+		 * no manual step (see docs/SPEC_M5_CLOUD_CONSENT.md §3.2).
+		 */
 		public static function get_store_uuid() {
 			$uuid = get_option( self::OPT_STORE_UUID );
 			if ( ! $uuid ) {
-				$uuid = wp_generate_uuid4();
+				$uuid = self::derive_store_uuid();
 				add_option( self::OPT_STORE_UUID, $uuid, '', false );
 			}
 			return $uuid;
+		}
+
+		/**
+		 * Deterministic store id from normalized site URL + admin email.
+		 * Plain md5 (NOT wp_hash) on purpose: it must reproduce identically
+		 * after a reinstall, independent of WP salts which a DB wipe could
+		 * change. This is a non-secret identifier, not an auth token.
+		 *
+		 * @return string uuid-formatted (8-4-4-4-12) hex.
+		 */
+		protected static function derive_store_uuid() {
+			$host = (string) wp_parse_url( home_url(), PHP_URL_HOST );
+			$path = (string) wp_parse_url( home_url(), PHP_URL_PATH );
+			$norm = strtolower( $host ) . rtrim( $path, '/' );
+			$mail = strtolower( trim( (string) get_option( 'admin_email' ) ) );
+			$hex  = md5( $norm . '|' . $mail ); // 32 hex chars.
+			return substr( $hex, 0, 8 ) . '-' . substr( $hex, 8, 4 ) . '-'
+				. substr( $hex, 12, 4 ) . '-' . substr( $hex, 16, 4 ) . '-' . substr( $hex, 20, 12 );
 		}
 
 		/** First-activation timestamp (UNIX), or 0 if unknown (legacy install). */
