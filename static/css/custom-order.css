@@ -24,9 +24,26 @@
     --co-radius:      10px;
 }
 
-/* ── Order line-item action chips (download / save) ─────────────────────── */
+/* ── Design preview thumbnail on the order line item (D2) ───────────────── */
+.spbwc-co-orderthumb {
+    display: inline-block;
+    margin: 0 0 6px;
+}
+.spbwc-co-orderthumb img {
+    display: block;
+    max-width: 96px;
+    height: auto;
+    border: 1px solid var(--co-border, #e2e4e7);
+    border-radius: 8px;
+    background: var(--co-bg-soft, #f8fafc);
+}
+
+/* ── Order line-item action chips (view / download / save) ──────────────── */
 .spbwc-co-action {
     margin: 6px 0 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
 }
 .spbwc-co-chip {
     display: inline-flex;

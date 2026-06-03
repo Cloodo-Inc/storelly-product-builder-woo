@@ -25,6 +25,7 @@ if ( ! class_exists( 'SPBWC_Buyer_Downloads' ) ) {
 
         public static function init() {
             add_action( 'init', array( __CLASS__, 'maybe_handle_download' ) );
+            add_action( 'woocommerce_order_item_meta_start', array( __CLASS__, 'render_order_thumbnail' ), 10, 4 );
             add_action( 'woocommerce_order_item_meta_end', array( __CLASS__, 'render_download_link' ), 10, 4 );
             add_action( 'wp_enqueue_scripts', array( __CLASS__, 'enqueue_assets' ) );
         }
@@ -36,41 +37,82 @@ if ( ! class_exists( 'SPBWC_Buyer_Downloads' ) ) {
         public static function enqueue_assets() {
             $is_account = function_exists( 'is_account_page' ) && is_account_page();
             $is_thanks  = function_exists( 'is_order_received_page' ) && is_order_received_page();
-            if ( ! $is_account && ! $is_thanks ) {
+            $is_cart    = function_exists( 'is_cart' ) && is_cart();
+            if ( ! $is_account && ! $is_thanks && ! $is_cart ) {
                 return;
             }
             wp_enqueue_style( 'spbwc-custom-order', SPBWC_PB_CSS_URL . 'custom-order.css', array(), SPBWC_PB_VERSION );
+            // Progressive-enhancement confirm() for the saved-designs delete button (D4).
+            if ( $is_account ) {
+                wp_enqueue_script( 'spbwc-custom-order', SPBWC_PB_JS_URL . 'custom-order.js', array(), SPBWC_PB_VERSION, true );
+                wp_localize_script(
+                    'spbwc-custom-order',
+                    'spbwcCustomOrder',
+                    array( 'confirmDelete' => __( 'Delete this saved design? This cannot be undone.', 'storelly-product-builder-for-woocommerce' ) )
+                );
+            }
         }
 
         /**
-         * Render a "Download design preview" link under a custom line item.
+         * Sorted preview images for an order item, but only when the current logged-in
+         * user owns the order and the item carries a design folder. Empty array otherwise.
          *
-         * @param int           $item_id    Order item ID.
-         * @param WC_Order_Item $item       Order item.
-         * @param WC_Order      $order      Order.
-         * @param bool          $plain_text Whether this is the plain-text email context.
+         * @param int           $item_id Order item ID.
+         * @param WC_Order_Item $item    Order item.
+         * @param WC_Order      $order   Order.
+         * @return array Absolute image paths (sorted), or [].
          */
-        public static function render_download_link( $item_id, $item, $order, $plain_text = false ) {
-            if ( $plain_text ) {
-                return; // Links are only meaningful in the HTML My Account / order views.
-            }
+        protected static function owned_item_preview_images( $item_id, $item, $order ) {
             if ( ! is_user_logged_in() || ! ( $order instanceof WC_Order ) || ! is_callable( array( $item, 'get_meta' ) ) ) {
-                return;
+                return array();
             }
             if ( (int) $order->get_customer_id() !== get_current_user_id() ) {
-                return;
+                return array();
             }
             $folder = (string) $item->get_meta( '_pcpb_folder' );
             if ( '' === $folder ) {
+                return array();
+            }
+            $images = SPBWC_Storelly_IO::spbwc_get_list_images( SPBWC_PB_CUSTOMER_DIR . '/' . $folder . '/preview', 1 );
+            if ( empty( $images ) ) {
+                return array();
+            }
+            sort( $images );
+            return $images;
+        }
+
+        /**
+         * Show the buyer's actual design preview as a thumbnail on the order (D2).
+         * The default storefront order items table renders no image at all.
+         */
+        public static function render_order_thumbnail( $item_id, $item, $order, $plain_text = false ) {
+            if ( $plain_text ) {
                 return;
             }
-            $preview_path = SPBWC_PB_CUSTOMER_DIR . '/' . $folder . '/preview';
-            $images       = SPBWC_Storelly_IO::spbwc_get_list_images( $preview_path, 1 );
+            $images = self::owned_item_preview_images( $item_id, $item, $order );
+            if ( empty( $images ) ) {
+                return;
+            }
+            $src = SPBWC_Storelly_IO::spbwc_convert_path_to_url( $images[0] );
+            echo '<span class="spbwc-co-orderthumb"><img src="' . esc_url( $src ) . '" alt="' . esc_attr__( 'Your design', 'storelly-product-builder-for-woocommerce' ) . '" loading="lazy" /></span>';
+        }
+
+        /**
+         * Render "View" + "Download" actions under a custom line item (D3).
+         * View opens the (public) preview image; Download streams a PNG (single view)
+         * or a zip (multiple views).
+         */
+        public static function render_download_link( $item_id, $item, $order, $plain_text = false ) {
+            if ( $plain_text ) {
+                return;
+            }
+            $images = self::owned_item_preview_images( $item_id, $item, $order );
             if ( empty( $images ) ) {
                 return;
             }
 
-            $url = wp_nonce_url(
+            $view_url = SPBWC_Storelly_IO::spbwc_convert_path_to_url( $images[0] );
+            $dl_url   = wp_nonce_url(
                 add_query_arg(
                     array(
                         self::ACTION => 1,
@@ -82,11 +124,17 @@ if ( ! class_exists( 'SPBWC_Buyer_Downloads' ) ) {
                 self::ACTION . '_' . $order->get_id() . '_' . (int) $item_id
             );
 
-            $icon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>';
-            echo '<p class="spbwc-co-action spbwc-buyer-preview-dl"><a class="spbwc-co-chip" href="' . esc_url( $url ) . '">'
-                . $icon // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static inline SVG icon, no dynamic data.
-                . '<span>' . esc_html__( 'Download design preview', 'storelly-product-builder-for-woocommerce' ) . '</span>'
-                . '</a></p>';
+            $eye = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/></svg>';
+            $dl  = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>';
+
+            echo '<p class="spbwc-co-action spbwc-buyer-preview-dl">';
+            echo '<a class="spbwc-co-chip spbwc-co-chip--ghost" href="' . esc_url( $view_url ) . '" target="_blank" rel="noopener">'
+                . $eye // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static inline SVG icon.
+                . '<span>' . esc_html__( 'View design', 'storelly-product-builder-for-woocommerce' ) . '</span></a> ';
+            echo '<a class="spbwc-co-chip" href="' . esc_url( $dl_url ) . '">'
+                . $dl // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static inline SVG icon.
+                . '<span>' . esc_html__( 'Download', 'storelly-product-builder-for-woocommerce' ) . '</span></a>';
+            echo '</p>';
         }
 
         /**
@@ -135,13 +183,21 @@ if ( ! class_exists( 'SPBWC_Buyer_Downloads' ) ) {
             }
             sort( $images );
 
+            // Single view → stream the PNG directly (no needless 1-file zip). Multiple
+            // views → bundle a zip. The PNG is the real preview file, so don't delete it.
+            if ( count( $images ) === 1 ) {
+                $ext  = pathinfo( $images[0], PATHINFO_EXTENSION );
+                $name = 'preview_' . $order_id . '_' . $item_id . '.' . ( $ext ? $ext : 'png' );
+                self::stream_and_exit( $images[0], $name, false );
+            }
+
             $zip_name = 'preview_' . $order_id . '_' . $item_id . '.zip';
             $zip_path = SPBWC_PB_DATA_DIR . '/download/' . $zip_name;
             if ( ! SPBWC_Storelly_PB_Util::spbwc_zip_files( $images, $zip_path ) ) {
                 wp_die( esc_html__( 'Could not prepare the download.', 'storelly-product-builder-for-woocommerce' ), 500 );
             }
 
-            self::stream_and_exit( $zip_path, $zip_name );
+            self::stream_and_exit( $zip_path, $zip_name, true );
         }
 
         /**
@@ -150,7 +206,7 @@ if ( ! class_exists( 'SPBWC_Buyer_Downloads' ) ) {
          * @param string $path          Absolute file path.
          * @param string $download_name Filename presented to the browser.
          */
-        protected static function stream_and_exit( $path, $download_name ) {
+        protected static function stream_and_exit( $path, $download_name, $delete_after = true ) {
             if ( ! function_exists( 'WP_Filesystem' ) ) {
                 require_once ABSPATH . 'wp-admin/includes/file.php';
             }
@@ -159,17 +215,23 @@ if ( ! class_exists( 'SPBWC_Buyer_Downloads' ) ) {
                 WP_Filesystem();
             }
             $data = $wp_filesystem ? $wp_filesystem->get_contents( $path ) : false;
-            wp_delete_file( $path ); // Don't leave a publicly reachable copy behind.
+            if ( $delete_after ) {
+                wp_delete_file( $path ); // Temp zip — don't leave a publicly reachable copy.
+            }
 
             if ( false === $data ) {
                 wp_die( esc_html__( 'Could not read the download.', 'storelly-product-builder-for-woocommerce' ), 500 );
             }
 
+            $ext   = strtolower( pathinfo( $download_name, PATHINFO_EXTENSION ) );
+            $types = array( 'zip' => 'application/zip', 'png' => 'image/png', 'jpg' => 'image/jpeg', 'jpeg' => 'image/jpeg', 'svg' => 'image/svg+xml' );
+            $ctype = isset( $types[ $ext ] ) ? $types[ $ext ] : 'application/octet-stream';
+
             nocache_headers();
-            header( 'Content-Type: application/zip' );
+            header( 'Content-Type: ' . $ctype );
             header( 'Content-Disposition: attachment; filename="' . sanitize_file_name( $download_name ) . '"' );
             header( 'Content-Length: ' . strlen( $data ) );
-            echo $data; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Raw binary zip stream; escaping would corrupt it.
+            echo $data; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Raw binary file stream; escaping would corrupt it.
             exit;
         }
     }

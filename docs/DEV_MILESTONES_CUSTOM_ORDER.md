@@ -24,10 +24,10 @@
 
 | # | Milestone | Scope | Status |
 | --- | --- | --- | --- |
-| **M7** | **Save from cart (P1/D1)** | "Save design" link via `woocommerce_after_cart_item_name` (cart-only, UX-1) → nonce + `cart_item_key` → read cart `pcpb_meta` → clone folder → `spbwc_saved_design` for the logged-in buyer → redirect to tab w/ notice. Guest → "Log in to save" (OD-8). Reuses `SPBWC_Saved_Designs`. | todo |
-| **M8** | **Design thumbnail on order (P2/D2)** | Render the `preview/` image via `woocommerce_order_item_meta_start` on My Account order detail + order-received; ownership-gated; silent fallback. | todo |
-| **M9** | **Smart download (P3/D3)** | "View" = direct public preview URL (new tab, no handler, OD-9). "Download" = stream PNG when single image, zip when multiple (keep stream-then-delete). | todo |
-| **M10** | **Safe delete + cart feedback (P4/D4)** | Enqueue `custom-order.js` adding `confirm()` to `.spbwc-saved-designs__delete` (OD-10); `wc_add_notice()` "Design added to your cart" on Load before redirect. | todo |
+| **M7** | **Save from cart (P1/D1)** | "Save design" link via `woocommerce_after_cart_item_name` (cart-only, UX-1) → nonce + `cart_item_key` → read cart `pcpb_meta` → clone folder → `spbwc_saved_design` for the logged-in buyer → redirect to tab w/ notice. Guest → "Log in to save" (OD-8). Reuses `SPBWC_Saved_Designs`. | **done** |
+| **M8** | **Design thumbnail on order (P2/D2)** | `render_order_thumbnail()` via `woocommerce_order_item_meta_start` on order detail + order-received; ownership-gated, plain-text-guarded, silent fallback. Shared `owned_item_preview_images()` helper. | **done** |
+| **M9** | **Smart download (P3/D3)** | "View" = direct public preview URL (new tab, no handler, OD-9). "Download" = stream PNG when single image, zip when multiple; `stream_and_exit()` now content-type aware + `$delete_after` (don't delete the real PNG). | **done** |
+| **M10** | **Safe delete + cart feedback (P4/D4)** | `custom-order.js` adds `confirm()` to `.spbwc-saved-designs__delete` (OD-10, enqueued on account); `wc_add_notice()` "Design added to your cart" on a **successful** Load (orphan clone cleaned if add fails). | **done** |
 
 Dependencies: **M0 → M2, M3, M4**. M1 is independent (can run in parallel with M0/M2).
 Round 2 (M7–M10) depends on M0 (clone) + M4 (saved-design storage), all shipped.

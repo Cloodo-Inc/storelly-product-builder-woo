@@ -40,7 +40,9 @@ if ( ! class_exists( 'SPBWC_Saved_Designs' ) ) {
             add_filter( 'woocommerce_account_menu_items', array( __CLASS__, 'add_menu_item' ) );
             add_action( 'woocommerce_account_' . self::ENDPOINT . '_endpoint', array( __CLASS__, 'render_endpoint' ) );
             add_action( 'woocommerce_order_item_meta_end', array( __CLASS__, 'render_save_link' ), 20, 4 );
-            // Action handlers (save link = GET, load/delete = POST).
+            // Save a design straight from the cart (D1 / cart-only entry point).
+            add_action( 'woocommerce_after_cart_item_name', array( __CLASS__, 'render_cart_save_link' ), 10, 2 );
+            // Action handlers (save links = GET, load/delete = POST).
             add_action( 'wp_loaded', array( __CLASS__, 'handle_actions' ) );
         }
 
@@ -133,6 +135,41 @@ if ( ! class_exists( 'SPBWC_Saved_Designs' ) ) {
                 . '</a></p>';
         }
 
+        /**
+         * "Save design" link under a cart line item (D1, cart-only entry point).
+         *
+         * @param array  $cart_item     Cart item.
+         * @param string $cart_item_key Cart item key.
+         */
+        public static function render_cart_save_link( $cart_item, $cart_item_key ) {
+            if ( ! is_array( $cart_item ) || empty( $cart_item['pcpb_meta'] ) || empty( $cart_item['pcpb_meta']['pcpb'] ) ) {
+                return;
+            }
+            // Guests have no account to save into — offer a login link instead (OD-8).
+            if ( ! is_user_logged_in() ) {
+                echo '<p class="spbwc-co-action spbwc-cart-save"><a class="spbwc-co-chip spbwc-co-chip--ghost" href="'
+                    . esc_url( wc_get_page_permalink( 'myaccount' ) ) . '">'
+                    . esc_html__( 'Log in to save this design', 'storelly-product-builder-for-woocommerce' )
+                    . '</a></p>';
+                return;
+            }
+            $icon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>';
+            $url  = wp_nonce_url(
+                add_query_arg(
+                    array(
+                        'spbwc_save_cart_design' => 1,
+                        'cart_item_key'          => $cart_item_key,
+                    ),
+                    home_url( '/' )
+                ),
+                'spbwc_save_cart_design_' . $cart_item_key
+            );
+            echo '<p class="spbwc-co-action spbwc-cart-save"><a class="spbwc-co-chip spbwc-co-chip--ghost" href="' . esc_url( $url ) . '">'
+                . $icon // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static inline SVG icon.
+                . '<span>' . esc_html__( 'Save design to my account', 'storelly-product-builder-for-woocommerce' ) . '</span>'
+                . '</a></p>';
+        }
+
         // ------------------------------------------------------------------
         //  Saved designs listing (My Account tab)
         // ------------------------------------------------------------------
@@ -213,10 +250,79 @@ if ( ! class_exists( 'SPBWC_Saved_Designs' ) ) {
                 self::handle_save();
                 return;
             }
+            // Save (GET link from a cart line item — D1).
+            if ( isset( $_GET['spbwc_save_cart_design'] ) ) {
+                self::handle_cart_save();
+                return;
+            }
             // Load / Delete (POST forms from the saved-designs tab).
             if ( isset( $_POST['spbwc_saved_action'] ) ) {
                 self::handle_post_action();
             }
+        }
+
+        /** Clone a CART item's design into a new saved-design post (D1). */
+        protected static function handle_cart_save() {
+            $key   = isset( $_GET['cart_item_key'] ) ? sanitize_text_field( wp_unslash( $_GET['cart_item_key'] ) ) : '';
+            $nonce = isset( $_GET['_wpnonce'] ) ? sanitize_text_field( wp_unslash( $_GET['_wpnonce'] ) ) : '';
+            if ( '' === $key || '' === $nonce ) {
+                return;
+            }
+            if ( ! wp_verify_nonce( $nonce, 'spbwc_save_cart_design_' . $key ) ) {
+                wp_die( esc_html__( 'Security error.', 'storelly-product-builder-for-woocommerce' ), 403 );
+            }
+            if ( ! is_user_logged_in() ) {
+                wp_die( esc_html__( 'You do not have permission.', 'storelly-product-builder-for-woocommerce' ), 403 );
+            }
+            $user_id = get_current_user_id();
+            if ( ! function_exists( 'WC' ) || ! WC()->cart ) {
+                self::redirect_with_notice( 'error' );
+            }
+            $cart_item = WC()->cart->get_cart_item( $key );
+            if ( ! $cart_item || empty( $cart_item['pcpb_meta'] ) || empty( $cart_item['pcpb_meta']['pcpb'] ) ) {
+                wp_die( esc_html__( 'Design not found.', 'storelly-product-builder-for-woocommerce' ), 404 );
+            }
+
+            $max = self::max_per_user();
+            if ( $max > 0 && self::count_for_user( $user_id ) >= $max ) {
+                self::redirect_with_notice( 'limit' );
+            }
+
+            $pm    = $cart_item['pcpb_meta'];
+            $clone = SPBWC_Storelly_IO::spbwc_clone_design_folder( (string) $pm['pcpb'] );
+            if ( '' === $clone ) {
+                self::redirect_with_notice( 'error' );
+            }
+
+            $variation  = isset( $cart_item['variation_id'] ) ? (int) $cart_item['variation_id'] : 0;
+            $product_id = $variation ? $variation : (int) $cart_item['product_id'];
+            $product    = wc_get_product( $product_id );
+            $title      = $product ? $product->get_name() : __( 'Saved design', 'storelly-product-builder-for-woocommerce' );
+
+            $post_id = wp_insert_post( array(
+                'post_type'   => self::POST_TYPE,
+                'post_status' => 'publish',
+                'post_author' => $user_id,
+                'post_title'  => $title,
+            ), true );
+            if ( is_wp_error( $post_id ) || ! $post_id ) {
+                SPBWC_Storelly_IO::spbwc_delete_folder( SPBWC_PB_CUSTOMER_DIR . '/' . $clone );
+                self::redirect_with_notice( 'error' );
+            }
+
+            update_post_meta( $post_id, self::META_FOLDER, $clone );
+            update_post_meta( $post_id, self::META_PRODUCT, $product_id );
+            update_post_meta( $post_id, self::META_FIELD, isset( $pm['field'] ) ? $pm['field'] : '' );
+            update_post_meta( $post_id, self::META_OPTIONS, isset( $pm['options'] ) ? $pm['options'] : '' );
+            update_post_meta( $post_id, self::META_OPTPRICE, isset( $pm['option_price'] ) ? $pm['option_price'] : '' );
+            update_post_meta( $post_id, self::META_PRICE, isset( $pm['original_price'] ) ? $pm['original_price'] : 0 );
+
+            $preview = self::first_preview_url( $clone );
+            if ( '' !== $preview ) {
+                update_post_meta( $post_id, self::META_PREVIEW, $preview );
+            }
+
+            self::redirect_with_notice( 'saved' );
         }
 
         /** Clone an order item's design into a new saved-design post. */
@@ -362,9 +468,18 @@ if ( ! class_exists( 'SPBWC_Saved_Designs' ) ) {
             $parent_id    = $variation_id ? $product->get_parent_id() : $product_id;
 
             if ( function_exists( 'WC' ) && WC()->cart ) {
-                WC()->cart->add_to_cart( $parent_id, 1, $variation_id, array(), array( 'pcpb_meta' => $pcpb_meta ) );
-                wp_safe_redirect( wc_get_cart_url() );
-                exit;
+                $added = WC()->cart->add_to_cart( $parent_id, 1, $variation_id, array(), array( 'pcpb_meta' => $pcpb_meta ) );
+                if ( $added ) {
+                    if ( function_exists( 'wc_add_notice' ) ) {
+                        wc_add_notice( __( 'Design added to your cart.', 'storelly-product-builder-for-woocommerce' ) );
+                    }
+                    wp_safe_redirect( wc_get_cart_url() );
+                    exit;
+                }
+                // Add failed (e.g. a third-party validation veto) — clean up the orphan clone.
+                if ( '' !== $clone ) {
+                    SPBWC_Storelly_IO::spbwc_delete_folder( SPBWC_PB_CUSTOMER_DIR . '/' . $clone );
+                }
             }
             self::redirect_with_notice( 'error' );
         }
