@@ -1881,11 +1881,25 @@ nbdpbApp.controller("nbpbCtrl", [
       }
       $scope.showAttribute(idx);
       /* Auto-switch canvas to the component's primary view on open so
-       * the customer is looking at the right side BEFORE picking. */
+       * the customer is looking at the right side BEFORE picking.
+       *
+       * 1.5.3 — added a debug log behind window.SPBWC_DEBUG_VIEW. Set
+       *     window.SPBWC_DEBUG_VIEW = true
+       * in DevTools and re-open an accordion to confirm the heuristic
+       * fired correctly. Verified offline (PHP simulation of bag DB):
+       *   HANDLES        → primary view 0 (variety 10/10/10 tie)
+       *   SIDE PANELS    → primary view 0 (variety 15/1/1)
+       *   MIDDLE BLOCK   → primary view 0 (variety 15/1/1)
+       *   INSIDE STORAGE → primary view 2 (variety 1/1/13)
+       *   STRAP FABRIC   → primary view 0 (variety 6/1/1)
+       */
       try {
         var comp = $scope.resource.components && $scope.resource.components[idx];
         if (comp && typeof $scope.findPrimaryView === 'function') {
           var primary = $scope.findPrimaryView(comp);
+          if (typeof window !== 'undefined' && window.SPBWC_DEBUG_VIEW) {
+            try { console.log('[SPBWC] toggleAccordion', idx, comp.general && comp.general.title, '→ findPrimaryView =', primary, 'currentStage =', $scope.currentStage); } catch (e) {}
+          }
           if (primary >= 0 && primary !== $scope.currentStage) {
             $scope.changeStage(primary);
           }

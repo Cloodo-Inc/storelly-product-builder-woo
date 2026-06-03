@@ -4,8 +4,8 @@ Donate link: https://storelly.com/
 Tags: product builder, product customize, product customizer, woocommerce custom product
 Requires at least: 4.7
 Tested up to: 7.0
-Stable tag: 1.5.2
-Version: 1.5.2
+Stable tag: 1.5.3
+Version: 1.5.3
 Requires PHP: 7.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -132,6 +132,9 @@ This plugin connects to the following external services:
 3. Storelly settings page with API keys and sync options
 
 == Changelog ==
+= 1.5.3 =
+* Customizer V3 — primary-view detection verified offline against the bag product (option_id 8). PHP unserialization of the actual `wp_storelly_product_builder_options.fields` blob shows `findPrimaryView()` returns the expected stage for every component: HANDLES → 0 (Front, tie-broken to first), SIDE PANELS → 0, MIDDLE BLOCK → 0, INSIDE STORAGE → **2 (Inside)**, STRAP FABRIC → 0. The auto-switch heuristic is correct; if the bug still reproduces, hard-reload to bust the cached 1.5.1 / 1.4.x JS and set `window.SPBWC_DEBUG_VIEW = true` in DevTools then re-open the INSIDE STORAGE accordion to see the heuristic firing in the console.
+
 = 1.5.2 =
 * Customizer V3 — two view-switch fixes from buyer feedback:
   - Picking an option whose visual change lives on a different view now auto-switches the canvas to that view, even when the admin has set a base `image_url` on every view. The old "first non-empty url" heuristic failed in that case. The new `$scope.findPrimaryView(component)` counts distinct image URLs per view across all the component's options and picks the view with the greatest variety. Toggling an accordion item open also hops to that primary view immediately so the customer is already looking at the right side before picking.
