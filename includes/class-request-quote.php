@@ -28,6 +28,7 @@ if ( ! class_exists( 'SPBWC_Request_Quote' ) ) {
             add_action( 'woocommerce_after_add_to_cart_button', array( $this, 'render_quote_button' ), 25 );
             add_action( 'woocommerce_single_product_summary', array( $this, 'render_quote_button_standalone' ), 31 );
             add_action( 'wp_footer', array( $this, 'render_quote_popup' ) );
+            add_action( 'wp_footer', array( $this, 'render_quote_badge' ), 20 );
 
             // D3 display modes — hide cart/price for "replace" / "quote_only".
             add_filter( 'woocommerce_is_purchasable', array( $this, 'filter_is_purchasable' ), 10, 2 );
@@ -149,6 +150,55 @@ if ( ! class_exists( 'SPBWC_Request_Quote' ) ) {
             $this->quote_button_markup();
         }
 
+        /**
+         * Site-wide floating "Request a Quote" badge (M6). Rendered in the
+         * footer on every page when enabled. On a quote-enabled product page
+         * it opens the existing modal (no navigation); elsewhere it links to
+         * the configured URL, falling back to the shop page.
+         */
+        public function render_quote_badge() {
+            $settings = get_option( 'spbwc_quote_settings', array() );
+            if ( ! is_array( $settings )
+                || ! isset( $settings['enable_quote'] ) || 'yes' !== $settings['enable_quote']
+                || ! isset( $settings['enable_quote_badge'] ) || 'yes' !== $settings['enable_quote_badge'] ) {
+                return;
+            }
+
+            $position = isset( $settings['quote_badge_position'] ) ? $settings['quote_badge_position'] : 'bottom-right';
+            if ( ! in_array( $position, array( 'bottom-right', 'bottom-left', 'top-right', 'top-left' ), true ) ) {
+                $position = 'bottom-right';
+            }
+            $label = ( isset( $settings['quote_badge_label'] ) && '' !== $settings['quote_badge_label'] )
+                ? $settings['quote_badge_label']
+                : __( 'Request a Quote', 'storelly-product-builder-for-woocommerce' );
+
+            // If the per-product modal is present on this page, open it instead.
+            $open_modal = false;
+            if ( function_exists( 'is_product' ) && is_product() ) {
+                $open_modal = $this->is_product_quote_enabled( get_queried_object_id() );
+            }
+
+            $classes = 'spbwc-rfq-badge spbwc-rfq-badge--' . $position;
+
+            if ( $open_modal ) {
+                echo '<button type="button" class="' . esc_attr( $classes ) . '" id="spbwc-rfq-badge" aria-haspopup="dialog">'
+                    . '<span class="spbwc-rfq-badge__label">' . esc_html( $label ) . '</span></button>';
+                // Reuse the existing modal opener so we don't duplicate logic.
+                echo '<script>(function(){var b=document.getElementById("spbwc-rfq-badge");if(!b){return;}b.addEventListener("click",function(){var o=document.getElementById("spbwc-open-quote-popup");if(o){o.click();}});})();</script>';
+                return;
+            }
+
+            $url = isset( $settings['quote_badge_url'] ) && '' !== $settings['quote_badge_url'] ? $settings['quote_badge_url'] : '';
+            if ( ! $url && function_exists( 'wc_get_page_permalink' ) ) {
+                $url = wc_get_page_permalink( 'shop' );
+            }
+            if ( ! $url ) {
+                $url = home_url( '/' );
+            }
+            echo '<a class="' . esc_attr( $classes ) . '" id="spbwc-rfq-badge" href="' . esc_url( $url ) . '">'
+                . '<span class="spbwc-rfq-badge__label">' . esc_html( $label ) . '</span></a>';
+        }
+
         /* ── D3 filters ───────────────────────────────────────────── */
 
         /**
@@ -247,12 +297,21 @@ if ( ! class_exists( 'SPBWC_Request_Quote' ) ) {
                 global $product; // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- WooCommerce global.
                 $is_quote_product = $product && $this->is_product_quote_enabled( $product->get_id() );
             }
-            if ( ! $is_account && ! $is_quote_product ) {
+            // Site-wide floating badge (M6) needs the stylesheet on every page.
+            $settings  = get_option( 'spbwc_quote_settings', array() );
+            $badge_on  = is_array( $settings )
+                && isset( $settings['enable_quote'] ) && 'yes' === $settings['enable_quote']
+                && isset( $settings['enable_quote_badge'] ) && 'yes' === $settings['enable_quote_badge'];
+            if ( ! $is_account && ! $is_quote_product && ! $badge_on ) {
                 return;
             }
             // The My Account quote views only need the stylesheet.
+            // Shared Printcart storefront tokens load first; quote-storefront.css consumes
+            // the --nbd-* variables (with literal fallbacks) so Quote matches the other
+            // user pages.
+            wp_enqueue_style( 'spbwc-tokens-storefront', SPBWC_PB_CSS_URL . '_tokens-storefront.css', array(), SPBWC_PB_VERSION );
             $spbwc_rfq_css = SPBWC_PB_PLUGIN_DIR . 'static/css/quote-storefront.css';
-            wp_enqueue_style( 'spbwc-quote-storefront', SPBWC_PB_CSS_URL . 'quote-storefront.css', array(), file_exists( $spbwc_rfq_css ) ? filemtime( $spbwc_rfq_css ) : SPBWC_PB_VERSION );
+            wp_enqueue_style( 'spbwc-quote-storefront', SPBWC_PB_CSS_URL . 'quote-storefront.css', array( 'spbwc-tokens-storefront' ), file_exists( $spbwc_rfq_css ) ? filemtime( $spbwc_rfq_css ) : SPBWC_PB_VERSION );
             if ( ! $is_quote_product ) {
                 return;
             }

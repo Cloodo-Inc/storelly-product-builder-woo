@@ -1028,11 +1028,20 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
                 if ( ! in_array( $posted_mode, array( 'both', 'replace', 'quote_only' ), true ) ) {
                     $posted_mode = 'both';
                 }
+                $posted_pos = isset( $_POST['quote_badge_position'] ) ? sanitize_key( wp_unslash( $_POST['quote_badge_position'] ) ) : 'bottom-right'; // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce checked above.
+                if ( ! in_array( $posted_pos, array( 'bottom-right', 'bottom-left', 'top-right', 'top-left' ), true ) ) {
+                    $posted_pos = 'bottom-right';
+                }
                 $settings = array(
                     'enable_quote'      => isset( $_POST['enable_quote'] ) ? sanitize_text_field( wp_unslash( $_POST['enable_quote'] ) ) : 'no', // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce checked above.
                     'admin_email'       => isset( $_POST['admin_email'] ) ? sanitize_email( wp_unslash( $_POST['admin_email'] ) ) : '', // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce checked above.
                     'success_message'   => isset( $_POST['success_message'] ) ? sanitize_textarea_field( wp_unslash( $_POST['success_message'] ) ) : '', // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce checked above.
                     'display_mode'      => $posted_mode,
+                    // Site-wide floating "Request a Quote" badge (M6).
+                    'enable_quote_badge'   => isset( $_POST['enable_quote_badge'] ) ? 'yes' : 'no', // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce checked above.
+                    'quote_badge_position' => $posted_pos,
+                    'quote_badge_label'    => isset( $_POST['quote_badge_label'] ) ? sanitize_text_field( wp_unslash( $_POST['quote_badge_label'] ) ) : '', // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce checked above.
+                    'quote_badge_url'      => isset( $_POST['quote_badge_url'] ) ? esc_url_raw( wp_unslash( $_POST['quote_badge_url'] ) ) : '', // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce checked above.
                 );
                 update_option( 'spbwc_quote_settings', $settings );
                 echo '<div class="notice notice-success is-dismissible"><p>' . esc_html__( 'Quote settings saved.', 'storelly-product-builder-for-woocommerce' ) . '</p></div>';
@@ -1093,6 +1102,10 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
             $admin_email = isset( $settings['admin_email'] ) ? $settings['admin_email'] : get_option( 'admin_email' );
             $success_message = isset( $settings['success_message'] ) ? $settings['success_message'] : __( 'Your quote request has been sent successfully.', 'storelly-product-builder-for-woocommerce' );
             $display_mode = isset( $settings['display_mode'] ) ? $settings['display_mode'] : 'both';
+            $enable_quote_badge   = isset( $settings['enable_quote_badge'] ) ? $settings['enable_quote_badge'] : 'yes';
+            $quote_badge_position = isset( $settings['quote_badge_position'] ) ? $settings['quote_badge_position'] : 'bottom-right';
+            $quote_badge_label    = ( isset( $settings['quote_badge_label'] ) && '' !== $settings['quote_badge_label'] ) ? $settings['quote_badge_label'] : __( 'Request a Quote', 'storelly-product-builder-for-woocommerce' );
+            $quote_badge_url      = isset( $settings['quote_badge_url'] ) ? $settings['quote_badge_url'] : '';
             $form_fields = get_option( 'spbwc_quote_form_fields', $this->spbwc_get_default_quote_form_fields() );
             ?>
             <div class="wrap spbwc-settings-wrap">
@@ -1205,6 +1218,49 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
                                         </select>
                                     </div>
                                     <p class="spbwc-setting-row__hint"><?php esc_html_e( 'How quote-enabled products appear by default. Each product can override this in its Storelly settings.', 'storelly-product-builder-for-woocommerce' ); ?></p>
+                                </div>
+                                <!-- Site-wide floating "Request a Quote" badge (M6) -->
+                                <div class="spbwc-setting-row">
+                                    <div class="spbwc-setting-row__label">
+                                        <?php esc_html_e( 'Floating quote badge', 'storelly-product-builder-for-woocommerce' ); ?>
+                                    </div>
+                                    <div class="spbwc-setting-row__control">
+                                        <label class="spbwc-radio-group__option">
+                                            <input type="checkbox" name="enable_quote_badge" value="yes" <?php checked( $enable_quote_badge, 'yes' ); ?> />
+                                            <span class="spbwc-radio-group__lbl"><?php esc_html_e( 'Show a floating "Request a Quote" button on every page', 'storelly-product-builder-for-woocommerce' ); ?></span>
+                                        </label>
+                                    </div>
+                                    <p class="spbwc-setting-row__hint"><?php esc_html_e( 'Requires Get Quote enabled above. On product pages it opens the quote form; elsewhere it links to the URL below (or your shop).', 'storelly-product-builder-for-woocommerce' ); ?></p>
+                                </div>
+                                <div class="spbwc-setting-row">
+                                    <div class="spbwc-setting-row__label">
+                                        <label for="spbwc_quote_badge_label"><?php esc_html_e( 'Badge label', 'storelly-product-builder-for-woocommerce' ); ?></label>
+                                    </div>
+                                    <div class="spbwc-setting-row__control">
+                                        <input id="spbwc_quote_badge_label" type="text" name="quote_badge_label" value="<?php echo esc_attr( $quote_badge_label ); ?>" class="spbwc-input" style="width:300px;" />
+                                    </div>
+                                </div>
+                                <div class="spbwc-setting-row">
+                                    <div class="spbwc-setting-row__label">
+                                        <label for="spbwc_quote_badge_position"><?php esc_html_e( 'Badge position', 'storelly-product-builder-for-woocommerce' ); ?></label>
+                                    </div>
+                                    <div class="spbwc-setting-row__control">
+                                        <select id="spbwc_quote_badge_position" name="quote_badge_position" class="spbwc-input" style="width:200px;">
+                                            <option value="bottom-right" <?php selected( $quote_badge_position, 'bottom-right' ); ?>><?php esc_html_e( 'Bottom right', 'storelly-product-builder-for-woocommerce' ); ?></option>
+                                            <option value="bottom-left" <?php selected( $quote_badge_position, 'bottom-left' ); ?>><?php esc_html_e( 'Bottom left', 'storelly-product-builder-for-woocommerce' ); ?></option>
+                                            <option value="top-right" <?php selected( $quote_badge_position, 'top-right' ); ?>><?php esc_html_e( 'Top right', 'storelly-product-builder-for-woocommerce' ); ?></option>
+                                            <option value="top-left" <?php selected( $quote_badge_position, 'top-left' ); ?>><?php esc_html_e( 'Top left', 'storelly-product-builder-for-woocommerce' ); ?></option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="spbwc-setting-row">
+                                    <div class="spbwc-setting-row__label">
+                                        <label for="spbwc_quote_badge_url"><?php esc_html_e( 'Badge link (non-product pages)', 'storelly-product-builder-for-woocommerce' ); ?></label>
+                                    </div>
+                                    <div class="spbwc-setting-row__control">
+                                        <input id="spbwc_quote_badge_url" type="url" name="quote_badge_url" value="<?php echo esc_attr( $quote_badge_url ); ?>" class="spbwc-input" style="width:420px;" placeholder="<?php esc_attr_e( 'Leave empty to use your shop page', 'storelly-product-builder-for-woocommerce' ); ?>" />
+                                    </div>
+                                    <p class="spbwc-setting-row__hint"><?php esc_html_e( 'Where the floating badge sends visitors when they are not on a quote-enabled product page.', 'storelly-product-builder-for-woocommerce' ); ?></p>
                                 </div>
                             </div>
                             <div class="spbwc-block__foot">

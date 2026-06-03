@@ -410,3 +410,40 @@
 .spbwc-rfq-account table.shop_table.spbwc-rfq-table { border-radius: 12px; overflow: hidden; }
 .spbwc-rfq-account .spbwc-rfq-table tbody tr:hover td { background: #f8fafc; }
 .spbwc-rfq-account .spbwc-rfq-btn--ghost { width: auto; padding: 7px 14px; font-size: 13px; }
+
+/* Site-wide floating "Request a Quote" badge (M6) */
+.spbwc-rfq-badge {
+    position: fixed;
+    z-index: 99990;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 18px;
+    border: none;
+    border-radius: 999px;
+    background: var(--spbwc-rfq-accent, #2563eb);
+    color: #fff;
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 1;
+    text-decoration: none;
+    cursor: pointer;
+    box-shadow: 0 6px 20px rgba(15, 23, 42, 0.25);
+    transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+}
+.spbwc-rfq-badge:hover {
+    color: #fff;
+    transform: translateY(-2px);
+    box-shadow: 0 10px 26px rgba(15, 23, 42, 0.3);
+}
+.spbwc-rfq-badge:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
+.spbwc-rfq-badge--bottom-right { right: 20px; bottom: 20px; }
+.spbwc-rfq-badge--bottom-left  { left: 20px;  bottom: 20px; }
+.spbwc-rfq-badge--top-right    { right: 20px; top: 20px; }
+.spbwc-rfq-badge--top-left     { left: 20px;  top: 20px; }
+@media (max-width: 600px) {
+    .spbwc-rfq-badge { padding: 11px 15px; font-size: 13px; }
+    .spbwc-rfq-badge--bottom-right, .spbwc-rfq-badge--bottom-left { bottom: 14px; }
+    .spbwc-rfq-badge--bottom-right, .spbwc-rfq-badge--top-right { right: 14px; }
+    .spbwc-rfq-badge--bottom-left, .spbwc-rfq-badge--top-left { left: 14px; }
+}
