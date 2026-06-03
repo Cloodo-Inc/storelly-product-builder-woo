@@ -288,6 +288,58 @@ if (!class_exists('SPBWC_Storelly_PB_Util')) {
                 return true;
             return false;
         }
+        /**
+         * Does this product have an actual DESIGN canvas (something the "Customize"
+         * button can open), as opposed to only pricing options?
+         *
+         * spbwc_is_product_builder() is true for ANY product that has an assigned
+         * option set — including pricing-only products (e.g. a business card with
+         * just a price matrix). Those have nothing to customize, so the Customize
+         * button must not show. A product has a designer when its option set has at
+         * least one design component (nbpb_com/nbpb_text/nbpb_image) OR a canvas view
+         * with a real base image (a print area to design on).
+         *
+         * @param int $id Product ID.
+         * @return bool
+         */
+        public static function spbwc_product_has_designer($id)
+        {
+            $id = self::spbwc_get_wpml_original_id($id);
+            static $cache = array();
+            if (array_key_exists($id, $cache)) {
+                return $cache[$id];
+            }
+            $has       = false;
+            $option_id = STORELLY_FRONTEND_OPTIONS::get_product_option($id);
+            if ($option_id) {
+                $row        = STORELLY_FRONTEND_OPTIONS::get_option($option_id);
+                $fields_raw = (is_array($row) && isset($row['fields'])) ? $row['fields'] : '';
+                $o          = $fields_raw ? maybe_unserialize($fields_raw) : array();
+                if (is_array($o)) {
+                    if (isset($o['fields']) && is_array($o['fields'])) {
+                        foreach ($o['fields'] as $f) {
+                            $t = isset($f['nbpb_type']) ? $f['nbpb_type'] : '';
+                            if ('nbpb_com' === $t || 'nbpb_text' === $t || 'nbpb_image' === $t) {
+                                $has = true;
+                                break;
+                            }
+                        }
+                    }
+                    if (!$has && isset($o['views']) && is_array($o['views'])) {
+                        foreach ($o['views'] as $v) {
+                            $base = isset($v['base']) ? (int) $v['base'] : 0;
+                            if ($base > 0) {
+                                $has = true;
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+            $has = (bool) apply_filters('spbwc_product_has_designer', $has, $id, $option_id);
+            $cache[$id] = $has;
+            return $has;
+        }
         public static function spbwc_get_wpml_original_id($id, $type = 'post', $current_lang = false)
         {
             if (class_exists('SitePress')) {

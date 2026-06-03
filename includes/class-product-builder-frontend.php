@@ -497,7 +497,7 @@ if (!class_exists('SPBWC_Storelly_Product_Builder_Frontend')) {
         public function spbwc_before_product_container()
         {
             $pid = get_the_ID();
-            if (SPBWC_Storelly_PB_Util::spbwc_is_product_builder($pid)) {
+            if (SPBWC_Storelly_PB_Util::spbwc_product_has_designer($pid)) {
                 add_action('wp_ajax_spbwc_save_product_builder_design', array($this, 'spbwc_save_product_builder_design'));
         add_action('wp_ajax_nopriv_spbwc_save_product_builder_design', array($this, 'spbwc_save_product_builder_design'));
                 add_action('woocommerce_product_thumbnails', array(&$this, 'spbwc_product_builder_html'), 30);
@@ -571,7 +571,7 @@ if (!class_exists('SPBWC_Storelly_Product_Builder_Frontend')) {
             // here replaces the implicit `if ($has_nbpb)` guard that wrapped the previous
             // `spbwc_after_default_options` listener.
             $pid = ( function_exists( 'is_product' ) && is_product() ) ? get_queried_object_id() : get_the_ID();
-            if ( ! $pid || ! SPBWC_Storelly_PB_Util::spbwc_is_product_builder( $pid ) ) {
+            if ( ! $pid || ! SPBWC_Storelly_PB_Util::spbwc_product_has_designer( $pid ) ) {
                 return;
             }
             include(SPBWC_PB_PLUGIN_DIR . 'views/product-builder/customize-btn.php');
@@ -580,7 +580,7 @@ if (!class_exists('SPBWC_Storelly_Product_Builder_Frontend')) {
         {
             $product_id = get_the_ID();
             $option_id = get_transient('spbwc_product_builder_' . $product_id);
-            if (SPBWC_Storelly_PB_Util::spbwc_is_product_builder($product_id)) {
+            if (SPBWC_Storelly_PB_Util::spbwc_product_has_designer($product_id)) {
                 /* V2 customizer (Cloodo-style 3-column layout) is the default.
                  * Legacy single-pane UI is preserved at wrapper-legacy.php for
                  * emergency rollback — opt-in via filter or constant:

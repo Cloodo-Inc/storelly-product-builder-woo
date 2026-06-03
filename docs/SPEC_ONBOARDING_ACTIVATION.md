@@ -209,8 +209,11 @@ M5  ✅ CLIENT DONE  Cloud 1-click consent: đăng ký + store UUID tất địn
             readme External services sửa "chỉ sau khi bấm Enable Cloud". Spec: docs/SPEC_M5_CLOUD_CONSENT.md.
             Lint + test non-network PASS. CÒN PHỤ THUỘC BACKEND: /api/v1/register idempotent-by-store_uuid
             (team Storelly) để reinstall re-link + email welcome. uninstall cleanup secrets → để M8.
-M6  Request Quote auto-publish + site-wide CTA badge                                (yc #11)
-M7  Freemium contextual upsell tại limit                                           (yc #10)
+M6  ✅ DONE  Request Quote site-wide CTA badge (floating, settings: toggle/vị trí/label/URL;     (yc #11)
+            mở modal trên product, link URL nơi khác) → class-request-quote.php + quote-storefront.css
+            + Quote Settings (class-admin-options.php). Commit 69d5504. Test render PASS.
+M7  ✅ DONE  Freemium contextual upsell: SPBWC_Upsell_Notice chỉ hiện trên màn Storelly khi Free   (yc #10)
+            plan + chạm limit (max_products/max_pricing_options), dismiss snooze 30 ngày. Commit 69d5504.
 M8  Compliance: plugin check 0 error + POT regen + readme + version bump
 ```
 
