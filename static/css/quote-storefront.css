@@ -94,7 +94,33 @@
     flex: 0 0 auto;
 }
 .spbwc-rfq-product__name { font-weight: 600; font-size: 14px; }
+.spbwc-rfq-product__price { font-size: 14px; font-weight: 600; color: var(--spbwc-rfq-text); margin: 1px 0; }
+.spbwc-rfq-product__price del { color: var(--spbwc-rfq-muted); font-weight: 400; }
 .spbwc-rfq-product__meta { font-size: 12px; color: var(--spbwc-rfq-muted); }
+
+/* Quantity stepper */
+.spbwc-rfq-stepper { display: inline-flex; align-items: stretch; border: 1px solid var(--spbwc-rfq-border); border-radius: 8px; overflow: hidden; max-width: 150px; }
+.spbwc-rfq-stepper__btn {
+    width: 38px;
+    border: 0;
+    background: #f8fafc;
+    color: var(--spbwc-rfq-text);
+    font-size: 18px;
+    line-height: 1;
+    cursor: pointer;
+}
+.spbwc-rfq-stepper__btn:hover { background: #eef2f7; }
+.spbwc-rfq-stepper .spbwc-rfq-qty {
+    width: 64px;
+    text-align: center;
+    border: 0;
+    border-left: 1px solid var(--spbwc-rfq-border);
+    border-right: 1px solid var(--spbwc-rfq-border);
+    border-radius: 0;
+    -moz-appearance: textfield;
+}
+.spbwc-rfq-stepper .spbwc-rfq-qty::-webkit-outer-spin-button,
+.spbwc-rfq-stepper .spbwc-rfq-qty::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
 
 /* ── Fields ────────────────────────────────────────────────────────────── */
 .spbwc-rfq-field { margin-bottom: 14px; }

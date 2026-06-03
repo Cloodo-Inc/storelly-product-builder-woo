@@ -35,6 +35,7 @@ if ( ! class_exists( 'SPBWC_Quote_Emails' ) ) {
             $actions[] = 'spbwc_quote_sent_notification';
             $actions[] = 'spbwc_quote_reminder_notification';
             $actions[] = 'spbwc_quote_accepted_notification';
+            $actions[] = 'spbwc_quote_converted_notification';
             $actions[] = 'spbwc_quote_declined_notification';
             return $actions;
         }
@@ -53,6 +54,7 @@ if ( ! class_exists( 'SPBWC_Quote_Emails' ) ) {
                 $emails['SPBWC_Email_Quote_Sent']     = new SPBWC_Email_Quote_Sent();
                 $emails['SPBWC_Email_Quote_Reminder'] = new SPBWC_Email_Quote_Reminder();
                 $emails['SPBWC_Email_Quote_Accepted'] = new SPBWC_Email_Quote_Accepted();
+                $emails['SPBWC_Email_Quote_Converted'] = new SPBWC_Email_Quote_Converted();
                 $emails['SPBWC_Email_Quote_Declined'] = new SPBWC_Email_Quote_Declined();
             }
             return $emails;

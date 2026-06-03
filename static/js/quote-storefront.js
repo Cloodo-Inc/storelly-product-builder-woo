@@ -144,4 +144,16 @@
     if (closeBtn) { closeBtn.addEventListener('click', close); }
     overlay.addEventListener('click', function (e) { if (e.target === overlay) { close(); } });
     if (form) { form.addEventListener('submit', submit); }
+
+    // Quantity stepper.
+    var qtyInput = document.getElementById('spbwc_quote_quantity');
+    modal.querySelectorAll('.spbwc-rfq-stepper__btn').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+            if (!qtyInput) { return; }
+            var step = parseInt(btn.getAttribute('data-step'), 10) || 0;
+            var val = (parseInt(qtyInput.value, 10) || 1) + step;
+            if (val < 1) { val = 1; }
+            qtyInput.value = val;
+        });
+    });
 }());

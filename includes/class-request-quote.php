@@ -298,6 +298,10 @@ if ( ! class_exists( 'SPBWC_Request_Quote' ) ) {
                             <?php echo wp_kses_post( $img ); ?>
                             <div>
                                 <div class="spbwc-rfq-product__name"><?php echo esc_html( $product->get_name() ); ?></div>
+                                <?php $spbwc_price_html = $product->get_price_html(); ?>
+                                <?php if ( $spbwc_price_html ) : ?>
+                                    <div class="spbwc-rfq-product__price"><?php echo wp_kses_post( $spbwc_price_html ); ?></div>
+                                <?php endif; ?>
                                 <div class="spbwc-rfq-product__meta"><?php esc_html_e( 'Tell us what you need and we will send you a price.', 'storelly-product-builder-for-woocommerce' ); ?></div>
                             </div>
                         </div>
@@ -309,7 +313,11 @@ if ( ! class_exists( 'SPBWC_Request_Quote' ) ) {
 
                             <div class="spbwc-rfq-field">
                                 <label for="spbwc_quote_quantity"><?php esc_html_e( 'Quantity', 'storelly-product-builder-for-woocommerce' ); ?></label>
-                                <input class="spbwc-rfq-qty" id="spbwc_quote_quantity" type="number" min="1" step="1" name="quantity" value="1" />
+                                <div class="spbwc-rfq-stepper">
+                                    <button type="button" class="spbwc-rfq-stepper__btn" data-step="-1" aria-label="<?php esc_attr_e( 'Decrease quantity', 'storelly-product-builder-for-woocommerce' ); ?>">&minus;</button>
+                                    <input class="spbwc-rfq-qty" id="spbwc_quote_quantity" type="number" min="1" step="1" name="quantity" value="1" />
+                                    <button type="button" class="spbwc-rfq-stepper__btn" data-step="1" aria-label="<?php esc_attr_e( 'Increase quantity', 'storelly-product-builder-for-woocommerce' ); ?>">+</button>
+                                </div>
                             </div>
 
                             <?php foreach ( $fields as $field ) : ?>
@@ -739,7 +747,19 @@ if ( ! class_exists( 'SPBWC_Request_Quote' ) ) {
             }
             $quote_id = isset( $wp->query_vars['view-quote'] ) ? absint( $wp->query_vars['view-quote'] ) : 0;
             $post     = $quote_id ? get_post( $quote_id ) : null;
-            if ( ! $post || SPBWC_Quote::POST_TYPE !== $post->post_type || (int) $post->post_author !== get_current_user_id() ) {
+            $is_quote = $post && SPBWC_Quote::POST_TYPE === $post->post_type;
+            $is_owner = $is_quote && (int) $post->post_author === get_current_user_id();
+
+            // Merchant preview: a manager can view the buyer-facing page (read-only)
+            // via a nonce-signed link from the admin detail.
+            $is_preview = false;
+            if ( $is_quote && ! $is_owner && current_user_can( 'manage_woocommerce' ) && isset( $_GET['spbwc_preview'], $_GET['_wpnonce'] ) ) {
+                $pn = sanitize_text_field( wp_unslash( $_GET['_wpnonce'] ) );
+                if ( wp_verify_nonce( $pn, 'spbwc_quote_preview_' . $quote_id ) ) {
+                    $is_preview = true;
+                }
+            }
+            if ( ! $is_quote || ( ! $is_owner && ! $is_preview ) ) {
                 echo '<p>' . esc_html__( 'Quote not found.', 'storelly-product-builder-for-woocommerce' ) . '</p>';
                 return;
             }
@@ -760,6 +780,10 @@ if ( ! class_exists( 'SPBWC_Request_Quote' ) ) {
             echo '<h2>' . esc_html( sprintf( __( 'Quote %s', 'storelly-product-builder-for-woocommerce' ), $number ? $number : '#' . $quote_id ) ) . '</h2>';
             echo $this->buyer_pill( $status ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- buyer_pill returns escaped markup.
             echo '</div>';
+
+            if ( $is_preview ) {
+                echo '<div class="spbwc-rfq-banner spbwc-rfq-banner--info">' . esc_html__( 'Preview — this is what the customer sees. Actions are disabled here.', 'storelly-product-builder-for-woocommerce' ) . '</div>';
+            }
 
             // Validity countdown (only meaningful while awaiting the buyer).
             if ( SPBWC_Quote::STATUS_SENT === $status && '' !== $valid ) {
@@ -816,8 +840,13 @@ if ( ! class_exists( 'SPBWC_Request_Quote' ) ) {
                 echo '<div class="spbwc-rfq-card"><h3>' . esc_html__( 'Note from us', 'storelly-product-builder-for-woocommerce' ) . '</h3><p>' . nl2br( esc_html( $note ) ) . '</p></div>';
             }
 
-            // Action area depends on status.
-            if ( SPBWC_Quote::STATUS_SENT === $status ) {
+            // Action area depends on status. In merchant preview, never show the
+            // buyer's decision forms.
+            if ( $is_preview ) {
+                if ( SPBWC_Quote::STATUS_SENT === $status ) {
+                    echo '<div class="spbwc-rfq-banner">' . esc_html__( 'The customer sees Accept / Request changes / Decline buttons here.', 'storelly-product-builder-for-woocommerce' ) . '</div>';
+                }
+            } elseif ( SPBWC_Quote::STATUS_SENT === $status ) {
                 $this->render_buyer_actions( $quote_id );
             } elseif ( SPBWC_Quote::STATUS_NEGOTIATING === $status ) {
                 echo '<div class="spbwc-rfq-banner spbwc-rfq-banner--info">' . esc_html__( 'Your change request has been sent. We will get back to you with a revised quote.', 'storelly-product-builder-for-woocommerce' ) . '</div>';
@@ -971,6 +1000,9 @@ if ( ! class_exists( 'SPBWC_Request_Quote' ) ) {
                     SPBWC_Quote::set_status( $quote_id, SPBWC_Quote::STATUS_CONVERTED, sprintf( /* translators: %d: order ID */ __( 'Order #%d created from accepted quote.', 'storelly-product-builder-for-woocommerce' ), $order_id ) );
                 }
                 do_action( 'spbwc_quote_accepted_notification', $quote_id );
+                if ( $order_id ) {
+                    do_action( 'spbwc_quote_converted_notification', $quote_id );
+                }
                 $this->redirect_view_quote( $quote_id, 'accepted' );
             } elseif ( 'decline' === $action ) {
                 $reason = isset( $_POST['reason'] ) ? sanitize_key( wp_unslash( $_POST['reason'] ) ) : 'other';

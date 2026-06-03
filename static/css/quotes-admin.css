@@ -333,6 +333,17 @@
 .spbwc-q-asks li .dashicons { font-size: 14px; width: 14px; height: 14px; color: var(--nbd-color-warning); }
 .spbwc-q-asks__details { margin: 6px 0 0; font-size: 13px; color: var(--nbd-st-text); }
 
+/* ── Detail top bar (back + preview) ──────────────────────────────────── */
+.spbwc-q-detailbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: var(--nbd-space-3);
+    margin-bottom: var(--nbd-space-3);
+}
+.spbwc-q-detailbar .spbwc-q-back { margin-bottom: 0; }
+
 /* ── Back link ────────────────────────────────────────────────────────── */
 .spbwc-q-back {
     display: inline-flex;

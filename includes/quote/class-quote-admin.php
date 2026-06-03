@@ -442,10 +442,25 @@ if ( ! class_exists( 'SPBWC_Quote_Admin' ) ) {
                 $this->render_hero( sprintf( __( 'Quote %s', 'storelly-product-builder-for-woocommerce' ), $number ? $number : '#' . $quote_id ), __( 'Price the request and send it back to the customer.', 'storelly-product-builder-for-woocommerce' ) );
                 $this->notice_html();
                 ?>
-                <a class="spbwc-q-back" href="<?php echo esc_url( self::page_url() ); ?>">
-                    <span class="dashicons dashicons-arrow-left-alt2" aria-hidden="true"></span>
-                    <?php esc_html_e( 'Back to all quotes', 'storelly-product-builder-for-woocommerce' ); ?>
-                </a>
+                <div class="spbwc-q-detailbar">
+                    <a class="spbwc-q-back" href="<?php echo esc_url( self::page_url() ); ?>">
+                        <span class="dashicons dashicons-arrow-left-alt2" aria-hidden="true"></span>
+                        <?php esc_html_e( 'Back to all quotes', 'storelly-product-builder-for-woocommerce' ); ?>
+                    </a>
+                    <?php
+                    $preview_url = add_query_arg(
+                        array(
+                            'spbwc_preview' => 1,
+                            '_wpnonce'      => wp_create_nonce( 'spbwc_quote_preview_' . $quote_id ),
+                        ),
+                        wc_get_endpoint_url( 'view-quote', $quote_id, wc_get_page_permalink( 'myaccount' ) )
+                    );
+                    ?>
+                    <a class="spbwc-cta-btn spbwc-cta-btn--ghost spbwc-cta-btn--sm" href="<?php echo esc_url( $preview_url ); ?>" target="_blank" rel="noopener">
+                        <span class="dashicons dashicons-visibility" aria-hidden="true"></span>
+                        <?php esc_html_e( 'Preview customer view', 'storelly-product-builder-for-woocommerce' ); ?>
+                    </a>
+                </div>
 
                 <form method="post" id="spbwc-quote-reply-form">
                     <?php wp_nonce_field( 'spbwc_quote_reply', 'spbwc_quote_reply_nonce' ); ?>

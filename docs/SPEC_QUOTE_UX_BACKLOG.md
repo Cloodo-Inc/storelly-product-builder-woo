@@ -98,4 +98,6 @@ After submitting, the modal shows a static "Request sent" message with no next s
 ## Status
 - **P1.1–P1.4:** implemented (`feat(quote): P1`).
 - **P2.5 (admin KPI cards), P2.6 (buyer stat cards + status filter):** implemented (`feat(quote): P2`).
-- **P2.7, P2.8, P3–P5:** open — pick per priority.
+- **P2.7 (richer modal — price + qty stepper), P2.8 (admin "Preview customer view"), P3.11 (buyer
+  accepted/converted email):** implemented (`feat(quote): P2.7+P2.8+P3.11`).
+- **P3.9, P3.10, P3.12, P4, P5:** open — pick per priority.

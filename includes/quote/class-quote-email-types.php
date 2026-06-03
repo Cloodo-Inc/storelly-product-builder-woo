@@ -267,6 +267,37 @@ if ( ! class_exists( 'SPBWC_Email_Quote_Declined' ) ) {
     }
 }
 
+/* ── Accepted / converted → customer ──────────────────────────────────── */
+if ( ! class_exists( 'SPBWC_Email_Quote_Converted' ) ) {
+    class SPBWC_Email_Quote_Converted extends SPBWC_Quote_Email_Base {
+        public function __construct() {
+            $this->id            = 'spbwc_quote_converted';
+            $this->customer_email = true;
+            $this->title         = __( 'Quote — accepted, order ready (customer)', 'storelly-product-builder-for-woocommerce' );
+            $this->description    = __( 'Sent to the customer when they accept a quote and an order is created.', 'storelly-product-builder-for-woocommerce' );
+            $this->heading       = __( 'Your order is ready', 'storelly-product-builder-for-woocommerce' );
+            $this->subject       = __( 'Quote {quote_number} accepted — your order is ready', 'storelly-product-builder-for-woocommerce' );
+            add_action( 'spbwc_quote_converted_notification', array( $this, 'trigger' ), 10, 1 );
+            parent::__construct();
+        }
+        public function trigger( $quote_id ) {
+            $this->dispatch( $quote_id, $this->customer_email() );
+        }
+        protected function build_body() {
+            $order_id = (int) get_post_meta( $this->quote_id, SPBWC_Quote::META_ORDER_ID, true );
+            $order    = $order_id ? wc_get_order( $order_id ) : false;
+            $body     = '<p>' . esc_html__( 'Thanks for accepting your quote — we have created your order.', 'storelly-product-builder-for-woocommerce' ) . '</p>';
+            $body    .= $this->summary_html();
+            if ( $order && $order->needs_payment() ) {
+                $body .= '<p><a href="' . esc_url( $order->get_checkout_payment_url() ) . '" style="display:inline-block;padding:10px 18px;background:#16a34a;color:#fff;text-decoration:none;border-radius:6px;">' . esc_html__( 'Pay now', 'storelly-product-builder-for-woocommerce' ) . '</a></p>';
+            } elseif ( $order ) {
+                $body .= '<p><a href="' . esc_url( $order->get_view_order_url() ) . '">' . esc_html__( 'View your order', 'storelly-product-builder-for-woocommerce' ) . '</a></p>';
+            }
+            return $body;
+        }
+    }
+}
+
 /* ── Request received → customer (acknowledgement) ────────────────────── */
 if ( ! class_exists( 'SPBWC_Email_Quote_Ack' ) ) {
     class SPBWC_Email_Quote_Ack extends SPBWC_Quote_Email_Base {
