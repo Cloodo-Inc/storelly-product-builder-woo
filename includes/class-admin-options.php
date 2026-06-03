@@ -3608,6 +3608,16 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
             // --- License info ---
             $license = SPBWC_License_Manager::get_current_license();
 
+            // Auto-first (M4): when an engaged merchant lands on the Welcome
+            // dashboard, quietly stage their existing Woo variable products
+            // into pending (published=0) option sets in the background. Runs
+            // at most once; the heavy scan happens off-request via Action
+            // Scheduler. No-op when there's nothing to migrate.
+            if ( class_exists( 'SPBWC_Onboarding' ) && SPBWC_Onboarding::is_welcome_mode()
+                && class_exists( 'SPBWC_Woo_Prepare' ) ) {
+                SPBWC_Woo_Prepare::instance()->maybe_schedule();
+            }
+
             include_once( SPBWC_PB_PLUGIN_DIR . 'views/overview.php' );
         }
 

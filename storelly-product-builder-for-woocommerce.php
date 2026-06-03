@@ -77,6 +77,11 @@ function spbwc_plugin_activation() {
         wp_die(wp_kses_post($message));
     }
     SPBWC_Storelly_Product_Builder_Backend::spbwc_plugin_activation();
+    // Onboarding plumbing: stamp activation time, mint the stable store UUID,
+    // and arm the one-shot Welcome redirect. Local only — no network calls.
+    if ( class_exists( 'SPBWC_Onboarding' ) ) {
+        SPBWC_Onboarding::on_activate();
+    }
 }
 
 require_once(SPBWC_PB_PLUGIN_DIR .  'includes/class-script-hook.php');
@@ -89,6 +94,7 @@ require_once(SPBWC_PB_PLUGIN_DIR .  'includes/class-product-builder-backend.php'
 require_once(SPBWC_PB_PLUGIN_DIR .  'includes/class-product-builder-frontend.php');
 require_once(SPBWC_PB_PLUGIN_DIR .  'includes/class-admin-options.php');
 require_once(SPBWC_PB_PLUGIN_DIR .  'includes/class-i18n-notice.php');
+require_once(SPBWC_PB_PLUGIN_DIR .  'includes/class-onboarding.php');
 require_once(SPBWC_PB_PLUGIN_DIR .  'includes/class-frontend-options.php');
 require_once(SPBWC_PB_PLUGIN_DIR .  'includes/class-http.php');
 require_once(SPBWC_PB_PLUGIN_DIR .  'includes/class-productbuilder-api.php');
@@ -163,6 +169,7 @@ require_once(SPBWC_PB_PLUGIN_DIR .  'includes/visual-builder/class-visual-builde
 require_once(SPBWC_PB_PLUGIN_DIR .  'includes/setup-wizard/class-woo-seed-scanner.php');
 require_once(SPBWC_PB_PLUGIN_DIR .  'includes/setup-wizard/class-woo-seed-mapper.php');
 require_once(SPBWC_PB_PLUGIN_DIR .  'includes/setup-wizard/class-woo-seed-controller.php');
+require_once(SPBWC_PB_PLUGIN_DIR .  'includes/setup-wizard/class-woo-prepare.php');
 
 require_once(SPBWC_PB_PLUGIN_DIR .  'includes/class-media-group.php');
 require_once(SPBWC_PB_PLUGIN_DIR .  'includes/class-printcart-import-adapter.php');

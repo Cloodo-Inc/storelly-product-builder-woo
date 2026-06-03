@@ -97,6 +97,242 @@ $plan_benefits = $is_free
         </div>
     </header>
 
+    <?php
+    // ============ Getting started (Welcome mode) ============
+    // Auto-shown right after activation and until the two core steps are
+    // done (or the merchant skips). The fastest path — Import demo — leads.
+    $spbwc_welcome_mode = class_exists( 'SPBWC_Onboarding' ) && SPBWC_Onboarding::is_welcome_mode();
+    if ( $spbwc_welcome_mode ) :
+        $spbwc_checklist   = SPBWC_Onboarding::get_checklist();
+        $spbwc_done_count  = 0;
+        foreach ( $spbwc_checklist as $spbwc_ci ) {
+            if ( ! empty( $spbwc_ci['done'] ) ) {
+                $spbwc_done_count++;
+            }
+        }
+        $spbwc_total_steps = count( $spbwc_checklist );
+        $spbwc_url_sample  = admin_url( 'admin.php?page=' . SPBWC_PB_OPTIONS_SLUG . '/global-import&tab=sample' );
+        $spbwc_url_woo     = admin_url( 'admin.php?page=' . SPBWC_PB_OPTIONS_SLUG . '/global-import&tab=woo' );
+        $spbwc_url_builder = admin_url( 'admin.php?page=' . SPBWC_PB_BUILDER_SLUG );
+        $spbwc_dismiss_url = SPBWC_Onboarding::get_dismiss_url();
+    ?>
+    <section class="spbwc-welcome" aria-labelledby="spbwc-welcome-title">
+        <div class="spbwc-welcome__head">
+            <div class="spbwc-welcome__intro">
+                <div class="spbwc-welcome__eyebrow">
+                    <span class="dashicons dashicons-flag" aria-hidden="true"></span>
+                    <?php esc_html_e( 'Welcome to Storelly', 'storelly-product-builder-for-woocommerce' ); ?>
+                </div>
+                <h2 id="spbwc-welcome-title" class="spbwc-welcome__title">
+                    <?php esc_html_e( 'Let\'s get your store selling custom products', 'storelly-product-builder-for-woocommerce' ); ?>
+                </h2>
+                <p class="spbwc-welcome__sub">
+                    <?php esc_html_e( 'Pick a starting point. The fastest is importing a ready-made demo — you\'ll see the product builder live on your storefront in seconds.', 'storelly-product-builder-for-woocommerce' ); ?>
+                </p>
+            </div>
+            <a class="spbwc-welcome__dismiss" href="<?php echo esc_url( $spbwc_dismiss_url ); ?>">
+                <span class="dashicons dashicons-no-alt" aria-hidden="true"></span>
+                <?php esc_html_e( 'Skip setup', 'storelly-product-builder-for-woocommerce' ); ?>
+            </a>
+        </div>
+
+        <div class="spbwc-welcome__cards">
+            <!-- Fastest path — leads on purpose. -->
+            <a class="spbwc-welcome-card spbwc-welcome-card--primary" href="<?php echo esc_url( $spbwc_url_sample ); ?>">
+                <span class="spbwc-welcome-card__flag"><?php esc_html_e( 'Fastest', 'storelly-product-builder-for-woocommerce' ); ?></span>
+                <div class="spbwc-welcome-card__icon">
+                    <span class="dashicons dashicons-archive" aria-hidden="true"></span>
+                </div>
+                <h3 class="spbwc-welcome-card__title">
+                    <?php esc_html_e( 'See it live with demo products', 'storelly-product-builder-for-woocommerce' ); ?>
+                </h3>
+                <p class="spbwc-welcome-card__desc">
+                    <?php esc_html_e( 'Add ready-made customizable products in one click — the quickest way to watch the builder work on your store.', 'storelly-product-builder-for-woocommerce' ); ?>
+                </p>
+                <span class="spbwc-cta-btn spbwc-cta-btn--solid">
+                    <span class="dashicons dashicons-download" aria-hidden="true"></span>
+                    <?php esc_html_e( 'Import demo products', 'storelly-product-builder-for-woocommerce' ); ?>
+                </span>
+            </a>
+
+            <a class="spbwc-welcome-card" href="<?php echo esc_url( $spbwc_url_woo ); ?>">
+                <div class="spbwc-welcome-card__icon">
+                    <span class="dashicons dashicons-update" aria-hidden="true"></span>
+                </div>
+                <h3 class="spbwc-welcome-card__title">
+                    <?php esc_html_e( 'Use my existing products', 'storelly-product-builder-for-woocommerce' ); ?>
+                </h3>
+                <p class="spbwc-welcome-card__desc">
+                    <?php esc_html_e( 'Turn your WooCommerce variable products into Storelly pricing options. You review everything before it goes live.', 'storelly-product-builder-for-woocommerce' ); ?>
+                </p>
+                <span class="spbwc-cta-btn">
+                    <span class="dashicons dashicons-search" aria-hidden="true"></span>
+                    <?php esc_html_e( 'Scan my products', 'storelly-product-builder-for-woocommerce' ); ?>
+                </span>
+            </a>
+
+            <a class="spbwc-welcome-card" href="<?php echo esc_url( $spbwc_url_builder ); ?>">
+                <div class="spbwc-welcome-card__icon">
+                    <span class="dashicons dashicons-edit" aria-hidden="true"></span>
+                </div>
+                <h3 class="spbwc-welcome-card__title">
+                    <?php esc_html_e( 'Build from scratch', 'storelly-product-builder-for-woocommerce' ); ?>
+                </h3>
+                <p class="spbwc-welcome-card__desc">
+                    <?php esc_html_e( 'Create a pricing option group by hand — full control over fields, prices and conditional logic.', 'storelly-product-builder-for-woocommerce' ); ?>
+                </p>
+                <span class="spbwc-cta-btn">
+                    <span class="dashicons dashicons-plus-alt2" aria-hidden="true"></span>
+                    <?php esc_html_e( 'Open builder', 'storelly-product-builder-for-woocommerce' ); ?>
+                </span>
+            </a>
+        </div>
+
+        <div class="spbwc-welcome__checklist">
+            <div class="spbwc-welcome__checklist-head">
+                <span class="dashicons dashicons-yes" aria-hidden="true"></span>
+                <span class="spbwc-welcome__checklist-title">
+                    <?php esc_html_e( 'Setup progress', 'storelly-product-builder-for-woocommerce' ); ?>
+                </span>
+                <span class="spbwc-welcome__progress">
+                    <?php
+                    printf(
+                        /* translators: 1: completed step count, 2: total step count. */
+                        esc_html__( '%1$d of %2$d', 'storelly-product-builder-for-woocommerce' ),
+                        (int) $spbwc_done_count,
+                        (int) $spbwc_total_steps
+                    );
+                    ?>
+                </span>
+            </div>
+            <ul class="spbwc-welcome__steps">
+                <?php foreach ( $spbwc_checklist as $spbwc_ci ) : ?>
+                    <li class="spbwc-welcome__step <?php echo ! empty( $spbwc_ci['done'] ) ? 'is-done' : 'is-todo'; ?>">
+                        <span class="dashicons <?php echo ! empty( $spbwc_ci['done'] ) ? 'dashicons-yes-alt' : 'dashicons-marker'; ?>" aria-hidden="true"></span>
+                        <?php echo esc_html( $spbwc_ci['label'] ); ?>
+                    </li>
+                <?php endforeach; ?>
+            </ul>
+        </div>
+    </section>
+    <?php endif; ?>
+
+    <?php
+    // ============ Woo migrate — prepared/Publish-all banner (M4) ============
+    // Shows while the background prepare runs, then surfaces a one-click
+    // "Publish all" once products are staged (published=0, invisible to
+    // buyers until the merchant publishes). Rendered on every Overview load,
+    // not only in Welcome mode, so the merchant can publish whenever.
+    $spbwc_prep       = class_exists( 'SPBWC_Woo_Prepare' ) ? SPBWC_Woo_Prepare::instance() : null;
+    $spbwc_prep_state = $spbwc_prep ? $spbwc_prep->public_state() : array( 'status' => 'none' );
+    $spbwc_prep_st    = isset( $spbwc_prep_state['status'] ) ? $spbwc_prep_state['status'] : 'none';
+    if ( $spbwc_prep && in_array( $spbwc_prep_st, array( 'scheduled', 'preparing', 'prepared' ), true ) ) :
+        $spbwc_prep_nonce = wp_create_nonce( SPBWC_Woo_Prepare::NONCE );
+        $spbwc_prep_busy  = in_array( $spbwc_prep_st, array( 'scheduled', 'preparing' ), true );
+    ?>
+    <div class="spbwc-notice-banner <?php echo $spbwc_prep_busy ? 'spbwc-notice-banner--info' : 'spbwc-notice-banner--warn'; ?> spbwc-prep-banner"
+         id="spbwc-prep-banner"
+         data-nonce="<?php echo esc_attr( $spbwc_prep_nonce ); ?>"
+         data-status="<?php echo esc_attr( $spbwc_prep_st ); ?>">
+        <span class="dashicons <?php echo $spbwc_prep_busy ? 'dashicons-update' : 'dashicons-yes-alt'; ?>" aria-hidden="true"></span>
+        <div class="spbwc-notice-banner__body">
+            <?php if ( $spbwc_prep_busy ) : ?>
+                <div class="spbwc-notice-banner__title">
+                    <?php esc_html_e( 'Preparing your existing products…', 'storelly-product-builder-for-woocommerce' ); ?>
+                </div>
+                <div class="spbwc-notice-banner__text">
+                    <?php esc_html_e( 'We\'re turning your WooCommerce variable products into Storelly pricing options in the background. Nothing changes on your store yet — you\'ll get a one-click Publish when it\'s ready.', 'storelly-product-builder-for-woocommerce' ); ?>
+                </div>
+            <?php else : ?>
+                <div class="spbwc-notice-banner__title">
+                    <?php
+                    printf(
+                        /* translators: %d: number of products prepared as pending option sets. */
+                        esc_html__( '%d product(s) ready to go live', 'storelly-product-builder-for-woocommerce' ),
+                        (int) $spbwc_prep_state['prepared']
+                    );
+                    ?>
+                </div>
+                <div class="spbwc-notice-banner__text">
+                    <?php esc_html_e( 'These are staged from your existing WooCommerce products and are still hidden from buyers. Publish to show them on your storefront — your native Woo variations stay intact, and you can undo anytime.', 'storelly-product-builder-for-woocommerce' ); ?>
+                    <?php if ( (int) $spbwc_prep_state['multi_attr'] > 0 ) : ?>
+                        <br>
+                        <em><?php
+                        printf(
+                            /* translators: %d: number of multi-attribute products whose price was left blank. */
+                            esc_html__( '%d multi-attribute product(s) have prices left blank for you to review first.', 'storelly-product-builder-for-woocommerce' ),
+                            (int) $spbwc_prep_state['multi_attr']
+                        );
+                        ?></em>
+                    <?php endif; ?>
+                </div>
+                <div class="spbwc-prep-banner__actions">
+                    <button type="button" class="spbwc-cta-btn spbwc-cta-btn--solid" id="spbwc-prep-publish">
+                        <span class="dashicons dashicons-yes" aria-hidden="true"></span>
+                        <?php esc_html_e( 'Publish all', 'storelly-product-builder-for-woocommerce' ); ?>
+                    </button>
+                    <a class="spbwc-cta-btn" href="<?php echo esc_url( admin_url( 'admin.php?page=' . SPBWC_PB_BUILDER_SLUG ) ); ?>">
+                        <?php esc_html_e( 'Review first', 'storelly-product-builder-for-woocommerce' ); ?>
+                    </a>
+                    <button type="button" class="spbwc-cta-btn spbwc-cta-btn--link" id="spbwc-prep-undo">
+                        <?php esc_html_e( 'Undo', 'storelly-product-builder-for-woocommerce' ); ?>
+                    </button>
+                </div>
+            <?php endif; ?>
+        </div>
+    </div>
+    <script>
+    (function($){
+        var $b = $('#spbwc-prep-banner');
+        if ( ! $b.length ) { return; }
+        var nonce  = $b.data('nonce');
+        var status = String($b.data('status'));
+
+        function post(action, done){
+            $.post(ajaxurl, { action: action, nonce: nonce }, function(res){ done(res); })
+             .fail(function(){ done({ success:false }); });
+        }
+
+        // While preparing, poll until staged, then reload to reveal Publish all.
+        if ( status === 'scheduled' || status === 'preparing' ) {
+            var poll = setInterval(function(){
+                $.post(ajaxurl, { action:'spbwc_woo_prepare_status', nonce:nonce }, function(res){
+                    if ( res && res.success && res.data ) {
+                        var s = res.data.status;
+                        if ( s === 'prepared' || s === 'empty' || s === 'published' ) {
+                            clearInterval(poll);
+                            location.reload();
+                        }
+                    }
+                });
+            }, 4000);
+        }
+
+        $('#spbwc-prep-publish').on('click', function(){
+            var $btn = $(this);
+            if ( $btn.hasClass('is-loading') ) { return; }
+            $btn.addClass('is-loading').prop('disabled', true)
+                .html('<span class="dashicons dashicons-update" aria-hidden="true"></span> <?php echo esc_js( __( 'Publishing…', 'storelly-product-builder-for-woocommerce' ) ); ?>');
+            post('spbwc_woo_prepare_publish', function(res){
+                if ( res && res.success ) { location.reload(); }
+                else {
+                    alert('<?php echo esc_js( __( 'Publish failed. Please try again.', 'storelly-product-builder-for-woocommerce' ) ); ?>');
+                    $btn.removeClass('is-loading').prop('disabled', false);
+                }
+            });
+        });
+
+        $('#spbwc-prep-undo').on('click', function(){
+            if ( ! window.confirm('<?php echo esc_js( __( 'Remove the prepared option sets and unlink those products? Your Woo variations are not affected.', 'storelly-product-builder-for-woocommerce' ) ); ?>') ) { return; }
+            post('spbwc_woo_prepare_undo', function(res){
+                if ( res && res.success ) { location.reload(); }
+                else { alert('<?php echo esc_js( __( 'Undo failed. Please try again.', 'storelly-product-builder-for-woocommerce' ) ); ?>'); }
+            });
+        });
+    })(jQuery);
+    </script>
+    <?php endif; ?>
+
     <!-- ============ Notices ============ -->
     <?php if ( ! $is_remote_ok ) : ?>
         <div class="spbwc-notice-banner spbwc-notice-banner--info" role="status">
