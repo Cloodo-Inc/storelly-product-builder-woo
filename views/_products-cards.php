@@ -29,11 +29,12 @@ while ( $products_query->have_posts() ) :
     $spbwc_front_url   = $spbwc_product ? $spbwc_product->get_permalink() : '#';
     $spbwc_opt_link    = add_query_arg(
         array(
-            'page'       => SPBWC_PB_BUILDER_SLUG,
-            'action'     => $spbwc_has_opt ? 'edit' : 'create',
-            'id'         => absint( $spbwc_opt_id ),
-            'product_id' => $spbwc_pid,
-            'paged'      => 1,
+            'page'         => SPBWC_PB_BUILDER_SLUG,
+            'action'       => $spbwc_has_opt ? 'edit' : 'create',
+            'id'           => absint( $spbwc_opt_id ),
+            'product_id'   => $spbwc_pid,
+            'paged'        => 1,
+            'spbwc_return' => 1,
         ),
         admin_url( 'admin.php' )
     );
@@ -142,7 +143,6 @@ while ( $products_query->have_posts() ) :
                 <a
                     class="spbwc-product-card__action-primary <?php echo $spbwc_has_opt ? 'spbwc-product-card__action-primary--edit' : 'spbwc-product-card__action-primary--create'; ?>"
                     href="<?php echo esc_url( $spbwc_opt_link ); ?>"
-                    target="_blank" rel="noopener"
                 >
                     <span class="dashicons <?php echo $spbwc_has_opt ? 'dashicons-edit' : 'dashicons-plus-alt2'; ?>" aria-hidden="true"></span>
                     <?php echo $spbwc_has_opt ? esc_html__( 'Edit Option', 'storelly-product-builder-for-woocommerce' ) : esc_html__( 'Create Option', 'storelly-product-builder-for-woocommerce' ); ?>

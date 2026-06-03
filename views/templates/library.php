@@ -42,7 +42,7 @@ $catalog = SPBWC_Template_Catalog::instance();
 					<?php esc_html_e( 'Template Library', 'storelly-product-builder-for-woocommerce' ); ?>
 				</h1>
 				<p class="spbwc-page-hero__subtitle">
-					<?php esc_html_e( 'Pick a pre-built printing option, apply it to your products or categories, then customize freely. Global templates stay read-only — your applied copy is yours to edit.', 'storelly-product-builder-for-woocommerce' ); ?>
+					<?php esc_html_e( 'Pick a pre-built pricing option, apply it to your products or categories, then customize freely. Global templates stay read-only — your applied copy is yours to edit.', 'storelly-product-builder-for-woocommerce' ); ?>
 				</p>
 			</div>
 			<div class="spbwc-page-hero__actions">

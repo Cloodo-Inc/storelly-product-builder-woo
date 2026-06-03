@@ -114,15 +114,14 @@ $currentDir = realpath(dirname(__FILE__)); // phpcs:ignore WordPress.NamingConve
                         $class = '';
                         if (isset($field['nbpb_type']) && ($field['nbpb_type'] == 'nbpb_com' || $field['nbpb_type'] == 'nbpb_text' || $field['nbpb_type'] == 'nbpb_image')) {
                             $has_nbpb   = true;
-                            // Design components (nbpb_com) opt-in: when "Show in product options
-                            // list" is on, render the component in the storefront list too (buyers
-                            // pick + see price without opening the editor). Its value/price already
-                            // flow through nbd_fields + option_processing, and selection stays in
-                            // sync with the editor via the update_nbo_options bridge. Text/image
-                            // elements always stay editor-only.
-                            $spbwc_show_com = ( $field['nbpb_type'] == 'nbpb_com'
-                                && isset($field['appearance']['show_in_options'])
-                                && $field['appearance']['show_in_options'] == 'y' );
+                            // Design components (nbpb_com) show in the storefront list by default
+                            // (buyers pick + see price without opening the editor). Its value/price
+                            // already flow through nbd_fields + option_processing, and selection
+                            // stays in sync with the editor via the update_nbo_options bridge.
+                            // Hidden only when explicitly opted out (show_in_options === 'n').
+                            // Text/image elements always stay editor-only.
+                            $spbwc_sio = isset($field['appearance']['show_in_options']) ? $field['appearance']['show_in_options'] : 'y';
+                            $spbwc_show_com = ( $field['nbpb_type'] == 'nbpb_com' && $spbwc_sio !== 'n' );
                             if ( ! $spbwc_show_com ) {
                                 $class = 'nbo-hidden';
                             }
@@ -147,7 +146,26 @@ $currentDir = realpath(dirname(__FILE__)); // phpcs:ignore WordPress.NamingConve
                             if (count($field['general']['attributes']["options"]) == 0) {
                                 $need_show = false;
                             }
-                            switch ($field['appearance']['display_type']) {
+                            // Default new/unsaved fields to Swatch (visual tiles). Older option
+                            // sets created by seed/import never stored appearance.display_type;
+                            // an empty value would otherwise fall through to advanced-dropdown.
+                            $spbwc_dtype = isset($field['appearance']['display_type']) ? $field['appearance']['display_type'] : '';
+                            if ('' === $spbwc_dtype || null === $spbwc_dtype) {
+                                $spbwc_dtype = 's';
+                            }
+                            // Swatch tiles are great for a small, visual choice set but a long
+                            // list (e.g. a 27-row price matrix) becomes an overwhelming grid that
+                            // is slow to scan. When a swatch field has more options than the
+                            // threshold, fall back to the advanced dropdown. Filterable so a
+                            // merchant can raise/lower the cap (or disable via a large value).
+                            if ('s' === $spbwc_dtype) {
+                                $spbwc_opt_count = count($field['general']['attributes']["options"]);
+                                $spbwc_swatch_max = (int) apply_filters('spbwc_swatch_max_options', 14, $field);
+                                if ($spbwc_opt_count > $spbwc_swatch_max) {
+                                    $spbwc_dtype = 'ad';
+                                }
+                            }
+                            switch ($spbwc_dtype) {
                                 case 's':
                                     $tempalte = $currentDir . '/options-builder/swatch.php';
                                     break;

@@ -265,6 +265,46 @@
     justify-content: center;
 }
 .nbo-wrapper.nbo-style-cloodo input[type="radio"]:checked + .nbd-swatch-card .nbd-swatch__check { display: flex; }
+/* --- Sub-attribute swatch row (design components: Leather -> Black/Grey...) --- */
+.nbo-wrapper.nbo-style-cloodo .nbd-subswatch {
+    margin-top: var(--nbd-space-3);
+    padding: var(--nbd-space-3);
+    border: 1px dashed var(--nbd-st-border-light);
+    border-radius: var(--nbd-radius-md);
+    background: var(--nbd-st-bg-soft);
+}
+.nbo-wrapper.nbo-style-cloodo .nbd-subswatch__label {
+    font-size: 13px;
+    font-weight: var(--font-bold);
+    color: var(--nbd-st-text-soft, #555);
+    margin-bottom: var(--nbd-space-2);
+}
+.nbo-wrapper.nbo-style-cloodo .nbd-subswatch__grid {
+    grid-template-columns: repeat(auto-fill, minmax(96px, 1fr));
+}
+/* Keep the form <select> out of view regardless of theme support for
+   .screen-reader-text (the visible tiles drive selection via ng-click). */
+.nbo-wrapper.nbo-style-cloodo .nbd-subswatch__select {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+/* Sub tiles select via ng-class .is-active (not a radio), so mirror the
+   checked-card visual for the active state. */
+.nbo-wrapper.nbo-style-cloodo .nbd-swatch-card.is-active {
+    display: flex;
+    flex-direction: column;
+    border-color: var(--cld-select);
+    background: var(--cld-select-tint);
+    box-shadow: 0 0 0 3px var(--cld-select-soft);
+}
+.nbo-wrapper.nbo-style-cloodo .nbd-swatch-card.is-active .nbd-swatch__check { display: flex; }
 .nbo-wrapper.nbo-style-cloodo .nbd-swatch__body {
     padding: var(--nbd-space-3);
     display: flex;
