@@ -34,6 +34,31 @@
     --co-transition:    var(--nbd-duration-normal, 220ms) var(--nbd-ease-out, ease-out);
 }
 
+/* ════════════════════════════════════════════════════════════════════════
+   ORDER DETAIL — builder line item redesign
+   Turns the default WooCommerce options list into a clean "design panel":
+   a framed preview on the left, an aligned spec list on the right, and an
+   action toolbar below. Scoped to the order-details table + builder rows only
+   (rows that carry our action chips), so non-builder items are untouched.
+   ════════════════════════════════════════════════════════════════════════ */
+.woocommerce-table--order-details td.product-name { position: relative; }
+
+/* Remove the legacy duplicate preview image (class-productbuilder-api
+   spbwc_img_design_order_items) on rows that already show our framed thumbnail. */
+.woocommerce-table--order-details tr:has(.spbwc-co-orderthumb) td.product-name > img {
+    display: none !important;
+}
+
+/* Product title row sits above the panel. */
+.woocommerce-table--order-details tr:has(.spbwc-co-action) td.product-name > a:first-child {
+    font-weight: 600;
+    font-size: 15px;
+}
+.woocommerce-table--order-details tr:has(.spbwc-co-action) .product-quantity {
+    color: var(--co-muted);
+    font-weight: 500;
+}
+
 /* ── Design preview thumbnail on the order line item (D2) ───────────────── */
 .spbwc-co-orderthumb {
     display: inline-block;
@@ -47,6 +72,54 @@
     border-radius: var(--nbd-radius-md, 6px);
     background: var(--co-bg-soft);
 }
+
+/* On the order-details table, promote the thumbnail to a left-floated framed
+   figure that the spec list flows beside. */
+.woocommerce-table--order-details .spbwc-co-orderthumb {
+    float: left;
+    width: 150px;
+    margin: var(--nbd-space-2, 8px) var(--nbd-space-4, 16px) var(--nbd-space-2, 8px) 0;
+}
+.woocommerce-table--order-details .spbwc-co-orderthumb img {
+    max-width: 100%;
+    padding: var(--nbd-space-2, 8px);
+    border-radius: var(--nbd-radius-lg, 8px);
+    box-shadow: var(--nbd-shadow-sm, 0 1px 2px 0 rgba(0,0,0,.05));
+}
+
+/* ── Options as a clean spec list ───────────────────────────────────────── */
+.woocommerce-table--order-details tr:has(.spbwc-co-action) .wc-item-meta {
+    list-style: none;
+    margin: var(--nbd-space-2, 8px) 0 0;
+    padding: 0;
+}
+.woocommerce-table--order-details tr:has(.spbwc-co-action) .wc-item-meta li {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: var(--nbd-space-3, 12px);
+    margin: 0;
+    padding: 7px 0;
+    border-bottom: 1px solid var(--nbd-mb-border-subtle, #f3f4f6);
+    font-size: 13px;
+}
+.woocommerce-table--order-details tr:has(.spbwc-co-action) .wc-item-meta li:last-child {
+    border-bottom: 0;
+}
+.woocommerce-table--order-details tr:has(.spbwc-co-action) .wc-item-meta .wc-item-meta-label {
+    font-weight: 500;
+    color: var(--co-muted);
+    flex: 0 0 auto;
+}
+.woocommerce-table--order-details tr:has(.spbwc-co-action) .wc-item-meta li > p {
+    margin: 0;
+    text-align: right;
+    color: var(--co-text);
+    font-weight: 600;
+}
+/* Action toolbar clears the floated thumbnail. */
+.woocommerce-table--order-details .spbwc-co-action { clear: both; }
+.woocommerce-table--order-details .spbwc-co-action:first-of-type { margin-top: var(--nbd-space-3, 12px); }
 
 /* ── Order line-item action chips (view / download / save) ──────────────── */
 .spbwc-co-action {
