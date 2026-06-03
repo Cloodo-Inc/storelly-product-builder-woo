@@ -1,54 +1,80 @@
 /**
  * Storelly Product Builder — Storefront Design Tokens (user-facing pages).
  *
- * Single source of truth for the buyer-facing surfaces (My Account order detail,
- * Saved designs tab, cart links). Mirrors the brand of the admin tokens
- * (`_tokens.css`) so admin and storefront feel like one product, but stays a small,
- * theme-overridable set scoped under prefixed `--spbwc-*` custom properties so it
- * never clashes with a theme's own variables.
+ * Adopts the Printcart Stores v2.5 design system used by the shipped
+ * `printcart-store-user-account-v2.5.1.html` (the `--nbd-*` token set) so the
+ * buyer-facing surfaces (My Account order detail, Saved designs tab, cart links)
+ * match the Printcart user-account look exactly. Source of truth:
+ *   - claude-printcart/printcart-store-user-account-v2.5.1-design-system-tokens.md
+ *   - printcart-store-user-account-v2.5.1.html  :root
  *
- * Load order: enqueue this BEFORE custom-order.css (and any other storefront
- * stylesheet that references var(--spbwc-*)). All values are overridable by a theme
- * via a higher-specificity `:root` rule.
+ * Prefixed + scoped to :root; theme-overridable. Load this BEFORE any storefront
+ * stylesheet that references var(--nbd-*).
  */
 
 :root {
-    /* === Brand (matches admin --st-brand #1d4ed8) ============== */
-    --spbwc-accent:        #1d4ed8;
-    --spbwc-accent-hover:  #1e40af;
-    --spbwc-accent-soft:   #eff6ff;
-    --spbwc-accent-text:   #ffffff;
+    /* === Brand (Printcart blue) =============================== */
+    --nbd-mb-primary:         #2563eb;
+    --nbd-mb-primary-pressed: #1d4ed8;
+    --nbd-mb-primary-soft:    #dbeafe;
 
-    /* === Text ================================================== */
-    --spbwc-text:          #1d2327;
-    --spbwc-muted:         #6b7280;
+    /* === Text ================================================= */
+    --nbd-mb-text:            #1f2937;
+    --nbd-mb-text-soft:       #6b7280;
 
-    /* === Surfaces / borders ==================================== */
-    --spbwc-bg:            #ffffff;
-    --spbwc-bg-soft:       #f8fafc;
-    --spbwc-border:        #e2e4e7;
-    --spbwc-border-strong: #cdd3da;
+    /* === Surfaces ============================================= */
+    --nbd-mb-bg:              #ffffff;
+    --nbd-mb-bg-soft:         #f9fafb;
+    --nbd-mb-bg-canvas:       #f3f4f6;
+    --nbd-mb-border:          #e5e7eb;
+    --nbd-mb-border-strong:   #d1d5db;
+    --nbd-mb-border-subtle:   #f3f4f6;
 
-    /* === Status ================================================ */
-    --spbwc-success:       #16a34a;
-    --spbwc-success-soft:  #f0fdf4;
-    --spbwc-danger:        #d63638;
-    --spbwc-danger-soft:   #fef2f2;
-    --spbwc-danger-border: #fecaca;
+    /* === Status =============================================== */
+    --nbd-color-success:        #10b981;
+    --nbd-color-success-soft:   #d1fae5;
+    --nbd-color-success-border: #86efac;
+    --nbd-color-warning:        #f59e0b;
+    --nbd-color-warning-soft:   #fef3c7;
+    --nbd-color-error:          #ef4444;
+    --nbd-color-error-soft:     #fee2e2;
+    --nbd-color-error-border:   #fca5a5;
+    --nbd-color-info:           #3b82f6;
+    --nbd-color-info-soft:      #dbeafe;
 
-    /* === Radius ================================================ */
-    --spbwc-radius-sm:     6px;
-    --spbwc-radius:        10px;
-    --spbwc-radius-pill:   999px;
+    /* === Accent (premium / gold) ============================== */
+    --nbd-accent:             #fbbf24;
+    --nbd-accent-deep:        #f59e0b;
+    --nbd-accent-text-on:     #78350f;
 
-    /* === Spacing =============================================== */
-    --spbwc-space-1:       4px;
-    --spbwc-space-2:       8px;
-    --spbwc-space-3:       12px;
-    --spbwc-space-4:       16px;
+    /* === Spacing ============================================== */
+    --nbd-space-1:  4px;
+    --nbd-space-2:  8px;
+    --nbd-space-3:  12px;
+    --nbd-space-4:  16px;
+    --nbd-space-6:  24px;
+    --nbd-space-8:  32px;
+    --nbd-space-12: 48px;
 
-    /* === Elevation / motion =================================== */
-    --spbwc-shadow-card:   0 6px 20px rgba(16, 24, 40, .10);
-    --spbwc-shadow-focus:  0 0 0 3px rgba(29, 78, 216, .25);
-    --spbwc-transition:    .15s ease;
+    /* === Radius =============================================== */
+    --nbd-radius-sm:   4px;
+    --nbd-radius-md:   6px;
+    --nbd-radius-lg:   8px;
+    --nbd-radius-xl:   12px;
+    --nbd-radius-2xl:  16px;
+    --nbd-radius-full: 9999px;
+
+    /* === Shadows ============================================== */
+    --nbd-shadow-sm:    0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    --nbd-shadow-md:    0 2px 4px 0 rgba(0, 0, 0, 0.08);
+    --nbd-shadow-lg:    0 4px 12px 0 rgba(0, 0, 0, 0.08);
+    --nbd-shadow-xl:    0 8px 24px 0 rgba(0, 0, 0, 0.16);
+    --nbd-shadow-focus: 0 0 0 3px rgba(37, 99, 235, 0.25);
+
+    /* === Motion / typography ================================== */
+    --nbd-duration-fast:   120ms;
+    --nbd-duration-normal: 220ms;
+    --nbd-ease-out:        ease-out;
+    --nbd-font-family:     -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+                           "Helvetica Neue", Arial, sans-serif;
 }

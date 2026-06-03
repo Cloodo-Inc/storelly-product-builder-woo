@@ -1,9 +1,9 @@
 /**
  * Custom Order — storefront / My Account surfaces.
  *
- * Consumes the shared storefront design tokens (`_tokens-storefront.css`,
- * `--spbwc-*`) so the buyer-facing surfaces stay consistent with the rest of the
- * plugin and are theme-overridable from one place. The `--co-*` aliases below map
+ * Consumes the Printcart Stores v2.5 design tokens (`_tokens-storefront.css`,
+ * `--nbd-*`) so the buyer-facing surfaces match the Printcart user-account design
+ * system and are theme-overridable from one place. The `--co-*` aliases below map
  * the component's local names onto those tokens (with safe fallbacks) — change a
  * value once in the token file and every surface follows.
  *
@@ -18,63 +18,66 @@
 .spbwc-co-orderthumb,
 .spbwc-co-action,
 .spbwc-saved-designs {
-    --co-accent:        var(--spbwc-accent, #1d4ed8);
-    --co-accent-hover:  var(--spbwc-accent-hover, #1e40af);
-    --co-accent-text:   var(--spbwc-accent-text, #ffffff);
-    --co-text:          var(--spbwc-text, #1d2327);
-    --co-muted:         var(--spbwc-muted, #6b7280);
-    --co-border:        var(--spbwc-border, #e2e4e7);
-    --co-border-strong: var(--spbwc-border-strong, #cdd3da);
-    --co-bg-soft:       var(--spbwc-bg-soft, #f8fafc);
-    --co-danger:        var(--spbwc-danger, #d63638);
-    --co-danger-soft:   var(--spbwc-danger-soft, #fef2f2);
-    --co-danger-border: var(--spbwc-danger-border, #fecaca);
-    --co-radius:        var(--spbwc-radius, 10px);
+    --co-accent:        var(--nbd-mb-primary, #2563eb);
+    --co-accent-hover:  var(--nbd-mb-primary-pressed, #1d4ed8);
+    --co-accent-text:   #ffffff;
+    --co-text:          var(--nbd-mb-text, #1f2937);
+    --co-muted:         var(--nbd-mb-text-soft, #6b7280);
+    --co-border:        var(--nbd-mb-border, #e5e7eb);
+    --co-border-strong: var(--nbd-mb-border-strong, #d1d5db);
+    --co-bg:            var(--nbd-mb-bg, #ffffff);
+    --co-bg-soft:       var(--nbd-mb-bg-soft, #f9fafb);
+    --co-danger:        var(--nbd-color-error, #ef4444);
+    --co-danger-soft:   var(--nbd-color-error-soft, #fee2e2);
+    --co-danger-border: var(--nbd-color-error-border, #fca5a5);
+    --co-radius:        var(--nbd-radius-xl, 12px);
+    --co-transition:    var(--nbd-duration-normal, 220ms) var(--nbd-ease-out, ease-out);
 }
 
 /* ── Design preview thumbnail on the order line item (D2) ───────────────── */
 .spbwc-co-orderthumb {
     display: inline-block;
-    margin: 0 0 var(--spbwc-space-2, 8px);
+    margin: 0 0 var(--nbd-space-2, 8px);
 }
 .spbwc-co-orderthumb img {
     display: block;
     max-width: 96px;
     height: auto;
     border: 1px solid var(--co-border);
-    border-radius: var(--spbwc-radius-sm, 6px);
+    border-radius: var(--nbd-radius-md, 6px);
     background: var(--co-bg-soft);
 }
 
 /* ── Order line-item action chips (view / download / save) ──────────────── */
 .spbwc-co-action {
-    margin: var(--spbwc-space-2, 8px) 0 0;
+    margin: var(--nbd-space-2, 8px) 0 0;
     display: flex;
     flex-wrap: wrap;
-    gap: var(--spbwc-space-2, 8px);
+    gap: var(--nbd-space-2, 8px);
 }
 .spbwc-co-chip {
     display: inline-flex;
     align-items: center;
-    gap: var(--spbwc-space-1, 4px);
+    gap: var(--nbd-space-1, 4px);
     padding: 6px 12px;
     font-size: 13px;
     font-weight: 600;
     line-height: 1.2;
     text-decoration: none;
     color: var(--co-accent);
-    background: var(--spbwc-bg, #fff);
+    background: var(--co-bg);
     border: 1px solid var(--co-accent);
-    border-radius: var(--spbwc-radius-pill, 999px);
-    transition: background var(--spbwc-transition, .15s ease),
-                color var(--spbwc-transition, .15s ease),
-                box-shadow var(--spbwc-transition, .15s ease);
+    border-radius: var(--nbd-radius-full, 9999px);
+    transition: background var(--co-transition),
+                color var(--co-transition),
+                box-shadow var(--co-transition);
 }
 .spbwc-co-chip:hover,
 .spbwc-co-chip:focus {
     background: var(--co-accent);
     color: var(--co-accent-text);
-    box-shadow: var(--spbwc-shadow-focus, 0 2px 8px rgba(29, 78, 216, .25));
+    box-shadow: var(--nbd-shadow-focus, 0 0 0 3px rgba(37, 99, 235, .25));
+    text-decoration: none;
 }
 .spbwc-co-chip:focus-visible {
     outline: 2px solid var(--co-accent);
@@ -94,14 +97,14 @@
 }
 
 /* ── Saved designs tab ──────────────────────────────────────────────────── */
-.spbwc-saved-designs h2 { margin: 0 0 var(--spbwc-space-4, 16px); }
+.spbwc-saved-designs h2 { margin: 0 0 var(--nbd-space-4, 16px); }
 .spbwc-saved-designs__list {
     list-style: none;
     margin: 0;
     padding: 0;
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-    gap: var(--spbwc-space-4, 16px);
+    gap: var(--nbd-space-4, 16px);
 }
 .spbwc-saved-designs__item {
     display: flex;
@@ -109,11 +112,11 @@
     border: 1px solid var(--co-border);
     border-radius: var(--co-radius);
     overflow: hidden;
-    background: var(--spbwc-bg, #fff);
-    transition: box-shadow .18s ease, border-color .18s ease, transform .18s ease;
+    background: var(--co-bg);
+    transition: box-shadow var(--co-transition), border-color var(--co-transition), transform var(--co-transition);
 }
 .spbwc-saved-designs__item:hover {
-    box-shadow: var(--spbwc-shadow-card, 0 6px 20px rgba(16, 24, 40, .10));
+    box-shadow: var(--nbd-shadow-lg, 0 4px 12px 0 rgba(0, 0, 0, .08));
     border-color: var(--co-border-strong);
     transform: translateY(-2px);
 }
@@ -128,8 +131,8 @@
 .spbwc-saved-designs__body {
     display: flex;
     flex-direction: column;
-    gap: var(--spbwc-space-1, 4px);
-    padding: var(--spbwc-space-3, 12px) 14px 14px;
+    gap: var(--nbd-space-1, 4px);
+    padding: var(--nbd-space-3, 12px) 14px 14px;
     flex: 1 1 auto;
 }
 .spbwc-saved-designs__title {
@@ -145,9 +148,9 @@
 .spbwc-saved-designs__actions {
     display: flex;
     align-items: center;
-    gap: var(--spbwc-space-2, 8px);
+    gap: var(--nbd-space-2, 8px);
     margin-top: auto;
-    padding-top: var(--spbwc-space-3, 12px);
+    padding-top: var(--nbd-space-3, 12px);
 }
 .spbwc-saved-designs__form { margin: 0; }
 .spbwc-saved-designs__actions .button {
@@ -155,7 +158,7 @@
     cursor: pointer;
 }
 .spbwc-saved-designs__delete {
-    background: var(--spbwc-bg, #fff) !important;
+    background: var(--co-bg) !important;
     color: var(--co-danger) !important;
     border: 1px solid var(--co-danger-border) !important;
     box-shadow: none !important;
@@ -170,5 +173,5 @@
 }
 
 @media (max-width: 480px) {
-    .spbwc-saved-designs__list { grid-template-columns: 1fr 1fr; gap: var(--spbwc-space-3, 12px); }
+    .spbwc-saved-designs__list { grid-template-columns: 1fr 1fr; gap: var(--nbd-space-3, 12px); }
 }
