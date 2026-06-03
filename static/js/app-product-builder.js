@@ -2041,21 +2041,33 @@ nbdpbApp.controller("nbpbCtrl", [
       if (!component || !component.current_pb_configs) return;
       try {
         var stages = $scope.stages || [];
+        var isPreset = component.nbpb_type === 'nbpb_com';
         for (var v = 0; v < stages.length; v++) {
-          if (!$scope.isViewPassiveForComponent(component, v)) continue;
           var layer = (typeof $scope.getLayerById === 'function') ? $scope.getLayerById(component.id, v) : null;
-          if (layer && typeof layer.set === 'function') {
+          if (!layer || typeof layer.set !== 'function') continue;
+          var passive = $scope.isViewPassiveForComponent(component, v);
+          /* Three cases:
+           *   • preset (nbpb_com) on a PASSIVE view → hide entirely
+           *   • preset (nbpb_com) on a primary view → render but lock
+           *     (no selection/move/resize — customer just picks options)
+           *   • text/image upload → leave interactive so the customer
+           *     can position their custom content */
+          if (passive && isPreset) {
             layer.set({ visible: false, selectable: false, evented: false });
-            var st = stages[v];
-            if (st && st.canvas) {
-              if (st.canvas.getActiveObject && st.canvas.getActiveObject() === layer) {
-                st.canvas.discardActiveObject();
-              }
-              if (typeof st.canvas.requestRenderAll === 'function') { st.canvas.requestRenderAll(); }
-              else if (typeof st.canvas.renderAll === 'function') { st.canvas.renderAll(); }
-            }
-            if (st && st.states) { st.states.showAdminTool = false; }
+          } else if (isPreset) {
+            layer.set({ visible: true, selectable: false, evented: false });
+          } else {
+            layer.set({ visible: true, selectable: true, evented: true });
           }
+          var st = stages[v];
+          if (st && st.canvas) {
+            if (st.canvas.getActiveObject && st.canvas.getActiveObject() === layer) {
+              st.canvas.discardActiveObject();
+            }
+            if (typeof st.canvas.requestRenderAll === 'function') { st.canvas.requestRenderAll(); }
+            else if (typeof st.canvas.renderAll === 'function') { st.canvas.renderAll(); }
+          }
+          if (st && st.states && isPreset) { st.states.showAdminTool = false; }
         }
       } catch (e) { /* never block the customizer flow on layer cleanup */ }
       var primary = $scope.findPrimaryView(component);

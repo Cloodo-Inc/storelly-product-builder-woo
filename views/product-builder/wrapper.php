@@ -631,7 +631,8 @@
                                  This slot reserved for future contextual tools. -->
                         </div>
                         <div class="spbwc-cust-canvas__toolbar-right">
-                            <div class="spbwc-cust-zoom" aria-label="<?php esc_attr_e( 'Zoom', 'storelly-product-builder-for-woocommerce' ); ?>">
+                            <span class="spbwc-cust-zoom-caption" aria-hidden="true"><?php esc_html_e( 'Zoom', 'storelly-product-builder-for-woocommerce' ); ?></span>
+                            <div class="spbwc-cust-zoom" aria-label="<?php esc_attr_e( 'Zoom product image', 'storelly-product-builder-for-woocommerce' ); ?>">
                                 <button type="button" class="spbwc-cust-zoom__btn" ng-click="zoomCanvas(-0.1)" aria-label="<?php esc_attr_e( 'Zoom out', 'storelly-product-builder-for-woocommerce' ); ?>" title="<?php esc_attr_e( 'Zoom out', 'storelly-product-builder-for-woocommerce' ); ?>">
                                     <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/><path d="M8 11h6"/></svg>
                                 </button>

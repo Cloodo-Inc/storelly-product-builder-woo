@@ -9476,12 +9476,13 @@ aside.spbwc-cust-summary {
     display: inline;
 }
 
-/* Canvas toolbar — DEDICATED 48px row below the stage that holds the
- * live-preview pill, view switcher, and zoom bar. Replaces the earlier
- * absolute-positioned approach which was overlaying the artwork. */
+/* Canvas toolbar — DEDICATED 56px row below the stage that holds the
+ * live-preview pill, view switcher, and the prominent zoom bar (36px
+ * tall buttons). Replaces the earlier absolute-positioned approach
+ * which was overlaying the artwork. */
 .spbwc-cust-canvas__toolbar {
     flex: 0 0 auto;
-    height: 48px;
+    height: 56px;
     display: grid;
     grid-template-columns: 1fr auto 1fr;
     align-items: center;
@@ -9492,17 +9493,48 @@ aside.spbwc-cust-summary {
 }
 .spbwc-cust-canvas__toolbar-left { justify-self: start; }
 .spbwc-cust-canvas__toolbar-center { justify-self: center; }
-.spbwc-cust-canvas__toolbar-right { justify-self: end; }
-
-/* Zoom bar — Printcart `.zoom-bar` styling, in-flow inside toolbar row. */
-.spbwc-cust-zoom {
+.spbwc-cust-canvas__toolbar-right {
+    justify-self: end;
     display: inline-flex;
     align-items: center;
+    gap: 8px;
+}
+.spbwc-cust-zoom-caption {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--spbwc-c-text);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+}
+
+/* Zoom bar — bigger, more prominent. Sits in-flow inside the canvas
+ * toolbar row at bottom-right; 36px tall buttons (was 32px) so the
+ * affordance reads as a real "zoom" tool the customer can actually
+ * see and reach. */
+.spbwc-cust-zoom {
+    display: inline-flex;
+    align-items: stretch;
     background: var(--spbwc-c-bg);
-    border: 1px solid var(--spbwc-c-line);
+    border: 1px solid var(--spbwc-c-line-strong);
     border-radius: var(--spbwc-c-radius-md);
     overflow: hidden;
-    box-shadow: var(--spbwc-c-shadow-sm);
+    box-shadow: var(--spbwc-c-shadow);
+}
+.spbwc-cust-v3 .spbwc-cust-zoom__btn {
+    width: 36px;
+    height: 36px;
+    color: var(--spbwc-c-ink);
+}
+.spbwc-cust-v3 .spbwc-cust-zoom__btn:hover { background: var(--spbwc-c-bg-soft); color: var(--spbwc-c-brand); }
+.spbwc-cust-v3 .spbwc-cust-zoom__btn svg { width: 16px; height: 16px; }
+.spbwc-cust-v3 .spbwc-cust-zoom__value {
+    height: 36px;
+    line-height: 36px;
+    min-width: 48px;
+    font-size: 12.5px;
+    font-weight: 700;
+    color: var(--spbwc-c-ink);
+    background: var(--spbwc-c-bg-soft);
 }
 .spbwc-cust-zoom__btn {
     width: 32px;
