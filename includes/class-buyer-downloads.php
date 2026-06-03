@@ -53,6 +53,30 @@ if ( ! class_exists( 'SPBWC_Buyer_Downloads' ) ) {
                     array( 'confirmDelete' => __( 'Delete this saved design? This cannot be undone.', 'storelly-product-builder-for-woocommerce' ) )
                 );
             }
+            // Cart *block* "Save design" button (option B — wp.data, no build). Only load
+            // when the Cart page actually uses the block; the classic shortcode uses the PHP link.
+            if ( $is_cart && self::cart_uses_block() ) {
+                wp_enqueue_script( 'spbwc-cart-block-save', SPBWC_PB_JS_URL . 'cart-block-save.js', array( 'wp-data' ), SPBWC_PB_VERSION, true );
+                wp_localize_script(
+                    'spbwc-cart-block-save',
+                    'spbwcCartSave',
+                    array(
+                        'loggedIn'  => is_user_logged_in(),
+                        'loginUrl'  => function_exists( 'wc_get_page_permalink' ) ? wc_get_page_permalink( 'myaccount' ) : wp_login_url(),
+                        'i18nSave'  => __( 'Save design to my account', 'storelly-product-builder-for-woocommerce' ),
+                        'i18nLogin' => __( 'Log in to save this design', 'storelly-product-builder-for-woocommerce' ),
+                    )
+                );
+            }
+        }
+
+        /** True when the Cart page is rendered with the WooCommerce Cart block. */
+        protected static function cart_uses_block() {
+            $cart_page_id = function_exists( 'wc_get_page_id' ) ? wc_get_page_id( 'cart' ) : 0;
+            if ( $cart_page_id > 0 && function_exists( 'has_block' ) && has_block( 'woocommerce/cart', $cart_page_id ) ) {
+                return true;
+            }
+            return false;
         }
 
         /**

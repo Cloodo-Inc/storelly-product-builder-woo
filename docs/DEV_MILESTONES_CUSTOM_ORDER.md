@@ -34,7 +34,7 @@
 | # | Milestone | Scope | Status |
 | --- | --- | --- | --- |
 | **M11** | **Store API cart-item data (E1)** | `woocommerce_store_api_register_endpoint_data()` on cart-item schema (ns `storelly`): `is_design` / `save_url` / `preview`. Refactor `SPBWC_Saved_Designs::cart_save_url()` public helper shared by classic link + Store API. | todo |
-| **M12** | **Cart-block Save button (E2)** | `@wordpress/scripts` build (`src/blocks/cart-save` → `build/`), `IntegrationInterface` registered on the cart block, slot-fill renders a token-styled "Save design" button per design line item (guest → log-in link), wired to the existing nonce handler. | todo |
+| **M12** | **Cart-block Save button — option B (E2)** | No build. `static/js/cart-block-save.js` reads `wp.data` `wc/store/cart` items, injects a token-styled "Save design" button into each design line item (index-matched, re-inject-guarded, MutationObserver), wired to `extensions.storelly.save_url`; guest → log-in link. Enqueued only when the page `has_block('woocommerce/cart')`. | todo |
 | **M13** | **User Account settings tab (E3)** | New tab in `menu-settings.php` + `spbwc_settings()` handler: detect Cart mode + one-click "Switch Cart to Classic" (reversible, OD-13); Save entry-point toggles (`save_on_cart/order/builder`); nonce + `manage_woocommerce`. | todo |
 | **M14** | **User activity stats on Overview (E4)** | "Customer design activity" section in `views/overview.php`: saved-design count + authors, design re-orders (HPOS-safe), preview-download counter, top products, recent activity. | todo |
 | **M15** | **Compliance + tests (round 3)** | `wp plugin check` 0 errors; readme + POT for new strings; document the Node build step; verify block + classic both. | todo |

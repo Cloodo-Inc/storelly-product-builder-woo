@@ -42,6 +42,8 @@ if ( ! class_exists( 'SPBWC_Saved_Designs' ) ) {
             add_action( 'woocommerce_order_item_meta_end', array( __CLASS__, 'render_save_link' ), 20, 4 );
             // Save a design straight from the cart (D1 / cart-only entry point).
             add_action( 'woocommerce_after_cart_item_name', array( __CLASS__, 'render_cart_save_link' ), 10, 2 );
+            // Cart *block* (Store API) integration — feed design data to cart-block-save.js (E1).
+            add_action( 'woocommerce_blocks_loaded', array( __CLASS__, 'register_store_api' ) );
             // Action handlers (save links = GET, load/delete = POST). Priority 50 so
             // WooCommerce has set up the session + cart (its own wp_loaded init) before
             // the cart-save handler reads WC()->cart->get_cart_item().
@@ -156,20 +158,94 @@ if ( ! class_exists( 'SPBWC_Saved_Designs' ) ) {
                 return;
             }
             $icon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>';
-            $url  = wp_nonce_url(
-                add_query_arg(
-                    array(
-                        'spbwc_save_cart_design' => 1,
-                        'cart_item_key'          => $cart_item_key,
-                    ),
-                    home_url( '/' )
-                ),
-                'spbwc_save_cart_design_' . $cart_item_key
-            );
+            $url  = self::cart_save_url( $cart_item_key );
             echo '<p class="spbwc-co-action spbwc-cart-save"><a class="spbwc-co-chip spbwc-co-chip--ghost" href="' . esc_url( $url ) . '">'
                 . $icon // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static inline SVG icon.
                 . '<span>' . esc_html__( 'Save design to my account', 'storelly-product-builder-for-woocommerce' ) . '</span>'
                 . '</a></p>';
+        }
+
+        /**
+         * Nonce-protected URL that saves a cart item's design to the account (D1).
+         * Shared by the classic-cart link and the Cart-block Store API data (E1).
+         *
+         * @param string $cart_item_key Cart item key.
+         * @return string
+         */
+        public static function cart_save_url( $cart_item_key ) {
+            // Build a RAW URL (not wp_nonce_url(), which esc_html()s the result and would
+            // double-encode once it passes through Store API JSON → JS .href). The classic
+            // link applies esc_url() at echo time; the block JS assigns it to .href directly.
+            $url = add_query_arg(
+                array(
+                    'spbwc_save_cart_design' => 1,
+                    'cart_item_key'          => $cart_item_key,
+                ),
+                home_url( '/' )
+            );
+            return add_query_arg( '_wpnonce', wp_create_nonce( 'spbwc_save_cart_design_' . $cart_item_key ), $url );
+        }
+
+        // ------------------------------------------------------------------
+        //  Cart block (Store API) integration — E1
+        // ------------------------------------------------------------------
+
+        /**
+         * Expose per-cart-item design data to the Store API so the Cart *block*
+         * (React) can render a "Save design" button. Fed to cart-block-save.js.
+         */
+        public static function register_store_api() {
+            if ( ! function_exists( 'woocommerce_store_api_register_endpoint_data' )
+                || ! class_exists( '\\Automattic\\WooCommerce\\StoreApi\\Schemas\\V1\\CartItemSchema' ) ) {
+                return;
+            }
+            woocommerce_store_api_register_endpoint_data(
+                array(
+                    'endpoint'        => \Automattic\WooCommerce\StoreApi\Schemas\V1\CartItemSchema::IDENTIFIER,
+                    'namespace'       => 'storelly',
+                    'data_callback'   => array( __CLASS__, 'store_api_item_data' ),
+                    'schema_callback' => array( __CLASS__, 'store_api_item_schema' ),
+                    'schema_type'     => ARRAY_A,
+                )
+            );
+        }
+
+        /**
+         * @param array $cart_item WooCommerce cart item.
+         * @return array
+         */
+        public static function store_api_item_data( $cart_item ) {
+            $folder = isset( $cart_item['pcpb_meta']['pcpb'] ) ? (string) $cart_item['pcpb_meta']['pcpb'] : '';
+            $is_design = ( '' !== $folder );
+            $key = isset( $cart_item['key'] ) ? (string) $cart_item['key'] : '';
+            return array(
+                'is_design' => $is_design,
+                'save_url'  => ( $is_design && $key && is_user_logged_in() ) ? self::cart_save_url( $key ) : '',
+                'preview'   => $is_design ? self::first_preview_url( $folder ) : '',
+            );
+        }
+
+        /**
+         * @return array Store API schema for the storelly cart-item extension.
+         */
+        public static function store_api_item_schema() {
+            return array(
+                'is_design' => array(
+                    'description' => __( 'Whether this cart item carries a Storelly design.', 'storelly-product-builder-for-woocommerce' ),
+                    'type'        => 'boolean',
+                    'readonly'    => true,
+                ),
+                'save_url'  => array(
+                    'description' => __( 'Nonce URL to save this design to the account.', 'storelly-product-builder-for-woocommerce' ),
+                    'type'        => 'string',
+                    'readonly'    => true,
+                ),
+                'preview'   => array(
+                    'description' => __( 'Design preview image URL.', 'storelly-product-builder-for-woocommerce' ),
+                    'type'        => 'string',
+                    'readonly'    => true,
+                ),
+            );
         }
 
         // ------------------------------------------------------------------

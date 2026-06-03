@@ -287,19 +287,19 @@ Expose per-cart-item data so the Cart block (React/Store API) can render the Sav
   API share one source. Handler stays `handle_cart_save()` (unchanged).
 - New thin class `SPBWC_Cart_Store_API` (or a method on Saved_Designs) registers the extension.
 
-### E2 — Cart-block Save button (official slot-fill + build)
-- Add a JS build pipeline: `package.json` + `@wordpress/scripts` (`wp-scripts build`), source in
-  `src/blocks/cart-save/index.js`, output to `build/blocks/cart-save/`. Deps:
-  `@woocommerce/blocks-checkout`, `@wordpress/element`, `@wordpress/i18n` (externalised via
-  `@wordpress/dependency-extraction-webpack-plugin`).
-- Register the cart-block integration in PHP (`IntegrationInterface` via the
-  `woocommerce_blocks_cart_block_registration` registry) so the script + its asset deps load only
-  inside the Cart block.
-- The fill renders a token-styled **"Save design"** button per line item where
-  `item.extensions.storelly.is_design` is true; the button navigates to `save_url` (reuses the
-  existing nonce handler). Guests: render a "Log in to save" link.
-- Commit the build artifacts **and** the `src/`; document the build step in the repo (adds a
-  Node toolchain — OD-12).
+### E2 — Cart-block Save button (option B: wp.data, no build) — **chosen 2026-06-03**
+No Node toolchain. A single vanilla JS file `static/js/cart-block-save.js`, enqueued only on the
+Cart block page (`has_block('woocommerce/cart')`), that:
+- reads the official data store `wp.data.select('wc/store/cart').getCartData().items`;
+- for each item where `item.extensions.storelly.is_design` is true (fed by E1), injects a
+  token-styled **"Save design"** button into that line item's row (matched to
+  `.wc-block-cart-items__row` by index, guarded against re-injection with a data flag) wired to
+  `item.extensions.storelly.save_url`; guests get a "Log in to save" link (`spbwcCartSave.loginUrl`);
+- re-runs on `wp.data.subscribe()` (cart updates) and a `MutationObserver` (block re-render).
+Best-effort enhancement: if the block markup changes and matching fails, no button renders (graceful)
+— the order-detail, classic-cart, and (future) builder entry points remain the reliable paths.
+Rejected alternative (A): official `@woocommerce/blocks-checkout` slot-fill + `@wordpress/scripts`
+build — more future-proof but adds a ~500 MB dev `node_modules` toolchain; not worth it for one button.
 
 ### E3 — "User Account" settings tab (Classic Cart + entry points)
 Add a tab to `views/menu-settings.php` + handler in `spbwc_settings()`:
