@@ -259,6 +259,16 @@ functional. Grounded in current behaviour:
 - **Load feedback**: on a successful Load, call `wc_add_notice()` "Design added to your cart"
   before redirecting to the cart (server-side; no JS needed).
 
+### ⚠ Known limitation — Cart block (browser-verified 2026-06-03)
+M7's "Save design" link (and the plugin's existing "Edit options" link) hook
+`woocommerce_after_cart_item_name` / the `woocommerce_cart_item_name` filter, which only fire on
+the **classic `[woocommerce_cart]` shortcode**. The WooCommerce **Cart block** (default on this
+store, `wp:woocommerce/cart`) renders via the Store API and does **not** fire these classic
+hooks, so the links don't appear there. Verified: switching the Cart page to the classic
+shortcode makes M7 work end-to-end (save → clone → CPT → tab with notice + thumbnail card). The
+cart-save handler also had to move to `wp_loaded` priority 50 + `wc_load_cart()` so the cart is
+populated when the handler reads it (fixed, commit 55d26d4).
+
 ---
 
 ## Open decisions (to confirm before/while building)
@@ -279,6 +289,10 @@ functional. Grounded in current behaviour:
 - **OD-9 "View" link (D3):** exposes the low-res preview image URL publicly (preview already
   lives under public uploads). *Recommendation: acceptable for preview.*
 - **OD-10 Delete confirm (D4):** JS `confirm()` (proposed, simplest) vs inline two-step (no-JS).
+- **OD-11 Cart block support:** the cart links only render on the classic cart shortcode. Ship a
+  Store-API / Cart-block integration vs document "use the classic cart" as a requirement (the
+  existing Edit-options link shares this constraint). *Recommendation: document now; scope a block
+  integration as a separate milestone if the store keeps the Cart block.*
 
 ---
 
