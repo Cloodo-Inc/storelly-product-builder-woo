@@ -3256,3 +3256,24 @@ label.view-config {
   line-height: var(--text-xl, 16px);
 }
 
+/* Context note inside the "Apply to products" tab when the editor was opened
+   from a product metabox. See docs/SPEC_LINKED_PRODUCT_UX.md §4. */
+.spbwc-lp-ctx-note {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--nbd-space-2, 8px);
+  margin: 0 0 var(--nbd-space-4, 16px);
+  padding: var(--nbd-space-3, 12px);
+  background: var(--st-brand-tint, #eff6ff);
+  border: 1px solid var(--nbd-st-border-brand, #bfdbfe);
+  border-radius: var(--nbd-radius-md, 8px);
+  color: var(--nbd-st-text-soft, #50575e);
+  font-size: var(--text-md, 13px);
+  line-height: 1.5;
+}
+.spbwc-lp-ctx-note .dashicons {
+  color: var(--nbd-st-primary, #2271b1);
+  flex: 0 0 auto;
+  margin-top: 1px;
+}
+

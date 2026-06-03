@@ -805,6 +805,22 @@ $field_count   = isset($options['fields']) && is_array($options['fields']) ? cou
                         <span class="v2-card__sub" data-spbwc-apply-count></span>
                     </div>
                     <div class="v2-card__body">
+                        <?php if ( ! empty( $product_id ) ) : ?>
+                        <!-- Context note when opened from a product metabox: the pointer
+                             (_spbwc_option_id) is the source of truth; detach via Unlink. -->
+                        <div class="spbwc-lp-ctx-note">
+                            <span class="dashicons dashicons-info-outline" aria-hidden="true"></span>
+                            <span>
+                                <?php
+                                printf(
+                                    /* translators: %s: product name the option was opened from. */
+                                    esc_html__( 'Opened from %s. This product is linked through its Storelly product box. To detach just this product, use “Unlink” there — removing it from the list below is not required.', 'storelly-product-builder-for-woocommerce' ),
+                                    '<strong>' . esc_html( get_the_title( $product_id ) ) . '</strong>'
+                                );
+                                ?>
+                            </span>
+                        </div>
+                        <?php endif; ?>
                         <!-- Mode toggle: by individual products vs by category -->
                         <div class="v2-form-row">
                             <label class="v2-form-row__label"><?php esc_html_e('Selection mode', 'storelly-product-builder-for-woocommerce'); ?></label>

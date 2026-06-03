@@ -208,6 +208,13 @@
     pointer-events: none;
 }
 
+/* Builder disabled → de-emphasise the mapped card / create CTA: the option
+   won't render on the storefront until "Enable product builder" is on. */
+.spbwc-lp.is-builder-off .spbwc-lp-card,
+.spbwc-lp.is-builder-off .spbwc-lp-empty {
+    opacity: 0.55;
+}
+
 /* ---- Empty / create state ---- */
 .spbwc-lp-empty {
     border: 1px dashed var(--nbd-st-border, #c3c4c7);
