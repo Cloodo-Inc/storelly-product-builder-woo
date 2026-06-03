@@ -9,13 +9,16 @@
  */
 
 .spbwc-rfq {
-    --spbwc-rfq-accent: #1d4ed8;
+    /* Mapped onto the shared Printcart storefront tokens (_tokens-storefront.css,
+       --nbd-*) so Quote matches the rest of the user pages; fallbacks keep the
+       original look if the token file is ever absent. */
+    --spbwc-rfq-accent: var(--nbd-mb-primary, #2563eb);
     --spbwc-rfq-accent-text: #ffffff;
-    --spbwc-rfq-radius: 10px;
-    --spbwc-rfq-danger: #d63638;
-    --spbwc-rfq-text: #1d2327;
-    --spbwc-rfq-muted: #6b7280;
-    --spbwc-rfq-border: #e2e4e7;
+    --spbwc-rfq-radius: var(--nbd-radius-xl, 10px);
+    --spbwc-rfq-danger: var(--nbd-color-error, #d63638);
+    --spbwc-rfq-text: var(--nbd-mb-text, #1f2937);
+    --spbwc-rfq-muted: var(--nbd-mb-text-soft, #6b7280);
+    --spbwc-rfq-border: var(--nbd-mb-border, #e5e7eb);
 }
 
 /* Trigger button inherits theme button styling; just spacing. */
@@ -145,7 +148,7 @@
 .spbwc-rfq-field textarea:focus {
     outline: none;
     border-color: var(--spbwc-rfq-accent);
-    box-shadow: 0 0 0 3px rgba(29, 78, 216, .15);
+    box-shadow: var(--nbd-shadow-focus, 0 0 0 3px rgba(37, 99, 235, .25));
 }
 .spbwc-rfq-field textarea { min-height: 90px; resize: vertical; }
 .spbwc-rfq-field.has-error input,
@@ -231,7 +234,7 @@
 }
 
 /* ── My Account: quotes list + detail ──────────────────────────────────── */
-.spbwc-rfq-account { --spbwc-rfq-accent: #1d4ed8; max-width: 880px; }
+.spbwc-rfq-account { --spbwc-rfq-accent: var(--nbd-mb-primary, #2563eb); max-width: 880px; }
 .spbwc-rfq-account h2 { font-size: 22px; line-height: 1.25; }
 
 /* Header: title + status pill */
