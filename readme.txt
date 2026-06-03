@@ -4,8 +4,8 @@ Donate link: https://storelly.com/
 Tags: product builder, product customize, product customizer, woocommerce custom product
 Requires at least: 4.7
 Tested up to: 7.0
-Stable tag: 1.5.3
-Version: 1.5.3
+Stable tag: 1.5.4
+Version: 1.5.4
 Requires PHP: 7.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -132,6 +132,13 @@ This plugin connects to the following external services:
 3. Storelly settings page with API keys and sync options
 
 == Changelog ==
+= 1.5.4 =
+* Customizer V3 — kill the "white square overlay" bug (user screenshot of bag → option pick → solid white box covering the artwork):
+  - The legacy `selectAttribute()` adds a Fabric image layer for every stage of the picked option. When admin doesn't differentiate the option per view (every option reuses the same shared placeholder image — image_id 135 on the bag), that layer renders as a literal white square covering the product photo.
+  - New `$scope.isViewPassiveForComponent(component, viewIdx)` returns true when every option of the component points to the same `image_url` on that view → the view is "passive" → the option doesn't differentiate that view → hide the layer.
+  - `$scope.selectAttributeAndSwitchView` now iterates all stages after the legacy `selectAttribute` runs and toggles `visible/selectable/evented = false` on the Fabric layer for passive views. Renders + discardActiveObject so the admin-tool toolbar doesn't pop up.
+  - `$scope.changeStage` now calls `discardActiveObject` + clears `showAdminTool` on the new stage so view switching never bring the layer-transform toolbar into view.
+
 = 1.5.3 =
 * Customizer V3 — primary-view detection verified offline against the bag product (option_id 8). PHP unserialization of the actual `wp_storelly_product_builder_options.fields` blob shows `findPrimaryView()` returns the expected stage for every component: HANDLES → 0 (Front, tie-broken to first), SIDE PANELS → 0, MIDDLE BLOCK → 0, INSIDE STORAGE → **2 (Inside)**, STRAP FABRIC → 0. The auto-switch heuristic is correct; if the bug still reproduces, hard-reload to bust the cached 1.5.1 / 1.4.x JS and set `window.SPBWC_DEBUG_VIEW = true` in DevTools then re-open the INSIDE STORAGE accordion to see the heuristic firing in the console.
 

@@ -1958,8 +1958,37 @@ nbdpbApp.controller("nbpbCtrl", [
           var w = items[0].offsetWidth || 0;
           carousel.style.transform = 'translate3d(' + (-i * w) + 'px, 0, 0)';
         }
+        /* Deselect any active Fabric layer on the new stage so the
+         * legacy `.design-admin-tool` (Bring fwd / Clear / etc.) does
+         * not pop up automatically just because the user switched view. */
+        try {
+          var st = $scope.stages[i];
+          if (st && st.canvas) {
+            st.canvas.discardActiveObject();
+            st.canvas.requestRenderAll();
+          }
+          if (st && st.states) { st.states.showAdminTool = false; }
+        } catch (e) {}
         if (typeof $scope.updateApp === 'function') { $scope.updateApp(); }
       } catch (e) { /* canvas not ready yet — currentStage update alone is fine */ }
+    };
+
+    /* V3 — detect whether a view is "passive" for a component (every
+     * option points to the same image_url for that view → the view
+     * doesn't visually differentiate options → don't render a Fabric
+     * layer for that view, otherwise the shared placeholder image
+     * shows up as a white square covering the artwork (bug from user
+     * screenshot of bag → option-pick → white box overlay). */
+    $scope.isViewPassiveForComponent = function (component, viewIdx) {
+      if (!component || !component.current_pb_configs) return false;
+      var configs = component.current_pb_configs;
+      if (!configs.length) return false;
+      var urls = {};
+      for (var i = 0; i < configs.length; i++) {
+        var url = configs[i] && configs[i][viewIdx] && configs[i][viewIdx].image_url;
+        if (url) { urls[url] = true; }
+      }
+      return _.keys(urls).length <= 1;
     };
     /* V3 — find the PRIMARY view for a component. The previous logic
      * "first view with non-empty image_url" failed when the admin had
@@ -2000,12 +2029,39 @@ nbdpbApp.controller("nbpbCtrl", [
       }
       return bestCount > 1 ? best : -1; // only commit if there's real variety
     };
-    /* V3 — Pick a sub-option AND auto-switch the canvas to the view
-     * that actually shows the change. Wraps legacy selectAttribute. */
+    /* V3 — Pick a sub-option, hide the Fabric layer on PASSIVE views
+     * (where every option points to the same placeholder image), and
+     * auto-switch the canvas to the component's primary view. The
+     * passive-layer hide fixes the "white square overlay" bug from
+     * the user's screenshot: shared-placeholder image 135 was being
+     * rendered as a literal white square on every view that didn't
+     * actually differentiate options. */
     $scope.selectAttributeAndSwitchView = function (optionIdx, component) {
       $scope.selectAttribute(optionIdx);
       if (!component || !component.current_pb_configs) return;
+      try {
+        var stages = $scope.stages || [];
+        for (var v = 0; v < stages.length; v++) {
+          if (!$scope.isViewPassiveForComponent(component, v)) continue;
+          var layer = (typeof $scope.getLayerById === 'function') ? $scope.getLayerById(component.id, v) : null;
+          if (layer && typeof layer.set === 'function') {
+            layer.set({ visible: false, selectable: false, evented: false });
+            var st = stages[v];
+            if (st && st.canvas) {
+              if (st.canvas.getActiveObject && st.canvas.getActiveObject() === layer) {
+                st.canvas.discardActiveObject();
+              }
+              if (typeof st.canvas.requestRenderAll === 'function') { st.canvas.requestRenderAll(); }
+              else if (typeof st.canvas.renderAll === 'function') { st.canvas.renderAll(); }
+            }
+            if (st && st.states) { st.states.showAdminTool = false; }
+          }
+        }
+      } catch (e) { /* never block the customizer flow on layer cleanup */ }
       var primary = $scope.findPrimaryView(component);
+      if (typeof window !== 'undefined' && window.SPBWC_DEBUG_VIEW) {
+        try { console.log('[SPBWC] selectAttribute', optionIdx, component.general && component.general.title, '→ findPrimaryView =', primary, 'currentStage =', $scope.currentStage); } catch (e) {}
+      }
       if (primary < 0 || primary === $scope.currentStage) return;
       $scope.changeStage(primary);
     };
