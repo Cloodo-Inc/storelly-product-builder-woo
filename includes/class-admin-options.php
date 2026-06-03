@@ -2091,6 +2091,25 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
                 unset($post_options['jsonFields']);
             }
 
+            // Catastrophic-wipe guard. The Visual Builder auto-saves in the
+            // background (30s debounce) and both editors serialize via
+            // getJsonFields(); either can POST an empty fields[] when the Angular
+            // model momentarily has no fields (load race, JS glitch, accidental
+            // delete-all). Overwriting an option that currently HAS fields with an
+            // empty set wipes every pricing field AND design component (the bug
+            // that emptied "BAG"). Refuse to persist an all-empty fields[] over a
+            // non-empty option. A deliberate "remove everything" can opt in via the
+            // spbwc_allow_empty_fields_save filter, or delete the whole option.
+            $spbwc_incoming_fields = ( isset( $post_options['fields'] ) && is_array( $post_options['fields'] ) ) ? $post_options['fields'] : array();
+            if ( $id > 0 && 0 === count( $spbwc_incoming_fields ) ) {
+                $spbwc_existing      = $this->spbwc_get_option( $id );
+                $spbwc_existing_data = ( is_array( $spbwc_existing ) && ! empty( $spbwc_existing['fields'] ) ) ? maybe_unserialize( $spbwc_existing['fields'] ) : array();
+                $spbwc_existing_cnt  = ( is_array( $spbwc_existing_data ) && ! empty( $spbwc_existing_data['fields'] ) && is_array( $spbwc_existing_data['fields'] ) ) ? count( $spbwc_existing_data['fields'] ) : 0;
+                if ( $spbwc_existing_cnt > 0 && ! apply_filters( 'spbwc_allow_empty_fields_save', false, $id ) ) {
+                    return array( 'status' => false, 'id' => $id, 'message' => 'empty_fields_blocked' );
+                }
+            }
+
             // Whitelist design_output values. When AngularJS's ngModel value does
             // not match any <option>, the directive injects a hidden
             // <option value="? string:XX ?"> that browsers submit verbatim via

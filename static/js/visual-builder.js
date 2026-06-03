@@ -233,6 +233,17 @@
                 var ctrl = getCtrlScope();
                 if ( ! ctrl || typeof ctrl.getJsonFields !== 'function' ) return;
 
+                // Catastrophic-wipe guard: never auto-save an empty field set. A
+                // transient empty model (load race, accidental clear) would
+                // otherwise be persisted over the saved design and wipe every
+                // field + design component. Skip silently; the PHP save handler
+                // enforces the same rule as a backstop.
+                if ( ! ctrl.options || ! angular.isArray( ctrl.options.fields ) || ctrl.options.fields.length === 0 ) {
+                    $rootScope.vbSavingState = '';
+                    $rootScope.vbSavedLabel  = '';
+                    return;
+                }
+
                 form._vbAutoSaveMode = true;
                 $rootScope.vbSavingState = 'saving';
                 $rootScope.vbSavedLabel = 'Auto-saving…';
