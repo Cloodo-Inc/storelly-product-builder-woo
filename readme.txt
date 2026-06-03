@@ -4,8 +4,8 @@ Donate link: https://storelly.com/
 Tags: product builder, product customize, product customizer, woocommerce custom product
 Requires at least: 4.7
 Tested up to: 7.0
-Stable tag: 1.4.8
-Version: 1.4.8
+Stable tag: 1.4.9
+Version: 1.4.9
 Requires PHP: 7.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -132,6 +132,11 @@ This plugin connects to the following external services:
 3. Storelly settings page with API keys and sync options
 
 == Changelog ==
+= 1.4.9 =
+* Customizer V3 — two view-switching bugs fixed:
+  1. View thumb click sometimes left the carousel stuck — root cause was the legacy `nbdpbCarousel.itemActive()` calculating the transform from *current* (already-transformed) offsets, which produced inconsistent results going 0→1→2→0. Rewrote `$scope.changeStage(idx)` to set the carousel transform directly with `index × first-item-width`, independent of past state. Switching is now deterministic regardless of click order.
+  2. Picking a sub-option whose visual change lives on a different view didn't switch the canvas to that view. New `$scope.selectAttributeAndSwitchView(optionIdx, component)` wrapper calls the existing `selectAttribute()` (so the save pipeline is untouched) and then hops the canvas to the first view where the picked option has a non-empty `image_url`. If the current view already shows the change, it stays put.
+
 = 1.4.8 =
 * Customizer V3: hide the legacy carousel `<` / `>` arrows + dot pagination inside the canvas. They were duplicating the new view-thumb strip (top-right of canvas) and overlapping the artwork — making it look like switching views broke the main image. View thumbs are now the only view-switcher affordance.
 

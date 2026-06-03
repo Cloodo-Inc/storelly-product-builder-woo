@@ -1904,21 +1904,62 @@ nbdpbApp.controller("nbpbCtrl", [
         if (label) { label.textContent = pct + '%'; }
       } catch (e) { /* canvas not ready — no-op */ }
     };
-    /* V3 — Front/Back view switcher (Printcart Canva pattern).
-     * Drives the legacy nbdpbCarousel by calling activeItemByIndex on
-     * the cached slider instance (set at jQuery(".nbdpb-carousel")
-     * .nbdpbCarousel() bootstrap). Safe to call before the carousel
-     * exists — no-op until then. */
+    /* V3 — View switcher. Rewritten in 1.4.9 to bypass a bug in the
+     * legacy `nbdpbCarousel.itemActive()` that calculated transform
+     * using *current* (transformed) offsets — going from stage 0 → 1
+     * read the un-transformed `item1.offset().left` and computed
+     * curT = -718, but subsequent calls fed back the already-shifted
+     * offsets and produced inconsistent translations (1.4.8 test
+     * showed click thumb 1 → transform stayed 0, click thumb 2 →
+     * jumped to -1436, click thumb 0 → stayed at -1436).
+     *
+     * The fix is dead-simple: index × first-item-width is the only
+     * reliable transform target. We set classes + transform ourselves
+     * and let the rest of the legacy carousel chain (dots, nav
+     * disabled state) take its course on next user gesture. */
     $scope.changeStage = function (idx) {
       var stages = $scope.stages || [];
       if (!stages.length) return;
       var i = Math.max(0, Math.min(stages.length - 1, idx));
       $scope.currentStage = i;
       try {
-        if (typeof appConfig !== 'undefined' && appConfig.slider && typeof appConfig.slider.activeItemByIndex === 'function') {
-          appConfig.slider.activeItemByIndex(i);
+        var items = document.querySelectorAll('.spbwc-cust-v3 .spbwc-cust-canvas .nbdpb-carousel-item');
+        var carousel = document.querySelector('.spbwc-cust-v3 .spbwc-cust-canvas .nbdpb-carousel');
+        if (items.length && carousel) {
+          for (var k = 0; k < items.length; k++) {
+            if (k === i) { items[k].classList.add('nbdpb-active'); }
+            else { items[k].classList.remove('nbdpb-active'); }
+          }
+          var w = items[0].offsetWidth || 0;
+          carousel.style.transform = 'translate3d(' + (-i * w) + 'px, 0, 0)';
         }
-      } catch (e) { /* slider not ready yet — currentStage update is enough */ }
+        if (typeof $scope.updateApp === 'function') { $scope.updateApp(); }
+      } catch (e) { /* canvas not ready yet — currentStage update alone is fine */ }
+    };
+    /* V3 — Pick a sub-option AND auto-switch the canvas to the view
+     * that actually shows the change. Wraps the legacy selectAttribute
+     * so the existing Fabric / save pipeline is untouched.
+     *
+     * Logic: each entry in `component.current_pb_configs[optionIdx]`
+     * is an array indexed by stage — array[stageIdx].image_url is
+     * non-empty when that option visually changes that view. If the
+     * current view has nothing for the picked option, hop to the
+     * first view that does. */
+    $scope.selectAttributeAndSwitchView = function (optionIdx, component) {
+      $scope.selectAttribute(optionIdx);
+      if (!component || !component.current_pb_configs) return;
+      var picked = component.current_pb_configs[optionIdx];
+      if (!picked || !picked.length) return;
+      var current = $scope.currentStage || 0;
+      // If current view already shows this option's visual, stay put.
+      if (picked[current] && picked[current].image_url) return;
+      // Otherwise find the first view that does and hop there.
+      for (var v = 0; v < picked.length; v++) {
+        if (picked[v] && picked[v].image_url && v !== current) {
+          $scope.changeStage(v);
+          return;
+        }
+      }
     };
     $scope.isComponentConfigured = function (c) {
       if (!c || !c.enable) return false;

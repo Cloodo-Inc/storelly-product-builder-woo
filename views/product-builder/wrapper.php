@@ -263,7 +263,7 @@
                                         </button>
                                     </div>
                                     <div class="spbwc-cust-val-grid" ng-if="component.nbpb_type == 'nbpb_com'">
-                                        <button type="button" ng-repeat="sattr in component.current_pb_configs" ng-show="!component.optionFilter || sattr.attr_name === component.optionFilter" ng-click="selectAttribute($index)" ng-class="{'is-active': $index == component.currentConfig}" class="spbwc-cust-val">
+                                        <button type="button" ng-repeat="sattr in component.current_pb_configs" ng-show="!component.optionFilter || sattr.attr_name === component.optionFilter" ng-click="selectAttributeAndSwitchView($index, component)" ng-class="{'is-active': $index == component.currentConfig}" class="spbwc-cust-val">
                                             <span class="spbwc-cust-val__swatch" ng-style="{'background': sattr.bg_type == 'i' ? 'url(' + sattr.icon_bg + ')' : sattr.icon_color}"></span>
                                             <span class="spbwc-cust-val__body">
                                                 <span class="spbwc-cust-val__name" ng-bind="sattr.attr_name || sattr.sattr_name"></span>
@@ -531,6 +531,7 @@
                                         /* translators: %s: HTML link */
                                         printf(
                                             wp_kses(
+                                                /* translators: %s: HTML link to the contact page. */
                                                 __( 'Contact our support team via the %s — we typically reply within one business day.', 'storelly-product-builder-for-woocommerce' ),
                                                 array( 'a' => array( 'href' => true, 'target' => true, 'rel' => true ) )
                                             ),
