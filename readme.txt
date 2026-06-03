@@ -4,8 +4,8 @@ Donate link: https://storelly.com/
 Tags: product builder, product customize, product customizer, woocommerce custom product
 Requires at least: 4.7
 Tested up to: 7.0
-Stable tag: 1.5.4
-Version: 1.5.4
+Stable tag: 1.5.5
+Version: 1.5.5
 Requires PHP: 7.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -132,6 +132,11 @@ This plugin connects to the following external services:
 3. Storelly settings page with API keys and sync options
 
 == Changelog ==
+= 1.5.5 =
+* Customizer V3 — lock preset Fabric layers + more visible zoom controls:
+  - For preset (`nbpb_com`) components — colour/material swatches like SIDE PANELS, INSIDE STORAGE — the Fabric image layer now ships with `selectable: false` + `evented: false`. The customer picks an option, the overlay snaps into place, and there's no way to accidentally click into the layer and reveal the layer-transform admin toolbar (Bring Forward / Send Backward / Zoom / Clear). For `nbpb_text` / `nbpb_image` (customer-supplied content) the layer stays fully interactive so the customer can still position their text or photo.
+  - Zoom controls bumped: 36px tall buttons (was 32px), stronger border, larger value pill, "ZOOM" caption to the left so it reads as a real tool. Canvas toolbar row tightened from 48→56px to make room.
+
 = 1.5.4 =
 * Customizer V3 — kill the "white square overlay" bug (user screenshot of bag → option pick → solid white box covering the artwork):
   - The legacy `selectAttribute()` adds a Fabric image layer for every stage of the picked option. When admin doesn't differentiate the option per view (every option reuses the same shared placeholder image — image_id 135 on the bag), that layer renders as a literal white square covering the product photo.
