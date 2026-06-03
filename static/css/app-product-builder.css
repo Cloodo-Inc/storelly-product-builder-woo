@@ -8182,16 +8182,41 @@ select.ng-invalid {
 }
 
 /* BODY 4-column grid ------------------------------------------------- */
+/* V3 modal needs `display: flex; flex-direction: column` so the
+ * modal-head + scrollable app-body split the modal height instead
+ * of the body stacking past the modal bottom edge. Legacy popup
+ * defaults to `display: block` — without this override the
+ * `.spbwc-cust-app { flex: 1 1 auto }` rule below has no effect
+ * because its parent isn't a flex container. The result was the
+ * 4-column grid (including the summary aside) extending past the
+ * modal bottom edge by exactly modal-head height, which clipped
+ * the sticky CTA on shorter viewports (laptop screens). V3 only
+ * — V2 keeps its legacy block layout. */
+.spbwc-cust-v3.nbdpb-popup.nbdpb-show {
+    /* Legacy `.nbdpb-show { display: block !important }` (line 3399) forces
+     * block layout on every popup. Override with !important so V3 can
+     * use a flex column — required for the body-grid to fit within the
+     * modal height instead of overflowing past the modal bottom. */
+    display: flex !important;
+    flex-direction: column;
+}
 .spbwc-cust-v3 .spbwc-cust-app {
+    display: flex;
+    flex-direction: column;
     flex: 1 1 auto;
     min-height: 0;
     overflow: hidden;
 }
-.spbwc-cust-v3 .spbwc-cust-body { height: 100%; min-height: 0; }
+.spbwc-cust-v3 .spbwc-cust-body {
+    flex: 1 1 auto;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+}
 .spbwc-cust-v3 .spbwc-cust-container {
     display: grid;
     grid-template-columns: var(--spbwc-tabnav-w) var(--spbwc-panel-w) 1fr var(--spbwc-summary-w);
-    height: 100%;
+    flex: 1 1 auto;
     min-height: 0;
     background: var(--spbwc-c-bg-soft);
 }
