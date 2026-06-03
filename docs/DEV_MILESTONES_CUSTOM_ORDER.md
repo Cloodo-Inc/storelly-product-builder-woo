@@ -20,6 +20,16 @@
 | **M5** | **Housekeeping + lifecycle** | Folder retention on saved-design delete / order trash (OD-7); enforce advertised caps in code (OD-4); `_pcpb_pdf_status` admin surfacing; guest "log in to save" affordance (OD-5). | todo |
 | **M6** | **Compliance + tests** | `wp plugin check` 0 errors; readme external-services (Cloud2Print) + feature copy matches code; POT regen; test matrix from spec §Part C. | todo |
 
+### Round 2 — Usability (spec §Part D, confirmed 2026-06-03)
+
+| # | Milestone | Scope | Status |
+| --- | --- | --- | --- |
+| **M7** | **Save from cart (P1/D1)** | "Save design" link via `woocommerce_after_cart_item_name` (cart-only, UX-1) → nonce + `cart_item_key` → read cart `pcpb_meta` → clone folder → `spbwc_saved_design` for the logged-in buyer → redirect to tab w/ notice. Guest → "Log in to save" (OD-8). Reuses `SPBWC_Saved_Designs`. | todo |
+| **M8** | **Design thumbnail on order (P2/D2)** | Render the `preview/` image via `woocommerce_order_item_meta_start` on My Account order detail + order-received; ownership-gated; silent fallback. | todo |
+| **M9** | **Smart download (P3/D3)** | "View" = direct public preview URL (new tab, no handler, OD-9). "Download" = stream PNG when single image, zip when multiple (keep stream-then-delete). | todo |
+| **M10** | **Safe delete + cart feedback (P4/D4)** | Enqueue `custom-order.js` adding `confirm()` to `.spbwc-saved-designs__delete` (OD-10); `wc_add_notice()` "Design added to your cart" on Load before redirect. | todo |
+
 Dependencies: **M0 → M2, M3, M4**. M1 is independent (can run in parallel with M0/M2).
+Round 2 (M7–M10) depends on M0 (clone) + M4 (saved-design storage), all shipped.
 
 Each milestone is committed locally (never pushed) after a lint/check pass.

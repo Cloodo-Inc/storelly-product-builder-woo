@@ -216,6 +216,51 @@ folder** → builder opens prefilled → saving produces a **new** instance, nev
 
 ---
 
+## Part D — Usability improvements (round 2)
+
+> Status: **confirmed 2026-06-03**, spec-first. Scope: P1 (cart-only) + P2 + P3 + P4.
+> Builds on the shipped M0–M4 + UX (commits 42bd5b1, c86437b, c864726). NOT yet built.
+
+Goal: remove the main friction points found after M0–M4 so the feature is easy to use, not just
+functional. Grounded in current behaviour:
+- Saving a design currently requires placing an order first (`render_save_link()` only fires on
+  `woocommerce_order_item_meta_end` for an order).
+- The storefront order items table renders **no image** by default → the buyer never sees the
+  design they ordered.
+- The preview download always returns a `.zip`, even for a single-view design.
+- Delete is a one-click destructive POST; Load gives no "added" feedback.
+
+### D1 — Save a design from the cart (P1)
+- **Decision UX-1: cart line item only** (no change to the Angular builder this round).
+- Render a **"Save design"** link via `woocommerce_after_cart_item_name` (next to the existing
+  "Edit options" from `cart_item_name()`, `class-frontend-options.php:1268`).
+- Handler: nonce + carries the `cart_item_key` → read that cart item's `pcpb_meta`
+  (`pcpb` folder, `field`, `options`, `original_price`, `option_price`, product/variation) →
+  **clone folder** (`spbwc_clone_design_folder`) → create `spbwc_saved_design` for the logged-in
+  user (reuse `SPBWC_Saved_Designs` storage) → redirect to the Saved designs tab with the notice.
+- Guest (not logged in): render a **"Log in to save"** link to My Account instead (OD-8).
+- Net effect: design-now / buy-later works without an order.
+
+### D2 — Show the buyer's design on the order (P2)
+- Render the design `preview/` image as a thumbnail via `woocommerce_order_item_meta_start`
+  (no template override; `_meta_end` already proven to fire for the chips). Ownership-gated.
+- Surfaces: My Account order detail + order-received page. Falls back silently if no preview.
+
+### D3 — Smarter preview download (P3)
+- Add a **"View"** action = direct link to the preview image URL, opens in a new tab. Preview
+  PNGs already live under public `uploads/.../designs/{folder}/preview` so no handler is needed
+  (OD-9).
+- **"Download"**: if exactly one preview image → stream the **PNG** as an attachment; if more
+  than one → zip (current behaviour). Keeps the stream-then-delete pattern for the zip path.
+
+### D4 — Safe delete + add-to-cart feedback (P4)
+- **Delete confirm**: a small enqueued `custom-order.js` adds a `confirm()` guard on
+  `.spbwc-saved-designs__delete` submit (progressive enhancement; the server still nonce-checks).
+- **Load feedback**: on a successful Load, call `wc_add_notice()` "Design added to your cart"
+  before redirecting to the cart (server-side; no JS needed).
+
+---
+
 ## Open decisions (to confirm before/while building)
 
 - **OD-1 Save storage:** CPT `spbwc_saved_design` (proposed, mirrors Quote) vs lightweight user
@@ -230,6 +275,10 @@ folder** → builder opens prefilled → saving produces a **new** instance, nev
   status should fire the render job?
 - **OD-7 Folder retention:** when to prune cloned folders (on CPT delete only, or also on
   order deletion / trash)?
+- **OD-8 Guest save (D1):** show "Log in to save" (proposed) vs hide the save action for guests.
+- **OD-9 "View" link (D3):** exposes the low-res preview image URL publicly (preview already
+  lives under public uploads). *Recommendation: acceptable for preview.*
+- **OD-10 Delete confirm (D4):** JS `confirm()` (proposed, simplest) vs inline two-step (no-JS).
 
 ---
 
