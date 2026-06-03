@@ -567,7 +567,7 @@ if ( ! class_exists( 'SPBWC_Quote_Admin' ) ) {
                                             </select>
                                             <span class="spbwc-setting-row__hint"><?php esc_html_e( 'Net terms & deposits arrive in a later release.', 'storelly-product-builder-for-woocommerce' ); ?></span>
                                         </div>
-                                        <div class="spbwc-q-field" style="grid-column:1/-1;">
+                                        <div class="spbwc-q-field spbwc-q-field--full">
                                             <label for="spbwc-q-note"><?php esc_html_e( 'Note to customer', 'storelly-product-builder-for-woocommerce' ); ?></label>
                                             <textarea id="spbwc-q-note" name="quote_customer_note" rows="3" class="spbwc-input"><?php echo esc_textarea( $note ); ?></textarea>
                                         </div>
@@ -600,7 +600,7 @@ if ( ! class_exists( 'SPBWC_Quote_Admin' ) ) {
                                                 <?php esc_html_e( 'Withdraw', 'storelly-product-builder-for-woocommerce' ); ?>
                                             </button>
                                         <?php else : ?>
-                                            <p class="spbwc-setting-row__hint" style="margin:0;border:0;">
+                                            <p class="spbwc-setting-row__hint spbwc-q-hint--flush">
                                                 <?php esc_html_e( 'This quote is locked — its current status does not allow further edits.', 'storelly-product-builder-for-woocommerce' ); ?>
                                             </p>
                                         <?php endif; ?>
@@ -701,7 +701,7 @@ if ( ! class_exists( 'SPBWC_Quote_Admin' ) ) {
                     <?php if ( empty( $asks ) && '' === $details ) : ?>
                         <p class="spbwc-admin-table__muted"><?php esc_html_e( 'The customer asked for changes without specifics.', 'storelly-product-builder-for-woocommerce' ); ?></p>
                     <?php endif; ?>
-                    <p class="spbwc-setting-row__hint" style="margin:8px 0 0;border:0;">
+                    <p class="spbwc-setting-row__hint spbwc-q-hint--flush spbwc-q-hint--top">
                         <?php esc_html_e( 'Revise the pricing below and use “Send counter-offer”.', 'storelly-product-builder-for-woocommerce' ); ?>
                     </p>
                 </div>

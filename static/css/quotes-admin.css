@@ -196,6 +196,11 @@
     color: var(--nbd-st-text-mute);
     font-weight: var(--font-semibold);
 }
+.spbwc-q-field--full { grid-column: 1 / -1; }
+
+/* Flush hint utility (replaces inline overrides) */
+.spbwc-q-hint--flush { margin: 0; border: 0; padding-left: 0; }
+.spbwc-q-hint--top { margin-top: var(--nbd-space-2); }
 
 /* ── Activity timeline ────────────────────────────────────────────────── */
 .spbwc-q-timeline { display: flex; flex-direction: column; gap: 0; }
