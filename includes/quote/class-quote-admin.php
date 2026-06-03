@@ -310,6 +310,7 @@ if ( ! class_exists( 'SPBWC_Quote_Admin' ) ) {
                     __( 'Review quote requests, reply with pricing, and track them through to conversion.', 'storelly-product-builder-for-woocommerce' )
                 );
                 $this->notice_html();
+                $this->render_kpis();
                 ?>
                 <div class="spbwc-block spbwc-quotes-listwrap">
                     <div class="spbwc-list-toolbar">
@@ -344,6 +345,61 @@ if ( ! class_exists( 'SPBWC_Quote_Admin' ) ) {
                         ?>
                     </form>
                 </div>
+            </div>
+            <?php
+        }
+
+        /**
+         * KPI summary cards above the list (new / awaiting + $ outstanding /
+         * accepted in the last 30 days).
+         */
+        protected function render_kpis() {
+            $new = self::count_new_quotes();
+
+            // Awaiting buyer response + outstanding value.
+            $sent_ids    = get_posts(
+                array(
+                    'post_type'   => SPBWC_Quote::POST_TYPE,
+                    'post_status' => SPBWC_Quote::STATUS_SENT,
+                    'numberposts' => -1,
+                    'fields'      => 'ids',
+                )
+            );
+            $outstanding = 0.0;
+            $currency    = get_woocommerce_currency();
+            foreach ( (array) $sent_ids as $sid ) {
+                $t = SPBWC_Quote::get_totals( $sid );
+                $outstanding += isset( $t['total'] ) ? (float) $t['total'] : 0;
+            }
+
+            // Accepted (incl. converted) in the last 30 days.
+            $accepted = get_posts(
+                array(
+                    'post_type'   => SPBWC_Quote::POST_TYPE,
+                    'post_status' => array( SPBWC_Quote::STATUS_ACCEPTED, SPBWC_Quote::STATUS_CONVERTED ),
+                    'numberposts' => -1,
+                    'fields'      => 'ids',
+                    'date_query'  => array( array( 'after' => '30 days ago', 'column' => 'post_modified' ) ),
+                )
+            );
+
+            $cards = array(
+                array( 'icon' => 'email-alt', 'tone' => 'warn', 'value' => number_format_i18n( $new ), 'label' => __( 'New requests', 'storelly-product-builder-for-woocommerce' ) ),
+                array( 'icon' => 'clock', 'tone' => 'info', 'value' => number_format_i18n( count( (array) $sent_ids ) ), 'label' => __( 'Awaiting response', 'storelly-product-builder-for-woocommerce' ), 'sub' => wp_strip_all_tags( wc_price( $outstanding, array( 'currency' => $currency ) ) ) . ' ' . __( 'outstanding', 'storelly-product-builder-for-woocommerce' ) ),
+                array( 'icon' => 'yes-alt', 'tone' => 'ok', 'value' => number_format_i18n( count( (array) $accepted ) ), 'label' => __( 'Accepted (30 days)', 'storelly-product-builder-for-woocommerce' ) ),
+            );
+            ?>
+            <div class="spbwc-q-kpis">
+                <?php foreach ( $cards as $c ) : ?>
+                    <div class="spbwc-q-kpi spbwc-q-kpi--<?php echo esc_attr( $c['tone'] ); ?>">
+                        <span class="spbwc-q-kpi__icon dashicons dashicons-<?php echo esc_attr( $c['icon'] ); ?>" aria-hidden="true"></span>
+                        <span class="spbwc-q-kpi__value"><?php echo esc_html( $c['value'] ); ?></span>
+                        <span class="spbwc-q-kpi__label"><?php echo esc_html( $c['label'] ); ?></span>
+                        <?php if ( ! empty( $c['sub'] ) ) : ?>
+                            <span class="spbwc-q-kpi__sub"><?php echo esc_html( $c['sub'] ); ?></span>
+                        <?php endif; ?>
+                    </div>
+                <?php endforeach; ?>
             </div>
             <?php
         }

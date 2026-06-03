@@ -96,5 +96,6 @@ After submitting, the modal shows a static "Request sent" message with no next s
 ---
 
 ## Status
-- **P1.1–P1.4:** implemented (see commits referencing `feat(quote): P1`).
-- **P2–P5:** open — pick per priority.
+- **P1.1–P1.4:** implemented (`feat(quote): P1`).
+- **P2.5 (admin KPI cards), P2.6 (buyer stat cards + status filter):** implemented (`feat(quote): P2`).
+- **P2.7, P2.8, P3–P5:** open — pick per priority.

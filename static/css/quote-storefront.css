@@ -341,6 +341,44 @@
 .spbwc-rfq-btn--danger { background: #fff; color: var(--spbwc-rfq-danger); border: 1px solid #fecaca; }
 .spbwc-rfq-paybtn { display: inline-block; padding: 12px 24px; background: #16a34a; color: #fff; border-radius: 8px; font-weight: 700; text-decoration: none; }
 
+/* My Quotes: stat cards */
+.spbwc-rfq-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 12px;
+    margin: 0 0 18px;
+}
+.spbwc-rfq-stat {
+    padding: 14px 16px;
+    border: 1px solid var(--spbwc-rfq-border);
+    border-radius: 12px;
+    background: #fff;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+.spbwc-rfq-stat--accent { border-color: #bfdbfe; background: #f8faff; }
+.spbwc-rfq-stat__value { font-size: 22px; font-weight: 800; line-height: 1.15; color: var(--spbwc-rfq-text); }
+.spbwc-rfq-stat__label { font-size: 12px; text-transform: uppercase; letter-spacing: .03em; color: var(--spbwc-rfq-muted); }
+
+/* My Quotes: status filter tabs */
+.spbwc-rfq-filter { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 14px; }
+.spbwc-rfq-filter__tab {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 7px 14px;
+    border-radius: 999px;
+    border: 1px solid var(--spbwc-rfq-border);
+    background: #fff;
+    color: var(--spbwc-rfq-text);
+    font-size: 13px;
+    text-decoration: none;
+}
+.spbwc-rfq-filter__tab:hover { border-color: var(--spbwc-rfq-accent); color: var(--spbwc-rfq-accent); }
+.spbwc-rfq-filter__tab.is-active { background: var(--spbwc-rfq-accent); border-color: var(--spbwc-rfq-accent); color: #fff; }
+.spbwc-rfq-filter__count { font-size: 11px; opacity: .8; }
+
 /* My Quotes list table */
 .spbwc-rfq-account table.spbwc-rfq-table thead th { background: transparent; }
 .spbwc-rfq-account table.shop_table.spbwc-rfq-table { border-radius: 12px; overflow: hidden; }

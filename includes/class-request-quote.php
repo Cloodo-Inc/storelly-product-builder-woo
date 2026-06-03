@@ -612,22 +612,102 @@ if ( ! class_exists( 'SPBWC_Request_Quote' ) ) {
                 wc_get_template( 'myaccount/form-login.php' );
                 return;
             }
-            $quotes = get_posts(
+            $all = get_posts(
                 array(
                     'post_type'      => SPBWC_Quote::POST_TYPE,
                     'post_status'    => array_keys( SPBWC_Quote::statuses() ),
                     'author'         => get_current_user_id(),
-                    'numberposts'    => 50,
+                    'numberposts'    => -1,
                     'orderby'        => 'modified',
                     'order'          => 'DESC',
                 )
             );
+
             echo '<div class="spbwc-rfq spbwc-rfq-account">';
             echo '<h2>' . esc_html__( 'My Quotes', 'storelly-product-builder-for-woocommerce' ) . '</h2>';
-            if ( empty( $quotes ) ) {
+            if ( empty( $all ) ) {
                 echo '<p>' . esc_html__( 'You have not requested any quotes yet.', 'storelly-product-builder-for-woocommerce' ) . '</p></div>';
                 return;
             }
+
+            // Aggregate stats + per-filter counts.
+            $awaiting = 0;
+            $converted = 0;
+            $declined = 0;
+            $quoted_value = 0.0;
+            $currency = '';
+            foreach ( $all as $q ) {
+                $t = SPBWC_Quote::get_totals( $q->ID );
+                if ( '' === $currency && ! empty( $t['currency'] ) ) {
+                    $currency = $t['currency'];
+                }
+                if ( SPBWC_Quote::STATUS_SENT === $q->post_status ) {
+                    $awaiting++;
+                }
+                if ( SPBWC_Quote::STATUS_CONVERTED === $q->post_status ) {
+                    $converted++;
+                }
+                if ( SPBWC_Quote::STATUS_DECLINED === $q->post_status ) {
+                    $declined++;
+                }
+                if ( in_array( $q->post_status, array( SPBWC_Quote::STATUS_SENT, SPBWC_Quote::STATUS_ACCEPTED, SPBWC_Quote::STATUS_CONVERTED ), true ) ) {
+                    $quoted_value += isset( $t['total'] ) ? (float) $t['total'] : 0;
+                }
+            }
+            $currency = $currency ? $currency : get_woocommerce_currency();
+            $cur      = array( 'currency' => $currency );
+
+            // Stat cards.
+            echo '<div class="spbwc-rfq-stats">';
+            echo '<div class="spbwc-rfq-stat"><span class="spbwc-rfq-stat__value">' . esc_html( number_format_i18n( count( $all ) ) ) . '</span><span class="spbwc-rfq-stat__label">' . esc_html__( 'Total quotes', 'storelly-product-builder-for-woocommerce' ) . '</span></div>';
+            echo '<div class="spbwc-rfq-stat spbwc-rfq-stat--accent"><span class="spbwc-rfq-stat__value">' . esc_html( number_format_i18n( $awaiting ) ) . '</span><span class="spbwc-rfq-stat__label">' . esc_html__( 'Awaiting your action', 'storelly-product-builder-for-woocommerce' ) . '</span></div>';
+            echo '<div class="spbwc-rfq-stat"><span class="spbwc-rfq-stat__value">' . wp_kses_post( wc_price( $quoted_value, $cur ) ) . '</span><span class="spbwc-rfq-stat__label">' . esc_html__( 'Quoted value', 'storelly-product-builder-for-woocommerce' ) . '</span></div>';
+            echo '<div class="spbwc-rfq-stat"><span class="spbwc-rfq-stat__value">' . esc_html( number_format_i18n( $converted ) ) . '</span><span class="spbwc-rfq-stat__label">' . esc_html__( 'Converted to orders', 'storelly-product-builder-for-woocommerce' ) . '</span></div>';
+            echo '</div>';
+
+            // Status filter tabs.
+            // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only filter.
+            $filter   = isset( $_GET['quote_status'] ) ? sanitize_key( wp_unslash( $_GET['quote_status'] ) ) : '';
+            $base_url = wc_get_endpoint_url( 'quotes', '', wc_get_page_permalink( 'myaccount' ) );
+            $tabs     = array(
+                ''          => array( __( 'All', 'storelly-product-builder-for-woocommerce' ), count( $all ) ),
+                'awaiting'  => array( __( 'Awaiting response', 'storelly-product-builder-for-woocommerce' ), $awaiting ),
+                'converted' => array( __( 'Converted', 'storelly-product-builder-for-woocommerce' ), $converted ),
+                'declined'  => array( __( 'Declined', 'storelly-product-builder-for-woocommerce' ), $declined ),
+            );
+            echo '<div class="spbwc-rfq-filter">';
+            foreach ( $tabs as $key => $info ) {
+                if ( '' !== $key && $key !== $filter && 0 === $info[1] ) {
+                    continue;
+                }
+                $url = '' === $key ? $base_url : add_query_arg( 'quote_status', $key, $base_url );
+                echo '<a class="spbwc-rfq-filter__tab' . ( $key === $filter ? ' is-active' : '' ) . '" href="' . esc_url( $url ) . '">' . esc_html( $info[0] ) . ' <span class="spbwc-rfq-filter__count">' . esc_html( number_format_i18n( $info[1] ) ) . '</span></a>';
+            }
+            echo '</div>';
+
+            // Apply filter.
+            $status_filter = array(
+                'awaiting'  => array( SPBWC_Quote::STATUS_SENT ),
+                'converted' => array( SPBWC_Quote::STATUS_CONVERTED ),
+                'declined'  => array( SPBWC_Quote::STATUS_DECLINED ),
+            );
+            $quotes = $all;
+            if ( isset( $status_filter[ $filter ] ) ) {
+                $allowed = $status_filter[ $filter ];
+                $quotes  = array_values(
+                    array_filter(
+                        $all,
+                        function ( $q ) use ( $allowed ) {
+                            return in_array( $q->post_status, $allowed, true );
+                        }
+                    )
+                );
+            }
+            if ( empty( $quotes ) ) {
+                echo '<p>' . esc_html__( 'No quotes in this view.', 'storelly-product-builder-for-woocommerce' ) . '</p></div>';
+                return;
+            }
+
             echo '<table class="shop_table shop_table_responsive spbwc-rfq-table"><thead><tr>';
             echo '<th>' . esc_html__( 'Quote', 'storelly-product-builder-for-woocommerce' ) . '</th>';
             echo '<th>' . esc_html__( 'Date', 'storelly-product-builder-for-woocommerce' ) . '</th>';
