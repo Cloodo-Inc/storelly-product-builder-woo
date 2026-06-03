@@ -169,8 +169,115 @@
     box-shadow: none;
 }
 
+/* ════════════════════════════════════════════════════════════════════════
+   MY ACCOUNT FRAME — sidebar + content card (scoped to the account page only)
+   Turns the plain WooCommerce My Account into a clean two-card layout using the
+   Printcart tokens. Safe: only targets body.woocommerce-account.
+   ════════════════════════════════════════════════════════════════════════ */
+body.woocommerce-account .woocommerce {
+    display: grid;
+    grid-template-columns: 248px minmax(0, 1fr);
+    gap: var(--nbd-space-6, 24px);
+    align-items: start;
+}
+/* Explicit placement so the sidebar is always the narrow left column and the
+   content the wide right column, regardless of source order / notice wrappers. */
+body.woocommerce-account .woocommerce-MyAccount-navigation { grid-column: 1; grid-row: 1; }
+body.woocommerce-account .woocommerce-MyAccount-content    { grid-column: 2; grid-row: 1; }
+body.woocommerce-account .woocommerce-notices-wrapper      { grid-column: 1 / -1; }
+@media (max-width: 782px) {
+    body.woocommerce-account .woocommerce { grid-template-columns: 1fr; }
+    body.woocommerce-account .woocommerce-MyAccount-navigation,
+    body.woocommerce-account .woocommerce-MyAccount-content { grid-column: 1; grid-row: auto; }
+}
+
+/* Sidebar navigation as a card */
+body.woocommerce-account .woocommerce-MyAccount-navigation {
+    float: none;
+    width: auto;
+    margin: 0;
+    background: var(--co-bg, #fff);
+    border: 1px solid var(--co-border);
+    border-radius: var(--nbd-radius-xl, 12px);
+    padding: var(--nbd-space-2, 8px);
+    box-shadow: var(--nbd-shadow-sm, 0 1px 2px 0 rgba(0,0,0,.05));
+}
+body.woocommerce-account .woocommerce-MyAccount-navigation ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+body.woocommerce-account .woocommerce-MyAccount-navigation-link a {
+    display: block;
+    padding: 10px 14px;
+    border-radius: var(--nbd-radius-md, 6px);
+    color: var(--co-text);
+    font-weight: 500;
+    text-decoration: none;
+    transition: background var(--co-transition), color var(--co-transition);
+}
+body.woocommerce-account .woocommerce-MyAccount-navigation-link a:hover {
+    background: var(--co-bg-soft);
+    text-decoration: none;
+}
+body.woocommerce-account .woocommerce-MyAccount-navigation-link.is-active a {
+    background: var(--nbd-mb-primary-soft, #dbeafe);
+    color: var(--nbd-mb-primary-pressed, #1d4ed8);
+    font-weight: 600;
+}
+
+/* Content panel as a card */
+body.woocommerce-account .woocommerce-MyAccount-content {
+    float: none;
+    width: auto;
+    margin: 0;
+    background: var(--co-bg, #fff);
+    border: 1px solid var(--co-border);
+    border-radius: var(--nbd-radius-xl, 12px);
+    padding: var(--nbd-space-6, 24px);
+    box-shadow: var(--nbd-shadow-sm, 0 1px 2px 0 rgba(0,0,0,.05));
+}
+
+/* Orders / generic account tables */
+body.woocommerce-account .woocommerce-orders-table,
+body.woocommerce-account .shop_table {
+    width: 100%;
+    border-collapse: collapse;
+    border: 0;
+    margin: 0;
+}
+body.woocommerce-account .woocommerce-orders-table thead th,
+body.woocommerce-account .shop_table thead th {
+    text-align: left;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: .03em;
+    color: var(--co-muted);
+    padding: 10px 12px;
+    border-bottom: 2px solid var(--co-border);
+}
+body.woocommerce-account .woocommerce-orders-table tbody td,
+body.woocommerce-account .shop_table tbody td {
+    padding: 14px 12px;
+    border-bottom: 1px solid var(--nbd-mb-border-subtle, #f3f4f6);
+    vertical-align: middle;
+}
+
 /* ── Saved designs tab ──────────────────────────────────────────────────── */
 .spbwc-saved-designs h2 { margin: 0 0 var(--nbd-space-4, 16px); }
+/* Empty state */
+.spbwc-saved-designs > p:only-of-type {
+    margin: 0;
+    padding: var(--nbd-space-8, 32px) var(--nbd-space-4, 16px);
+    text-align: center;
+    color: var(--co-muted);
+    background: var(--co-bg-soft);
+    border: 1px dashed var(--co-border-strong);
+    border-radius: var(--nbd-radius-xl, 12px);
+}
 .spbwc-saved-designs__list {
     list-style: none;
     margin: 0;
