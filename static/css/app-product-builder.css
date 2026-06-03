@@ -9133,19 +9133,23 @@ aside.spbwc-cust-panel {
     background: var(--spbwc-c-bg-soft);
 }
 
-/* Constrain the design-zone (artwork canvas) to fit inside the stage.
- * Shadow intentionally OFF — Printcart leaves the artwork flush with
- * the dotted-grid stage; adding a card shadow turns the product photo
- * into a "boxed thumbnail" which dilutes the design itself. */
+/* Design zone — Angular ng-style sets explicit width/height/top/left
+ * matching the stage config. We MUST NOT override those with a CSS
+ * max-width, otherwise the inner Fabric <canvas> (which keeps its own
+ * pixel-width attribute) overflows the constrained zone and pushes the
+ * artwork off-centre (bug from user screenshot of bike — bike rendered
+ * on the right with whitespace on the left).
+ *
+ * The stage-main parent already has `padding: 24px` + `display: flex;
+ * justify-content: center; align-items: center`, which is the correct
+ * way to keep the artwork centred inside the dotted stage. No shadow
+ * either — Printcart leaves the artwork flush. */
 .spbwc-cust-v3 .spbwc-cust-canvas .design-zone {
-    max-width: calc(100% - 32px) !important;
-    max-height: calc(100% - 32px) !important;
-    margin: auto;
+    margin: 0 auto;
 }
-.spbwc-cust-v3 .spbwc-cust-canvas canvas {
-    max-width: 100% !important;
-    max-height: 100% !important;
-}
+/* Don't clamp the inner Fabric <canvas> — its width/height attributes
+ * are set by stage.config and must match the design-zone exactly,
+ * otherwise the canvas + bg image desync (bike off-centre bug). */
 .spbwc-cust-v3 .spbwc-cust-tools {
     flex: 0 0 auto;
     padding: 8px;
