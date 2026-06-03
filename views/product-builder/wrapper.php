@@ -262,8 +262,12 @@
                                             {{attr}}
                                         </button>
                                     </div>
-                                    <div class="spbwc-cust-val-grid" ng-if="component.nbpb_type == 'nbpb_com'">
-                                        <button type="button" ng-repeat="sattr in component.current_pb_configs" ng-show="!component.optionFilter || sattr.attr_name === component.optionFilter" ng-click="selectAttributeAndSwitchView($index, component)" ng-class="{'is-active': $index == component.currentConfig}" class="spbwc-cust-val">
+                                    <!-- Empty state when no options match the current filter -->
+                                    <div class="spbwc-cust-empty-state" ng-if="component.nbpb_type == 'nbpb_com' && (!component.current_pb_configs || component.current_pb_configs.length == 0)">
+                                        <?php esc_html_e( 'No options available for this part.', 'storelly-product-builder-for-woocommerce' ); ?>
+                                    </div>
+                                    <div class="spbwc-cust-val-grid" ng-if="component.nbpb_type == 'nbpb_com' && component.current_pb_configs && component.current_pb_configs.length > 0">
+                                        <button type="button" ng-repeat="sattr in component.current_pb_configs" ng-show="!component.optionFilter || sattr.attr_name === component.optionFilter" ng-click="selectAttributeAndSwitchView($index, component)" ng-class="{'is-active': $index == component.currentConfig}" class="spbwc-cust-val" aria-pressed="{{$index == component.currentConfig ? 'true' : 'false'}}">
                                             <span class="spbwc-cust-val__swatch" ng-style="{'background': sattr.bg_type == 'i' ? 'url(' + sattr.icon_bg + ')' : sattr.icon_color}"></span>
                                             <span class="spbwc-cust-val__body">
                                                 <span class="spbwc-cust-val__name" ng-bind="sattr.attr_name || sattr.sattr_name"></span>
@@ -742,8 +746,10 @@
                        the bottom so the Add to cart button is ALWAYS visible
                        no matter how tall the price breakdown grows. -->
                   <div class="spbwc-cust-summary__sticky-bottom">
-                    <!-- BIG primary Add to cart — Printcart `.summary-cta-big` -->
-                    <button class="spbwc-cust-cta" type="button" data-spbwc-action="add-to-cart" ng-click="saveData()" aria-live="polite">
+                    <!-- BIG primary Add to cart — Printcart `.summary-cta-big`.
+                         aria-live polite so screen readers announce the price
+                         updates as the customer changes options. -->
+                    <button class="spbwc-cust-cta" type="button" data-spbwc-action="add-to-cart" ng-click="saveData()" aria-live="polite" aria-label="<?php esc_attr_e( 'Add this customized design to cart', 'storelly-product-builder-for-woocommerce' ); ?>">
                         <span class="spbwc-cust-cta__content">
                             <span class="spbwc-cust-cta__label"><?php esc_html_e( 'Add to cart', 'storelly-product-builder-for-woocommerce' ); ?></span>
                             <span class="spbwc-cust-cta__price" data-spbwc-cta-price><?php echo wp_kses_post( $spbwc_v3_base_price_html ); ?></span>

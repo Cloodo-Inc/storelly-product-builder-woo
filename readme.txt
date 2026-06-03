@@ -4,8 +4,8 @@ Donate link: https://storelly.com/
 Tags: product builder, product customize, product customizer, woocommerce custom product
 Requires at least: 4.7
 Tested up to: 7.0
-Stable tag: 1.5.0
-Version: 1.5.0
+Stable tag: 1.5.1
+Version: 1.5.1
 Requires PHP: 7.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -132,6 +132,15 @@ This plugin connects to the following external services:
 3. Storelly settings page with API keys and sync options
 
 == Changelog ==
+= 1.5.1 =
+* Customizer V3 — polish batch + responsive + persistence:
+  - **localStorage persistence**: every option pick, text entry, and image upload is saved to a product-scoped localStorage key (`spbwc_v3_design_<oid>`). When the customer reopens the modal we restore their previous design + flash a toast "Your previous design has been restored." Reset All clears the persistence. Same pattern as the existing storefront save-build infrastructure.
+  - **Toast system**: new floating bottom-right toaster (`$scope.showToast(msg, kind, duration)`) with success / warning / danger / info variants. First toast use: "All customizations have been reset." after Reset All.
+  - **A11y polish**: focus rings (`:focus-visible` 2px brand outline) on every interactive surface inside `.spbwc-cust-v3`; `aria-live="polite"` on the Add-to-cart CTA so screen readers announce live price changes; `aria-pressed` on option cards.
+  - **Mobile responsive**: at ≤768px the 4-column grid collapses into a vertical stack — canvas takes the top, tab nav becomes a horizontal scroll row, panel takes 45vh below, summary becomes a bottom drawer that peeks with the CTA + tap-to-expand handle. ≤480px the brand thumb hides and the CTA shrinks to 56px.
+  - **Empty states**: components with zero options now render a dashed "No options available for this part" tile instead of an empty grid.
+  - **Micro-interactions**: option cards lift on hover (`translateY(-1px)`), filter chips fade in via `spbwcValFade` keyframes when the filter changes, skeleton placeholder (shimmer) primitive added for future use.
+
 = 1.5.0 =
 * Customizer V3 — full UX audit + token consistency cleanup:
   - Added five new design tokens (`--spbwc-c-success-mid/deep/line`, `--spbwc-c-brand-mid/line`) so every accent colour in the customizer comes from the token system. Replaced the last five hardcoded hex values that lived in the V3 CSS — the entire customizer surface now re-themes from a single token block.

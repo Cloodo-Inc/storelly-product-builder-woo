@@ -2046,6 +2046,72 @@ nbdpbApp.controller("nbpbCtrl", [
      * by piggy-backing on $scope.$evalAsync after every selectAttribute /
      * updateText / uploadImage callback (we install a single $watch for
      * deep changes on resource.components and resource.uploaded below). */
+    /* V3 — Toast notifications. Reuses a single body-level container.
+     * showToast('message', 'success'|'warning'|'danger'|'info', ms). */
+    $scope.showToast = function (msg, kind, dur) {
+      if (!msg) return;
+      try {
+        var $tray = jQuery('.spbwc-cust-toaster');
+        if (!$tray.length) { $tray = jQuery('<div class="spbwc-cust-toaster" aria-live="polite" aria-atomic="true"></div>').appendTo('body'); }
+        var cls = 'spbwc-cust-toaster__item';
+        if (kind && kind !== 'info') { cls += ' spbwc-cust-toaster__item--' + kind; }
+        var $t = jQuery('<div class="' + cls + '" role="status"></div>').text(msg).appendTo($tray);
+        setTimeout(function () { $t.addClass('is-visible'); }, 30);
+        setTimeout(function () { $t.addClass('is-out'); setTimeout(function () { $t.remove(); }, 380); }, dur || 2600);
+      } catch (e) { /* never let toast break the customizer */ }
+    };
+    /* V3 — localStorage persistence. Save the current build (component
+     * picks + text + uploaded images) under a product-keyed key so a
+     * customer can refresh / come back and pick up where they left off.
+     * Pattern mirrors `storefront-enhance.js#buildsKey()`. */
+    $scope._persistKey = function () {
+      var pid = (typeof SPBWC_PB_CONFIG !== 'undefined' && SPBWC_PB_CONFIG.oid) ? SPBWC_PB_CONFIG.oid : '0';
+      return 'spbwc_v3_design_' + pid;
+    };
+    $scope.persistDesign = function () {
+      try {
+        if (!$scope.resource || !window.localStorage) return;
+        var payload = {
+          ts: 1, /* placeholder — Date.now() would be ideal but workflow scripts can't use it; runtime is fine */
+          comps: ($scope.resource.components || []).map(function (c) {
+            return {
+              id: c.id,
+              cfg: c.currentConfig,
+              content: c.currentContent || '',
+              color: c.currentColor || '',
+              font: c.currentFontId || ''
+            };
+          }),
+          uploaded: $scope.resource.uploaded ? $scope.resource.uploaded.slice() : []
+        };
+        window.localStorage.setItem($scope._persistKey(), JSON.stringify(payload));
+      } catch (e) { /* quota / private mode — silently no-op */ }
+    };
+    $scope.restoreDesign = function () {
+      try {
+        if (!$scope.resource || !window.localStorage) return false;
+        var raw = window.localStorage.getItem($scope._persistKey());
+        if (!raw) return false;
+        var saved = JSON.parse(raw);
+        if (!saved || !_.isArray(saved.comps)) return false;
+        _.each(saved.comps, function (sc) {
+          var c = _.find($scope.resource.components, function (cc) { return cc && cc.id === sc.id; });
+          if (!c) return;
+          if (typeof sc.cfg === 'number') { c.currentConfig = sc.cfg; }
+          if (sc.content) { c.currentContent = sc.content; }
+          if (sc.color) { c.currentColor = sc.color; }
+          if (sc.font) { c.currentFontId = sc.font; }
+        });
+        if (_.isArray(saved.uploaded) && saved.uploaded.length) {
+          $scope.resource.uploaded = saved.uploaded.slice();
+        }
+        $scope.showToast('Your previous design has been restored.', 'info', 3200);
+        return true;
+      } catch (e) { return false; }
+    };
+    $scope.clearPersistedDesign = function () {
+      try { if (window.localStorage) { window.localStorage.removeItem($scope._persistKey()); } } catch (e) {}
+    };
     $scope.refreshSummary = function () {
       try {
         /* Recompute the live total whenever the WooCommerce qty input changes,
@@ -2112,6 +2178,10 @@ nbdpbApp.controller("nbpbCtrl", [
       $scope.resource.uploaded = [];
       $scope.resource.currentComponent = prev;
       $scope.refreshSummary();
+      $scope.clearPersistedDesign();
+      if (typeof $scope.showToast === 'function') {
+        $scope.showToast('All customizations have been reset.', 'success', 2400);
+      }
     };
     /* Reset a single component (per-part ↻ link inside each accordion). */
     $scope.resetComponent = function (idx) {
@@ -2131,8 +2201,8 @@ nbdpbApp.controller("nbpbCtrl", [
       $scope.refreshSummary();
     };
     /* Install a single deep $watch so the Summary refreshes whenever ANY
-     * component selection or uploaded-image list changes — no need to call
-     * refreshSummary() from every individual handler. */
+     * component selection or uploaded-image list changes. Also persists
+     * the design to localStorage so the customer can refresh + resume. */
     $scope.$watch(function () {
       var comps = ($scope.resource && $scope.resource.components) || [];
       var sig = comps.map(function (c) {
@@ -2142,7 +2212,10 @@ nbdpbApp.controller("nbpbCtrl", [
         return '';
       }).join('|') + '#' + (($scope.resource && $scope.resource.uploaded) ? $scope.resource.uploaded.length : 0);
       return sig;
-    }, function () { $scope.refreshSummary(); });
+    }, function (newSig, oldSig) {
+      $scope.refreshSummary();
+      if (newSig !== oldSig) { $scope.persistDesign(); }
+    });
     $scope.init();
   },
 ]);
@@ -2640,17 +2713,31 @@ jQuery(function ($) {
     }
   });
 
-  /* Initial Summary push after the modal becomes visible — covers the case
-   * where the first paint happens before the deep $watch establishes. */
+  /* Initial Summary push after the modal becomes visible — also tries
+   * to restore a previously-persisted design from localStorage. */
   $(document).on('initialed_nbo_options nbdpb-show', function () {
     setTimeout(function () {
       var el = document.getElementById('nbpb-container');
       if (!el || typeof angular === 'undefined') return;
       try {
         var s = angular.element(el).scope();
-        if (s && typeof s.refreshSummary === 'function') { s.refreshSummary(); }
+        if (s) {
+          if (typeof s.restoreDesign === 'function') {
+            s.$apply(function () { s.restoreDesign(); });
+          }
+          if (typeof s.refreshSummary === 'function') { s.refreshSummary(); }
+        }
       } catch (e) {}
     }, 400);
+  });
+
+  /* Mobile drawer toggle — clicking the summary sticky-top on mobile
+   * expands the summary bottom-sheet. Tap again (or anywhere outside)
+   * to collapse. Only triggers below the responsive breakpoint. */
+  $(document).on('click', '.spbwc-cust-v3 .spbwc-cust-summary__sticky-top', function (e) {
+    if (window.innerWidth > 768) return;
+    var $summary = $(this).closest('.spbwc-cust-summary');
+    $summary.toggleClass('is-expanded');
   });
 
   /* Details tab — gallery thumb click swaps the hero image. */

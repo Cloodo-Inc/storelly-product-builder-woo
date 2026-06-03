@@ -7659,6 +7659,11 @@ select.ng-invalid {
     color: var(--spbwc-c-ink-soft);
     transition: border-color .15s ease, background .15s ease, box-shadow .15s ease, transform .12s ease;
 }
+.spbwc-cust-val:hover { transform: translateY(-1px); }
+.spbwc-cust-val:focus-visible {
+    outline: 2px solid var(--spbwc-c-brand);
+    outline-offset: 2px;
+}
 .spbwc-cust-val:hover {
     border-color: var(--spbwc-c-brand-soft);
     background: var(--spbwc-c-bg-soft);
@@ -10065,4 +10070,226 @@ span.spbwc-cust-cta__price[data-spbwc-cta-price] {
     color: var(--spbwc-c-ink);
     font-weight: 600;
     font-size: 13px;
+}
+
+/* =====================================================================
+ * V3 polish batch (1.5.0+): toast, empty states, hover-scale,
+ * filter-chip transition, skeleton, focus rings, mobile responsive.
+ * ================================================================ */
+
+/* Filter chip transition — smooth fade when changing filter */
+.spbwc-cust-val { animation: spbwcValFade .18s ease both; }
+@keyframes spbwcValFade {
+    from { opacity: 0; transform: translateY(2px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Empty state — when a component has no options */
+.spbwc-cust-empty-state {
+    padding: 20px 12px;
+    text-align: center;
+    color: var(--spbwc-c-text);
+    font-size: 12.5px;
+    background: var(--spbwc-c-bg-soft);
+    border: 1px dashed var(--spbwc-c-line);
+    border-radius: var(--spbwc-c-radius-sm);
+}
+
+/* Skeleton — shimmer placeholder while modal initializes.
+ * Shown by default and hidden once Angular finishes booting. */
+.spbwc-cust-skeleton {
+    position: absolute;
+    inset: 0;
+    z-index: 50;
+    background: var(--spbwc-c-bg);
+    display: flex;
+    flex-direction: column;
+    pointer-events: none;
+    transition: opacity .25s ease;
+}
+.spbwc-cust-skeleton.is-out { opacity: 0; pointer-events: none; }
+.spbwc-cust-skeleton__row {
+    height: 40px;
+    margin: 12px 16px;
+    border-radius: var(--spbwc-c-radius-sm);
+    background: linear-gradient(90deg, var(--spbwc-c-bg-mute) 0%, var(--spbwc-c-bg-soft) 50%, var(--spbwc-c-bg-mute) 100%);
+    background-size: 200% 100%;
+    animation: spbwcSkeleton 1.4s ease-in-out infinite;
+}
+.spbwc-cust-skeleton__row--lg { height: 220px; margin-top: 80px; }
+@keyframes spbwcSkeleton {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+}
+
+/* Toast system — bottom-right floating notification.
+ * JS toggles classes `is-visible` then `is-out`. */
+.spbwc-cust-toaster {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    z-index: 1000000001;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    pointer-events: none;
+    max-width: 360px;
+}
+.spbwc-cust-toaster__item {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 12px 14px;
+    background: var(--spbwc-c-ink);
+    color: #fff;
+    border-radius: var(--spbwc-c-radius-md);
+    box-shadow: var(--spbwc-c-shadow-lg);
+    font-size: 13px;
+    line-height: 1.45;
+    font-weight: 500;
+    pointer-events: auto;
+    transform: translateX(120%);
+    opacity: 0;
+    transition: transform .35s cubic-bezier(.4,.0,.2,1), opacity .35s;
+}
+.spbwc-cust-toaster__item.is-visible { transform: translateX(0); opacity: 1; }
+.spbwc-cust-toaster__item.is-out { opacity: 0; transform: translateX(120%); }
+.spbwc-cust-toaster__item--success { background: var(--spbwc-c-success); }
+.spbwc-cust-toaster__item--warning { background: var(--spbwc-c-warning); color: #422006; }
+.spbwc-cust-toaster__item--danger { background: var(--spbwc-c-danger); }
+.spbwc-cust-toaster__icon { flex: 0 0 auto; opacity: .9; }
+
+/* A11y: focus rings on every interactive surface in V3 */
+.spbwc-cust-v3 button:focus-visible,
+.spbwc-cust-v3 a:focus-visible,
+.spbwc-cust-v3 input:focus-visible,
+.spbwc-cust-v3 select:focus-visible {
+    outline: 2px solid var(--spbwc-c-brand);
+    outline-offset: 2px;
+    z-index: 5;
+}
+
+/* =====================================================================
+ * Mobile responsive — <= 768px collapses the 4-column grid into a
+ * single-column stack: topbar / canvas / panel-tabs-as-bottom-drawer.
+ * Tab nav becomes a horizontal scrolling row above the panel.
+ * Summary slides up as a bottom sheet on demand.
+ * ================================================================ */
+@media (max-width: 768px) {
+    .spbwc-cust-v3 .spbwc-cust-topbar {
+        padding: 0 16px;
+        height: 56px;
+    }
+    .spbwc-cust-v3 .spbwc-cust-topbar__name { font-size: 15px; }
+    .spbwc-cust-v3 .spbwc-cust-topbar__sub { font-size: 11px; }
+
+    .spbwc-cust-v3 .spbwc-cust-container {
+        display: flex !important;
+        flex-direction: column !important;
+        grid-template-columns: none !important;
+        grid-template-rows: none !important;
+        height: 100%;
+        min-height: 0;
+    }
+
+    /* Canvas takes most of the screen at top */
+    .spbwc-cust-v3 .spbwc-cust-canvas {
+        flex: 1 1 auto;
+        min-height: 0;
+        order: 0;
+    }
+
+    /* Tab nav becomes a horizontal segmented row above the panel */
+    .spbwc-cust-v3 .spbwc-cust-tabnav {
+        flex: 0 0 auto;
+        flex-direction: row !important;
+        height: auto;
+        padding: 6px 8px;
+        gap: 4px;
+        order: 1;
+        overflow-x: auto;
+        overflow-y: hidden;
+        border-right: 0;
+        border-top: 1px solid var(--spbwc-c-line);
+        box-shadow: none;
+    }
+    .spbwc-cust-v3 .spbwc-cust-tabbtn {
+        flex: 0 0 auto;
+        min-height: 56px;
+        min-width: 80px;
+        padding: 8px 12px;
+    }
+    .spbwc-cust-v3 .spbwc-cust-tabbtn__icon { width: 24px; height: 24px; }
+    .spbwc-cust-v3 .spbwc-cust-tabbtn__icon svg { width: 18px; height: 18px; }
+    .spbwc-cust-v3 .spbwc-cust-tabbtn__label { font-size: 10.5px; }
+
+    /* Panel becomes the next flex item; takes 45% viewport height */
+    .spbwc-cust-v3 .spbwc-cust-panel {
+        flex: 0 0 45vh;
+        max-height: 45vh;
+        height: 45vh;
+        order: 2;
+        border-right: 0;
+        border-top: 1px solid var(--spbwc-c-line);
+    }
+
+    /* Summary → bottom drawer collapsed by default; tap to expand. */
+    .spbwc-cust-v3 .spbwc-cust-summary {
+        position: fixed;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        max-height: 75vh;
+        height: auto;
+        border-left: 0;
+        border-top: 1px solid var(--spbwc-c-line);
+        box-shadow: 0 -10px 30px -10px rgba(0,0,0,.15);
+        z-index: 100;
+        order: 99;
+        transform: translateY(calc(100% - 88px)); /* peek with sticky-top + CTA snippet */
+        transition: transform .3s cubic-bezier(.4,0,.2,1);
+    }
+    .spbwc-cust-v3 .spbwc-cust-summary.is-expanded { transform: translateY(0); }
+    .spbwc-cust-v3 .spbwc-cust-summary__sticky-top {
+        cursor: pointer;
+        position: relative;
+    }
+    .spbwc-cust-v3 .spbwc-cust-summary__sticky-top::after {
+        content: '';
+        position: absolute;
+        top: 8px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 36px;
+        height: 4px;
+        border-radius: 999px;
+        background: var(--spbwc-c-line-strong);
+    }
+
+    /* Canvas toolbar (zoom + autosave) tightens on mobile */
+    .spbwc-cust-v3 .spbwc-cust-canvas__toolbar {
+        height: 44px;
+        padding: 0 10px;
+    }
+    .spbwc-cust-v3 .spbwc-cust-zoom { transform: scale(.92); transform-origin: right; }
+
+    /* View thumbs become smaller + horizontal at bottom */
+    .spbwc-cust-v3 .spbwc-cust-viewthumbs {
+        top: auto;
+        right: auto;
+        bottom: 60px;
+        left: 50%;
+        transform: translateX(-50%);
+        flex-direction: row;
+        padding: 6px;
+    }
+    .spbwc-cust-v3 .spbwc-cust-viewthumb { width: 48px; height: 48px; }
+}
+
+/* Very small phones — minify further */
+@media (max-width: 480px) {
+    .spbwc-cust-v3 .spbwc-cust-topbar__thumb { display: none; }
+    .spbwc-cust-v3 .spbwc-cust-cta { font-size: 14px; min-height: 56px; }
+    .spbwc-cust-v3 .spbwc-cust-cta__label { font-size: 15px !important; }
+    .spbwc-cust-v3 .spbwc-cust-cta__price { font-size: 18px !important; }
 }
