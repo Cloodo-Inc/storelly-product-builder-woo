@@ -1880,6 +1880,17 @@ nbdpbApp.controller("nbpbCtrl", [
         return;
       }
       $scope.showAttribute(idx);
+      /* Auto-switch canvas to the component's primary view on open so
+       * the customer is looking at the right side BEFORE picking. */
+      try {
+        var comp = $scope.resource.components && $scope.resource.components[idx];
+        if (comp && typeof $scope.findPrimaryView === 'function') {
+          var primary = $scope.findPrimaryView(comp);
+          if (primary >= 0 && primary !== $scope.currentStage) {
+            $scope.changeStage(primary);
+          }
+        }
+      } catch (e) {}
     };
     /* V3 — Canvas zoom (Printcart `.zoom-bar` pattern).
      * Tracks a buyer-driven scale factor and applies it to .design-zone
@@ -1936,30 +1947,53 @@ nbdpbApp.controller("nbpbCtrl", [
         if (typeof $scope.updateApp === 'function') { $scope.updateApp(); }
       } catch (e) { /* canvas not ready yet — currentStage update alone is fine */ }
     };
-    /* V3 — Pick a sub-option AND auto-switch the canvas to the view
-     * that actually shows the change. Wraps the legacy selectAttribute
-     * so the existing Fabric / save pipeline is untouched.
+    /* V3 — find the PRIMARY view for a component. The previous logic
+     * "first view with non-empty image_url" failed when the admin had
+     * set a base image_url on every view (1.4.9 regression on the bag
+     * product) — current view always passes the check, so the switch
+     * never fires.
      *
-     * Logic: each entry in `component.current_pb_configs[optionIdx]`
-     * is an array indexed by stage — array[stageIdx].image_url is
-     * non-empty when that option visually changes that view. If the
-     * current view has nothing for the picked option, hop to the
-     * first view that does. */
+     * New heuristic: count DISTINCT image_urls per view across all
+     * options of the component. The view with the highest variety is
+     * where the component's choices visually diverge — that's the
+     * "primary" view for that component. For an INSIDE-STORAGE
+     * component with options Cream/Black/Navy, view 0 might have a
+     * single base.png for every option (variety = 1) while view 2
+     * (Inside) has three distinct cream/black/navy images
+     * (variety = 3) → primary view = 2.
+     *
+     * Returns -1 if no clear primary (e.g. nbpb_text / nbpb_image
+     * components, or single-view products). */
+    $scope.findPrimaryView = function (component) {
+      if (!component || component.nbpb_type !== 'nbpb_com') return -1;
+      var configs = component.current_pb_configs || [];
+      if (!configs.length) return -1;
+      var stagesLen = ($scope.stages || []).length;
+      if (stagesLen < 2) return -1;
+      var variety = []; // variety[viewIdx] = { url: true, ... }
+      for (var v = 0; v < stagesLen; v++) { variety[v] = {}; }
+      _.each(configs, function (cfg) {
+        if (!cfg || !cfg.length) return;
+        for (var v2 = 0; v2 < stagesLen && v2 < cfg.length; v2++) {
+          var view = cfg[v2];
+          if (view && view.image_url) { variety[v2][view.image_url] = true; }
+        }
+      });
+      var best = -1, bestCount = 0;
+      for (var k = 0; k < stagesLen; k++) {
+        var c = _.keys(variety[k]).length;
+        if (c > bestCount) { bestCount = c; best = k; }
+      }
+      return bestCount > 1 ? best : -1; // only commit if there's real variety
+    };
+    /* V3 — Pick a sub-option AND auto-switch the canvas to the view
+     * that actually shows the change. Wraps legacy selectAttribute. */
     $scope.selectAttributeAndSwitchView = function (optionIdx, component) {
       $scope.selectAttribute(optionIdx);
       if (!component || !component.current_pb_configs) return;
-      var picked = component.current_pb_configs[optionIdx];
-      if (!picked || !picked.length) return;
-      var current = $scope.currentStage || 0;
-      // If current view already shows this option's visual, stay put.
-      if (picked[current] && picked[current].image_url) return;
-      // Otherwise find the first view that does and hop there.
-      for (var v = 0; v < picked.length; v++) {
-        if (picked[v] && picked[v].image_url && v !== current) {
-          $scope.changeStage(v);
-          return;
-        }
-      }
+      var primary = $scope.findPrimaryView(component);
+      if (primary < 0 || primary === $scope.currentStage) return;
+      $scope.changeStage(primary);
     };
     $scope.isComponentConfigured = function (c) {
       if (!c || !c.enable) return false;

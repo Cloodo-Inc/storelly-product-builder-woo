@@ -9084,6 +9084,55 @@ aside.spbwc-cust-panel {
     display: none !important;
 }
 
+/* Hide the legacy semi-transparent `.nbpb-overlay` inside the design
+ * zone. In legacy it was an empty visual blocker used by the canvas
+ * carousel; in V3 it shows up as a ghostly wash over the artwork (Bug
+ * 2 from user screenshot 2 — Inside view of the bag was nearly
+ * invisible because of this overlay). Safe to hide — Fabric handles
+ * its own interaction overlay separately. */
+.spbwc-cust-v3 .spbwc-cust-canvas .nbpb-overlay {
+    display: none !important;
+}
+
+/* Move the contextual layer-transform toolbar (`.design-admin-tool`)
+ * out of the top-centre of the canvas — in screenshot 2 it was
+ * floating over the artwork and pretending to be modal chrome. Anchor
+ * it to the bottom-left so it lives near the autosave pill in the
+ * canvas toolbar row, and only show it when a Fabric layer is actually
+ * selected. */
+.spbwc-cust-v3 .spbwc-cust-canvas .design-admin-tool {
+    position: absolute !important;
+    top: auto !important;
+    left: 16px !important;
+    right: auto !important;
+    bottom: 64px !important; /* clear of the canvas toolbar row */
+    background: rgba(255, 255, 255, 0.96);
+    border: 1px solid var(--spbwc-c-line);
+    border-radius: var(--spbwc-c-radius-md);
+    box-shadow: var(--spbwc-c-shadow);
+    padding: 4px;
+    z-index: 6;
+    -webkit-backdrop-filter: blur(8px);
+    backdrop-filter: blur(8px);
+}
+.spbwc-cust-v3 .spbwc-cust-canvas .design-admin-tool .tools {
+    display: inline-flex;
+    gap: 2px;
+}
+.spbwc-cust-v3 .spbwc-cust-canvas .design-admin-tool .tool-item {
+    width: 32px;
+    height: 32px;
+    display: grid;
+    place-items: center;
+    border-radius: 6px;
+    cursor: pointer;
+    color: var(--spbwc-c-ink);
+    transition: background 120ms;
+}
+.spbwc-cust-v3 .spbwc-cust-canvas .design-admin-tool .tool-item:hover {
+    background: var(--spbwc-c-bg-soft);
+}
+
 /* Constrain the design-zone (artwork canvas) to fit inside the stage.
  * Shadow intentionally OFF — Printcart leaves the artwork flush with
  * the dotted-grid stage; adding a card shadow turns the product photo

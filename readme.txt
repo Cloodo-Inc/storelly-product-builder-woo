@@ -4,8 +4,8 @@ Donate link: https://storelly.com/
 Tags: product builder, product customize, product customizer, woocommerce custom product
 Requires at least: 4.7
 Tested up to: 7.0
-Stable tag: 1.5.1
-Version: 1.5.1
+Stable tag: 1.5.2
+Version: 1.5.2
 Requires PHP: 7.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -132,6 +132,11 @@ This plugin connects to the following external services:
 3. Storelly settings page with API keys and sync options
 
 == Changelog ==
+= 1.5.2 =
+* Customizer V3 — two view-switch fixes from buyer feedback:
+  - Picking an option whose visual change lives on a different view now auto-switches the canvas to that view, even when the admin has set a base `image_url` on every view. The old "first non-empty url" heuristic failed in that case. The new `$scope.findPrimaryView(component)` counts distinct image URLs per view across all the component's options and picks the view with the greatest variety. Toggling an accordion item open also hops to that primary view immediately so the customer is already looking at the right side before picking.
+  - Hid the ghost `.nbpb-overlay` div that lived inside the design-zone — in V3 it was washing out the artwork on the Inside view of multi-view products. Repositioned the contextual `.design-admin-tool` (Bring fwd / Send back / Zoom / Clear) from top-centre overlap to bottom-left of the canvas, with proper glass backdrop + tokens, so the layer transform tools don't block the product photo.
+
 = 1.5.1 =
 * Customizer V3 — polish batch + responsive + persistence:
   - **localStorage persistence**: every option pick, text entry, and image upload is saved to a product-scoped localStorage key (`spbwc_v3_design_<oid>`). When the customer reopens the modal we restore their previous design + flash a toast "Your previous design has been restored." Reset All clears the persistence. Same pattern as the existing storefront save-build infrastructure.
