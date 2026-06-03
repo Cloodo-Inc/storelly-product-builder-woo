@@ -2,6 +2,19 @@
 # Not part of the plugin package; never tracked.
 .claude/worktrees/
 
+# Local dev secrets (WP admin creds, DB creds) read by skill wp-admin-login.
+# NEVER commit — this plugin is published publicly on wordpress.org.
+.claude/.wp-secrets.local.json
+.claude/*.secrets.local.json
+
+# Per-agent isolated Chrome profiles (skill chrome-multi-session).
+.claude/chrome-sessions/
+
+# Local-only Claude Code permission config (bypassPermissions for WP local dev).
+# Machine-specific; must NOT be forced on anyone who clones this public repo.
+.claude/settings.json
+.claude/settings.local.json
+
 # Source JSON dumps fed into tools/sanitize-templates.php.
 # Sanitized output lives under storage/print-templates/ and IS tracked.
 tools/source-templates/

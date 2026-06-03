@@ -63,6 +63,9 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
                 // List page: inline rename + bulk operations
                 'spbwc_rename_option'            => false, // admin only
                 'spbwc_bulk_options'             => false, // admin only
+                // Linked Product metabox: repoint / clear the product→option pointer
+                'spbwc_swap_product_option'      => false, // admin only
+                'spbwc_unlink_product_option'    => false, // admin only
             );
             foreach ($ajax_events as $ajax_event => $nopriv) {
                 add_action('wp_ajax_' . $ajax_event, array($this, $ajax_event));
@@ -323,8 +326,8 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
                 );
                 add_submenu_page(
                     SPBWC_PB_OVERVIEW_SLUG,
-                    esc_html__('Quote Requests', 'storelly-product-builder-for-woocommerce'),
-                    esc_html__('Quote Requests', 'storelly-product-builder-for-woocommerce'),
+                    esc_html__('Quote Settings', 'storelly-product-builder-for-woocommerce'),
+                    esc_html__('Quote Settings', 'storelly-product-builder-for-woocommerce'),
                     'manage_options',
                     SPBWC_PB_QUOTES_SLUG,
                     array($this, 'spbwc_quotes_manager')
@@ -489,9 +492,51 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
                 wp_enqueue_style('spbwc-products-css');
             }
 
+            // Linked Product control-panel metabox — only on the WooCommerce
+            // product edit/new screen. See docs/SPEC_LINKED_PRODUCT_UX.md §5.
+            if ( 'post.php' === $hook || 'post-new.php' === $hook ) {
+                $spbwc_screen = function_exists( 'get_current_screen' ) ? get_current_screen() : null;
+                if ( $spbwc_screen && isset( $spbwc_screen->post_type ) && 'product' === $spbwc_screen->post_type ) {
+                    $spbwc_lp_css = SPBWC_PB_PLUGIN_DIR . 'static/css/linked-product-metabox.css';
+                    $spbwc_lp_js  = SPBWC_PB_PLUGIN_DIR . 'static/js/linked-product-metabox.js';
+                    wp_enqueue_style(
+                        'spbwc-linked-product-metabox',
+                        SPBWC_PB_CSS_URL . 'linked-product-metabox.css',
+                        array( 'spbwc-admin-ui', 'dashicons' ),
+                        file_exists( $spbwc_lp_css ) ? filemtime( $spbwc_lp_css ) : SPBWC_PB_VERSION
+                    );
+                    // SweetAlert powers the swap/unlink/shared confirms (graceful
+                    // fallback to window.confirm if it fails to load).
+                    if ( wp_style_is( 'spbwc-sweetalert-css', 'registered' ) ) {
+                        wp_enqueue_style( 'spbwc-sweetalert-css' );
+                    }
+                    wp_enqueue_script(
+                        'spbwc-linked-product-metabox',
+                        SPBWC_PB_JS_URL . 'linked-product-metabox.js',
+                        array( 'jquery', 'spbwc-sweetalert-js' ),
+                        file_exists( $spbwc_lp_js ) ? filemtime( $spbwc_lp_js ) : SPBWC_PB_VERSION,
+                        true
+                    );
+                    wp_localize_script( 'spbwc-linked-product-metabox', 'spbwcLinkedProduct', array(
+                        'ajaxUrl' => admin_url( 'admin-ajax.php' ),
+                        'i18n'    => array(
+                            'sharedEditTitle' => __( 'Shared option', 'storelly-product-builder-for-woocommerce' ),
+                            /* translators: %d: number of other products that share this pricing option. */
+                            'sharedEdit'      => __( 'This option is shared by %d other product(s). Editing its fields affects all of them. Continue?', 'storelly-product-builder-for-woocommerce' ),
+                            'swapTitle'       => __( 'Swap option', 'storelly-product-builder-for-woocommerce' ),
+                            'swapConfirm'     => __( 'Map this product to the selected option instead?', 'storelly-product-builder-for-woocommerce' ),
+                            'unlinkTitle'     => __( 'Unlink option', 'storelly-product-builder-for-woocommerce' ),
+                            'unlinkConfirm'   => __( 'Unlink this option from the product? The product builder will no longer show on this product (the option itself is not deleted).', 'storelly-product-builder-for-woocommerce' ),
+                            'failed'          => __( 'Action failed. Please try again.', 'storelly-product-builder-for-woocommerce' ),
+                        ),
+                    ) );
+                }
+            }
+
             // Custom Quotes workspace (B2B quote redesign) — list + detail screens.
             if ( class_exists( 'SPBWC_Quote_Admin' ) && false !== strpos( $hook, SPBWC_Quote_Admin::PAGE_SLUG ) ) {
-                wp_enqueue_style( 'spbwc-quotes-admin', SPBWC_PB_CSS_URL . 'quotes-admin.css', array( 'spbwc-admin-ui' ), SPBWC_PB_VERSION );
+                $spbwc_quotes_css = SPBWC_PB_PLUGIN_DIR . 'static/css/quotes-admin.css';
+                wp_enqueue_style( 'spbwc-quotes-admin', SPBWC_PB_CSS_URL . 'quotes-admin.css', array( 'spbwc-admin-ui' ), file_exists( $spbwc_quotes_css ) ? filemtime( $spbwc_quotes_css ) : SPBWC_PB_VERSION );
             }
 
             wp_localize_script('spbwc-general-js', 'storelly_admin', array(
@@ -582,6 +627,127 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
                     exit;
                 } 
                 
+                // v3 editor (new default per Stage B) — same load + save
+                // pipeline as classic, only the view file differs. Listed
+                // first so classic `edit` falls through unchanged.
+                if ( $current_action == 'v3' || $current_action == 'create_v3' ) {
+
+                    $id = ( $current_action == 'v3' && $ID > 0 ) ? $ID : 0;
+
+                    if ( isset( $_POST['save'] ) || isset( $_POST['options'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce checked immediately below.
+                        if ( ! isset( $_POST['_wpnonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['_wpnonce'] ) ), 'spbwc_save_option_action' ) ) {
+                            wp_die( esc_html__( 'Security check failed.', 'storelly-product-builder-for-woocommerce' ) );
+                        }
+                        $result = $this->spbwc_save_option( $id );
+                        if ( $result['status'] ) {
+                            if ( $id == 0 ) {
+                                $id = $result['id'];
+                                wp_safe_redirect( esc_url_raw( add_query_arg( array(
+                                    'paged'   => 1,
+                                    'action'  => 'v3',
+                                    'id'      => $id,
+                                    'message' => 'created',
+                                ), admin_url( 'admin.php?page=' . SPBWC_PB_BUILDER_SLUG ) ) ) );
+                                exit;
+                            }
+                            $message = array(
+                                'flag'    => 'success',
+                                'content' => esc_html__( 'Option updated.', 'storelly-product-builder-for-woocommerce' ),
+                            );
+                        } else {
+                            $message = array( 'flag' => 'error', 'content' => '' );
+                        }
+                    }
+
+                    $_options = ( $id > 0 ) ? (array) $this->spbwc_get_option( $id ) : false;
+                    if ( $_options ) {
+                        // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.serialize_unserialize -- Mirrors classic flow; admin-only read of data we wrote via serialize().
+                        $raw_options = unserialize( $_options['fields'] );
+                        if ( ! isset( $raw_options['fields'] ) ) {
+                            $raw_options['fields'] = array();
+                        }
+                        $options             = $this->spbwc_build_options( $raw_options );
+                        $options['id']       = $_options['id'];
+                        $options['title']    = $_options['title'];
+                        $options['published']= $_options['published'];
+                        $options['created']  = $_options['created'];
+                        $options['modified'] = $_options['modified'];
+                        $options['product_ids'] = isset( $_options['product_ids'] ) && is_array( maybe_unserialize( $_options['product_ids'] ) )
+                            ? maybe_unserialize( $_options['product_ids'] ) : array();
+                    } else {
+                        $options             = $this->spbwc_build_options();
+                        $options['id']       = 0;
+                        $options['title']    = '';
+                        $options['product_ids'] = array();
+                        $options['published']= 1;
+                        $options['created']  = '';
+                        $options['modified'] = '';
+                    }
+
+                    $default_field = $this->spbwc_default_config_field();
+                    $options['spbwc_product_labels'] = array();
+                    if ( ! empty( $options['product_ids'] ) && is_array( $options['product_ids'] ) ) {
+                        foreach ( $options['product_ids'] as $spbwc_label_pid ) {
+                            $spbwc_label_pid = absint( $spbwc_label_pid );
+                            if ( $spbwc_label_pid > 0 ) {
+                                $options['spbwc_product_labels'][ $spbwc_label_pid ] = get_the_title( $spbwc_label_pid );
+                            }
+                        }
+                    }
+
+                    // Enqueue mirrors classic dispatcher (same handle so the
+                    // controller / templates run identically), plus v3-only
+                    // chrome stylesheet + dirty/save helper script.
+                    $spbwc_admin_options_ver = file_exists( SPBWC_PB_PLUGIN_DIR . 'static/js/admin-options.js' )
+                        ? filemtime( SPBWC_PB_PLUGIN_DIR . 'static/js/admin-options.js' ) : SPBWC_PB_VERSION;
+                    wp_register_script( 'spbwc_option_field_script', SPBWC_PB_JS_URL . 'admin-options.js', array( 'jquery', 'spbwc-ag' ), $spbwc_admin_options_ver, true );
+                    wp_localize_script( 'spbwc_option_field_script', 'storelly_option_variable', array(
+                        'STORELLY_OPTIONS'      => $options,
+                        'STORELLY_OPTION_FIELD' => $default_field,
+                        'ajax_url'              => esc_url( admin_url( 'admin-ajax.php' ) ),
+                        'nbnonce'               => esc_attr( wp_create_nonce( 'spbwc_save_design_action' ) ),
+                        'max_input_vars'        => (int) SPBWC_Storelly_PB_Util::spbwc_get_max_input_var(),
+                    ) );
+                    wp_enqueue_script( 'spbwc_option_field_script' );
+                    if ( wp_style_is( 'spbwc-options-style', 'registered' ) ) {
+                        wp_enqueue_style( 'spbwc-options-style' );
+                    }
+                    if ( wp_style_is( 'spbwc-options-v2-style', 'registered' ) ) {
+                        wp_enqueue_style( 'spbwc-options-v2-style' );
+                    }
+                    if ( ! wp_script_is( 'spbwc-options-script', 'enqueued' ) ) {
+                        wp_localize_script( 'spbwc_option_field_script', 'storelly_options', array(
+                            'search_products_nonce' => wp_create_nonce( 'search-products' ),
+                            'calendar_image'        => SPBWC_PB_ASSETS_URL . 'images/calendar.png',
+                            'storelly_options_lang' => $this->spbwc_storelly_option_i18n(),
+                        ) );
+                    }
+                    wp_enqueue_media();
+
+                    // v3-only assets (separate handles so classic edit-option
+                    // is untouched).
+                    $v3_css_path = SPBWC_PB_PLUGIN_DIR . 'static/css/edit-option-v3.css';
+                    $v3_css_ver  = file_exists( $v3_css_path ) ? filemtime( $v3_css_path ) : SPBWC_PB_VERSION;
+                    wp_enqueue_style(
+                        'spbwc-edit-option-v3',
+                        SPBWC_PB_CSS_URL . 'edit-option-v3.css',
+                        array( 'spbwc-admin-ui', 'dashicons' ),
+                        $v3_css_ver
+                    );
+                    $v3_js_path = SPBWC_PB_PLUGIN_DIR . 'static/js/edit-option-v3.js';
+                    $v3_js_ver  = file_exists( $v3_js_path ) ? filemtime( $v3_js_path ) : SPBWC_PB_VERSION;
+                    wp_enqueue_script(
+                        'spbwc-edit-option-v3',
+                        SPBWC_PB_JS_URL . 'edit-option-v3.js',
+                        array( 'jquery', 'spbwc-ag', 'spbwc_option_field_script' ),
+                        $v3_js_ver,
+                        true
+                    );
+
+                    include_once SPBWC_PB_PLUGIN_DIR . 'views/options/edit-option-v3.php';
+                    return;
+                }
+
                 if ($current_action == 'edit' || $current_action == 'create') {
                     
                     $id = ($current_action == 'edit' && $ID > 0) ? $ID : 0;
@@ -593,12 +759,28 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
                         }
                         
                         $result = $this->spbwc_save_option( $id );
-                        
+
                         if ($result['status']) {
-                            
-                            if ($id == 0) {
+                            if ( $id == 0 ) {
                                 $id = $result['id'];
-                                
+                            }
+
+                            // Launched from the product metabox (spbwc_return=1 +
+                            // product_id) → return to that product after saving.
+                            // See docs/SPEC_LINKED_PRODUCT_UX.md §4.
+                            // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- POST nonce verified above; navigation hint only.
+                            $spbwc_return     = isset($_GET['spbwc_return']) ? absint(wp_unslash($_GET['spbwc_return'])) : 0;
+                            // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- POST nonce verified above; navigation hint only.
+                            $spbwc_return_pid = isset($_GET['product_id']) ? absint(wp_unslash($_GET['product_id'])) : 0;
+                            if ($spbwc_return && $spbwc_return_pid) {
+                                wp_safe_redirect(esc_url_raw(add_query_arg(array(
+                                    'post'   => $spbwc_return_pid,
+                                    'action' => 'edit',
+                                ), admin_url('post.php'))));
+                                exit;
+                            }
+
+                            if (isset($_GET['action']) && 'create' === sanitize_text_field(wp_unslash($_GET['action']))) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- POST nonce verified above.
                                 wp_safe_redirect(esc_url_raw(add_query_arg(array(
                                     'paged'     => 1,
                                     'action'    => 'edit', // Chuyển sang action edit sau khi tạo
@@ -697,8 +879,25 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
                             'storelly_options_lang' => $this->spbwc_storelly_option_i18n(),
                         ) );
                     }
+                    // Breadcrumb + return chrome when launched from a product
+                    // metabox. See docs/SPEC_LINKED_PRODUCT_UX.md §4.
+                    if ( $product_id ) {
+                        $spbwc_bc_back  = esc_url( add_query_arg( array( 'post' => $product_id, 'action' => 'edit' ), admin_url( 'post.php' ) ) );
+                        $spbwc_bc_list  = esc_url( admin_url( 'admin.php?page=' . SPBWC_PB_PRODUCTS_SLUG ) );
+                        $spbwc_bc_title = get_the_title( $product_id );
+                        echo '<nav class="spbwc-lp-breadcrumb" aria-label="' . esc_attr__( 'Breadcrumb', 'storelly-product-builder-for-woocommerce' ) . '">';
+                        echo '<a href="' . esc_url( $spbwc_bc_list ) . '">' . esc_html__( 'Linked Products', 'storelly-product-builder-for-woocommerce' ) . '</a>';
+                        echo '<span class="spbwc-lp-breadcrumb__sep" aria-hidden="true">&rsaquo;</span>';
+                        echo '<a href="' . esc_url( $spbwc_bc_back ) . '">' . esc_html( $spbwc_bc_title ) . '</a>';
+                        echo '<span class="spbwc-lp-breadcrumb__sep" aria-hidden="true">&rsaquo;</span>';
+                        echo '<span class="spbwc-lp-breadcrumb__current">' . ( $id > 0
+                            ? esc_html( sprintf( /* translators: %d: option id */ esc_html__( 'Option #%d', 'storelly-product-builder-for-woocommerce' ), $id ) )
+                            : esc_html__( 'New option', 'storelly-product-builder-for-woocommerce' ) ) . '</span>';
+                        echo '<a class="spbwc-lp-breadcrumb__back" href="' . esc_url( $spbwc_bc_back ) . '"><span class="dashicons dashicons-arrow-left-alt2" aria-hidden="true"></span>' . esc_html__( 'Back to product', 'storelly-product-builder-for-woocommerce' ) . '</a>';
+                        echo '</nav>';
+                    }
                     include_once(SPBWC_PB_PLUGIN_DIR . 'views/options/edit-option.php');
-                } 
+                }
             } else {
                 require_once SPBWC_PB_PLUGIN_DIR . 'includes/options/fields-list-table.php';
                 $spbwc_options = new SPBWC_Storelly_Options_List_Table();
@@ -1018,7 +1217,7 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
 
             // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only tab/search query args.
             $tab = isset( $_GET['tab'] ) ? sanitize_key( wp_unslash( $_GET['tab'] ) ) : 'get-quote';
-            if ( ! in_array( $tab, array( 'get-quote', 'form-builder', 'history' ), true ) ) {
+            if ( ! in_array( $tab, array( 'get-quote', 'form-builder' ), true ) ) {
                 $tab = 'get-quote';
             }
 
@@ -1117,11 +1316,17 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
                                 <?php esc_html_e( 'Storelly Product Builder', 'storelly-product-builder-for-woocommerce' ); ?>
                             </div>
                             <h1 class="spbwc-page-hero__title">
-                                <span class="dashicons dashicons-email-alt" aria-hidden="true"></span>
-                                <?php esc_html_e( 'Quotes', 'storelly-product-builder-for-woocommerce' ); ?>
+                                <span class="dashicons dashicons-admin-settings" aria-hidden="true"></span>
+                                <?php esc_html_e( 'Quote Settings', 'storelly-product-builder-for-woocommerce' ); ?>
                             </h1>
                             <p class="spbwc-page-hero__subtitle">
-                                <?php esc_html_e( 'Configure Get Quote, build request forms, and review submitted quote requests.', 'storelly-product-builder-for-woocommerce' ); ?>
+                                <?php
+                                printf(
+                                    /* translators: %s: link to the Quotes workspace */
+                                    esc_html__( 'Enable Get Quote and build the request form. Submitted quotes live under %s.', 'storelly-product-builder-for-woocommerce' ),
+                                    '<a href="' . esc_url( admin_url( 'admin.php?page=storelly-product-builder-for-woocommerce-custom-quotes' ) ) . '" style="color:#fff;text-decoration:underline;">' . esc_html__( 'Quotes', 'storelly-product-builder-for-woocommerce' ) . '</a>'
+                                );
+                                ?>
                             </p>
                         </div>
                     </div>
@@ -1138,11 +1343,6 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
                        data-tab="form-builder" class="nav-tab <?php echo ( 'form-builder' === $tab ) ? 'nav-tab-active' : ''; ?>">
                         <span class="dashicons dashicons-feedback" aria-hidden="true"></span>
                         <?php esc_html_e( 'Form Builder', 'storelly-product-builder-for-woocommerce' ); ?>
-                    </a>
-                    <a href="<?php echo esc_url( add_query_arg( array( 'page' => SPBWC_PB_QUOTES_SLUG, 'tab' => 'history' ), admin_url( 'admin.php' ) ) ); ?>"
-                       data-tab="history" class="nav-tab <?php echo ( 'history' === $tab ) ? 'nav-tab-active' : ''; ?>">
-                        <span class="dashicons dashicons-list-view" aria-hidden="true"></span>
-                        <?php esc_html_e( 'Request History', 'storelly-product-builder-for-woocommerce' ); ?>
                     </a>
                 </h2>
                     <!-- ── Get Quote Settings ──────────────────────────── -->
@@ -1382,170 +1582,6 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
                         })(jQuery);
                     </script>
 
-                    <!-- ── Request History ─────────────────────────────── -->
-                    <div class="spbwc-quotes-panel" data-panel="history"<?php echo ( 'history' !== $tab ) ? ' style="display:none;"' : ''; ?>>
-                    <?php
-                    // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only search filter.
-                    $search = isset( $_GET['s'] ) ? sanitize_text_field( wp_unslash( $_GET['s'] ) ) : '';
-                    // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only pagination value.
-                    $paged = isset( $_GET['paged'] ) ? max( 1, absint( wp_unslash( $_GET['paged'] ) ) ) : 1;
-                    $quote_orders = wc_get_orders(
-                        array(
-                            'type'        => 'shop_order',
-                            'limit'       => 20,
-                            'page'        => $paged,
-                            'paginate'    => true,
-                            'orderby'     => 'date',
-                            'order'       => 'DESC',
-                            // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query -- Admin-only quotes listing; meta query required to find quote-request orders.
-                            'meta_query'  => array(
-                                'relation' => 'OR',
-                                array(
-                                    'key'     => '_raq_request',
-                                    'compare' => 'EXISTS',
-                                ),
-                                array(
-                                    'key'     => '_spbwc_quote_request',
-                                    'compare' => 'EXISTS',
-                                ),
-                            ),
-                            'search'         => $search ? '*' . $search . '*' : '',
-                            'search_columns' => array( 'billing_email', 'billing_first_name', 'billing_last_name' ),
-                        )
-                    );
-                    $orders    = isset( $quote_orders->orders ) ? $quote_orders->orders : array();
-                    $max_pages = isset( $quote_orders->max_num_pages ) ? (int) $quote_orders->max_num_pages : 1;
-                    ?>
-                    <div class="spbwc-block">
-                        <!-- Toolbar: search + count -->
-                        <form method="get" class="spbwc-list-toolbar" role="search">
-                            <input type="hidden" name="page" value="<?php echo esc_attr( SPBWC_PB_QUOTES_SLUG ); ?>" />
-                            <input type="hidden" name="tab" value="history" />
-                            <div class="spbwc-search-bar">
-                                <span class="spbwc-search-bar__icon" aria-hidden="true">
-                                    <span class="dashicons dashicons-search"></span>
-                                </span>
-                                <input class="spbwc-search-bar__input" type="search" name="s"
-                                    value="<?php echo esc_attr( $search ); ?>"
-                                    placeholder="<?php esc_attr_e( 'Search by name or email…', 'storelly-product-builder-for-woocommerce' ); ?>" />
-                                <button class="spbwc-search-bar__btn" type="submit">
-                                    <?php esc_html_e( 'Search', 'storelly-product-builder-for-woocommerce' ); ?>
-                                </button>
-                            </div>
-                            <?php if ( ! empty( $orders ) ) : ?>
-                                <span class="spbwc-list-count">
-                                    <?php
-                                    echo esc_html(
-                                        sprintf(
-                                            /* translators: %d: number of requests */
-                                            _n( '%d request', '%d requests', count( $orders ), 'storelly-product-builder-for-woocommerce' ),
-                                            count( $orders )
-                                        )
-                                    );
-                                    ?>
-                                </span>
-                            <?php endif; ?>
-                        </form>
-
-                        <div class="spbwc-block__body--flush">
-                            <table class="spbwc-admin-table">
-                                <thead>
-                                    <tr>
-                                        <th><?php esc_html_e( 'Quote #', 'storelly-product-builder-for-woocommerce' ); ?></th>
-                                        <th><?php esc_html_e( 'Customer', 'storelly-product-builder-for-woocommerce' ); ?></th>
-                                        <th><?php esc_html_e( 'Email', 'storelly-product-builder-for-woocommerce' ); ?></th>
-                                        <th><?php esc_html_e( 'Message', 'storelly-product-builder-for-woocommerce' ); ?></th>
-                                        <th><?php esc_html_e( 'Date', 'storelly-product-builder-for-woocommerce' ); ?></th>
-                                        <th><?php esc_html_e( 'Actions', 'storelly-product-builder-for-woocommerce' ); ?></th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <?php if ( ! empty( $orders ) ) : ?>
-                                        <?php foreach ( $orders as $order ) : ?>
-                                            <?php
-                                            $customer_name  = $order->get_meta( '_raq_customer_name' );
-                                            $customer_email = $order->get_meta( '_raq_customer_email' );
-                                            $message        = $order->get_meta( '_raq_customer_message' );
-                                            if ( ! $message ) {
-                                                $message = $order->get_meta( '_spbwc_quote_request' );
-                                            }
-                                            if ( ! $customer_name ) {
-                                                $customer_name = trim( $order->get_formatted_billing_full_name() );
-                                            }
-                                            if ( ! $customer_email ) {
-                                                $customer_email = $order->get_billing_email();
-                                            }
-                                            ?>
-                                            <tr>
-                                                <td class="spbwc-admin-table__id">
-                                                    <strong>#<?php echo esc_html( (string) $order->get_id() ); ?></strong>
-                                                </td>
-                                                <td><?php echo esc_html( $customer_name ? $customer_name : __( 'Guest', 'storelly-product-builder-for-woocommerce' ) ); ?></td>
-                                                <td class="spbwc-admin-table__muted"><?php echo esc_html( $customer_email ); ?></td>
-                                                <td class="spbwc-admin-table__muted">
-                                                    <?php echo esc_html( $message ? wp_trim_words( $message, 14, '…' ) : '—' ); ?>
-                                                </td>
-                                                <td class="spbwc-admin-table__muted">
-                                                    <?php echo esc_html( $order->get_date_created() ? wc_format_datetime( $order->get_date_created() ) : '—' ); ?>
-                                                </td>
-                                                <td>
-                                                    <a class="spbwc-cta-btn spbwc-cta-btn--ghost spbwc-cta-btn--sm"
-                                                       href="<?php echo esc_url( $order->get_edit_order_url() ); ?>">
-                                                        <?php esc_html_e( 'View', 'storelly-product-builder-for-woocommerce' ); ?>
-                                                        <span class="dashicons dashicons-arrow-right-alt2" aria-hidden="true"></span>
-                                                    </a>
-                                                </td>
-                                            </tr>
-                                        <?php endforeach; ?>
-                                    <?php else : ?>
-                                        <tr>
-                                            <td colspan="6" style="padding:0;border:0;">
-                                                <div class="spbwc-empty-state">
-                                                    <div class="spbwc-empty-state__icon">
-                                                        <span class="dashicons dashicons-email-alt" aria-hidden="true"></span>
-                                                    </div>
-                                                    <p class="spbwc-empty-state__title">
-                                                        <?php esc_html_e( 'No quote requests yet', 'storelly-product-builder-for-woocommerce' ); ?>
-                                                    </p>
-                                                    <p class="spbwc-empty-state__text">
-                                                        <?php esc_html_e( 'When customers submit quote requests they will appear here.', 'storelly-product-builder-for-woocommerce' ); ?>
-                                                    </p>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    <?php endif; ?>
-                                </tbody>
-                            </table>
-                        </div>
-
-                        <?php if ( $max_pages > 1 ) : ?>
-                        <div class="spbwc-admin-pagination">
-                            <?php
-                            echo wp_kses_post(
-                                paginate_links(
-                                    array(
-                                        'base'      => add_query_arg(
-                                            array(
-                                                'page'  => SPBWC_PB_QUOTES_SLUG,
-                                                'tab'   => 'history',
-                                                's'     => rawurlencode( $search ),
-                                                'paged' => '%#%',
-                                            ),
-                                            admin_url( 'admin.php' )
-                                        ),
-                                        'format'    => '',
-                                        'prev_text' => '&laquo;',
-                                        'next_text' => '&raquo;',
-                                        'total'     => $max_pages,
-                                        'current'   => $paged,
-                                    )
-                                )
-                            );
-                            ?>
-                        </div>
-                        <?php endif; ?>
-                    </div><!-- .spbwc-block -->
-                    </div><!-- .spbwc-quotes-panel (history) -->
             </div>
             <script>
             (function () {
@@ -2855,11 +2891,12 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
             );
         }
         public function build_config_appearance_show_in_options($value = null) {
-            // Design components (nbpb_type = nbpb_com) are normally editor-only. When this is
-            // 'y', the component ALSO appears in the storefront product-options list so buyers
-            // can pick it and see its price without opening the design editor. Default off so
-            // existing designer products are unchanged.
-            if (is_null($value)) $value = 'n';
+            // Design components (nbpb_type = nbpb_com) carry their own price/swatches, so by
+            // default they ALSO appear in the storefront product-options list — buyers can pick
+            // them (and see the price) without opening the design editor. Selection stays in
+            // sync with the editor via the update_nbo_options bridge. Set to 'n' per component
+            // to keep it editor-only.
+            if (is_null($value)) $value = 'y';
             return array(
                 'title'         => __('Show in product options list', 'storelly-product-builder-for-woocommerce'),
                 'description'   => __('Also let buyers choose this design component (and see its price) in the product options, not only inside the design editor.', 'storelly-product-builder-for-woocommerce'),
@@ -2910,24 +2947,158 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
             $option_id          = $this->spbwc_get_product_option($post_id);
             $option_id          = $option_id ? $option_id : 0;
             $option_title       = '';
+            $option_row         = array();
             if ($option_id > 0) {
                 $option_row = $this->spbwc_get_option($option_id);
                 $option_title = is_array($option_row) && !empty($option_row['title']) ? $option_row['title'] : '';
             }
+
+            // Option summary for the control-panel card (field count, designer
+            // presence, a few field titles for chips). See
+            // docs/SPEC_LINKED_PRODUCT_UX.md §3.2.
+            $summary       = $this->spbwc_summarize_option($option_id);
+            $field_count   = (int) $summary['field_count'];
+            $has_designer  = (bool) $summary['has_designer'];
+            $field_titles  = $summary['field_titles'];
+            $field_chips   = array_slice($field_titles, 0, 3);
+            $field_overflow = max(0, count($field_titles) - count($field_chips));
+
+            // Human label combining cart vs. quote intent.
+            $display_label = $this->spbwc_quote_display_label($spbwc_enable_quote, $spbwc_quote_display_mode);
+
+            // Products other than this one that the mapped option also targets —
+            // drives the "Shared by N products" badge + disclosure list (§2.4).
+            $shared_products = array();
+            if ($option_id > 0) {
+                $option_pids = $this->spbwc_extract_product_ids_from_option($option_row);
+                foreach ($option_pids as $shared_pid) {
+                    if ((int) $shared_pid === (int) $post_id) {
+                        continue;
+                    }
+                    if (count($shared_products) >= 20) {
+                        break;
+                    }
+                    $shared_products[] = array(
+                        'id'    => (int) $shared_pid,
+                        'title' => get_the_title($shared_pid),
+                        'link'  => (string) get_edit_post_link($shared_pid),
+                    );
+                }
+            }
+            $shared_count = count($shared_products);
+
+            // Published options for the Swap dropdown (id + title, excluding the
+            // one currently mapped).
+            $swap_options = array();
+            foreach ((array) $this->spbwc_get_cached_published_options() as $swap_row) {
+                $swap_id = isset($swap_row['id']) ? absint($swap_row['id']) : 0;
+                if ($swap_id <= 0 || $swap_id === (int) $option_id) {
+                    continue;
+                }
+                $swap_full = $this->spbwc_get_option($swap_id);
+                $swap_title = is_array($swap_full) && !empty($swap_full['title'])
+                    ? (string) $swap_full['title']
+                    : sprintf(
+                        /* translators: %d is the numeric option id used when an option row has no title. */
+                        esc_html__('Option #%d', 'storelly-product-builder-for-woocommerce'),
+                        $swap_id
+                    );
+                $swap_options[] = array('id' => $swap_id, 'title' => $swap_title);
+            }
+
+            // Nonce shared by the Swap + Unlink AJAX actions.
+            $spbwc_link_nonce = wp_create_nonce('spbwc_link_product_option');
+
             // Defensive: surface legacy data where more than one product-level
             // option still claims this product. The new apply/save paths prevent
             // this; the warning helps merchants clean up older duplicates.
             $extra_options = $this->spbwc_find_extra_product_level_options($post_id, $option_id);
+            // Same-tab navigation into the builder, carrying product_id so the
+            // editor renders the breadcrumb + "Save & back to product" return.
             $link_edit_option   = add_query_arg(
                 array(
                     'product_id'    => $post_id,
-                    'action'        => 'edit',
+                    'action'        => $option_id > 0 ? 'edit' : 'create',
                     'paged'         => 1,
-                    'id'            => $option_id
+                    'id'            => $option_id,
+                    'spbwc_return'  => 1,
                 ),
                 admin_url('admin.php?page=' . SPBWC_PB_BUILDER_SLUG)
             );
             include_once(SPBWC_PB_PLUGIN_DIR . 'views/options/meta-box.php');
+        }
+
+        /**
+         * Summarize a pricing option for the product metabox control panel:
+         * field count, whether it contains a designer component, and the field
+         * titles (for the chip row). Best-effort and read-only.
+         *
+         * @param int $option_id Option row id (0 → empty summary).
+         * @return array{field_count:int, has_designer:bool, field_titles:array<int,string>}
+         */
+        public function spbwc_summarize_option($option_id) {
+            $summary = array(
+                'field_count'  => 0,
+                'has_designer' => false,
+                'field_titles' => array(),
+            );
+            $option_id = absint($option_id);
+            if ($option_id <= 0) {
+                return $summary;
+            }
+            $row = $this->spbwc_get_option($option_id);
+            if (empty($row) || empty($row['fields'])) {
+                return $summary;
+            }
+            $raw = maybe_unserialize($row['fields']);
+            if (!is_array($raw) || empty($raw['fields']) || !is_array($raw['fields'])) {
+                return $summary;
+            }
+            $summary['field_count'] = count($raw['fields']);
+            foreach ($raw['fields'] as $field) {
+                if (!is_array($field)) {
+                    continue;
+                }
+                if (!empty($field['nbpb_type']) && 'nbpb_com' === $field['nbpb_type']) {
+                    $summary['has_designer'] = true;
+                }
+                $general = isset($field['general']) && is_array($field['general']) ? $field['general'] : array();
+                $title   = '';
+                if (isset($general['title']['value'])) {
+                    $title = (string) $general['title']['value'];
+                } elseif (isset($general['title']) && is_string($general['title'])) {
+                    $title = (string) $general['title'];
+                }
+                $title = trim(wp_strip_all_tags($title));
+                if ('' !== $title) {
+                    $summary['field_titles'][] = $title;
+                }
+            }
+            return $summary;
+        }
+
+        /**
+         * Human label for the product's cart-vs-quote intent, shown in the
+         * metabox option summary.
+         *
+         * @param mixed  $enable_quote Truthy when "Enable request quote" is on.
+         * @param string $display_mode One of '' | both | replace | quote_only.
+         * @return string
+         */
+        public function spbwc_quote_display_label($enable_quote, $display_mode) {
+            if (empty($enable_quote)) {
+                return esc_html__('Add to cart', 'storelly-product-builder-for-woocommerce');
+            }
+            switch ((string) $display_mode) {
+                case 'replace':
+                    return esc_html__('Get Quote (keeps price)', 'storelly-product-builder-for-woocommerce');
+                case 'quote_only':
+                    return esc_html__('Quote only', 'storelly-product-builder-for-woocommerce');
+                case 'both':
+                    return esc_html__('Add to cart + Quote', 'storelly-product-builder-for-woocommerce');
+                default:
+                    return esc_html__('Add to cart + Quote (default)', 'storelly-product-builder-for-woocommerce');
+            }
         }
         public function spbwc_get_product_option($product_id) {
             $product_id = absint($product_id);
@@ -3053,6 +3224,103 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
             }
             return $extras;
         }
+        /**
+         * Add or remove a product id from an option row's serialized
+         * product_ids list, then flush the option caches. Keeps the fallback
+         * resolver + list table consistent when the pointer is repointed.
+         *
+         * @param int  $option_id  Option row id.
+         * @param int  $product_id Product post id.
+         * @param bool $present    True → ensure membership; false → remove.
+         * @return void
+         */
+        protected function spbwc_set_option_product_membership($option_id, $product_id, $present) {
+            $option_id  = absint($option_id);
+            $product_id = absint($product_id);
+            if ($option_id <= 0 || $product_id <= 0) {
+                return;
+            }
+            $row = $this->spbwc_get_option($option_id);
+            if (empty($row)) {
+                return;
+            }
+            $pids    = $this->spbwc_extract_product_ids_from_option($row);
+            $changed = false;
+            if ($present && !in_array($product_id, $pids, true)) {
+                $pids[]  = $product_id;
+                $changed = true;
+            } elseif (!$present && in_array($product_id, $pids, true)) {
+                $pids    = array_values(array_diff($pids, array($product_id)));
+                $changed = true;
+            }
+            if (!$changed) {
+                return;
+            }
+            global $wpdb; // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Global variable $wpdb.
+            // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Admin pointer maintenance; caches flushed below.
+            $wpdb->update(
+                $wpdb->prefix . 'storelly_product_builder_options',
+                array('product_ids' => serialize(array_map('absint', $pids))), // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.serialize_serialize -- Mirrors spbwc_save_option storage format.
+                array('id' => $option_id),
+                array('%s'),
+                array('%d')
+            );
+            $this->spbwc_flush_option_caches($option_id);
+        }
+
+        /**
+         * AJAX — repoint a product to a different published pricing option from
+         * the product edit metabox. Move semantics: the product leaves its old
+         * option's list and joins the new one. See
+         * docs/SPEC_LINKED_PRODUCT_UX.md §3.3.
+         */
+        public function spbwc_swap_product_option() {
+            check_ajax_referer('spbwc_link_product_option', 'nonce');
+            $product_id = isset($_POST['product_id']) ? absint($_POST['product_id']) : 0;
+            $option_id  = isset($_POST['option_id']) ? absint($_POST['option_id']) : 0;
+            if (!$product_id || !current_user_can('edit_post', $product_id)) {
+                wp_send_json_error(array('msg' => esc_html__('You do not have permission to edit this product.', 'storelly-product-builder-for-woocommerce')), 403);
+            }
+            if (!$option_id) {
+                wp_send_json_error(array('msg' => esc_html__('Missing option.', 'storelly-product-builder-for-woocommerce')));
+            }
+            $target = $this->spbwc_get_option($option_id);
+            if (empty($target) || empty($target['published'])) {
+                wp_send_json_error(array('msg' => esc_html__('That option is not available.', 'storelly-product-builder-for-woocommerce')));
+            }
+
+            $previous = (int) get_post_meta($product_id, '_spbwc_option_id', true);
+            if ($previous && $previous !== $option_id) {
+                $this->spbwc_set_option_product_membership($previous, $product_id, false);
+            }
+            update_post_meta($product_id, '_spbwc_option_id', $option_id);
+            $this->spbwc_set_option_product_membership($option_id, $product_id, true);
+            $this->spbwc_flush_option_caches($option_id);
+
+            wp_send_json_success(array('option_id' => $option_id));
+        }
+
+        /**
+         * AJAX — clear the product→option pointer (unlink) from the metabox. The
+         * option row itself is preserved; only this product is detached.
+         */
+        public function spbwc_unlink_product_option() {
+            check_ajax_referer('spbwc_link_product_option', 'nonce');
+            $product_id = isset($_POST['product_id']) ? absint($_POST['product_id']) : 0;
+            if (!$product_id || !current_user_can('edit_post', $product_id)) {
+                wp_send_json_error(array('msg' => esc_html__('You do not have permission to edit this product.', 'storelly-product-builder-for-woocommerce')), 403);
+            }
+            $current = (int) get_post_meta($product_id, '_spbwc_option_id', true);
+            delete_post_meta($product_id, '_spbwc_option_id');
+            if ($current) {
+                $this->spbwc_set_option_product_membership($current, $product_id, false);
+                $this->spbwc_flush_option_caches($current);
+            } else {
+                $this->spbwc_flush_option_caches();
+            }
+            wp_send_json_success();
+        }
+
         public function spbwc_save_product_option($post_id) {
             if (
                 !isset($_POST['pc_box_nonce']) || !wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['pc_box_nonce'])), 'pc_box')
@@ -3095,6 +3363,7 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
             $order_items[] = '_pcpb_options';
             $order_items[] = '_pcpb_original_price';
             $order_items[] = '_pcpb_folder';
+            $order_items[] = '_pcpb_pdf_status';
             return $order_items;
         }
         public function spbwc_admin_order_item_thumbnail($image = "", $item_id = "", $item = "") {
@@ -3650,12 +3919,14 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
                 $total_orders = $count_query ? (int) $count_query : 0;
             }
 
-            // Quote requests stored in plugin's own table (if exists)
-            $quote_table  = $wpdb->prefix . 'storelly_quote_requests';
+            // Quote requests are stored as spbwc_quote CPT posts (B2B quote
+            // redesign). Count every quote status.
             $total_quotes = 0;
-            // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
-            if ( $wpdb->get_var( $wpdb->prepare( "SHOW TABLES LIKE %s", $quote_table ) ) === $quote_table ) {
-                $total_quotes = (int) $wpdb->get_var( "SELECT COUNT(id) FROM {$quote_table}" ); // phpcs:ignore WordPress.DB, PluginCheck.Security.DirectDB.UnescapedDBParameter -- prefix-only custom table name.
+            if ( class_exists( 'SPBWC_Quote' ) ) {
+                $quote_counts = (array) wp_count_posts( SPBWC_Quote::POST_TYPE );
+                foreach ( array_keys( SPBWC_Quote::statuses() ) as $quote_status ) {
+                    $total_quotes += isset( $quote_counts[ $quote_status ] ) ? (int) $quote_counts[ $quote_status ] : 0;
+                }
             }
 
             // --- Remote (Storelly) stats overlay ---

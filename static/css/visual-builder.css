@@ -13,17 +13,29 @@
  */
 
 .spbwc-vb {
-    --vb-card-radius: 12px;
+    /* Local aliases that point to the project design tokens (defined in
+     * _tokens.css). Keeping the indirection means we can re-skin the cards
+     * by changing the global token without touching this stylesheet. */
+    --vb-card-radius: var(--nbd-radius-lg);
+    --vb-card-radius-sm: var(--nbd-radius-md);
     --vb-card-shadow: 0 1px 3px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04);
     --vb-card-shadow-hover: 0 4px 14px rgba(0, 0, 0, 0.08), 0 2px 4px rgba(0, 0, 0, 0.06);
-    --vb-card-border: #e5e7eb;
-    --vb-gap: 16px;
-    --vb-text-mute: #6b7280;
-    --vb-text-strong: #1d2327;
-    --vb-link: #1971c2;
-    --vb-bg-soft: #f3f4f6;
-    --vb-warn: #b45309;
-    --vb-warn-bg: #fef3c7;
+    --vb-card-border: var(--nbd-st-border-light);
+    --vb-card-border-strong: var(--nbd-st-border);
+    --vb-gap: var(--nbd-space-4);
+    --vb-text-mute: var(--nbd-st-text-mute);
+    --vb-text-soft: var(--nbd-st-text-soft);
+    --vb-text-strong: var(--nbd-st-text);
+    --vb-link: var(--nbd-st-primary);
+    --vb-link-pressed: var(--nbd-st-primary-pressed);
+    --vb-link-soft: var(--nbd-st-primary-soft);
+    --vb-bg-soft: var(--nbd-st-bg-soft);
+    --vb-bg-canvas: var(--nbd-st-bg-canvas);
+    --vb-warn: var(--st-pill-pending-text);
+    --vb-warn-bg: var(--st-pill-pending-bg);
+    --vb-danger: var(--nbd-color-danger);
+    --vb-danger-soft: var(--nbd-color-danger-soft);
+    --vb-success: var(--nbd-color-success);
     max-width: 1320px;
 }
 
@@ -35,9 +47,9 @@
     align-items: flex-start;
     justify-content: space-between;
     gap: var(--vb-gap);
-    padding: 20px 0 24px;
+    padding: var(--nbd-space-5) 0 var(--nbd-space-6);
     border-bottom: 1px solid var(--vb-card-border);
-    margin: 0 0 24px;
+    margin: 0 0 var(--nbd-space-6);
 }
 
 .spbwc-vb__hero-left {
@@ -48,11 +60,12 @@
 .spbwc-vb__title {
     display: flex;
     align-items: center;
-    gap: 8px;
-    font-size: 23px;
+    gap: var(--nbd-space-2);
+    font-size: var(--text-2xl, 23px);
     line-height: 1.3;
-    margin: 0 0 8px;
+    margin: 0 0 var(--nbd-space-2);
     color: var(--vb-text-strong);
+    font-weight: 600;
 }
 
 .spbwc-vb__title .dashicons {
@@ -65,10 +78,17 @@
 
 .spbwc-vb__subtitle {
     margin: 0;
-    color: var(--vb-text-mute);
+    color: var(--vb-text-soft);
     max-width: 760px;
-    font-size: 14px;
+    font-size: var(--text-base, 14px);
     line-height: 1.6;
+}
+
+.spbwc-vb__hero-right {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--nbd-space-2);
+    flex-wrap: wrap;
 }
 
 .spbwc-vb__create-btn .dashicons {
@@ -81,9 +101,9 @@
 .spbwc-vb__backbar {
     display: flex;
     align-items: center;
-    gap: 6px;
-    font-size: 13px;
-    margin: 12px 0 4px;
+    gap: var(--nbd-space-2);
+    font-size: var(--text-sm, 12px);
+    margin: var(--nbd-space-3) 0 var(--nbd-space-1);
 }
 
 .spbwc-vb__backbar a {
@@ -99,7 +119,7 @@
 }
 
 .spbwc-vb__backbar-sep {
-    color: #9ca3af;
+    color: var(--vb-text-mute);
 }
 
 .spbwc-vb__backbar-current {
@@ -111,7 +131,7 @@
 .spbwc-vb__empty,
 .spbwc-vb__stub {
     background: #fff;
-    border: 1px dashed #d1d5db;
+    border: 1px dashed var(--vb-card-border-strong);
     border-radius: var(--vb-card-radius);
     padding: 48px 24px;
     text-align: center;
@@ -148,6 +168,97 @@
     flex-wrap: wrap;
     gap: 8px;
     justify-content: center;
+}
+
+/* ── First-time tutorial in empty listing (#9) ──
+ * 3 illustrated steps walking the merchant through the build flow.
+ * Replaces the bland "No visuals yet" body with a guided onboarding. */
+
+.spbwc-vb-tutorial {
+    text-align: left;
+    padding: var(--nbd-space-6) var(--nbd-space-6) var(--nbd-space-5);
+    max-width: 920px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.spbwc-vb-tutorial__hero {
+    text-align: center;
+    margin-bottom: var(--nbd-space-5);
+}
+
+.spbwc-vb-tutorial__steps {
+    list-style: none;
+    counter-reset: vb-tutorial-step;
+    margin: 0 0 var(--nbd-space-5);
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--nbd-space-4);
+}
+
+.spbwc-vb-tutorial__step {
+    position: relative;
+    background: #fff;
+    border: 1px solid var(--vb-card-border);
+    border-radius: var(--nbd-radius-lg);
+    padding: var(--nbd-space-5) var(--nbd-space-4);
+    box-shadow: var(--vb-card-shadow);
+    transition: box-shadow 0.18s ease, border-color 0.18s ease, transform 0.18s ease;
+}
+
+.spbwc-vb-tutorial__step:hover {
+    border-color: var(--vb-link);
+    box-shadow: var(--vb-card-shadow-hover);
+    transform: translateY(-2px);
+}
+
+.spbwc-vb-tutorial__step-num {
+    position: absolute;
+    top: -14px;
+    left: var(--nbd-space-4);
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: var(--vb-link);
+    color: #fff;
+    font-size: var(--text-base, 14px);
+    font-weight: 700;
+    line-height: 32px;
+    text-align: center;
+    box-shadow: 0 2px 6px rgba(25, 113, 194, 0.3);
+}
+
+.spbwc-vb-tutorial__step-body {
+    margin-top: var(--nbd-space-2);
+}
+
+.spbwc-vb-tutorial__step-icon {
+    display: block;
+    font-size: 28px;
+    line-height: 1;
+    margin-bottom: var(--nbd-space-2);
+}
+
+.spbwc-vb-tutorial__step h3 {
+    margin: 0 0 var(--nbd-space-2);
+    font-size: var(--text-base, 15px);
+    font-weight: 600;
+    color: var(--vb-text-strong);
+    line-height: 1.3;
+}
+
+.spbwc-vb-tutorial__step p {
+    margin: 0;
+    font-size: var(--text-sm, 13px);
+    color: var(--vb-text-soft);
+    line-height: 1.5;
+}
+
+@media (max-width: 768px) {
+    .spbwc-vb-tutorial__steps {
+        grid-template-columns: 1fr;
+    }
 }
 
 /* ───────────── Card grid ───────────── */
@@ -206,6 +317,41 @@
     height: 100%;
     object-fit: cover;
     display: block;
+}
+
+/* "Has issues" warning dot on card thumbnail (#10) — shows when the
+ * derive_meta() validator catches obvious data gaps (no views, components
+ * without attributes). Mirrors the editor's runtime validation toast. */
+.spbwc-vb__card-issue-dot {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: var(--vb-warn-bg);
+    border: 2px solid #fff;
+    color: var(--vb-warn);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1;
+}
+
+.spbwc-vb__card-issue-dot .dashicons {
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
+    line-height: 16px;
+}
+
+.spbwc-vb__card-thumb {
+    position: relative; /* anchor for issue dot */
+}
+
+.spbwc-vb__card.has-issues {
+    border-color: var(--vb-warn);
 }
 
 .spbwc-vb__card-body {
@@ -270,7 +416,7 @@
     display: inline-block;
     padding: 2px 8px;
     background: var(--vb-bg-soft);
-    color: #374151;
+    color: var(--vb-text-soft);
     border-radius: 999px;
     font-size: 12px;
     line-height: 1.6;
@@ -282,15 +428,21 @@
 }
 
 .spbwc-vb__card-actions {
-    padding: 10px 16px 16px;
+    padding: var(--nbd-space-2) var(--nbd-space-4) var(--nbd-space-4);
     display: flex;
     gap: 6px;
 }
 
-.spbwc-vb__card-actions .button {
+.spbwc-vb__card-actions .spbwc-cta-btn {
     flex: 1;
     text-align: center;
     justify-content: center;
+    white-space: nowrap;
+    min-width: 0;
+}
+
+.spbwc-vb__card-actions .spbwc-cta-btn .dashicons {
+    flex-shrink: 0;
 }
 
 /* The Unlink form participates in the actions row as a flex item that wraps
@@ -308,6 +460,23 @@
     width: 100%;
     text-align: center;
     justify-content: center;
+}
+
+/* Danger affordance: ghost button that turns red on hover only — keeps the
+ * card visually calm until the merchant intends to unlink. */
+.spbwc-vb__card-unlink-btn {
+    color: var(--vb-text-soft);
+}
+
+.spbwc-vb__card-unlink-btn:hover,
+.spbwc-vb__card-unlink-btn:focus {
+    color: var(--vb-danger) !important;
+    border-color: var(--vb-danger) !important;
+    background: var(--vb-danger-soft) !important;
+}
+
+.spbwc-vb__card-unlink-btn .dashicons {
+    color: inherit;
 }
 
 /* ───────────── Picker form ───────────── */
@@ -334,14 +503,14 @@
 }
 
 .spbwc-vb__required {
-    color: #dc2626;
+    color: var(--vb-danger);
     margin-left: 2px;
 }
 
 .spbwc-vb__picker-select {
     width: 100%;
     padding: 8px 10px;
-    border: 1px solid #d1d5db;
+    border: 1px solid var(--vb-card-border-strong);
     border-radius: 6px;
     font-size: 14px;
     background: #fff;
@@ -387,21 +556,12 @@
     display: none !important;
 }
 
-/* Hide every field card that is NOT a nbpb_* designer component.
- * The is-nbpb class is added by views/options/field.php on the same
- * ng-class object used by classic (purely additive — classic ignores it).
- * The card and all its inputs stay in the DOM so the form POST round-trips
- * pricing fields untouched. */
-.spbwc-vb-edit .pcpb-fields-builder .pcpb-field-wrap:not(.is-nbpb) {
-    display: none !important;
-}
-
-/* Hide the classic field-list "Clear All / Add Field" footer — Visual
- * Builder uses the chip palette above the list instead, and "Clear All"
- * would also wipe pricing fields that we are only round-tripping. */
-.spbwc-vb-edit .pcpb-fields-actions {
-    display: none !important;
-}
+/* M6.5: Visual Builder edit no longer includes views/options/field.php.
+ * Component cards are rendered directly via ng-repeat with ng-if on
+ * nbpb_type so only designer components show — pricing fields stay in
+ * $scope.options.fields and round-trip on save via getJsonFields() which
+ * reads $scope, not the DOM. No CSS hide-hack needed; no pcpb-fields-
+ * actions footer to suppress. */
 
 /* Hero — right-aligned save actions on edit screen. */
 .spbwc-vb-edit__hero-actions {
@@ -475,6 +635,1821 @@
     .spbwc-vb-edit__savebar .button {
         width: 100%;
         text-align: center;
+    }
+}
+
+/* ═════════════════════════════════════════════════════════════════════
+ * M6.5 — Image-centric component card
+ * ─────────────────────────────────────────────────────────────────────
+ * Replaces the classic field-list matrix UI for nbpb_* designer
+ * components. Each component is a card with:
+ *   • Header: icon + title + meta + actions (drag/up/down/dup/del/expand)
+ *   • Body (expanded): main image + attribute swatches grid + advanced
+ *     per-view collapsed section
+ * Bound to the same $scope.options.fields[i].general.* data the classic
+ * editor uses — round-trips via getJsonFields() on Save.
+ * ═════════════════════════════════════════════════════════════════════ */
+
+.spbwc-vb-comp-cards {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    margin: 16px 0;
+}
+
+.spbwc-vb-comp-card {
+    background: #fff;
+    border: 1px solid var(--vb-card-border);
+    border-radius: var(--vb-card-radius);
+    box-shadow: var(--vb-card-shadow);
+    overflow: hidden;
+    transition: box-shadow 0.18s ease, border-color 0.18s ease;
+}
+
+.spbwc-vb-comp-card:hover {
+    border-color: var(--vb-card-border-strong);
+}
+
+.spbwc-vb-comp-card.is-expanded {
+    box-shadow: var(--vb-card-shadow-hover);
+    border-color: var(--vb-link);
+}
+
+.spbwc-vb-comp-card.is-disabled {
+    opacity: 0.6;
+}
+
+/* ── Header (collapsed view) ── */
+
+.spbwc-vb-comp-card__head {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    cursor: pointer;
+    user-select: none;
+    min-height: 64px;
+}
+
+.spbwc-vb-comp-card.is-expanded .spbwc-vb-comp-card__head {
+    border-bottom: 1px solid var(--vb-card-border);
+    background: linear-gradient(180deg, var(--vb-bg-soft) 0%, #ffffff 100%);
+}
+
+.spbwc-vb-comp-card__icon {
+    flex-shrink: 0;
+    width: 48px;
+    height: 48px;
+    border-radius: 8px;
+    background: var(--vb-bg-soft);
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid var(--vb-card-border);
+}
+
+.spbwc-vb-comp-card__icon img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.spbwc-vb-comp-card__icon-placeholder {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--vb-text-mute);
+}
+
+.spbwc-vb-comp-card__title {
+    /* Narrower than full-flex so the action bar stays close to the title
+     * (per UX feedback: title input was eating ~80% of the row width). */
+    flex: 0 1 320px;
+    min-width: 0;
+    border: 1px solid var(--vb-card-border);
+    background: #fff;
+    box-shadow: var(--shadow-input-inset);
+    padding: 6px var(--nbd-space-2);
+    font-size: var(--text-base, 14px);
+    font-weight: 600;
+    color: var(--vb-text-strong);
+    border-radius: var(--nbd-radius);
+    line-height: 1.4;
+    margin: 0;
+}
+
+/* Push the action bar to the right edge of the header. */
+.spbwc-vb-comp-card__head > .spbwc-vb-comp-card__actions {
+    margin-left: auto;
+}
+
+.spbwc-vb-comp-card__title:hover {
+    border-color: var(--vb-card-border);
+    background: #fff;
+}
+
+.spbwc-vb-comp-card__title:focus {
+    outline: none;
+    border-color: var(--vb-link);
+    background: #fff;
+    box-shadow: 0 0 0 3px rgba(25, 113, 194, 0.15);
+}
+
+.spbwc-vb-comp-card__meta {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
+    font-size: 12px;
+    color: var(--vb-text-mute);
+}
+
+.spbwc-vb-comp-card__type-pill {
+    display: inline-block;
+    padding: 2px 8px;
+    background: var(--vb-bg-soft);
+    color: var(--vb-text-soft);
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+.spbwc-vb-comp-card__attr-count {
+    color: var(--vb-text-mute);
+}
+
+/* Collapsed-state mini-strip — 5 attribute swatches + "+N" more,
+ * shown only when the card is collapsed (header view). Quick visual
+ * identifier so the merchant can pick the right card from a stack. */
+.spbwc-vb-comp-card__strip {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    flex-shrink: 0;
+}
+
+.spbwc-vb-comp-card__strip-swatch {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    border: 2px solid #fff;
+    box-shadow: 0 0 0 1px var(--vb-card-border-strong);
+    background-size: cover;
+    background-position: center;
+    background-color: var(--vb-bg-soft);
+    flex-shrink: 0;
+    transition: transform 0.12s ease;
+}
+
+.spbwc-vb-comp-card__strip-swatch:hover {
+    transform: scale(1.15);
+    z-index: 1;
+}
+
+.spbwc-vb-comp-card__strip-more {
+    font-size: var(--text-xs, 11px);
+    font-weight: 600;
+    color: var(--vb-text-mute);
+    padding: 0 6px;
+    line-height: 22px;
+    background: var(--vb-bg-soft);
+    border-radius: var(--nbd-radius-pill);
+    border: 1px solid var(--vb-card-border);
+    flex-shrink: 0;
+}
+
+.spbwc-vb-comp-card__actions {
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+    flex-shrink: 0;
+}
+
+.spbwc-vb-comp-card__action {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    background: transparent;
+    border: 1px solid transparent;
+    border-radius: 6px;
+    cursor: pointer;
+    color: var(--vb-text-mute);
+    transition: background 0.12s ease, color 0.12s ease, border-color 0.12s ease;
+}
+
+.spbwc-vb-comp-card__action:hover {
+    background: var(--vb-bg-soft);
+    color: var(--vb-text-strong);
+    border-color: var(--vb-card-border);
+}
+
+.spbwc-vb-comp-card__action--danger:hover {
+    background: var(--vb-danger-soft);
+    color: var(--vb-danger);
+    border-color: var(--vb-danger);
+}
+
+/* 2-stage delete confirm — first click arms `_confirmDelete`, the button
+ * morphs to red-filled with a short label; second click within 3s actually
+ * deletes (handler clears the flag and runs splice). */
+.spbwc-vb-comp-card__action--danger.is-confirming {
+    background: var(--vb-danger);
+    color: #fff;
+    border-color: var(--vb-danger);
+    width: auto;
+    padding: 0 10px;
+    animation: spbwc-vb-confirm-pulse 1.2s ease-in-out infinite;
+}
+
+.spbwc-vb-comp-card__action--danger.is-confirming:hover {
+    background: var(--vb-danger);
+    color: #fff;
+    border-color: var(--vb-danger);
+}
+
+.spbwc-vb-comp-card__action-confirm {
+    font-size: var(--text-xs, 11px);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    white-space: nowrap;
+}
+
+@keyframes spbwc-vb-confirm-pulse {
+    0%, 100% { box-shadow: 0 0 0 0 var(--vb-danger-soft); }
+    50%      { box-shadow: 0 0 0 6px var(--vb-danger-soft); }
+}
+
+.spbwc-vb-comp-card__action .dashicons {
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
+    line-height: 16px;
+}
+
+/* Primary expand button — surfaced FIRST in the actions row, visually
+ * distinct (blue filled) because it is the most-used affordance. */
+.spbwc-vb-comp-card__action--primary {
+    background: var(--vb-link);
+    border-color: var(--vb-link);
+    color: #fff;
+    width: 36px;
+    height: 36px;
+}
+
+.spbwc-vb-comp-card__action--primary:hover {
+    background: var(--vb-link-pressed);
+    border-color: var(--vb-link-pressed);
+    color: #fff;
+}
+
+.spbwc-vb-comp-card__action--primary .dashicons {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+    line-height: 18px;
+}
+
+/* Thin separator between the primary expand button and the secondary
+ * cluster (up / down / dup / del). */
+.spbwc-vb-comp-card__action-sep {
+    width: 1px;
+    height: 20px;
+    background: var(--vb-card-border);
+    margin: 0 var(--nbd-space-1);
+}
+
+/* ── Body (expanded) ── */
+
+.spbwc-vb-comp-card__body {
+    padding: 20px;
+    background: #fff;
+}
+
+.spbwc-vb-comp-section {
+    margin: 0 0 24px;
+}
+
+.spbwc-vb-comp-section:last-child {
+    margin-bottom: 0;
+}
+
+.spbwc-vb-comp-section__head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin: 0 0 6px;
+}
+
+.spbwc-vb-comp-section__label {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--vb-text-strong);
+    margin: 0;
+}
+
+.spbwc-vb-comp-section__count {
+    color: var(--vb-text-mute);
+    font-weight: 400;
+    margin-left: 4px;
+}
+
+.spbwc-vb-comp-section__hint {
+    margin: 0 0 12px;
+    font-size: 12px;
+    color: var(--vb-text-mute);
+    line-height: 1.5;
+}
+
+/* ── Component icon bar (compact, secondary) ──
+ * The component_icon is a small 64×64 thumbnail shown in the buyer-side
+ * picker. It is NOT the per-view layered artwork — that lives per-attribute
+ * below. Keep this strip small so it doesn't fight the per-attribute rows
+ * for visual weight. */
+
+.spbwc-vb-comp-iconbar {
+    display: flex;
+    align-items: center;
+    gap: var(--nbd-space-3);
+    padding: var(--nbd-space-3);
+    background: var(--vb-bg-soft);
+    border-radius: var(--nbd-radius-md);
+    margin: 0 0 var(--nbd-space-4);
+}
+
+.spbwc-vb-comp-iconbar__thumb {
+    flex-shrink: 0;
+    width: 48px;
+    height: 48px;
+    padding: 0;
+    background: #fff;
+    border: 1px dashed var(--vb-card-border-strong);
+    border-radius: var(--nbd-radius-md);
+    cursor: pointer;
+    overflow: hidden;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: border-color 0.12s ease;
+}
+
+.spbwc-vb-comp-iconbar__thumb:hover {
+    border-color: var(--vb-link);
+}
+
+.spbwc-vb-comp-iconbar__thumb.has-image {
+    border-style: solid;
+    border-color: var(--vb-card-border);
+}
+
+.spbwc-vb-comp-iconbar__thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.spbwc-vb-comp-iconbar__thumb .dashicons {
+    color: var(--vb-text-mute);
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
+    line-height: 20px;
+}
+
+.spbwc-vb-comp-iconbar__meta {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+}
+
+.spbwc-vb-comp-iconbar__label {
+    font-size: var(--text-sm, 12px);
+    font-weight: 600;
+    color: var(--vb-text-strong);
+}
+
+.spbwc-vb-comp-iconbar__hint {
+    font-size: var(--text-xs, 11px);
+    color: var(--vb-text-mute);
+    line-height: 1.4;
+}
+
+/* ── Section header "+ Add option" inline button ── */
+
+.spbwc-vb-comp-section__add {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    background: transparent;
+    border: 1px solid var(--vb-card-border);
+    color: var(--vb-link);
+    font-size: var(--text-sm, 12px);
+    font-weight: 600;
+    padding: 4px 10px;
+    border-radius: var(--nbd-radius);
+    cursor: pointer;
+    transition: background 0.12s ease, border-color 0.12s ease;
+}
+
+.spbwc-vb-comp-section__add:hover {
+    background: var(--vb-link-soft);
+    border-color: var(--vb-link);
+}
+
+.spbwc-vb-comp-section__add .dashicons {
+    font-size: 14px;
+    width: 14px;
+    height: 14px;
+    line-height: 14px;
+}
+
+/* ── Attribute rows + inline per-view cells ──
+ * Each attribute = self-contained row that bundles its identity (swatch,
+ * name, price, delete) with its per-view layered images. This collapses
+ * the old separate "Swatches grid" + "Advanced matrix" sections into one. */
+
+.spbwc-vb-attr-rows {
+    display: flex;
+    flex-direction: column;
+    gap: var(--nbd-space-3);
+}
+
+.spbwc-vb-attr-row {
+    background: #fff;
+    border: 1px solid var(--vb-card-border);
+    border-radius: var(--nbd-radius-md);
+    padding: var(--nbd-space-3);
+    display: flex;
+    flex-direction: column;
+    gap: var(--nbd-space-3);
+    transition: border-color 0.12s ease, box-shadow 0.12s ease;
+}
+
+.spbwc-vb-attr-row:hover {
+    border-color: var(--vb-card-border-strong);
+}
+
+.spbwc-vb-attr-row__head {
+    display: flex;
+    align-items: center;
+    gap: var(--nbd-space-2);
+    flex-wrap: wrap;
+}
+
+.spbwc-vb-attr-row__swatch {
+    flex-shrink: 0;
+    width: 44px;
+    height: 44px;
+    padding: 0;
+    background: var(--vb-bg-soft);
+    border: 1px dashed var(--vb-card-border-strong);
+    border-radius: var(--nbd-radius);
+    cursor: pointer;
+    overflow: hidden;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: border-color 0.12s ease;
+}
+
+.spbwc-vb-attr-row__swatch:hover {
+    border-color: var(--vb-link);
+}
+
+.spbwc-vb-attr-row__swatch.has-image {
+    border-style: solid;
+    border-color: var(--vb-card-border);
+    background: #fff;
+}
+
+.spbwc-vb-attr-row__swatch img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.spbwc-vb-attr-row__swatch .dashicons {
+    color: var(--vb-text-mute);
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+    line-height: 18px;
+}
+
+.spbwc-vb-attr-row__name {
+    /* Constrained width — attribute names are typically short ("Leather",
+     * "Metallic", "Front Logo"). Previously flex:1 made the input swallow
+     * the entire row. Cap at ~280px so the price/dup/delete controls stay
+     * close on the right. */
+    flex: 0 1 280px;
+    min-width: 160px;
+    max-width: 320px;
+    padding: 6px 10px;
+    border: 1px solid var(--vb-card-border);
+    background: #fff;
+    box-shadow: var(--shadow-input-inset);
+    font-size: var(--text-base, 13px);
+    font-weight: 500;
+    color: var(--vb-text-strong);
+    border-radius: var(--nbd-radius);
+    line-height: 1.4;
+    height: 32px;
+    box-sizing: border-box;
+    min-height: 0;
+}
+
+/* Push price + duplicate + delete to the right edge of the row so they
+ * cluster together regardless of the name input's used width. */
+.spbwc-vb-attr-row__head > .spbwc-vb-attr-row__price {
+    margin-left: auto;
+}
+
+.spbwc-vb-attr-row__name:hover {
+    border-color: var(--vb-card-border-strong);
+}
+
+.spbwc-vb-attr-row__name:focus {
+    outline: none;
+    border-color: var(--vb-link);
+    box-shadow: 0 0 0 2px var(--vb-link-soft);
+}
+
+/* Price input — tightly sized, WP-admin reset to prevent input min-height
+ * inflating the wrapper. */
+.spbwc-vb-attr-row__price {
+    display: inline-flex;
+    align-items: center;
+    flex-shrink: 0;
+    height: 32px;
+    background: #fff;
+    border: 1px solid var(--vb-card-border);
+    box-shadow: var(--shadow-input-inset);
+    border-radius: var(--nbd-radius);
+    overflow: hidden;
+    transition: border-color 0.12s ease;
+}
+
+.spbwc-vb-attr-row__price:focus-within {
+    border-color: var(--vb-link);
+    background: #fff;
+    box-shadow: 0 0 0 2px var(--vb-link-soft);
+}
+
+.spbwc-vb-attr-row__price-prefix {
+    padding: 0 6px;
+    font-size: var(--text-sm, 12px);
+    font-weight: 600;
+    color: var(--vb-text-mute);
+    line-height: 30px;
+    user-select: none;
+}
+
+.spbwc-vb-attr-row__price input[type="text"],
+.spbwc-vb-attr-row__price input {
+    width: 60px;
+    height: 30px;
+    min-height: 0;
+    line-height: 30px;
+    padding: 0 8px 0 0;
+    margin: 0;
+    border: 0;
+    background: transparent;
+    box-shadow: none;
+    outline: 0;
+    font-size: var(--text-base, 13px);
+    font-weight: 600;
+    color: var(--vb-text-strong);
+    box-sizing: border-box;
+}
+
+.spbwc-vb-attr-row__price input:focus {
+    box-shadow: none;
+    outline: 0;
+    border: 0;
+}
+
+.spbwc-vb-attr-row__delete {
+    flex-shrink: 0;
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    background: transparent;
+    border: 1px solid transparent;
+    border-radius: var(--nbd-radius);
+    cursor: pointer;
+    color: var(--vb-text-mute);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.12s ease, color 0.12s ease, border-color 0.12s ease;
+}
+
+.spbwc-vb-attr-row__delete:hover {
+    color: var(--vb-danger);
+    background: var(--vb-danger-soft);
+    border-color: var(--vb-danger);
+}
+
+.spbwc-vb-attr-row__delete.is-confirming {
+    background: var(--vb-danger);
+    color: #fff;
+    border-color: var(--vb-danger);
+    width: auto;
+    padding: 0 10px;
+    animation: spbwc-vb-confirm-pulse 1.2s ease-in-out infinite;
+}
+
+.spbwc-vb-attr-row__delete.is-confirming:hover {
+    background: var(--vb-danger);
+    color: #fff;
+}
+
+.spbwc-vb-attr-row__delete-confirm {
+    font-size: var(--text-xs, 11px);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    white-space: nowrap;
+}
+
+.spbwc-vb-attr-row__delete .dashicons {
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
+    line-height: 16px;
+}
+
+/* Per-view cells row — horizontal scroll on small screens. */
+.spbwc-vb-attr-row__views {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--nbd-space-2);
+    padding-top: var(--nbd-space-2);
+    border-top: 1px dashed var(--vb-card-border);
+}
+
+.spbwc-vb-attr-row__view {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    flex: 0 0 auto;
+    min-width: 84px;
+}
+
+.spbwc-vb-attr-row__view-name {
+    font-size: var(--text-xs, 11px);
+    font-weight: 600;
+    color: var(--vb-text-soft);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+.spbwc-vb-attr-row__view-img {
+    position: relative;
+    width: 80px;
+    height: 80px;
+    padding: 0;
+    background: var(--vb-bg-soft);
+    border: 1px dashed var(--vb-card-border-strong);
+    border-radius: var(--nbd-radius);
+    cursor: pointer;
+    overflow: hidden;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: border-color 0.12s ease, background 0.12s ease;
+}
+
+.spbwc-vb-attr-row__view-img:hover {
+    border-color: var(--vb-link);
+    background: var(--vb-link-soft);
+}
+
+/* ── Drag-drop upload (M6.5e #1) ──
+ * dragover state highlights the target with brand color + sub stripe
+ * pattern so the merchant sees exactly where the drop will land. */
+.spbwc-vb-attr-row__view-img.is-drop-target {
+    border: 2px dashed var(--vb-link);
+    background: var(--vb-link-soft);
+    transform: scale(1.04);
+    transition: transform 0.12s ease, background 0.12s ease, border-color 0.12s ease;
+}
+
+/* While the file is uploading: dim + animated stripe overlay. */
+.spbwc-vb-attr-row__view-img.is-uploading {
+    pointer-events: none;
+    position: relative;
+}
+
+.spbwc-vb-attr-row__view-img.is-uploading::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: repeating-linear-gradient(
+        45deg,
+        rgba(25, 113, 194, 0.18) 0,
+        rgba(25, 113, 194, 0.18) 6px,
+        rgba(25, 113, 194, 0.06) 6px,
+        rgba(25, 113, 194, 0.06) 12px
+    );
+    animation: spbwc-vb-stripes 0.9s linear infinite;
+    pointer-events: none;
+}
+
+@keyframes spbwc-vb-stripes {
+    from { background-position: 0 0; }
+    to   { background-position: 24px 0; }
+}
+
+.spbwc-vb-attr-row__view-img.has-image {
+    border-style: solid;
+    border-color: var(--vb-card-border);
+    background: #fff;
+}
+
+.spbwc-vb-attr-row__view-img img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.spbwc-vb-attr-row__view-img .dashicons-upload {
+    color: var(--vb-link);
+    opacity: 0.55;
+    font-size: 22px;
+    width: 22px;
+    height: 22px;
+    line-height: 22px;
+}
+
+.spbwc-vb-attr-row__view-remove {
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    width: 18px;
+    height: 18px;
+    background: rgba(255, 255, 255, 0.95);
+    border: 1px solid var(--vb-card-border);
+    border-radius: 50%;
+    color: var(--vb-danger);
+    font-size: 10px !important;
+    width: 18px !important;
+    height: 18px !important;
+    line-height: 16px !important;
+    display: none;
+    align-items: center;
+    justify-content: center;
+}
+
+.spbwc-vb-attr-row__view-img:hover .spbwc-vb-attr-row__view-remove,
+.spbwc-vb-attr-row__view-img.has-image .spbwc-vb-attr-row__view-remove {
+    display: inline-flex;
+}
+
+.spbwc-vb-attr-row__view-show {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: var(--text-xs, 11px);
+    color: var(--vb-text-mute);
+    cursor: pointer;
+    user-select: none;
+}
+
+.spbwc-vb-attr-row__view-show input[type="checkbox"] {
+    margin: 0;
+    width: 14px;
+    height: 14px;
+    min-height: 0;
+}
+
+/* Empty state when no attributes yet — also doubles as bulk drop zone. */
+.spbwc-vb-attr-empty {
+    background: var(--vb-bg-soft);
+    border: 1px dashed var(--vb-card-border-strong);
+    border-radius: var(--nbd-radius-md);
+    padding: var(--nbd-space-6);
+    text-align: center;
+    transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.spbwc-vb-attr-empty__icon {
+    display: block;
+    font-size: 36px;
+    line-height: 1;
+    margin-bottom: var(--nbd-space-2);
+    opacity: 0.7;
+}
+
+.spbwc-vb-attr-empty p {
+    margin: 0 0 var(--nbd-space-3);
+    color: var(--vb-text-soft);
+    font-size: var(--text-base, 13px);
+}
+
+.spbwc-vb-attr-empty__drop-hint {
+    font-size: var(--text-xs, 11px);
+    color: var(--vb-text-mute);
+    margin-top: var(--nbd-space-1);
+}
+
+/* Bulk drop zone (attribute rows container + empty state) — outlines
+ * dashed when files are being dragged over. Keeps the container layout
+ * unchanged otherwise. */
+.spbwc-vb-attr-drop-zone {
+    transition: outline-color 0.12s ease, background 0.12s ease;
+    outline: 2px dashed transparent;
+    outline-offset: 4px;
+    border-radius: var(--nbd-radius-md);
+}
+
+.spbwc-vb-attr-drop-zone.is-drop-target {
+    outline-color: var(--vb-link);
+    background: var(--vb-link-soft);
+}
+
+.spbwc-vb-attr-empty.is-drop-target {
+    border-color: var(--vb-link);
+    border-style: solid;
+    background: var(--vb-link-soft);
+}
+
+/* Per-attribute swatch (in the row head) while uploading: dim. */
+.spbwc-vb-attr-row__swatch.is-uploading,
+.spbwc-vb-attr-row.is-uploading .spbwc-vb-attr-row__swatch {
+    opacity: 0.55;
+    pointer-events: none;
+}
+
+/* ═════════════════════════════════════════════════════════════════════
+ * M6.5c batch A — Save status, Preview button, Duplicate, Apply-to-all,
+ * faded base view in empty cells, sticky component nav.
+ * ═════════════════════════════════════════════════════════════════════ */
+
+/* ── Hero save-status indicator (dirty / saved Xs ago) ──
+ * Sits INSIDE the brand-gradient .spbwc-page-hero so the text is
+ * inverted to white-on-blue. The dot keeps its semantic warn/success
+ * colors but gains a white ring so it stays visible on the gradient. */
+
+.spbwc-vb-edit__save-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin: var(--nbd-space-3) 0 0;
+    font-size: var(--text-sm, 12px);
+    color: rgba(255, 255, 255, 0.88);
+    min-height: 18px;
+}
+
+.spbwc-vb-edit__save-status-dot {
+    display: inline-block;
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.3);
+    transition: background 0.12s ease, box-shadow 0.12s ease;
+}
+
+.spbwc-vb-edit__save-status-dot.is-dirty {
+    background: #fbbf24; /* amber-400 — readable on brand gradient */
+    box-shadow: 0 0 0 3px rgba(251, 191, 36, 0.35);
+    animation: spbwc-vb-pulse 1.6s ease-in-out infinite;
+}
+
+.spbwc-vb-edit__save-status-dot.is-clean {
+    background: #34d399; /* emerald-400 */
+    box-shadow: 0 0 0 3px rgba(52, 211, 153, 0.32);
+}
+
+@keyframes spbwc-vb-pulse {
+    0%, 100% { opacity: 1; }
+    50%      { opacity: 0.5; }
+}
+
+/* ── Storelly CTA buttons in VB hero: tighter spacing for dashicons ── */
+
+.spbwc-vb-edit__hero-actions .spbwc-cta-btn .dashicons {
+    line-height: inherit;
+}
+
+/* ── Attribute row Duplicate button ── */
+
+.spbwc-vb-attr-row__dup {
+    flex-shrink: 0;
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    background: transparent;
+    border: 1px solid transparent;
+    border-radius: var(--nbd-radius);
+    cursor: pointer;
+    color: var(--vb-text-mute);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.12s ease, color 0.12s ease, border-color 0.12s ease;
+}
+
+.spbwc-vb-attr-row__dup:hover {
+    color: var(--vb-link);
+    background: var(--vb-link-soft);
+    border-color: var(--vb-link);
+}
+
+.spbwc-vb-attr-row__dup .dashicons {
+    font-size: 15px;
+    width: 15px;
+    height: 15px;
+    line-height: 15px;
+}
+
+/* ── Per-view cell: faded base view background when empty ── */
+
+.spbwc-vb-attr-row__view-img.has-base-hint {
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    position: relative;
+}
+
+/* Dim the base view so the upload icon stays visible on top. */
+.spbwc-vb-attr-row__view-img.has-base-hint::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: rgba(255, 255, 255, 0.7);
+    pointer-events: none;
+}
+
+.spbwc-vb-attr-row__view-img.has-base-hint .dashicons,
+.spbwc-vb-attr-row__view-img.has-base-hint > * {
+    position: relative;
+    z-index: 1;
+}
+
+/* ── Per-view cell bottom strip (Show toggle + Apply-to-all) ── */
+
+.spbwc-vb-attr-row__view-bottom {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    width: 100%;
+}
+
+.spbwc-vb-attr-row__view-apply {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    padding: 2px 6px;
+    background: transparent;
+    border: 1px dashed var(--vb-card-border-strong);
+    border-radius: var(--nbd-radius);
+    color: var(--vb-link);
+    font-size: 10px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.12s ease, border-color 0.12s ease;
+    white-space: nowrap;
+}
+
+.spbwc-vb-attr-row__view-apply:hover {
+    background: var(--vb-link-soft);
+    border-color: var(--vb-link);
+    border-style: solid;
+}
+
+.spbwc-vb-attr-row__view-apply .dashicons {
+    font-size: 12px;
+    width: 12px;
+    height: 12px;
+    line-height: 12px;
+}
+
+/* ── Sticky component nav (horizontal chip strip) ── */
+
+.spbwc-vb-edit__compnav {
+    position: sticky;
+    top: 32px; /* under WP admin bar */
+    z-index: 50;
+    background: rgba(255, 255, 255, 0.96);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    border: 1px solid var(--vb-card-border);
+    border-radius: var(--nbd-radius-md);
+    padding: var(--nbd-space-2) var(--nbd-space-3);
+    margin: 0 0 var(--nbd-space-3);
+    display: flex;
+    align-items: center;
+    gap: var(--nbd-space-2);
+    flex-wrap: wrap;
+}
+
+.spbwc-vb-edit__compnav-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: var(--text-xs, 11px);
+    font-weight: 600;
+    color: var(--vb-text-mute);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    flex-shrink: 0;
+}
+
+.spbwc-vb-edit__compnav-label .dashicons {
+    font-size: 14px;
+    width: 14px;
+    height: 14px;
+    line-height: 14px;
+}
+
+.spbwc-vb-edit__compnav-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 4px 10px;
+    background: var(--vb-bg-soft);
+    border: 1px solid transparent;
+    border-radius: var(--nbd-radius-pill);
+    color: var(--vb-text-strong);
+    font-size: var(--text-sm, 12px);
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.12s ease, border-color 0.12s ease, color 0.12s ease;
+    max-width: 180px;
+}
+
+.spbwc-vb-edit__compnav-chip:hover {
+    background: var(--vb-link-soft);
+    color: var(--vb-link);
+}
+
+.spbwc-vb-edit__compnav-chip.is-active {
+    background: var(--vb-link);
+    border-color: var(--vb-link);
+    color: #fff;
+}
+
+.spbwc-vb-edit__compnav-chip.is-active .spbwc-vb-edit__compnav-icon {
+    background: rgba(255, 255, 255, 0.2);
+    color: #fff;
+}
+
+.spbwc-vb-edit__compnav-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 18px;
+    height: 18px;
+    background: rgba(0, 0, 0, 0.08);
+    border-radius: 50%;
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--vb-text-soft);
+    flex-shrink: 0;
+}
+
+.spbwc-vb-edit__compnav-name {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+@media (max-width: 600px) {
+    .spbwc-vb-edit__compnav {
+        overflow-x: auto;
+        flex-wrap: nowrap;
+    }
+    .spbwc-vb-edit__compnav-chip {
+        flex-shrink: 0;
+    }
+}
+
+/* ── Toast — transient inline message ──
+ * Sits at the top-right of the page, slides in from the right edge.
+ * Auto-clears via $timeout in visual-builder.js (~3s). */
+
+.spbwc-vb-toast {
+    position: fixed;
+    top: 56px; /* under WP admin bar */
+    right: var(--nbd-space-6);
+    z-index: 100;
+    display: inline-flex;
+    align-items: center;
+    gap: var(--nbd-space-2);
+    padding: 10px var(--nbd-space-4);
+    background: #fff;
+    border: 1px solid var(--vb-card-border);
+    border-left: 3px solid var(--vb-link);
+    border-radius: var(--nbd-radius-md);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12), 0 2px 6px rgba(0, 0, 0, 0.06);
+    font-size: var(--text-sm, 13px);
+    color: var(--vb-text-strong);
+    max-width: 380px;
+    animation: spbwc-vb-toast-in 0.18s ease-out;
+}
+
+.spbwc-vb-toast--success {
+    border-left-color: var(--vb-success);
+}
+
+.spbwc-vb-toast--warning {
+    border-left-color: var(--vb-warn);
+}
+
+.spbwc-vb-toast--danger,
+.spbwc-vb-toast--error {
+    border-left-color: var(--vb-danger);
+}
+
+.spbwc-vb-toast__icon {
+    font-size: 16px;
+    line-height: 1;
+    flex-shrink: 0;
+}
+
+.spbwc-vb-toast__msg {
+    line-height: 1.4;
+}
+
+@keyframes spbwc-vb-toast-in {
+    from { opacity: 0; transform: translateX(20px); }
+    to   { opacity: 1; transform: translateX(0); }
+}
+
+/* ═════════════════════════════════════════════════════════════════════
+ * M6.5f — Pricing context bridge between VB ↔ Pricing Options.
+ * Surfaces "pricing/rules belong elsewhere" so merchants don't fight
+ * the data model. Counts read server-side, current state via Angular.
+ * ═════════════════════════════════════════════════════════════════════ */
+
+.spbwc-vb-context {
+    background: #fff;
+    border: 1px solid var(--vb-card-border);
+    border-radius: var(--nbd-radius-lg);
+    padding: var(--nbd-space-4) var(--nbd-space-5);
+    margin: 0 0 var(--nbd-space-5);
+    box-shadow: var(--vb-card-shadow);
+}
+
+.spbwc-vb-context__head {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--nbd-space-3);
+    flex-wrap: wrap;
+}
+
+.spbwc-vb-context__icon {
+    flex-shrink: 0;
+    width: 40px;
+    height: 40px;
+    border-radius: var(--nbd-radius);
+    background: var(--vb-link-soft);
+    color: var(--vb-link);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    line-height: 1;
+}
+
+.spbwc-vb-context__body {
+    flex: 1;
+    min-width: 240px;
+}
+
+.spbwc-vb-context__title {
+    margin: 0 0 4px;
+    font-size: var(--text-base, 14px);
+    font-weight: 600;
+    color: var(--vb-text-strong);
+    line-height: 1.3;
+}
+
+.spbwc-vb-context__hint {
+    margin: 0;
+    font-size: var(--text-sm, 13px);
+    color: var(--vb-text-soft);
+    line-height: 1.5;
+}
+
+.spbwc-vb-context__cta {
+    flex-shrink: 0;
+}
+
+.spbwc-vb-context__chips {
+    margin-top: var(--nbd-space-3);
+    padding-top: var(--nbd-space-3);
+    border-top: 1px dashed var(--vb-card-border);
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--nbd-space-2);
+}
+
+.spbwc-vb-context__chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 10px;
+    background: var(--vb-bg-soft);
+    border: 1px solid var(--vb-card-border);
+    border-radius: var(--nbd-radius-pill);
+    font-size: var(--text-sm, 12px);
+    color: var(--vb-text-soft);
+}
+
+.spbwc-vb-context__chip strong {
+    color: var(--vb-text-strong);
+    font-weight: 700;
+}
+
+.spbwc-vb-context__chip--ghost {
+    background: transparent;
+    border-style: dashed;
+}
+
+.spbwc-vb-context__chip-icon {
+    font-size: 14px;
+    line-height: 1;
+}
+
+/* Hero help link → anchors to pricing context section. Inverted because
+ * it sits inside the brand-gradient .spbwc-page-hero. */
+.spbwc-page-hero .spbwc-vb-help-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    margin-left: var(--nbd-space-2);
+    font-size: var(--text-sm, 12px);
+    color: rgba(255, 255, 255, 0.85);
+    text-decoration: underline;
+    text-decoration-color: rgba(255, 255, 255, 0.3);
+    text-underline-offset: 3px;
+}
+
+.spbwc-page-hero .spbwc-vb-help-link:hover {
+    color: #fff;
+    text-decoration-color: #fff;
+}
+
+.spbwc-page-hero .spbwc-vb-help-link .dashicons {
+    font-size: 14px;
+    width: 14px;
+    height: 14px;
+    line-height: 14px;
+}
+
+/* ── Visual column in Pricing Options list table (#3) ──
+ * Shows on the classic PO list page — quick jump to VB for any option
+ * that already has views or components. Empty dash when blank.
+ * Scoped under WP's list-table .wp-list-table so it doesn't leak. */
+.wp-list-table .spbwc-vb-col {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 10px;
+    background: var(--vb-link-soft);
+    border: 1px solid var(--vb-card-border);
+    border-radius: var(--nbd-radius-pill);
+    color: var(--vb-link);
+    text-decoration: none;
+    font-size: var(--text-sm, 12px);
+    font-weight: 500;
+    transition: background 0.12s ease, border-color 0.12s ease;
+}
+
+.wp-list-table .spbwc-vb-col:hover {
+    background: var(--vb-link);
+    border-color: var(--vb-link);
+    color: #fff;
+}
+
+.wp-list-table .spbwc-vb-col__icon {
+    font-size: 14px;
+    width: 14px;
+    height: 14px;
+    line-height: 14px;
+}
+
+.wp-list-table .spbwc-vb-col__action {
+    color: inherit;
+    opacity: 0.85;
+    font-weight: 400;
+    margin-left: 2px;
+}
+
+.wp-list-table .spbwc-vb-col__empty {
+    color: var(--vb-text-mute, #8c8f94);
+    font-weight: 300;
+}
+
+/* ═════════════════════════════════════════════════════════════════════
+ * M6.5b — nbpb_text + nbpb_image compact card bodies
+ * M6.5d — Output (PDF) section
+ * Shared form primitives (toggle-row, color-list, view-toggles,
+ * text-input, output grid).
+ * ═════════════════════════════════════════════════════════════════════ */
+
+/* Single-line text input shared by Default text + DPI. */
+.spbwc-vb-text-input {
+    width: 100%;
+    max-width: 360px;
+    padding: 8px 12px;
+    border: 1px solid var(--vb-card-border);
+    background: #fff;
+    /* --shadow-input-inset is the project design token (defined in _tokens.css).
+     * Subtle inner shadow → matches the rest of Storelly admin form fields. */
+    box-shadow: var(--shadow-input-inset);
+    font-size: var(--text-base, 13px);
+    color: var(--vb-text-strong);
+    border-radius: var(--nbd-radius);
+    line-height: 1.4;
+    height: 36px;
+    box-sizing: border-box;
+    min-height: 0;
+}
+
+.spbwc-vb-text-input:hover {
+    border-color: var(--vb-card-border-strong);
+}
+
+.spbwc-vb-text-input:focus {
+    outline: none;
+    border-color: var(--vb-link);
+    box-shadow: 0 0 0 2px var(--vb-link-soft);
+}
+
+/* Inline toggle row — checkbox right, label left, optional hint under label.
+ * Used in nbpb_text "Buyer can pick a font" / "Buyer can change color" etc. */
+.spbwc-vb-toggle-row {
+    display: flex;
+    align-items: center;
+    gap: var(--nbd-space-3);
+    padding: var(--nbd-space-2) 0;
+    cursor: pointer;
+    border-bottom: 1px solid var(--vb-card-border);
+}
+
+.spbwc-vb-toggle-row:last-of-type {
+    border-bottom: 0;
+}
+
+.spbwc-vb-toggle-row__label {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    font-size: var(--text-base, 13px);
+    font-weight: 500;
+    color: var(--vb-text-strong);
+    line-height: 1.4;
+}
+
+.spbwc-vb-toggle-row__label small {
+    font-size: var(--text-xs, 11px);
+    font-weight: 400;
+    color: var(--vb-text-mute);
+}
+
+.spbwc-vb-toggle-row__input {
+    flex-shrink: 0;
+    margin: 0;
+    width: 18px;
+    height: 18px;
+    min-height: 0;
+}
+
+/* Multi-select badge row — when custom-font / google-font selects are hidden
+ * we still want to show the count + "Edit in classic" link. */
+.spbwc-vb-multi-row {
+    padding: var(--nbd-space-2) var(--nbd-space-3);
+    background: var(--vb-bg-soft);
+    border-radius: var(--nbd-radius);
+    margin-top: var(--nbd-space-2);
+}
+
+.spbwc-vb-multi-row__count {
+    margin: 0;
+    font-size: var(--text-sm, 12px);
+    color: var(--vb-text-soft);
+}
+
+.spbwc-vb-multi-row__count strong {
+    color: var(--vb-text-strong);
+    font-weight: 600;
+}
+
+.spbwc-vb-multi-row__count a {
+    margin-left: var(--nbd-space-2);
+    color: var(--vb-link);
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.spbwc-vb-multi-row__count a:hover {
+    text-decoration: underline;
+}
+
+/* Curated color palette — each row is one swatch + name + hex + remove. */
+.spbwc-vb-color-list {
+    margin-top: var(--nbd-space-3);
+    display: flex;
+    flex-direction: column;
+    gap: var(--nbd-space-2);
+}
+
+.spbwc-vb-color-row {
+    display: flex;
+    align-items: center;
+    gap: var(--nbd-space-2);
+    padding: 6px;
+    background: #fff;
+    border: 1px solid var(--vb-card-border);
+    border-radius: var(--nbd-radius);
+}
+
+.spbwc-vb-color-row__swatch {
+    flex-shrink: 0;
+    width: 24px;
+    height: 24px;
+    border: 1px solid var(--vb-card-border);
+    border-radius: var(--nbd-radius-sm);
+    box-shadow: inset 0 0 0 2px #fff;
+}
+
+.spbwc-vb-color-row__name,
+.spbwc-vb-color-row__hex {
+    padding: 4px 8px;
+    border: 1px solid var(--vb-card-border);
+    background: #fff;
+    box-shadow: var(--shadow-input-inset);
+    font-size: var(--text-sm, 12px);
+    color: var(--vb-text-strong);
+    border-radius: var(--nbd-radius-sm);
+    height: 28px;
+    box-sizing: border-box;
+    min-height: 0;
+}
+
+.spbwc-vb-color-row__name {
+    flex: 1;
+    min-width: 0;
+}
+
+.spbwc-vb-color-row__hex {
+    flex: 0 0 90px;
+    font-family: ui-monospace, "SFMono-Regular", Menlo, monospace;
+    font-size: var(--text-xs, 11px);
+}
+
+.spbwc-vb-color-row__name:focus,
+.spbwc-vb-color-row__hex:focus {
+    outline: none;
+    border-color: var(--vb-link);
+    box-shadow: 0 0 0 2px var(--vb-link-soft);
+}
+
+.spbwc-vb-color-row__remove {
+    flex-shrink: 0;
+    width: 26px;
+    height: 26px;
+    padding: 0;
+    background: transparent;
+    border: 1px solid transparent;
+    border-radius: var(--nbd-radius-sm);
+    cursor: pointer;
+    color: var(--vb-text-mute);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.12s ease, color 0.12s ease;
+}
+
+.spbwc-vb-color-row__remove:hover {
+    color: var(--vb-danger);
+    background: var(--vb-danger-soft);
+}
+
+.spbwc-vb-color-row__remove .dashicons {
+    font-size: 14px;
+    width: 14px;
+    height: 14px;
+    line-height: 14px;
+}
+
+/* Per-view visibility toggles — used by nbpb_text and nbpb_image cards.
+ * Each chip = checkbox + view base thumb + view name. */
+.spbwc-vb-view-toggles {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--nbd-space-2);
+}
+
+.spbwc-vb-view-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--nbd-space-2);
+    padding: 6px 10px 6px 6px;
+    background: #fff;
+    border: 1px solid var(--vb-card-border);
+    border-radius: var(--nbd-radius-pill);
+    cursor: pointer;
+    transition: border-color 0.12s ease, background 0.12s ease;
+}
+
+.spbwc-vb-view-toggle:hover {
+    border-color: var(--vb-card-border-strong);
+}
+
+.spbwc-vb-view-toggle input[type="checkbox"] {
+    margin: 0;
+    width: 16px;
+    height: 16px;
+    min-height: 0;
+    accent-color: var(--vb-link);
+}
+
+.spbwc-vb-view-toggle__thumb {
+    flex-shrink: 0;
+    width: 28px;
+    height: 28px;
+    border-radius: var(--nbd-radius-sm);
+    background-size: cover;
+    background-position: center;
+    background-color: var(--vb-bg-soft);
+    border: 1px solid var(--vb-card-border);
+}
+
+.spbwc-vb-view-toggle__name {
+    font-size: var(--text-sm, 12px);
+    font-weight: 600;
+    color: var(--vb-text-strong);
+}
+
+/* Output (PDF) section — explain why these settings matter
+ * (invoicing + production), then 2-column grid for DPI + unit. */
+.spbwc-vb-output__intro {
+    background: var(--vb-link-soft);
+    border-left: 3px solid var(--vb-link);
+    border-radius: var(--nbd-radius-md);
+    padding: var(--nbd-space-4);
+    margin: 0 0 var(--nbd-space-4);
+    font-size: var(--text-sm, 13px);
+    color: var(--vb-text-soft);
+    line-height: 1.55;
+}
+
+.spbwc-vb-output__intro p {
+    margin: 0 0 var(--nbd-space-2);
+}
+
+.spbwc-vb-output__use-cases {
+    list-style: none;
+    padding: 0;
+    margin: var(--nbd-space-2) 0;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--nbd-space-3);
+}
+
+.spbwc-vb-output__use-cases li {
+    display: grid;
+    grid-template-columns: 28px 1fr;
+    grid-template-rows: auto auto;
+    column-gap: var(--nbd-space-2);
+    row-gap: 2px;
+    padding: var(--nbd-space-2) var(--nbd-space-3);
+    background: #fff;
+    border: 1px solid var(--vb-card-border);
+    border-radius: var(--nbd-radius);
+}
+
+.spbwc-vb-output__use-cases li strong {
+    grid-column: 2;
+    color: var(--vb-text-strong);
+    font-size: var(--text-sm, 12px);
+    font-weight: 600;
+    line-height: 1.4;
+}
+
+.spbwc-vb-output__use-cases li > span:not(.spbwc-vb-output__use-icon) {
+    grid-column: 2;
+    color: var(--vb-text-mute);
+    font-size: var(--text-xs, 11px);
+}
+
+.spbwc-vb-output__use-icon {
+    grid-row: 1 / span 2;
+    align-self: center;
+    font-size: 22px;
+    line-height: 1;
+}
+
+.spbwc-vb-output__intro-tail {
+    margin-top: var(--nbd-space-2);
+    color: var(--vb-text-mute);
+    font-size: var(--text-xs, 11px);
+}
+
+@media (max-width: 600px) {
+    .spbwc-vb-output__use-cases {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Output (PDF) section — 2-column grid for DPI + dimension unit. */
+.spbwc-vb-output__grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--nbd-space-4);
+    background: #fff;
+    border: 1px solid var(--vb-card-border);
+    border-radius: var(--nbd-radius-md);
+    padding: var(--nbd-space-4);
+}
+
+.spbwc-vb-output__field {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    min-width: 0;
+}
+
+.spbwc-vb-output__label {
+    font-size: var(--text-sm, 12px);
+    font-weight: 600;
+    color: var(--vb-text-strong);
+}
+
+.spbwc-vb-output__hint {
+    margin: 0 0 6px;
+    font-size: var(--text-xs, 11px);
+    color: var(--vb-text-mute);
+    line-height: 1.4;
+}
+
+.spbwc-vb-output__select {
+    width: 100%;
+    max-width: 360px;
+    padding: 8px 12px;
+    border: 1px solid var(--vb-card-border);
+    background: #fff;
+    box-shadow: var(--shadow-input-inset);
+    font-size: var(--text-base, 13px);
+    color: var(--vb-text-strong);
+    border-radius: var(--nbd-radius);
+    height: 36px;
+    box-sizing: border-box;
+    min-height: 0;
+}
+
+.spbwc-vb-output__select:focus {
+    outline: none;
+    border-color: var(--vb-link);
+    box-shadow: 0 0 0 2px var(--vb-link-soft);
+}
+
+@media (max-width: 600px) {
+    .spbwc-vb-output__grid {
+        grid-template-columns: 1fr;
+        padding: var(--nbd-space-3);
+    }
+    .spbwc-vb-color-row {
+        flex-wrap: wrap;
+    }
+    .spbwc-vb-color-row__name {
+        flex-basis: 100%;
+        order: 1;
+    }
+}
+
+/* ── "Just added" flash on a new component card ──
+ * Triggered by vbAddField() — class added for ~1.6s, then removed.
+ * Pulses the border to draw the eye to the new card after the
+ * smooth-scroll lands. */
+
+.spbwc-vb-comp-card.is-just-added {
+    animation: spbwc-vb-flash 1.6s ease-out;
+}
+
+@keyframes spbwc-vb-flash {
+    0%   { box-shadow: 0 0 0 0 var(--vb-link-soft); border-color: var(--vb-link); }
+    40%  { box-shadow: 0 0 0 8px var(--vb-link-soft); border-color: var(--vb-link); }
+    100% { box-shadow: var(--vb-card-shadow); border-color: var(--vb-card-border); }
+}
+
+/* ── Advanced (per-view matrix) — collapsed by default ── */
+
+.spbwc-vb-comp-section--advanced {
+    border-top: 1px dashed var(--vb-card-border);
+    padding-top: 16px;
+    margin-top: 24px;
+}
+
+.spbwc-vb-comp-section__advanced-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: transparent;
+    border: 0;
+    padding: 4px 0;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--vb-text-strong);
+    cursor: pointer;
+}
+
+.spbwc-vb-comp-section__advanced-toggle:hover {
+    color: var(--vb-link);
+}
+
+.spbwc-vb-comp-section__advanced-toggle small {
+    color: var(--vb-text-mute);
+    font-weight: 400;
+    margin-left: 2px;
+}
+
+.spbwc-vb-comp-section__advanced-toggle .dashicons {
+    font-size: 14px;
+    width: 14px;
+    height: 14px;
+    line-height: 14px;
+}
+
+.spbwc-vb-comp-section__advanced-body {
+    margin-top: 12px;
+    padding: 16px;
+    background: var(--vb-bg-soft);
+    border-radius: 8px;
+}
+
+/* ── Mobile tuning for cards ── */
+
+@media (max-width: 600px) {
+    .spbwc-vb-comp-card__head {
+        flex-wrap: wrap;
+        padding: 10px 12px;
+    }
+
+    .spbwc-vb-comp-card__title {
+        order: 2;
+        width: 100%;
+        margin: 8px 0 0;
+        font-size: 14px;
+    }
+
+    .spbwc-vb-comp-card__meta {
+        display: none;
+    }
+
+    .spbwc-vb-comp-card__body {
+        padding: 12px;
+    }
+
+    /* Attribute row stacks on narrow screens — swatch + name on row 1, price + delete on row 2 */
+    .spbwc-vb-attr-row__head {
+        gap: var(--nbd-space-1);
+    }
+
+    .spbwc-vb-attr-row__name {
+        flex-basis: 100%;
+        order: 3;
+    }
+
+    .spbwc-vb-attr-row__views {
+        overflow-x: auto;
+        flex-wrap: nowrap;
+    }
+
+    .spbwc-vb-attr-row__view {
+        min-width: 72px;
+    }
+
+    .spbwc-vb-attr-row__view-img {
+        width: 64px;
+        height: 64px;
+    }
+
+    /* Legacy attribute grid stub — kept harmless in case any other view
+     * still references it. Safe to delete once verified. */
+    .spbwc-vb-comp-attrs {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .spbwc-vb-comp-attr--add {
+        min-height: 140px;
     }
 }
 

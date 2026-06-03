@@ -45,7 +45,11 @@ $field_count   = isset($options['fields']) && is_array($options['fields']) ? cou
 <div class="wrap spbwc-edit-v2" ng-app="optionApp" ng-cloak>
     <div ng-controller="optionCtrl">
 
-        <!-- ──────────────── Breadcrumb back-bar ──────────────── -->
+        <!-- ──────────────── Breadcrumb back-bar ────────────────
+             Hidden when the merchant arrived from a product metabox — the
+             dispatcher already renders a product-context breadcrumb above this
+             wrap (with "Back to product"). See docs/SPEC_LINKED_PRODUCT_UX.md §4. -->
+        <?php if ( empty( $product_id ) ) : ?>
         <nav class="v2-backbar" aria-label="<?php esc_attr_e('Breadcrumb', 'storelly-product-builder-for-woocommerce'); ?>">
             <a href="<?php echo esc_url($link); ?>">
                 <span class="dashicons dashicons-arrow-left-alt" aria-hidden="true"></span>
@@ -64,6 +68,7 @@ $field_count   = isset($options['fields']) && is_array($options['fields']) ? cou
                 } ?>
             </span>
         </nav>
+        <?php endif; ?>
 
         <!-- ──────────────── Hero ──────────────── -->
         <header class="spbwc-page-hero">
@@ -1105,8 +1110,22 @@ $field_count   = isset($options['fields']) && is_array($options['fields']) ? cou
                         <span class="dashicons dashicons-external" aria-hidden="true"></span>
                         <?php esc_html_e('Pre-builder', 'storelly-product-builder-for-woocommerce'); ?>
                     </a>
-                    <a href="<?php echo esc_url($link); ?>" class="v2-btn v2-btn--secondary">
-                        <?php esc_html_e('Cancel', 'storelly-product-builder-for-woocommerce'); ?>
+                    <?php
+                    // When launched from a product metabox, Cancel/Save return to
+                    // that product. See docs/SPEC_LINKED_PRODUCT_UX.md §4.
+                    $spbwc_cancel_link = ! empty( $product_id )
+                        ? add_query_arg( array( 'post' => (int) $product_id, 'action' => 'edit' ), admin_url( 'post.php' ) )
+                        : $link;
+                    if ( ! empty( $product_id ) ) {
+                        $spbwc_save_label = esc_attr__( 'Save & back to product', 'storelly-product-builder-for-woocommerce' );
+                    } else {
+                        $spbwc_save_label = $is_new_option
+                            ? esc_attr__( 'Publish', 'storelly-product-builder-for-woocommerce' )
+                            : esc_attr__( 'Update', 'storelly-product-builder-for-woocommerce' );
+                    }
+                    ?>
+                    <a href="<?php echo esc_url($spbwc_cancel_link); ?>" class="v2-btn v2-btn--secondary">
+                        <?php echo ! empty( $product_id ) ? esc_html__('Back to product', 'storelly-product-builder-for-woocommerce') : esc_html__('Cancel', 'storelly-product-builder-for-woocommerce'); ?>
                     </a>
                     <input ng-disabled="!nboForm.$valid"
                            name="save" type="submit"
@@ -1114,7 +1133,7 @@ $field_count   = isset($options['fields']) && is_array($options['fields']) ? cou
                            id="publish"
                            ng-click="updateJsonFields($event)"
                            accesskey="p"
-                           value="<?php echo $is_new_option ? esc_attr__('Publish', 'storelly-product-builder-for-woocommerce') : esc_attr__('Update', 'storelly-product-builder-for-woocommerce'); ?>" />
+                           value="<?php echo esc_attr( $spbwc_save_label ); ?>" />
                 </div>
             </div>
         </form>

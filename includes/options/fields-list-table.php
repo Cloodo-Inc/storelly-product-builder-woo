@@ -36,15 +36,82 @@ class SPBWC_Storelly_Options_List_Table extends WP_List_Table
     public function get_columns()
     {
         $columns = array(
-            'cb'          => '<input type="checkbox" />',
-            'title'       => esc_html__('Title', 'storelly-product-builder-for-woocommerce'),
-            'status'      => esc_html__('Status', 'storelly-product-builder-for-woocommerce'),
-            'field_count' => esc_html__('Fields', 'storelly-product-builder-for-woocommerce'),
-            'categories'  => esc_html__('Categories', 'storelly-product-builder-for-woocommerce'),
-            'product_ids' => esc_html__('Products', 'storelly-product-builder-for-woocommerce'),
-            'date'        => esc_html__('Date', 'storelly-product-builder-for-woocommerce'),
+            'cb'             => '<input type="checkbox" />',
+            'title'          => esc_html__('Title', 'storelly-product-builder-for-woocommerce'),
+            'status'         => esc_html__('Status', 'storelly-product-builder-for-woocommerce'),
+            'field_count'    => esc_html__('Fields', 'storelly-product-builder-for-woocommerce'),
+            'visual_builder' => esc_html__('Visual', 'storelly-product-builder-for-woocommerce'),
+            'categories'     => esc_html__('Categories', 'storelly-product-builder-for-woocommerce'),
+            'product_ids'    => esc_html__('Products', 'storelly-product-builder-for-woocommerce'),
+            'date'           => esc_html__('Date', 'storelly-product-builder-for-woocommerce'),
         );
         return $columns;
+    }
+
+    /**
+     * Visual Builder column — show 🎨 + counts if option has visual content
+     * (views or nbpb_* fields). Click jumps to VB edit. Empty cell otherwise.
+     *
+     * Mirrors SPBWC_Visual_Builder_Admin::option_has_visual() so the row is
+     * a quick at-a-glance indicator of which options are wearing visuals.
+     */
+    function column_visual_builder($item)
+    {
+        $has_visual = false;
+        $views = 0;
+        $components = 0;
+        // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.serialize_unserialize -- Mirrors classic dispatcher; admin-only read of data we serialized.
+        $data = ! empty( $item['fields'] ) ? @unserialize( $item['fields'] ) : null;
+        if ( is_array( $data ) ) {
+            if ( ! empty( $data['views'] ) && is_array( $data['views'] ) ) {
+                $views = count( $data['views'] );
+            }
+            if ( ! empty( $data['fields'] ) && is_array( $data['fields'] ) ) {
+                foreach ( $data['fields'] as $f ) {
+                    if ( is_array( $f ) && ! empty( $f['nbpb_type'] ) ) {
+                        $components++;
+                    }
+                }
+            }
+            $has_visual = ( $views > 0 || $components > 0 );
+        }
+
+        if ( ! $has_visual ) {
+            return '<span class="spbwc-vb-col__empty" aria-label="' . esc_attr__( 'No visual content', 'storelly-product-builder-for-woocommerce' ) . '">—</span>';
+        }
+
+        $vb_url = ( defined( 'SPBWC_PB_VISUAL_BUILDER_SLUG' ) && class_exists( 'SPBWC_Visual_Builder_Admin' ) )
+            ? SPBWC_Visual_Builder_Admin::url( 'edit', array( 'id' => absint( $item['id'] ) ) )
+            : '#';
+
+        $label_parts = array();
+        if ( $components > 0 ) {
+            $label_parts[] = sprintf(
+                /* translators: %d: number of designer components */
+                _n( '%d component', '%d components', $components, 'storelly-product-builder-for-woocommerce' ),
+                $components
+            );
+        }
+        if ( $views > 0 ) {
+            $label_parts[] = sprintf(
+                /* translators: %d: number of canvas views */
+                _n( '%d view', '%d views', $views, 'storelly-product-builder-for-woocommerce' ),
+                $views
+            );
+        }
+        $label = $label_parts ? implode( ', ', $label_parts ) : esc_html__( 'Configured', 'storelly-product-builder-for-woocommerce' );
+
+        return sprintf(
+            '<a class="spbwc-vb-col" href="%1$s" title="%4$s">' .
+                '<span class="dashicons dashicons-art spbwc-vb-col__icon" aria-hidden="true"></span>' .
+                '<span class="spbwc-vb-col__label">%2$s</span>' .
+                '<span class="spbwc-vb-col__action">%3$s</span>' .
+            '</a>',
+            esc_url( $vb_url ),
+            esc_html( $label ),
+            esc_html__( 'Open ↗', 'storelly-product-builder-for-woocommerce' ),
+            esc_attr__( 'Open this option in Visual Builder', 'storelly-product-builder-for-woocommerce' )
+        );
     }
 
     public function spbwc_get_sortable_columns()
@@ -398,9 +465,11 @@ class SPBWC_Storelly_Options_List_Table extends WP_List_Table
         // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Readonly page slug from request.
         $page = isset($_REQUEST['page']) ? sanitize_text_field(wp_unslash($_REQUEST['page'])) : '';
 
+        // v3 is now the default editor when clicking the row title.
+        // Classic remains reachable via the "Classic editor" row action.
         $edit_url = esc_url(add_query_arg(array(
             'page'     => $page,
-            'action'   => 'edit',
+            'action'   => 'v3',
             'id'       => absint($item['id']),
             'paged'    => 1,
             '_wpnonce' => $_nonce,
@@ -409,13 +478,19 @@ class SPBWC_Storelly_Options_List_Table extends WP_List_Table
         $actions = array(
             'edit' => sprintf(
                 '<a href="%s">%s</a>',
-                esc_url(add_query_arg(array('page' => $page, 'action' => 'edit', 'id' => absint($item['id']), 'paged' => $this->get_pagenum(), '_wpnonce' => $_nonce), admin_url('admin.php'))),
+                esc_url(add_query_arg(array('page' => $page, 'action' => 'v3', 'id' => absint($item['id']), 'paged' => $this->get_pagenum(), '_wpnonce' => $_nonce), admin_url('admin.php'))),
                 esc_html__('Edit', 'storelly-product-builder-for-woocommerce')
             ),
             'copy' => sprintf(
                 '<a href="%s">%s</a>',
                 esc_url(add_query_arg(array('page' => $page, 'action' => 'copy', 'id' => absint($item['id']), 'paged' => $this->get_pagenum(), '_wpnonce' => $_nonce), admin_url('admin.php'))),
                 esc_html__('Copy', 'storelly-product-builder-for-woocommerce')
+            ),
+            'classic_edit' => sprintf(
+                '<a href="%s" title="%s">%s</a>',
+                esc_url(add_query_arg(array('page' => $page, 'action' => 'edit', 'id' => absint($item['id']), 'paged' => $this->get_pagenum(), '_wpnonce' => $_nonce), admin_url('admin.php'))),
+                esc_attr__('Open the legacy editor (fallback)', 'storelly-product-builder-for-woocommerce'),
+                esc_html__('Classic editor', 'storelly-product-builder-for-woocommerce')
             ),
         );
 

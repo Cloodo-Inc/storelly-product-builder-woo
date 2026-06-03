@@ -3214,3 +3214,45 @@ label.view-config {
   display: block;
 }
 
+/* Linked Product breadcrumb — shown above the option editor when the merchant
+   arrived from a product metabox. See docs/SPEC_LINKED_PRODUCT_UX.md §4. */
+.spbwc-lp-breadcrumb {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--nbd-space-2, 8px);
+  margin: 0 0 var(--nbd-space-4, 16px);
+  padding: var(--nbd-space-2, 8px) var(--nbd-space-3, 12px);
+  background: var(--nbd-st-bg-soft, #f6f7f7);
+  border: 1px solid var(--nbd-st-border-light, #dcdcde);
+  border-radius: var(--nbd-radius-md, 8px);
+  font-size: var(--text-md, 13px);
+}
+.spbwc-lp-breadcrumb a {
+  text-decoration: none;
+  color: var(--nbd-st-primary, #2271b1);
+}
+.spbwc-lp-breadcrumb a:hover {
+  text-decoration: underline;
+}
+.spbwc-lp-breadcrumb__sep {
+  color: var(--nbd-st-text-mute, #8c8f94);
+}
+.spbwc-lp-breadcrumb__current {
+  color: var(--nbd-st-text-soft, #50575e);
+  font-weight: var(--font-semibold, 600);
+}
+.spbwc-lp-breadcrumb__back {
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--nbd-space-1, 4px);
+  font-weight: var(--font-semibold, 600);
+}
+.spbwc-lp-breadcrumb__back .dashicons {
+  font-size: var(--text-xl, 16px);
+  width: var(--text-xl, 16px);
+  height: var(--text-xl, 16px);
+  line-height: var(--text-xl, 16px);
+}
+

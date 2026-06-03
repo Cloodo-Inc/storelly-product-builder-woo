@@ -3,9 +3,13 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 // phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- template-scope locals passed in / read-only listing filters; not true globals.
+/* v3 is the default editor for new options. `create_v3` is the v3
+ * equivalent of `create`; the dispatcher in class-admin-options.php
+ * accepts both and routes them to the v3 view. Classic `create`
+ * remains reachable via the per-row "Classic editor" sub-action. */
 $link_create_option = add_query_arg(
 	array(
-		'action' => 'edit',
+		'action' => 'create_v3',
 		'paged'  => 1,
 		'id'     => 0,
 	),

@@ -168,9 +168,67 @@ if ( ! class_exists( 'SPBWC_Visual_Builder_Admin' ) ) {
             $admin  = SPBWC_Storelly_PB_Admin_Options::instance();
             $result = $admin->spbwc_save_option( $oid );
 
-            $notice = ( is_array( $result ) && ! empty( $result['status'] ) ) ? 'saved' : 'save_error';
-            wp_safe_redirect( self::url( 'edit', array( 'id' => $oid, 'vb_notice' => $notice ) ) );
+            $notice_args = array(
+                'id'        => $oid,
+                'vb_notice' => ( is_array( $result ) && ! empty( $result['status'] ) ) ? 'saved' : 'save_error',
+            );
+
+            // Append concise save summary counts (#5) so the success notice
+            // can read like: "Saved 3 views, 5 components, 12 attributes,
+            // 300 DPI" — gives merchants visible feedback on what persisted.
+            if ( 'saved' === $notice_args['vb_notice'] ) {
+                $summary = self::compute_save_summary( $oid );
+                if ( $summary ) {
+                    $notice_args = array_merge( $notice_args, $summary );
+                }
+            }
+
+            wp_safe_redirect( self::url( 'edit', $notice_args ) );
             exit;
+        }
+
+        /**
+         * Read the freshly-saved option and return counts for the success notice.
+         * Returns short query-arg keys (vb_v/vb_c/vb_a/vb_d) so the URL stays
+         * compact and `current_notice()` can format the message string.
+         *
+         * @param int $oid Option id.
+         * @return array<string, int|string>|null
+         */
+        protected static function compute_save_summary( $oid ) {
+            $admin = SPBWC_Storelly_PB_Admin_Options::instance();
+            $row   = $admin->spbwc_get_option( $oid );
+            if ( ! is_array( $row ) || empty( $row['fields'] ) ) {
+                return null;
+            }
+            // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.serialize_unserialize -- Admin-only read; we wrote this blob via serialize().
+            $data = @unserialize( $row['fields'] );
+            if ( ! is_array( $data ) ) {
+                return null;
+            }
+            $views      = ( ! empty( $data['views'] )  && is_array( $data['views'] ) )  ? count( $data['views'] )  : 0;
+            $components = 0;
+            $attributes = 0;
+            if ( ! empty( $data['fields'] ) && is_array( $data['fields'] ) ) {
+                foreach ( $data['fields'] as $f ) {
+                    if ( ! is_array( $f ) || empty( $f['nbpb_type'] ) ) {
+                        continue;
+                    }
+                    $components++;
+                    if ( ! empty( $f['general']['attributes']['options'] ) &&
+                         is_array( $f['general']['attributes']['options'] ) ) {
+                        $attributes += count( $f['general']['attributes']['options'] );
+                    }
+                }
+            }
+            $dpi = isset( $data['design_output']['dpi'] ) ? absint( $data['design_output']['dpi'] ) : 0;
+
+            return array(
+                'vb_v' => $views,
+                'vb_c' => $components,
+                'vb_a' => $attributes,
+                'vb_d' => $dpi,
+            );
         }
 
         /**
@@ -499,6 +557,48 @@ if ( ! class_exists( 'SPBWC_Visual_Builder_Admin' ) ) {
             // set_component_icon). Same enqueue as classic.
             wp_enqueue_media();
 
+            // VB-only scope helpers (vbDuplicateAttribute, vbApplyImageToAllViews,
+            // vbOpenPreview, vbDirty tracker, vbFocusComponent). Depends on the
+            // option-field-script so its angular.module('optionApp').run() can
+            // hook after the controller is registered.
+            $vb_js_path = SPBWC_PB_PLUGIN_DIR . 'static/js/visual-builder.js';
+            $vb_js_ver  = file_exists( $vb_js_path ) ? filemtime( $vb_js_path ) : SPBWC_PB_VERSION;
+            wp_enqueue_script(
+                'spbwc-visual-builder-js',
+                SPBWC_PB_JS_URL . 'visual-builder.js',
+                array( 'jquery', 'spbwc-ag', 'spbwc_option_field_script' ),
+                $vb_js_ver,
+                true
+            );
+
+            // Preview target — Storelly's Product Builder frontend page (the
+            // canvas / visual configurator), NOT the standard WC product
+            // detail page. Matches the classic editor's $link_create_pre_builder
+            // pattern (edit-option.php:29-34). Nonce required by the builder's
+            // own gate. Empty when the builder page hasn't been published, the
+            // option has no applied product, or applies to categories only.
+            $preview_url = '';
+            $pb_page_url = SPBWC_Storelly_PB_Util::spbwc_get_url_page( 'product_builder' );
+            if (
+                $pb_page_url
+                && $pb_page_url !== '#'
+                && ! empty( $options['product_ids'] )
+                && is_array( $options['product_ids'] )
+            ) {
+                $first_pid = absint( $options['product_ids'][0] );
+                if ( $first_pid > 0 ) {
+                    $preview_url = add_query_arg(
+                        array(
+                            'oid'      => $oid,
+                            'pid'      => $first_pid,
+                            'rd'       => 'print_option',
+                            '_wpnonce' => wp_create_nonce( 'spbwc_builder_preview_action' ),
+                        ),
+                        $pb_page_url
+                    );
+                }
+            }
+
             // Notice + chrome data for the view file.
             $notice         = self::current_notice();
             $back_url       = self::url();
@@ -685,16 +785,30 @@ if ( ! class_exists( 'SPBWC_Visual_Builder_Admin' ) ) {
                 'target_label'    => __( 'Not assigned to any product', 'storelly-product-builder-for-woocommerce' ),
                 'target_type'     => '',
                 'target_empty'    => true,
+                'has_issues'      => false,
+                'issue_summary'   => '',
             );
 
             $data = self::safe_unserialize( isset( $row['fields'] ) ? $row['fields'] : '' );
             if ( is_array( $data ) ) {
                 if ( ! empty( $data['views'] ) && is_array( $data['views'] ) ) {
                     $meta['view_count'] = count( $data['views'] );
+                    // Derive thumb from view base image. The serialized blob only
+                    // carries the attachment ID (base_url is computed at runtime
+                    // by spbwc_build_options() and never persisted), so we look
+                    // it up via WP's attachment cache. wp_get_attachment_image_url
+                    // returns false for missing/deleted attachments → fall through.
                     foreach ( $data['views'] as $v ) {
                         if ( is_array( $v ) && ! empty( $v['base_url'] ) ) {
                             $meta['thumb_url'] = $v['base_url'];
                             break;
+                        }
+                        if ( is_array( $v ) && ! empty( $v['base'] ) ) {
+                            $url = wp_get_attachment_image_url( absint( $v['base'] ), 'medium' );
+                            if ( $url ) {
+                                $meta['thumb_url'] = $url;
+                                break;
+                            }
                         }
                     }
                 }
@@ -704,15 +818,83 @@ if ( ! class_exists( 'SPBWC_Visual_Builder_Admin' ) ) {
                             continue;
                         }
                         $meta['component_count']++;
-                        if (
-                            $meta['thumb_url'] === $placeholder
-                            && isset( $f['general']['component_icon_url'] )
-                            && ! empty( $f['general']['component_icon_url'] )
-                        ) {
+                        // Fallback chain when no view base: prefer the first
+                        // nbpb component icon (small but representative), then
+                        // the first attribute swatch image, then leave placeholder.
+                        if ( $meta['thumb_url'] !== $placeholder ) {
+                            continue;
+                        }
+                        if ( ! empty( $f['general']['component_icon_url'] ) ) {
                             $meta['thumb_url'] = $f['general']['component_icon_url'];
+                            continue;
+                        }
+                        if ( ! empty( $f['general']['component_icon'] ) ) {
+                            $url = wp_get_attachment_image_url( absint( $f['general']['component_icon'] ), 'medium' );
+                            if ( $url ) {
+                                $meta['thumb_url'] = $url;
+                                continue;
+                            }
+                        }
+                        // Last resort — first attribute swatch image of the first nbpb component.
+                        if ( ! empty( $f['general']['attributes']['options'] ) && is_array( $f['general']['attributes']['options'] ) ) {
+                            foreach ( $f['general']['attributes']['options'] as $op ) {
+                                if ( ! is_array( $op ) ) {
+                                    continue;
+                                }
+                                if ( ! empty( $op['image_url'] ) && strpos( (string) $op['image_url'], 'placeholder.png' ) === false ) {
+                                    $meta['thumb_url'] = $op['image_url'];
+                                    break;
+                                }
+                                if ( ! empty( $op['image'] ) ) {
+                                    $url = wp_get_attachment_image_url( absint( $op['image'] ), 'medium' );
+                                    if ( $url ) {
+                                        $meta['thumb_url'] = $url;
+                                        break;
+                                    }
+                                }
+                            }
                         }
                     }
                 }
+            }
+
+            // Compute "has issues" flag — same checks as the JS validator
+            // so the listing card preview matches what the editor warns.
+            $issues = array();
+            if ( $meta['component_count'] > 0 && $meta['view_count'] === 0 ) {
+                $issues[] = __( 'No views uploaded yet.', 'storelly-product-builder-for-woocommerce' );
+            }
+            if ( is_array( $data ) && ! empty( $data['fields'] ) ) {
+                $empty_attr_comps = 0;
+                foreach ( $data['fields'] as $f ) {
+                    if ( ! is_array( $f ) || empty( $f['nbpb_type'] ) ) {
+                        continue;
+                    }
+                    if ( $f['nbpb_type'] !== 'nbpb_com' ) {
+                        continue;
+                    }
+                    $opts = isset( $f['general']['attributes']['options'] )
+                        ? $f['general']['attributes']['options'] : array();
+                    if ( empty( $opts ) ) {
+                        $empty_attr_comps++;
+                    }
+                }
+                if ( $empty_attr_comps > 0 ) {
+                    $issues[] = sprintf(
+                        /* translators: %d: count of components missing attributes */
+                        _n(
+                            '%d component has no attribute options.',
+                            '%d components have no attribute options.',
+                            $empty_attr_comps,
+                            'storelly-product-builder-for-woocommerce'
+                        ),
+                        $empty_attr_comps
+                    );
+                }
+            }
+            if ( ! empty( $issues ) ) {
+                $meta['has_issues']    = true;
+                $meta['issue_summary'] = implode( ' ', $issues );
             }
 
             // Target — from existing columns; no new schema.
@@ -798,9 +980,58 @@ if ( ! class_exists( 'SPBWC_Visual_Builder_Admin' ) ) {
                         'text' => __( 'That pricing option no longer exists or is not a Visual yet.', 'storelly-product-builder-for-woocommerce' ),
                     );
                 case 'saved':
+                    // Build the "what was saved" summary from query args
+                    // populated by handle_save_submit() via compute_save_summary().
+                    // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only flash summary, no state mutation.
+                    $vb_v = isset( $_GET['vb_v'] ) ? absint( wp_unslash( $_GET['vb_v'] ) ) : null;
+                    // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only flash summary.
+                    $vb_c = isset( $_GET['vb_c'] ) ? absint( wp_unslash( $_GET['vb_c'] ) ) : null;
+                    // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only flash summary.
+                    $vb_a = isset( $_GET['vb_a'] ) ? absint( wp_unslash( $_GET['vb_a'] ) ) : null;
+                    // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only flash summary.
+                    $vb_d = isset( $_GET['vb_d'] ) ? absint( wp_unslash( $_GET['vb_d'] ) ) : null;
+                    $parts = array();
+                    if ( null !== $vb_v ) {
+                        $parts[] = sprintf(
+                            /* translators: %d: count of views */
+                            _n( '%d view', '%d views', $vb_v, 'storelly-product-builder-for-woocommerce' ),
+                            $vb_v
+                        );
+                    }
+                    if ( null !== $vb_c ) {
+                        $parts[] = sprintf(
+                            /* translators: %d: count of designer components */
+                            _n( '%d component', '%d components', $vb_c, 'storelly-product-builder-for-woocommerce' ),
+                            $vb_c
+                        );
+                    }
+                    if ( null !== $vb_a ) {
+                        $parts[] = sprintf(
+                            /* translators: %d: count of attributes */
+                            _n( '%d attribute', '%d attributes', $vb_a, 'storelly-product-builder-for-woocommerce' ),
+                            $vb_a
+                        );
+                    }
+                    if ( $vb_d ) {
+                        $parts[] = sprintf(
+                            /* translators: %d: DPI value (e.g. 300) */
+                            __( '%d DPI', 'storelly-product-builder-for-woocommerce' ),
+                            $vb_d
+                        );
+                    }
+                    if ( empty( $parts ) ) {
+                        return array(
+                            'type' => 'success',
+                            'text' => __( 'Visual saved.', 'storelly-product-builder-for-woocommerce' ),
+                        );
+                    }
                     return array(
                         'type' => 'success',
-                        'text' => __( 'Visual saved.', 'storelly-product-builder-for-woocommerce' ),
+                        'text' => sprintf(
+                            /* translators: %s: summary like "3 views, 5 components, 12 attributes, 300 DPI" */
+                            __( 'Visual saved — %s.', 'storelly-product-builder-for-woocommerce' ),
+                            implode( ', ', $parts )
+                        ),
                     );
                 case 'save_error':
                     return array(
@@ -859,7 +1090,12 @@ if ( ! class_exists( 'SPBWC_Visual_Builder_Admin' ) ) {
         public static function enqueue( $hook ) {
             // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only screen detection inside enqueue.
             $page = isset( $_GET['page'] ) ? sanitize_text_field( wp_unslash( $_GET['page'] ) ) : '';
-            if ( $page !== SPBWC_PB_VISUAL_BUILDER_SLUG ) {
+            // Load on VB itself AND on the classic Pricing Options screen so
+            // the .spbwc-vb-col / .spbwc-vb-col__empty styles for the Visual
+            // column in the PO list table render correctly.
+            $is_vb_screen = ( $page === SPBWC_PB_VISUAL_BUILDER_SLUG );
+            $is_po_screen = ( defined( 'SPBWC_PB_BUILDER_SLUG' ) && $page === SPBWC_PB_BUILDER_SLUG );
+            if ( ! $is_vb_screen && ! $is_po_screen ) {
                 return;
             }
             $css_path = SPBWC_PB_PLUGIN_DIR . 'static/css/visual-builder.css';

@@ -18,22 +18,28 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 ?>
 <div class="wrap spbwc-vb spbwc-vb--list">
-    <header class="spbwc-vb__hero">
-        <div class="spbwc-vb__hero-left">
-            <h1 class="spbwc-vb__title">
-                <span class="dashicons dashicons-art" aria-hidden="true"></span>
-                <?php esc_html_e( 'Visual Builder', 'storelly-product-builder-for-woocommerce' ); ?>
-            </h1>
-            <p class="spbwc-vb__subtitle">
-                <?php esc_html_e( 'Build product configurators with real product images — views, components and visual attributes. Each Visual is a Pricing Option you have explicitly promoted here; targeting (products / categories) is inherited from the option itself.', 'storelly-product-builder-for-woocommerce' ); ?>
-            </p>
-        </div>
-        <div class="spbwc-vb__hero-right">
-            <a class="button button-primary spbwc-vb__create-btn"
-               href="<?php echo esc_url( SPBWC_Visual_Builder_Admin::url( 'create' ) ); ?>">
-                <span class="dashicons dashicons-plus-alt2" aria-hidden="true"></span>
-                <?php esc_html_e( 'Create Visual', 'storelly-product-builder-for-woocommerce' ); ?>
-            </a>
+    <header class="spbwc-page-hero">
+        <div class="spbwc-page-hero__grid">
+            <div class="spbwc-page-hero__body">
+                <div class="spbwc-page-hero__eyebrow">
+                    <span class="dashicons dashicons-art" aria-hidden="true"></span>
+                    <?php esc_html_e( 'Visual Builder', 'storelly-product-builder-for-woocommerce' ); ?>
+                </div>
+                <h1 class="spbwc-page-hero__title">
+                    <span class="dashicons dashicons-format-gallery" aria-hidden="true"></span>
+                    <?php esc_html_e( 'Visual Builder', 'storelly-product-builder-for-woocommerce' ); ?>
+                </h1>
+                <p class="spbwc-page-hero__subtitle">
+                    <?php esc_html_e( 'Build product configurators with real product images — views, components and visual attributes. Each Visual is a Pricing Option you have explicitly promoted here; targeting (products / categories) is inherited from the option itself.', 'storelly-product-builder-for-woocommerce' ); ?>
+                </p>
+            </div>
+            <div class="spbwc-page-hero__actions">
+                <a class="spbwc-cta-btn spbwc-cta-btn--solid"
+                   href="<?php echo esc_url( SPBWC_Visual_Builder_Admin::url( 'create' ) ); ?>">
+                    <span class="dashicons dashicons-plus-alt2" aria-hidden="true"></span>
+                    <?php esc_html_e( 'Create Visual', 'storelly-product-builder-for-woocommerce' ); ?>
+                </a>
+            </div>
         </div>
     </header>
 
@@ -44,21 +50,61 @@ if ( ! defined( 'ABSPATH' ) ) {
     <?php endif; ?>
 
     <?php if ( empty( $options ) ) : ?>
-        <div class="spbwc-vb__empty">
-            <div class="spbwc-vb__empty-icon" aria-hidden="true">🖼️</div>
-            <h2 class="spbwc-vb__empty-title">
-                <?php esc_html_e( 'No visuals yet', 'storelly-product-builder-for-woocommerce' ); ?>
-            </h2>
-            <p class="spbwc-vb__empty-body">
-                <?php esc_html_e( 'Promote an existing Pricing Option to start building its visual configurator. Nothing here will appear automatically — you decide which options become Visuals.', 'storelly-product-builder-for-woocommerce' ); ?>
-            </p>
+        <div class="spbwc-vb__empty spbwc-vb-tutorial">
+            <div class="spbwc-vb-tutorial__hero">
+                <div class="spbwc-vb__empty-icon" aria-hidden="true">🖼️</div>
+                <h2 class="spbwc-vb__empty-title">
+                    <?php esc_html_e( 'Build your first Visual in 3 steps', 'storelly-product-builder-for-woocommerce' ); ?>
+                </h2>
+                <p class="spbwc-vb__empty-body">
+                    <?php esc_html_e( 'Visual Builder lets buyers see real composed products — pick a colour swatch and the photo updates live. Here is the flow:', 'storelly-product-builder-for-woocommerce' ); ?>
+                </p>
+            </div>
+
+            <?php /* Tutorial: 3 illustrated steps. Each step has number,
+                   icon, title and concise description. Walk through the
+                   buyer-first mental model so the merchant understands
+                   what they are building toward. */ ?>
+            <ol class="spbwc-vb-tutorial__steps">
+                <li class="spbwc-vb-tutorial__step">
+                    <span class="spbwc-vb-tutorial__step-num">1</span>
+                    <div class="spbwc-vb-tutorial__step-body">
+                        <span class="spbwc-vb-tutorial__step-icon" aria-hidden="true">🎯</span>
+                        <h3><?php esc_html_e( 'Pick a Pricing Option', 'storelly-product-builder-for-woocommerce' ); ?></h3>
+                        <p>
+                            <?php esc_html_e( 'Each Visual is anchored to an existing Pricing Option (a group of buyer choices). Click Create Visual and pick the option you want to add visuals to.', 'storelly-product-builder-for-woocommerce' ); ?>
+                        </p>
+                    </div>
+                </li>
+                <li class="spbwc-vb-tutorial__step">
+                    <span class="spbwc-vb-tutorial__step-num">2</span>
+                    <div class="spbwc-vb-tutorial__step-body">
+                        <span class="spbwc-vb-tutorial__step-icon" aria-hidden="true">🖼️</span>
+                        <h3><?php esc_html_e( 'Upload views', 'storelly-product-builder-for-woocommerce' ); ?></h3>
+                        <p>
+                            <?php esc_html_e( 'A view is one side of the product (Front, Back, Inside). Upload a base image for each view — the canvas behind every attribute layer.', 'storelly-product-builder-for-woocommerce' ); ?>
+                        </p>
+                    </div>
+                </li>
+                <li class="spbwc-vb-tutorial__step">
+                    <span class="spbwc-vb-tutorial__step-num">3</span>
+                    <div class="spbwc-vb-tutorial__step-body">
+                        <span class="spbwc-vb-tutorial__step-icon" aria-hidden="true">🧩</span>
+                        <h3><?php esc_html_e( 'Add components & attributes', 'storelly-product-builder-for-woocommerce' ); ?></h3>
+                        <p>
+                            <?php esc_html_e( 'A component is a swappable part (e.g. Frame, Handles). Each component has attribute options (Leather, Cotton…). Upload one image per attribute, per view. Tip: drag many files at once to seed attributes in bulk.', 'storelly-product-builder-for-woocommerce' ); ?>
+                        </p>
+                    </div>
+                </li>
+            </ol>
+
             <p class="spbwc-vb__empty-actions">
-                <a class="button button-primary"
+                <a class="spbwc-cta-btn spbwc-cta-btn--solid"
                    href="<?php echo esc_url( SPBWC_Visual_Builder_Admin::url( 'create' ) ); ?>">
                     <span class="dashicons dashicons-plus-alt2" aria-hidden="true"></span>
                     <?php esc_html_e( 'Create your first Visual', 'storelly-product-builder-for-woocommerce' ); ?>
                 </a>
-                <a class="button"
+                <a class="spbwc-cta-btn spbwc-cta-btn--ghost"
                    href="<?php echo esc_url( add_query_arg( array( 'page' => SPBWC_PB_BUILDER_SLUG ), admin_url( 'admin.php' ) ) ); ?>">
                     <?php esc_html_e( 'Go to Pricing Options', 'storelly-product-builder-for-woocommerce' ); ?>
                 </a>
@@ -85,13 +131,20 @@ if ( ! defined( 'ABSPATH' ) ) {
                 }
                 $title_text = '' !== trim( (string) $opt['title'] ) ? $opt['title'] : sprintf( '#%d', $oid );
                 ?>
-                <article class="spbwc-vb__card" data-option-id="<?php echo esc_attr( (string) $oid ); ?>">
+                <article class="spbwc-vb__card<?php echo ! empty( $m['has_issues'] ) ? ' has-issues' : ''; ?>" data-option-id="<?php echo esc_attr( (string) $oid ); ?>">
                     <a class="spbwc-vb__card-thumb" href="<?php echo esc_url( $edit_url ); ?>" aria-label="<?php echo esc_attr( sprintf(
                         /* translators: %s: option title */
                         __( 'Edit visual for %s', 'storelly-product-builder-for-woocommerce' ),
                         $title_text
                     ) ); ?>">
                         <img src="<?php echo esc_url( $m['thumb_url'] ); ?>" alt="" loading="lazy" />
+                        <?php if ( ! empty( $m['has_issues'] ) ) : ?>
+                            <span class="spbwc-vb__card-issue-dot"
+                                  title="<?php echo esc_attr( $m['issue_summary'] ); ?>"
+                                  aria-label="<?php echo esc_attr( $m['issue_summary'] ); ?>">
+                                <span class="dashicons dashicons-warning" aria-hidden="true"></span>
+                            </span>
+                        <?php endif; ?>
                     </a>
                     <div class="spbwc-vb__card-body">
                         <h3 class="spbwc-vb__card-title">
@@ -130,11 +183,13 @@ if ( ! defined( 'ABSPATH' ) ) {
                         </p>
                     </div>
                     <div class="spbwc-vb__card-actions">
-                        <a class="button button-primary" href="<?php echo esc_url( $edit_url ); ?>">
+                        <a class="spbwc-cta-btn spbwc-cta-btn--solid spbwc-cta-btn--sm" href="<?php echo esc_url( $edit_url ); ?>">
+                            <span class="dashicons dashicons-edit" aria-hidden="true"></span>
                             <?php esc_html_e( 'Edit', 'storelly-product-builder-for-woocommerce' ); ?>
                         </a>
-                        <a class="button" href="<?php echo esc_url( $classic_url ); ?>"
+                        <a class="spbwc-cta-btn spbwc-cta-btn--ghost spbwc-cta-btn--sm" href="<?php echo esc_url( $classic_url ); ?>"
                            title="<?php esc_attr_e( 'Open the classic Pricing Options editor for this option', 'storelly-product-builder-for-woocommerce' ); ?>">
+                            <span class="dashicons dashicons-admin-generic" aria-hidden="true"></span>
                             <?php esc_html_e( 'Pricing', 'storelly-product-builder-for-woocommerce' ); ?>
                         </a>
                         <form method="post" action="<?php echo esc_url( $unlink_url ); ?>"
@@ -151,8 +206,9 @@ if ( ! defined( 'ABSPATH' ) ) {
                             );
                             ?>
                             <input type="hidden" name="id" value="<?php echo esc_attr( (string) $oid ); ?>" />
-                            <button type="submit" class="button button-link-delete spbwc-vb__card-unlink-btn"
+                            <button type="submit" class="spbwc-cta-btn spbwc-cta-btn--ghost spbwc-cta-btn--sm spbwc-vb__card-unlink-btn"
                                     title="<?php esc_attr_e( 'Unlink from Visual Builder (option is preserved)', 'storelly-product-builder-for-woocommerce' ); ?>">
+                                <span class="dashicons dashicons-no-alt" aria-hidden="true"></span>
                                 <?php esc_html_e( 'Unlink', 'storelly-product-builder-for-woocommerce' ); ?>
                             </button>
                         </form>
