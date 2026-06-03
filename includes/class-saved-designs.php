@@ -42,8 +42,10 @@ if ( ! class_exists( 'SPBWC_Saved_Designs' ) ) {
             add_action( 'woocommerce_order_item_meta_end', array( __CLASS__, 'render_save_link' ), 20, 4 );
             // Save a design straight from the cart (D1 / cart-only entry point).
             add_action( 'woocommerce_after_cart_item_name', array( __CLASS__, 'render_cart_save_link' ), 10, 2 );
-            // Action handlers (save links = GET, load/delete = POST).
-            add_action( 'wp_loaded', array( __CLASS__, 'handle_actions' ) );
+            // Action handlers (save links = GET, load/delete = POST). Priority 50 so
+            // WooCommerce has set up the session + cart (its own wp_loaded init) before
+            // the cart-save handler reads WC()->cart->get_cart_item().
+            add_action( 'wp_loaded', array( __CLASS__, 'handle_actions' ), 50 );
         }
 
         /** Register the headless saved-design CPT. */
@@ -275,7 +277,15 @@ if ( ! class_exists( 'SPBWC_Saved_Designs' ) ) {
                 wp_die( esc_html__( 'You do not have permission.', 'storelly-product-builder-for-woocommerce' ), 403 );
             }
             $user_id = get_current_user_id();
-            if ( ! function_exists( 'WC' ) || ! WC()->cart ) {
+            if ( ! function_exists( 'WC' ) ) {
+                self::redirect_with_notice( 'error' );
+            }
+            // This runs on wp_loaded, which can fire before WooCommerce has populated the
+            // cart from the session — force the load so get_cart_item() can find the row.
+            if ( function_exists( 'wc_load_cart' ) ) {
+                wc_load_cart();
+            }
+            if ( ! WC()->cart ) {
                 self::redirect_with_notice( 'error' );
             }
             $cart_item = WC()->cart->get_cart_item( $key );
