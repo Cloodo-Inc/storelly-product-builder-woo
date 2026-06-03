@@ -41,7 +41,9 @@ if ( ! class_exists( 'SPBWC_Buyer_Downloads' ) ) {
             if ( ! $is_account && ! $is_thanks && ! $is_cart ) {
                 return;
             }
-            wp_enqueue_style( 'spbwc-custom-order', SPBWC_PB_CSS_URL . 'custom-order.css', array(), SPBWC_PB_VERSION );
+            // Shared storefront design tokens load first; custom-order.css consumes them.
+            wp_enqueue_style( 'spbwc-tokens-storefront', SPBWC_PB_CSS_URL . '_tokens-storefront.css', array(), SPBWC_PB_VERSION );
+            wp_enqueue_style( 'spbwc-custom-order', SPBWC_PB_CSS_URL . 'custom-order.css', array( 'spbwc-tokens-storefront' ), SPBWC_PB_VERSION );
             // Progressive-enhancement confirm() for the saved-designs delete button (D4).
             if ( $is_account ) {
                 wp_enqueue_script( 'spbwc-custom-order', SPBWC_PB_JS_URL . 'custom-order.js', array(), SPBWC_PB_VERSION, true );

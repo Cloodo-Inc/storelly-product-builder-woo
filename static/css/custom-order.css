@@ -1,70 +1,80 @@
 /**
  * Custom Order — storefront / My Account surfaces.
  *
- * Self-contained like quote-storefront.css: the storefront does not load the admin
- * design tokens, so each component root re-declares a small token set (overridable by a
- * theme) and mirrors the spbwc-rfq visual language so the two features feel native together.
+ * Consumes the shared storefront design tokens (`_tokens-storefront.css`,
+ * `--spbwc-*`) so the buyer-facing surfaces stay consistent with the rest of the
+ * plugin and are theme-overridable from one place. The `--co-*` aliases below map
+ * the component's local names onto those tokens (with safe fallbacks) — change a
+ * value once in the token file and every surface follows.
  *
  * Covers:
- *   - .spbwc-co-action     "Download preview" / "Save design" chips on order line items
- *   - .spbwc-saved-designs the My Account "Saved designs" tab (card grid)
+ *   - .spbwc-co-orderthumb design preview thumbnail on the order line item (D2)
+ *   - .spbwc-co-action     "View" / "Download" / "Save" chips on line items (D1/D3)
+ *   - .spbwc-saved-designs the My Account "Saved designs" tab card grid (M4)
  *
  * @package Storelly
  */
 
+.spbwc-co-orderthumb,
 .spbwc-co-action,
 .spbwc-saved-designs {
-    --co-accent:      #1d4ed8;
-    --co-accent-text: #ffffff;
-    --co-text:        #1d2327;
-    --co-muted:       #6b7280;
-    --co-border:      #e2e4e7;
-    --co-bg-soft:     #f8fafc;
-    --co-danger:      #d63638;
-    --co-radius:      10px;
+    --co-accent:        var(--spbwc-accent, #1d4ed8);
+    --co-accent-hover:  var(--spbwc-accent-hover, #1e40af);
+    --co-accent-text:   var(--spbwc-accent-text, #ffffff);
+    --co-text:          var(--spbwc-text, #1d2327);
+    --co-muted:         var(--spbwc-muted, #6b7280);
+    --co-border:        var(--spbwc-border, #e2e4e7);
+    --co-border-strong: var(--spbwc-border-strong, #cdd3da);
+    --co-bg-soft:       var(--spbwc-bg-soft, #f8fafc);
+    --co-danger:        var(--spbwc-danger, #d63638);
+    --co-danger-soft:   var(--spbwc-danger-soft, #fef2f2);
+    --co-danger-border: var(--spbwc-danger-border, #fecaca);
+    --co-radius:        var(--spbwc-radius, 10px);
 }
 
 /* ── Design preview thumbnail on the order line item (D2) ───────────────── */
 .spbwc-co-orderthumb {
     display: inline-block;
-    margin: 0 0 6px;
+    margin: 0 0 var(--spbwc-space-2, 8px);
 }
 .spbwc-co-orderthumb img {
     display: block;
     max-width: 96px;
     height: auto;
-    border: 1px solid var(--co-border, #e2e4e7);
-    border-radius: 8px;
-    background: var(--co-bg-soft, #f8fafc);
+    border: 1px solid var(--co-border);
+    border-radius: var(--spbwc-radius-sm, 6px);
+    background: var(--co-bg-soft);
 }
 
 /* ── Order line-item action chips (view / download / save) ──────────────── */
 .spbwc-co-action {
-    margin: 6px 0 0;
+    margin: var(--spbwc-space-2, 8px) 0 0;
     display: flex;
     flex-wrap: wrap;
-    gap: 8px;
+    gap: var(--spbwc-space-2, 8px);
 }
 .spbwc-co-chip {
     display: inline-flex;
     align-items: center;
-    gap: 6px;
+    gap: var(--spbwc-space-1, 4px);
     padding: 6px 12px;
     font-size: 13px;
     font-weight: 600;
     line-height: 1.2;
     text-decoration: none;
     color: var(--co-accent);
-    background: #fff;
+    background: var(--spbwc-bg, #fff);
     border: 1px solid var(--co-accent);
-    border-radius: 999px;
-    transition: background .15s ease, color .15s ease, box-shadow .15s ease;
+    border-radius: var(--spbwc-radius-pill, 999px);
+    transition: background var(--spbwc-transition, .15s ease),
+                color var(--spbwc-transition, .15s ease),
+                box-shadow var(--spbwc-transition, .15s ease);
 }
 .spbwc-co-chip:hover,
 .spbwc-co-chip:focus {
     background: var(--co-accent);
     color: var(--co-accent-text);
-    box-shadow: 0 2px 8px rgba(29, 78, 216, .25);
+    box-shadow: var(--spbwc-shadow-focus, 0 2px 8px rgba(29, 78, 216, .25));
 }
 .spbwc-co-chip:focus-visible {
     outline: 2px solid var(--co-accent);
@@ -79,19 +89,19 @@
 .spbwc-co-chip--ghost:focus {
     background: var(--co-bg-soft);
     color: var(--co-text);
-    border-color: var(--co-muted);
+    border-color: var(--co-border-strong);
     box-shadow: none;
 }
 
 /* ── Saved designs tab ──────────────────────────────────────────────────── */
-.spbwc-saved-designs h2 { margin: 0 0 14px; }
+.spbwc-saved-designs h2 { margin: 0 0 var(--spbwc-space-4, 16px); }
 .spbwc-saved-designs__list {
     list-style: none;
     margin: 0;
     padding: 0;
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-    gap: 16px;
+    gap: var(--spbwc-space-4, 16px);
 }
 .spbwc-saved-designs__item {
     display: flex;
@@ -99,12 +109,12 @@
     border: 1px solid var(--co-border);
     border-radius: var(--co-radius);
     overflow: hidden;
-    background: #fff;
+    background: var(--spbwc-bg, #fff);
     transition: box-shadow .18s ease, border-color .18s ease, transform .18s ease;
 }
 .spbwc-saved-designs__item:hover {
-    box-shadow: 0 6px 20px rgba(16, 24, 40, .10);
-    border-color: #cdd3da;
+    box-shadow: var(--spbwc-shadow-card, 0 6px 20px rgba(16, 24, 40, .10));
+    border-color: var(--co-border-strong);
     transform: translateY(-2px);
 }
 .spbwc-saved-designs__thumb {
@@ -118,8 +128,8 @@
 .spbwc-saved-designs__body {
     display: flex;
     flex-direction: column;
-    gap: 4px;
-    padding: 12px 14px 14px;
+    gap: var(--spbwc-space-1, 4px);
+    padding: var(--spbwc-space-3, 12px) 14px 14px;
     flex: 1 1 auto;
 }
 .spbwc-saved-designs__title {
@@ -135,9 +145,9 @@
 .spbwc-saved-designs__actions {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: var(--spbwc-space-2, 8px);
     margin-top: auto;
-    padding-top: 10px;
+    padding-top: var(--spbwc-space-3, 12px);
 }
 .spbwc-saved-designs__form { margin: 0; }
 .spbwc-saved-designs__actions .button {
@@ -145,13 +155,13 @@
     cursor: pointer;
 }
 .spbwc-saved-designs__delete {
-    background: #fff !important;
+    background: var(--spbwc-bg, #fff) !important;
     color: var(--co-danger) !important;
-    border: 1px solid #fecaca !important;
+    border: 1px solid var(--co-danger-border) !important;
     box-shadow: none !important;
 }
 .spbwc-saved-designs__delete:hover {
-    background: #fef2f2 !important;
+    background: var(--co-danger-soft) !important;
 }
 .spbwc-saved-designs__unavailable {
     font-size: 12px;
@@ -160,5 +170,5 @@
 }
 
 @media (max-width: 480px) {
-    .spbwc-saved-designs__list { grid-template-columns: 1fr 1fr; gap: 12px; }
+    .spbwc-saved-designs__list { grid-template-columns: 1fr 1fr; gap: var(--spbwc-space-3, 12px); }
 }

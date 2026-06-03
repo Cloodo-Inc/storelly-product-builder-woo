@@ -1,0 +1,54 @@
+/**
+ * Storelly Product Builder — Storefront Design Tokens (user-facing pages).
+ *
+ * Single source of truth for the buyer-facing surfaces (My Account order detail,
+ * Saved designs tab, cart links). Mirrors the brand of the admin tokens
+ * (`_tokens.css`) so admin and storefront feel like one product, but stays a small,
+ * theme-overridable set scoped under prefixed `--spbwc-*` custom properties so it
+ * never clashes with a theme's own variables.
+ *
+ * Load order: enqueue this BEFORE custom-order.css (and any other storefront
+ * stylesheet that references var(--spbwc-*)). All values are overridable by a theme
+ * via a higher-specificity `:root` rule.
+ */
+
+:root {
+    /* === Brand (matches admin --st-brand #1d4ed8) ============== */
+    --spbwc-accent:        #1d4ed8;
+    --spbwc-accent-hover:  #1e40af;
+    --spbwc-accent-soft:   #eff6ff;
+    --spbwc-accent-text:   #ffffff;
+
+    /* === Text ================================================== */
+    --spbwc-text:          #1d2327;
+    --spbwc-muted:         #6b7280;
+
+    /* === Surfaces / borders ==================================== */
+    --spbwc-bg:            #ffffff;
+    --spbwc-bg-soft:       #f8fafc;
+    --spbwc-border:        #e2e4e7;
+    --spbwc-border-strong: #cdd3da;
+
+    /* === Status ================================================ */
+    --spbwc-success:       #16a34a;
+    --spbwc-success-soft:  #f0fdf4;
+    --spbwc-danger:        #d63638;
+    --spbwc-danger-soft:   #fef2f2;
+    --spbwc-danger-border: #fecaca;
+
+    /* === Radius ================================================ */
+    --spbwc-radius-sm:     6px;
+    --spbwc-radius:        10px;
+    --spbwc-radius-pill:   999px;
+
+    /* === Spacing =============================================== */
+    --spbwc-space-1:       4px;
+    --spbwc-space-2:       8px;
+    --spbwc-space-3:       12px;
+    --spbwc-space-4:       16px;
+
+    /* === Elevation / motion =================================== */
+    --spbwc-shadow-card:   0 6px 20px rgba(16, 24, 40, .10);
+    --spbwc-shadow-focus:  0 0 0 3px rgba(29, 78, 216, .25);
+    --spbwc-transition:    .15s ease;
+}
