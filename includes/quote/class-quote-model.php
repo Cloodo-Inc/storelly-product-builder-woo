@@ -71,6 +71,24 @@ if ( ! class_exists( 'SPBWC_Quote' ) ) {
         }
 
         /**
+         * Labels for the buyer "Request changes" asks (shared by the storefront
+         * form and the admin detail).
+         *
+         * @return array<string,string>
+         */
+        public static function change_ask_labels() {
+            return array(
+                'qty'       => __( 'Reduce quantity', 'storelly-product-builder-for-woocommerce' ),
+                'material'  => __( 'Different material', 'storelly-product-builder-for-woocommerce' ),
+                'dimension' => __( 'Different dimensions', 'storelly-product-builder-for-woocommerce' ),
+                'rush'      => __( 'Skip rush production', 'storelly-product-builder-for-woocommerce' ),
+                'shipping'  => __( 'Change shipping method', 'storelly-product-builder-for-woocommerce' ),
+                'terms'     => __( 'Adjust payment terms', 'storelly-product-builder-for-woocommerce' ),
+                'other'     => __( 'Other', 'storelly-product-builder-for-woocommerce' ),
+            );
+        }
+
+        /**
          * Allowed status transitions (state machine, spec §14.2).
          *
          * @return array<string,string[]> from => [allowed to,...]

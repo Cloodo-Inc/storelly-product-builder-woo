@@ -266,3 +266,33 @@ if ( ! class_exists( 'SPBWC_Email_Quote_Declined' ) ) {
         }
     }
 }
+
+/* ── Request received → customer (acknowledgement) ────────────────────── */
+if ( ! class_exists( 'SPBWC_Email_Quote_Ack' ) ) {
+    class SPBWC_Email_Quote_Ack extends SPBWC_Quote_Email_Base {
+        public function __construct() {
+            $this->id            = 'spbwc_quote_ack';
+            $this->customer_email = true;
+            $this->title         = __( 'Quote — request received (customer)', 'storelly-product-builder-for-woocommerce' );
+            $this->description    = __( 'Acknowledges the customer right after they submit a quote request.', 'storelly-product-builder-for-woocommerce' );
+            $this->heading       = __( 'We received your request', 'storelly-product-builder-for-woocommerce' );
+            $this->subject       = __( 'We received your quote request {quote_number}', 'storelly-product-builder-for-woocommerce' );
+            add_action( 'spbwc_quote_ack_notification', array( $this, 'trigger' ), 10, 1 );
+            parent::__construct();
+        }
+        public function trigger( $quote_id ) {
+            $this->dispatch( $quote_id, $this->customer_email() );
+        }
+        protected function build_body() {
+            $r    = $this->quote_request();
+            $body = '<p>' . esc_html__( 'Thanks for your request — we have received it and will get back to you with pricing shortly.', 'storelly-product-builder-for-woocommerce' ) . '</p>';
+            if ( ! empty( $r['product_name'] ) ) {
+                $body .= '<p><strong>' . esc_html__( 'Product:', 'storelly-product-builder-for-woocommerce' ) . '</strong> ' . esc_html( $r['product_name'] . ' × ' . ( isset( $r['quantity'] ) ? (int) $r['quantity'] : 1 ) ) . '</p>';
+            }
+            if ( ! empty( $r['message'] ) ) {
+                $body .= '<p><strong>' . esc_html__( 'Your message:', 'storelly-product-builder-for-woocommerce' ) . '</strong><br>' . nl2br( esc_html( $r['message'] ) ) . '</p>';
+            }
+            return $body;
+        }
+    }
+}

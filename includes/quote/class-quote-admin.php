@@ -44,14 +44,25 @@ if ( ! class_exists( 'SPBWC_Quote_Admin' ) ) {
         }
 
         public function register_menu() {
+            $menu_title = esc_html__( 'Quotes', 'storelly-product-builder-for-woocommerce' );
+            $new        = self::count_new_quotes();
+            if ( $new > 0 ) {
+                $menu_title .= ' <span class="awaiting-mod"><span class="pending-count">' . esc_html( number_format_i18n( $new ) ) . '</span></span>';
+            }
             add_submenu_page(
                 SPBWC_PB_OVERVIEW_SLUG,
                 esc_html__( 'Quotes', 'storelly-product-builder-for-woocommerce' ),
-                esc_html__( 'Quotes', 'storelly-product-builder-for-woocommerce' ),
+                $menu_title,
                 self::CAPABILITY,
                 self::PAGE_SLUG,
                 array( $this, 'render' )
             );
+        }
+
+        /** Number of quotes awaiting a merchant reply (new). */
+        public static function count_new_quotes() {
+            $counts = (array) wp_count_posts( SPBWC_Quote::POST_TYPE );
+            return isset( $counts[ SPBWC_Quote::STATUS_NEW ] ) ? (int) $counts[ SPBWC_Quote::STATUS_NEW ] : 0;
         }
 
         /* ── URL + pill helpers ───────────────────────────────────── */
@@ -402,6 +413,8 @@ if ( ! class_exists( 'SPBWC_Quote_Admin' ) ) {
                                 </div>
                             </div>
 
+                            <?php $this->render_change_request( $quote_id, $status ); ?>
+
                             <!-- Pricing reply (D2) -->
                             <div class="spbwc-block">
                                 <div class="spbwc-block__head">
@@ -575,6 +588,54 @@ if ( ! class_exists( 'SPBWC_Quote_Admin' ) ) {
             </div>
             <?php
             $this->render_detail_script( $currency );
+        }
+
+        /**
+         * Show the buyer's change request (asks + details) when the quote is
+         * being negotiated, so the merchant knows what to revise.
+         *
+         * @param int    $quote_id Quote post ID.
+         * @param string $status   Current status.
+         */
+        protected function render_change_request( $quote_id, $status ) {
+            if ( SPBWC_Quote::STATUS_NEGOTIATING !== $status ) {
+                return;
+            }
+            $cr = get_post_meta( $quote_id, '_spbwc_quote_change_request', true );
+            if ( ! is_array( $cr ) ) {
+                return;
+            }
+            $asks    = isset( $cr['asks'] ) && is_array( $cr['asks'] ) ? $cr['asks'] : array();
+            $details = isset( $cr['details'] ) ? (string) $cr['details'] : '';
+            $labels  = SPBWC_Quote::change_ask_labels();
+            ?>
+            <div class="spbwc-block spbwc-block--warning">
+                <div class="spbwc-block__head">
+                    <h3 class="spbwc-block__title">
+                        <span class="dashicons dashicons-update" aria-hidden="true"></span>
+                        <?php esc_html_e( 'Customer requested changes', 'storelly-product-builder-for-woocommerce' ); ?>
+                    </h3>
+                </div>
+                <div class="spbwc-block__body">
+                    <?php if ( ! empty( $asks ) ) : ?>
+                        <ul class="spbwc-q-asks">
+                            <?php foreach ( $asks as $ask ) : ?>
+                                <li><span class="dashicons dashicons-yes" aria-hidden="true"></span> <?php echo esc_html( isset( $labels[ $ask ] ) ? $labels[ $ask ] : ucfirst( str_replace( '_', ' ', $ask ) ) ); ?></li>
+                            <?php endforeach; ?>
+                        </ul>
+                    <?php endif; ?>
+                    <?php if ( '' !== $details ) : ?>
+                        <p class="spbwc-q-asks__details"><?php echo nl2br( esc_html( $details ) ); ?></p>
+                    <?php endif; ?>
+                    <?php if ( empty( $asks ) && '' === $details ) : ?>
+                        <p class="spbwc-admin-table__muted"><?php esc_html_e( 'The customer asked for changes without specifics.', 'storelly-product-builder-for-woocommerce' ); ?></p>
+                    <?php endif; ?>
+                    <p class="spbwc-setting-row__hint" style="margin:8px 0 0;border:0;">
+                        <?php esc_html_e( 'Revise the pricing below and use “Send counter-offer”.', 'storelly-product-builder-for-woocommerce' ); ?>
+                    </p>
+                </div>
+            </div>
+            <?php
         }
 
         /**

@@ -285,6 +285,23 @@
 .spbwc-quotes-listwrap .wp-list-table .row-actions { color: var(--nbd-st-text-mute); font-size: var(--text-xs); }
 .spbwc-quotes-listwrap .wp-list-table .row-actions a { color: var(--nbd-st-text-soft); }
 
+/* ── Customer change request (negotiating) ────────────────────────────── */
+.spbwc-q-asks { list-style: none; margin: 0 0 8px; padding: 0; display: flex; flex-wrap: wrap; gap: 6px 10px; }
+.spbwc-q-asks li {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    margin: 0;
+    padding: 4px 10px;
+    border-radius: var(--nbd-radius-pill);
+    background: var(--nbd-st-bg);
+    border: 1px solid var(--nbd-st-border-light);
+    font-size: 12.5px;
+    color: var(--nbd-st-text);
+}
+.spbwc-q-asks li .dashicons { font-size: 14px; width: 14px; height: 14px; color: var(--nbd-color-warning); }
+.spbwc-q-asks__details { margin: 6px 0 0; font-size: 13px; color: var(--nbd-st-text); }
+
 /* ── Back link ────────────────────────────────────────────────────────── */
 .spbwc-q-back {
     display: inline-flex;

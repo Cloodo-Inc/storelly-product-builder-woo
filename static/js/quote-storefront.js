@@ -102,6 +102,12 @@
         if (successBox) {
             var text = successBox.querySelector('.spbwc-rfq-success__text');
             if (text && msg) { text.textContent = msg; }
+            var cta = successBox.querySelector('.spbwc-rfq-success__cta');
+            if (cta && cfg.myQuotesUrl) {
+                cta.href = cfg.myQuotesUrl;
+                cta.textContent = (cfg.i18n && cfg.i18n.trackQuote) ? cfg.i18n.trackQuote : 'Track your quote';
+                cta.style.display = '';
+            }
             successBox.classList.add('is-visible');
             successBox.setAttribute('role', 'status');
         }

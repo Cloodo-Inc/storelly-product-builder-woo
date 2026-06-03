@@ -186,6 +186,18 @@
 }
 .spbwc-rfq-success__title { font-size: 17px; font-weight: 700; margin: 0 0 6px; }
 .spbwc-rfq-success__text { font-size: 14px; color: var(--spbwc-rfq-muted); margin: 0; }
+.spbwc-rfq-success__actions { margin: 16px 0 0; }
+.spbwc-rfq-success__cta {
+    display: inline-block;
+    padding: 10px 20px;
+    background: var(--spbwc-rfq-accent);
+    color: #fff;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 14px;
+    text-decoration: none;
+}
+.spbwc-rfq-success__cta:hover { filter: brightness(1.05); }
 
 @media (max-width: 480px) {
     .spbwc-rfq-overlay { padding: 0; align-items: stretch; }

@@ -31,6 +31,7 @@ if ( ! class_exists( 'SPBWC_Quote_Emails' ) ) {
          */
         public static function register_actions( $actions ) {
             $actions[] = 'spbwc_quote_new_notification';
+            $actions[] = 'spbwc_quote_ack_notification';
             $actions[] = 'spbwc_quote_sent_notification';
             $actions[] = 'spbwc_quote_reminder_notification';
             $actions[] = 'spbwc_quote_accepted_notification';
@@ -48,6 +49,7 @@ if ( ! class_exists( 'SPBWC_Quote_Emails' ) ) {
             require_once SPBWC_PB_PLUGIN_DIR . 'includes/quote/class-quote-email-types.php';
             if ( class_exists( 'SPBWC_Email_Quote_New' ) ) {
                 $emails['SPBWC_Email_Quote_New']      = new SPBWC_Email_Quote_New();
+                $emails['SPBWC_Email_Quote_Ack']      = new SPBWC_Email_Quote_Ack();
                 $emails['SPBWC_Email_Quote_Sent']     = new SPBWC_Email_Quote_Sent();
                 $emails['SPBWC_Email_Quote_Reminder'] = new SPBWC_Email_Quote_Reminder();
                 $emails['SPBWC_Email_Quote_Accepted'] = new SPBWC_Email_Quote_Accepted();

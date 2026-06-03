@@ -261,14 +261,16 @@ if ( ! class_exists( 'SPBWC_Request_Quote' ) ) {
                 'spbwc-quote-storefront',
                 'spbwcRfq',
                 array(
-                    'ajaxUrl' => admin_url( 'admin-ajax.php' ),
-                    'action'  => 'spbwc_submit_quote',
-                    'nonce'   => wp_create_nonce( 'spbwc_submit_quote_action' ),
-                    'i18n'    => array(
-                        'sending' => __( 'Sending…', 'storelly-product-builder-for-woocommerce' ),
-                        'submit'  => __( 'Submit request', 'storelly-product-builder-for-woocommerce' ),
-                        'failed'  => __( 'Something went wrong. Please review the form.', 'storelly-product-builder-for-woocommerce' ),
-                        'network' => __( 'Request failed. Please try again.', 'storelly-product-builder-for-woocommerce' ),
+                    'ajaxUrl'     => admin_url( 'admin-ajax.php' ),
+                    'action'      => 'spbwc_submit_quote',
+                    'nonce'       => wp_create_nonce( 'spbwc_submit_quote_action' ),
+                    'myQuotesUrl' => is_user_logged_in() ? wc_get_endpoint_url( 'quotes', '', wc_get_page_permalink( 'myaccount' ) ) : '',
+                    'i18n'        => array(
+                        'sending'    => __( 'Sending…', 'storelly-product-builder-for-woocommerce' ),
+                        'submit'     => __( 'Submit request', 'storelly-product-builder-for-woocommerce' ),
+                        'failed'     => __( 'Something went wrong. Please review the form.', 'storelly-product-builder-for-woocommerce' ),
+                        'network'    => __( 'Request failed. Please try again.', 'storelly-product-builder-for-woocommerce' ),
+                        'trackQuote' => __( 'Track your quote', 'storelly-product-builder-for-woocommerce' ),
                     ),
                 )
             );
@@ -346,6 +348,9 @@ if ( ! class_exists( 'SPBWC_Request_Quote' ) ) {
                             <div class="spbwc-rfq-success__icon" aria-hidden="true">&#10003;</div>
                             <p class="spbwc-rfq-success__title"><?php esc_html_e( 'Request sent', 'storelly-product-builder-for-woocommerce' ); ?></p>
                             <p class="spbwc-rfq-success__text"><?php esc_html_e( 'Thanks! We have received your request and will get back to you shortly.', 'storelly-product-builder-for-woocommerce' ); ?></p>
+                            <p class="spbwc-rfq-success__actions">
+                                <a class="spbwc-rfq-success__cta" href="#" style="display:none;"></a>
+                            </p>
                         </div>
                     </div>
                 </div>
@@ -453,6 +458,9 @@ if ( ! class_exists( 'SPBWC_Request_Quote' ) ) {
             update_post_meta( $quote_id, '_spbwc_quote_product_id', $product_id );
 
             do_action( 'spbwc_quote_new_notification', $quote_id );
+            if ( ! empty( $request['email'] ) ) {
+                do_action( 'spbwc_quote_ack_notification', $quote_id );
+            }
 
             $settings        = get_option( 'spbwc_quote_settings', array() );
             $success_message = ( isset( $settings['success_message'] ) && '' !== $settings['success_message'] )
@@ -549,7 +557,24 @@ if ( ! class_exists( 'SPBWC_Request_Quote' ) ) {
             if ( isset( $items['customer-logout'] ) ) {
                 unset( $items['customer-logout'] );
             }
-            $items['quotes'] = __( 'Quotes', 'storelly-product-builder-for-woocommerce' );
+            $label = __( 'Quotes', 'storelly-product-builder-for-woocommerce' );
+            if ( is_user_logged_in() ) {
+                $awaiting = get_posts(
+                    array(
+                        'post_type'   => SPBWC_Quote::POST_TYPE,
+                        'post_status' => SPBWC_Quote::STATUS_SENT,
+                        'author'      => get_current_user_id(),
+                        'numberposts' => 20,
+                        'fields'      => 'ids',
+                    )
+                );
+                $count = is_array( $awaiting ) ? count( $awaiting ) : 0;
+                if ( $count > 0 ) {
+                    /* translators: %d: number of quotes awaiting the customer's response */
+                    $label .= ' ' . sprintf( __( '(%d)', 'storelly-product-builder-for-woocommerce' ), $count );
+                }
+            }
+            $items['quotes'] = $label;
             if ( null !== $logout ) {
                 $items['customer-logout'] = $logout;
             }
