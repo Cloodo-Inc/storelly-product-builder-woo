@@ -1765,6 +1765,10 @@
     border-left-color: var(--vb-success);
 }
 
+.spbwc-vb-toast--info {
+    border-left-color: var(--vb-link);
+}
+
 .spbwc-vb-toast--warning {
     border-left-color: var(--vb-warn);
 }

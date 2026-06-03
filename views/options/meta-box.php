@@ -54,6 +54,11 @@ if (!defined('ABSPATH')) {
                 </span>
             </div>
 
+            <p class="spbwc-lp-card__off-hint">
+                <span class="dashicons dashicons-hidden" aria-hidden="true"></span>
+                <?php esc_html_e('Turn on “Enable product builder” above to show this on the storefront.', 'storelly-product-builder-for-woocommerce'); ?>
+            </p>
+
             <?php if (!empty($field_chips)) : ?>
                 <div class="spbwc-lp-chips">
                     <?php foreach ($field_chips as $chip) : ?>
@@ -95,6 +100,14 @@ if (!defined('ABSPATH')) {
                     <span class="dashicons dashicons-edit" aria-hidden="true"></span>
                     <?php esc_html_e('Edit fields', 'storelly-product-builder-for-woocommerce'); ?>
                 </a>
+
+                <?php if ($spbwc_front_url) : ?>
+                    <a href="<?php echo esc_url($spbwc_front_url); ?>" target="_blank" rel="noopener"
+                       class="button spbwc-lp-action spbwc-lp-action--preview">
+                        <span class="dashicons dashicons-external" aria-hidden="true"></span>
+                        <?php esc_html_e('Preview on store', 'storelly-product-builder-for-woocommerce'); ?>
+                    </a>
+                <?php endif; ?>
 
                 <?php if (!empty($swap_options)) : ?>
                     <span class="spbwc-lp-swap">
@@ -187,7 +200,12 @@ if (!defined('ABSPATH')) {
                 <option value="replace" <?php selected(isset($spbwc_quote_display_mode) ? $spbwc_quote_display_mode : '', 'replace'); ?>><?php esc_html_e('Get Quote replaces Add to cart (keep price)', 'storelly-product-builder-for-woocommerce'); ?></option>
                 <option value="quote_only" <?php selected(isset($spbwc_quote_display_mode) ? $spbwc_quote_display_mode : '', 'quote_only'); ?>><?php esc_html_e('Quote only — hide price &amp; cart', 'storelly-product-builder-for-woocommerce'); ?></option>
             </select>
-            <span class="description"><?php esc_html_e('Only applies when request quote is enabled above.', 'storelly-product-builder-for-woocommerce'); ?></span>
+            <span class="description">
+                <?php esc_html_e('Only applies when request quote is enabled above.', 'storelly-product-builder-for-woocommerce'); ?>
+                <?php if ($spbwc_quote_settings_url) : ?>
+                    <a href="<?php echo esc_url($spbwc_quote_settings_url); ?>" target="_blank" rel="noopener"><?php esc_html_e('“Use global default” follows Quote Settings.', 'storelly-product-builder-for-woocommerce'); ?></a>
+                <?php endif; ?>
+            </span>
         </p>
     </div>
 </div>

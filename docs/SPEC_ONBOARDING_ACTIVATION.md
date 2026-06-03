@@ -7,13 +7,14 @@
 > Mục tiêu số: ↑ success rate · ↑ activation (chạm aha sớm) · ↑ retention (review + upgrade).
 > Plugin freemium trên wordpress.org, free giới hạn 5 sản phẩm.
 >
-> **Trạng thái: DRAFT — chờ review, chưa code.**
+> **Trạng thái: M1–M7 ĐÃ SHIP. Audit 2026-06-03 phát hiện gap → đợt remediation M9 (xem §8).**
 >
 > **Quyết định đã chốt với user:**
 > - Welcome render **trên Overview**, tự kích hoạt (không submenu riêng).
 > - Ưu tiên **Import sample trước** (time-to-value ngắn nhất).
 > - **#4 Cloud (Storelly account + PDF): 1-click consent** — KHÔNG auto khi chưa bấm.
 > - **#8/#5 Migrate Woo → publish live: chuẩn bị ngầm + 1 nút "Publish all"** + Undo.
+> - **(2026-06-03) Làm cả 4 hạng mục M9** (bundle demo local · review request · sửa dismiss + quote badge default · hardening woo-prepare). Viết spec trước, code từng phần có test.
 
 ---
 
@@ -215,7 +216,74 @@ M6  ✅ DONE  Request Quote site-wide CTA badge (floating, settings: toggle/vị
 M7  ✅ DONE  Freemium contextual upsell: SPBWC_Upsell_Notice chỉ hiện trên màn Storelly khi Free   (yc #10)
             plan + chạm limit (max_products/max_pricing_options), dismiss snooze 30 ngày. Commit 69d5504.
 M8  Compliance: plugin check 0 error + POT regen + readme + version bump
+M9  ⏳ REMEDIATION (2026-06-03) — vá gap audit phát hiện sau khi M1–M7 ship. Xem §8.
 ```
 
 M1–M2 an toàn, đã xong. M4–M5 đụng store thật + mạng → làm cẩn thận, test kỹ.
 yc #9 (My Account endpoint) gài kèm M1 (đăng ký endpoint lúc activate).
+
+---
+
+## 8. Audit sau khi ship (2026-06-03) — gap & remediation M9
+
+> Rà soát toàn bộ code thực thi M1–M7 đối chiếu spec. Khung onboarding tốt (security nonce+cap,
+> HPOS-compat, cache-bust, reversibility OK), nhưng **đường vàng "Import demo" mong manh** và
+> **retention (review request) bỏ trống** — đúng 2 thứ mục tiêu yêu cầu. 4 hạng mục dưới đã chốt làm.
+
+### M9.1 — Bundle demo local (fallback cho CTA chủ đạo)  🔴 ưu tiên cao nhất
+- **Gap:** CTA "Fastest / See it live with demo products" (`views/overview.php:141`) dẫn tới sample
+  import, nhưng `fetch_demo_rows()` chỉ `wp_remote_get( DEMO_DATA_URL )`
+  (`includes/class-global-import-controller.php:9, ~1049`). KHÔNG có bundled dataset; offline /
+  backend down / 404 → timeout 20s → mảng rỗng câm → "No products found". Aha moment chết ngay
+  trên đường vàng. (Điểm cộng đã có: import xong `status='publish'`, customize được ngay; chỉ gọi
+  mạng khi user bấm = consent ngầm, không phone-home.)
+- **Quyết định (Phương án B trong §3.2):** bundle bộ demo nhỏ trong plugin + seeder local KHÔNG mạng.
+- **Việc cần làm:**
+  - Tạo `storage/printcart/demo_datas.json` (2–3 demo product, schema khớp `fetch_demo_rows()` đang
+    kỳ vọng) + ảnh nhỏ kèm (ưu tiên dùng ảnh có sẵn / SVG nhẹ để không phình dung lượng).
+  - `fetch_demo_rows()`: thử remote trước (giữ nguyên), **fail thì đọc file bundled** thay vì trả `[]`.
+    Hoặc đảo: ưu tiên bundled để nhanh + offline-safe, remote chỉ để "refresh" — chốt khi code.
+  - Gắn meta `_spbwc_is_sample = 1` cho mọi product import từ đường demo (kèm `_spbwc_external_id`
+    hiện có) để Undo gom đúng, không lẫn import khác (gap §3.2 còn treo).
+- **Acceptance:** store fresh OFFLINE bấm "Import demo products" → có ≥2 product publish, customize
+  được trên storefront; Undo chỉ xoá đúng demo.
+
+### M9.2 — Review request notice (retention lever #1)  🔴
+- **Gap:** `spbwc_activated_at` lưu (`includes/class-onboarding.php:100`) + getter `get_activated_at()`
+  (`:207`) nhưng KHÔNG nơi nào dùng. Không có notice xin đánh giá wp.org, không retention nudge.
+  Spec liệt kê gap #5 nhưng không milestone nào giải quyết.
+- **Quyết định:** clone pattern `SPBWC_I18n_Notice` (option-key + nonce dismiss + sticky + tokens
+  `spbwc-block`). Hiện notice xin review khi: `now - activated_at ≥ 14 ngày` **VÀ** đã chạm "thành tựu"
+  (≥1 option-set publish HOẶC ≥1 order chứa sản phẩm Storelly) — tránh xin review lúc chưa thấy giá trị.
+- **UX:** 3 nút — "Sure, I'll review" (mở `wordpress.org/support/plugin/storelly-product-builder-for-woocommerce/reviews/`,
+  set done vĩnh viễn) · "Maybe later" (snooze ~30 ngày) · "Already did / No thanks" (done vĩnh viễn).
+  Chỉ hiện trên màn admin Storelly (như upsell), không nag toàn wp-admin.
+- **Acceptance:** notice không hiện trước 14 ngày / chưa có thành tựu; dismiss đúng từng nhánh; không
+  hiện lại sau khi done.
+
+### M9.3 — Sửa dismiss Welcome + quote badge default  🟡
+- **Dismiss vĩnh viễn:** `SPBWC_Onboarding` (`includes/class-onboarding.php:66-81`) set `dismissed=true`
+  sticky → lỡ bấm "Skip setup" là mất hướng dẫn dù onboarding chưa xong, không gọi lại được.
+  → Thêm link nhỏ "Show setup guide" trên Overview khi `dismissed && ! is_onboarding_complete()`
+  (xoá cờ dismissed, nonce-protected). Khi onboarding complete thì im như cũ.
+- **Quote badge default:** `includes/class-request-quote.php:163` gate `enable_quote_badge === 'yes'`
+  nhưng không thấy code set default ON (spec §3.7 yêu cầu published mặc định). → set default `'yes'`
+  khi khởi tạo settings (migration an toàn: chỉ set nếu key chưa tồn tại, không đè merchant đã tắt).
+- **Badge URL escape:** `quote_badge_url` (`:191`) nhận URL tùy ý → bọc `esc_url()` khi render (đang
+  thiếu) để chặn URL bẩn; KHÔNG cần whitelist (merchant tự nhập, chỉ là output escape).
+- **Acceptance:** Skip rồi vẫn gọi lại được guide; badge bật mặc định trên store mới; URL output escape.
+
+### M9.4 — Hardening woo-prepare (store lớn + race)  🟡
+- **Timeout fallback sync:** `includes/setup-wizard/class-woo-prepare.php` batch 15 qua Action Scheduler
+  OK, nhưng fallback sync loop (`guard < 1000` × 15 = 15.000 product đồng bộ, ~:145-149) → timeout
+  trên shared hosting khi AS không khả dụng. → chunk theo thời gian (vd dừng batch khi vượt ngân sách
+  ~10s) hoặc giảm trần guard + để lần render sau tiếp tục; log cảnh báo khi rơi vào sync fallback.
+- **Race tạo trùng:** không có UNIQUE `(template_slug, product_id)`; 2 AJAX đồng thời có thể chèn trùng
+  (option-state guard giảm nhưng không tuyệt đối). → guard nhập bằng lock transient ngắn quanh
+  `run_batch()` / hoặc kiểm tra `_spbwc_option_id` ngay trước insert trong cùng transaction.
+- **Acceptance:** store ~500+ variable product prepare không timeout (chia nhiều lượt có progress);
+  chạy scan/AJAX trùng không tạo 2 option-set cho cùng product.
+
+### Ngoài phạm vi đợt này (ghi nhận, chưa làm)
+- store_uuid không bền khi đổi domain/admin email (`md5(host+path+email)`, `:196`) — Q3 §6 còn mở,
+  phụ thuộc backend Storelly re-link theo store URL. Để sau.

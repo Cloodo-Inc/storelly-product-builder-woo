@@ -741,24 +741,25 @@
                             <span class="val" data-spbwc-grand-total><?php echo wp_kses_post( $spbwc_v3_base_price_html ); ?></span>
                         </div>
                     </div>
+
+                    <!-- Trust note — moved INTO the scrollable middle so the
+                         sticky-bottom only carries Reset/Cancel + CTA. The
+                         "Add to cart" button must be the LAST visible element
+                         pinned to the browser edge (per user UX request) so
+                         it never gets clipped by the viewport bottom or any
+                         browser chrome (autofill bars, etc.). -->
+                    <div class="spbwc-cust-summary__note">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+                        <span><strong><?php esc_html_e( 'Free design preview', 'storelly-product-builder-for-woocommerce' ); ?></strong> — <?php esc_html_e( 'no charge until your design is locked in.', 'storelly-product-builder-for-woocommerce' ); ?></span>
+                    </div>
                   </div>
 
-                  <!-- STICKY BOTTOM — CTA + Reset/Cancel + trust note pin to
-                       the bottom so the Add to cart button is ALWAYS visible
-                       no matter how tall the price breakdown grows. -->
+                  <!-- STICKY BOTTOM — Reset/Cancel link row + the BIG CTA.
+                       CTA is the LAST node in the sticky band so it pins
+                       flush to the browser bottom edge with nothing below
+                       it that could get clipped. -->
                   <div class="spbwc-cust-summary__sticky-bottom">
-                    <!-- BIG primary Add to cart — Printcart `.summary-cta-big`.
-                         aria-live polite so screen readers announce the price
-                         updates as the customer changes options. -->
-                    <button class="spbwc-cust-cta" type="button" data-spbwc-action="add-to-cart" ng-click="saveData()" aria-live="polite" aria-label="<?php esc_attr_e( 'Add this customized design to cart', 'storelly-product-builder-for-woocommerce' ); ?>">
-                        <span class="spbwc-cust-cta__content">
-                            <span class="spbwc-cust-cta__label"><?php esc_html_e( 'Add to cart', 'storelly-product-builder-for-woocommerce' ); ?></span>
-                            <span class="spbwc-cust-cta__price" data-spbwc-cta-price><?php echo wp_kses_post( $spbwc_v3_base_price_html ); ?></span>
-                        </span>
-                        <svg class="spbwc-cust-cta__arrow" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
-                    </button>
-
-                    <!-- Reset / Cancel link row -->
+                    <!-- Reset / Cancel link row (small, above the CTA) -->
                     <div class="spbwc-cust-summary__actions">
                         <button type="button" class="spbwc-cust-linkbtn" data-spbwc-action="reset-all">
                             <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7L3 9"/><path d="M3 3v6h6"/></svg>
@@ -767,11 +768,17 @@
                         <button type="button" class="close-popup spbwc-cust-linkbtn"><?php esc_html_e( 'Cancel', 'storelly-product-builder-for-woocommerce' ); ?></button>
                     </div>
 
-                    <!-- Trust note — Printcart `.prod-note` blue info card -->
-                    <div class="spbwc-cust-summary__note">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
-                        <span><strong><?php esc_html_e( 'Free design preview', 'storelly-product-builder-for-woocommerce' ); ?></strong> — <?php esc_html_e( 'no charge until your design is locked in.', 'storelly-product-builder-for-woocommerce' ); ?></span>
-                    </div>
+                    <!-- BIG primary Add to cart — Printcart `.summary-cta-big`.
+                         aria-live polite so screen readers announce the price
+                         updates as the customer changes options. Renders LAST
+                         in the sticky band — no trust note, no spacer below. -->
+                    <button class="spbwc-cust-cta" type="button" data-spbwc-action="add-to-cart" ng-click="saveData()" aria-live="polite" aria-label="<?php esc_attr_e( 'Add this customized design to cart', 'storelly-product-builder-for-woocommerce' ); ?>">
+                        <span class="spbwc-cust-cta__content">
+                            <span class="spbwc-cust-cta__label"><?php esc_html_e( 'Add to cart', 'storelly-product-builder-for-woocommerce' ); ?></span>
+                            <span class="spbwc-cust-cta__price" data-spbwc-cta-price><?php echo wp_kses_post( $spbwc_v3_base_price_html ); ?></span>
+                        </span>
+                        <svg class="spbwc-cust-cta__arrow" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+                    </button>
                   </div>
                 </aside>
 

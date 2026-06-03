@@ -247,6 +247,8 @@
                 form._vbAutoSaveMode = true;
                 $rootScope.vbSavingState = 'saving';
                 $rootScope.vbSavedLabel = 'Auto-saving…';
+                // Light, transient cue so the merchant sees every background save.
+                $rootScope.vbShowToast( 'Auto-saving…', 'info', '💾', 4000 );
 
                 // getJsonFields() runs cleanse + populates $scope.jsonFields
                 // then setTimeouts a form.submit() — our capture-phase
@@ -255,24 +257,61 @@
             }
 
             $timeout( function () {
+                // Content signature — a JSON projection of the option that EXCLUDES
+                // UI-only state (isExpand, hidden) and programmatic/derived data
+                // (image_url, *_url, pb_config_flat, …). Auto-save now dirties only
+                // when this meaningful signature changes, so expanding a panel,
+                // hovering, or background image-URL enrichment no longer schedules a
+                // save — and a transient digest artifact can't trigger a wipe.
+                var VB_NOISE_KEYS = {
+                    '$$hashKey': 1, isExpand: 1, hidden: 1, show_subattr: 1,
+                    need_show: 1, template: 1, 'class': 1, imagep: 1,
+                    pb_config_flat: 1, image_url: 1, bg_image_url: 1,
+                    product_image_url: 1, component_icon_url: 1, image_link: 1,
+                    image_title: 1, image_alt: 1, image_srcset: 1, image_sizes: 1,
+                    image_caption: 1, full_src: 1, full_src_w: 1, full_src_h: 1
+                };
+                function vbStripNoise( val ) {
+                    if ( angular.isArray( val ) ) {
+                        var arr = [];
+                        for ( var i = 0; i < val.length; i++ ) { arr.push( vbStripNoise( val[ i ] ) ); }
+                        return arr;
+                    }
+                    if ( val && typeof val === 'object' ) {
+                        var out = {};
+                        for ( var k in val ) {
+                            if ( ! val.hasOwnProperty( k ) || VB_NOISE_KEYS[ k ] ) { continue; }
+                            out[ k ] = vbStripNoise( val[ k ] );
+                        }
+                        return out;
+                    }
+                    return val;
+                }
+                function vbContentSig( options ) {
+                    if ( ! options ) { return null; }
+                    try { return JSON.stringify( vbStripNoise( options ) ); }
+                    catch ( e ) { return null; }
+                }
+
                 // Wait one tick so the initial localized data load does
                 // not count as a "change".
                 var watcher = $rootScope.$watch(
                     function () {
-                        // Use the optionCtrl scope's options if present.
                         var ctrlScope = angular.element(
                             document.querySelector( '[ng-controller="optionCtrl"]' )
                         ).scope();
-                        return ctrlScope ? ctrlScope.options : null;
+                        return ctrlScope ? vbContentSig( ctrlScope.options ) : null;
                     },
-                    function ( newVal, oldVal ) {
-                        if ( newVal && oldVal && newVal !== oldVal ) {
+                    function ( newSig, oldSig ) {
+                        // Only a genuine content change (not the first run, not a
+                        // UI/programmatic mutation) marks the editor dirty.
+                        if ( newSig !== null && oldSig !== null && newSig !== oldSig ) {
                             $rootScope.vbDirty = true;
                             $rootScope.vbSavedLabel = '';
                             scheduleAutoSave();
                         }
-                    },
-                    true /* objectEquality — deep watch */
+                    }
+                    /* string signature → default value compare (no deep watch) */
                 );
 
                 // Refresh the relative label every 10s.
@@ -347,7 +386,7 @@
                                 }
                             } );
                             if ( ok ) {
-                                $rootScope.vbShowToast( 'Auto-saved', 'success', '💾', 2000 );
+                                $rootScope.vbShowToast( 'Auto-saved', 'success', '✓', 2000 );
                             } else {
                                 $rootScope.vbShowToast(
                                     'Auto-save failed (HTTP ' + r.status + '). Your changes are still in the editor.',

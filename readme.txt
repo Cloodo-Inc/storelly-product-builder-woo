@@ -4,8 +4,8 @@ Donate link: https://storelly.com/
 Tags: product builder, product customize, product customizer, woocommerce custom product
 Requires at least: 4.7
 Tested up to: 7.0
-Stable tag: 1.5.5
-Version: 1.5.5
+Stable tag: 1.5.6
+Version: 1.5.6
 Requires PHP: 7.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -132,6 +132,12 @@ This plugin connects to the following external services:
 3. Storelly settings page with API keys and sync options
 
 == Changelog ==
+= 1.5.6 =
+* Customizer V3 — Order Summary sticky-bottom restructure so the "Add to cart" CTA is the LAST visible element pinned to the browser edge:
+  - The "Free design preview — no charge until your design is locked in" trust note used to live at the very bottom of the sticky band, BELOW the Reset/Cancel row, BELOW the CTA. On shorter viewports — or when the browser added chrome (autofill bar, address bar showing again on scroll, etc.) — that trust note was the element that got clipped by the browser, so users reported "phía dưới add to cart - reset có 1 mục đang bị che bởi trình duyệt".
+  - Trust note moved INTO the scrollable middle as a sibling of the price-block, so it gets natural overflow handling and is never clipped.
+  - Sticky-bottom now contains only two rows: the small Reset all / Cancel link row on top, and the BIG CTA on the bottom. CTA is the LAST node in the band — nothing below it can be obscured by browser UI.
+
 = 1.5.5 =
 * Customizer V3 — lock preset Fabric layers + more visible zoom controls:
   - For preset (`nbpb_com`) components — colour/material swatches like SIDE PANELS, INSIDE STORAGE — the Fabric image layer now ships with `selectable: false` + `evented: false`. The customer picks an option, the overlay snaps into place, and there's no way to accidentally click into the layer and reveal the layer-transform admin toolbar (Bring Forward / Send Backward / Zoom / Clear). For `nbpb_text` / `nbpb_image` (customer-supplied content) the layer stays fully interactive so the customer can still position their text or photo.

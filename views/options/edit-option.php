@@ -1141,7 +1141,7 @@ $field_count   = isset($options['fields']) && is_array($options['fields']) ? cou
                     }
                     ?>
                     <a href="<?php echo esc_url($spbwc_cancel_link); ?>" class="v2-btn v2-btn--secondary">
-                        <?php echo ! empty( $product_id ) ? esc_html__('Back to product', 'storelly-product-builder-for-woocommerce') : esc_html__('Cancel', 'storelly-product-builder-for-woocommerce'); ?>
+                        <?php echo ! empty( $product_id ) ? esc_html__('Discard & back', 'storelly-product-builder-for-woocommerce') : esc_html__('Cancel', 'storelly-product-builder-for-woocommerce'); ?>
                     </a>
                     <input ng-disabled="!nboForm.$valid"
                            name="save" type="submit"

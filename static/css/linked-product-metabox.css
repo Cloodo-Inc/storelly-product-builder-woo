@@ -215,6 +215,25 @@
     opacity: 0.55;
 }
 
+/* Hint shown only while the builder is disabled. */
+.spbwc-lp-card__off-hint {
+    display: none;
+    align-items: center;
+    gap: var(--nbd-space-1, 4px);
+    margin: 0 0 var(--nbd-space-2, 8px);
+    color: var(--st-pill-warning-text, #9a3412);
+    font-size: var(--text-base, 12px);
+}
+.spbwc-lp.is-builder-off .spbwc-lp-card__off-hint {
+    display: flex;
+}
+.spbwc-lp-card__off-hint .dashicons {
+    font-size: 15px;
+    width: 15px;
+    height: 15px;
+    line-height: 15px;
+}
+
 /* ---- Empty / create state ---- */
 .spbwc-lp-empty {
     border: 1px dashed var(--nbd-st-border, #c3c4c7);

@@ -25,6 +25,8 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
             add_action('spbwc_create_tables', array($this, 'spbwc_create_options_table'));
             add_action('admin_enqueue_scripts', array($this, 'spbwc_admin_enqueue_scripts'));
             add_action('add_meta_boxes', array($this, 'spbwc_add_meta_boxes'), 35);
+            // Success notices on the product edit screen after Save&back / Swap / Unlink.
+            add_action('admin_notices', array($this, 'spbwc_product_admin_notices'));
             // Add options design in Order WC
             add_action('add_meta_boxes', array($this, 'spbwc_add_design_box'), 38);
             add_action('save_post', array($this, 'spbwc_save_product_option'));
@@ -774,8 +776,9 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
                             $spbwc_return_pid = isset($_GET['product_id']) ? absint(wp_unslash($_GET['product_id'])) : 0;
                             if ($spbwc_return && $spbwc_return_pid) {
                                 wp_safe_redirect(esc_url_raw(add_query_arg(array(
-                                    'post'   => $spbwc_return_pid,
-                                    'action' => 'edit',
+                                    'post'         => $spbwc_return_pid,
+                                    'action'       => 'edit',
+                                    'spbwc_notice' => 'saved',
                                 ), admin_url('post.php'))));
                                 exit;
                             }
@@ -3028,6 +3031,11 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
             // Nonce shared by the Swap + Unlink AJAX actions.
             $spbwc_link_nonce = wp_create_nonce('spbwc_link_product_option');
 
+            // Storefront URL for the "Preview on store" quick link + the global
+            // Quote Settings page for the quote-default hint.
+            $spbwc_front_url          = get_permalink($post_id);
+            $spbwc_quote_settings_url = defined('SPBWC_PB_QUOTES_SLUG') ? admin_url('admin.php?page=' . SPBWC_PB_QUOTES_SLUG) : '';
+
             // Defensive: surface legacy data where more than one product-level
             // option still claims this product. The new apply/save paths prevent
             // this; the warning helps merchants clean up older duplicates.
@@ -3285,6 +3293,35 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
                 array('%d')
             );
             $this->spbwc_flush_option_caches($option_id);
+        }
+
+        /**
+         * Dismissible success notice on the product edit screen after the
+         * Save&back / Swap / Unlink linked-product actions. Reads ?spbwc_notice.
+         * See docs/SPEC_LINKED_PRODUCT_UX.md §3.3.
+         */
+        public function spbwc_product_admin_notices() {
+            $screen = function_exists('get_current_screen') ? get_current_screen() : null;
+            if (!$screen || !isset($screen->post_type) || 'product' !== $screen->post_type) {
+                return;
+            }
+            // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only UI hint flag set by our own redirect; no state change.
+            $notice = isset($_GET['spbwc_notice']) ? sanitize_key(wp_unslash($_GET['spbwc_notice'])) : '';
+            if ('' === $notice) {
+                return;
+            }
+            $messages = array(
+                'saved'    => __('Pricing option saved.', 'storelly-product-builder-for-woocommerce'),
+                'swapped'  => __('Linked pricing option changed.', 'storelly-product-builder-for-woocommerce'),
+                'unlinked' => __('Pricing option unlinked from this product.', 'storelly-product-builder-for-woocommerce'),
+            );
+            if (!isset($messages[$notice])) {
+                return;
+            }
+            printf(
+                '<div class="notice notice-success is-dismissible"><p>%s</p></div>',
+                esc_html($messages[$notice])
+            );
         }
 
         /**

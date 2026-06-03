@@ -84,7 +84,18 @@
             });
         });
 
-        function post(action, data) {
+        // Reload the product edit screen carrying a one-shot success flag.
+        function reloadWithNotice(notice) {
+            try {
+                var u = new URL(window.location.href);
+                u.searchParams.set('spbwc_notice', notice);
+                window.location.assign(u.toString());
+            } catch (e) {
+                window.location.reload();
+            }
+        }
+
+        function post(action, data, notice) {
             $wrap.addClass('is-busy');
             return $.post(ajaxUrl, $.extend({
                 action: action,
@@ -92,7 +103,7 @@
                 product_id: product
             }, data)).done(function (res) {
                 if (res && res.success) {
-                    window.location.reload();
+                    reloadWithNotice(notice);
                 } else {
                     $wrap.removeClass('is-busy');
                     var m = (res && res.data && res.data.msg) ? res.data.msg : t('failed', 'Action failed. Please try again.');
@@ -117,7 +128,7 @@
                 text: t('swapConfirm', 'Map this product to the selected option instead?') + '\n' + label
             }).then(function (ok) {
                 if (ok) {
-                    post('spbwc_swap_product_option', { option_id: optionId });
+                    post('spbwc_swap_product_option', { option_id: optionId }, 'swapped');
                 } else {
                     $sel.val('');
                 }
@@ -133,7 +144,7 @@
                 danger: true
             }).then(function (ok) {
                 if (ok) {
-                    post('spbwc_unlink_product_option', {});
+                    post('spbwc_unlink_product_option', {}, 'unlinked');
                 }
             });
         });
