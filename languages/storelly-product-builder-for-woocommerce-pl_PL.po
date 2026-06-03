@@ -7056,7 +7056,7 @@ msgid "Import Woo Variations"
 msgstr ""
 
 #: views/templates/library.php:45
-msgid "Pick a pre-built printing option, apply it to your products or categories, then customize freely. Global templates stay read-only — your applied copy is yours to edit."
+msgid "Pick a pre-built pricing option, apply it to your products or categories, then customize freely. Global templates stay read-only — your applied copy is yours to edit."
 msgstr ""
 
 #: views/templates/library.php:52
