@@ -29,7 +29,18 @@
 | **M9** | **Smart download (P3/D3)** | "View" = direct public preview URL (new tab, no handler, OD-9). "Download" = stream PNG when single image, zip when multiple; `stream_and_exit()` now content-type aware + `$delete_after` (don't delete the real PNG). | **done** |
 | **M10** | **Safe delete + cart feedback (P4/D4)** | `custom-order.js` adds `confirm()` to `.spbwc-saved-designs__delete` (OD-10, enqueued on account); `wc_add_notice()` "Design added to your cart" on a **successful** Load (orphan clone cleaned if add fails). | **done** |
 
+### Round 3 — Cart-block integration + User Account settings/stats (spec §Part E, confirmed 2026-06-03)
+
+| # | Milestone | Scope | Status |
+| --- | --- | --- | --- |
+| **M11** | **Store API cart-item data (E1)** | `woocommerce_store_api_register_endpoint_data()` on cart-item schema (ns `storelly`): `is_design` / `save_url` / `preview`. Refactor `SPBWC_Saved_Designs::cart_save_url()` public helper shared by classic link + Store API. | todo |
+| **M12** | **Cart-block Save button (E2)** | `@wordpress/scripts` build (`src/blocks/cart-save` → `build/`), `IntegrationInterface` registered on the cart block, slot-fill renders a token-styled "Save design" button per design line item (guest → log-in link), wired to the existing nonce handler. | todo |
+| **M13** | **User Account settings tab (E3)** | New tab in `menu-settings.php` + `spbwc_settings()` handler: detect Cart mode + one-click "Switch Cart to Classic" (reversible, OD-13); Save entry-point toggles (`save_on_cart/order/builder`); nonce + `manage_woocommerce`. | todo |
+| **M14** | **User activity stats on Overview (E4)** | "Customer design activity" section in `views/overview.php`: saved-design count + authors, design re-orders (HPOS-safe), preview-download counter, top products, recent activity. | todo |
+| **M15** | **Compliance + tests (round 3)** | `wp plugin check` 0 errors; readme + POT for new strings; document the Node build step; verify block + classic both. | todo |
+
 Dependencies: **M0 → M2, M3, M4**. M1 is independent (can run in parallel with M0/M2).
 Round 2 (M7–M10) depends on M0 (clone) + M4 (saved-design storage), all shipped.
+Round 3 (M11–M14) depends on M4/M7; M12 depends on M11. OD-12/13/14 to confirm during build.
 
 Each milestone is committed locally (never pushed) after a lint/check pass.

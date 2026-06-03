@@ -271,6 +271,65 @@ populated when the handler reads it (fixed, commit 55d26d4).
 
 ---
 
+## Part E — Cart-block integration + User Account settings & activity stats
+
+> Status: **confirmed 2026-06-03**, spec-first. Decisions: Settings live in a new **"User Account"
+> tab** of the existing Settings page (`menu-settings.php`); **user activity stats go on the
+> Overview** page; Cart-block Save button uses the **official slot-fill + JS build** (A).
+
+### E1 — Store API data extension (PHP, shared by block + classic)
+Expose per-cart-item data so the Cart block (React/Store API) can render the Save button:
+- On `woocommerce_blocks_loaded`, call `woocommerce_store_api_register_endpoint_data()` for the
+  **cart item** schema, namespace `storelly`, returning per item:
+  `is_design` (bool), `save_url` (nonce URL), `preview` (image URL).
+- Refactor the nonce-URL builder out of `render_cart_save_link()` into a public
+  `SPBWC_Saved_Designs::cart_save_url( $cart_item_key )` so both the classic link and the Store
+  API share one source. Handler stays `handle_cart_save()` (unchanged).
+- New thin class `SPBWC_Cart_Store_API` (or a method on Saved_Designs) registers the extension.
+
+### E2 — Cart-block Save button (official slot-fill + build)
+- Add a JS build pipeline: `package.json` + `@wordpress/scripts` (`wp-scripts build`), source in
+  `src/blocks/cart-save/index.js`, output to `build/blocks/cart-save/`. Deps:
+  `@woocommerce/blocks-checkout`, `@wordpress/element`, `@wordpress/i18n` (externalised via
+  `@wordpress/dependency-extraction-webpack-plugin`).
+- Register the cart-block integration in PHP (`IntegrationInterface` via the
+  `woocommerce_blocks_cart_block_registration` registry) so the script + its asset deps load only
+  inside the Cart block.
+- The fill renders a token-styled **"Save design"** button per line item where
+  `item.extensions.storelly.is_design` is true; the button navigates to `save_url` (reuses the
+  existing nonce handler). Guests: render a "Log in to save" link.
+- Commit the build artifacts **and** the `src/`; document the build step in the repo (adds a
+  Node toolchain — OD-12).
+
+### E3 — "User Account" settings tab (Classic Cart + entry points)
+Add a tab to `views/menu-settings.php` + handler in `spbwc_settings()`:
+- **Cart compatibility**: detect & show current Cart mode (scan the Cart page for
+  `wp:woocommerce/cart` vs the `[woocommerce_cart]` shortcode). A **"Switch Cart to Classic"**
+  action replaces the Cart page content with the shortcode (stores the previous content in an
+  option for one-click **Undo**). Inline explanation of block vs classic + why the Save link needs
+  one of: classic cart, or the E1/E2 block integration.
+- **Save entry points**: toggles `save_on_cart` / `save_on_order` / `save_on_builder` (default on)
+  — the render methods check these.
+- Nonce + `manage_woocommerce` on all actions.
+
+### E4 — User activity stats on Overview
+Add a "Customer design activity" section to `views/overview.php`:
+- Saved designs total (`wp_count_posts('spbwc_saved_design')`) + distinct authors.
+- Design re-orders (orders carrying `_pcpb_folder`, HPOS-safe `wc_get_orders`).
+- Preview downloads — add a counter (increment order-item meta `_pcpb_preview_downloads` +
+  a global option in `SPBWC_Buyer_Downloads::maybe_handle_download`).
+- Top customized / saved products; a short "recent activity" list.
+- Read-only, computed on load (cache if slow — OD-14).
+
+### Open decisions (Part E)
+- **OD-12 Build tooling:** commit `build/` artifacts + `src/` + `package.json` (wp.org needs the
+  shipped JS). Confirm Node/`@wordpress/scripts` toolchain is acceptable in this repo.
+- **OD-13 Classic-cart switch:** mutate the Cart page content (reversible, proposed) vs only show
+  copy-paste instructions.
+- **OD-14 Stats storage:** compute on the fly (proposed) vs cache in a transient/option.
+
+---
+
 ## Open decisions (to confirm before/while building)
 
 - **OD-1 Save storage:** CPT `spbwc_saved_design` (proposed, mirrors Quote) vs lightweight user
