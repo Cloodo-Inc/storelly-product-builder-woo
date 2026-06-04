@@ -53,6 +53,17 @@ if ( ! class_exists( 'SPBWC_Woo_Prepare' ) ) {
 		/** Products processed per batch. */
 		const BATCH = 15;
 
+		/**
+		 * Wall-clock budget (seconds) for the no-Action-Scheduler inline path.
+		 * Each request prepares as many batches as fit in this window, then
+		 * stops and lets the next poll resume — so a large catalogue completes
+		 * across several requests instead of timing one out.
+		 */
+		const INLINE_BUDGET = 8;
+
+		/** Re-entrancy lock so two workers never prepare the same batch at once. */
+		const LOCK_TRANSIENT = 'spbwc_woo_prepare_lock';
+
 		/** template_slug prefix for prepared rows (distinct from wizard's woo_seed_). */
 		const SLUG_PREFIX = 'woo_prep_';
 
@@ -116,7 +127,10 @@ if ( ! class_exists( 'SPBWC_Woo_Prepare' ) ) {
 			}
 
 			$job_id = $this->new_job_id();
-			update_option(
+			// add_option is atomic (INSERT, fails if the row exists), so two
+			// near-simultaneous Overview loads can't both pass the check above
+			// and start two jobs. The loser simply bails.
+			$added = add_option(
 				self::OPTION_STATE,
 				array(
 					'job_id'     => $job_id,
@@ -128,8 +142,12 @@ if ( ! class_exists( 'SPBWC_Woo_Prepare' ) ) {
 					'total'      => 0,
 					'created'    => time(),
 				),
+				'',
 				false
 			);
+			if ( ! $added ) {
+				return;
+			}
 
 			$this->enqueue_next( $job_id );
 		}
@@ -140,13 +158,35 @@ if ( ! class_exists( 'SPBWC_Woo_Prepare' ) ) {
 				as_enqueue_async_action( self::HOOK_RUN, array( $job_id ), self::GROUP );
 				return;
 			}
-			// Fallback: no Action Scheduler — process inline. Bounded by the
-			// batch loop inside run_batch(); we drive it to completion here.
+			// Fallback: no Action Scheduler — process inline, but only for a
+			// bounded slice of time. Whatever's left is resumed by the dashboard
+			// status poll (see ajax_status) so a big store can't time out a
+			// single request.
+			$this->run_inline_budget( $job_id );
+		}
+
+		/**
+		 * Drive run_batch() repeatedly until the job is done OR the per-request
+		 * wall-clock budget is spent. State is persisted after every batch, so a
+		 * partial pass is safe to resume on the next call.
+		 *
+		 * @param string $job_id
+		 * @return bool done
+		 */
+		protected function run_inline_budget( $job_id ) {
+			// Another worker already holds the batch lock — let it finish instead
+			// of busy-spinning on a lock we won't get.
+			if ( get_transient( self::LOCK_TRANSIENT ) ) {
+				return false;
+			}
+			$start = microtime( true );
 			$guard = 0;
+			$done  = false;
 			do {
 				$done = $this->run_batch( $job_id );
 				$guard++;
-			} while ( ! $done && $guard < 1000 );
+			} while ( ! $done && $guard < 1000 && ( microtime( true ) - $start ) < self::INLINE_BUDGET );
+			return $done;
 		}
 
 		// ────────────────────────────────────────────────────────────────────
@@ -162,13 +202,36 @@ if ( ! class_exists( 'SPBWC_Woo_Prepare' ) ) {
 		}
 
 		/**
-		 * Process one batch of eligible products into published=0 option sets
-		 * and link them. Returns true when the whole job is finished.
+		 * Process one batch under a short-lived re-entrancy lock. If another
+		 * worker (a concurrent Action Scheduler run or status poll) is already
+		 * mid-batch, back off and report "not done" so the caller retries later.
+		 * Together with the per-product link check in run_batch_locked() this
+		 * closes the window where two workers could insert duplicate rows.
 		 *
 		 * @param string $job_id
 		 * @return bool done
 		 */
 		protected function run_batch( $job_id ) {
+			if ( get_transient( self::LOCK_TRANSIENT ) ) {
+				return false;
+			}
+			set_transient( self::LOCK_TRANSIENT, 1, 2 * MINUTE_IN_SECONDS );
+			try {
+				return $this->run_batch_locked( $job_id );
+			} finally {
+				delete_transient( self::LOCK_TRANSIENT );
+			}
+		}
+
+		/**
+		 * Process one batch of eligible products into published=0 option sets
+		 * and link them. Returns true when the whole job is finished. Always
+		 * called while holding LOCK_TRANSIENT (see run_batch).
+		 *
+		 * @param string $job_id
+		 * @return bool done
+		 */
+		protected function run_batch_locked( $job_id ) {
 			$state = $this->get_state();
 			if ( ! $state || ( isset( $state['job_id'] ) && $state['job_id'] !== $job_id ) ) {
 				return true; // stale / superseded
@@ -298,6 +361,19 @@ if ( ! class_exists( 'SPBWC_Woo_Prepare' ) ) {
 
 		public function ajax_status() {
 			$this->guard();
+			// No Action Scheduler? Advance the prepare in a bounded slice on each
+			// poll. The dashboard already polls every few seconds while the
+			// status is scheduled/preparing, so the catalogue completes across
+			// those polls without any single request timing out.
+			if ( ! function_exists( 'as_enqueue_async_action' ) ) {
+				$state = $this->get_state();
+				if ( $state
+					&& ! empty( $state['job_id'] )
+					&& isset( $state['status'] )
+					&& in_array( $state['status'], array( 'scheduled', 'preparing' ), true ) ) {
+					$this->run_inline_budget( (string) $state['job_id'] );
+				}
+			}
 			wp_send_json_success( $this->public_state() );
 		}
 

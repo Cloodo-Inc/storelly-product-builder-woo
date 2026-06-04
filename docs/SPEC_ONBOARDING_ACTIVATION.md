@@ -217,6 +217,7 @@ M7  ✅ DONE  Freemium contextual upsell: SPBWC_Upsell_Notice chỉ hiện trên
             plan + chạm limit (max_products/max_pricing_options), dismiss snooze 30 ngày. Commit 69d5504.
 M8  Compliance: plugin check 0 error + POT regen + readme + version bump
 M9  ⏳ REMEDIATION (2026-06-03) — vá gap audit phát hiện sau khi M1–M7 ship. Xem §8.
+        M9.2/M9.3/M9.4 ✅ DONE + test PASS (2026-06-04). M9.1 ⏸ DEFERRED (chờ chốt xử lý ảnh 15MB).
 ```
 
 M1–M2 an toàn, đã xong. M4–M5 đụng store thật + mạng → làm cẩn thận, test kỹ.
@@ -248,7 +249,8 @@ yc #9 (My Account endpoint) gài kèm M1 (đăng ký endpoint lúc activate).
 - **Acceptance:** store fresh OFFLINE bấm "Import demo products" → có ≥2 product publish, customize
   được trên storefront; Undo chỉ xoá đúng demo.
 
-### M9.2 — Review request notice (retention lever #1)  🔴
+### M9.2 — Review request notice (retention lever #1)  ✅ DONE (2026-06-04)
+> Ship: `includes/class-review-notice.php` (SPBWC_Review_Notice), require trong main plugin. Test PASS.
 - **Gap:** `spbwc_activated_at` lưu (`includes/class-onboarding.php:100`) + getter `get_activated_at()`
   (`:207`) nhưng KHÔNG nơi nào dùng. Không có notice xin đánh giá wp.org, không retention nudge.
   Spec liệt kê gap #5 nhưng không milestone nào giải quyết.
@@ -261,7 +263,10 @@ yc #9 (My Account endpoint) gài kèm M1 (đăng ký endpoint lúc activate).
 - **Acceptance:** notice không hiện trước 14 ngày / chưa có thành tựu; dismiss đúng từng nhánh; không
   hiện lại sau khi done.
 
-### M9.3 — Sửa dismiss Welcome + quote badge default  🟡
+### M9.3 — Sửa dismiss Welcome + quote badge default  ✅ DONE (2026-06-04)
+> Ship: SPBWC_Onboarding::maybe_restore_welcome/get_restore_url/is_dismissed + banner "Show the setup
+> guide again" trong overview.php; render_quote_badge coi badge mặc định ON khi key vắng (esc_url đã
+> sẵn ở render). Test PASS.
 - **Dismiss vĩnh viễn:** `SPBWC_Onboarding` (`includes/class-onboarding.php:66-81`) set `dismissed=true`
   sticky → lỡ bấm "Skip setup" là mất hướng dẫn dù onboarding chưa xong, không gọi lại được.
   → Thêm link nhỏ "Show setup guide" trên Overview khi `dismissed && ! is_onboarding_complete()`
@@ -273,7 +278,10 @@ yc #9 (My Account endpoint) gài kèm M1 (đăng ký endpoint lúc activate).
   thiếu) để chặn URL bẩn; KHÔNG cần whitelist (merchant tự nhập, chỉ là output escape).
 - **Acceptance:** Skip rồi vẫn gọi lại được guide; badge bật mặc định trên store mới; URL output escape.
 
-### M9.4 — Hardening woo-prepare (store lớn + race)  🟡
+### M9.4 — Hardening woo-prepare (store lớn + race)  ✅ DONE (2026-04-06)
+> Ship: INLINE_BUDGET 8s + run_inline_budget() time-box, ajax_status drive batch khi không có AS
+> (resume qua poll), LOCK_TRANSIENT re-entrancy lock quanh run_batch (tách run_batch_locked),
+> add_option atomic chặn double-start. Test PASS (stale guard + lock back-off).
 - **Timeout fallback sync:** `includes/setup-wizard/class-woo-prepare.php` batch 15 qua Action Scheduler
   OK, nhưng fallback sync loop (`guard < 1000` × 15 = 15.000 product đồng bộ, ~:145-149) → timeout
   trên shared hosting khi AS không khả dụng. → chunk theo thời gian (vd dừng batch khi vượt ngân sách

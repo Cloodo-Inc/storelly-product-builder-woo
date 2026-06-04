@@ -54,9 +54,13 @@ if ( ! class_exists( 'SPBWC_Onboarding' ) ) {
 		/** Nonce action for the "dismiss Welcome" link. */
 		const NONCE_DISMISS = 'spbwc_dismiss_welcome';
 
+		/** Nonce action for the "show setup guide again" link. */
+		const NONCE_RESTORE = 'spbwc_restore_welcome';
+
 		public static function init() {
 			add_action( 'admin_init', array( __CLASS__, 'maybe_redirect_after_activation' ) );
 			add_action( 'admin_init', array( __CLASS__, 'maybe_dismiss_welcome' ) );
+			add_action( 'admin_init', array( __CLASS__, 'maybe_restore_welcome' ) );
 		}
 
 		/**
@@ -86,6 +90,47 @@ if ( ! class_exists( 'SPBWC_Onboarding' ) ) {
 				add_query_arg( self::NONCE_DISMISS, '1' ),
 				self::NONCE_DISMISS
 			);
+		}
+
+		/**
+		 * Bring the Welcome surface back after a "Skip setup" — for merchants
+		 * who dismissed it before finishing. Clears the sticky dismissed flag
+		 * and bounces to the Overview in Welcome mode. Nonce + capability gated.
+		 */
+		public static function maybe_restore_welcome() {
+			if ( empty( $_GET[ self::NONCE_RESTORE ] ) ) {
+				return;
+			}
+			if ( ! current_user_can( 'manage_options' ) ) {
+				return;
+			}
+			if ( ! check_admin_referer( self::NONCE_RESTORE ) ) {
+				return;
+			}
+			self::update_state( array( 'dismissed' => false ) );
+			$url = add_query_arg(
+				array(
+					'page'             => SPBWC_PB_OVERVIEW_SLUG,
+					self::WELCOME_FLAG => 1,
+				),
+				admin_url( 'admin.php' )
+			);
+			wp_safe_redirect( $url );
+			exit;
+		}
+
+		/** URL that re-opens the Welcome surface (nonce-protected). */
+		public static function get_restore_url() {
+			return wp_nonce_url(
+				add_query_arg( self::NONCE_RESTORE, '1', admin_url( 'admin.php?page=' . SPBWC_PB_OVERVIEW_SLUG ) ),
+				self::NONCE_RESTORE
+			);
+		}
+
+		/** True when the merchant explicitly dismissed the Welcome surface. */
+		public static function is_dismissed() {
+			$state = self::get_state();
+			return ! empty( $state['dismissed'] );
 		}
 
 		/**

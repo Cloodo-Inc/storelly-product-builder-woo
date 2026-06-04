@@ -96,6 +96,7 @@ require_once(SPBWC_PB_PLUGIN_DIR .  'includes/class-admin-options.php');
 require_once(SPBWC_PB_PLUGIN_DIR .  'includes/class-i18n-notice.php');
 require_once(SPBWC_PB_PLUGIN_DIR .  'includes/class-onboarding.php');
 require_once(SPBWC_PB_PLUGIN_DIR .  'includes/class-upsell-notice.php');
+require_once(SPBWC_PB_PLUGIN_DIR .  'includes/class-review-notice.php');
 require_once(SPBWC_PB_PLUGIN_DIR .  'includes/class-frontend-options.php');
 require_once(SPBWC_PB_PLUGIN_DIR .  'includes/class-http.php');
 require_once(SPBWC_PB_PLUGIN_DIR .  'includes/class-productbuilder-api.php');
@@ -139,8 +140,12 @@ require_once(SPBWC_PB_PLUGIN_DIR .  'includes/quote/class-quote-admin.php');
 require_once(SPBWC_PB_PLUGIN_DIR .  'includes/quote/class-quote-emails.php');
 require_once(SPBWC_PB_PLUGIN_DIR .  'includes/quote/class-quote-scheduler.php');
 require_once(SPBWC_PB_PLUGIN_DIR .  'includes/quote/class-quote-migrator.php');
+require_once(SPBWC_PB_PLUGIN_DIR .  'includes/quote/class-quote-template.php');
 if ( class_exists( 'SPBWC_Quote_Post_Type' ) ) {
     SPBWC_Quote_Post_Type::instance()->init();
+}
+if ( class_exists( 'SPBWC_Quote_Template' ) ) {
+    SPBWC_Quote_Template::init();
 }
 if ( is_admin() && class_exists( 'SPBWC_Quote_Admin' ) ) {
     SPBWC_Quote_Admin::instance()->init();
