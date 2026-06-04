@@ -350,6 +350,71 @@ if ( ! class_exists( 'SPBWC_Company' ) ) {
         }
 
         /**
+         * Whether a user may approve team orders.
+         *
+         * @param int $user_id User (0 = current).
+         * @return bool
+         */
+        public static function user_can_approve( $user_id = 0 ) {
+            return in_array( self::get_user_role( $user_id ), array( self::ROLE_OWNER, self::ROLE_ADMIN, self::ROLE_APPROVER ), true );
+        }
+
+        /**
+         * Per-order spend limit for a user (0 = no limit).
+         *
+         * @param int $user_id User (0 = current).
+         * @return float
+         */
+        public static function get_order_limit( $user_id = 0 ) {
+            $user_id = $user_id ? absint( $user_id ) : get_current_user_id();
+            return $user_id ? (float) get_user_meta( $user_id, self::USER_LIMIT_ORDER, true ) : 0.0;
+        }
+
+        /**
+         * @param int $company_id Company.
+         * @return float Approval threshold (0 = none).
+         */
+        public static function get_approval_threshold( $company_id ) {
+            return (float) get_post_meta( absint( $company_id ), self::META_APPROVAL_THRESHOLD, true );
+        }
+
+        /**
+         * Whether an order of $total by $user needs approval before it can be placed.
+         *
+         * Requesters/viewers are gated; owners/admins/approvers are not. The gate
+         * trips when the order exceeds the user's per-order limit (if set) or the
+         * company approval threshold (if set).
+         *
+         * @param float $total   Order total.
+         * @param int   $user_id User (0 = current).
+         * @return bool
+         */
+        public static function order_needs_approval( $total, $user_id = 0 ) {
+            $user_id = $user_id ? absint( $user_id ) : get_current_user_id();
+            $company_id = self::get_user_company_id( $user_id );
+            if ( ! $company_id || ! self::is_active( $company_id ) ) {
+                return false;
+            }
+            $role = self::get_user_role( $user_id );
+            if ( in_array( $role, array( self::ROLE_OWNER, self::ROLE_ADMIN, self::ROLE_APPROVER ), true ) ) {
+                return false; // Approvers self-approve.
+            }
+            $total      = (float) $total;
+            $order_lim  = self::get_order_limit( $user_id );
+            $threshold  = self::get_approval_threshold( $company_id );
+            if ( $order_lim > 0 && $total > $order_lim ) {
+                return true;
+            }
+            if ( $threshold > 0 && $total > $threshold ) {
+                return true;
+            }
+            // A requester with no limits and a zero threshold still needs approval
+            // when the company opts every requester order into review (threshold 0
+            // means "always" only if explicitly a requester role with no allowance).
+            return false;
+        }
+
+        /**
          * All users attached to a company.
          *
          * @param int $company_id Company.

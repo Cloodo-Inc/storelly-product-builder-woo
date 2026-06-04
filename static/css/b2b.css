@@ -243,6 +243,72 @@
     color: #b91c1c;
 }
 
+/* B2B Team */
+.spbwc-team__table th,
+.spbwc-team__table td {
+    vertical-align: middle;
+}
+
+.spbwc-team__limit {
+    width: 90px;
+}
+
+.spbwc-team__row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: wrap;
+    margin: 0;
+}
+
+.spbwc-team__pending {
+    list-style: none;
+    margin: 0 0 16px;
+    padding: 0;
+}
+
+.spbwc-team__pending li {
+    padding: 6px 0;
+    border-bottom: 1px solid #eee;
+}
+
+.spbwc-team__invite input[type="email"] {
+    min-width: 220px;
+}
+
+/* B2B Procurement / Approval Queue */
+.spbwc-proc__card {
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    padding: 16px;
+    margin: 0 0 16px;
+}
+
+.spbwc-proc__head {
+    margin-bottom: 8px;
+}
+
+.spbwc-proc__items {
+    margin: 0 0 10px;
+    padding-left: 18px;
+    color: #4b5563;
+    font-size: 13px;
+}
+
+.spbwc-proc__actions textarea {
+    width: 100%;
+    margin-bottom: 8px;
+}
+
+.spbwc-proc__btns {
+    display: flex;
+    gap: 8px;
+}
+
+.spbwc-proc-gate .button {
+    margin-left: 8px;
+}
+
 /* B2B tier price display (Pattern 7) */
 .spbwc-b2b-price del {
     opacity: .6;

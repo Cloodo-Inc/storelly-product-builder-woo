@@ -187,6 +187,9 @@ require_once(SPBWC_PB_PLUGIN_DIR .  'includes/b2b/class-b2b-pricing-admin.php');
 require_once(SPBWC_PB_PLUGIN_DIR .  'includes/b2b/class-b2b-reorders.php');
 /* M4 — per-company product price overrides (table + cascade in pricing). */
 require_once(SPBWC_PB_PLUGIN_DIR .  'includes/b2b/class-b2b-price-rules.php');
+/* M5 — team procurement: team management + approval gate/queue. */
+require_once(SPBWC_PB_PLUGIN_DIR .  'includes/b2b/class-b2b-team.php');
+require_once(SPBWC_PB_PLUGIN_DIR .  'includes/b2b/class-b2b-procurement.php');
 if ( class_exists( 'SPBWC_B2B_Company_Post_Type' ) ) {
     SPBWC_B2B_Company_Post_Type::instance()->init();
 }
@@ -204,6 +207,12 @@ if ( class_exists( 'SPBWC_B2B_Reorders' ) ) {
 }
 if ( class_exists( 'SPBWC_B2B_Price_Rules' ) ) {
     SPBWC_B2B_Price_Rules::init();
+}
+if ( class_exists( 'SPBWC_B2B_Team' ) ) {
+    SPBWC_B2B_Team::init();
+}
+if ( class_exists( 'SPBWC_B2B_Procurement' ) ) {
+    SPBWC_B2B_Procurement::init();
 }
 if ( is_admin() && class_exists( 'SPBWC_B2B_Admin' ) ) {
     SPBWC_B2B_Admin::instance()->init();
