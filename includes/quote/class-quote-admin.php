@@ -803,6 +803,20 @@ if ( ! class_exists( 'SPBWC_Quote_Admin' ) ) {
                 echo '<div class="spbwc-q-recap__label">' . esc_html( $label ) . '</div>';
                 echo '<div class="spbwc-q-recap__value">' . esc_html( (string) $request[ $key ] ) . '</div>';
             }
+            // Multi-item quote cart (P4.3): a list of products instead of one.
+            if ( ! empty( $request['items'] ) && is_array( $request['items'] ) ) {
+                $shown = true;
+                echo '<div class="spbwc-q-recap__label">' . esc_html__( 'Products', 'storelly-product-builder-for-woocommerce' ) . '</div>';
+                echo '<div class="spbwc-q-recap__value"><ul class="spbwc-q-recap__items">';
+                foreach ( $request['items'] as $item ) {
+                    if ( empty( $item['name'] ) ) {
+                        continue;
+                    }
+                    $qty = isset( $item['qty'] ) ? (int) $item['qty'] : 1;
+                    echo '<li>' . esc_html( (string) $item['name'] ) . ' <span class="spbwc-q-recap__qty">&times;' . esc_html( (string) $qty ) . '</span></li>';
+                }
+                echo '</ul></div>';
+            }
             // Any extra custom fields submitted via the form builder.
             if ( ! empty( $request['fields'] ) && is_array( $request['fields'] ) ) {
                 foreach ( $request['fields'] as $k => $v ) {

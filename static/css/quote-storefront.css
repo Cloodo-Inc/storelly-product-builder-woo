@@ -479,3 +479,77 @@
     .spbwc-rfq-badge--bottom-right, .spbwc-rfq-badge--top-right { right: 14px; }
     .spbwc-rfq-badge--bottom-left, .spbwc-rfq-badge--top-left { left: 14px; }
 }
+
+/* ── Multi-item quote cart (P4.3) ──────────────────────────────────────── */
+
+/* "Add to quote list" button under add-to-cart */
+.spbwc-bucket-add { margin-top: 8px; }
+.spbwc-bucket-add.is-added { opacity: .7; }
+
+/* Floating "Quote list (N)" badge — sits bottom-left to clear the M6 badge */
+.spbwc-rfq-fab {
+    position: fixed;
+    left: 20px;
+    bottom: 20px;
+    z-index: 99989;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 18px;
+    border: none;
+    border-radius: 999px;
+    background: var(--nbd-mb-primary, #2563eb);
+    color: #fff;
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 1;
+    cursor: pointer;
+    box-shadow: 0 6px 20px rgba(15, 23, 42, 0.25);
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+.spbwc-rfq-fab:hover { transform: translateY(-2px); box-shadow: 0 10px 26px rgba(15, 23, 42, 0.3); color: #fff; }
+.spbwc-rfq-fab:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
+.spbwc-rfq-fab .dashicons { width: 18px; height: 18px; font-size: 18px; }
+.spbwc-rfq-fab__count {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 20px;
+    height: 20px;
+    padding: 0 6px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.25);
+    font-size: 12px;
+    font-weight: 800;
+}
+@media (max-width: 600px) {
+    .spbwc-rfq-fab { left: 14px; bottom: 14px; padding: 11px 15px; font-size: 13px; }
+    .spbwc-rfq-fab__label { display: none; }
+}
+
+/* Bucket review list inside the modal */
+.spbwc-bucket-list { list-style: none; margin: 0 0 18px; padding: 0; }
+.spbwc-bucket-item {
+    display: grid;
+    grid-template-columns: 1fr auto auto auto;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--spbwc-rfq-border);
+    font-size: 14px;
+}
+.spbwc-bucket-item:last-child { border-bottom: 0; }
+.spbwc-bucket-item__name { font-weight: 600; color: var(--spbwc-rfq-text); }
+.spbwc-bucket-item__qty { font-size: 12.5px; color: var(--spbwc-rfq-muted); }
+.spbwc-bucket-item__price { font-size: 13px; color: var(--spbwc-rfq-muted); }
+.spbwc-bucket-item__remove {
+    border: none;
+    background: transparent;
+    color: var(--spbwc-rfq-muted);
+    font-size: 20px;
+    line-height: 1;
+    cursor: pointer;
+    padding: 0 4px;
+}
+.spbwc-bucket-item__remove:hover { color: var(--spbwc-rfq-danger); }
+.spbwc-bucket-empty { color: var(--spbwc-rfq-muted); font-size: 14px; padding: 10px 0; }

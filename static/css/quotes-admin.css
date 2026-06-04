@@ -108,6 +108,9 @@
     color: var(--nbd-st-text);
     word-break: break-word;
 }
+.spbwc-q-recap__items { margin: 0; padding: 0; list-style: none; }
+.spbwc-q-recap__items li { padding: 2px 0; }
+.spbwc-q-recap__qty { color: var(--nbd-st-text-soft); font-weight: 600; }
 
 /* ── Template bar (P3.12) ─────────────────────────────────────────────── */
 .spbwc-q-tmpl-bar {
