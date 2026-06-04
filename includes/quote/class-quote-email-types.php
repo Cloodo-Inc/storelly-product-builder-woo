@@ -103,6 +103,24 @@ if ( ! class_exists( 'SPBWC_Quote_Email_Base' ) ) {
         /** @return string HTML body (between header and footer). */
         abstract protected function build_body();
 
+        /**
+         * Attach the quote PDF (when the Cloud2Print adapter produced one) to
+         * customer-facing emails that have priced lines. Admin/ack emails get
+         * nothing. Local-print-only sites send no attachment (the body links to
+         * the quote instead).
+         *
+         * @return string[]
+         */
+        public function get_attachments() {
+            if ( empty( $this->customer_email ) || ! class_exists( 'SPBWC_Quote_PDF' ) || ! $this->quote_id ) {
+                return array();
+            }
+            if ( empty( SPBWC_Quote::get_lines( $this->quote_id ) ) ) {
+                return array();
+            }
+            return SPBWC_Quote_PDF::email_attachments( $this->quote_id );
+        }
+
         protected function dispatch( $quote_id, $recipient ) {
             $this->setup_locale();
             $this->load_quote( $quote_id );

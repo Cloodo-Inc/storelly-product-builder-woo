@@ -141,11 +141,15 @@ require_once(SPBWC_PB_PLUGIN_DIR .  'includes/quote/class-quote-emails.php');
 require_once(SPBWC_PB_PLUGIN_DIR .  'includes/quote/class-quote-scheduler.php');
 require_once(SPBWC_PB_PLUGIN_DIR .  'includes/quote/class-quote-migrator.php');
 require_once(SPBWC_PB_PLUGIN_DIR .  'includes/quote/class-quote-template.php');
+require_once(SPBWC_PB_PLUGIN_DIR .  'includes/quote/class-quote-pdf.php');
 if ( class_exists( 'SPBWC_Quote_Post_Type' ) ) {
     SPBWC_Quote_Post_Type::instance()->init();
 }
 if ( class_exists( 'SPBWC_Quote_Template' ) ) {
     SPBWC_Quote_Template::init();
+}
+if ( class_exists( 'SPBWC_Quote_PDF' ) ) {
+    SPBWC_Quote_PDF::init();
 }
 if ( is_admin() && class_exists( 'SPBWC_Quote_Admin' ) ) {
     SPBWC_Quote_Admin::instance()->init();

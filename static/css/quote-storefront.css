@@ -246,6 +246,7 @@
     margin: 0 0 6px;
 }
 .spbwc-rfq-acc-head h2 { margin: 0; }
+.spbwc-rfq-print { margin-left: auto; padding: 7px 14px; font-size: 13px; }
 
 .spbwc-rfq-pill {
     display: inline-flex;

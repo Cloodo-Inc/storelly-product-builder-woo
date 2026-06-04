@@ -82,9 +82,16 @@ After submitting, the modal shows a static "Request sent" message with no next s
 ---
 
 ## P4 — B2B depth (v2, large)
-- **PDF quote** attached to emails · **Net terms / 50-50 deposit** at conversion · **Multi-item
-  quote cart** (several products in one request) · **Company / multi-seat accounts + approval
-  chains** (internal sign-off by spend limit). All previously scoped to v2 in the main spec.
+- **P4.1 PDF quote — DONE (hybrid).** `SPBWC_Quote_PDF`: a nonce-guarded local print view
+  (`?spbwc_quote_print=`) the merchant/buyer prints or saves as PDF (no bundled library, no
+  phone-home, always available) + a `spbwc_quote_cloud_pdf` filter so a Cloud2Print adapter can
+  produce a real PDF that's attached to customer emails when `enable_cloud2print_api` is on.
+  Download/Print links on the admin detail + buyer view; customer emails attach the cloud PDF when
+  present. **Remaining:** the Cloud2Print *document endpoint* adapter (hook the filter, POST the
+  quote HTML, save the returned PDF) — needs the endpoint contract.
+- **Net terms / 50-50 deposit** at conversion · **Multi-item quote cart** (several products in one
+  request) · **Company / multi-seat accounts + approval chains** — the company/approval piece is the
+  separate B2B Client project (docs/SPEC_B2B_CLIENT.md, CPT spbwc_company). Still open.
 
 ## P5 — Cleanup (small tech debt)
 - **Form Builder** `select` field type has no options editor (renders as text) — implement or remove.

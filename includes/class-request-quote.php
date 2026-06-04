@@ -844,6 +844,9 @@ if ( ! class_exists( 'SPBWC_Request_Quote' ) ) {
             /* translators: %s: quote number e.g. Q-2026-0001 */
             echo '<h2>' . esc_html( sprintf( __( 'Quote %s', 'storelly-product-builder-for-woocommerce' ), $number ? $number : '#' . $quote_id ) ) . '</h2>';
             echo $this->buyer_pill( $status ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- buyer_pill returns escaped markup.
+            if ( ! $is_preview && class_exists( 'SPBWC_Quote_PDF' ) ) {
+                echo '<a class="spbwc-rfq-btn spbwc-rfq-btn--ghost spbwc-rfq-print" href="' . esc_url( SPBWC_Quote_PDF::print_url( $quote_id ) ) . '" target="_blank" rel="noopener">' . esc_html__( 'Download / Print', 'storelly-product-builder-for-woocommerce' ) . '</a>';
+            }
             echo '</div>';
 
             if ( $is_preview ) {
