@@ -89,8 +89,22 @@ After submitting, the modal shows a static "Request sent" message with no next s
   Download/Print links on the admin detail + buyer view; customer emails attach the cloud PDF when
   present. **Remaining:** the Cloud2Print *document endpoint* adapter (hook the filter, POST the
   quote HTML, save the returned PDF) — needs the endpoint contract.
-- **Net terms / 50-50 deposit** at conversion · **Multi-item quote cart** (several products in one
-  request) · **Company / multi-seat accounts + approval chains** — the company/approval piece is the
+- **P4.2 Net terms / 50-50 deposit — DONE.** The pricing reply has a Payment terms select
+  (`SPBWC_Quote::payment_terms_options()`): Pre-pay / Net-15 / Net-30 / Net-60 / 50% deposit.
+  `spawn_order_from_quote()` is terms-aware — Net-N → full order set **on-hold** with a due date
+  (`_spbwc_quote_due_date` = today+N) + note (an unpaid invoice, no forced payment); 50% deposit →
+  order carries a single `Deposit (50% of <total>)` fee with the balance tracked
+  (`_spbwc_quote_balance`) + note; Pre-pay → pending (pay now). Buyer Accept card + converted view
+  show the right messaging ("Deposit due now" / Net-N invoice). *Note: capturing the remaining
+  deposit balance is left to a deposits gateway — we model the deposit as the payable amount + a
+  tracked balance, no partial-payment plugin required.*
+- **P4.3 Multi-item quote cart — DONE.** `SPBWC_Quote_Bucket`: a WC-session bucket (separate from
+  the cart) collected via "Add to quote list" buttons; a floating "Quote list (N)" badge opens a
+  review modal (adjust/remove + request form) that submits **one** `spbwc_quote` with
+  `request['items']` pre-seeded as multiple line items. Vanilla-JS (`quote-bucket.js`), 3
+  nonce-guarded AJAX endpoints, admin recap renders the product list. Gated on the global Get Quote
+  toggle.
+- **Company / multi-seat accounts + approval chains** — the company/approval piece is the
   separate B2B Client project (docs/SPEC_B2B_CLIENT.md, CPT spbwc_company). Still open.
 
 ## P5 — Cleanup (small tech debt)
