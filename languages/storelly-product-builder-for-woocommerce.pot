@@ -2,14 +2,14 @@
 # This file is distributed under the GPL v2 or later.
 msgid ""
 msgstr ""
-"Project-Id-Version: Storelly Product Builder for WooCommerce 1.5.6\n"
+"Project-Id-Version: Storelly Product Builder for WooCommerce 1.5.7\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/storelly-product-builder-woo\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-06-04T07:50:14+00:00\n"
+"POT-Creation-Date: 2026-06-04T15:12:19+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: storelly-product-builder-for-woocommerce\n"
@@ -39,20 +39,174 @@ msgstr ""
 msgid "https://storelly.com"
 msgstr ""
 
-#: includes/class-admin-options.php:151
-msgid "Storelly Product builder Page"
+#: includes/b2b/class-b2b-account.php:67
+#: includes/b2b/class-b2b-account.php:124
+#: includes/b2b/class-b2b-storefront.php:113
+msgid "Brand Store"
 msgstr ""
 
-#: includes/class-admin-options.php:173
-msgid "Product builder designs"
+#: includes/b2b/class-b2b-account.php:83
+#: includes/b2b/class-b2b-team.php:75
+msgid "You are not part of a B2B company."
 msgstr ""
 
+#: includes/b2b/class-b2b-account.php:93
+msgid "Your company is awaiting approval. We will email you when it is active."
+msgstr ""
+
+#: includes/b2b/class-b2b-account.php:95
+msgid "Your company is currently suspended. Please contact the store."
+msgstr ""
+
+#: includes/b2b/class-b2b-account.php:99
+msgid "Finish your Brand Store profile (logo + legal company name) to make it complete."
+msgstr ""
+
+#: includes/b2b/class-b2b-account.php:125
+msgid "Brand Store profile"
+msgstr ""
+
+#: includes/b2b/class-b2b-account.php:127
+msgid "View public store →"
+msgstr ""
+
+#: includes/b2b/class-b2b-account.php:137
+msgid "Only company owners and admins can edit the Brand Store."
+msgstr ""
+
+#: includes/b2b/class-b2b-account.php:140
+msgid "Legal name:"
+msgstr ""
+
+#: includes/b2b/class-b2b-account.php:143
+msgid "Contact:"
+msgstr ""
+
+#: includes/b2b/class-b2b-account.php:170
+msgid "Branding"
+msgstr ""
+
+#: includes/b2b/class-b2b-account.php:171
+msgid "Store name"
+msgstr ""
+
+#: includes/b2b/class-b2b-account.php:172
+msgid "Tagline"
+msgstr ""
+
+#: includes/b2b/class-b2b-account.php:173
+msgid "Logo (square, min 400×400)"
+msgstr ""
+
+#: includes/b2b/class-b2b-account.php:178
+msgid "Banner (≈1920×400)"
+msgstr ""
+
+#: includes/b2b/class-b2b-account.php:183
+msgid "Primary colour"
+msgstr ""
+
+#: includes/b2b/class-b2b-account.php:184
+msgid "Secondary colour"
+msgstr ""
+
+#: includes/b2b/class-b2b-account.php:185
+msgid "Brand description"
+msgstr ""
+
+#: includes/b2b/class-b2b-account.php:189
+msgid "Corporate profile"
+msgstr ""
+
+#: includes/b2b/class-b2b-account.php:190
+msgid "Legal company name"
+msgstr ""
+
+#: includes/b2b/class-b2b-account.php:191
+msgid "Trade / DBA name"
+msgstr ""
+
+#: includes/b2b/class-b2b-account.php:192
+msgid "Industry"
+msgstr ""
+
+#: includes/b2b/class-b2b-account.php:193
+msgid "Number of employees"
+msgstr ""
+
+#: includes/b2b/class-b2b-account.php:194
+msgid "VAT / Tax ID"
+msgstr ""
+
+#: includes/b2b/class-b2b-account.php:198
+#: includes/launcher/class.launcher.php:1420
+#: templates/launcher/store/settings.php:47
+#: views/marketplace-admin/designer-edit.php:135
+msgid "Address"
+msgstr ""
+
+#: includes/b2b/class-b2b-account.php:199
+msgid "Street address"
+msgstr ""
+
+#: includes/b2b/class-b2b-account.php:200
+msgid "City"
+msgstr ""
+
+#: includes/b2b/class-b2b-account.php:201
+msgid "State / Province"
+msgstr ""
+
+#: includes/b2b/class-b2b-account.php:202
+msgid "Postcode"
+msgstr ""
+
+#: includes/b2b/class-b2b-account.php:203
+msgid "Country"
+msgstr ""
+
+#: includes/b2b/class-b2b-account.php:207
+msgid "Official contact"
+msgstr ""
+
+#: includes/b2b/class-b2b-account.php:208
+msgid "Primary contact name"
+msgstr ""
+
+#: includes/b2b/class-b2b-account.php:209
+msgid "Title / Role"
+msgstr ""
+
+#: includes/b2b/class-b2b-account.php:210
+msgid "Business email"
+msgstr ""
+
+#: includes/b2b/class-b2b-account.php:211
+msgid "Business phone"
+msgstr ""
+
+#: includes/b2b/class-b2b-account.php:212
+msgid "Website"
+msgstr ""
+
+#: includes/b2b/class-b2b-account.php:215
+msgid "Save Brand Store"
+msgstr ""
+
+#: includes/b2b/class-b2b-account.php:248
+#: includes/b2b/class-b2b-account.php:252
+#: includes/b2b/class-b2b-procurement.php:225
+#: includes/b2b/class-b2b-procurement.php:230
+#: includes/b2b/class-b2b-reorders.php:184
+#: includes/b2b/class-b2b-reorders.php:188
 #: includes/class-admin-options.php:211
 #: includes/class-admin-options.php:238
-#: includes/class-admin-options.php:3941
+#: includes/class-admin-options.php:3982
 #: includes/class-buyer-downloads.php:184
 #: includes/class-buyer-downloads.php:189
 #: includes/class-cloud-connect.php:171
+#: includes/class-demo-seeder.php:73
+#: includes/class-order-pdf.php:72
 #: includes/class-saved-designs.php:373
 #: includes/class-saved-designs.php:446
 #: includes/class-saved-designs.php:451
@@ -63,13 +217,911 @@ msgstr ""
 msgid "You do not have permission."
 msgstr ""
 
+#: includes/b2b/class-b2b-account.php:348
+msgid "Brand Store saved."
+msgstr ""
+
+#: includes/b2b/class-b2b-admin.php:46
+#: includes/b2b/class-b2b-admin.php:53
+#: includes/b2b/class-b2b-admin.php:309
+#: includes/b2b/class-b2b-company-post-type.php:41
+msgid "B2B Companies"
+msgstr ""
+
+#: includes/b2b/class-b2b-admin.php:75
+msgid "View B2B company"
+msgstr ""
+
+#: includes/b2b/class-b2b-admin.php:79
+#: includes/b2b/class-b2b-admin.php:415
+msgid "Upgrade to B2B"
+msgstr ""
+
+#: includes/b2b/class-b2b-admin.php:129
+#: includes/b2b/class-b2b-pricing-admin.php:62
+#: includes/class-admin-options.php:400
+#: includes/class-admin-options.php:912
+#: includes/class-admin-options.php:1183
+#: includes/class-admin-options.php:1218
+#: includes/class-admin-options.php:1753
+#: includes/class-admin-options.php:1817
+#: includes/class-admin-options.php:1837
+#: includes/class-admin-options.php:4074
+#: includes/class-admin-options.php:4160
+#: includes/marketplace/admin/class-marketplace-admin.php:101
+#: includes/quote/class-quote-admin.php:158
+#: includes/templates/class-template-library-admin.php:156
+#: includes/visual-builder/class-visual-builder-admin.php:62
+#: views/setup-wizard/landing.php:21
+#: views/setup-wizard/woo-seed.php:20
+msgid "You do not have permission to access this page."
+msgstr ""
+
+#: includes/b2b/class-b2b-admin.php:174
+#: includes/b2b/class-b2b-admin.php:277
+#: includes/class-admin-options.php:1020
+#: includes/class-admin-options.php:3616
+#: includes/class-admin-options.php:3711
+#: includes/class-admin-options.php:4180
+#: includes/class-admin-options.php:4208
+#: includes/class-product-exporter.php:188
+#: includes/launcher/class.launcher.php:553
+#: includes/marketplace/admin/class-marketplace-admin-ajax.php:32
+#: includes/quote/class-quote-admin.php:52
+#: includes/quote/class-quote-admin.php:87
+#: views/marketplace-admin/designer-edit.php:26
+msgid "Permission denied."
+msgstr ""
+
+#: includes/b2b/class-b2b-admin.php:179
+msgid "Company approved by merchant."
+msgstr ""
+
+#: includes/b2b/class-b2b-admin.php:183
+msgid "Company suspended by merchant."
+msgstr ""
+
+#: includes/b2b/class-b2b-admin.php:187
+msgid "Company reactivated by merchant."
+msgstr ""
+
+#: includes/b2b/class-b2b-admin.php:201
+msgid "none"
+msgstr ""
+
+#. translators: %s: tier label.
+#: includes/b2b/class-b2b-admin.php:206
+#, php-format
+msgid "Pricing tier changed to %s."
+msgstr ""
+
+#: includes/b2b/class-b2b-admin.php:311
+msgid "Upgrade a customer to B2B from Users → hover a row → \"Upgrade to B2B\"."
+msgstr ""
+
+#: includes/b2b/class-b2b-admin.php:316
+msgid "Total companies"
+msgstr ""
+
+#: includes/b2b/class-b2b-admin.php:317
+#: includes/b2b/class-b2b-company.php:86
+msgid "Active"
+msgstr ""
+
+#: includes/b2b/class-b2b-admin.php:318
+#: includes/b2b/class-b2b-company.php:85
+msgid "Pending approval"
+msgstr ""
+
+#: includes/b2b/class-b2b-admin.php:327
+#: includes/class-request-quote.php:720
+#: includes/launcher/class.launcher.php:1410
+#: includes/quote/class-quotes-list-table.php:70
+#: views/marketplace-admin/designers.php:46
+#: views/options/options-list-table.php:124
+#: views/product-builder/wrapper.php:248
+#: views/products.php:67
+msgid "All"
+msgstr ""
+
+#: includes/b2b/class-b2b-admin.php:355
+#: includes/b2b/class-b2b-company-post-type.php:42
+#: includes/quote/class-quote-admin.php:788
+msgid "Company"
+msgstr ""
+
+#: includes/b2b/class-b2b-admin.php:356
+#: includes/b2b/class-b2b-company.php:99
+msgid "Owner"
+msgstr ""
+
+#: includes/b2b/class-b2b-admin.php:357
+#: includes/b2b/class-b2b-admin.php:484
+#: includes/class-admin-options.php:1948
+#: includes/class-request-quote.php:761
+#: includes/launcher/class.launcher.php:1506
+#: includes/marketplace/admin/class-designers-list-table.php:34
+#: includes/marketplace/admin/class-designs-list-table.php:35
+#: includes/marketplace/admin/class-withdraws-list-table.php:35
+#: includes/options/fields-list-table.php:41
+#: includes/quote/class-quote-admin.php:693
+#: includes/quote/class-quotes-list-table.php:40
+#: templates/launcher/store/design-table.php:14
+#: templates/launcher/store/design-table.php:28
+#: templates/launcher/store/withdraw-table.php:9
+#: templates/launcher/store/withdraw-table.php:18
+#: views/designs.php:128
+msgid "Status"
+msgstr ""
+
+#: includes/b2b/class-b2b-admin.php:358
+#: includes/b2b/class-b2b-team.php:51
+#: includes/b2b/class-b2b-team.php:89
+msgid "Team"
+msgstr ""
+
+#: includes/b2b/class-b2b-admin.php:359
+msgid "Store"
+msgstr ""
+
+#: includes/b2b/class-b2b-admin.php:363
+msgid "No companies yet."
+msgstr ""
+
+#: includes/b2b/class-b2b-admin.php:376
+msgid "View →"
+msgstr ""
+
+#: includes/b2b/class-b2b-admin.php:399
+msgid "User not found."
+msgstr ""
+
+#: includes/b2b/class-b2b-admin.php:403
+#: includes/b2b/class-b2b-company.php:134
+msgid "This customer already belongs to a company."
+msgstr ""
+
+#. translators: %s: customer email.
+#: includes/b2b/class-b2b-admin.php:419
+#, php-format
+msgid "Convert %s into a B2B company account. They become the company owner and can edit their Brand Store, invite a team, and access B2B pricing."
+msgstr ""
+
+#: includes/b2b/class-b2b-admin.php:430
+msgid "Company name"
+msgstr ""
+
+#: includes/b2b/class-b2b-admin.php:433
+#: includes/b2b/class-b2b-admin.php:534
+msgid "Team seats"
+msgstr ""
+
+#: includes/b2b/class-b2b-admin.php:436
+#: includes/b2b/class-b2b-admin.php:538
+#: includes/b2b/class-b2b-pricing-admin.php:81
+#: includes/quote/class-quote-admin.php:631
+msgid "Payment terms"
+msgstr ""
+
+#: includes/b2b/class-b2b-admin.php:441
+msgid "Label shown to the company; WooCommerce + your gateway handle actual payment."
+msgstr ""
+
+#: includes/b2b/class-b2b-admin.php:443
+msgid "Activate now"
+msgstr ""
+
+#: includes/b2b/class-b2b-admin.php:444
+msgid "Activate immediately (uncheck to leave pending approval)"
+msgstr ""
+
+#: includes/b2b/class-b2b-admin.php:447
+msgid "Create company"
+msgstr ""
+
+#: includes/b2b/class-b2b-admin.php:448
+#: includes/launcher/class.launcher.php:1423
+#: includes/marketplace/admin/class-withdraws-list-table.php:45
+#: includes/marketplace/admin/class-withdraws-list-table.php:105
+#: includes/setup-wizard/class-woo-seed-controller.php:210
+#: includes/templates/class-template-library-admin.php:147
+#: templates/launcher/store/withdraw-table.php:40
+#: views/manager-fonts.php:115
+#: views/options/edit-option-v3.php:386
+#: views/options/edit-option.php:1144
+#: views/options/options-list-table.php:428
+#: views/product-builder/js_config.php:134
+#: views/product-builder/wrapper-v2-1.php:251
+#: views/product-builder/wrapper.php:884
+#: views/product-builder/wrapper.php:919
+#: views/templates/library.php:415
+#: views/visual-builder/create-picker.php:117
+#: views/visual-builder/edit.php:1098
+msgid "Cancel"
+msgstr ""
+
+#: includes/b2b/class-b2b-admin.php:465
+msgid "No tier"
+msgstr ""
+
+#: includes/b2b/class-b2b-admin.php:467
+msgid "All companies"
+msgstr ""
+
+#: includes/b2b/class-b2b-admin.php:472
+msgid "Owner:"
+msgstr ""
+
+#: includes/b2b/class-b2b-admin.php:475
+msgid "View Brand Store →"
+msgstr ""
+
+#: includes/b2b/class-b2b-admin.php:482
+msgid "Team members"
+msgstr ""
+
+#: includes/b2b/class-b2b-admin.php:483
+#: includes/b2b/class-b2b-admin.php:515
+msgid "Pricing tier"
+msgstr ""
+
+#: includes/b2b/class-b2b-admin.php:495
+msgid "Approve & activate"
+msgstr ""
+
+#: includes/b2b/class-b2b-admin.php:498
+msgid "Suspend"
+msgstr ""
+
+#: includes/b2b/class-b2b-admin.php:501
+msgid "Reactivate"
+msgstr ""
+
+#: includes/b2b/class-b2b-admin.php:506
+#: templates/launcher/store/tabs.php:19
+#: views/marketplace-admin/header.php:21
+#: views/menu-settings.php:74
+msgid "Settings"
+msgstr ""
+
+#: includes/b2b/class-b2b-admin.php:516
+msgid "— No tier —"
+msgstr ""
+
+#. translators: %s: B2B Pricing page URL.
+#: includes/b2b/class-b2b-admin.php:528
+#, php-format
+msgid "No tiers yet. <a href=\"%s\">Create a pricing tier</a> first."
+msgstr ""
+
+#: includes/b2b/class-b2b-admin.php:536
+msgid "Approval threshold"
+msgstr ""
+
+#: includes/b2b/class-b2b-admin.php:537
+msgid "Orders above this need approval (Team Procurement, M5)."
+msgstr ""
+
+#: includes/b2b/class-b2b-admin.php:544
+#: includes/class-admin-options.php:1488
+#: includes/class-admin-options.php:1568
+#: views/menu-settings.php:912
+msgid "Save changes"
+msgstr ""
+
+#: includes/b2b/class-b2b-admin.php:548
+msgid "Members"
+msgstr ""
+
+#: includes/b2b/class-b2b-admin.php:550
+#: includes/b2b/class-b2b-team.php:92
+msgid "Member"
+msgstr ""
+
+#: includes/b2b/class-b2b-admin.php:551
+#: includes/class-admin-options.php:1537
+#: includes/class-admin-options.php:1548
+#: includes/marketplace/admin/class-designers-list-table.php:33
+#: includes/quote/class-quote-admin.php:702
+#: includes/quote/class-quote-admin.php:791
+msgid "Email"
+msgstr ""
+
+#: includes/b2b/class-b2b-admin.php:552
+#: includes/b2b/class-b2b-team.php:93
+msgid "Role"
+msgstr ""
+
+#: includes/b2b/class-b2b-admin.php:561
+msgid "Team invitations and roles are managed by the company owner in My Account (Team Procurement)."
+msgstr ""
+
+#: includes/b2b/class-b2b-admin.php:580
+msgid "Per-company product pricing"
+msgstr ""
+
+#. translators: %s: tier discount percent.
+#: includes/b2b/class-b2b-admin.php:584
+#, php-format
+msgid "Bind specific products to this company at a custom price. These override the tier baseline (%s%% off). Bound products are added to the Brand Store."
+msgstr ""
+
+#: includes/b2b/class-b2b-admin.php:590
+#: includes/launcher/class.launcher.php:1489
+#: includes/marketplace/admin/class-designs-list-table.php:34
+#: includes/quote/class-quote-admin.php:793
+#: templates/launcher/store/design-table.php:15
+#: views/products.php:205
+msgid "Product"
+msgstr ""
+
+#: includes/b2b/class-b2b-admin.php:591
+#: views/product-builder/wrapper.php:816
+msgid "Base price"
+msgstr ""
+
+#: includes/b2b/class-b2b-admin.php:592
+msgid "Override"
+msgstr ""
+
+#: includes/b2b/class-b2b-admin.php:593
+msgid "Effective"
+msgstr ""
+
+#: includes/b2b/class-b2b-admin.php:594
+#: includes/b2b/class-b2b-admin.php:639
+msgid "Min qty"
+msgstr ""
+
+#: includes/b2b/class-b2b-admin.php:595
+msgid "Valid until"
+msgstr ""
+
+#: includes/b2b/class-b2b-admin.php:599
+msgid "No bound products yet."
+msgstr ""
+
+#: includes/b2b/class-b2b-admin.php:605
+msgid "fixed"
+msgstr ""
+
+#: includes/b2b/class-b2b-admin.php:608
+msgid "off"
+msgstr ""
+
+#: includes/b2b/class-b2b-admin.php:623
+#: includes/b2b/class-b2b-pricing-admin.php:130
+#: includes/b2b/class-b2b-team.php:126
+#: includes/quote/class-quote-bucket.php:57
+msgid "Remove"
+msgstr ""
+
+#: includes/b2b/class-b2b-admin.php:633
+msgid "Product ID"
+msgstr ""
+
+#: includes/b2b/class-b2b-admin.php:635
+msgid "% off"
+msgstr ""
+
+#: includes/b2b/class-b2b-admin.php:636
+msgid "Fixed price"
+msgstr ""
+
+#: includes/b2b/class-b2b-admin.php:638
+msgid "Value"
+msgstr ""
+
+#: includes/b2b/class-b2b-admin.php:641
+msgid "Bind product"
+msgstr ""
+
+#: includes/b2b/class-b2b-admin.php:642
+msgid "Tip: the product ID is shown in the Products list URL."
+msgstr ""
+
+#: includes/b2b/class-b2b-admin.php:673
+msgid "Prepaid (credit card)"
+msgstr ""
+
+#: includes/b2b/class-b2b-admin.php:674
+msgid "Net 15"
+msgstr ""
+
+#: includes/b2b/class-b2b-admin.php:675
+msgid "Net 30"
+msgstr ""
+
+#: includes/b2b/class-b2b-admin.php:676
+#: includes/launcher/class.launcher.php:1435
+msgid "Custom"
+msgstr ""
+
+#: includes/b2b/class-b2b-admin.php:691
+#: includes/b2b/class-b2b-company.php:163
+msgid "Company created."
+msgstr ""
+
+#: includes/b2b/class-b2b-admin.php:692
+msgid "Company activated."
+msgstr ""
+
+#: includes/b2b/class-b2b-admin.php:693
+msgid "Company suspended."
+msgstr ""
+
+#: includes/b2b/class-b2b-admin.php:694
+msgid "Settings saved."
+msgstr ""
+
+#: includes/b2b/class-b2b-admin.php:695
+msgid "Could not create the company. The customer may already belong to one."
+msgstr ""
+
+#: includes/b2b/class-b2b-admin.php:696
+#: includes/b2b/class-b2b-procurement.php:447
+#: includes/b2b/class-b2b-team.php:360
+#: includes/class-saved-designs.php:634
+#: includes/templates/class-template-library-admin.php:105
+#: views/options/options-list-table.php:461
+#: views/overview.php:374
+msgid "Something went wrong. Please try again."
+msgstr ""
+
+#: includes/b2b/class-b2b-company.php:87
+msgid "Suspended"
+msgstr ""
+
+#: includes/b2b/class-b2b-company.php:88
+msgid "Incomplete profile"
+msgstr ""
+
+#: includes/b2b/class-b2b-company.php:100
+#: includes/launcher/class.launcher.php:341
+msgid "Admin"
+msgstr ""
+
+#: includes/b2b/class-b2b-company.php:101
+msgid "Approver"
+msgstr ""
+
+#: includes/b2b/class-b2b-company.php:102
+msgid "Requester"
+msgstr ""
+
+#: includes/b2b/class-b2b-company.php:103
+msgid "Viewer"
+msgstr ""
+
+#: includes/b2b/class-b2b-company.php:130
+msgid "A company name and a valid owner are required."
+msgstr ""
+
+#: includes/b2b/class-b2b-company.php:513
+msgid "A valid email and role are required."
+msgstr ""
+
+#: includes/b2b/class-b2b-company.php:516
+msgid "No team seats are available. Increase the seat limit first."
+msgstr ""
+
+#: includes/b2b/class-b2b-company.php:523
+msgid "This email already has a pending invitation."
+msgstr ""
+
+#: includes/b2b/class-b2b-email-types.php:98
+msgid "B2B — team invitation"
+msgstr ""
+
+#: includes/b2b/class-b2b-email-types.php:99
+msgid "Invites a person to join a B2B company as a team member."
+msgstr ""
+
+#: includes/b2b/class-b2b-email-types.php:100
+msgid "You are invited to join the team"
+msgstr ""
+
+#: includes/b2b/class-b2b-email-types.php:101
+msgid "You are invited to join {company_name}"
+msgstr ""
+
+#. translators: %s: company name.
+#: includes/b2b/class-b2b-email-types.php:122
+#, php-format
+msgid "You've been invited to join %s as a team member."
+msgstr ""
+
+#. translators: %s: company name.
+#: includes/b2b/class-b2b-email-types.php:123
+msgid "Log in or create an account first, then accept your invitation:"
+msgstr ""
+
+#: includes/b2b/class-b2b-email-types.php:124
+msgid "Accept invitation"
+msgstr ""
+
+#: includes/b2b/class-b2b-email-types.php:140
+msgid "B2B — order needs approval"
+msgstr ""
+
+#: includes/b2b/class-b2b-email-types.php:141
+msgid "Notifies company approvers that a team order is waiting for review."
+msgstr ""
+
+#: includes/b2b/class-b2b-email-types.php:142
+#: includes/b2b/class-b2b-email-types.php:143
+msgid "A team order needs your approval"
+msgstr ""
+
+#. translators: %s: order total.
+#: includes/b2b/class-b2b-email-types.php:165
+#, php-format
+msgid "A team member submitted an order of %s for approval."
+msgstr ""
+
+#. translators: %s: order total.
+#: includes/b2b/class-b2b-email-types.php:166
+msgid "Review the request"
+msgstr ""
+
+#: includes/b2b/class-b2b-email-types.php:186
+msgid "B2B — procurement outcome"
+msgstr ""
+
+#: includes/b2b/class-b2b-email-types.php:187
+msgid "Tells the requester whether their team order was approved or rejected."
+msgstr ""
+
+#: includes/b2b/class-b2b-email-types.php:188
+#: includes/b2b/class-b2b-email-types.php:189
+msgid "An update on your team order"
+msgstr ""
+
+#: includes/b2b/class-b2b-email-types.php:209
+msgid "Your procurement request was approved and an order was created."
+msgstr ""
+
+#: includes/b2b/class-b2b-email-types.php:210
+msgid "Complete your order"
+msgstr ""
+
+#: includes/b2b/class-b2b-email-types.php:213
+msgid "Your procurement request was not approved. Please contact your company administrator."
+msgstr ""
+
+#: includes/b2b/class-b2b-email-types.php:228
+msgid "B2B — Brand Store ready"
+msgstr ""
+
+#: includes/b2b/class-b2b-email-types.php:229
+msgid "Notifies a new company owner that their B2B Brand Store is ready to set up."
+msgstr ""
+
+#: includes/b2b/class-b2b-email-types.php:230
+msgid "Your B2B Brand Store is ready"
+msgstr ""
+
+#: includes/b2b/class-b2b-email-types.php:231
+msgid "Your B2B Brand Store \"{company_name}\" is ready"
+msgstr ""
+
+#. translators: %s: company name.
+#: includes/b2b/class-b2b-email-types.php:249
+#, php-format
+msgid "Good news! Your account has been upgraded to a B2B company: %s."
+msgstr ""
+
+#. translators: %s: company name.
+#: includes/b2b/class-b2b-email-types.php:250
+msgid "Set up your Brand Store profile to get started:"
+msgstr ""
+
+#: includes/b2b/class-b2b-email-types.php:251
+msgid "Set up your Brand Store"
+msgstr ""
+
+#: includes/b2b/class-b2b-pricing-admin.php:46
+#: includes/b2b/class-b2b-pricing-admin.php:47
+#: includes/b2b/class-b2b-pricing-admin.php:69
+msgid "B2B Pricing"
+msgstr ""
+
+#: includes/b2b/class-b2b-pricing-admin.php:71
+msgid "Define tier discounts off retail prices. Only the discount % is applied at checkout in this version; min order, payment terms and free-shipping are labels shown to companies. Assign a tier to a company on its detail page."
+msgstr ""
+
+#: includes/b2b/class-b2b-pricing-admin.php:78
+msgid "Tier label"
+msgstr ""
+
+#: includes/b2b/class-b2b-pricing-admin.php:79
+msgid "Discount %"
+msgstr ""
+
+#: includes/b2b/class-b2b-pricing-admin.php:80
+msgid "Min order"
+msgstr ""
+
+#: includes/b2b/class-b2b-pricing-admin.php:82
+msgid "Free ship over"
+msgstr ""
+
+#: includes/b2b/class-b2b-pricing-admin.php:83
+msgid "Companies"
+msgstr ""
+
+#: includes/b2b/class-b2b-pricing-admin.php:84
+#: includes/class-admin-options.php:4572
+#: includes/class-saved-designs.php:333
+#: includes/launcher/class.launcher.php:1438
+#: includes/marketplace/admin/class-designs-list-table.php:46
+#: includes/options/fields-list-table.php:417
+#: templates/launcher/store/design-table.php:61
+#: views/options/options-list-table.php:345
+#: views/options/options-list-table.php:432
+#: views/options/templates/field-body/attributes.php:327
+#: views/options/templates/field-body/attributes.php:349
+#: views/options/templates/nbpb_text.php:162
+#: views/product-builder/wrapper-legacy.php:182
+#: views/product-builder/wrapper-legacy.php:205
+#: views/product-builder/wrapper.php:368
+#: views/product-builder/wrapper.php:442
+msgid "Delete"
+msgstr ""
+
+#: includes/b2b/class-b2b-pricing-admin.php:96
+msgid "Save tiers"
+msgstr ""
+
+#: includes/b2b/class-b2b-pricing-admin.php:118
+msgid "e.g. Tier A"
+msgstr ""
+
+#: includes/b2b/class-b2b-pricing-admin.php:221
+msgid "Tiers saved."
+msgstr ""
+
+#: includes/b2b/class-b2b-pricing-admin.php:223
+msgid "Could not save. Please try again."
+msgstr ""
+
+#: includes/b2b/class-b2b-pricing.php:240
+msgid "Your company price"
+msgstr ""
+
+#: includes/b2b/class-b2b-procurement.php:91
+msgid "Approvals"
+msgstr ""
+
+#: includes/b2b/class-b2b-procurement.php:128
+msgid "This order is above your spending limit and needs manager approval before it can be placed."
+msgstr ""
+
+#: includes/b2b/class-b2b-procurement.php:129
+msgid "Submit for approval"
+msgstr ""
+
+#: includes/b2b/class-b2b-procurement.php:137
+msgid "This order needs manager approval. Please use \"Submit for approval\" on the cart page."
+msgstr ""
+
+#. translators: %s: formatted total.
+#: includes/b2b/class-b2b-procurement.php:192
+#, php-format
+msgid "Approval request — %s"
+msgstr ""
+
+#: includes/b2b/class-b2b-procurement.php:207
+msgid "Submitted for approval."
+msgstr ""
+
+#. translators: 1: order number, 2: comment.
+#: includes/b2b/class-b2b-procurement.php:245
+#, php-format
+msgid "Approved → order #%1$s. %2$s"
+msgstr ""
+
+#. translators: %s: comment.
+#: includes/b2b/class-b2b-procurement.php:260
+#, php-format
+msgid "Rejected. %s"
+msgstr ""
+
+#: includes/b2b/class-b2b-procurement.php:316
+msgid "Approved B2B procurement request."
+msgstr ""
+
+#: includes/b2b/class-b2b-procurement.php:326
+msgid "You do not have approval access."
+msgstr ""
+
+#: includes/b2b/class-b2b-procurement.php:336
+msgid "Approval Queue"
+msgstr ""
+
+#: includes/b2b/class-b2b-procurement.php:338
+msgid "No requests awaiting approval."
+msgstr ""
+
+#. translators: 1: requester, 2: item count.
+#: includes/b2b/class-b2b-procurement.php:352
+#, php-format
+msgid "by %1$s · %2$d item(s)"
+msgstr ""
+
+#: includes/b2b/class-b2b-procurement.php:366
+msgid "Optional comment…"
+msgstr ""
+
+#: includes/b2b/class-b2b-procurement.php:368
+#: includes/marketplace/admin/class-withdraws-list-table.php:44
+#: includes/marketplace/admin/class-withdraws-list-table.php:104
+msgid "Approve"
+msgstr ""
+
+#: includes/b2b/class-b2b-procurement.php:369
+msgid "Reject"
+msgstr ""
+
+#: includes/b2b/class-b2b-procurement.php:444
+msgid "Submitted for approval. Your manager has been notified."
+msgstr ""
+
+#: includes/b2b/class-b2b-procurement.php:445
+msgid "Request approved and order created."
+msgstr ""
+
+#: includes/b2b/class-b2b-procurement.php:446
+msgid "Request rejected."
+msgstr ""
+
+#: includes/b2b/class-b2b-reorders.php:53
+#: includes/b2b/class-b2b-reorders.php:124
+msgid "Reorders"
+msgstr ""
+
+#: includes/b2b/class-b2b-reorders.php:125
+msgid "Reorder a past design with the same artwork and specs. Your company pricing is applied automatically at checkout."
+msgstr ""
+
+#: includes/b2b/class-b2b-reorders.php:128
+msgid "You have no past designs to reorder yet."
+msgstr ""
+
+#. translators: 1: quantity, 2: date.
+#: includes/b2b/class-b2b-reorders.php:146
+#, php-format
+msgid "Last ordered ×%1$d · %2$s"
+msgstr ""
+
+#: includes/b2b/class-b2b-reorders.php:158
+#: includes/class-request-quote.php:857
+#: includes/quote/class-quote-admin.php:569
+#: includes/quote/class-quote-bucket.php:58
+#: includes/quote/class-quote-email-types.php:77
+#: includes/quote/class-quote-pdf.php:185
+msgid "Qty"
+msgstr ""
+
+#: includes/b2b/class-b2b-reorders.php:160
+msgid "Reorder"
+msgstr ""
+
+#: includes/b2b/class-b2b-reorders.php:163
+#: includes/class-saved-designs.php:324
+msgid "Product unavailable"
+msgstr ""
+
+#: includes/b2b/class-b2b-reorders.php:269
+msgid "Could not reorder that design. Please try again."
+msgstr ""
+
+#: includes/b2b/class-b2b-storefront.php:139
+msgid "Pre-approved products"
+msgstr ""
+
+#: includes/b2b/class-b2b-storefront.php:142
+msgid "No products have been added to this Brand Store yet."
+msgstr ""
+
+#: includes/b2b/class-b2b-team.php:94
+msgid "Per-order limit"
+msgstr ""
+
+#: includes/b2b/class-b2b-team.php:120
+#: views/options/edit-option-v3.php:120
+msgid "Save"
+msgstr ""
+
+#: includes/b2b/class-b2b-team.php:122
+msgid "Remove this member?"
+msgstr ""
+
+#: includes/b2b/class-b2b-team.php:129
+msgid "you"
+msgstr ""
+
+#: includes/b2b/class-b2b-team.php:151
+msgid "Pending invitations"
+msgstr ""
+
+#: includes/b2b/class-b2b-team.php:158
+msgid "Revoke"
+msgstr ""
+
+#: includes/b2b/class-b2b-team.php:165
+msgid "No team seats left. Ask the store to raise your seat limit."
+msgstr ""
+
+#: includes/b2b/class-b2b-team.php:169
+msgid "Invite a teammate"
+msgstr ""
+
+#: includes/b2b/class-b2b-team.php:173
+msgid "teammate@company.com"
+msgstr ""
+
+#: includes/b2b/class-b2b-team.php:179
+msgid "Send invite"
+msgstr ""
+
+#: includes/b2b/class-b2b-team.php:290
+msgid "Please log in or create an account to accept your team invitation."
+msgstr ""
+
+#. translators: %s: member email.
+#: includes/b2b/class-b2b-team.php:316
+#, php-format
+msgid "%s joined the team."
+msgstr ""
+
+#: includes/b2b/class-b2b-team.php:352
+msgid "Invitation sent."
+msgstr ""
+
+#: includes/b2b/class-b2b-team.php:353
+msgid "Invitation revoked."
+msgstr ""
+
+#: includes/b2b/class-b2b-team.php:354
+msgid "Member updated."
+msgstr ""
+
+#: includes/b2b/class-b2b-team.php:355
+msgid "Member removed."
+msgstr ""
+
+#: includes/b2b/class-b2b-team.php:356
+msgid "Welcome to the team!"
+msgstr ""
+
+#: includes/b2b/class-b2b-team.php:357
+msgid "You already belong to a company."
+msgstr ""
+
+#: includes/b2b/class-b2b-team.php:358
+msgid "That invitation is invalid or has expired."
+msgstr ""
+
+#: includes/b2b/class-b2b-team.php:359
+msgid "Could not send the invite (seat limit or duplicate)."
+msgstr ""
+
+#: includes/class-admin-options.php:151
+msgid "Storelly Product builder Page"
+msgstr ""
+
+#: includes/class-admin-options.php:173
+msgid "Product builder designs"
+msgstr ""
+
 #: includes/class-admin-options.php:215
 #: includes/class-admin-options.php:242
-#: includes/class-admin-options.php:3498
-#: includes/class-admin-options.php:3701
-#: includes/class-admin-options.php:3767
-#: includes/class-admin-options.php:3791
-#: includes/class-admin-options.php:3945
+#: includes/class-admin-options.php:3539
+#: includes/class-admin-options.php:3742
+#: includes/class-admin-options.php:3808
+#: includes/class-admin-options.php:3832
+#: includes/class-admin-options.php:3986
 #: includes/class-buyer-downloads.php:181
 #: includes/class-product-builder-frontend.php:151
 #: includes/class-saved-designs.php:370
@@ -96,7 +1148,7 @@ msgstr ""
 #: views/options/edit-option-v3.php:74
 #: views/options/edit-option.php:56
 #: views/options/options-list-table.php:57
-#: views/overview.php:621
+#: views/overview.php:708
 msgid "Pricing Options"
 msgstr ""
 
@@ -164,24 +1216,6 @@ msgstr ""
 msgid "About"
 msgstr ""
 
-#: includes/class-admin-options.php:400
-#: includes/class-admin-options.php:912
-#: includes/class-admin-options.php:1183
-#: includes/class-admin-options.php:1218
-#: includes/class-admin-options.php:1753
-#: includes/class-admin-options.php:1817
-#: includes/class-admin-options.php:1837
-#: includes/class-admin-options.php:4033
-#: includes/class-admin-options.php:4119
-#: includes/marketplace/admin/class-marketplace-admin.php:101
-#: includes/quote/class-quote-admin.php:158
-#: includes/templates/class-template-library-admin.php:156
-#: includes/visual-builder/class-visual-builder-admin.php:62
-#: views/setup-wizard/landing.php:21
-#: views/setup-wizard/woo-seed.php:20
-msgid "You do not have permission to access this page."
-msgstr ""
-
 #: includes/class-admin-options.php:407
 msgid "Visual Builder module is not loaded. Please reinstall the plugin or contact support."
 msgstr ""
@@ -246,15 +1280,17 @@ msgstr ""
 #: includes/class-admin-options.php:625
 #: includes/class-admin-options.php:641
 #: includes/class-admin-options.php:760
-#: includes/class-admin-options.php:3580
-#: includes/class-admin-options.php:3675
-#: includes/class-admin-options.php:4144
-#: includes/class-admin-options.php:4172
-#: includes/class-admin-options.php:4735
+#: includes/class-admin-options.php:3621
+#: includes/class-admin-options.php:3716
+#: includes/class-admin-options.php:4185
+#: includes/class-admin-options.php:4213
+#: includes/class-admin-options.php:4776
 #: includes/class-cloud-connect.php:175
+#: includes/class-demo-seeder.php:77
 #: includes/class-frontend-options.php:96
 #: includes/class-product-builder-frontend.php:78
 #: includes/class-request-quote.php:437
+#: includes/quote/class-quote-bucket.php:148
 #: includes/setup-wizard/class-woo-prepare.php:550
 #: includes/setup-wizard/class-woo-seed-controller.php:301
 #: includes/templates/class-template-ajax.php:105
@@ -281,8 +1317,8 @@ msgstr ""
 #. translators: %d is the numeric option id used as a fallback when an option row has no title.
 #. translators: %d: option ID
 #: includes/class-admin-options.php:897
-#: includes/class-admin-options.php:3067
-#: includes/class-admin-options.php:3286
+#: includes/class-admin-options.php:3108
+#: includes/class-admin-options.php:3327
 #: views/options/meta-box.php:33
 #: views/_products-cards.php:72
 #, php-format
@@ -296,20 +1332,6 @@ msgstr ""
 
 #: includes/class-admin-options.php:899
 msgid "Back to product"
-msgstr ""
-
-#: includes/class-admin-options.php:1020
-#: includes/class-admin-options.php:3575
-#: includes/class-admin-options.php:3670
-#: includes/class-admin-options.php:4139
-#: includes/class-admin-options.php:4167
-#: includes/class-product-exporter.php:188
-#: includes/launcher/class.launcher.php:553
-#: includes/marketplace/admin/class-marketplace-admin-ajax.php:32
-#: includes/quote/class-quote-admin.php:52
-#: includes/quote/class-quote-admin.php:87
-#: views/marketplace-admin/designer-edit.php:26
-msgid "Permission denied."
 msgstr ""
 
 #: includes/class-admin-options.php:1129
@@ -339,6 +1361,7 @@ msgstr ""
 
 #: includes/class-admin-options.php:1306
 #: includes/class-request-quote.php:541
+#: includes/quote/class-quote-bucket.php:258
 msgid "Your quote request has been sent successfully."
 msgstr ""
 
@@ -351,7 +1374,7 @@ msgstr ""
 #: includes/class-admin-options.php:1321
 #: includes/class-admin-options.php:1771
 #: includes/class-admin-options.php:1825
-#: includes/class-admin-options.php:1895
+#: includes/class-admin-options.php:1897
 #: includes/class-global-import-admin.php:85
 #: includes/quote/class-quote-admin.php:335
 #: views/designs.php:82
@@ -373,7 +1396,7 @@ msgid "Enable Get Quote and build the request form. Submitted quotes live under 
 msgstr ""
 
 #: includes/class-admin-options.php:1332
-#: includes/class-request-quote.php:633
+#: includes/class-request-quote.php:607
 #: includes/quote/class-quote-admin.php:95
 #: includes/quote/class-quote-admin.php:102
 #: includes/quote/class-quote-admin.php:355
@@ -399,13 +1422,13 @@ msgid "Enable Get Quote"
 msgstr ""
 
 #: includes/class-admin-options.php:1374
-#: includes/class-admin-options.php:2541
-#: includes/class-admin-options.php:2561
-#: includes/class-admin-options.php:2581
-#: includes/class-admin-options.php:2743
-#: includes/class-admin-options.php:2767
-#: includes/class-admin-options.php:2948
-#: includes/class-admin-options.php:2972
+#: includes/class-admin-options.php:2582
+#: includes/class-admin-options.php:2602
+#: includes/class-admin-options.php:2622
+#: includes/class-admin-options.php:2784
+#: includes/class-admin-options.php:2808
+#: includes/class-admin-options.php:2989
+#: includes/class-admin-options.php:3013
 #: includes/marketplace/admin/class-designers-list-table.php:88
 #: includes/settings/launcher.php:16
 #: includes/settings/launcher.php:133
@@ -438,12 +1461,12 @@ msgid "Yes"
 msgstr ""
 
 #: includes/class-admin-options.php:1378
-#: includes/class-admin-options.php:2545
-#: includes/class-admin-options.php:2565
-#: includes/class-admin-options.php:2585
-#: includes/class-admin-options.php:2771
-#: includes/class-admin-options.php:2952
-#: includes/class-admin-options.php:2976
+#: includes/class-admin-options.php:2586
+#: includes/class-admin-options.php:2606
+#: includes/class-admin-options.php:2626
+#: includes/class-admin-options.php:2812
+#: includes/class-admin-options.php:2993
+#: includes/class-admin-options.php:3017
 #: includes/marketplace/admin/class-designers-list-table.php:88
 #: includes/settings/launcher.php:17
 #: includes/settings/launcher.php:134
@@ -571,12 +1594,6 @@ msgstr ""
 msgid "Where the floating badge sends visitors when they are not on a quote-enabled product page."
 msgstr ""
 
-#: includes/class-admin-options.php:1488
-#: includes/class-admin-options.php:1568
-#: views/menu-settings.php:912
-msgid "Save changes"
-msgstr ""
-
 #: includes/class-admin-options.php:1500
 msgid "Request Quote Form Builder"
 msgstr ""
@@ -599,7 +1616,7 @@ msgid "Type"
 msgstr ""
 
 #: includes/class-admin-options.php:1520
-#: includes/class-admin-options.php:2925
+#: includes/class-admin-options.php:2966
 #: includes/setup-wizard/class-woo-seed-mapper.php:729
 #: includes/templates/class-template-library-admin.php:123
 #: views/options/templates/field-body/attributes.php:200
@@ -608,7 +1625,7 @@ msgid "Label"
 msgstr ""
 
 #: includes/class-admin-options.php:1521
-#: includes/class-admin-options.php:2714
+#: includes/class-admin-options.php:2755
 #: includes/setup-wizard/class-woo-seed-mapper.php:622
 #: views/options/templates/field-body/placeholder.php:6
 msgid "Placeholder"
@@ -619,7 +1636,7 @@ msgid "Validation"
 msgstr ""
 
 #: includes/class-admin-options.php:1523
-#: includes/class-admin-options.php:2574
+#: includes/class-admin-options.php:2615
 #: includes/setup-wizard/class-woo-seed-mapper.php:561
 #: includes/templates/class-template-library-admin.php:119
 #: templates/single-product/options-builder/field-header.php:7
@@ -629,7 +1646,7 @@ msgid "Required"
 msgstr ""
 
 #: includes/class-admin-options.php:1524
-#: includes/class-admin-options.php:2534
+#: includes/class-admin-options.php:2575
 #: includes/launcher/class.launcher.php:1451
 #: includes/marketplace/admin/class-designers-list-table.php:82
 #: includes/setup-wizard/class-woo-seed-mapper.php:477
@@ -643,7 +1660,7 @@ msgid "Enabled"
 msgstr ""
 
 #: includes/class-admin-options.php:1525
-#: includes/class-admin-options.php:1948
+#: includes/class-admin-options.php:1952
 #: includes/launcher/class.launcher.php:1408
 #: includes/marketplace/admin/class-withdraws-list-table.php:38
 #: views/products.php:208
@@ -651,31 +1668,23 @@ msgid "Actions"
 msgstr ""
 
 #: includes/class-admin-options.php:1536
-#: includes/class-admin-options.php:2444
-#: includes/class-admin-options.php:2993
+#: includes/class-admin-options.php:2485
+#: includes/class-admin-options.php:3034
 #: includes/setup-wizard/class-woo-seed-mapper.php:578
-#: views/product-builder/wrapper.php:207
+#: views/product-builder/wrapper.php:180
 #: views/visual-builder/edit.php:510
 msgid "Text"
 msgstr ""
 
-#: includes/class-admin-options.php:1537
-#: includes/class-admin-options.php:1548
-#: includes/marketplace/admin/class-designers-list-table.php:33
-#: includes/quote/class-quote-admin.php:694
-#: includes/quote/class-quote-admin.php:783
-msgid "Email"
-msgstr ""
-
 #: includes/class-admin-options.php:1538
 #: includes/class-admin-options.php:1549
-#: includes/quote/class-quote-admin.php:784
+#: includes/quote/class-quote-admin.php:792
 #: views/marketplace-admin/designer-edit.php:131
 msgid "Phone"
 msgstr ""
 
 #: includes/class-admin-options.php:1539
-#: includes/class-admin-options.php:2460
+#: includes/class-admin-options.php:2501
 #: includes/setup-wizard/class-woo-seed-mapper.php:582
 #: views/options/edit-option.php:399
 msgid "Textarea"
@@ -814,39 +1823,46 @@ msgstr ""
 msgid "Storelly"
 msgstr ""
 
-#: includes/class-admin-options.php:1899
+#: includes/class-admin-options.php:1901
 #: views/license.php:186
-#: views/overview.php:640
+#: views/overview.php:727
 msgid "Orders"
 msgstr ""
 
-#: includes/class-admin-options.php:1902
+#: includes/class-admin-options.php:1904
 msgid "Manage custom orders that contain pricing options."
 msgstr ""
 
-#: includes/class-admin-options.php:1918
+#: includes/class-admin-options.php:1920
 msgid "Search by order ID…"
 msgstr ""
 
-#: includes/class-admin-options.php:1920
+#: includes/class-admin-options.php:1922
 #: includes/quote/class-quote-admin.php:380
 msgid "Search"
 msgstr ""
 
 #. translators: %d: number of orders
-#: includes/class-admin-options.php:1929
+#: includes/class-admin-options.php:1931
 #, php-format
 msgid "%d order"
 msgid_plural "%d orders"
 msgstr[0] ""
 msgstr[1] ""
 
-#: includes/class-admin-options.php:1943
+#: includes/class-admin-options.php:1945
+#: includes/launcher/class.launcher.php:343
+#: includes/launcher/class.launcher.php:1324
+#: includes/launcher/class.launcher.php:1325
+msgid "Design"
+msgstr ""
+
+#: includes/class-admin-options.php:1946
 msgid "Order"
 msgstr ""
 
-#: includes/class-admin-options.php:1944
-#: includes/class-request-quote.php:786
+#: includes/class-admin-options.php:1947
+#: includes/class-request-quote.php:760
 #: includes/launcher/class.launcher.php:1437
 #: includes/options/fields-list-table.php:46
 #: templates/launcher/store/design-table.php:16
@@ -856,42 +1872,32 @@ msgstr ""
 msgid "Date"
 msgstr ""
 
-#: includes/class-admin-options.php:1945
-#: includes/class-request-quote.php:787
-#: includes/launcher/class.launcher.php:1506
-#: includes/marketplace/admin/class-designers-list-table.php:34
-#: includes/marketplace/admin/class-designs-list-table.php:35
-#: includes/marketplace/admin/class-withdraws-list-table.php:35
-#: includes/options/fields-list-table.php:41
-#: includes/quote/class-quote-admin.php:685
-#: includes/quote/class-quotes-list-table.php:40
-#: templates/launcher/store/design-table.php:14
-#: templates/launcher/store/design-table.php:28
-#: templates/launcher/store/withdraw-table.php:9
-#: templates/launcher/store/withdraw-table.php:18
-#: views/designs.php:128
-msgid "Status"
+#: includes/class-admin-options.php:1949
+msgid "PDF"
 msgstr ""
 
-#: includes/class-admin-options.php:1946
-#: includes/quote/class-quote-admin.php:689
+#: includes/class-admin-options.php:1950
+#: includes/quote/class-quote-admin.php:697
 #: includes/quote/class-quotes-list-table.php:37
 #: views/designs.php:143
 msgid "Customer"
 msgstr ""
 
-#: includes/class-admin-options.php:1947
-#: includes/class-request-quote.php:788
-#: includes/class-request-quote.php:882
-#: includes/class-request-quote.php:902
+#: includes/class-admin-options.php:1951
+#: includes/class-request-quote.php:762
+#: includes/class-request-quote.php:859
+#: includes/class-request-quote.php:879
+#: includes/class-request-quote.php:1042
 #: includes/launcher/api/report.php:120
 #: includes/launcher/api/report.php:127
 #: includes/launcher/class.launcher.php:195
 #: includes/launcher/class.launcher.php:202
-#: includes/quote/class-quote-admin.php:565
-#: includes/quote/class-quote-admin.php:596
+#: includes/quote/class-quote-admin.php:571
+#: includes/quote/class-quote-admin.php:602
 #: includes/quote/class-quote-email-types.php:77
 #: includes/quote/class-quote-email-types.php:83
+#: includes/quote/class-quote-pdf.php:185
+#: includes/quote/class-quote-pdf.php:205
 #: templates/launcher/store/dashboard.php:12
 #: templates/launcher/store/dashboard.php:28
 #: templates/single-product/option-builder.php:345
@@ -901,14 +1907,26 @@ msgstr ""
 msgid "Total"
 msgstr ""
 
-#: includes/class-admin-options.php:1981
+#: includes/class-admin-options.php:2012
+msgid "Failed"
+msgstr ""
+
+#: includes/class-admin-options.php:2014
+msgid "Ready"
+msgstr ""
+
+#: includes/class-admin-options.php:2016
+msgid "Partial"
+msgstr ""
+
+#: includes/class-admin-options.php:2022
 #: includes/quote/class-quotes-list-table.php:116
-#: views/overview.php:831
+#: views/overview.php:918
 msgid "Guest"
 msgstr ""
 
-#: includes/class-admin-options.php:1986
-#: includes/class-request-quote.php:801
+#: includes/class-admin-options.php:2027
+#: includes/class-request-quote.php:775
 #: includes/launcher/class.launcher.php:1517
 #: templates/launcher/store/design-table.php:67
 #: views/options/templates/nbpb_com.php:70
@@ -916,21 +1934,21 @@ msgstr ""
 msgid "View"
 msgstr ""
 
-#: includes/class-admin-options.php:2000
+#: includes/class-admin-options.php:2041
 msgid "No orders found"
 msgstr ""
 
-#: includes/class-admin-options.php:2005
+#: includes/class-admin-options.php:2046
 msgid "No orders match your search. Try a different order ID."
 msgstr ""
 
-#: includes/class-admin-options.php:2007
+#: includes/class-admin-options.php:2048
 msgid "Orders with custom pricing options will appear here."
 msgstr ""
 
-#: includes/class-admin-options.php:2388
-#: includes/class-admin-options.php:2389
-#: includes/class-admin-options.php:2391
+#: includes/class-admin-options.php:2429
+#: includes/class-admin-options.php:2430
+#: includes/class-admin-options.php:2432
 #: includes/setup-wizard/class-woo-seed-mapper.php:462
 #: views/options/edit-option.php:490
 #: views/options/templates/field-body/title.php:6
@@ -938,12 +1956,12 @@ msgstr ""
 msgid "Option name"
 msgstr ""
 
-#: includes/class-admin-options.php:2398
+#: includes/class-admin-options.php:2439
 msgid "Option description"
 msgstr ""
 
-#: includes/class-admin-options.php:2400
-#: includes/quote/class-quote-admin.php:826
+#: includes/class-admin-options.php:2441
+#: includes/quote/class-quote-admin.php:848
 #: includes/setup-wizard/class-woo-seed-mapper.php:530
 #: includes/templates/class-template-library-admin.php:136
 #: views/options/templates/field-body/attributes.php:52
@@ -952,31 +1970,31 @@ msgstr ""
 msgid "Description"
 msgstr ""
 
-#: includes/class-admin-options.php:2410
+#: includes/class-admin-options.php:2451
 #: includes/setup-wizard/class-woo-seed-mapper.php:465
 #: views/options/templates/field-body/data_type.php:6
 #: views/options/templates/field-body/data_type.php:10
 msgid "Data type"
 msgstr ""
 
-#: includes/class-admin-options.php:2417
+#: includes/class-admin-options.php:2458
 #: includes/setup-wizard/class-woo-seed-mapper.php:468
 msgid "Custom input"
 msgstr ""
 
-#: includes/class-admin-options.php:2421
+#: includes/class-admin-options.php:2462
 #: includes/setup-wizard/class-woo-seed-mapper.php:469
 msgid "Multiple options"
 msgstr ""
 
-#: includes/class-admin-options.php:2430
+#: includes/class-admin-options.php:2471
 #: includes/setup-wizard/class-woo-seed-mapper.php:570
 #: views/options/templates/field-body/input_type.php:6
 #: views/options/templates/field-body/input_type.php:10
 msgid "Input type"
 msgstr ""
 
-#: includes/class-admin-options.php:2448
+#: includes/class-admin-options.php:2489
 #: includes/setup-wizard/class-woo-seed-mapper.php:579
 #: includes/templates/class-template-library-admin.php:127
 #: views/options/edit-option.php:379
@@ -984,35 +2002,35 @@ msgstr ""
 msgid "Number"
 msgstr ""
 
-#: includes/class-admin-options.php:2452
+#: includes/class-admin-options.php:2493
 #: includes/setup-wizard/class-woo-seed-mapper.php:580
 #: views/options/templates/field-body/input_option.php:6
 msgid "Number range"
 msgstr ""
 
-#: includes/class-admin-options.php:2456
+#: includes/class-admin-options.php:2497
 #: includes/setup-wizard/class-woo-seed-mapper.php:581
 #: views/options/templates/field-body/attributes.php:296
 msgid "Upload"
 msgstr ""
 
-#: includes/class-admin-options.php:2476
+#: includes/class-admin-options.php:2517
 #: includes/setup-wizard/class-woo-seed-mapper.php:589
 msgid "Input option"
 msgstr ""
 
-#: includes/class-admin-options.php:2512
+#: includes/class-admin-options.php:2553
 #: includes/setup-wizard/class-woo-seed-mapper.php:609
 msgid "Text input option"
 msgstr ""
 
-#: includes/class-admin-options.php:2535
+#: includes/class-admin-options.php:2576
 #: views/options/templates/field-body/enabled.php:7
 msgid "Choose whether the option is enabled or not."
 msgstr ""
 
-#: includes/class-admin-options.php:2554
-#: includes/class-admin-options.php:4492
+#: includes/class-admin-options.php:2595
+#: includes/class-admin-options.php:4533
 #: includes/marketplace/admin/class-designs-list-table.php:95
 #: includes/options/fields-list-table.php:513
 #: includes/setup-wizard/class-woo-seed-mapper.php:478
@@ -1028,118 +2046,118 @@ msgstr ""
 msgid "Published"
 msgstr ""
 
-#: includes/class-admin-options.php:2555
+#: includes/class-admin-options.php:2596
 msgid "Show in summary options or not."
 msgstr ""
 
-#: includes/class-admin-options.php:2575
+#: includes/class-admin-options.php:2616
 msgid "Choose whether the option is required or not."
 msgstr ""
 
-#: includes/class-admin-options.php:2606
+#: includes/class-admin-options.php:2647
 #: includes/setup-wizard/class-woo-seed-mapper.php:635
 msgid "Upload file option"
 msgstr ""
 
-#: includes/class-admin-options.php:2628
+#: includes/class-admin-options.php:2669
 #: includes/setup-wizard/class-woo-seed-mapper.php:652
 #: views/options/templates/field-body/price_type.php:6
 #: views/options/templates/field-body/price_type.php:10
 msgid "Price type"
 msgstr ""
 
-#: includes/class-admin-options.php:2629
+#: includes/class-admin-options.php:2670
 msgid "Here you can choose how the price is calculated. Depending on the field there various types you can choose."
 msgstr ""
 
-#: includes/class-admin-options.php:2635
+#: includes/class-admin-options.php:2676
 #: includes/setup-wizard/class-woo-seed-mapper.php:657
 msgid "Fixed amount"
 msgstr ""
 
-#: includes/class-admin-options.php:2639
+#: includes/class-admin-options.php:2680
 #: includes/setup-wizard/class-woo-seed-mapper.php:658
 msgid "Percent of the original price"
 msgstr ""
 
-#: includes/class-admin-options.php:2643
+#: includes/class-admin-options.php:2684
 #: includes/setup-wizard/class-woo-seed-mapper.php:659
 msgid "Percent of the original price + options"
 msgstr ""
 
-#: includes/class-admin-options.php:2647
+#: includes/class-admin-options.php:2688
 msgid "Current value * price"
 msgstr ""
 
-#: includes/class-admin-options.php:2673
+#: includes/class-admin-options.php:2714
 msgid "Price per char"
 msgstr ""
 
-#: includes/class-admin-options.php:2693
+#: includes/class-admin-options.php:2734
 #: includes/setup-wizard/class-woo-seed-mapper.php:694
 #: views/options/templates/field-body/price.php:6
 msgid "Additional Price"
 msgstr ""
 
-#: includes/class-admin-options.php:2694
+#: includes/class-admin-options.php:2735
 msgid "Enter the price for this field or leave it blank for no price."
 msgstr ""
 
-#: includes/class-admin-options.php:2736
+#: includes/class-admin-options.php:2777
 #: includes/setup-wizard/class-woo-seed-mapper.php:667
 #: views/options/templates/field-body/depend_qty.php:6
 msgid "Depend quantity"
 msgstr ""
 
-#: includes/class-admin-options.php:2737
+#: includes/class-admin-options.php:2778
 msgid "If choose No, the additional price will be apply for cart item independently with the quantity."
 msgstr ""
 
-#: includes/class-admin-options.php:2747
+#: includes/class-admin-options.php:2788
 #: includes/setup-wizard/class-woo-seed-mapper.php:673
 msgid "No, the additional price is cart item fee"
 msgstr ""
 
-#: includes/class-admin-options.php:2751
+#: includes/class-admin-options.php:2792
 #: includes/setup-wizard/class-woo-seed-mapper.php:674
 msgid "No, the additional price is fixed amount for all items"
 msgstr ""
 
-#: includes/class-admin-options.php:2760
+#: includes/class-admin-options.php:2801
 #: includes/setup-wizard/class-woo-seed-mapper.php:681
 #: views/options/templates/field-body/depend_quantity.php:6
 #: views/options/templates/field-body/depend_quantity.php:10
 msgid "Depend quantity breaks"
 msgstr ""
 
-#: includes/class-admin-options.php:2784
+#: includes/class-admin-options.php:2825
 #: includes/setup-wizard/class-woo-seed-mapper.php:707
 #: views/options/templates/field-body/price_breaks.php:6
 msgid "Price depend quantity breaks"
 msgstr ""
 
-#: includes/class-admin-options.php:2815
-#: includes/class-admin-options.php:2995
+#: includes/class-admin-options.php:2856
+#: includes/class-admin-options.php:3036
 #: views/options/templates/field-body/attributes.php:31
 msgid "Attribute name"
 msgstr ""
 
-#: includes/class-admin-options.php:2864
+#: includes/class-admin-options.php:2905
 #: includes/setup-wizard/class-woo-seed-mapper.php:486
 #: views/options/edit-option.php:1582
 msgid "Attributes"
 msgstr ""
 
-#: includes/class-admin-options.php:2865
+#: includes/class-admin-options.php:2906
 msgid "Attributes let you define extra product data, such as size or color."
 msgstr ""
 
-#: includes/class-admin-options.php:2906
+#: includes/class-admin-options.php:2947
 #: includes/setup-wizard/class-woo-seed-mapper.php:721
 msgid "Display type"
 msgstr ""
 
-#: includes/class-admin-options.php:2913
+#: includes/class-admin-options.php:2954
 #: includes/setup-wizard/class-woo-seed-controller.php:142
 #: includes/setup-wizard/class-woo-seed-mapper.php:726
 #: includes/templates/class-template-library-admin.php:120
@@ -1150,13 +2168,13 @@ msgstr ""
 msgid "Dropdown"
 msgstr ""
 
-#: includes/class-admin-options.php:2917
+#: includes/class-admin-options.php:2958
 #: includes/setup-wizard/class-woo-seed-mapper.php:727
 #: views/options/templates/field-body/attributes.php:206
 msgid "Radio button"
 msgstr ""
 
-#: includes/class-admin-options.php:2921
+#: includes/class-admin-options.php:2962
 #: includes/setup-wizard/class-woo-seed-controller.php:144
 #: includes/setup-wizard/class-woo-seed-mapper.php:728
 #: includes/templates/class-template-library-admin.php:122
@@ -1165,229 +2183,229 @@ msgstr ""
 msgid "Swatch"
 msgstr ""
 
-#: includes/class-admin-options.php:2929
+#: includes/class-admin-options.php:2970
 #: includes/setup-wizard/class-woo-seed-mapper.php:730
 msgid "Advanced Dropdown"
 msgstr ""
 
-#: includes/class-admin-options.php:2933
+#: includes/class-admin-options.php:2974
 #: includes/setup-wizard/class-woo-seed-mapper.php:731
 msgid "Large label"
 msgstr ""
 
-#: includes/class-admin-options.php:2941
+#: includes/class-admin-options.php:2982
 #: includes/setup-wizard/class-woo-seed-mapper.php:509
 msgid "Changes product image"
 msgstr ""
 
-#: includes/class-admin-options.php:2942
+#: includes/class-admin-options.php:2983
 msgid "Choose whether to change the product image."
 msgstr ""
 
-#: includes/class-admin-options.php:2965
+#: includes/class-admin-options.php:3006
 msgid "Show in product options list"
 msgstr ""
 
-#: includes/class-admin-options.php:2966
+#: includes/class-admin-options.php:3007
 msgid "Also let buyers choose this design component (and see its price) in the product options, not only inside the design editor."
 msgstr ""
 
-#: includes/class-admin-options.php:2984
+#: includes/class-admin-options.php:3025
 #: includes/setup-wizard/class-woo-seed-mapper.php:511
 msgid "CSS Class"
 msgstr ""
 
-#: includes/class-admin-options.php:2992
+#: includes/class-admin-options.php:3033
 #: views/visual-builder/edit.php:509
 msgid "Component"
 msgstr ""
 
-#: includes/class-admin-options.php:2994
+#: includes/class-admin-options.php:3035
 #: views/options/templates/field-body/attributes.php:80
 #: views/options/templates/field-body/attributes.php:97
 #: views/options/templates/field-body/attributes.php:266
 #: views/options/templates/field-body/attributes.php:283
-#: views/product-builder/wrapper.php:462
+#: views/product-builder/wrapper.php:440
 #: views/visual-builder/edit.php:511
 msgid "Image"
 msgstr ""
 
-#: includes/class-admin-options.php:2996
+#: includes/class-admin-options.php:3037
 #: views/options/templates/field-body/attributes.php:217
 msgid "Sub attribute name"
 msgstr ""
 
-#: includes/class-admin-options.php:2997
+#: includes/class-admin-options.php:3038
 msgid "Choose image"
 msgstr ""
 
 #. translators: %s = product name. Shown as the media picker title so the merchant knows the picker is showing that one product's images.
-#: includes/class-admin-options.php:2999
+#: includes/class-admin-options.php:3040
 #, php-format
 msgid "Images for: %s"
 msgstr ""
 
-#: includes/class-admin-options.php:3000
+#: includes/class-admin-options.php:3041
 msgid "Error. Please try again later."
 msgstr ""
 
-#: includes/class-admin-options.php:3004
+#: includes/class-admin-options.php:3045
 msgid "Storelly product builder"
 msgstr ""
 
-#: includes/class-admin-options.php:3159
+#: includes/class-admin-options.php:3200
 #: includes/class-saved-designs.php:322
 #: includes/templates/class-template-preview-render.php:348
 #: templates/single-product/option-builder.php:348
 #: views/options/edit-option.php:663
 #: views/options/edit-option.php:771
-#: views/product-builder/wrapper.php:915
+#: views/product-builder/wrapper.php:893
 msgid "Add to cart"
 msgstr ""
 
-#: includes/class-admin-options.php:3163
+#: includes/class-admin-options.php:3204
 msgid "Get Quote (keeps price)"
 msgstr ""
 
-#: includes/class-admin-options.php:3165
+#: includes/class-admin-options.php:3206
 msgid "Quote only"
 msgstr ""
 
-#: includes/class-admin-options.php:3167
+#: includes/class-admin-options.php:3208
 msgid "Add to cart + Quote"
 msgstr ""
 
-#: includes/class-admin-options.php:3169
+#: includes/class-admin-options.php:3210
 msgid "Add to cart + Quote (default)"
 msgstr ""
 
-#: includes/class-admin-options.php:3356
+#: includes/class-admin-options.php:3397
 msgid "Pricing option saved."
 msgstr ""
 
-#: includes/class-admin-options.php:3357
+#: includes/class-admin-options.php:3398
 msgid "Linked pricing option changed."
 msgstr ""
 
-#: includes/class-admin-options.php:3358
+#: includes/class-admin-options.php:3399
 msgid "Pricing option unlinked from this product."
 msgstr ""
 
-#: includes/class-admin-options.php:3380
-#: includes/class-admin-options.php:3409
+#: includes/class-admin-options.php:3421
+#: includes/class-admin-options.php:3450
 msgid "You do not have permission to edit this product."
 msgstr ""
 
-#: includes/class-admin-options.php:3383
+#: includes/class-admin-options.php:3424
 msgid "Missing option."
 msgstr ""
 
-#: includes/class-admin-options.php:3387
+#: includes/class-admin-options.php:3428
 msgid "That option is not available."
 msgstr ""
 
-#: includes/class-admin-options.php:3490
-#: includes/class-admin-options.php:3502
+#: includes/class-admin-options.php:3531
+#: includes/class-admin-options.php:3543
 msgid "You do not have permission to add font!"
 msgstr ""
 
-#: includes/class-admin-options.php:3507
+#: includes/class-admin-options.php:3548
 msgid "Empty data."
 msgstr ""
 
-#: includes/class-admin-options.php:3561
+#: includes/class-admin-options.php:3602
 msgid "The google fonts have been added successfully!"
 msgstr ""
 
-#: includes/class-admin-options.php:3588
+#: includes/class-admin-options.php:3629
 msgid "No file received. Please try again."
 msgstr ""
 
-#: includes/class-admin-options.php:3595
+#: includes/class-admin-options.php:3636
 msgid "Upload error. Check PHP upload_max_filesize / post_max_size."
 msgstr ""
 
-#: includes/class-admin-options.php:3606
-#: includes/class-admin-options.php:3745
+#: includes/class-admin-options.php:3647
+#: includes/class-admin-options.php:3786
 msgid "Invalid file type. Allowed: TTF, OTF, WOFF, WOFF2."
 msgstr ""
 
-#: includes/class-admin-options.php:3616
+#: includes/class-admin-options.php:3657
 msgid "Could not create upload directory."
 msgstr ""
 
-#: includes/class-admin-options.php:3629
+#: includes/class-admin-options.php:3670
 msgid "Failed to save file. Check server write permissions."
 msgstr ""
 
-#: includes/class-admin-options.php:3661
-#: includes/class-admin-options.php:3742
+#: includes/class-admin-options.php:3702
+#: includes/class-admin-options.php:3783
 msgid "Font uploaded successfully!"
 msgstr ""
 
-#: includes/class-admin-options.php:3680
+#: includes/class-admin-options.php:3721
 msgid "Invalid font ID."
 msgstr ""
 
-#: includes/class-admin-options.php:3692
-#: includes/class-admin-options.php:3744
+#: includes/class-admin-options.php:3733
+#: includes/class-admin-options.php:3785
 msgid "Font deleted."
 msgstr ""
 
-#: includes/class-admin-options.php:3732
+#: includes/class-admin-options.php:3773
 msgid "Complete!"
 msgstr ""
 
-#: includes/class-admin-options.php:3743
+#: includes/class-admin-options.php:3784
 msgid "Delete this font? This cannot be undone."
 msgstr ""
 
-#: includes/class-admin-options.php:3746
+#: includes/class-admin-options.php:3787
 msgid "An error occurred. Please try again."
 msgstr ""
 
-#: includes/class-admin-options.php:3747
+#: includes/class-admin-options.php:3788
 msgid "Drop font file here"
 msgstr ""
 
-#: includes/class-admin-options.php:3748
+#: includes/class-admin-options.php:3789
 #: views/manager-fonts.php:123
 msgid "Uploading…"
 msgstr ""
 
-#: includes/class-admin-options.php:3776
+#: includes/class-admin-options.php:3817
 msgid "Cart page switched to the classic shortcode."
 msgstr ""
 
-#: includes/class-admin-options.php:3782
+#: includes/class-admin-options.php:3823
 msgid "Cart page restored to the WooCommerce block."
 msgstr ""
 
-#: includes/class-admin-options.php:3798
+#: includes/class-admin-options.php:3839
 #: includes/class-util.php:264
 msgid "Your settings have been saved."
 msgstr ""
 
-#: includes/class-admin-options.php:4178
+#: includes/class-admin-options.php:4219
 msgid "Could not connect to the license server. The Free plan is shown temporarily until sync succeeds."
 msgstr ""
 
-#: includes/class-admin-options.php:4187
+#: includes/class-admin-options.php:4228
 msgid "License synced successfully."
 msgstr ""
 
-#: includes/class-admin-options.php:4292
-#: includes/class-admin-options.php:4575
-#: includes/class-admin-options.php:4595
-#: includes/class-admin-options.php:4619
-#: includes/class-admin-options.php:4648
-#: includes/class-admin-options.php:4680
-#: includes/class-admin-options.php:4741
+#: includes/class-admin-options.php:4333
+#: includes/class-admin-options.php:4616
+#: includes/class-admin-options.php:4636
+#: includes/class-admin-options.php:4660
+#: includes/class-admin-options.php:4689
+#: includes/class-admin-options.php:4721
+#: includes/class-admin-options.php:4782
 msgid "Forbidden."
 msgstr ""
 
-#: includes/class-admin-options.php:4484
-#: includes/class-admin-options.php:4487
+#: includes/class-admin-options.php:4525
+#: includes/class-admin-options.php:4528
 #: includes/marketplace/admin/class-designs-list-table.php:45
 #: includes/options/fields-list-table.php:419
 #: includes/options/fields-list-table.php:560
@@ -1396,8 +2414,8 @@ msgstr ""
 msgid "Unpublish"
 msgstr ""
 
-#: includes/class-admin-options.php:4484
-#: includes/class-admin-options.php:4487
+#: includes/class-admin-options.php:4525
+#: includes/class-admin-options.php:4528
 #: includes/launcher/class.launcher.php:1485
 #: includes/marketplace/admin/class-designs-list-table.php:44
 #: includes/options/fields-list-table.php:418
@@ -1409,7 +2427,7 @@ msgstr ""
 msgid "Publish"
 msgstr ""
 
-#: includes/class-admin-options.php:4494
+#: includes/class-admin-options.php:4535
 #: includes/marketplace/admin/class-designs-list-table.php:95
 #: includes/options/fields-list-table.php:517
 #: views/designs.php:114
@@ -1429,7 +2447,7 @@ msgstr ""
 #. translators: %d: number of fields in the option
 #. translators: %d: number of fields
 #. translators: %d: number of fields in template
-#: includes/class-admin-options.php:4497
+#: includes/class-admin-options.php:4538
 #: includes/options/fields-list-table.php:526
 #: views/options/meta-box.php:42
 #: views/options/options-list-table.php:302
@@ -1442,13 +2460,13 @@ msgstr[1] ""
 
 #. translators: %s: time difference
 #. translators: %s: human-readable time difference
-#: includes/class-admin-options.php:4511
+#: includes/class-admin-options.php:4552
 #: views/options/options-list-table.php:321
 #, php-format
 msgid "Updated %s ago"
 msgstr ""
 
-#: includes/class-admin-options.php:4518
+#: includes/class-admin-options.php:4559
 #: includes/launcher/class.launcher.php:1449
 #: includes/marketplace/admin/class-designers-list-table.php:59
 #: includes/options/fields-list-table.php:482
@@ -1459,82 +2477,64 @@ msgstr ""
 msgid "Edit"
 msgstr ""
 
-#: includes/class-admin-options.php:4524
+#: includes/class-admin-options.php:4565
 #: views/options/field.php:94
 #: views/options/options-list-table.php:338
 msgid "Duplicate"
 msgstr ""
 
-#: includes/class-admin-options.php:4531
-#: includes/class-saved-designs.php:333
-#: includes/launcher/class.launcher.php:1438
-#: includes/marketplace/admin/class-designs-list-table.php:46
-#: includes/options/fields-list-table.php:417
-#: templates/launcher/store/design-table.php:61
-#: views/options/options-list-table.php:345
-#: views/options/options-list-table.php:432
-#: views/options/templates/field-body/attributes.php:327
-#: views/options/templates/field-body/attributes.php:349
-#: views/options/templates/nbpb_text.php:162
-#: views/product-builder/wrapper-legacy.php:182
-#: views/product-builder/wrapper-legacy.php:205
-#: views/product-builder/wrapper.php:393
-#: views/product-builder/wrapper.php:464
-msgid "Delete"
-msgstr ""
-
-#: includes/class-admin-options.php:4543
+#: includes/class-admin-options.php:4584
 msgid "No options match your filters."
 msgstr ""
 
-#: includes/class-admin-options.php:4579
-#: includes/class-admin-options.php:4600
-#: includes/class-admin-options.php:4623
+#: includes/class-admin-options.php:4620
+#: includes/class-admin-options.php:4641
+#: includes/class-admin-options.php:4664
 msgid "Missing ID."
 msgstr ""
 
-#: includes/class-admin-options.php:4584
+#: includes/class-admin-options.php:4625
 msgid "Option moved to trash."
 msgstr ""
 
-#: includes/class-admin-options.php:4632
+#: includes/class-admin-options.php:4673
 msgid "Could not duplicate the option."
 msgstr ""
 
-#: includes/class-admin-options.php:4637
+#: includes/class-admin-options.php:4678
 msgid "Option duplicated."
 msgstr ""
 
-#: includes/class-admin-options.php:4653
+#: includes/class-admin-options.php:4694
 msgid "Invalid data."
 msgstr ""
 
-#: includes/class-admin-options.php:4667
+#: includes/class-admin-options.php:4708
 #: views/options/options-list-table.php:871
 msgid "Renamed."
 msgstr ""
 
-#: includes/class-admin-options.php:4687
+#: includes/class-admin-options.php:4728
 msgid "No items selected."
 msgstr ""
 
-#: includes/class-admin-options.php:4690
+#: includes/class-admin-options.php:4731
 msgid "Invalid action."
 msgstr ""
 
 #. translators: %d: number of option groups updated
-#: includes/class-admin-options.php:4718
+#: includes/class-admin-options.php:4759
 #, php-format
 msgid "%d option updated."
 msgid_plural "%d options updated."
 msgstr[0] ""
 msgstr[1] ""
 
-#: includes/class-admin-options.php:4746
+#: includes/class-admin-options.php:4787
 msgid "Save failed."
 msgstr ""
 
-#: includes/class-admin-options.php:4757
+#: includes/class-admin-options.php:4798
 #: views/options/edit-option.php:1182
 msgid "Option saved."
 msgstr ""
@@ -1563,7 +2563,7 @@ msgid "View design"
 msgstr ""
 
 #: includes/class-buyer-downloads.php:162
-#: views/box-order-metadata.php:67
+#: views/box-order-metadata.php:80
 msgid "Download"
 msgstr ""
 
@@ -1590,6 +2590,26 @@ msgstr ""
 
 #: includes/class-cloud-connect.php:150
 msgid "Please enter your Store ID."
+msgstr ""
+
+#: includes/class-demo-seeder.php:115
+msgid "WooCommerce is required to import the demo."
+msgstr ""
+
+#: includes/class-demo-seeder.php:158
+msgid "Could not create the demo product."
+msgstr ""
+
+#: includes/class-demo-seeder.php:170
+msgid "Could not create the demo option set."
+msgstr ""
+
+#: includes/class-demo-seeder.php:234
+msgid "The bundled demo data is missing."
+msgstr ""
+
+#: includes/class-demo-seeder.php:239
+msgid "The bundled demo data is invalid."
 msgstr ""
 
 #: includes/class-export-pdf.php:249
@@ -1666,12 +2686,13 @@ msgid "( for all items )"
 msgstr ""
 
 #: includes/class-frontend-options.php:1179
-#: includes/class-frontend-options.php:1279
+#: includes/class-frontend-options.php:1300
 msgid "Quantity Discount"
 msgstr ""
 
 #. translators: %d: number of custom text layers
 #: includes/class-frontend-options.php:1188
+#: includes/class-frontend-options.php:1285
 #, php-format
 msgid "%d text"
 msgid_plural "%d text"
@@ -1680,6 +2701,7 @@ msgstr[1] ""
 
 #. translators: %d: number of custom image layers
 #: includes/class-frontend-options.php:1192
+#: includes/class-frontend-options.php:1289
 #, php-format
 msgid "%d image"
 msgid_plural "%d images"
@@ -1687,12 +2709,13 @@ msgstr[0] ""
 msgstr[1] ""
 
 #: includes/class-frontend-options.php:1196
-#: views/product-builder/wrapper.php:862
+#: includes/class-frontend-options.php:1293
+#: views/product-builder/wrapper.php:840
 msgid "Custom text & images"
 msgstr ""
 
-#: includes/class-frontend-options.php:1369
-#: views/overview.php:629
+#: includes/class-frontend-options.php:1390
+#: views/overview.php:716
 msgid "Edit options"
 msgstr ""
 
@@ -2129,6 +3152,7 @@ msgid "Do you want to export and download reference data for this product?"
 msgstr ""
 
 #: includes/class-product-exporter.php:76
+#: includes/quote/class-quote-bucket.php:158
 msgid "Product not found."
 msgstr ""
 
@@ -2170,11 +3194,14 @@ msgid "This product is available by quote only."
 msgstr ""
 
 #: includes/class-request-quote.php:334
+#: includes/quote/class-quote-bucket.php:59
 msgid "Sending…"
 msgstr ""
 
 #: includes/class-request-quote.php:335
 #: includes/class-request-quote.php:416
+#: includes/quote/class-quote-bucket.php:60
+#: includes/quote/class-quote-bucket.php:313
 msgid "Submit request"
 msgstr ""
 
@@ -2183,16 +3210,19 @@ msgid "Something went wrong. Please review the form."
 msgstr ""
 
 #: includes/class-request-quote.php:337
+#: includes/quote/class-quote-bucket.php:61
 msgid "Request failed. Please try again."
 msgstr ""
 
 #: includes/class-request-quote.php:338
+#: includes/quote/class-quote-bucket.php:62
 msgid "Track your quote"
 msgstr ""
 
 #: includes/class-request-quote.php:359
+#: includes/quote/class-quote-bucket.php:281
 #: views/product-builder/wrapper-v2-1.php:66
-#: views/product-builder/wrapper.php:182
+#: views/product-builder/wrapper.php:157
 #: views/templates/library.php:215
 #: views/templates/library.php:270
 #: views/templates/library.php:288
@@ -2204,7 +3234,7 @@ msgid "Tell us what you need and we will send you a price."
 msgstr ""
 
 #: includes/class-request-quote.php:380
-#: includes/quote/class-quote-admin.php:786
+#: includes/quote/class-quote-admin.php:794
 #: includes/templates/class-template-preview-render.php:345
 #: templates/single-product/option-builder.php:238
 #: templates/single-product/option-builder.php:304
@@ -2224,10 +3254,12 @@ msgid "Increase quantity"
 msgstr ""
 
 #: includes/class-request-quote.php:422
+#: includes/quote/class-quote-bucket.php:318
 msgid "Request sent"
 msgstr ""
 
 #: includes/class-request-quote.php:423
+#: includes/quote/class-quote-bucket.php:319
 msgid "Thanks! We have received your request and will get back to you shortly."
 msgstr ""
 
@@ -2236,13 +3268,17 @@ msgid "Quote is not available for this product."
 msgstr ""
 
 #. translators: %s: form field label of the missing required input
+#. translators: %s: field label
 #: includes/class-request-quote.php:471
+#: includes/quote/class-quote-bucket.php:206
 #, php-format
 msgid "%s is required."
 msgstr ""
 
 #. translators: %s: form field label of the field that failed email validation
+#. translators: %s: field label
 #: includes/class-request-quote.php:474
+#: includes/quote/class-quote-bucket.php:209
 #, php-format
 msgid "%s is not a valid email."
 msgstr ""
@@ -2254,6 +3290,7 @@ msgid "%s is not a valid phone."
 msgstr ""
 
 #: includes/class-request-quote.php:483
+#: includes/quote/class-quote-bucket.php:213
 msgid "Please correct the highlighted fields."
 msgstr ""
 
@@ -2261,39 +3298,39 @@ msgstr ""
 msgid "Could not create your quote request. Please try again."
 msgstr ""
 
-#: includes/class-request-quote.php:581
-#: includes/class-request-quote.php:617
+#: includes/class-request-quote.php:555
+#: includes/class-request-quote.php:591
 msgid "New Quote Request"
 msgstr ""
 
 #. translators: %s: number of new quote requests in the WC admin filter list
-#: includes/class-request-quote.php:587
+#: includes/class-request-quote.php:561
 #, php-format
 msgid "New Quote Request <span class=\"count\">(%s)</span>"
 msgid_plural "New Quote Requests <span class=\"count\">(%s)</span>"
 msgstr[0] ""
 msgstr[1] ""
 
-#: includes/class-request-quote.php:593
-#: includes/class-request-quote.php:618
+#: includes/class-request-quote.php:567
+#: includes/class-request-quote.php:592
 msgid "Accepted Quote"
 msgstr ""
 
 #. translators: %s: number of accepted quotes in the WC admin filter list
-#: includes/class-request-quote.php:599
+#: includes/class-request-quote.php:573
 #, php-format
 msgid "Accepted Quote <span class=\"count\">(%s)</span>"
 msgid_plural "Accepted Quotes <span class=\"count\">(%s)</span>"
 msgstr[0] ""
 msgstr[1] ""
 
-#: includes/class-request-quote.php:605
-#: includes/class-request-quote.php:619
+#: includes/class-request-quote.php:579
+#: includes/class-request-quote.php:593
 msgid "Rejected Quote"
 msgstr ""
 
 #. translators: %s: number of rejected quotes in the WC admin filter list
-#: includes/class-request-quote.php:611
+#: includes/class-request-quote.php:585
 #, php-format
 msgid "Rejected Quote <span class=\"count\">(%s)</span>"
 msgid_plural "Rejected Quotes <span class=\"count\">(%s)</span>"
@@ -2301,87 +3338,84 @@ msgstr[0] ""
 msgstr[1] ""
 
 #. translators: %d: number of quotes awaiting the customer's response
-#: includes/class-request-quote.php:647
+#: includes/class-request-quote.php:621
 #, php-format
 msgid "(%d)"
 msgstr ""
 
-#: includes/class-request-quote.php:700
+#: includes/class-request-quote.php:674
 msgid "My Quotes"
 msgstr ""
 
-#: includes/class-request-quote.php:702
+#: includes/class-request-quote.php:676
 msgid "You have not requested any quotes yet."
 msgstr ""
 
-#: includes/class-request-quote.php:735
+#: includes/class-request-quote.php:709
 msgid "Total quotes"
 msgstr ""
 
-#: includes/class-request-quote.php:736
+#: includes/class-request-quote.php:710
 msgid "Awaiting your action"
 msgstr ""
 
-#: includes/class-request-quote.php:737
+#: includes/class-request-quote.php:711
 msgid "Quoted value"
 msgstr ""
 
-#: includes/class-request-quote.php:738
+#: includes/class-request-quote.php:712
 msgid "Converted to orders"
 msgstr ""
 
-#: includes/class-request-quote.php:746
-#: includes/launcher/class.launcher.php:1410
-#: includes/quote/class-quotes-list-table.php:70
-#: views/marketplace-admin/designers.php:46
-#: views/options/options-list-table.php:124
-#: views/product-builder/wrapper.php:273
-#: views/products.php:67
-msgid "All"
-msgstr ""
-
-#: includes/class-request-quote.php:747
+#: includes/class-request-quote.php:721
 #: includes/quote/class-quote-admin.php:434
 msgid "Awaiting response"
 msgstr ""
 
-#: includes/class-request-quote.php:748
+#: includes/class-request-quote.php:722
 #: includes/quote/class-quote-model.php:67
 msgid "Converted"
 msgstr ""
 
-#: includes/class-request-quote.php:749
+#: includes/class-request-quote.php:723
 #: includes/quote/class-quote-model.php:68
 msgid "Declined"
 msgstr ""
 
-#: includes/class-request-quote.php:780
+#: includes/class-request-quote.php:754
 msgid "No quotes in this view."
 msgstr ""
 
-#: includes/class-request-quote.php:785
+#: includes/class-request-quote.php:759
+#: includes/quote/class-quote-pdf.php:172
 #: includes/quote/class-quote-post-type.php:51
 msgid "Quote"
 msgstr ""
 
-#: includes/class-request-quote.php:828
-#: includes/quote/class-quote-model.php:182
+#: includes/class-request-quote.php:802
+#: includes/quote/class-quote-model.php:208
+#: includes/quote/class-quote-pdf.php:111
 msgid "Quote not found."
 msgstr ""
 
 #. translators: %s: quote number e.g. Q-2026-0001
-#: includes/class-request-quote.php:845
+#: includes/class-request-quote.php:819
 #: includes/quote/class-quote-admin.php:489
 #, php-format
 msgid "Quote %s"
 msgstr ""
 
-#: includes/class-request-quote.php:850
+#: includes/class-request-quote.php:822
+#: includes/quote/class-quote-admin.php:513
+msgid "Download / Print"
+msgstr ""
+
+#: includes/class-request-quote.php:827
 msgid "Preview — this is what the customer sees. Actions are disabled here."
 msgstr ""
 
 #. translators: %d: number of days a quote remains valid
-#: includes/class-request-quote.php:860
+#: includes/class-request-quote.php:837
 #, php-format
 msgid "%d day"
 msgid_plural "%d days"
@@ -2389,304 +3423,349 @@ msgstr[0] ""
 msgstr[1] ""
 
 #. translators: 1: number of days, 2: expiry date
-#: includes/class-request-quote.php:865
+#: includes/class-request-quote.php:842
 #, php-format
 msgid "Valid for %1$s — expires %2$s"
 msgstr ""
 
-#: includes/class-request-quote.php:877
+#: includes/class-request-quote.php:854
 msgid "What's included"
 msgstr ""
 
-#: includes/class-request-quote.php:879
-#: includes/quote/class-quote-admin.php:562
+#: includes/class-request-quote.php:856
+#: includes/quote/class-quote-admin.php:568
 #: includes/quote/class-quote-email-types.php:77
+#: includes/quote/class-quote-pdf.php:185
 msgid "Item"
 msgstr ""
 
-#: includes/class-request-quote.php:880
-#: includes/quote/class-quote-admin.php:563
-#: includes/quote/class-quote-email-types.php:77
-msgid "Qty"
-msgstr ""
-
-#: includes/class-request-quote.php:881
+#: includes/class-request-quote.php:858
+#: includes/quote/class-quote-pdf.php:185
 msgid "Unit"
 msgstr ""
 
-#: includes/class-request-quote.php:895
-#: includes/quote/class-quote-admin.php:584
+#: includes/class-request-quote.php:872
+#: includes/quote/class-quote-admin.php:590
+#: includes/quote/class-quote-pdf.php:198
 msgid "Subtotal"
 msgstr ""
 
-#: includes/class-request-quote.php:897
-#: includes/class-request-quote.php:1214
-#: includes/quote/class-quote-admin.php:588
+#: includes/class-request-quote.php:874
+#: includes/class-request-quote.php:1249
+#: includes/quote/class-quote-admin.php:594
+#: includes/quote/class-quote-pdf.php:200
 #: views/options/edit-option.php:309
 #: views/options/v3/section-quantity.php:91
 msgid "Discount"
 msgstr ""
 
-#: includes/class-request-quote.php:900
-#: includes/class-request-quote.php:1222
-#: includes/quote/class-quote-admin.php:592
+#: includes/class-request-quote.php:877
+#: includes/class-request-quote.php:1257
+#: includes/quote/class-quote-admin.php:598
+#: includes/quote/class-quote-pdf.php:203
 msgid "Tax"
 msgstr ""
 
-#: includes/class-request-quote.php:908
+#: includes/class-request-quote.php:885
 msgid "Note from us"
 msgstr ""
 
-#: includes/class-request-quote.php:915
+#: includes/class-request-quote.php:892
 msgid "The customer sees Accept / Request changes / Decline buttons here."
 msgstr ""
 
-#: includes/class-request-quote.php:920
+#: includes/class-request-quote.php:897
 msgid "Your change request has been sent. We will get back to you with a revised quote."
 msgstr ""
 
-#: includes/class-request-quote.php:924
+#: includes/class-request-quote.php:903
 msgid "You accepted this quote — an order has been created."
 msgstr ""
 
-#: includes/class-request-quote.php:926
-#: includes/quote/class-quote-email-types.php:292
+#. translators: 1: net days, 2: due date
+#: includes/class-request-quote.php:908
+#, php-format
+msgid "On account — Net-%1$d. We will invoice you; payment is due %2$s."
+msgstr ""
+
+#. translators: %s: balance amount
+#: includes/class-request-quote.php:916
+#, php-format
+msgid "A 50%% deposit is due now; the balance of %s is due on shipment."
+msgstr ""
+
+#: includes/class-request-quote.php:921
+msgid "Pay deposit"
+msgstr ""
+
+#: includes/class-request-quote.php:921
+#: includes/quote/class-quote-email-types.php:310
 msgid "Pay now"
 msgstr ""
 
 #. translators: %d: order ID
-#: includes/class-request-quote.php:928
-#: includes/quote/class-quote-email-types.php:236
+#: includes/class-request-quote.php:924
+#: includes/quote/class-quote-email-types.php:254
 msgid "View order"
 msgstr ""
 
-#: includes/class-request-quote.php:931
+#: includes/class-request-quote.php:927
 msgid "You declined this quote."
 msgstr ""
 
-#: includes/class-request-quote.php:942
+#: includes/class-request-quote.php:938
 msgid "We have received your request and are preparing a price."
 msgstr ""
 
-#: includes/class-request-quote.php:944
+#: includes/class-request-quote.php:940
 msgid "You accepted this quote — your order is being prepared."
 msgstr ""
 
-#: includes/class-request-quote.php:946
+#: includes/class-request-quote.php:942
 msgid "This quote has expired. Please request a new one if you are still interested."
 msgstr ""
 
-#: includes/class-request-quote.php:948
+#: includes/class-request-quote.php:944
 msgid "This quote was withdrawn."
 msgstr ""
 
-#: includes/class-request-quote.php:950
+#: includes/class-request-quote.php:946
 msgid "This quote is no longer active."
 msgstr ""
 
-#: includes/class-request-quote.php:971
+#: includes/class-request-quote.php:967
 msgid "What changed since the last quote"
 msgstr ""
 
-#: includes/class-request-quote.php:974
+#: includes/class-request-quote.php:970
 msgid "Added"
 msgstr ""
 
-#: includes/class-request-quote.php:977
+#: includes/class-request-quote.php:973
 msgid "Removed"
 msgstr ""
 
 #. translators: 1: label, 2: old qty, 3: new qty, 4: old unit price, 5: new unit price
-#: includes/class-request-quote.php:984
+#: includes/class-request-quote.php:980
 #, php-format
 msgid "%1$s: qty %2$s → %3$s, unit %4$s → %5$s"
 msgstr ""
 
-#: includes/class-request-quote.php:991
+#: includes/class-request-quote.php:987
 msgid "Changed"
 msgstr ""
 
-#: includes/class-request-quote.php:995
+#: includes/class-request-quote.php:991
 msgid "Total:"
 msgstr ""
 
 #. translators: %s: link to the terms & conditions
-#: includes/class-request-quote.php:1014
+#: includes/class-request-quote.php:1010
 #, php-format
 msgid "I agree to the quote %s."
 msgstr ""
 
-#: includes/class-request-quote.php:1015
+#: includes/class-request-quote.php:1011
 msgid "terms &amp; conditions"
 msgstr ""
 
-#: includes/class-request-quote.php:1017
+#: includes/class-request-quote.php:1013
 msgid "I agree to the quote terms."
 msgstr ""
 
-#: includes/class-request-quote.php:1019
+#: includes/class-request-quote.php:1017
 msgid "Price too high"
 msgstr ""
 
-#: includes/class-request-quote.php:1020
+#: includes/class-request-quote.php:1018
 msgid "Timeline doesn't work"
 msgstr ""
 
-#: includes/class-request-quote.php:1021
+#: includes/class-request-quote.php:1019
 msgid "Going with another vendor"
 msgstr ""
 
-#: includes/class-request-quote.php:1022
+#: includes/class-request-quote.php:1020
 msgid "Project cancelled"
 msgstr ""
 
-#: includes/class-request-quote.php:1023
+#: includes/class-request-quote.php:1021
 msgid "Budget changed"
 msgstr ""
 
-#: includes/class-request-quote.php:1024
-#: includes/class-request-quote.php:1033
-#: includes/quote/class-quote-model.php:88
+#: includes/class-request-quote.php:1022
+#: includes/class-request-quote.php:1031
+#: includes/quote/class-quote-model.php:114
 msgid "Other"
 msgstr ""
 
-#: includes/class-request-quote.php:1027
-#: includes/quote/class-quote-model.php:82
+#: includes/class-request-quote.php:1025
+#: includes/quote/class-quote-model.php:108
 msgid "Reduce quantity"
 msgstr ""
 
-#: includes/class-request-quote.php:1028
-#: includes/quote/class-quote-model.php:83
+#: includes/class-request-quote.php:1026
+#: includes/quote/class-quote-model.php:109
 msgid "Different material"
 msgstr ""
 
-#: includes/class-request-quote.php:1029
-#: includes/quote/class-quote-model.php:84
+#: includes/class-request-quote.php:1027
+#: includes/quote/class-quote-model.php:110
 msgid "Different dimensions"
 msgstr ""
 
-#: includes/class-request-quote.php:1030
-#: includes/quote/class-quote-model.php:85
+#: includes/class-request-quote.php:1028
+#: includes/quote/class-quote-model.php:111
 msgid "Skip rush production"
 msgstr ""
 
-#: includes/class-request-quote.php:1031
-#: includes/quote/class-quote-model.php:86
+#: includes/class-request-quote.php:1029
+#: includes/quote/class-quote-model.php:112
 msgid "Change shipping method"
 msgstr ""
 
-#: includes/class-request-quote.php:1032
-#: includes/quote/class-quote-model.php:87
+#: includes/class-request-quote.php:1030
+#: includes/quote/class-quote-model.php:113
 msgid "Adjust payment terms"
 msgstr ""
 
-#: includes/class-request-quote.php:1038
+#: includes/class-request-quote.php:1036
 msgid "Accept this quote"
 msgstr ""
 
-#: includes/class-request-quote.php:1044
-msgid "Total due"
+#: includes/class-request-quote.php:1042
+msgid "Deposit due now"
 msgstr ""
 
-#: includes/class-request-quote.php:1047
+#. translators: %d: net days
+#: includes/class-request-quote.php:1048
+#, php-format
+msgid "Net-%d — you will be invoiced; no payment is taken now."
+msgstr ""
+
+#. translators: %s: full total
+#: includes/class-request-quote.php:1053
+#, php-format
+msgid "50%% deposit of %s now; balance on shipment."
+msgstr ""
+
+#: includes/class-request-quote.php:1056
 msgid "PO number (optional)"
 msgstr ""
 
-#: includes/class-request-quote.php:1055
+#: includes/class-request-quote.php:1064
 msgid "Email me production / order updates."
 msgstr ""
 
-#: includes/class-request-quote.php:1057
+#: includes/class-request-quote.php:1066
 msgid "Accept &amp; create order"
 msgstr ""
 
-#: includes/class-request-quote.php:1062
+#: includes/class-request-quote.php:1071
 msgid "Request changes"
 msgstr ""
 
-#: includes/class-request-quote.php:1072
-#: views/product-builder/wrapper.php:219
+#: includes/class-request-quote.php:1081
+#: views/product-builder/wrapper.php:194
 msgid "Details"
 msgstr ""
 
-#: includes/class-request-quote.php:1074
+#: includes/class-request-quote.php:1083
 msgid "Send change request"
 msgstr ""
 
-#: includes/class-request-quote.php:1079
+#: includes/class-request-quote.php:1088
 msgid "Decline"
 msgstr ""
 
-#: includes/class-request-quote.php:1084
+#: includes/class-request-quote.php:1093
 msgid "Reason"
 msgstr ""
 
-#: includes/class-request-quote.php:1090
+#: includes/class-request-quote.php:1099
 msgid "Decline quote"
 msgstr ""
 
-#: includes/class-request-quote.php:1101
+#: includes/class-request-quote.php:1110
 msgid "Quote accepted. Your order is ready below."
 msgstr ""
 
-#: includes/class-request-quote.php:1102
+#: includes/class-request-quote.php:1111
 msgid "You have declined this quote."
 msgstr ""
 
-#: includes/class-request-quote.php:1103
+#: includes/class-request-quote.php:1112
 msgid "Your change request has been sent."
 msgstr ""
 
-#: includes/class-request-quote.php:1104
+#: includes/class-request-quote.php:1113
 msgid "Please agree to the quote terms before accepting."
 msgstr ""
 
-#: includes/class-request-quote.php:1142
+#: includes/class-request-quote.php:1151
 msgid "Customer accepted the quote."
 msgstr ""
 
 #. translators: %d: order ID
-#: includes/class-request-quote.php:1150
+#: includes/class-request-quote.php:1159
 #, php-format
 msgid "Order #%d created from accepted quote."
 msgstr ""
 
-#: includes/class-request-quote.php:1160
+#: includes/class-request-quote.php:1169
 msgid "Customer declined the quote."
 msgstr ""
 
-#: includes/class-request-quote.php:1167
+#: includes/class-request-quote.php:1176
 msgid "Customer requested changes."
 msgstr ""
 
-#: includes/class-request-quote.php:1206
+#. translators: %s: full quote total
+#: includes/class-request-quote.php:1220
+#, php-format
+msgid "Deposit (50%% of %s)"
+msgstr ""
+
+#. translators: 1: deposit amount, 2: balance amount
+#: includes/class-request-quote.php:1229
+#, php-format
+msgid "50%% deposit %1$s now; balance %2$s due on shipment."
+msgstr ""
+
+#: includes/class-request-quote.php:1241
 msgid "Quote item"
 msgstr ""
 
-#: includes/class-review-notice.php:106
+#. translators: 1: net days, 2: due date
+#: includes/class-request-quote.php:1280
+#, php-format
+msgid "Net-%1$d invoice — payment due %2$s."
+msgstr ""
+
+#: includes/class-review-notice.php:107
 msgid "Enjoying Storelly Product Builder?"
 msgstr ""
 
-#: includes/class-review-notice.php:109
+#: includes/class-review-notice.php:110
 msgid "You've got the builder up and running on your store — that's great to see! A quick review on WordPress.org helps other merchants find us and means a lot to our small team."
 msgstr ""
 
-#: includes/class-review-notice.php:114
+#: includes/class-review-notice.php:115
 msgid "Sure, I'll leave a review"
 msgstr ""
 
-#: includes/class-review-notice.php:117
-#: includes/class-upsell-notice.php:102
+#: includes/class-review-notice.php:118
+#: includes/class-upsell-notice.php:103
 msgid "Maybe later"
 msgstr ""
 
-#: includes/class-review-notice.php:120
+#: includes/class-review-notice.php:121
 msgid "Already did / No thanks"
 msgstr ""
 
 #: includes/class-saved-designs.php:87
 #: includes/class-saved-designs.php:294
-#: views/overview.php:691
+#: views/overview.php:778
 msgid "Saved designs"
 msgstr ""
 
@@ -2704,10 +3783,6 @@ msgstr ""
 
 #: includes/class-saved-designs.php:296
 msgid "You have not saved any designs yet."
-msgstr ""
-
-#: includes/class-saved-designs.php:324
-msgid "Product unavailable"
 msgstr ""
 
 #: includes/class-saved-designs.php:389
@@ -2735,30 +3810,27 @@ msgstr ""
 msgid "You have reached your saved-design limit."
 msgstr ""
 
-#: includes/class-saved-designs.php:634
-#: includes/templates/class-template-library-admin.php:105
-#: views/options/options-list-table.php:461
-#: views/overview.php:287
-msgid "Something went wrong. Please try again."
-msgstr ""
-
-#. translators: 1: linked product count, 2: Free plan product limit.
-#: includes/class-upsell-notice.php:73
+#. translators: %d: number of products the merchant has set up with the builder.
+#: includes/class-upsell-notice.php:75
 #, php-format
-msgid "You're using %1$d of %2$d products on the Free plan"
-msgstr ""
+msgid "You've set up %d product with Storelly"
+msgid_plural "You've set up %d products with Storelly"
+msgstr[0] ""
+msgstr[1] ""
 
-#. translators: 1: pricing option group count, 2: Free plan option-group limit.
-#: includes/class-upsell-notice.php:80
+#. translators: %d: number of pricing option groups the merchant has created.
+#: includes/class-upsell-notice.php:81
 #, php-format
-msgid "You're using %1$d of %2$d option groups on the Free plan"
+msgid "You've created %d option group with Storelly"
+msgid_plural "You've created %d option groups with Storelly"
+msgstr[0] ""
+msgstr[1] ""
+
+#: includes/class-upsell-notice.php:96
+msgid "Add a Storelly Cloud plan to enable print-ready PDF rendering, order sync and dashboard analytics. Your builder, quotes and custom orders stay free and unchanged."
 msgstr ""
 
-#: includes/class-upsell-notice.php:95
-msgid "Upgrade to unlock unlimited products and option groups, premium templates and priority support. Your existing setup stays exactly as it is."
-msgstr ""
-
-#: includes/class-upsell-notice.php:99
+#: includes/class-upsell-notice.php:100
 msgid "See upgrade options"
 msgstr ""
 
@@ -2867,11 +3939,19 @@ msgstr ""
 msgid "Designers status have been updated!"
 msgstr ""
 
-#: includes/launcher/api/designer.php:325
+#: includes/launcher/api/designer.php:323
+msgid "Designer has no valid email address."
+msgstr ""
+
+#: includes/launcher/api/designer.php:331
+msgid "Subject and message are required."
+msgstr ""
+
+#: includes/launcher/api/designer.php:336
 msgid "Email has been sent successfully."
 msgstr ""
 
-#: includes/launcher/api/designer.php:325
+#: includes/launcher/api/designer.php:336
 msgid "Email has been sent failed"
 msgstr ""
 
@@ -2948,10 +4028,6 @@ msgstr ""
 msgid "General"
 msgstr ""
 
-#: includes/launcher/class.launcher.php:341
-msgid "Admin"
-msgstr ""
-
 #: includes/launcher/class.launcher.php:342
 #: includes/launcher/class.launcher.php:487
 #: includes/launcher/class.launcher.php:1439
@@ -2960,12 +4036,6 @@ msgstr ""
 #: views/options/edit-option.php:133
 #: views/options/meta-box.php:48
 msgid "Designer"
-msgstr ""
-
-#: includes/launcher/class.launcher.php:343
-#: includes/launcher/class.launcher.php:1324
-#: includes/launcher/class.launcher.php:1325
-msgid "Design"
 msgstr ""
 
 #: includes/launcher/class.launcher.php:436
@@ -3097,16 +4167,10 @@ msgid "At a Glance"
 msgstr ""
 
 #: includes/launcher/class.launcher.php:1418
-#: includes/quote/class-quote-admin.php:553
+#: includes/quote/class-quote-admin.php:559
 #: templates/single-product/option-builder.php:101
 #: views/templates/library.php:187
 msgid "Apply"
-msgstr ""
-
-#: includes/launcher/class.launcher.php:1420
-#: templates/launcher/store/settings.php:47
-#: views/marketplace-admin/designer-edit.php:135
-msgid "Address"
 msgstr ""
 
 #: includes/launcher/class.launcher.php:1421
@@ -3115,25 +4179,6 @@ msgstr ""
 
 #: includes/launcher/class.launcher.php:1422
 msgid "Bulk actions"
-msgstr ""
-
-#: includes/launcher/class.launcher.php:1423
-#: includes/marketplace/admin/class-withdraws-list-table.php:45
-#: includes/marketplace/admin/class-withdraws-list-table.php:105
-#: includes/setup-wizard/class-woo-seed-controller.php:210
-#: includes/templates/class-template-library-admin.php:147
-#: templates/launcher/store/withdraw-table.php:40
-#: views/manager-fonts.php:115
-#: views/options/edit-option-v3.php:386
-#: views/options/edit-option.php:1144
-#: views/options/options-list-table.php:428
-#: views/product-builder/js_config.php:134
-#: views/product-builder/wrapper-v2-1.php:251
-#: views/product-builder/wrapper.php:906
-#: views/templates/library.php:415
-#: views/visual-builder/create-picker.php:117
-#: views/visual-builder/edit.php:1098
-msgid "Cancel"
 msgstr ""
 
 #: includes/launcher/class.launcher.php:1424
@@ -3182,10 +4227,6 @@ msgstr ""
 
 #: includes/launcher/class.launcher.php:1434
 msgid "Current balance"
-msgstr ""
-
-#: includes/launcher/class.launcher.php:1435
-msgid "Custom"
 msgstr ""
 
 #: includes/launcher/class.launcher.php:1436
@@ -3326,7 +4367,7 @@ msgid "Manage Designers"
 msgstr ""
 
 #: includes/launcher/class.launcher.php:1469
-#: includes/quote/class-quote-admin.php:787
+#: includes/quote/class-quote-admin.php:795
 msgid "Message"
 msgstr ""
 
@@ -3360,7 +4401,7 @@ msgid "Others"
 msgstr ""
 
 #: includes/launcher/class.launcher.php:1477
-#: includes/quote/class-quote-admin.php:679
+#: includes/quote/class-quote-admin.php:687
 #: templates/launcher/store/tabs.php:10
 #: views/overview.php:81
 msgid "Overview"
@@ -3421,14 +4462,6 @@ msgstr ""
 #: includes/launcher/class.launcher.php:1488
 #: views/products.php:101
 msgid "Private"
-msgstr ""
-
-#: includes/launcher/class.launcher.php:1489
-#: includes/marketplace/admin/class-designs-list-table.php:34
-#: includes/quote/class-quote-admin.php:785
-#: templates/launcher/store/design-table.php:15
-#: views/products.php:205
-msgid "Product"
 msgstr ""
 
 #: includes/launcher/class.launcher.php:1490
@@ -3549,7 +4582,7 @@ msgid "View gallery"
 msgstr ""
 
 #: includes/launcher/class.launcher.php:1519
-#: includes/quote/class-quote-admin.php:661
+#: includes/quote/class-quote-admin.php:669
 #: includes/quote/class-quotes-list-table.php:50
 #: templates/launcher/store/tabs.php:16
 #: templates/launcher/store/withdraw.php:4
@@ -3829,7 +4862,7 @@ msgid "Views"
 msgstr ""
 
 #: includes/marketplace/admin/class-designs-list-table.php:38
-#: includes/quote/class-quote-admin.php:699
+#: includes/quote/class-quote-admin.php:707
 #: views/options/edit-option.php:179
 msgid "Created"
 msgstr ""
@@ -3897,11 +4930,6 @@ msgstr ""
 msgid "Requested"
 msgstr ""
 
-#: includes/marketplace/admin/class-withdraws-list-table.php:44
-#: includes/marketplace/admin/class-withdraws-list-table.php:104
-msgid "Approve"
-msgstr ""
-
 #: includes/marketplace/admin/class-withdraws-list-table.php:153
 msgid "No withdraw requests found."
 msgstr ""
@@ -3924,7 +4952,7 @@ msgid "Printing option"
 msgstr ""
 
 #: includes/options/fields-list-table.php:13
-#: views/overview.php:886
+#: views/overview.php:973
 msgid "Printing options"
 msgstr ""
 
@@ -3949,8 +4977,9 @@ msgid "Categories"
 msgstr ""
 
 #: includes/options/fields-list-table.php:45
+#: includes/quote/class-quote-admin.php:809
 #: views/license.php:180
-#: views/overview.php:602
+#: views/overview.php:689
 #: views/products.php:35
 #: views/templates/library.php:347
 msgid "Products"
@@ -4103,340 +5132,359 @@ msgstr ""
 msgid "Preview customer view"
 msgstr ""
 
-#: includes/quote/class-quote-admin.php:524
+#: includes/quote/class-quote-admin.php:530
 msgid "Customer request"
 msgstr ""
 
-#: includes/quote/class-quote-admin.php:541
+#: includes/quote/class-quote-admin.php:547
 msgid "Pricing reply"
 msgstr ""
 
-#: includes/quote/class-quote-admin.php:548
+#: includes/quote/class-quote-admin.php:554
 msgid "Load template…"
 msgstr ""
 
-#: includes/quote/class-quote-admin.php:554
+#: includes/quote/class-quote-admin.php:560
 msgid "Delete selected template"
 msgstr ""
 
-#: includes/quote/class-quote-admin.php:556
+#: includes/quote/class-quote-admin.php:562
 msgid "Save as template"
 msgstr ""
 
-#: includes/quote/class-quote-admin.php:564
+#: includes/quote/class-quote-admin.php:570
 msgid "Unit price"
 msgstr ""
 
-#: includes/quote/class-quote-admin.php:578
+#: includes/quote/class-quote-admin.php:584
 msgid "Add line item"
 msgstr ""
 
-#: includes/quote/class-quote-admin.php:608
+#: includes/quote/class-quote-admin.php:614
 msgid "Quote terms"
 msgstr ""
 
-#: includes/quote/class-quote-admin.php:614
+#: includes/quote/class-quote-admin.php:620
 msgid "Validity"
 msgstr ""
 
-#: includes/quote/class-quote-admin.php:616
+#: includes/quote/class-quote-admin.php:622
 msgid "Custom date…"
 msgstr ""
 
-#: includes/quote/class-quote-admin.php:617
+#: includes/quote/class-quote-admin.php:623
 msgid "7 days"
 msgstr ""
 
-#: includes/quote/class-quote-admin.php:618
+#: includes/quote/class-quote-admin.php:624
 msgid "14 days"
 msgstr ""
 
-#: includes/quote/class-quote-admin.php:619
+#: includes/quote/class-quote-admin.php:625
 msgid "30 days"
 msgstr ""
 
-#: includes/quote/class-quote-admin.php:620
+#: includes/quote/class-quote-admin.php:626
 msgid "60 days"
 msgstr ""
 
-#: includes/quote/class-quote-admin.php:625
-msgid "Payment terms"
+#: includes/quote/class-quote-admin.php:637
+msgid "How the customer pays once they accept. Net terms create an unpaid invoice; the deposit option charges 50% now."
 msgstr ""
 
-#: includes/quote/class-quote-admin.php:627
-msgid "Pre-payment"
-msgstr ""
-
-#: includes/quote/class-quote-admin.php:629
-msgid "Net terms & deposits arrive in a later release."
-msgstr ""
-
-#: includes/quote/class-quote-admin.php:632
+#: includes/quote/class-quote-admin.php:640
 msgid "Note to customer"
 msgstr ""
 
-#: includes/quote/class-quote-admin.php:646
+#: includes/quote/class-quote-admin.php:654
 msgid "Save draft"
 msgstr ""
 
-#: includes/quote/class-quote-admin.php:651
+#: includes/quote/class-quote-admin.php:659
 msgid "Send counter-offer"
 msgstr ""
 
-#: includes/quote/class-quote-admin.php:656
+#: includes/quote/class-quote-admin.php:664
 msgid "Send pricing reply"
 msgstr ""
 
-#: includes/quote/class-quote-admin.php:665
+#: includes/quote/class-quote-admin.php:673
 msgid "This quote is locked — its current status does not allow further edits."
 msgstr ""
 
-#: includes/quote/class-quote-admin.php:710
+#: includes/quote/class-quote-admin.php:718
 msgid "Activity"
 msgstr ""
 
-#: includes/quote/class-quote-admin.php:748
+#: includes/quote/class-quote-admin.php:756
 msgid "Customer requested changes"
 msgstr ""
 
-#: includes/quote/class-quote-admin.php:763
+#: includes/quote/class-quote-admin.php:771
 msgid "The customer asked for changes without specifics."
 msgstr ""
 
-#: includes/quote/class-quote-admin.php:766
+#: includes/quote/class-quote-admin.php:774
 msgid "Revise the pricing below and use “Send counter-offer”."
 msgstr ""
 
-#: includes/quote/class-quote-admin.php:780
-msgid "Company"
-msgstr ""
-
-#: includes/quote/class-quote-admin.php:781
+#: includes/quote/class-quote-admin.php:789
 msgid "First name"
 msgstr ""
 
-#: includes/quote/class-quote-admin.php:782
+#: includes/quote/class-quote-admin.php:790
 msgid "Last name"
 msgstr ""
 
-#: includes/quote/class-quote-admin.php:810
+#: includes/quote/class-quote-admin.php:832
 msgid "No request details captured."
 msgstr ""
 
-#: includes/quote/class-quote-admin.php:838
+#: includes/quote/class-quote-admin.php:860
 msgid "Remove line"
 msgstr ""
 
-#: includes/quote/class-quote-admin.php:849
+#: includes/quote/class-quote-admin.php:871
 msgid "No activity yet."
 msgstr ""
 
-#: includes/quote/class-quote-admin.php:997
+#: includes/quote/class-quote-admin.php:1019
 msgid "Template name:"
 msgstr ""
 
-#: includes/quote/class-quote-admin.php:1022
+#: includes/quote/class-quote-admin.php:1044
 msgid "Delete this template?"
 msgstr ""
 
-#: includes/quote/class-quote-email-types.php:123
+#: includes/quote/class-quote-bucket.php:55
+msgid "Added to quote list"
+msgstr ""
+
+#: includes/quote/class-quote-bucket.php:56
+#: includes/quote/class-quote-bucket.php:179
+msgid "Your quote list is empty."
+msgstr ""
+
+#: includes/quote/class-quote-bucket.php:80
+msgid "Add to quote list"
+msgstr ""
+
+#: includes/quote/class-quote-bucket.php:241
+msgid "Could not create your quote request."
+msgstr ""
+
+#: includes/quote/class-quote-bucket.php:271
+msgid "Open your quote list"
+msgstr ""
+
+#: includes/quote/class-quote-bucket.php:273
+msgid "Quote list"
+msgstr ""
+
+#: includes/quote/class-quote-bucket.php:280
+#: views/options/meta-box.php:187
+msgid "Request a quote"
+msgstr ""
+
+#: includes/quote/class-quote-email-types.php:141
 msgid "Quote — new request (admin)"
 msgstr ""
 
-#: includes/quote/class-quote-email-types.php:124
+#: includes/quote/class-quote-email-types.php:142
 msgid "Notifies the store when a customer submits a quote request."
 msgstr ""
 
-#: includes/quote/class-quote-email-types.php:125
+#: includes/quote/class-quote-email-types.php:143
 msgid "New quote request"
 msgstr ""
 
-#: includes/quote/class-quote-email-types.php:126
+#: includes/quote/class-quote-email-types.php:144
 msgid "[{site_title}] New quote request {quote_number}"
 msgstr ""
 
-#: includes/quote/class-quote-email-types.php:135
+#: includes/quote/class-quote-email-types.php:153
 msgid "A new quote request has come in."
 msgstr ""
 
-#: includes/quote/class-quote-email-types.php:137
+#: includes/quote/class-quote-email-types.php:155
 msgid "Customer:"
 msgstr ""
 
-#: includes/quote/class-quote-email-types.php:139
+#: includes/quote/class-quote-email-types.php:157
 msgid "Email:"
 msgstr ""
 
-#: includes/quote/class-quote-email-types.php:142
-#: includes/quote/class-quote-email-types.php:321
-#: views/box-order-metadata.php:17
+#: includes/quote/class-quote-email-types.php:160
+#: includes/quote/class-quote-email-types.php:339
+#: views/box-order-metadata.php:23
 msgid "Product:"
 msgstr ""
 
-#: includes/quote/class-quote-email-types.php:145
+#: includes/quote/class-quote-email-types.php:163
 msgid "Message:"
 msgstr ""
 
-#: includes/quote/class-quote-email-types.php:148
+#: includes/quote/class-quote-email-types.php:166
 msgid "Open and reply with pricing"
 msgstr ""
 
-#: includes/quote/class-quote-email-types.php:160
+#: includes/quote/class-quote-email-types.php:178
 msgid "Quote — ready (customer)"
 msgstr ""
 
-#: includes/quote/class-quote-email-types.php:161
+#: includes/quote/class-quote-email-types.php:179
 msgid "Sent to the customer when you reply with pricing."
 msgstr ""
 
-#: includes/quote/class-quote-email-types.php:162
+#: includes/quote/class-quote-email-types.php:180
 msgid "Your quote is ready"
 msgstr ""
 
-#: includes/quote/class-quote-email-types.php:163
+#: includes/quote/class-quote-email-types.php:181
 msgid "Your quote {quote_number} is ready"
 msgstr ""
 
-#: includes/quote/class-quote-email-types.php:173
+#: includes/quote/class-quote-email-types.php:191
 msgid "Thank you for your request — here is your quote."
 msgstr ""
 
-#: includes/quote/class-quote-email-types.php:176
-#: includes/quote/class-quote-email-types.php:208
+#: includes/quote/class-quote-email-types.php:194
+#: includes/quote/class-quote-email-types.php:226
+#: includes/quote/class-quote-pdf.php:211
 msgid "Valid until:"
 msgstr ""
 
-#: includes/quote/class-quote-email-types.php:181
+#: includes/quote/class-quote-email-types.php:199
 msgid "Review &amp; accept your quote"
 msgstr ""
 
-#: includes/quote/class-quote-email-types.php:193
+#: includes/quote/class-quote-email-types.php:211
 msgid "Quote — expiry reminder (customer)"
 msgstr ""
 
-#: includes/quote/class-quote-email-types.php:194
+#: includes/quote/class-quote-email-types.php:212
 msgid "Reminds the customer that a sent quote is about to expire."
 msgstr ""
 
-#: includes/quote/class-quote-email-types.php:195
+#: includes/quote/class-quote-email-types.php:213
 msgid "Your quote is expiring soon"
 msgstr ""
 
-#: includes/quote/class-quote-email-types.php:196
+#: includes/quote/class-quote-email-types.php:214
 msgid "Reminder: quote {quote_number} expires soon"
 msgstr ""
 
-#: includes/quote/class-quote-email-types.php:205
+#: includes/quote/class-quote-email-types.php:223
 msgid "Just a reminder that your quote is still available, but not for long."
 msgstr ""
 
-#: includes/quote/class-quote-email-types.php:210
+#: includes/quote/class-quote-email-types.php:228
 msgid "Accept your quote"
 msgstr ""
 
-#: includes/quote/class-quote-email-types.php:221
+#: includes/quote/class-quote-email-types.php:239
 msgid "Quote — accepted (admin)"
 msgstr ""
 
-#: includes/quote/class-quote-email-types.php:222
+#: includes/quote/class-quote-email-types.php:240
 msgid "Notifies the store when a customer accepts a quote."
 msgstr ""
 
-#: includes/quote/class-quote-email-types.php:223
+#: includes/quote/class-quote-email-types.php:241
 msgid "Quote accepted"
 msgstr ""
 
-#: includes/quote/class-quote-email-types.php:224
+#: includes/quote/class-quote-email-types.php:242
 msgid "[{site_title}] Quote {quote_number} accepted"
 msgstr ""
 
 #. translators: %s: customer name
-#: includes/quote/class-quote-email-types.php:233
+#: includes/quote/class-quote-email-types.php:251
 #, php-format
 msgid "%s accepted the quote."
 msgstr ""
 
 #. translators: %d: order ID
-#: includes/quote/class-quote-email-types.php:236
+#: includes/quote/class-quote-email-types.php:254
 #, php-format
 msgid "Order #%d was created."
 msgstr ""
 
-#: includes/quote/class-quote-email-types.php:248
+#: includes/quote/class-quote-email-types.php:266
 msgid "Quote — declined (admin)"
 msgstr ""
 
-#: includes/quote/class-quote-email-types.php:249
+#: includes/quote/class-quote-email-types.php:267
 msgid "Notifies the store when a customer declines a quote."
 msgstr ""
 
-#: includes/quote/class-quote-email-types.php:250
+#: includes/quote/class-quote-email-types.php:268
 msgid "Quote declined"
 msgstr ""
 
-#: includes/quote/class-quote-email-types.php:251
+#: includes/quote/class-quote-email-types.php:269
 msgid "[{site_title}] Quote {quote_number} declined"
 msgstr ""
 
 #. translators: %s: customer name
-#: includes/quote/class-quote-email-types.php:260
+#: includes/quote/class-quote-email-types.php:278
 #, php-format
 msgid "%s declined the quote."
 msgstr ""
 
-#: includes/quote/class-quote-email-types.php:262
+#: includes/quote/class-quote-email-types.php:280
 msgid "Reason:"
 msgstr ""
 
-#: includes/quote/class-quote-email-types.php:264
+#: includes/quote/class-quote-email-types.php:282
 msgid "View quote"
 msgstr ""
 
-#: includes/quote/class-quote-email-types.php:276
+#: includes/quote/class-quote-email-types.php:294
 msgid "Quote — accepted, order ready (customer)"
 msgstr ""
 
-#: includes/quote/class-quote-email-types.php:277
+#: includes/quote/class-quote-email-types.php:295
 msgid "Sent to the customer when they accept a quote and an order is created."
 msgstr ""
 
-#: includes/quote/class-quote-email-types.php:278
+#: includes/quote/class-quote-email-types.php:296
 msgid "Your order is ready"
 msgstr ""
 
-#: includes/quote/class-quote-email-types.php:279
+#: includes/quote/class-quote-email-types.php:297
 msgid "Quote {quote_number} accepted — your order is ready"
 msgstr ""
 
-#: includes/quote/class-quote-email-types.php:289
+#: includes/quote/class-quote-email-types.php:307
 msgid "Thanks for accepting your quote — we have created your order."
 msgstr ""
 
-#: includes/quote/class-quote-email-types.php:294
+#: includes/quote/class-quote-email-types.php:312
 msgid "View your order"
 msgstr ""
 
-#: includes/quote/class-quote-email-types.php:307
+#: includes/quote/class-quote-email-types.php:325
 msgid "Quote — request received (customer)"
 msgstr ""
 
-#: includes/quote/class-quote-email-types.php:308
+#: includes/quote/class-quote-email-types.php:326
 msgid "Acknowledges the customer right after they submit a quote request."
 msgstr ""
 
-#: includes/quote/class-quote-email-types.php:309
+#: includes/quote/class-quote-email-types.php:327
 msgid "We received your request"
 msgstr ""
 
-#: includes/quote/class-quote-email-types.php:310
+#: includes/quote/class-quote-email-types.php:328
 msgid "We received your quote request {quote_number}"
 msgstr ""
 
-#: includes/quote/class-quote-email-types.php:319
+#: includes/quote/class-quote-email-types.php:337
 msgid "Thanks for your request — we have received it and will get back to you with pricing shortly."
 msgstr ""
 
-#: includes/quote/class-quote-email-types.php:324
+#: includes/quote/class-quote-email-types.php:342
 msgid "Your message:"
 msgstr ""
 
@@ -4473,14 +5521,50 @@ msgstr ""
 msgid "Withdrawn"
 msgstr ""
 
-#: includes/quote/class-quote-model.php:166
+#: includes/quote/class-quote-model.php:81
+msgid "Pre-payment"
+msgstr ""
+
+#: includes/quote/class-quote-model.php:82
+msgid "Net-15 (invoice, due in 15 days)"
+msgstr ""
+
+#: includes/quote/class-quote-model.php:83
+msgid "Net-30 (invoice, due in 30 days)"
+msgstr ""
+
+#: includes/quote/class-quote-model.php:84
+msgid "Net-60 (invoice, due in 60 days)"
+msgstr ""
+
+#: includes/quote/class-quote-model.php:85
+msgid "50% deposit now, balance on shipment"
+msgstr ""
+
+#: includes/quote/class-quote-model.php:192
 msgid "Quote request received."
 msgstr ""
 
 #. translators: 1: current status slug, 2: target status slug
-#: includes/quote/class-quote-model.php:193
+#: includes/quote/class-quote-model.php:219
 #, php-format
 msgid "Quote cannot move from %1$s to %2$s."
+msgstr ""
+
+#: includes/quote/class-quote-pdf.php:107
+msgid "Invalid or expired link."
+msgstr ""
+
+#: includes/quote/class-quote-pdf.php:115
+msgid "You do not have permission to view this quote."
+msgstr ""
+
+#: includes/quote/class-quote-pdf.php:125
+msgid "Print / Save as PDF"
+msgstr ""
+
+#: includes/quote/class-quote-pdf.php:177
+msgid "Prepared for:"
 msgstr ""
 
 #: includes/quote/class-quote-scheduler.php:70
@@ -5043,7 +6127,6 @@ msgstr ""
 
 #: includes/templates/class-template-library-admin.php:112
 #: views/options/edit-option.php:536
-#: views/product-builder/wrapper.php:757
 msgid "Live preview"
 msgstr ""
 
@@ -5101,7 +6184,7 @@ msgstr ""
 
 #: includes/templates/class-template-library-admin.php:132
 #: views/manager-fonts.php:97
-#: views/product-builder/wrapper.php:548
+#: views/product-builder/wrapper.php:526
 msgid "Category"
 msgstr ""
 
@@ -5504,12 +6587,6 @@ msgstr ""
 msgid "Select image"
 msgstr ""
 
-#: templates/launcher/store/tabs.php:19
-#: views/marketplace-admin/header.php:21
-#: views/menu-settings.php:74
-msgid "Settings"
-msgstr ""
-
 #: templates/launcher/store/upload-form.php:16
 #: templates/launcher/store/upload-form.php:18
 msgid "Upload necessary files"
@@ -5676,8 +6753,8 @@ msgid "Your total"
 msgstr ""
 
 #: templates/single-product/option-builder.php:41
-#: views/product-builder/wrapper.php:378
-#: views/product-builder/wrapper.php:448
+#: views/product-builder/wrapper.php:353
+#: views/product-builder/wrapper.php:426
 msgid "each"
 msgstr ""
 
@@ -5690,7 +6767,7 @@ msgid "Ready to order"
 msgstr ""
 
 #: templates/single-product/option-builder.php:54
-#: views/product-builder/wrapper.php:595
+#: views/product-builder/wrapper.php:573
 msgid "Secure checkout"
 msgstr ""
 
@@ -5833,7 +6910,7 @@ msgstr ""
 #: views/license.php:157
 #: views/options/templates/field-body/attributes.php:20
 #: views/product-builder/wrapper-v2-1.php:179
-#: views/product-builder/wrapper.php:291
+#: views/product-builder/wrapper.php:266
 msgid "Free"
 msgstr ""
 
@@ -5847,35 +6924,47 @@ msgstr ""
 msgid "is not available."
 msgstr ""
 
-#: views/box-order-metadata.php:44
-msgid "View detail"
+#: views/box-order-metadata.php:27
+msgid "PDF ready"
 msgstr ""
 
-#: views/box-order-metadata.php:50
-msgid "Check all"
-msgstr ""
-
-#: views/box-order-metadata.php:56
-msgid "png"
+#: views/box-order-metadata.php:29
+msgid "PDF failed"
 msgstr ""
 
 #: views/box-order-metadata.php:57
+msgid "View detail"
+msgstr ""
+
+#: views/box-order-metadata.php:63
+msgid "Check all"
+msgstr ""
+
+#: views/box-order-metadata.php:69
+msgid "png"
+msgstr ""
+
+#: views/box-order-metadata.php:70
 msgid "png preview"
 msgstr ""
 
-#: views/box-order-metadata.php:58
+#: views/box-order-metadata.php:71
 msgid "svg"
 msgstr ""
 
-#: views/box-order-metadata.php:59
+#: views/box-order-metadata.php:72
 msgid "pdf"
 msgstr ""
 
-#: views/box-order-metadata.php:60
+#: views/box-order-metadata.php:73
 msgid "pdf preview"
 msgstr ""
 
-#: views/box-order-metadata.php:71
+#: views/box-order-metadata.php:85
+msgid "Regenerate print PDFs"
+msgstr ""
+
+#: views/box-order-metadata.php:91
 msgid "No design in this order"
 msgstr ""
 
@@ -5936,7 +7025,7 @@ msgstr ""
 #: views/marketplace-admin/header.php:45
 #: views/menu-settings.php:84
 #: views/overview.php:90
-#: views/overview.php:1184
+#: views/overview.php:1271
 msgid "Documentation"
 msgstr ""
 
@@ -5955,7 +7044,7 @@ msgid "License expires: %s"
 msgstr ""
 
 #: views/license.php:86
-#: views/overview.php:532
+#: views/overview.php:619
 msgid "Lifetime license — no expiry"
 msgstr ""
 
@@ -6029,13 +7118,13 @@ msgid "Contact Support"
 msgstr ""
 
 #: views/license.php:290
-#: views/overview.php:1213
+#: views/overview.php:1300
 msgid "Sync failed."
 msgstr ""
 
 #: views/license.php:295
-#: views/overview.php:291
-#: views/overview.php:1217
+#: views/overview.php:378
+#: views/overview.php:1304
 msgid "Request failed. Check your connection."
 msgstr ""
 
@@ -6678,7 +7767,7 @@ msgid "Your Storelly account username linked to this store. Auto-populated when 
 msgstr ""
 
 #: views/menu-settings.php:783
-#: views/overview.php:1040
+#: views/overview.php:1127
 msgid "Quick actions"
 msgstr ""
 
@@ -6800,10 +7889,6 @@ msgstr ""
 
 #: views/options/edit-option-v3.php:112
 msgid "Classic"
-msgstr ""
-
-#: views/options/edit-option-v3.php:120
-msgid "Save"
 msgstr ""
 
 #: views/options/edit-option-v3.php:141
@@ -7056,7 +8141,7 @@ msgstr ""
 #: views/options/templates/field-body/input_option.php:24
 #: views/options/v3/section-quantity.php:92
 #: views/options/v3/section-quantity.php:120
-#: views/product-builder/wrapper.php:405
+#: views/product-builder/wrapper.php:380
 msgid "Default"
 msgstr ""
 
@@ -7805,10 +8890,6 @@ msgid_plural "Another %d pricing options still target this product. Edit each to
 msgstr[0] ""
 msgstr[1] ""
 
-#: views/options/meta-box.php:187
-msgid "Request a quote"
-msgstr ""
-
 #: views/options/meta-box.php:192
 msgid "Enable request quote"
 msgstr ""
@@ -7995,7 +9076,9 @@ msgid "This cannot be undone."
 msgstr ""
 
 #: views/options/options-list-table.php:444
-#: views/overview.php:390
+#: views/overview.php:477
+#: views/product-builder/wrapper.php:736
+#: views/product-builder/wrapper.php:738
 msgid "Undo"
 msgstr ""
 
@@ -8572,8 +9655,8 @@ msgid "Let customers add their own text and images directly on the design canvas
 msgstr ""
 
 #: views/options/v3/section-design-tools.php:34
-#: views/product-builder/wrapper.php:203
-#: views/product-builder/wrapper.php:369
+#: views/product-builder/wrapper.php:176
+#: views/product-builder/wrapper.php:344
 msgid "Add text"
 msgstr ""
 
@@ -8599,8 +9682,8 @@ msgid "e.g. Your name"
 msgstr ""
 
 #: views/options/v3/section-design-tools.php:69
-#: views/product-builder/wrapper.php:209
-#: views/product-builder/wrapper.php:432
+#: views/product-builder/wrapper.php:183
+#: views/product-builder/wrapper.php:410
 msgid "Add images"
 msgstr ""
 
@@ -8625,23 +9708,23 @@ msgid "Free input min/max/step"
 msgstr ""
 
 #: views/overview.php:59
-msgid "Limited to basic product builder features"
+msgid "Full product builder, quotes & custom orders — no product limit"
 msgstr ""
 
 #: views/overview.php:60
-msgid "Premium templates locked"
+msgid "Storelly Cloud off: print-ready PDF, order sync & analytics"
 msgstr ""
 
 #: views/overview.php:61
-msgid "Community support only"
+msgid "Community support"
 msgstr ""
 
 #: views/overview.php:64
-msgid "Unlimited products and orders"
+msgid "Everything in Free, with no product limit"
 msgstr ""
 
 #: views/overview.php:65
-msgid "Premium templates and design tools"
+msgid "Storelly Cloud: print-ready PDF, order sync & dashboard analytics"
 msgstr ""
 
 #: views/overview.php:66
@@ -8656,555 +9739,602 @@ msgstr ""
 msgid "Create option group"
 msgstr ""
 
-#: views/overview.php:124
+#: views/overview.php:132
 msgid "Welcome to Storelly"
 msgstr ""
 
-#: views/overview.php:127
+#: views/overview.php:135
 msgid "Let's get your store selling custom products"
 msgstr ""
 
-#: views/overview.php:130
+#: views/overview.php:138
 msgid "Pick a starting point. The fastest is importing a ready-made demo — you'll see the product builder live on your storefront in seconds."
 msgstr ""
 
-#: views/overview.php:135
+#: views/overview.php:143
 msgid "Skip setup"
 msgstr ""
 
-#: views/overview.php:142
+#: views/overview.php:152
+msgid "Demo added"
+msgstr ""
+
+#: views/overview.php:157
+msgid "Your demo product is live"
+msgstr ""
+
+#: views/overview.php:160
+msgid "A ready-made customizable product is on your storefront. Open it to see the builder in action."
+msgstr ""
+
+#: views/overview.php:164
+msgid "View on store"
+msgstr ""
+
+#: views/overview.php:167
+msgid "Remove demo"
+msgstr ""
+
+#: views/overview.php:173
+#: views/overview.php:191
 msgid "Fastest"
 msgstr ""
 
-#: views/overview.php:147
+#: views/overview.php:178
+msgid "See it live with a demo product"
+msgstr ""
+
+#: views/overview.php:181
+msgid "Add a ready-made customizable product in one click — the quickest way to watch the builder work on your store."
+msgstr ""
+
+#: views/overview.php:185
+#: views/overview.php:259
+#: views/overview.php:264
+msgid "Add demo product"
+msgstr ""
+
+#: views/overview.php:196
 msgid "See it live with demo products"
 msgstr ""
 
-#: views/overview.php:150
+#: views/overview.php:199
 msgid "Add ready-made customizable products in one click — the quickest way to watch the builder work on your store."
 msgstr ""
 
-#: views/overview.php:154
+#: views/overview.php:203
 msgid "Import demo products"
 msgstr ""
 
-#: views/overview.php:163
+#: views/overview.php:213
 msgid "Use my existing products"
 msgstr ""
 
-#: views/overview.php:166
+#: views/overview.php:216
 msgid "Turn your WooCommerce variable products into Storelly pricing options. You review everything before it goes live."
 msgstr ""
 
-#: views/overview.php:170
+#: views/overview.php:220
 msgid "Scan my products"
 msgstr ""
 
-#: views/overview.php:179
+#: views/overview.php:229
 msgid "Build from scratch"
 msgstr ""
 
-#: views/overview.php:182
+#: views/overview.php:232
 msgid "Create a pricing option group by hand — full control over fields, prices and conditional logic."
 msgstr ""
 
-#: views/overview.php:186
-#: views/overview.php:909
-#: views/overview.php:1062
+#: views/overview.php:236
+#: views/overview.php:996
+#: views/overview.php:1149
 msgid "Open builder"
 msgstr ""
 
-#: views/overview.php:195
+#: views/overview.php:244
+msgid "Could not add the demo. Please try again."
+msgstr ""
+
+#: views/overview.php:251
+msgid "Adding…"
+msgstr ""
+
+#: views/overview.php:269
+msgid "Remove the demo product and its images?"
+msgstr ""
+
+#: views/overview.php:282
 msgid "Setup progress"
 msgstr ""
 
 #. translators: 1: completed step count, 2: total step count.
-#: views/overview.php:201
+#: views/overview.php:288
 #, php-format
 msgid "%1$d of %2$d"
 msgstr ""
 
-#: views/overview.php:231
+#: views/overview.php:318
 msgid "Cloud connected"
 msgstr ""
 
-#: views/overview.php:233
+#: views/overview.php:320
 msgid "High-quality print PDF and your saved store profile are active."
 msgstr ""
 
-#: views/overview.php:237
+#: views/overview.php:324
 msgid "Disconnect"
 msgstr ""
 
-#: views/overview.php:244
+#: views/overview.php:331
 msgid "Enable Cloud — high-quality print PDF + saved store profile"
 msgstr ""
 
-#: views/overview.php:246
+#: views/overview.php:333
 msgid "One click connects your store to Storelly so you get print-ready PDFs and your setup is safely backed up."
 msgstr ""
 
 #. translators: %s: link to the privacy policy.
-#: views/overview.php:254
+#: views/overview.php:341
 #, php-format
 msgid "On click we share your admin email, store URL and a store ID with Storelly to create your profile. <a href=\"%s\" target=\"_blank\" rel=\"noopener noreferrer\">Privacy</a>."
 msgstr ""
 
-#: views/overview.php:262
+#: views/overview.php:349
 msgid "Already have a Store ID? Link it"
 msgstr ""
 
-#: views/overview.php:265
+#: views/overview.php:352
 msgid "Store ID from your Storelly dashboard"
 msgstr ""
 
-#: views/overview.php:266
+#: views/overview.php:353
 msgid "Link"
 msgstr ""
 
-#: views/overview.php:271
+#: views/overview.php:358
 msgid "Enable Cloud"
 msgstr ""
 
-#: views/overview.php:297
+#: views/overview.php:384
 msgid "Disconnect from Storelly Cloud? PDF and sync will stop."
 msgstr ""
 
-#: views/overview.php:323
+#: views/overview.php:410
 msgid "Setup isn't finished yet."
 msgstr ""
 
-#: views/overview.php:325
+#: views/overview.php:412
 msgid "Show the setup guide again"
 msgstr ""
 
-#: views/overview.php:353
+#: views/overview.php:440
 msgid "Preparing your existing products…"
 msgstr ""
 
-#: views/overview.php:356
+#: views/overview.php:443
 msgid "We're turning your WooCommerce variable products into Storelly pricing options in the background. Nothing changes on your store yet — you'll get a one-click Publish when it's ready."
 msgstr ""
 
 #. translators: %d: number of products prepared as pending option sets.
-#: views/overview.php:363
+#: views/overview.php:450
 #, php-format
 msgid "%d product(s) ready to go live"
 msgstr ""
 
-#: views/overview.php:369
+#: views/overview.php:456
 msgid "These are staged from your existing WooCommerce products and are still hidden from buyers. Publish to show them on your storefront — your native Woo variations stay intact, and you can undo anytime."
 msgstr ""
 
 #. translators: %d: number of multi-attribute products whose price was left blank.
-#: views/overview.php:375
+#: views/overview.php:462
 #, php-format
 msgid "%d multi-attribute product(s) have prices left blank for you to review first."
 msgstr ""
 
-#: views/overview.php:384
+#: views/overview.php:471
 msgid "Publish all"
 msgstr ""
 
-#: views/overview.php:387
+#: views/overview.php:474
 msgid "Review first"
 msgstr ""
 
-#: views/overview.php:427
+#: views/overview.php:514
 msgid "Publishing…"
 msgstr ""
 
-#: views/overview.php:431
+#: views/overview.php:518
 msgid "Publish failed. Please try again."
 msgstr ""
 
-#: views/overview.php:438
+#: views/overview.php:525
 msgid "Remove the prepared option sets and unlink those products? Your Woo variations are not affected."
 msgstr ""
 
-#: views/overview.php:441
+#: views/overview.php:528
 msgid "Undo failed. Please try again."
 msgstr ""
 
-#: views/overview.php:454
+#: views/overview.php:541
 msgid "Showing local data only"
 msgstr ""
 
 #. translators: %s: URL to license page
-#: views/overview.php:462
+#: views/overview.php:549
 #, php-format
 msgid "Couldn't reach the Storelly server. Stats below are pulled from your local database. <a href=\"%s\">Check your connection</a> to enable real-time metrics."
 msgstr ""
 
-#: views/overview.php:483
+#: views/overview.php:570
 msgid "You're on the Free plan"
 msgstr ""
 
 #. translators: %s: URL to license page
-#: views/overview.php:491
+#: views/overview.php:578
 #, php-format
-msgid "Unlock unlimited products, premium templates, and priority support by <a href=\"%s\">upgrading your license</a>. Existing customizations remain intact during the upgrade."
+msgid "Add a Storelly Cloud plan to enable print-ready PDF rendering, order sync and dashboard analytics. <a href=\"%s\">See Cloud plans</a>. Your existing builder, quotes and custom orders stay free and unchanged."
 msgstr ""
 
-#: views/overview.php:510
+#: views/overview.php:597
 msgid "Current license plan"
 msgstr ""
 
 #. translators: %s: expiry date
-#: views/overview.php:524
+#: views/overview.php:611
 #, php-format
 msgid "Expires on %s"
 msgstr ""
 
-#: views/overview.php:537
+#: views/overview.php:624
 msgid "No expiry — but limited feature set"
 msgstr ""
 
-#: views/overview.php:555
+#: views/overview.php:642
 msgid "Upgrade plan"
 msgstr ""
 
-#: views/overview.php:560
+#: views/overview.php:647
 msgid "Manage license"
 msgstr ""
 
-#: views/overview.php:566
+#: views/overview.php:653
 msgid "Refresh license status from the Storelly server"
 msgstr ""
 
-#: views/overview.php:568
+#: views/overview.php:655
 msgid "Sync from server"
 msgstr ""
 
-#: views/overview.php:572
+#: views/overview.php:659
 msgid "Click to verify status"
 msgstr ""
 
-#: views/overview.php:583
+#: views/overview.php:670
 msgid "Key metrics"
 msgstr ""
 
-#: views/overview.php:588
+#: views/overview.php:675
 msgid "Live numbers from your Storelly dashboard. Each card links straight to the related management screen."
 msgstr ""
 
-#: views/overview.php:590
+#: views/overview.php:677
 msgid "Local counts from your WordPress database. Connect your Storelly account to see live numbers."
 msgstr ""
 
-#: views/overview.php:606
+#: views/overview.php:693
 msgid "WooCommerce products that have the Storelly product builder enabled."
 msgstr ""
 
-#: views/overview.php:610
-#: views/overview.php:1074
+#: views/overview.php:697
+#: views/overview.php:1161
 msgid "Manage products"
 msgstr ""
 
-#: views/overview.php:625
+#: views/overview.php:712
 msgid "Active option groups (material, size, finish, quantity…) configured for your products."
 msgstr ""
 
-#: views/overview.php:644
+#: views/overview.php:731
 msgid "All-time WooCommerce orders containing a customized Storelly product."
 msgstr ""
 
-#: views/overview.php:648
-#: views/overview.php:715
+#: views/overview.php:735
+#: views/overview.php:802
 msgid "View orders"
 msgstr ""
 
-#: views/overview.php:659
+#: views/overview.php:746
 msgid "Quote Requests"
 msgstr ""
 
-#: views/overview.php:663
+#: views/overview.php:750
 msgid "Customer-submitted quote requests awaiting your response or follow-up."
 msgstr ""
 
-#: views/overview.php:667
+#: views/overview.php:754
 msgid "Respond to quotes"
 msgstr ""
 
-#: views/overview.php:681
+#: views/overview.php:768
 msgid "Customer design activity"
 msgstr ""
 
-#: views/overview.php:684
+#: views/overview.php:771
 msgid "How buyers are saving, ordering and downloading their custom designs."
 msgstr ""
 
-#: views/overview.php:694
+#: views/overview.php:781
 msgid "Designs buyers have saved to their account for re-ordering later."
 msgstr ""
 
-#: views/overview.php:700
+#: views/overview.php:787
 msgid "Buyers saving designs"
 msgstr ""
 
-#: views/overview.php:703
+#: views/overview.php:790
 msgid "Distinct customers who have saved at least one design."
 msgstr ""
 
-#: views/overview.php:709
+#: views/overview.php:796
 msgid "Custom design orders"
 msgstr ""
 
-#: views/overview.php:712
+#: views/overview.php:799
 msgid "Order line items that carry a customer design file."
 msgstr ""
 
-#: views/overview.php:724
+#: views/overview.php:811
 msgid "Preview downloads"
 msgstr ""
 
-#: views/overview.php:727
+#: views/overview.php:814
 msgid "Times buyers downloaded a design preview from My Account."
 msgstr ""
 
-#: views/overview.php:738
+#: views/overview.php:825
 msgid "Recent activity"
 msgstr ""
 
-#: views/overview.php:741
+#: views/overview.php:828
 msgid "A quick look at the latest products, orders, quotes, and designs flowing through your Storelly builder. Click any card to dive in."
 msgstr ""
 
-#: views/overview.php:752
+#: views/overview.php:839
 msgid "Recent products"
 msgstr ""
 
-#: views/overview.php:754
-#: views/overview.php:822
-#: views/overview.php:888
-#: views/overview.php:928
+#: views/overview.php:841
+#: views/overview.php:909
+#: views/overview.php:975
+#: views/overview.php:1015
 msgid "total"
 msgstr ""
 
-#: views/overview.php:774
+#: views/overview.php:861
 msgid "(no title)"
 msgstr ""
 
 #. translators: %s: human time diff like "2 hours"
-#: views/overview.php:780
+#: views/overview.php:867
 #, php-format
 msgid "updated %s ago"
 msgstr ""
 
-#: views/overview.php:795
+#: views/overview.php:882
 msgid "No products yet"
 msgstr ""
 
-#: views/overview.php:797
+#: views/overview.php:884
 msgid "Enable the product builder on a WooCommerce product to start customizing."
 msgstr ""
 
-#: views/overview.php:801
+#: views/overview.php:888
 msgid "Add first product"
 msgstr ""
 
-#: views/overview.php:808
+#: views/overview.php:895
 msgid "View all products"
 msgstr ""
 
-#: views/overview.php:811
+#: views/overview.php:898
 msgid "Last 5 updated"
 msgstr ""
 
-#: views/overview.php:820
+#: views/overview.php:907
 msgid "Recent orders"
 msgstr ""
 
-#: views/overview.php:850
+#: views/overview.php:937
 msgid "ago"
 msgstr ""
 
-#: views/overview.php:865
+#: views/overview.php:952
 msgid "No orders yet"
 msgstr ""
 
-#: views/overview.php:867
+#: views/overview.php:954
 msgid "Orders containing customized products will appear here when customers check out."
 msgstr ""
 
-#: views/overview.php:874
+#: views/overview.php:961
 msgid "View all orders"
 msgstr ""
 
-#: views/overview.php:877
+#: views/overview.php:964
 msgid "Last 5"
 msgstr ""
 
-#: views/overview.php:898
+#: views/overview.php:985
 msgid "Active option groups"
 msgstr ""
 
-#: views/overview.php:900
+#: views/overview.php:987
 msgid "No option groups yet"
 msgstr ""
 
-#: views/overview.php:905
+#: views/overview.php:992
 msgid "Build dynamic pricing — material, size, quantity, conditional logic — for your products."
 msgstr ""
 
-#: views/overview.php:915
+#: views/overview.php:1002
 msgid "Manage options"
 msgstr ""
 
-#: views/overview.php:926
+#: views/overview.php:1013
 msgid "Quote requests"
 msgstr ""
 
-#: views/overview.php:935
+#: views/overview.php:1022
 msgid "No pending quotes"
 msgstr ""
 
-#: views/overview.php:937
+#: views/overview.php:1024
 msgid "B2B quote requests from your customers will appear here. Respond to convert them into orders."
 msgstr ""
 
-#: views/overview.php:940
+#: views/overview.php:1027
 msgid "Open quotes"
 msgstr ""
 
-#: views/overview.php:947
+#: views/overview.php:1034
 msgid "View all quotes"
 msgstr ""
 
-#: views/overview.php:958
+#: views/overview.php:1045
 msgid "Customer designs"
 msgstr ""
 
-#: views/overview.php:960
-#: views/overview.php:997
+#: views/overview.php:1047
+#: views/overview.php:1084
 msgid "Premium feature"
 msgstr ""
 
-#: views/overview.php:962
-#: views/overview.php:999
+#: views/overview.php:1049
+#: views/overview.php:1086
 msgid "Pro"
 msgstr ""
 
-#: views/overview.php:970
+#: views/overview.php:1057
 msgid "No saved designs yet"
 msgstr ""
 
-#: views/overview.php:972
+#: views/overview.php:1059
 msgid "Print-ready design files customers create with the Storelly designer canvas will be listed here for download and review."
 msgstr ""
 
-#: views/overview.php:977
-#: views/overview.php:1014
+#: views/overview.php:1064
+#: views/overview.php:1101
 msgid "Upgrade to unlock"
 msgstr ""
 
-#: views/overview.php:984
+#: views/overview.php:1071
 msgid "View order designs"
 msgstr ""
 
-#: views/overview.php:995
+#: views/overview.php:1082
 msgid "Design templates"
 msgstr ""
 
-#: views/overview.php:1007
+#: views/overview.php:1094
 msgid "No templates yet"
 msgstr ""
 
-#: views/overview.php:1009
+#: views/overview.php:1096
 msgid "Reusable design templates speed up customer customization. Import from the Storelly marketplace or create your own."
 msgstr ""
 
-#: views/overview.php:1019
-#: views/overview.php:1026
+#: views/overview.php:1106
+#: views/overview.php:1113
 msgid "Browse marketplace"
 msgstr ""
 
-#: views/overview.php:1043
+#: views/overview.php:1130
 msgid "Common tasks for managing your product builder. Pick a card to jump into the right section."
 msgstr ""
 
-#: views/overview.php:1054
+#: views/overview.php:1141
 msgid "Build pricing options"
 msgstr ""
 
-#: views/overview.php:1058
+#: views/overview.php:1145
 msgid "Create dynamic price rules — material, size, quantity tiers, conditional logic — for any WooCommerce product."
 msgstr ""
 
-#: views/overview.php:1078
+#: views/overview.php:1165
 msgid "Review which products have the builder enabled, assign option groups, and configure per-product designer settings."
 msgstr ""
 
-#: views/overview.php:1082
+#: views/overview.php:1169
 msgid "View products"
 msgstr ""
 
-#: views/overview.php:1094
+#: views/overview.php:1181
 msgid "Review orders"
 msgstr ""
 
-#: views/overview.php:1098
+#: views/overview.php:1185
 msgid "Inspect customized orders, download print-ready designs, and export PDFs for your print partners."
 msgstr ""
 
-#: views/overview.php:1102
+#: views/overview.php:1189
 msgid "Open orders"
 msgstr ""
 
-#: views/overview.php:1114
+#: views/overview.php:1201
 msgid "Handle quotes"
 msgstr ""
 
-#: views/overview.php:1118
+#: views/overview.php:1205
 msgid "Respond to B2B quote requests, convert approved quotes into orders, and track customer follow-ups."
 msgstr ""
 
-#: views/overview.php:1122
+#: views/overview.php:1209
 msgid "View quotes"
 msgstr ""
 
-#: views/overview.php:1134
+#: views/overview.php:1221
 msgid "License & billing"
 msgstr ""
 
-#: views/overview.php:1138
+#: views/overview.php:1225
 msgid "Activate or change your license key, view subscription details, and manage billing on the Storelly portal."
 msgstr ""
 
-#: views/overview.php:1142
+#: views/overview.php:1229
 msgid "Open license"
 msgstr ""
 
-#: views/overview.php:1154
+#: views/overview.php:1241
 msgid "Plugin settings"
 msgstr ""
 
-#: views/overview.php:1158
+#: views/overview.php:1245
 msgid "Configure global options, API sync, designer fonts, watermarks, and PDF export defaults."
 msgstr ""
 
-#: views/overview.php:1162
+#: views/overview.php:1249
 msgid "Open settings"
 msgstr ""
 
-#: views/overview.php:1175
-#: views/product-builder/wrapper.php:615
+#: views/overview.php:1262
+#: views/product-builder/wrapper.php:593
 msgid "Need a hand?"
 msgstr ""
 
-#: views/overview.php:1178
+#: views/overview.php:1265
 msgid "Read the documentation, check the latest changelog, or reach out to the Storelly team. We typically respond within one business day on weekdays."
 msgstr ""
 
-#: views/overview.php:1188
+#: views/overview.php:1275
 msgid "Changelog"
 msgstr ""
 
-#: views/overview.php:1192
+#: views/overview.php:1279
 msgid "Contact support"
 msgstr ""
 
-#: views/overview.php:1205
+#: views/overview.php:1292
 msgid "Syncing..."
 msgstr ""
 
@@ -9254,13 +10384,13 @@ msgstr ""
 
 #: views/product-builder/wrapper-legacy.php:77
 #: views/product-builder/wrapper-v2-1.php:126
-#: views/product-builder/wrapper.php:732
+#: views/product-builder/wrapper.php:712
 msgid "Bring Forward"
 msgstr ""
 
 #: views/product-builder/wrapper-legacy.php:78
 #: views/product-builder/wrapper-v2-1.php:127
-#: views/product-builder/wrapper.php:733
+#: views/product-builder/wrapper.php:713
 msgid "Send To Backward"
 msgstr ""
 
@@ -9268,23 +10398,22 @@ msgstr ""
 #: views/product-builder/wrapper-legacy.php:86
 #: views/product-builder/wrapper-v2-1.php:128
 #: views/product-builder/wrapper-v2-1.php:133
-#: views/product-builder/wrapper.php:734
-#: views/product-builder/wrapper.php:739
-#: views/product-builder/wrapper.php:766
+#: views/product-builder/wrapper.php:714
+#: views/product-builder/wrapper.php:719
 msgid "Zoom"
 msgstr ""
 
 #: views/product-builder/wrapper-legacy.php:87
 #: views/product-builder/wrapper-v2-1.php:134
-#: views/product-builder/wrapper.php:740
-#: views/product-builder/wrapper.php:768
+#: views/product-builder/wrapper.php:720
+#: views/product-builder/wrapper.php:753
 msgid "Zoom out"
 msgstr ""
 
 #: views/product-builder/wrapper-legacy.php:88
 #: views/product-builder/wrapper-v2-1.php:135
-#: views/product-builder/wrapper.php:741
-#: views/product-builder/wrapper.php:772
+#: views/product-builder/wrapper.php:721
+#: views/product-builder/wrapper.php:757
 msgid "Zoom in"
 msgstr ""
 
@@ -9300,52 +10429,49 @@ msgstr ""
 
 #: views/product-builder/wrapper-legacy.php:103
 #: views/product-builder/wrapper-v2-1.php:148
-#: views/product-builder/wrapper.php:744
+#: views/product-builder/wrapper.php:724
 msgid "Clear all layer"
 msgstr ""
 
 #: views/product-builder/wrapper-legacy.php:145
 #: views/product-builder/wrapper-v2-1.php:187
-#: views/product-builder/wrapper.php:299
-#: views/product-builder/wrapper.php:399
+#: views/product-builder/wrapper.php:274
+#: views/product-builder/wrapper.php:374
 msgid "Content"
 msgstr ""
 
 #: views/product-builder/wrapper-legacy.php:151
 #: views/product-builder/wrapper-v2-1.php:191
-#: views/product-builder/wrapper.php:303
-#: views/product-builder/wrapper.php:403
+#: views/product-builder/wrapper.php:278
+#: views/product-builder/wrapper.php:378
 msgid "Font family"
 msgstr ""
 
 #: views/product-builder/wrapper-legacy.php:197
 #: views/product-builder/wrapper-v2-1.php:224
-#: views/product-builder/wrapper.php:335
+#: views/product-builder/wrapper.php:310
 msgid "Click or drop file here"
 msgstr ""
 
 #: views/product-builder/wrapper-legacy.php:198
 #: views/product-builder/wrapper-v2-1.php:225
-#: views/product-builder/wrapper.php:336
+#: views/product-builder/wrapper.php:311
 msgid "Allow extensions"
 msgstr ""
 
 #: views/product-builder/wrapper-legacy.php:199
 #: views/product-builder/wrapper-v2-1.php:226
-#: views/product-builder/wrapper.php:337
+#: views/product-builder/wrapper.php:312
 msgid "Min size"
 msgstr ""
 
 #: views/product-builder/wrapper-legacy.php:200
 #: views/product-builder/wrapper-v2-1.php:227
-#: views/product-builder/wrapper.php:338
+#: views/product-builder/wrapper.php:313
 msgid "Max size"
 msgstr ""
 
 #: views/product-builder/wrapper-v2-1.php:63
-#: views/product-builder/wrapper.php:165
-#: views/product-builder/wrapper.php:195
-#: views/product-builder/wrapper.php:199
 msgid "Customize"
 msgstr ""
 
@@ -9374,8 +10500,8 @@ msgid "Choose any part on the left, then customize its colour, text or image —
 msgstr ""
 
 #: views/product-builder/wrapper-v2-1.php:207
-#: views/product-builder/wrapper.php:319
-#: views/product-builder/wrapper.php:416
+#: views/product-builder/wrapper.php:294
+#: views/product-builder/wrapper.php:391
 msgid "Colour"
 msgstr ""
 
@@ -9397,339 +10523,353 @@ msgstr ""
 msgid "SKU %s"
 msgstr ""
 
-#. translators: %s: base product price
-#: views/product-builder/wrapper.php:172
-#: views/product-builder/wrapper.php:513
-#, php-format
-msgid "From %s base"
-msgstr ""
-
-#: views/product-builder/wrapper.php:179
-msgid "Reset all customizations"
-msgstr ""
-
-#: views/product-builder/wrapper.php:194
+#: views/product-builder/wrapper.php:167
 msgid "Editor tools"
 msgstr ""
 
-#: views/product-builder/wrapper.php:213
+#: views/product-builder/wrapper.php:168
+#: views/product-builder/wrapper.php:172
+#: views/product-builder/wrapper.php:215
+msgid "Options"
+msgstr ""
+
+#: views/product-builder/wrapper.php:187
 msgid "Images"
 msgstr ""
 
-#: views/product-builder/wrapper.php:215
-#: views/product-builder/wrapper.php:487
+#: views/product-builder/wrapper.php:190
+#: views/product-builder/wrapper.php:465
 msgid "Product details"
 msgstr ""
 
-#: views/product-builder/wrapper.php:221
-#: views/product-builder/wrapper.php:575
+#: views/product-builder/wrapper.php:196
+#: views/product-builder/wrapper.php:553
 msgid "Shipping & returns"
 msgstr ""
 
-#: views/product-builder/wrapper.php:225
-#: views/product-builder/wrapper.php:866
+#: views/product-builder/wrapper.php:200
+#: views/product-builder/wrapper.php:844
 msgid "Shipping"
 msgstr ""
 
-#: views/product-builder/wrapper.php:227
+#: views/product-builder/wrapper.php:202
 msgid "Help & FAQ"
 msgstr ""
 
-#: views/product-builder/wrapper.php:231
+#: views/product-builder/wrapper.php:206
 msgid "Help"
 msgstr ""
 
-#: views/product-builder/wrapper.php:240
-msgid "Customize parts"
-msgstr ""
-
-#: views/product-builder/wrapper.php:256
+#: views/product-builder/wrapper.php:231
 msgid "Image uploaded"
 msgstr ""
 
-#: views/product-builder/wrapper.php:256
+#: views/product-builder/wrapper.php:231
 msgid "— upload image"
 msgstr ""
 
-#: views/product-builder/wrapper.php:281
+#: views/product-builder/wrapper.php:256
 msgid "No options available for this part."
 msgstr ""
 
-#: views/product-builder/wrapper.php:349
+#: views/product-builder/wrapper.php:324
 msgid "Reset this part to its default"
 msgstr ""
 
-#: views/product-builder/wrapper.php:351
+#: views/product-builder/wrapper.php:326
 msgid "Reset this part"
 msgstr ""
 
-#: views/product-builder/wrapper.php:353
+#: views/product-builder/wrapper.php:328
 msgid "Delete text"
 msgstr ""
 
-#: views/product-builder/wrapper.php:354
+#: views/product-builder/wrapper.php:329
 msgid "Delete image"
 msgstr ""
 
-#: views/product-builder/wrapper.php:374
+#: views/product-builder/wrapper.php:349
 msgid "Add a text layer"
 msgstr ""
 
-#: views/product-builder/wrapper.php:382
+#: views/product-builder/wrapper.php:357
 msgid "No text yet. Click “Add a text layer” to place editable text on your design."
 msgstr ""
 
-#: views/product-builder/wrapper.php:391
+#: views/product-builder/wrapper.php:366
 msgid "empty text"
 msgstr ""
 
-#: views/product-builder/wrapper.php:393
+#: views/product-builder/wrapper.php:368
 msgid "Delete text layer"
 msgstr ""
 
-#: views/product-builder/wrapper.php:424
+#: views/product-builder/wrapper.php:394
+msgid "Custom colour"
+msgstr ""
+
+#: views/product-builder/wrapper.php:402
 msgid "Maximum number of text layers reached."
 msgstr ""
 
-#: views/product-builder/wrapper.php:441
+#: views/product-builder/wrapper.php:419
 msgid "Click or drop image here"
 msgstr ""
 
-#: views/product-builder/wrapper.php:446
+#: views/product-builder/wrapper.php:424
 msgid "Allowed"
 msgstr ""
 
-#: views/product-builder/wrapper.php:446
+#: views/product-builder/wrapper.php:424
 msgid "max"
 msgstr ""
 
-#: views/product-builder/wrapper.php:452
+#: views/product-builder/wrapper.php:430
 msgid "No images yet. Upload a logo or photo to place it on your design."
 msgstr ""
 
-#: views/product-builder/wrapper.php:464
+#: views/product-builder/wrapper.php:442
 msgid "Delete image layer"
 msgstr ""
 
-#: views/product-builder/wrapper.php:472
+#: views/product-builder/wrapper.php:450
 msgid "Recent uploads"
 msgstr ""
 
-#: views/product-builder/wrapper.php:479
+#: views/product-builder/wrapper.php:457
 msgid "Maximum number of images reached."
 msgstr ""
 
-#: views/product-builder/wrapper.php:496
+#: views/product-builder/wrapper.php:474
 msgid "Main image"
 msgstr ""
 
 #. translators: %d gallery image number
-#: views/product-builder/wrapper.php:500
+#: views/product-builder/wrapper.php:478
 #, php-format
 msgid "Gallery image %d"
 msgstr ""
 
-#: views/product-builder/wrapper.php:509
-#: views/product-builder/wrapper.php:793
+#: views/product-builder/wrapper.php:487
 msgid "Custom product"
 msgstr ""
 
-#: views/product-builder/wrapper.php:520
+#. translators: %s: base product price
+#: views/product-builder/wrapper.php:491
+#, php-format
+msgid "From %s base"
+msgstr ""
+
+#: views/product-builder/wrapper.php:498
 msgid "About this product"
 msgstr ""
 
-#: views/product-builder/wrapper.php:527
+#: views/product-builder/wrapper.php:505
 msgid "Full description"
 msgstr ""
 
-#: views/product-builder/wrapper.php:533
+#: views/product-builder/wrapper.php:511
 msgid "No product description has been added yet."
 msgstr ""
 
-#: views/product-builder/wrapper.php:538
+#: views/product-builder/wrapper.php:516
 msgid "Specifications"
 msgstr ""
 
-#: views/product-builder/wrapper.php:542
+#: views/product-builder/wrapper.php:520
 #: views/products.php:207
 msgid "SKU"
 msgstr ""
 
-#: views/product-builder/wrapper.php:554
+#: views/product-builder/wrapper.php:532
 msgid "Weight"
 msgstr ""
 
-#: views/product-builder/wrapper.php:560
+#: views/product-builder/wrapper.php:538
 msgid "Dimensions"
 msgstr ""
 
-#: views/product-builder/wrapper.php:583
+#: views/product-builder/wrapper.php:561
 msgid "Production lead time"
 msgstr ""
 
-#: views/product-builder/wrapper.php:583
+#: views/product-builder/wrapper.php:561
 msgid "Your design enters production within 24 hours of order confirmation."
 msgstr ""
 
-#: views/product-builder/wrapper.php:587
+#: views/product-builder/wrapper.php:565
 msgid "Delivery options"
 msgstr ""
 
-#: views/product-builder/wrapper.php:587
+#: views/product-builder/wrapper.php:565
 msgid "Standard 3–7 business days · Express available at checkout · Free over $80."
 msgstr ""
 
-#: views/product-builder/wrapper.php:591
+#: views/product-builder/wrapper.php:569
 msgid "Custom-print returns"
 msgstr ""
 
-#: views/product-builder/wrapper.php:591
+#: views/product-builder/wrapper.php:569
 msgid "Personalised items are made-to-order. Defects or print errors qualify for a free reprint or refund within 30 days."
 msgstr ""
 
-#: views/product-builder/wrapper.php:595
+#: views/product-builder/wrapper.php:573
 msgid "All payments are processed by WooCommerce over a TLS 1.3 connection — we never store card data."
 msgstr ""
 
-#: views/product-builder/wrapper.php:606
+#: views/product-builder/wrapper.php:584
 msgid "How it works"
 msgstr ""
 
-#: views/product-builder/wrapper.php:616
+#: views/product-builder/wrapper.php:594
 msgid "Quick answers to the most common questions when customizing this product."
 msgstr ""
 
-#: views/product-builder/wrapper.php:622
+#: views/product-builder/wrapper.php:600
 msgid "How do I customize this product?"
 msgstr ""
 
-#: views/product-builder/wrapper.php:626
+#: views/product-builder/wrapper.php:604
 msgid "Open each part on the left, pick the option you want, and the preview in the centre updates in real time. The \"Your price\" total on the right also updates as you go — so you always know what you're paying."
 msgstr ""
 
-#: views/product-builder/wrapper.php:632
+#: views/product-builder/wrapper.php:610
 msgid "Will my design be saved?"
 msgstr ""
 
-#: views/product-builder/wrapper.php:636
+#: views/product-builder/wrapper.php:614
 msgid "Yes. Click \"Add to cart\" and we lock your full configuration in with the order. You can re-order the same design any time from your account — just look for \"Reorder this design\" on the order detail page."
 msgstr ""
 
-#: views/product-builder/wrapper.php:642
+#: views/product-builder/wrapper.php:620
 msgid "Can I undo a change?"
 msgstr ""
 
-#: views/product-builder/wrapper.php:646
+#: views/product-builder/wrapper.php:624
 msgid "Inside any open step you'll see a \"Reset this part\" link to undo just that part. To start over completely, click the ↻ icon in the top-right of the modal, or \"Reset all\" under the Add-to-cart button."
 msgstr ""
 
-#: views/product-builder/wrapper.php:652
+#: views/product-builder/wrapper.php:630
 msgid "How is the final price calculated?"
 msgstr ""
 
-#: views/product-builder/wrapper.php:656
+#: views/product-builder/wrapper.php:634
 msgid "Your final price = base product price + any per-option upcharges. The summary on the right shows each line item (\"Included\" means no extra cost, \"+$X\" means it adds to the total). Shipping is calculated at checkout based on your address."
 msgstr ""
 
-#: views/product-builder/wrapper.php:662
+#: views/product-builder/wrapper.php:640
 msgid "Still need help?"
 msgstr ""
 
 #. translators: %s: HTML link to the contact page.
-#: views/product-builder/wrapper.php:671
+#: views/product-builder/wrapper.php:649
 #, php-format
 msgid "Contact our support team via the %s — we typically reply within one business day."
 msgstr ""
 
-#: views/product-builder/wrapper.php:674
+#: views/product-builder/wrapper.php:652
 msgid "Contact page"
 msgstr ""
 
-#: views/product-builder/wrapper.php:715
+#: views/product-builder/wrapper.php:695
 msgid "Product views"
 msgstr ""
 
-#: views/product-builder/wrapper.php:767
+#: views/product-builder/wrapper.php:735
+msgid "Undo and redo"
+msgstr ""
+
+#: views/product-builder/wrapper.php:740
+#: views/product-builder/wrapper.php:742
+msgid "Redo"
+msgstr ""
+
+#: views/product-builder/wrapper.php:752
 msgid "Zoom product image"
 msgstr ""
 
-#: views/product-builder/wrapper.php:775
+#: views/product-builder/wrapper.php:760
 msgid "Fit"
 msgstr ""
 
-#: views/product-builder/wrapper.php:775
+#: views/product-builder/wrapper.php:760
 msgid "Fit to screen"
 msgstr ""
 
-#: views/product-builder/wrapper.php:817
+#: views/product-builder/wrapper.php:795
 msgid "Order summary · 1 item"
 msgstr ""
 
-#: views/product-builder/wrapper.php:827
+#: views/product-builder/wrapper.php:805
 msgid "Custom item"
 msgstr ""
 
-#: views/product-builder/wrapper.php:838
-msgid "Base price"
-msgstr ""
-
-#: views/product-builder/wrapper.php:845
+#: views/product-builder/wrapper.php:823
 msgid "Included"
 msgstr ""
 
-#: views/product-builder/wrapper.php:847
+#: views/product-builder/wrapper.php:825
 msgid "— pick one"
 msgstr ""
 
-#: views/product-builder/wrapper.php:851
+#: views/product-builder/wrapper.php:829
 msgid "— add text"
 msgstr ""
 
-#: views/product-builder/wrapper.php:854
+#: views/product-builder/wrapper.php:832
 msgid "Uploaded"
 msgstr ""
 
-#: views/product-builder/wrapper.php:855
+#: views/product-builder/wrapper.php:833
 msgid "— upload"
 msgstr ""
 
-#: views/product-builder/wrapper.php:867
+#: views/product-builder/wrapper.php:845
 msgid "at checkout"
 msgstr ""
 
-#: views/product-builder/wrapper.php:873
+#: views/product-builder/wrapper.php:851
 msgid "Volume discount"
 msgstr ""
 
-#: views/product-builder/wrapper.php:878
+#: views/product-builder/wrapper.php:856
 msgid "Your price"
 msgstr ""
 
-#: views/product-builder/wrapper.php:891
+#: views/product-builder/wrapper.php:869
 msgid "Free design preview"
 msgstr ""
 
-#: views/product-builder/wrapper.php:891
+#: views/product-builder/wrapper.php:869
 msgid "no charge until your design is locked in."
 msgstr ""
 
-#: views/product-builder/wrapper.php:904
+#: views/product-builder/wrapper.php:882
+#: views/product-builder/wrapper.php:920
 msgid "Reset all"
 msgstr ""
 
-#: views/product-builder/wrapper.php:913
+#: views/product-builder/wrapper.php:891
 msgid "Add this customized design to cart"
 msgstr ""
 
-#: views/product-builder/wrapper.php:941
+#: views/product-builder/wrapper.php:916
+msgid "Start over?"
+msgstr ""
+
+#: views/product-builder/wrapper.php:917
+msgid "Reset all customizations to default?"
+msgstr ""
+
+#: views/product-builder/wrapper.php:939
 msgid "Live pricing"
 msgstr ""
 
-#: views/product-builder/wrapper.php:942
+#: views/product-builder/wrapper.php:940
 msgid "Pick any option — the total on the right updates instantly."
 msgstr ""
 
-#: views/product-builder/wrapper.php:944
+#: views/product-builder/wrapper.php:942
 msgid "Dismiss"
 msgstr ""
 

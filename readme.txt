@@ -29,7 +29,7 @@ This plugin is especially useful for businesses offering:
 - **Front-end product builder:** Customers can design and customize products visually.
 - **WooCommerce integration:** Compatible with the latest WooCommerce versions.
 - **Easy to use:** Simple interface suitable for both store owners and customers.
-- **Free version limitation:** The free version allows creating or modifying up to **five customizable products**. You may upgrade to the premium version for unlimited usage:
+- **Free & local-first:** The full product builder, pricing options, quotes and custom orders run on your own server with **no product limit**. Optional Storelly Cloud features — print‑ready PDF rendering, order sync and dashboard analytics — connect to the Storelly service and require a paid Cloud plan:
 https://storelly.com/product-builder
 
 ### Languages
@@ -93,18 +93,19 @@ This plugin connects to the following external services:
     - Privacy Policy: http://cloud2print.net/privacy-policy
     - Terms of Service: http://cloud2print.net/terms-of-service
 
-- **Storelly Dashboard API (`https://app.storelly.com/public`)**
-  - **What it is used for**: Used to register your Storelly account from inside WooCommerce and to synchronise WooCommerce order information with the Storelly Dashboard.
+- **Storelly Dashboard API (`https://app.storelly.com`)**
+  - **What it is used for**: Used to register your Storelly account from inside WooCommerce, to synchronise WooCommerce order information with the Storelly Dashboard, and to check your Storelly Cloud plan (license status, available plans and aggregate dashboard statistics).
   - **What data is sent and when**:
     - **Only after** a store administrator explicitly opts in — by clicking "Enable Cloud" on the plugin's Welcome screen (or connecting the account on the settings page) — the plugin registers your store by sending your store owner details (name, email address, billing address fields, time zone, WooCommerce API keys) and a non-secret store identifier (a stable store ID derived from your site URL and admin email, so reinstalling re-links to the same store) to the Storelly Dashboard API. Nothing is sent before this explicit opt-in.
     - When an order is placed or processed in WooCommerce **and order sync is enabled**, the plugin sends order data (order totals, discount amounts, product and variation identifiers, quantities, unit prices and links to the generated design PDF files) to the Storelly Dashboard API so that orders can be tracked and managed there.
+    - When a store administrator opens the License or Overview screen, or clicks "Sync license", the plugin requests the license endpoints (`/api/v1/license/status`, `/api/v1/license/packages`) and the overview endpoint (`/api/v1/plugin/overview`) to read the store's current plan, the list of available plans, and aggregate counts (totals of products, orders and quotes). When the administrator activates a license, the entered license key and the store's numeric business identifier are sent to `/api/v1/license/activate`. These requests are made only in response to the administrator opening those screens or clicking the relevant button.
   - **Service owner and policies**: This service is operated by Storelly. Please review policies:
     - Terms of Service: https://app.storelly.com/terms
     - Privacy Policy: https://app.storelly.com/privacy
 
 - **Storelly demo product data (`https://app.storelly.com/product-data/data/data.json`)**
-  - **What it is used for**: Used by the admin "Global Import" / demo product importer screen to fetch a sample catalogue (`data.json`) so the store owner can preview and import demo products into WooCommerce.
-  - **What data is sent and when**: When a logged-in administrator opens the Global Import page or clicks "Import demo products", the plugin issues an anonymous `GET` request to the URL above. No site URL, user account information, order data or PII is sent in the request body; the only identifying information is the standard HTTP headers (User-Agent, IP) that any outbound HTTP request includes.
+  - **What it is used for**: Used by the admin "Global Import" demo catalogue screen to fetch a larger sample catalogue (`data.json`) so the store owner can preview and import additional demo products into WooCommerce. The Welcome screen's one-click "Add demo product" uses a demo bundled inside the plugin and does NOT contact this service.
+  - **What data is sent and when**: Only when a logged-in administrator opens the Global Import demo-catalogue screen does the plugin issue an anonymous `GET` request to the URL above. No site URL, user account information, order data or PII is sent in the request body; the only identifying information is the standard HTTP headers (User-Agent, IP) that any outbound HTTP request includes.
   - **Service owner and policies**: This service is operated by Storelly. Please review policies:
     - Terms of Service: https://app.storelly.com/terms
     - Privacy Policy: https://app.storelly.com/privacy
@@ -133,6 +134,13 @@ This plugin connects to the following external services:
 
 == Changelog ==
 = 1.5.7 =
+* Onboarding & activation polish — get merchants to a live, customizable product faster and keep them:
+  - **One-click demo, bundled and offline-safe.** The Welcome screen's "Add demo product" now installs a ready-made customizable product (the bag) from data bundled inside the plugin — no network call, works on a fresh or offline install. Images are sideloaded locally; the product, its option set and images are tagged so "Remove demo" cleans everything up. The previous remote sample importer remains available on the Global Import screen.
+  - **Resume setup.** Skipping the Welcome guide before finishing onboarding now leaves a quiet "Show the setup guide again" link, so a stray click isn't permanent.
+  - **Request-a-Quote badge on by default.** The floating site-wide quote badge now shows by default once the quote feature is enabled (merchants who turned it off stay in control); badge URL output is escaped.
+  - **Review request.** A polite, dismissible review prompt now appears on the Storelly admin screens — only after at least two weeks of use AND once the builder is actually set up — with "leave a review", "maybe later" (snoozes 30 days) and "no thanks" choices.
+  - **Large-catalogue safety.** The background "prepare existing products" migration is now time-boxed per request and resumes via the dashboard poll (so big catalogues can't time out a request), with a re-entrancy lock so concurrent runs never create duplicate option sets.
+  - **Design-token pass.** The review and upsell admin notices moved off inline styles onto the shared design tokens, plus a polished "demo installed" state for the Welcome card.
 * Customizer V3 — three follow-ups surfaced by the thorough flow test on 1.5.6:
   - **(P0) Reset all no longer leaves the canvas blank.** The previous implementation looped `selectAttribute(0)` over every component, racing 5 parallel `fabric.Image.fromURL` callbacks onto the same canvases — the last one to land "won" and could leave Fabric in a corrupted state where the base view image was no longer painted, even after closing and re-opening the modal. The only recovery was a full page reload. Reset now does that page reload itself, deterministically: it clears the localStorage build, shows the success toast, and reloads after a brief 600ms delay so the toast remains visible. The buyer lands back on the product page with a clean customizer (the canvas re-renders, the carousel transform resets to 0, all stage states are pristine). A page reload here is a fair trade — Reset all is a rare action, and the previous in-place implementation was outright broken.
   - **(P2) In-modal Reset confirmation replaces the native `window.confirm()` dialog.** The browser-native confirm was modal-blocking, unstyled, and jarring against the V3 design system. The new dialog sits inside the popup (outside the `.nbdpb-carousel` subtree so the legacy script doesn't sweep it), uses the V3 design tokens (brand-soft icon ring, danger-red CTA), supports keyboard close (Esc) and backdrop dismiss, and matches the elevated card look used by the rest of the customizer. JS `$scope.showConfirm()` returns a Promise so the caller can chain — falls back to the native `confirm()` if the host node isn't rendered (older wrapper template, smoke tests).
