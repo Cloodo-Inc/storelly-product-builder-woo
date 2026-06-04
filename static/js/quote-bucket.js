@@ -53,11 +53,19 @@
 		return d.innerHTML;
 	}
 
+	function toggleSubmit( hasItems ) {
+		var submit = formEl ? formEl.querySelector( '.spbwc-rfq-submit' ) : null;
+		if ( submit ) {
+			submit.disabled = ! hasItems;
+		}
+	}
+
 	function renderList( items ) {
 		items = items || [];
 		if ( ! listEl ) {
 			return;
 		}
+		toggleSubmit( items.length > 0 );
 		if ( ! items.length ) {
 			listEl.innerHTML = '<li class="spbwc-bucket-empty">' + esc( i18n.empty || '' ) + '</li>';
 			return;

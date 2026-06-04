@@ -11,14 +11,44 @@
 .spbwc-rfq {
     /* Mapped onto the shared Printcart storefront tokens (_tokens-storefront.css,
        --nbd-*) so Quote matches the rest of the user pages; fallbacks keep the
-       original look if the token file is ever absent. */
+       original look if the token file is ever absent. Every colour below is a
+       token — no raw hex is used in the rules so a theme can restyle Quote by
+       overriding the --nbd-* set alone. */
+
+    /* Brand + base */
     --spbwc-rfq-accent: var(--nbd-mb-primary, #2563eb);
-    --spbwc-rfq-accent-text: #ffffff;
-    --spbwc-rfq-radius: var(--nbd-radius-xl, 10px);
-    --spbwc-rfq-danger: var(--nbd-color-error, #d63638);
+    --spbwc-rfq-accent-hover: var(--nbd-mb-primary-pressed, #1d4ed8);
+    --spbwc-rfq-accent-text: var(--nbd-mb-bg, #ffffff);
+    --spbwc-rfq-radius: var(--nbd-radius-xl, 12px);
     --spbwc-rfq-text: var(--nbd-mb-text, #1f2937);
     --spbwc-rfq-muted: var(--nbd-mb-text-soft, #6b7280);
     --spbwc-rfq-border: var(--nbd-mb-border, #e5e7eb);
+
+    /* Surfaces */
+    --spbwc-rfq-surface: var(--nbd-mb-bg, #ffffff);
+    --spbwc-rfq-surface-soft: var(--nbd-mb-bg-soft, #f9fafb);
+    --spbwc-rfq-surface-canvas: var(--nbd-mb-bg-canvas, #f3f4f6);
+    --spbwc-rfq-shadow-card: var(--nbd-shadow-sm, 0 1px 2px rgba(0, 0, 0, .05));
+    --spbwc-rfq-shadow-modal: var(--nbd-shadow-xl, 0 20px 60px rgba(0, 0, 0, .25));
+    --spbwc-rfq-shadow-fab: var(--nbd-shadow-lg, 0 6px 20px rgba(15, 23, 42, .25));
+    --spbwc-rfq-focus: var(--nbd-shadow-focus, 0 0 0 3px rgba(37, 99, 235, .25));
+
+    /* Semantic state surfaces (bg / border / text) */
+    --spbwc-rfq-accent-soft: var(--nbd-mb-primary-soft, #dbeafe);
+    --spbwc-rfq-success: var(--nbd-color-success, #10b981);
+    --spbwc-rfq-ok-bg: var(--nbd-color-success-soft, #dcfce7);
+    --spbwc-rfq-ok-border: var(--nbd-color-success-border, #86efac);
+    --spbwc-rfq-ok-text: #14532d;
+    --spbwc-rfq-warn-bg: var(--nbd-color-warning-soft, #fef3c7);
+    --spbwc-rfq-warn-border: #fde68a;
+    --spbwc-rfq-warn-text: #92400e;
+    --spbwc-rfq-info-bg: var(--nbd-color-info-soft, #dbeafe);
+    --spbwc-rfq-info-border: #bfdbfe;
+    --spbwc-rfq-info-text: #1e40af;
+    --spbwc-rfq-danger: var(--nbd-color-error, #ef4444);
+    --spbwc-rfq-danger-bg: var(--nbd-color-error-soft, #fee2e2);
+    --spbwc-rfq-danger-border: var(--nbd-color-error-border, #fca5a5);
+    --spbwc-rfq-danger-text: #991b1b;
 }
 
 /* Trigger button inherits theme button styling; just spacing. */
@@ -45,10 +75,10 @@
 .spbwc-rfq-modal {
     width: 100%;
     max-width: 560px;
-    background: #fff;
+    background: var(--spbwc-rfq-surface);
     color: var(--spbwc-rfq-text);
     border-radius: var(--spbwc-rfq-radius);
-    box-shadow: 0 20px 60px rgba(0, 0, 0, .25);
+    box-shadow: var(--spbwc-rfq-shadow-modal);
     transform: translateY(-8px);
     transition: transform .18s ease;
     overflow: hidden;
@@ -74,7 +104,7 @@
     padding: 4px 8px;
     border-radius: 6px;
 }
-.spbwc-rfq-close:hover { background: #f3f4f6; color: var(--spbwc-rfq-text); }
+.spbwc-rfq-close:hover { background: var(--spbwc-rfq-surface-canvas); color: var(--spbwc-rfq-text); }
 
 .spbwc-rfq-body { padding: 18px 20px; }
 
@@ -85,7 +115,7 @@
     gap: 12px;
     padding: 10px 12px;
     margin-bottom: 16px;
-    background: #f8fafc;
+    background: var(--spbwc-rfq-surface-soft);
     border: 1px solid var(--spbwc-rfq-border);
     border-radius: 8px;
 }
@@ -106,13 +136,13 @@
 .spbwc-rfq-stepper__btn {
     width: 38px;
     border: 0;
-    background: #f8fafc;
+    background: var(--spbwc-rfq-surface-soft);
     color: var(--spbwc-rfq-text);
     font-size: 18px;
     line-height: 1;
     cursor: pointer;
 }
-.spbwc-rfq-stepper__btn:hover { background: #eef2f7; }
+.spbwc-rfq-stepper__btn:hover { background: var(--spbwc-rfq-surface-canvas); }
 .spbwc-rfq-stepper .spbwc-rfq-qty {
     width: 64px;
     text-align: center;
@@ -141,14 +171,14 @@
     font-size: 14px;
     border: 1px solid var(--spbwc-rfq-border);
     border-radius: 8px;
-    background: #fff;
+    background: var(--spbwc-rfq-surface);
     box-sizing: border-box;
 }
 .spbwc-rfq-field input:focus,
 .spbwc-rfq-field textarea:focus {
     outline: none;
     border-color: var(--spbwc-rfq-accent);
-    box-shadow: var(--nbd-shadow-focus, 0 0 0 3px rgba(37, 99, 235, .25));
+    box-shadow: var(--spbwc-rfq-focus);
 }
 .spbwc-rfq-field textarea { min-height: 90px; resize: vertical; }
 .spbwc-rfq-field.has-error input,
@@ -188,9 +218,9 @@
 }
 .spbwc-rfq-alert.is-error {
     display: block;
-    background: #fef2f2;
-    color: #991b1b;
-    border: 1px solid #fecaca;
+    background: var(--spbwc-rfq-danger-bg);
+    color: var(--spbwc-rfq-danger-text);
+    border: 1px solid var(--spbwc-rfq-danger-border);
 }
 
 /* ── Success state ─────────────────────────────────────────────────────── */
@@ -205,8 +235,8 @@
     height: 56px;
     margin: 0 auto 14px;
     border-radius: 50%;
-    background: #dcfce7;
-    color: #16a34a;
+    background: var(--spbwc-rfq-ok-bg);
+    color: var(--spbwc-rfq-ok-text);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -220,13 +250,13 @@
     display: inline-block;
     padding: 10px 20px;
     background: var(--spbwc-rfq-accent);
-    color: #fff;
+    color: var(--spbwc-rfq-accent-text);
     border-radius: 8px;
     font-weight: 600;
     font-size: 14px;
     text-decoration: none;
 }
-.spbwc-rfq-success__cta:hover { filter: brightness(1.05); }
+.spbwc-rfq-success__cta:hover { background: var(--spbwc-rfq-accent-hover); }
 
 @media (max-width: 480px) {
     .spbwc-rfq-overlay { padding: 0; align-items: stretch; }
@@ -257,13 +287,13 @@
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: .03em;
-    background: #f3f4f6;
-    color: #4b5563;
+    background: var(--spbwc-rfq-surface-canvas);
+    color: var(--spbwc-rfq-muted);
 }
-.spbwc-rfq-pill--warn { background: #fef3c7; color: #92400e; }
-.spbwc-rfq-pill--info { background: #dbeafe; color: #1e40af; }
-.spbwc-rfq-pill--ok { background: #dcfce7; color: #14532d; }
-.spbwc-rfq-pill--danger { background: #fee2e2; color: #991b1b; }
+.spbwc-rfq-pill--warn { background: var(--spbwc-rfq-warn-bg); color: var(--spbwc-rfq-warn-text); }
+.spbwc-rfq-pill--info { background: var(--spbwc-rfq-info-bg); color: var(--spbwc-rfq-info-text); }
+.spbwc-rfq-pill--ok { background: var(--spbwc-rfq-ok-bg); color: var(--spbwc-rfq-ok-text); }
+.spbwc-rfq-pill--danger { background: var(--spbwc-rfq-danger-bg); color: var(--spbwc-rfq-danger-text); }
 
 /* Validity countdown → subtle amber badge */
 .spbwc-rfq-countdown {
@@ -272,11 +302,11 @@
     padding: 6px 12px;
     border-radius: 8px;
     font-size: 13px;
-    background: #fffbeb;
-    border: 1px solid #fde68a;
-    color: #92400e;
+    background: var(--spbwc-rfq-warn-bg);
+    border: 1px solid var(--spbwc-rfq-warn-border);
+    color: var(--spbwc-rfq-warn-text);
 }
-.spbwc-rfq-countdown strong { color: #92400e; }
+.spbwc-rfq-countdown strong { color: var(--spbwc-rfq-warn-text); }
 
 /* Quote summary card (line items + totals) */
 .spbwc-rfq-summary {
@@ -284,8 +314,8 @@
     border-radius: 12px;
     padding: 18px 20px;
     margin-bottom: 18px;
-    background: #fff;
-    box-shadow: 0 1px 2px rgba(0,0,0,.04);
+    background: var(--spbwc-rfq-surface);
+    box-shadow: var(--spbwc-rfq-shadow-card);
 }
 .spbwc-rfq-summary > h3 { margin: 0 0 10px; font-size: 15px; }
 
@@ -312,7 +342,7 @@
     border-radius: 12px;
     padding: 16px 18px;
     margin-bottom: 16px;
-    background: #fff;
+    background: var(--spbwc-rfq-surface);
 }
 .spbwc-rfq-card > h3 { margin: 0 0 10px; font-size: 15px; }
 
@@ -329,19 +359,19 @@
     font-size: 14px;
     margin-bottom: 16px;
     border: 1px solid var(--spbwc-rfq-border);
-    background: #f8fafc;
+    background: var(--spbwc-rfq-surface-soft);
 }
-.spbwc-rfq-banner--ok { background: #f0fdf4; border-color: #bbf7d0; color: #14532d; }
-.spbwc-rfq-banner--danger { background: #fef2f2; border-color: #fecaca; color: #991b1b; }
-.spbwc-rfq-banner--info { background: #eff6ff; border-color: #bfdbfe; color: #1e40af; }
+.spbwc-rfq-banner--ok { background: var(--spbwc-rfq-ok-bg); border-color: var(--spbwc-rfq-ok-border); color: var(--spbwc-rfq-ok-text); }
+.spbwc-rfq-banner--danger { background: var(--spbwc-rfq-danger-bg); border-color: var(--spbwc-rfq-danger-border); color: var(--spbwc-rfq-danger-text); }
+.spbwc-rfq-banner--info { background: var(--spbwc-rfq-info-bg); border-color: var(--spbwc-rfq-info-border); color: var(--spbwc-rfq-info-text); }
 
 /* Decision area: Accept primary (full width), Request-changes + Decline as a pair */
 .spbwc-rfq-actions { display: grid; gap: 14px; grid-template-columns: 1fr 1fr; align-items: start; }
 .spbwc-rfq-actions > .spbwc-rfq-card { margin-bottom: 0; }
 .spbwc-rfq-actions > .spbwc-rfq-card:first-child {
     grid-column: 1 / -1;
-    background: #f8faff;
-    border-color: #bfdbfe;
+    background: var(--spbwc-rfq-surface-soft);
+    border-color: var(--spbwc-rfq-info-border);
 }
 @media (max-width: 600px) { .spbwc-rfq-actions { grid-template-columns: 1fr; } }
 
@@ -355,7 +385,7 @@
     border-radius: 8px;
     font-size: 14px;
     box-sizing: border-box;
-    background: #fff;
+    background: var(--spbwc-rfq-surface);
 }
 .spbwc-rfq-accept-total {
     display: flex;
@@ -391,13 +421,15 @@
     font-size: 14px;
     font-weight: 600;
     cursor: pointer;
-    color: #fff;
+    color: var(--spbwc-rfq-accent-text);
     background: var(--spbwc-rfq-accent);
 }
-.spbwc-rfq-btn:hover { filter: brightness(1.05); }
-.spbwc-rfq-btn--ghost { background: #fff; color: var(--spbwc-rfq-text); border: 1px solid var(--spbwc-rfq-border); }
-.spbwc-rfq-btn--danger { background: #fff; color: var(--spbwc-rfq-danger); border: 1px solid #fecaca; }
-.spbwc-rfq-paybtn { display: inline-block; padding: 12px 24px; background: #16a34a; color: #fff; border-radius: 8px; font-weight: 700; text-decoration: none; }
+.spbwc-rfq-btn:hover { background: var(--spbwc-rfq-accent-hover); }
+.spbwc-rfq-btn--ghost { background: var(--spbwc-rfq-surface); color: var(--spbwc-rfq-text); border: 1px solid var(--spbwc-rfq-border); }
+.spbwc-rfq-btn--ghost:hover { background: var(--spbwc-rfq-surface-soft); }
+.spbwc-rfq-btn--danger { background: var(--spbwc-rfq-surface); color: var(--spbwc-rfq-danger-text); border: 1px solid var(--spbwc-rfq-danger-border); }
+.spbwc-rfq-btn--danger:hover { background: var(--spbwc-rfq-danger-bg); }
+.spbwc-rfq-paybtn { display: inline-block; padding: 12px 24px; background: var(--spbwc-rfq-success); color: var(--spbwc-rfq-accent-text); border-radius: 8px; font-weight: 700; text-decoration: none; }
 
 /* My Quotes: stat cards */
 .spbwc-rfq-stats {
@@ -410,12 +442,12 @@
     padding: 14px 16px;
     border: 1px solid var(--spbwc-rfq-border);
     border-radius: 12px;
-    background: #fff;
+    background: var(--spbwc-rfq-surface);
     display: flex;
     flex-direction: column;
     gap: 2px;
 }
-.spbwc-rfq-stat--accent { border-color: #bfdbfe; background: #f8faff; }
+.spbwc-rfq-stat--accent { border-color: var(--spbwc-rfq-info-border); background: var(--spbwc-rfq-surface-soft); }
 .spbwc-rfq-stat__value { font-size: 22px; font-weight: 800; line-height: 1.15; color: var(--spbwc-rfq-text); }
 .spbwc-rfq-stat__label { font-size: 12px; text-transform: uppercase; letter-spacing: .03em; color: var(--spbwc-rfq-muted); }
 
@@ -428,19 +460,19 @@
     padding: 7px 14px;
     border-radius: 999px;
     border: 1px solid var(--spbwc-rfq-border);
-    background: #fff;
+    background: var(--spbwc-rfq-surface);
     color: var(--spbwc-rfq-text);
     font-size: 13px;
     text-decoration: none;
 }
 .spbwc-rfq-filter__tab:hover { border-color: var(--spbwc-rfq-accent); color: var(--spbwc-rfq-accent); }
-.spbwc-rfq-filter__tab.is-active { background: var(--spbwc-rfq-accent); border-color: var(--spbwc-rfq-accent); color: #fff; }
+.spbwc-rfq-filter__tab.is-active { background: var(--spbwc-rfq-accent); border-color: var(--spbwc-rfq-accent); color: var(--spbwc-rfq-accent-text); }
 .spbwc-rfq-filter__count { font-size: 11px; opacity: .8; }
 
 /* My Quotes list table */
 .spbwc-rfq-account table.spbwc-rfq-table thead th { background: transparent; }
 .spbwc-rfq-account table.shop_table.spbwc-rfq-table { border-radius: 12px; overflow: hidden; }
-.spbwc-rfq-account .spbwc-rfq-table tbody tr:hover td { background: #f8fafc; }
+.spbwc-rfq-account .spbwc-rfq-table tbody tr:hover td { background: var(--spbwc-rfq-surface-soft); }
 .spbwc-rfq-account .spbwc-rfq-btn--ghost { width: auto; padding: 7px 14px; font-size: 13px; }
 
 /* Site-wide floating "Request a Quote" badge (M6) */
@@ -453,14 +485,14 @@
     padding: 12px 18px;
     border: none;
     border-radius: 999px;
-    background: var(--spbwc-rfq-accent, #2563eb);
+    background: var(--nbd-mb-primary, #2563eb);
     color: #fff;
     font-size: 14px;
     font-weight: 600;
     line-height: 1;
     text-decoration: none;
     cursor: pointer;
-    box-shadow: 0 6px 20px rgba(15, 23, 42, 0.25);
+    box-shadow: var(--nbd-shadow-lg, 0 6px 20px rgba(15, 23, 42, 0.25));
     transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
 }
 .spbwc-rfq-badge:hover {
@@ -482,9 +514,27 @@
 
 /* ── Multi-item quote cart (P4.3) ──────────────────────────────────────── */
 
-/* "Add to quote list" button under add-to-cart */
-.spbwc-bucket-add { margin-top: 8px; }
-.spbwc-bucket-add.is-added { opacity: .7; }
+/* "Add to quote list" button under add-to-cart — secondary outline so it reads
+   below the primary add-to-cart. .button.x specificity beats most themes. */
+.button.spbwc-bucket-add,
+.spbwc-bucket-add {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 8px;
+    background: var(--nbd-mb-bg, #fff);
+    color: var(--nbd-mb-primary, #2563eb);
+    border: 1px solid var(--nbd-mb-primary, #2563eb);
+    box-shadow: none;
+    text-shadow: none;
+}
+.button.spbwc-bucket-add:hover,
+.spbwc-bucket-add:hover {
+    background: var(--nbd-mb-primary-soft, #dbeafe);
+    color: var(--nbd-mb-primary-pressed, #1d4ed8);
+    border-color: var(--nbd-mb-primary, #2563eb);
+}
+.spbwc-bucket-add.is-added { opacity: .7; cursor: default; }
 
 /* Floating "Quote list (N)" badge — sits bottom-left to clear the M6 badge */
 .spbwc-rfq-fab {
@@ -504,10 +554,10 @@
     font-weight: 600;
     line-height: 1;
     cursor: pointer;
-    box-shadow: 0 6px 20px rgba(15, 23, 42, 0.25);
+    box-shadow: var(--nbd-shadow-lg, 0 6px 20px rgba(15, 23, 42, 0.25));
     transition: transform 0.15s ease, box-shadow 0.15s ease;
 }
-.spbwc-rfq-fab:hover { transform: translateY(-2px); box-shadow: 0 10px 26px rgba(15, 23, 42, 0.3); color: #fff; }
+.spbwc-rfq-fab:hover { transform: translateY(-2px); box-shadow: var(--nbd-shadow-xl, 0 10px 26px rgba(15, 23, 42, 0.3)); color: #fff; }
 .spbwc-rfq-fab:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
 .spbwc-rfq-fab .dashicons { width: 18px; height: 18px; font-size: 18px; }
 .spbwc-rfq-fab__count {
