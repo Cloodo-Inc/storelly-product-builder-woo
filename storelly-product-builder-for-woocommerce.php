@@ -97,6 +97,7 @@ require_once(SPBWC_PB_PLUGIN_DIR .  'includes/class-i18n-notice.php');
 require_once(SPBWC_PB_PLUGIN_DIR .  'includes/class-onboarding.php');
 require_once(SPBWC_PB_PLUGIN_DIR .  'includes/class-upsell-notice.php');
 require_once(SPBWC_PB_PLUGIN_DIR .  'includes/class-review-notice.php');
+require_once(SPBWC_PB_PLUGIN_DIR .  'includes/class-demo-seeder.php');
 require_once(SPBWC_PB_PLUGIN_DIR .  'includes/class-frontend-options.php');
 require_once(SPBWC_PB_PLUGIN_DIR .  'includes/class-http.php');
 require_once(SPBWC_PB_PLUGIN_DIR .  'includes/class-productbuilder-api.php');
@@ -166,6 +167,30 @@ if ( class_exists( 'SPBWC_Quote_Scheduler' ) ) {
 }
 if ( class_exists( 'SPBWC_Quote_Migrator' ) ) {
     SPBWC_Quote_Migrator::init();
+}
+
+/* B2B Client (Company Accounts) — see docs/SPEC_B2B_CLIENT.md. M1 = company
+ * core (CPT spbwc_company + SPBWC_Company model + user link), merchant upgrade
+ * flow + B2B Companies hub, My-Account Brand Store profile, and the public
+ * /store/<slug> storefront. Tier pricing (M2), reorder (M3), per-company price
+ * overrides (M4) and team procurement (M5) build on this. Fully local — no
+ * external service, no phone-home. */
+require_once(SPBWC_PB_PLUGIN_DIR .  'includes/b2b/class-b2b-company.php');
+require_once(SPBWC_PB_PLUGIN_DIR .  'includes/b2b/class-b2b-company-post-type.php');
+require_once(SPBWC_PB_PLUGIN_DIR .  'includes/b2b/class-b2b-storefront.php');
+require_once(SPBWC_PB_PLUGIN_DIR .  'includes/b2b/class-b2b-account.php');
+require_once(SPBWC_PB_PLUGIN_DIR .  'includes/b2b/class-b2b-admin.php');
+if ( class_exists( 'SPBWC_B2B_Company_Post_Type' ) ) {
+    SPBWC_B2B_Company_Post_Type::instance()->init();
+}
+if ( class_exists( 'SPBWC_B2B_Storefront' ) ) {
+    SPBWC_B2B_Storefront::init();
+}
+if ( class_exists( 'SPBWC_B2B_Account' ) ) {
+    SPBWC_B2B_Account::init();
+}
+if ( is_admin() && class_exists( 'SPBWC_B2B_Admin' ) ) {
+    SPBWC_B2B_Admin::instance()->init();
 }
 
 require_once(SPBWC_PB_PLUGIN_DIR .  'includes/class-global-import.php');

@@ -56,13 +56,13 @@ $recent_templates = array();
 // Helpful benefits text per plan tier.
 $plan_benefits = $is_free
     ? array(
-        array( 'icon' => 'no-alt',  'text' => __( 'Limited to basic product builder features', 'storelly-product-builder-for-woocommerce' ) ),
-        array( 'icon' => 'no-alt',  'text' => __( 'Premium templates locked', 'storelly-product-builder-for-woocommerce' ) ),
-        array( 'icon' => 'no-alt',  'text' => __( 'Community support only', 'storelly-product-builder-for-woocommerce' ) ),
+        array( 'icon' => 'yes-alt', 'text' => __( 'Full product builder, quotes & custom orders — no product limit', 'storelly-product-builder-for-woocommerce' ) ),
+        array( 'icon' => 'no-alt',  'text' => __( 'Storelly Cloud off: print-ready PDF, order sync & analytics', 'storelly-product-builder-for-woocommerce' ) ),
+        array( 'icon' => 'no-alt',  'text' => __( 'Community support', 'storelly-product-builder-for-woocommerce' ) ),
     )
     : array(
-        array( 'icon' => 'yes-alt', 'text' => __( 'Unlimited products and orders', 'storelly-product-builder-for-woocommerce' ) ),
-        array( 'icon' => 'yes-alt', 'text' => __( 'Premium templates and design tools', 'storelly-product-builder-for-woocommerce' ) ),
+        array( 'icon' => 'yes-alt', 'text' => __( 'Everything in Free, with no product limit', 'storelly-product-builder-for-woocommerce' ) ),
+        array( 'icon' => 'yes-alt', 'text' => __( 'Storelly Cloud: print-ready PDF, order sync & dashboard analytics', 'storelly-product-builder-for-woocommerce' ) ),
         array( 'icon' => 'yes-alt', 'text' => __( 'Priority support from Storelly team', 'storelly-product-builder-for-woocommerce' ) ),
     );
 ?>
@@ -115,6 +115,14 @@ $plan_benefits = $is_free
         $spbwc_url_woo     = admin_url( 'admin.php?page=' . SPBWC_PB_OPTIONS_SLUG . '/global-import&tab=woo' );
         $spbwc_url_builder = admin_url( 'admin.php?page=' . SPBWC_PB_BUILDER_SLUG );
         $spbwc_dismiss_url = SPBWC_Onboarding::get_dismiss_url();
+
+        // Bundled one-click demo (M9.1) — installs locally, works offline. Falls
+        // back to the remote sample importer only if the bundle isn't present.
+        $spbwc_demo_avail  = class_exists( 'SPBWC_Demo_Seeder' ) && SPBWC_Demo_Seeder::bundle_available();
+        $spbwc_demo_seeded = $spbwc_demo_avail && SPBWC_Demo_Seeder::is_seeded();
+        $spbwc_demo_state  = $spbwc_demo_seeded ? (array) get_option( 'spbwc_demo_seeded', array() ) : array();
+        $spbwc_demo_view   = ! empty( $spbwc_demo_state['product_id'] ) ? get_permalink( (int) $spbwc_demo_state['product_id'] ) : '';
+        $spbwc_demo_nonce  = wp_create_nonce( 'spbwc_demo_seed' );
     ?>
     <section class="spbwc-welcome" aria-labelledby="spbwc-welcome-title">
         <div class="spbwc-welcome__head">
@@ -138,6 +146,47 @@ $plan_benefits = $is_free
 
         <div class="spbwc-welcome__cards">
             <!-- Fastest path — leads on purpose. -->
+            <?php if ( $spbwc_demo_seeded ) : ?>
+            <!-- Demo already installed: offer a quick look + a clean remove. -->
+            <div class="spbwc-welcome-card spbwc-welcome-card--primary spbwc-welcome-card--done" id="spbwc-demo-card-done" data-nonce="<?php echo esc_attr( $spbwc_demo_nonce ); ?>">
+                <span class="spbwc-welcome-card__flag"><?php esc_html_e( 'Demo added', 'storelly-product-builder-for-woocommerce' ); ?></span>
+                <div class="spbwc-welcome-card__icon">
+                    <span class="dashicons dashicons-yes-alt" aria-hidden="true"></span>
+                </div>
+                <h3 class="spbwc-welcome-card__title">
+                    <?php esc_html_e( 'Your demo product is live', 'storelly-product-builder-for-woocommerce' ); ?>
+                </h3>
+                <p class="spbwc-welcome-card__desc">
+                    <?php esc_html_e( 'A ready-made customizable product is on your storefront. Open it to see the builder in action.', 'storelly-product-builder-for-woocommerce' ); ?>
+                </p>
+                <a class="spbwc-cta-btn spbwc-cta-btn--solid" href="<?php echo esc_url( $spbwc_demo_view ); ?>" target="_blank" rel="noopener">
+                    <span class="dashicons dashicons-external" aria-hidden="true"></span>
+                    <?php esc_html_e( 'View on store', 'storelly-product-builder-for-woocommerce' ); ?>
+                </a>
+                <button type="button" class="spbwc-cta-btn spbwc-cta-btn--link" id="spbwc-demo-remove">
+                    <?php esc_html_e( 'Remove demo', 'storelly-product-builder-for-woocommerce' ); ?>
+                </button>
+            </div>
+            <?php elseif ( $spbwc_demo_avail ) : ?>
+            <!-- One-click local seed — no network, works offline. -->
+            <a class="spbwc-welcome-card spbwc-welcome-card--primary" id="spbwc-demo-card" href="#" data-nonce="<?php echo esc_attr( $spbwc_demo_nonce ); ?>">
+                <span class="spbwc-welcome-card__flag"><?php esc_html_e( 'Fastest', 'storelly-product-builder-for-woocommerce' ); ?></span>
+                <div class="spbwc-welcome-card__icon">
+                    <span class="dashicons dashicons-archive" aria-hidden="true"></span>
+                </div>
+                <h3 class="spbwc-welcome-card__title">
+                    <?php esc_html_e( 'See it live with a demo product', 'storelly-product-builder-for-woocommerce' ); ?>
+                </h3>
+                <p class="spbwc-welcome-card__desc">
+                    <?php esc_html_e( 'Add a ready-made customizable product in one click — the quickest way to watch the builder work on your store.', 'storelly-product-builder-for-woocommerce' ); ?>
+                </p>
+                <span class="spbwc-cta-btn spbwc-cta-btn--solid" id="spbwc-demo-cta">
+                    <span class="dashicons dashicons-download" aria-hidden="true"></span>
+                    <?php esc_html_e( 'Add demo product', 'storelly-product-builder-for-woocommerce' ); ?>
+                </span>
+            </a>
+            <?php else : ?>
+            <!-- Fallback: remote sample importer (bundle not present). -->
             <a class="spbwc-welcome-card spbwc-welcome-card--primary" href="<?php echo esc_url( $spbwc_url_sample ); ?>">
                 <span class="spbwc-welcome-card__flag"><?php esc_html_e( 'Fastest', 'storelly-product-builder-for-woocommerce' ); ?></span>
                 <div class="spbwc-welcome-card__icon">
@@ -154,6 +203,7 @@ $plan_benefits = $is_free
                     <?php esc_html_e( 'Import demo products', 'storelly-product-builder-for-woocommerce' ); ?>
                 </span>
             </a>
+            <?php endif; ?>
 
             <a class="spbwc-welcome-card" href="<?php echo esc_url( $spbwc_url_woo ); ?>">
                 <div class="spbwc-welcome-card__icon">
@@ -187,6 +237,43 @@ $plan_benefits = $is_free
                 </span>
             </a>
         </div>
+
+        <?php if ( $spbwc_demo_avail ) : ?>
+        <script>
+        (function($){
+            var fail = '<?php echo esc_js( __( 'Could not add the demo. Please try again.', 'storelly-product-builder-for-woocommerce' ) ); ?>';
+            var $card = $('#spbwc-demo-card');
+            if ( $card.length ) {
+                $card.on('click', function(e){
+                    e.preventDefault();
+                    if ( $card.hasClass('is-loading') ) { return; }
+                    $card.addClass('is-loading');
+                    $('#spbwc-demo-cta').html('<span class="dashicons dashicons-update" aria-hidden="true"></span> <?php echo esc_js( __( 'Adding…', 'storelly-product-builder-for-woocommerce' ) ); ?>');
+                    $.post(ajaxurl, { action:'spbwc_demo_seed', nonce: $card.data('nonce') }, function(res){
+                        if ( res && res.success && res.data && res.data.view_url ) {
+                            window.open(res.data.view_url, '_blank', 'noopener');
+                            location.reload();
+                        } else {
+                            alert( (res && res.data && res.data.message) ? res.data.message : fail );
+                            $card.removeClass('is-loading');
+                            $('#spbwc-demo-cta').html('<span class="dashicons dashicons-download" aria-hidden="true"></span> <?php echo esc_js( __( 'Add demo product', 'storelly-product-builder-for-woocommerce' ) ); ?>');
+                        }
+                    }).fail(function(){
+                        alert(fail);
+                        $card.removeClass('is-loading');
+                        $('#spbwc-demo-cta').html('<span class="dashicons dashicons-download" aria-hidden="true"></span> <?php echo esc_js( __( 'Add demo product', 'storelly-product-builder-for-woocommerce' ) ); ?>');
+                    });
+                });
+            }
+            $('#spbwc-demo-remove').on('click', function(){
+                if ( ! window.confirm('<?php echo esc_js( __( 'Remove the demo product and its images?', 'storelly-product-builder-for-woocommerce' ) ); ?>') ) { return; }
+                var $b = $(this).prop('disabled', true);
+                $.post(ajaxurl, { action:'spbwc_demo_undo', nonce: $('#spbwc-demo-card-done').data('nonce') }, function(){ location.reload(); })
+                 .fail(function(){ $b.prop('disabled', false); });
+            });
+        })(jQuery);
+        </script>
+        <?php endif; ?>
 
         <div class="spbwc-welcome__checklist">
             <div class="spbwc-welcome__checklist-head">
@@ -305,6 +392,28 @@ $plan_benefits = $is_free
         })(jQuery);
         </script>
     </section>
+    <?php endif; ?>
+
+    <?php
+    // ============ Resume setup (after "Skip setup") ============
+    // If the merchant skipped the Welcome before finishing onboarding, leave a
+    // quiet one-line way back in — so a stray click on "Skip" isn't permanent.
+    if ( ! $spbwc_welcome_mode
+        && class_exists( 'SPBWC_Onboarding' )
+        && SPBWC_Onboarding::is_dismissed()
+        && ! SPBWC_Onboarding::is_onboarding_complete() ) :
+    ?>
+    <div class="spbwc-notice-banner spbwc-notice-banner--info spbwc-resume-setup" role="status">
+        <span class="dashicons dashicons-flag" aria-hidden="true"></span>
+        <div class="spbwc-notice-banner__body">
+            <div class="spbwc-notice-banner__text">
+                <?php esc_html_e( 'Setup isn\'t finished yet.', 'storelly-product-builder-for-woocommerce' ); ?>
+                <a href="<?php echo esc_url( SPBWC_Onboarding::get_restore_url() ); ?>">
+                    <?php esc_html_e( 'Show the setup guide again', 'storelly-product-builder-for-woocommerce' ); ?>
+                </a>
+            </div>
+        </div>
+    </div>
     <?php endif; ?>
 
     <?php
@@ -466,7 +575,7 @@ $plan_benefits = $is_free
                         /* translators: %s: URL to license page */
                         wp_kses(
                             /* translators: %s: URL to license page */
-                            __( 'Unlock unlimited products, premium templates, and priority support by <a href="%s">upgrading your license</a>. Existing customizations remain intact during the upgrade.', 'storelly-product-builder-for-woocommerce' ),
+                            __( 'Add a Storelly Cloud plan to enable print-ready PDF rendering, order sync and dashboard analytics. <a href="%s">See Cloud plans</a>. Your existing builder, quotes and custom orders stay free and unchanged.', 'storelly-product-builder-for-woocommerce' ),
                             array( 'a' => array( 'href' => array() ) )
                         ),
                         esc_url( $license_url )
@@ -649,6 +758,64 @@ $plan_benefits = $is_free
             </article>
         </div>
     </section>
+
+    <?php if ( ! empty( $spbwc_design_activity ) ) : ?>
+    <!-- ============ Customer design activity (M14) ============ -->
+    <section class="spbwc-section" aria-labelledby="spbwc-design-activity-title">
+        <header class="spbwc-section__header">
+            <h2 id="spbwc-design-activity-title" class="spbwc-section__title">
+                <span class="dashicons dashicons-art" aria-hidden="true"></span>
+                <?php esc_html_e( 'Customer design activity', 'storelly-product-builder-for-woocommerce' ); ?>
+            </h2>
+            <p class="spbwc-section__subtitle">
+                <?php esc_html_e( 'How buyers are saving, ordering and downloading their custom designs.', 'storelly-product-builder-for-woocommerce' ); ?>
+            </p>
+        </header>
+        <div class="spbwc-stat-grid">
+            <article class="spbwc-stat-card spbwc-stat-card--brand">
+                <div class="spbwc-stat-card__head">
+                    <div class="spbwc-stat-card__icon"><span class="dashicons dashicons-saved" aria-hidden="true"></span></div>
+                    <div class="spbwc-stat-card__label"><?php esc_html_e( 'Saved designs', 'storelly-product-builder-for-woocommerce' ); ?></div>
+                </div>
+                <div class="spbwc-stat-card__value"><?php echo esc_html( number_format_i18n( (int) $spbwc_design_activity['saved_total'] ) ); ?></div>
+                <p class="spbwc-stat-card__hint"><?php esc_html_e( 'Designs buyers have saved to their account for re-ordering later.', 'storelly-product-builder-for-woocommerce' ); ?></p>
+            </article>
+
+            <article class="spbwc-stat-card spbwc-stat-card--success">
+                <div class="spbwc-stat-card__head">
+                    <div class="spbwc-stat-card__icon"><span class="dashicons dashicons-groups" aria-hidden="true"></span></div>
+                    <div class="spbwc-stat-card__label"><?php esc_html_e( 'Buyers saving designs', 'storelly-product-builder-for-woocommerce' ); ?></div>
+                </div>
+                <div class="spbwc-stat-card__value"><?php echo esc_html( number_format_i18n( (int) $spbwc_design_activity['saved_authors'] ) ); ?></div>
+                <p class="spbwc-stat-card__hint"><?php esc_html_e( 'Distinct customers who have saved at least one design.', 'storelly-product-builder-for-woocommerce' ); ?></p>
+            </article>
+
+            <article class="spbwc-stat-card spbwc-stat-card--warning">
+                <div class="spbwc-stat-card__head">
+                    <div class="spbwc-stat-card__icon"><span class="dashicons dashicons-cart" aria-hidden="true"></span></div>
+                    <div class="spbwc-stat-card__label"><?php esc_html_e( 'Custom design orders', 'storelly-product-builder-for-woocommerce' ); ?></div>
+                </div>
+                <div class="spbwc-stat-card__value"><?php echo esc_html( number_format_i18n( (int) $spbwc_design_activity['design_items'] ) ); ?></div>
+                <p class="spbwc-stat-card__hint"><?php esc_html_e( 'Order line items that carry a customer design file.', 'storelly-product-builder-for-woocommerce' ); ?></p>
+                <div class="spbwc-stat-card__footer">
+                    <a class="spbwc-cta-btn" href="<?php echo esc_url( admin_url( 'admin.php?page=' . SPBWC_PB_ORDERS_SLUG ) ); ?>">
+                        <?php esc_html_e( 'View orders', 'storelly-product-builder-for-woocommerce' ); ?>
+                        <span class="dashicons dashicons-arrow-right-alt2" aria-hidden="true"></span>
+                    </a>
+                </div>
+            </article>
+
+            <article class="spbwc-stat-card spbwc-stat-card--accent">
+                <div class="spbwc-stat-card__head">
+                    <div class="spbwc-stat-card__icon"><span class="dashicons dashicons-download" aria-hidden="true"></span></div>
+                    <div class="spbwc-stat-card__label"><?php esc_html_e( 'Preview downloads', 'storelly-product-builder-for-woocommerce' ); ?></div>
+                </div>
+                <div class="spbwc-stat-card__value"><?php echo esc_html( number_format_i18n( (int) $spbwc_design_activity['preview_dls'] ) ); ?></div>
+                <p class="spbwc-stat-card__hint"><?php esc_html_e( 'Times buyers downloaded a design preview from My Account.', 'storelly-product-builder-for-woocommerce' ); ?></p>
+            </article>
+        </div>
+    </section>
+    <?php endif; ?>
 
     <!-- ============ Recent activity ============ -->
     <section class="spbwc-section" aria-labelledby="spbwc-activity-title">

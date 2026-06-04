@@ -1,0 +1,2216 @@
+{
+    "version": 1,
+    "slug": "bag",
+    "product": {
+        "name": "Bag customizable",
+        "regular_price": "99.9",
+        "description": "Our vision has always been to create a product customizer for woocommerce that is flexible enough to work with any product, customizable enough to be modified or adapted and modulable enough to switch features as needed.\r\n\r\n<a class=\"button nbd-button\" href=\"https://nbdesigner.cmsmart.net/wp-content/uploads/nbdesigner/download/smaple-data/bag-builder.json\" download=\"\">Download print option</a>",
+        "short": "",
+        "thumb": 329
+    },
+    "option_set": {
+        "title": "BAG",
+        "fields": {
+            "version": "1.3.0",
+            "title": "BAG",
+            "display_mode": "sections",
+            "quantity_enable": "on",
+            "quantity_type": "r",
+            "quantity_min": "1",
+            "quantity_max": "100",
+            "quantity_step": "1",
+            "quantity_discount_type": "p",
+            "quantity_breaks": [
+                {
+                    "val": "1",
+                    "dis": "",
+                    "default": ""
+                },
+                {
+                    "val": "5",
+                    "dis": "5",
+                    "default": ""
+                },
+                {
+                    "val": "10",
+                    "dis": "10",
+                    "default": ""
+                }
+            ],
+            "design_output": {
+                "dpi": 300,
+                "dimension_unit": "px"
+            },
+            "views": [
+                {
+                    "name": "Front",
+                    "base": "327",
+                    "base_width": "1000",
+                    "base_height": "1000"
+                },
+                {
+                    "name": "Top",
+                    "base": "328",
+                    "base_width": "1000",
+                    "base_height": "1000"
+                },
+                {
+                    "name": "Inside",
+                    "base": "289",
+                    "base_width": "1000",
+                    "base_height": "1000"
+                }
+            ],
+            "fields": [
+                {
+                    "id": "f1552473367489",
+                    "general": {
+                        "title": "HANDLES",
+                        "description": "",
+                        "data_type": "m",
+                        "input_type": "t",
+                        "input_option": {
+                            "min": "1",
+                            "max": "100",
+                            "step": "1",
+                            "default": "1"
+                        },
+                        "text_option": {
+                            "min": "0",
+                            "max": "999"
+                        },
+                        "upload_option": {
+                            "min_size": "0",
+                            "max_size": "256",
+                            "allow_type": "png,jpg,jpeg"
+                        },
+                        "enabled": "y",
+                        "published": "y",
+                        "required": "n",
+                        "price_type": "f",
+                        "price": "",
+                        "attributes": {
+                            "options": [
+                                {
+                                    "name": "Leather",
+                                    "des": "",
+                                    "price": [
+                                        "0.2"
+                                    ],
+                                    "preview_type": "i",
+                                    "image": "135",
+                                    "color": "#ffffff",
+                                    "enable_subattr": "on",
+                                    "sattr_display_type": "s",
+                                    "sub_attributes": [
+                                        {
+                                            "name": "Black",
+                                            "des": "",
+                                            "price": [
+                                                "0.3"
+                                            ],
+                                            "preview_type": "i",
+                                            "image": "130",
+                                            "color": "#ffffff"
+                                        },
+                                        {
+                                            "name": "Grey",
+                                            "des": "",
+                                            "price": [
+                                                "0.4"
+                                            ],
+                                            "preview_type": "i",
+                                            "image": "131",
+                                            "color": "#ffffff"
+                                        },
+                                        {
+                                            "name": "Dark Blue",
+                                            "des": "",
+                                            "price": [
+                                                "0.5"
+                                            ],
+                                            "preview_type": "i",
+                                            "image": "132",
+                                            "color": "#ffffff"
+                                        },
+                                        {
+                                            "name": "Royal Blue",
+                                            "des": "",
+                                            "price": [
+                                                "0.6"
+                                            ],
+                                            "preview_type": "i",
+                                            "image": "133",
+                                            "color": "#ffffff"
+                                        },
+                                        {
+                                            "name": "Light Blue",
+                                            "des": "",
+                                            "price": [
+                                                "0.7"
+                                            ],
+                                            "preview_type": "i",
+                                            "image": "134",
+                                            "color": "#ffffff"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "name": "Cotton",
+                                    "des": "",
+                                    "price": [
+                                        "0.1"
+                                    ],
+                                    "preview_type": "i",
+                                    "image": "135",
+                                    "color": "#ffffff",
+                                    "enable_subattr": "on",
+                                    "sattr_display_type": "s",
+                                    "sub_attributes": [
+                                        {
+                                            "name": "Tropical",
+                                            "des": "",
+                                            "price": [
+                                                ""
+                                            ],
+                                            "preview_type": "i",
+                                            "image": "136",
+                                            "color": "#ffffff"
+                                        },
+                                        {
+                                            "name": "Flowers",
+                                            "des": "",
+                                            "price": [
+                                                ""
+                                            ],
+                                            "preview_type": "i",
+                                            "image": "137",
+                                            "color": "#ffffff"
+                                        },
+                                        {
+                                            "name": "Black Lines",
+                                            "des": "",
+                                            "price": [
+                                                ""
+                                            ],
+                                            "preview_type": "i",
+                                            "image": "138",
+                                            "color": "#ffffff"
+                                        },
+                                        {
+                                            "name": "Yellow Lines",
+                                            "des": "",
+                                            "price": [
+                                                ""
+                                            ],
+                                            "preview_type": "i",
+                                            "image": "139",
+                                            "color": "#ffffff"
+                                        },
+                                        {
+                                            "name": "Grey Rafters",
+                                            "des": "",
+                                            "price": [
+                                                ""
+                                            ],
+                                            "preview_type": "i",
+                                            "image": "140",
+                                            "color": "#ffffff"
+                                        }
+                                    ]
+                                }
+                            ]
+                        },
+                        "component_icon": "171",
+                        "pb_config": [
+                            [
+                                {
+                                    "views": [
+                                        {
+                                            "image": "141"
+                                        },
+                                        {
+                                            "image": "142"
+                                        },
+                                        {
+                                            "image": "143"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "views": [
+                                        {
+                                            "image": "144"
+                                        },
+                                        {
+                                            "image": "145"
+                                        },
+                                        {
+                                            "image": "146"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "views": [
+                                        {
+                                            "image": "147"
+                                        },
+                                        {
+                                            "image": "148"
+                                        },
+                                        {
+                                            "image": "149"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "views": [
+                                        {
+                                            "image": "150"
+                                        },
+                                        {
+                                            "image": "151"
+                                        },
+                                        {
+                                            "image": "152"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "views": [
+                                        {
+                                            "image": "153"
+                                        },
+                                        {
+                                            "image": "154"
+                                        },
+                                        {
+                                            "image": "155"
+                                        }
+                                    ]
+                                }
+                            ],
+                            [
+                                {
+                                    "views": [
+                                        {
+                                            "image": "156"
+                                        },
+                                        {
+                                            "image": "157"
+                                        },
+                                        {
+                                            "image": "158"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "views": [
+                                        {
+                                            "image": "159"
+                                        },
+                                        {
+                                            "image": "160"
+                                        },
+                                        {
+                                            "image": "161"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "views": [
+                                        {
+                                            "image": "162"
+                                        },
+                                        {
+                                            "image": "163"
+                                        },
+                                        {
+                                            "image": "164"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "views": [
+                                        {
+                                            "image": "165"
+                                        },
+                                        {
+                                            "image": "166"
+                                        },
+                                        {
+                                            "image": "167"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "views": [
+                                        {
+                                            "image": "168"
+                                        },
+                                        {
+                                            "image": "169"
+                                        },
+                                        {
+                                            "image": "170"
+                                        }
+                                    ]
+                                }
+                            ]
+                        ]
+                    },
+                    "appearance": {
+                        "display_type": "s",
+                        "change_image_product": "n",
+                        "css_class": "",
+                        "show_in_options": "y"
+                    },
+                    "nbpb_type": "nbpb_com"
+                },
+                {
+                    "id": "f1552473873187",
+                    "general": {
+                        "title": "SIDE PANELS",
+                        "description": "",
+                        "data_type": "m",
+                        "input_type": "t",
+                        "input_option": {
+                            "min": "1",
+                            "max": "100",
+                            "step": "1",
+                            "default": "1"
+                        },
+                        "text_option": {
+                            "min": "0",
+                            "max": "999"
+                        },
+                        "upload_option": {
+                            "min_size": "0",
+                            "max_size": "256",
+                            "allow_type": "png,jpg,jpeg"
+                        },
+                        "enabled": "y",
+                        "published": "y",
+                        "required": "n",
+                        "price_type": "f",
+                        "price": "",
+                        "attributes": {
+                            "options": [
+                                {
+                                    "name": "Leather",
+                                    "des": "",
+                                    "price": [
+                                        ""
+                                    ],
+                                    "preview_type": "i",
+                                    "image": "135",
+                                    "color": "#ffffff",
+                                    "enable_subattr": "on",
+                                    "sattr_display_type": "s",
+                                    "sub_attributes": [
+                                        {
+                                            "name": "Black",
+                                            "des": "",
+                                            "price": [
+                                                ""
+                                            ],
+                                            "preview_type": "i",
+                                            "image": "130",
+                                            "color": "#ffffff"
+                                        },
+                                        {
+                                            "name": "Grey",
+                                            "des": "",
+                                            "price": [
+                                                ""
+                                            ],
+                                            "preview_type": "i",
+                                            "image": "131",
+                                            "color": "#ffffff"
+                                        },
+                                        {
+                                            "name": "Dark Blue",
+                                            "des": "",
+                                            "price": [
+                                                ""
+                                            ],
+                                            "preview_type": "i",
+                                            "image": "132",
+                                            "color": "#ffffff"
+                                        },
+                                        {
+                                            "name": "Blue",
+                                            "des": "",
+                                            "price": [
+                                                ""
+                                            ],
+                                            "preview_type": "i",
+                                            "image": "133",
+                                            "color": "#ffffff"
+                                        },
+                                        {
+                                            "name": "Turquoise",
+                                            "des": "",
+                                            "price": [
+                                                ""
+                                            ],
+                                            "preview_type": "i",
+                                            "image": "202",
+                                            "color": "#ffffff"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "name": "Cotton",
+                                    "des": "",
+                                    "price": [
+                                        ""
+                                    ],
+                                    "preview_type": "i",
+                                    "image": "135",
+                                    "color": "#ffffff",
+                                    "enable_subattr": "on",
+                                    "sattr_display_type": "s",
+                                    "sub_attributes": [
+                                        {
+                                            "name": "Tropical",
+                                            "des": "",
+                                            "price": [
+                                                ""
+                                            ],
+                                            "preview_type": "i",
+                                            "image": "136",
+                                            "color": "#ffffff"
+                                        },
+                                        {
+                                            "name": "Flowers",
+                                            "des": "",
+                                            "price": [
+                                                ""
+                                            ],
+                                            "preview_type": "i",
+                                            "image": "137",
+                                            "color": "#ffffff"
+                                        },
+                                        {
+                                            "name": "Black Lines",
+                                            "des": "",
+                                            "price": [
+                                                ""
+                                            ],
+                                            "preview_type": "i",
+                                            "image": "138",
+                                            "color": "#ffffff"
+                                        },
+                                        {
+                                            "name": "Yellow Lines",
+                                            "des": "",
+                                            "price": [
+                                                ""
+                                            ],
+                                            "preview_type": "i",
+                                            "image": "139",
+                                            "color": "#ffffff"
+                                        },
+                                        {
+                                            "name": "Grey Rafters",
+                                            "des": "",
+                                            "price": [
+                                                ""
+                                            ],
+                                            "preview_type": "i",
+                                            "image": "140",
+                                            "color": "#ffffff"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "name": "Suede",
+                                    "des": "",
+                                    "price": [
+                                        ""
+                                    ],
+                                    "preview_type": "i",
+                                    "image": "135",
+                                    "color": "#ffffff",
+                                    "enable_subattr": "on",
+                                    "sattr_display_type": "s",
+                                    "sub_attributes": [
+                                        {
+                                            "name": "Black",
+                                            "des": "",
+                                            "price": [
+                                                ""
+                                            ],
+                                            "preview_type": "i",
+                                            "image": "130",
+                                            "color": "#ffffff"
+                                        },
+                                        {
+                                            "name": "Light Grey",
+                                            "des": "",
+                                            "price": [
+                                                ""
+                                            ],
+                                            "preview_type": "i",
+                                            "image": "203",
+                                            "color": "#ffffff"
+                                        },
+                                        {
+                                            "name": "Beige",
+                                            "des": "",
+                                            "price": [
+                                                ""
+                                            ],
+                                            "preview_type": "i",
+                                            "image": "204",
+                                            "color": "#ffffff"
+                                        },
+                                        {
+                                            "name": "Brun fonce",
+                                            "des": "",
+                                            "price": [
+                                                ""
+                                            ],
+                                            "preview_type": "i",
+                                            "image": "205",
+                                            "color": "#ffffff"
+                                        },
+                                        {
+                                            "name": "Wine red",
+                                            "des": "",
+                                            "price": [
+                                                ""
+                                            ],
+                                            "preview_type": "i",
+                                            "image": "206",
+                                            "color": "#ffffff"
+                                        }
+                                    ]
+                                }
+                            ]
+                        },
+                        "component_icon": "222",
+                        "pb_config": [
+                            [
+                                {
+                                    "views": [
+                                        {
+                                            "image": "207"
+                                        },
+                                        {
+                                            "image": "135"
+                                        },
+                                        {
+                                            "image": "135"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "views": [
+                                        {
+                                            "image": "208"
+                                        },
+                                        {
+                                            "image": "135"
+                                        },
+                                        {
+                                            "image": "135"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "views": [
+                                        {
+                                            "image": "209"
+                                        },
+                                        {
+                                            "image": "135"
+                                        },
+                                        {
+                                            "image": "135"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "views": [
+                                        {
+                                            "image": "210"
+                                        },
+                                        {
+                                            "image": "135"
+                                        },
+                                        {
+                                            "image": "135"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "views": [
+                                        {
+                                            "image": "211"
+                                        },
+                                        {
+                                            "image": "135"
+                                        },
+                                        {
+                                            "image": "135"
+                                        }
+                                    ]
+                                }
+                            ],
+                            [
+                                {
+                                    "views": [
+                                        {
+                                            "image": "212"
+                                        },
+                                        {
+                                            "image": "135"
+                                        },
+                                        {
+                                            "image": "135"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "views": [
+                                        {
+                                            "image": "213"
+                                        },
+                                        {
+                                            "image": "135"
+                                        },
+                                        {
+                                            "image": "135"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "views": [
+                                        {
+                                            "image": "214"
+                                        },
+                                        {
+                                            "image": "135"
+                                        },
+                                        {
+                                            "image": "135"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "views": [
+                                        {
+                                            "image": "215"
+                                        },
+                                        {
+                                            "image": "135"
+                                        },
+                                        {
+                                            "image": "135"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "views": [
+                                        {
+                                            "image": "216"
+                                        },
+                                        {
+                                            "image": "135"
+                                        },
+                                        {
+                                            "image": "135"
+                                        }
+                                    ]
+                                }
+                            ],
+                            [
+                                {
+                                    "views": [
+                                        {
+                                            "image": "217"
+                                        },
+                                        {
+                                            "image": "135"
+                                        },
+                                        {
+                                            "image": "135"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "views": [
+                                        {
+                                            "image": "218"
+                                        },
+                                        {
+                                            "image": "135"
+                                        },
+                                        {
+                                            "image": "135"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "views": [
+                                        {
+                                            "image": "219"
+                                        },
+                                        {
+                                            "image": "135"
+                                        },
+                                        {
+                                            "image": "135"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "views": [
+                                        {
+                                            "image": "220"
+                                        },
+                                        {
+                                            "image": "135"
+                                        },
+                                        {
+                                            "image": "135"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "views": [
+                                        {
+                                            "image": "221"
+                                        },
+                                        {
+                                            "image": "135"
+                                        },
+                                        {
+                                            "image": "135"
+                                        }
+                                    ]
+                                }
+                            ]
+                        ]
+                    },
+                    "appearance": {
+                        "display_type": "s",
+                        "change_image_product": "n",
+                        "css_class": "",
+                        "show_in_options": "y"
+                    },
+                    "nbpb_type": "nbpb_com"
+                },
+                {
+                    "id": "f1552474541072",
+                    "general": {
+                        "title": "MIDDLE BLOCK",
+                        "description": "",
+                        "data_type": "m",
+                        "input_type": "t",
+                        "input_option": {
+                            "min": "1",
+                            "max": "100",
+                            "step": "1",
+                            "default": "1"
+                        },
+                        "text_option": {
+                            "min": "0",
+                            "max": "999"
+                        },
+                        "upload_option": {
+                            "min_size": "0",
+                            "max_size": "256",
+                            "allow_type": "png,jpg,jpeg"
+                        },
+                        "enabled": "y",
+                        "published": "y",
+                        "required": "n",
+                        "price_type": "f",
+                        "price": "",
+                        "attributes": {
+                            "options": [
+                                {
+                                    "name": "Leather",
+                                    "des": "",
+                                    "price": [
+                                        ""
+                                    ],
+                                    "preview_type": "i",
+                                    "image": "135",
+                                    "color": "#ffffff",
+                                    "enable_subattr": "on",
+                                    "sattr_display_type": "s",
+                                    "sub_attributes": [
+                                        {
+                                            "name": "Black",
+                                            "des": "",
+                                            "price": [
+                                                ""
+                                            ],
+                                            "preview_type": "i",
+                                            "image": "130",
+                                            "color": "#ffffff"
+                                        },
+                                        {
+                                            "name": "Blue",
+                                            "des": "",
+                                            "price": [
+                                                ""
+                                            ],
+                                            "preview_type": "i",
+                                            "image": "133",
+                                            "color": "#ffffff"
+                                        },
+                                        {
+                                            "name": "Dark blue",
+                                            "des": "",
+                                            "price": [
+                                                ""
+                                            ],
+                                            "preview_type": "i",
+                                            "image": "132",
+                                            "color": "#ffffff"
+                                        },
+                                        {
+                                            "name": "Grey",
+                                            "des": "",
+                                            "price": [
+                                                ""
+                                            ],
+                                            "preview_type": "i",
+                                            "image": "131",
+                                            "color": "#ffffff"
+                                        },
+                                        {
+                                            "name": "Turquoise",
+                                            "des": "",
+                                            "price": [
+                                                ""
+                                            ],
+                                            "preview_type": "i",
+                                            "image": "202",
+                                            "color": "#ffffff"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "name": "Cotton",
+                                    "des": "",
+                                    "price": [
+                                        ""
+                                    ],
+                                    "preview_type": "i",
+                                    "image": "135",
+                                    "color": "#ffffff",
+                                    "enable_subattr": "on",
+                                    "sattr_display_type": "s",
+                                    "sub_attributes": [
+                                        {
+                                            "name": "Tropical",
+                                            "des": "",
+                                            "price": [
+                                                ""
+                                            ],
+                                            "preview_type": "i",
+                                            "image": "136",
+                                            "color": "#ffffff"
+                                        },
+                                        {
+                                            "name": "Flowers",
+                                            "des": "",
+                                            "price": [
+                                                ""
+                                            ],
+                                            "preview_type": "i",
+                                            "image": "137",
+                                            "color": "#ffffff"
+                                        },
+                                        {
+                                            "name": "Black Lines",
+                                            "des": "",
+                                            "price": [
+                                                ""
+                                            ],
+                                            "preview_type": "i",
+                                            "image": "138",
+                                            "color": "#ffffff"
+                                        },
+                                        {
+                                            "name": "Yellow Lines",
+                                            "des": "",
+                                            "price": [
+                                                ""
+                                            ],
+                                            "preview_type": "i",
+                                            "image": "139",
+                                            "color": "#ffffff"
+                                        },
+                                        {
+                                            "name": "Grey Rafters",
+                                            "des": "",
+                                            "price": [
+                                                ""
+                                            ],
+                                            "preview_type": "i",
+                                            "image": "140",
+                                            "color": "#ffffff"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "name": "Suede",
+                                    "des": "",
+                                    "price": [
+                                        ""
+                                    ],
+                                    "preview_type": "i",
+                                    "image": "135",
+                                    "color": "#ffffff",
+                                    "enable_subattr": "on",
+                                    "sattr_display_type": "s",
+                                    "sub_attributes": [
+                                        {
+                                            "name": "Black",
+                                            "des": "",
+                                            "price": [
+                                                ""
+                                            ],
+                                            "preview_type": "i",
+                                            "image": "130",
+                                            "color": "#ffffff"
+                                        },
+                                        {
+                                            "name": "Light Grey",
+                                            "des": "",
+                                            "price": [
+                                                ""
+                                            ],
+                                            "preview_type": "i",
+                                            "image": "203",
+                                            "color": "#ffffff"
+                                        },
+                                        {
+                                            "name": "Beige",
+                                            "des": "",
+                                            "price": [
+                                                ""
+                                            ],
+                                            "preview_type": "i",
+                                            "image": "204",
+                                            "color": "#ffffff"
+                                        },
+                                        {
+                                            "name": "Brown",
+                                            "des": "",
+                                            "price": [
+                                                ""
+                                            ],
+                                            "preview_type": "i",
+                                            "image": "205",
+                                            "color": "#ffffff"
+                                        },
+                                        {
+                                            "name": "Wine Red",
+                                            "des": "",
+                                            "price": [
+                                                ""
+                                            ],
+                                            "preview_type": "i",
+                                            "image": "206",
+                                            "color": "#ffffff"
+                                        }
+                                    ]
+                                }
+                            ]
+                        },
+                        "component_icon": "253",
+                        "pb_config": [
+                            [
+                                {
+                                    "views": [
+                                        {
+                                            "image": "238"
+                                        },
+                                        {
+                                            "image": "135"
+                                        },
+                                        {
+                                            "image": "135"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "views": [
+                                        {
+                                            "image": "239"
+                                        },
+                                        {
+                                            "image": "135"
+                                        },
+                                        {
+                                            "image": "135"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "views": [
+                                        {
+                                            "image": "240"
+                                        },
+                                        {
+                                            "image": "135"
+                                        },
+                                        {
+                                            "image": "135"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "views": [
+                                        {
+                                            "image": "241"
+                                        },
+                                        {
+                                            "image": "135"
+                                        },
+                                        {
+                                            "image": "135"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "views": [
+                                        {
+                                            "image": "242"
+                                        },
+                                        {
+                                            "image": "135"
+                                        },
+                                        {
+                                            "image": "135"
+                                        }
+                                    ]
+                                }
+                            ],
+                            [
+                                {
+                                    "views": [
+                                        {
+                                            "image": "243"
+                                        },
+                                        {
+                                            "image": "135"
+                                        },
+                                        {
+                                            "image": "135"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "views": [
+                                        {
+                                            "image": "244"
+                                        },
+                                        {
+                                            "image": "135"
+                                        },
+                                        {
+                                            "image": "135"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "views": [
+                                        {
+                                            "image": "245"
+                                        },
+                                        {
+                                            "image": "135"
+                                        },
+                                        {
+                                            "image": "135"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "views": [
+                                        {
+                                            "image": "246"
+                                        },
+                                        {
+                                            "image": "135"
+                                        },
+                                        {
+                                            "image": "135"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "views": [
+                                        {
+                                            "image": "247"
+                                        },
+                                        {
+                                            "image": "135"
+                                        },
+                                        {
+                                            "image": "135"
+                                        }
+                                    ]
+                                }
+                            ],
+                            [
+                                {
+                                    "views": [
+                                        {
+                                            "image": "248"
+                                        },
+                                        {
+                                            "image": "135"
+                                        },
+                                        {
+                                            "image": "135"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "views": [
+                                        {
+                                            "image": "249"
+                                        },
+                                        {
+                                            "image": "135"
+                                        },
+                                        {
+                                            "image": "135"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "views": [
+                                        {
+                                            "image": "250"
+                                        },
+                                        {
+                                            "image": "135"
+                                        },
+                                        {
+                                            "image": "135"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "views": [
+                                        {
+                                            "image": "251"
+                                        },
+                                        {
+                                            "image": "135"
+                                        },
+                                        {
+                                            "image": "135"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "views": [
+                                        {
+                                            "image": "252"
+                                        },
+                                        {
+                                            "image": "135"
+                                        },
+                                        {
+                                            "image": "135"
+                                        }
+                                    ]
+                                }
+                            ]
+                        ]
+                    },
+                    "appearance": {
+                        "display_type": "s",
+                        "change_image_product": "n",
+                        "css_class": "",
+                        "show_in_options": "y"
+                    },
+                    "nbpb_type": "nbpb_com"
+                },
+                {
+                    "id": "f1552475036073",
+                    "general": {
+                        "title": "INSIDE STORAGE",
+                        "description": "",
+                        "data_type": "m",
+                        "input_type": "t",
+                        "input_option": {
+                            "min": "1",
+                            "max": "100",
+                            "step": "1",
+                            "default": "1"
+                        },
+                        "text_option": {
+                            "min": "0",
+                            "max": "999"
+                        },
+                        "upload_option": {
+                            "min_size": "0",
+                            "max_size": "256",
+                            "allow_type": "png,jpg,jpeg"
+                        },
+                        "enabled": "y",
+                        "published": "y",
+                        "required": "n",
+                        "price_type": "f",
+                        "price": "",
+                        "attributes": {
+                            "options": [
+                                {
+                                    "name": "Standard",
+                                    "des": "",
+                                    "price": [
+                                        ""
+                                    ],
+                                    "preview_type": "i",
+                                    "image": "135",
+                                    "color": "#ffffff",
+                                    "enable_subattr": "on",
+                                    "sattr_display_type": "s",
+                                    "sub_attributes": [
+                                        {
+                                            "name": "Cream",
+                                            "des": "",
+                                            "price": [
+                                                ""
+                                            ],
+                                            "preview_type": "i",
+                                            "image": "269",
+                                            "color": "#ffffff"
+                                        },
+                                        {
+                                            "name": "Black",
+                                            "des": "",
+                                            "price": [
+                                                ""
+                                            ],
+                                            "preview_type": "i",
+                                            "image": "270",
+                                            "color": "#ffffff"
+                                        },
+                                        {
+                                            "name": "Navy",
+                                            "des": "",
+                                            "price": [
+                                                ""
+                                            ],
+                                            "preview_type": "i",
+                                            "image": "271",
+                                            "color": "#ffffff"
+                                        },
+                                        {
+                                            "name": "Red",
+                                            "des": "",
+                                            "price": [
+                                                ""
+                                            ],
+                                            "preview_type": "i",
+                                            "image": "272",
+                                            "color": "#ffffff"
+                                        },
+                                        {
+                                            "name": "Pink",
+                                            "des": "",
+                                            "price": [
+                                                ""
+                                            ],
+                                            "preview_type": "i",
+                                            "image": "273",
+                                            "color": "#ffffff"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "name": "Computer",
+                                    "des": "",
+                                    "price": [
+                                        ""
+                                    ],
+                                    "preview_type": "i",
+                                    "image": "135",
+                                    "color": "#ffffff",
+                                    "enable_subattr": "on",
+                                    "sattr_display_type": "s",
+                                    "sub_attributes": [
+                                        {
+                                            "name": "Cream",
+                                            "des": "",
+                                            "price": [
+                                                ""
+                                            ],
+                                            "preview_type": "i",
+                                            "image": "269",
+                                            "color": "#ffffff"
+                                        },
+                                        {
+                                            "name": "Black",
+                                            "des": "",
+                                            "price": [
+                                                ""
+                                            ],
+                                            "preview_type": "i",
+                                            "image": "270",
+                                            "color": "#ffffff"
+                                        },
+                                        {
+                                            "name": "Navy",
+                                            "des": "",
+                                            "price": [
+                                                ""
+                                            ],
+                                            "preview_type": "i",
+                                            "image": "271",
+                                            "color": "#ffffff"
+                                        },
+                                        {
+                                            "name": "Red",
+                                            "des": "",
+                                            "price": [
+                                                ""
+                                            ],
+                                            "preview_type": "i",
+                                            "image": "272",
+                                            "color": "#ffffff"
+                                        },
+                                        {
+                                            "name": "Pink",
+                                            "des": "",
+                                            "price": [
+                                                ""
+                                            ],
+                                            "preview_type": "i",
+                                            "image": "273",
+                                            "color": "#ffffff"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "name": "Diaper",
+                                    "des": "",
+                                    "price": [
+                                        ""
+                                    ],
+                                    "preview_type": "i",
+                                    "image": "135",
+                                    "color": "#ffffff",
+                                    "enable_subattr": "on",
+                                    "sattr_display_type": "s",
+                                    "sub_attributes": [
+                                        {
+                                            "name": "Cream",
+                                            "des": "",
+                                            "price": [
+                                                ""
+                                            ],
+                                            "preview_type": "i",
+                                            "image": "269",
+                                            "color": "#ffffff"
+                                        },
+                                        {
+                                            "name": "Black",
+                                            "des": "",
+                                            "price": [
+                                                ""
+                                            ],
+                                            "preview_type": "i",
+                                            "image": "270",
+                                            "color": "#ffffff"
+                                        },
+                                        {
+                                            "name": "Navy",
+                                            "des": "",
+                                            "price": [
+                                                ""
+                                            ],
+                                            "preview_type": "i",
+                                            "image": "271",
+                                            "color": "#ffffff"
+                                        },
+                                        {
+                                            "name": "Red",
+                                            "des": "",
+                                            "price": [
+                                                ""
+                                            ],
+                                            "preview_type": "i",
+                                            "image": "272",
+                                            "color": "#ffffff"
+                                        },
+                                        {
+                                            "name": "Pink",
+                                            "des": "",
+                                            "price": [
+                                                ""
+                                            ],
+                                            "preview_type": "i",
+                                            "image": "273",
+                                            "color": "#ffffff"
+                                        }
+                                    ]
+                                }
+                            ]
+                        },
+                        "component_icon": "289",
+                        "pb_config": [
+                            [
+                                {
+                                    "views": [
+                                        {
+                                            "image": "135"
+                                        },
+                                        {
+                                            "image": "135"
+                                        },
+                                        {
+                                            "image": "274"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "views": [
+                                        {
+                                            "image": "135"
+                                        },
+                                        {
+                                            "image": "135"
+                                        },
+                                        {
+                                            "image": "275"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "views": [
+                                        {
+                                            "image": "135"
+                                        },
+                                        {
+                                            "image": "135"
+                                        },
+                                        {
+                                            "image": "276"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "views": [
+                                        {
+                                            "image": "135"
+                                        },
+                                        {
+                                            "image": "135"
+                                        },
+                                        {
+                                            "image": "287"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "views": [
+                                        {
+                                            "image": "135"
+                                        },
+                                        {
+                                            "image": "135"
+                                        },
+                                        {
+                                            "image": "278"
+                                        }
+                                    ]
+                                }
+                            ],
+                            [
+                                {
+                                    "views": [
+                                        {
+                                            "image": "135"
+                                        },
+                                        {
+                                            "image": "135"
+                                        },
+                                        {
+                                            "image": "279"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "views": [
+                                        {
+                                            "image": "135"
+                                        },
+                                        {
+                                            "image": "135"
+                                        },
+                                        {
+                                            "image": "280"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "views": [
+                                        {
+                                            "image": "135"
+                                        },
+                                        {
+                                            "image": "135"
+                                        },
+                                        {
+                                            "image": "375"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "views": [
+                                        {
+                                            "image": "135"
+                                        },
+                                        {
+                                            "image": "135"
+                                        },
+                                        {
+                                            "image": "287"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "views": [
+                                        {
+                                            "image": "135"
+                                        },
+                                        {
+                                            "image": "135"
+                                        },
+                                        {
+                                            "image": "283"
+                                        }
+                                    ]
+                                }
+                            ],
+                            [
+                                {
+                                    "views": [
+                                        {
+                                            "image": "135"
+                                        },
+                                        {
+                                            "image": "135"
+                                        },
+                                        {
+                                            "image": "284"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "views": [
+                                        {
+                                            "image": "135"
+                                        },
+                                        {
+                                            "image": "135"
+                                        },
+                                        {
+                                            "image": "285"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "views": [
+                                        {
+                                            "image": "135"
+                                        },
+                                        {
+                                            "image": "135"
+                                        },
+                                        {
+                                            "image": "286"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "views": [
+                                        {
+                                            "image": "135"
+                                        },
+                                        {
+                                            "image": "135"
+                                        },
+                                        {
+                                            "image": "287"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "views": [
+                                        {
+                                            "image": "135"
+                                        },
+                                        {
+                                            "image": "135"
+                                        },
+                                        {
+                                            "image": "288"
+                                        }
+                                    ]
+                                }
+                            ]
+                        ]
+                    },
+                    "appearance": {
+                        "display_type": "s",
+                        "change_image_product": "n",
+                        "css_class": "",
+                        "show_in_options": "y"
+                    },
+                    "nbpb_type": "nbpb_com"
+                },
+                {
+                    "id": "f1552475607217",
+                    "general": {
+                        "title": "STRAP FABRIC",
+                        "description": "",
+                        "data_type": "m",
+                        "input_type": "t",
+                        "input_option": {
+                            "min": "1",
+                            "max": "100",
+                            "step": "1",
+                            "default": "1"
+                        },
+                        "text_option": {
+                            "min": "0",
+                            "max": "999"
+                        },
+                        "upload_option": {
+                            "min_size": "0",
+                            "max_size": "256",
+                            "allow_type": "png,jpg,jpeg"
+                        },
+                        "enabled": "y",
+                        "published": "y",
+                        "required": "n",
+                        "price_type": "f",
+                        "price": "",
+                        "attributes": {
+                            "options": [
+                                {
+                                    "name": "No Strap",
+                                    "des": "",
+                                    "price": [
+                                        ""
+                                    ],
+                                    "preview_type": "i",
+                                    "image": "305",
+                                    "color": "#ffffff",
+                                    "enable_subattr": "off",
+                                    "sattr_display_type": "s",
+                                    "sub_attributes": []
+                                },
+                                {
+                                    "name": "Leather",
+                                    "des": "",
+                                    "price": [
+                                        ""
+                                    ],
+                                    "preview_type": "i",
+                                    "image": "0",
+                                    "color": "#ffffff",
+                                    "enable_subattr": "on",
+                                    "sattr_display_type": "s",
+                                    "sub_attributes": [
+                                        {
+                                            "name": "Black",
+                                            "des": "",
+                                            "price": [
+                                                ""
+                                            ],
+                                            "preview_type": "i",
+                                            "image": "130",
+                                            "color": "#ffffff"
+                                        },
+                                        {
+                                            "name": "Grey",
+                                            "des": "",
+                                            "price": [
+                                                ""
+                                            ],
+                                            "preview_type": "i",
+                                            "image": "131",
+                                            "color": "#ffffff"
+                                        },
+                                        {
+                                            "name": "Dark Blue",
+                                            "des": "",
+                                            "price": [
+                                                ""
+                                            ],
+                                            "preview_type": "i",
+                                            "image": "132",
+                                            "color": "#ffffff"
+                                        },
+                                        {
+                                            "name": "Royal Blue",
+                                            "des": "",
+                                            "price": [
+                                                ""
+                                            ],
+                                            "preview_type": "i",
+                                            "image": "133",
+                                            "color": "#ffffff"
+                                        },
+                                        {
+                                            "name": "Light Blue",
+                                            "des": "",
+                                            "price": [
+                                                ""
+                                            ],
+                                            "preview_type": "i",
+                                            "image": "134",
+                                            "color": "#ffffff"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "name": "Cotton",
+                                    "des": "",
+                                    "price": [
+                                        ""
+                                    ],
+                                    "preview_type": "i",
+                                    "image": "0",
+                                    "color": "#ffffff",
+                                    "enable_subattr": "on",
+                                    "sattr_display_type": "s",
+                                    "sub_attributes": [
+                                        {
+                                            "name": "Tropical",
+                                            "des": "",
+                                            "price": [
+                                                ""
+                                            ],
+                                            "preview_type": "i",
+                                            "image": "136",
+                                            "color": "#ffffff"
+                                        },
+                                        {
+                                            "name": "Flowers",
+                                            "des": "",
+                                            "price": [
+                                                ""
+                                            ],
+                                            "preview_type": "i",
+                                            "image": "137",
+                                            "color": "#ffffff"
+                                        },
+                                        {
+                                            "name": "Black Lines",
+                                            "des": "",
+                                            "price": [
+                                                ""
+                                            ],
+                                            "preview_type": "i",
+                                            "image": "138",
+                                            "color": "#ffffff"
+                                        },
+                                        {
+                                            "name": "Yellow Lines",
+                                            "des": "",
+                                            "price": [
+                                                ""
+                                            ],
+                                            "preview_type": "i",
+                                            "image": "139",
+                                            "color": "#ffffff"
+                                        },
+                                        {
+                                            "name": "Grey Rafters",
+                                            "des": "",
+                                            "price": [
+                                                ""
+                                            ],
+                                            "preview_type": "i",
+                                            "image": "140",
+                                            "color": "#ffffff"
+                                        }
+                                    ]
+                                }
+                            ]
+                        },
+                        "component_icon": "316",
+                        "pb_config": [
+                            [
+                                {
+                                    "views": [
+                                        {
+                                            "image": "0"
+                                        },
+                                        {
+                                            "image": "0"
+                                        },
+                                        {
+                                            "image": "0"
+                                        }
+                                    ]
+                                }
+                            ],
+                            [
+                                {
+                                    "views": [
+                                        {
+                                            "image": "306"
+                                        },
+                                        {
+                                            "image": "0"
+                                        },
+                                        {
+                                            "image": "0"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "views": [
+                                        {
+                                            "image": "307"
+                                        },
+                                        {
+                                            "image": "0"
+                                        },
+                                        {
+                                            "image": "0"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "views": [
+                                        {
+                                            "image": "308"
+                                        },
+                                        {
+                                            "image": "0"
+                                        },
+                                        {
+                                            "image": "0"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "views": [
+                                        {
+                                            "image": "309"
+                                        },
+                                        {
+                                            "image": "0"
+                                        },
+                                        {
+                                            "image": "0"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "views": [
+                                        {
+                                            "image": "310"
+                                        },
+                                        {
+                                            "image": "0"
+                                        },
+                                        {
+                                            "image": "0"
+                                        }
+                                    ]
+                                }
+                            ],
+                            [
+                                {
+                                    "views": [
+                                        {
+                                            "image": "311"
+                                        },
+                                        {
+                                            "image": "0"
+                                        },
+                                        {
+                                            "image": "0"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "views": [
+                                        {
+                                            "image": "312"
+                                        },
+                                        {
+                                            "image": "0"
+                                        },
+                                        {
+                                            "image": "0"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "views": [
+                                        {
+                                            "image": "313"
+                                        },
+                                        {
+                                            "image": "0"
+                                        },
+                                        {
+                                            "image": "0"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "views": [
+                                        {
+                                            "image": "314"
+                                        },
+                                        {
+                                            "image": "0"
+                                        },
+                                        {
+                                            "image": "0"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "views": [
+                                        {
+                                            "image": "315"
+                                        },
+                                        {
+                                            "image": "0"
+                                        },
+                                        {
+                                            "image": "0"
+                                        }
+                                    ]
+                                }
+                            ]
+                        ]
+                    },
+                    "appearance": {
+                        "display_type": "s",
+                        "change_image_product": "n",
+                        "css_class": "",
+                        "show_in_options": "y"
+                    },
+                    "nbpb_type": "nbpb_com"
+                },
+                {
+                    "id": "f17799823015001",
+                    "general": {
+                        "title": "Personalisation",
+                        "description": "Make it yours with a monogram or name.",
+                        "data_type": "m",
+                        "input_type": "t",
+                        "input_option": {
+                            "min": "1",
+                            "max": "100",
+                            "step": "1",
+                            "default": "1"
+                        },
+                        "text_option": {
+                            "min": "0",
+                            "max": "999"
+                        },
+                        "placeholder": "",
+                        "upload_option": {
+                            "min_size": "0",
+                            "max_size": "256",
+                            "allow_type": "png,jpg,jpeg"
+                        },
+                        "enabled": "y",
+                        "published": "y",
+                        "required": "n",
+                        "price_type": "f",
+                        "depend_qty": "y",
+                        "depend_quantity": "n",
+                        "price": "",
+                        "price_breaks": [
+                            "",
+                            "",
+                            ""
+                        ],
+                        "attributes": {
+                            "options": [
+                                {
+                                    "name": "None",
+                                    "des": "No personalisation",
+                                    "price": [
+                                        "0"
+                                    ],
+                                    "preview_type": "? string:? string:t ? ?",
+                                    "image": "0",
+                                    "color": "#ffffff"
+                                },
+                                {
+                                    "name": "Monogram initials",
+                                    "des": "Up to 3 letters",
+                                    "price": [
+                                        "15"
+                                    ],
+                                    "preview_type": "? string:? string:t ? ?",
+                                    "image": "0",
+                                    "color": "#ffffff"
+                                },
+                                {
+                                    "name": "Embossed name",
+                                    "des": "Pressed leather name",
+                                    "price": [
+                                        "20"
+                                    ],
+                                    "preview_type": "? string:? string:t ? ?",
+                                    "image": "0",
+                                    "color": "#ffffff"
+                                }
+                            ]
+                        }
+                    },
+                    "appearance": {
+                        "display_type": "s",
+                        "change_image_product": "n",
+                        "css_class": "",
+                        "show_in_options": "n"
+                    }
+                }
+            ],
+            "free_design_tools": {
+                "text": {
+                    "enabled": "y",
+                    "max_layers": 3,
+                    "price_per_layer": 2,
+                    "allow_change_color": "y",
+                    "default_text": "Your name"
+                },
+                "image": {
+                    "enabled": "y",
+                    "max_layers": 2,
+                    "price_per_layer": 5,
+                    "allow_type": "png,jpg,jpeg,svg",
+                    "min_size": 0,
+                    "max_size": 10
+                }
+            }
+        }
+    },
+    "image_ids": [
+        135,
+        130,
+        131,
+        132,
+        133,
+        134,
+        136,
+        137,
+        138,
+        139,
+        140,
+        141,
+        142,
+        143,
+        144,
+        145,
+        146,
+        147,
+        148,
+        149,
+        150,
+        151,
+        152,
+        153,
+        154,
+        155,
+        156,
+        157,
+        158,
+        159,
+        160,
+        161,
+        162,
+        163,
+        164,
+        165,
+        166,
+        167,
+        168,
+        169,
+        170,
+        202,
+        203,
+        204,
+        205,
+        206,
+        207,
+        208,
+        209,
+        210,
+        211,
+        212,
+        213,
+        214,
+        215,
+        216,
+        217,
+        218,
+        219,
+        220,
+        221,
+        238,
+        239,
+        240,
+        241,
+        242,
+        243,
+        244,
+        245,
+        246,
+        247,
+        248,
+        249,
+        250,
+        251,
+        252,
+        269,
+        270,
+        271,
+        272,
+        273,
+        274,
+        275,
+        276,
+        287,
+        278,
+        279,
+        280,
+        375,
+        283,
+        284,
+        285,
+        286,
+        288,
+        305,
+        306,
+        307,
+        308,
+        309,
+        310,
+        311,
+        312,
+        313,
+        314,
+        315,
+        329
+    ]
+}

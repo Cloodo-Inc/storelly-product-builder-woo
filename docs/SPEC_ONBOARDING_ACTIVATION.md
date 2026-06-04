@@ -217,7 +217,7 @@ M7  ✅ DONE  Freemium contextual upsell: SPBWC_Upsell_Notice chỉ hiện trên
             plan + chạm limit (max_products/max_pricing_options), dismiss snooze 30 ngày. Commit 69d5504.
 M8  Compliance: plugin check 0 error + POT regen + readme + version bump
 M9  ⏳ REMEDIATION (2026-06-03) — vá gap audit phát hiện sau khi M1–M7 ship. Xem §8.
-        M9.2/M9.3/M9.4 ✅ DONE + test PASS (2026-06-04). M9.1 ⏸ DEFERRED (chờ chốt xử lý ảnh 15MB).
+        M9.1/M9.2/M9.3/M9.4 ✅ DONE + test PASS (2026-06-04).
 ```
 
 M1–M2 an toàn, đã xong. M4–M5 đụng store thật + mạng → làm cẩn thận, test kỹ.
@@ -231,7 +231,22 @@ yc #9 (My Account endpoint) gài kèm M1 (đăng ký endpoint lúc activate).
 > HPOS-compat, cache-bust, reversibility OK), nhưng **đường vàng "Import demo" mong manh** và
 > **retention (review request) bỏ trống** — đúng 2 thứ mục tiêu yêu cầu. 4 hạng mục dưới đã chốt làm.
 
-### M9.1 — Bundle demo local (fallback cho CTA chủ đạo)  🔴 ưu tiên cao nhất
+### M9.1 — Bundle demo local (fallback cho CTA chủ đạo)  ✅ DONE (2026-06-04)
+> **Chốt:** chỉ bundle **bag** làm sample mặc định (user, 2026-06-04). Ảnh nén WebP ≤700px q80 →
+> 104 ảnh / **2.24 MB** (từ 12.28 MB gốc). Bundle: `storage/printcart/demo/bag.json` (97KB) +
+> `storage/printcart/demo/img/<oldId>.webp`. Generator dev: `tools/_gen-bag-bundle.php`.
+>
+> **Seeder local** `includes/class-demo-seeder.php` (SPBWC_Demo_Seeder): đọc bundle, sideload từng
+> webp **từ file (KHÔNG mạng — offline-thật)**, map oldId→newAttachmentId (ảnh thiếu→0; `free_design_tools.image`
+> là object config nên giữ nguyên), rewrite fields, tạo WC product publish + option-set published + link +
+> tag `_spbwc_is_sample` (cả product lẫn attachment) để Undo gom đúng. Idempotent. AJAX `spbwc_demo_seed`/
+> `spbwc_demo_undo` (nonce+`manage_woocommerce`). Welcome card đổi: chưa seed→"Add demo product" (1-click),
+> đã seed→"View on store" + "Remove demo"; bundle vắng→fallback remote sample cũ.
+> Test `tools/_test-demo-seed.php` PASS (seed→product customizable + designer gating + 103 ảnh resolve →
+> idempotent → undo sạch product/option/attachments). Đã sửa bug nhỏ trong `fetch_demo_rows` không cần —
+> seeder là đường riêng, không đụng remote path.
+
+### (cũ) M9.1 — phân tích ban đầu
 - **Gap:** CTA "Fastest / See it live with demo products" (`views/overview.php:141`) dẫn tới sample
   import, nhưng `fetch_demo_rows()` chỉ `wp_remote_get( DEMO_DATA_URL )`
   (`includes/class-global-import-controller.php:9, ~1049`). KHÔNG có bundled dataset; offline /
