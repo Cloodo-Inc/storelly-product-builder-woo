@@ -2270,34 +2270,71 @@ nbdpbApp.controller("nbpbCtrl", [
         }
       } catch (e) { /* never let UI math break the customizer */ }
     };
-    /* Reset every component to its first option (a_index 0 / sa_index 0) and
-     * clear text + uploaded images. Called from the topbar ↻ icon and the
-     * Summary "Reset all" link. A native confirm() is enough for this MVP —
-     * upgrade to a custom modal if the design system gets one. */
+    /* In-modal Reset confirmation. Replaces the native `window.confirm()`
+     * dialog (modal-blocking, unstyled, jarring). Renders into an inline
+     * `<div class="spbwc-cust-confirm">` declared in wrapper.php (the
+     * permanent host node so the legacy nbdpbCarousel script doesn't
+     * sweep it on init). Returns a thenable so the caller can chain. */
+    $scope.showConfirm = function (msg, opts) {
+      opts = opts || {};
+      var $host = jQuery('.spbwc-cust-v3.nbdpb-show .spbwc-cust-confirm');
+      if (!$host.length) {
+        /* Fallback to native confirm if the host wasn't rendered (older
+         * wrapper template, smoke tests, etc.) — we don't want Reset to
+         * become a no-op. */
+        return Promise.resolve(typeof window !== 'undefined' && window.confirm ? window.confirm(msg) : false);
+      }
+      $host.find('[data-spbwc-confirm-msg]').text(msg);
+      $host.find('[data-spbwc-confirm-yes]').text(opts.yesLabel || 'Reset all');
+      $host.find('[data-spbwc-confirm-no]').text(opts.noLabel || 'Cancel');
+      $host.addClass('is-open').attr('aria-hidden', 'false');
+      try { $host.find('[data-spbwc-confirm-yes]').focus(); } catch (e) {}
+      return new Promise(function (resolve) {
+        var close = function (val) {
+          $host.removeClass('is-open').attr('aria-hidden', 'true');
+          $host.off('click.spbwcConfirm');
+          jQuery(document).off('keydown.spbwcConfirm');
+          resolve(val);
+        };
+        $host.on('click.spbwcConfirm', '[data-spbwc-confirm-yes]', function (e) { e.preventDefault(); close(true); });
+        $host.on('click.spbwcConfirm', '[data-spbwc-confirm-no], [data-spbwc-confirm-backdrop]', function (e) { e.preventDefault(); close(false); });
+        jQuery(document).on('keydown.spbwcConfirm', function (e) {
+          if (e.key === 'Escape') { close(false); }
+        });
+      });
+    };
+    /* Reset every component to its initial-config (the value picked by
+     * `initValues()` from `nbOption.nbd_fields` — NOT a brute `0` which
+     * could land on an unrelated first option) and clear text + uploaded
+     * images. Called from the topbar ↻ icon and the Summary "Reset all"
+     * link. Strategy: clear the persisted build then `window.location.reload()`
+     * — guarantees a clean re-init pass (Fabric canvas + carousel transform +
+     * stage states), where the in-place reset loop suffers from async race
+     * between `fabric.Image.fromURL` callbacks across all 5 components and
+     * leaves the canvas blank. Trade-off: a brief page reload vs an
+     * unreliable in-place reset that may corrupt the canvas. */
     $scope.resetAll = function () {
       var msg = (SPBWC_PB_CONFIG && SPBWC_PB_CONFIG.i18n && SPBWC_PB_CONFIG.i18n.confirm_reset_all)
         || 'Reset all customizations to default?';
-      if (typeof window !== 'undefined' && window.confirm && !window.confirm(msg)) { return; }
-      var prev = $scope.resource.currentComponent;
-      var comps = ($scope.resource && $scope.resource.components) || [];
-      _.each(comps, function (c, idx) {
-        if (!c || !c.enable) return;
-        if (c.nbpb_type === 'nbpb_com' && c.current_pb_configs && c.current_pb_configs.length) {
-          $scope.resource.currentComponent = idx;
-          $scope.selectAttribute(0);
-        } else if (c.nbpb_type === 'nbpb_text') {
-          c.currentContent = '';
-          $scope.resource.currentComponent = idx;
-          if (typeof $scope.updateText === 'function') { $scope.updateText(); }
+      Promise.resolve($scope.showConfirm(msg, {yesLabel: 'Reset all'})).then(function (ok) {
+        if (!ok) { return; }
+        /* Hide any onboarding teach-toast first so it doesn't read as
+         * "leftover from previous interaction" after the reload. */
+        try { jQuery('.spbwc-cust-teachtoast').removeClass('is-visible nbdpb-show'); } catch (e) {}
+        /* Clear the localStorage build so the post-reload restore pass
+         * doesn't immediately re-apply the design we just reset. */
+        if (typeof $scope.clearPersistedDesign === 'function') {
+          $scope.clearPersistedDesign();
         }
+        if (typeof $scope.showToast === 'function') {
+          $scope.showToast('All customizations have been reset.', 'success', 1800);
+        }
+        /* Reload after a short delay so the toast is visible and any
+         * pending Angular digests flush cleanly. */
+        try {
+          setTimeout(function () { window.location.reload(); }, 600);
+        } catch (e) { window.location.reload(); }
       });
-      $scope.resource.uploaded = [];
-      $scope.resource.currentComponent = prev;
-      $scope.refreshSummary();
-      $scope.clearPersistedDesign();
-      if (typeof $scope.showToast === 'function') {
-        $scope.showToast('All customizations have been reset.', 'success', 2400);
-      }
     };
     /* Reset a single component (per-part ↻ link inside each accordion). */
     $scope.resetComponent = function (idx) {

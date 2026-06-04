@@ -786,6 +786,26 @@
         </div>
     </div>
 
+    <!-- In-modal Reset confirmation. Replaces the native window.confirm()
+         dialog (modal-blocking, unstyled, jarring) for the Reset all flow.
+         Lives at the popup root — outside the .nbdpb-carousel subtree —
+         so the legacy carousel script doesn't sweep it on init. Driven by
+         $scope.showConfirm() in app-product-builder.js. -->
+    <div class="spbwc-cust-confirm" role="dialog" aria-modal="true" aria-hidden="true" aria-labelledby="spbwc-cust-confirm-title">
+        <div class="spbwc-cust-confirm__backdrop" data-spbwc-confirm-backdrop></div>
+        <div class="spbwc-cust-confirm__panel" role="document">
+            <div class="spbwc-cust-confirm__icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 3-6.7L3 9"/><path d="M3 3v6h6"/></svg>
+            </div>
+            <h2 class="spbwc-cust-confirm__title" id="spbwc-cust-confirm-title"><?php esc_html_e( 'Start over?', 'storelly-product-builder-for-woocommerce' ); ?></h2>
+            <p class="spbwc-cust-confirm__msg" data-spbwc-confirm-msg><?php esc_html_e( 'Reset all customizations to default?', 'storelly-product-builder-for-woocommerce' ); ?></p>
+            <div class="spbwc-cust-confirm__actions">
+                <button type="button" class="spbwc-cust-confirm__btn spbwc-cust-confirm__btn--secondary" data-spbwc-confirm-no><?php esc_html_e( 'Cancel', 'storelly-product-builder-for-woocommerce' ); ?></button>
+                <button type="button" class="spbwc-cust-confirm__btn spbwc-cust-confirm__btn--danger" data-spbwc-confirm-yes><?php esc_html_e( 'Reset all', 'storelly-product-builder-for-woocommerce' ); ?></button>
+            </div>
+        </div>
+    </div>
+
 </div>
 <?php if( $is_creating_task == 0 ): // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Global variable defined by parent template. ?>
 <!-- Teaching toast (Printcart Canva pattern). Rendered as a sibling of

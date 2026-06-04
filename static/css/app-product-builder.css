@@ -9718,6 +9718,103 @@ span.spbwc-cust-cta__price[data-spbwc-cta-price] {
 }
 .spbwc-cust-summary__trust-item svg { color: var(--spbwc-c-success); flex: 0 0 auto; }
 
+/* In-modal Reset confirmation. Replaces the native window.confirm()
+ * dialog (modal-blocking, unstyled). Renders inside the .nbdpb-popup
+ * but OUTSIDE the .nbdpb-carousel subtree so the legacy carousel script
+ * doesn't sweep it on init. Hidden by default; opened by JS via the
+ * `is-open` class. Driven by $scope.showConfirm() in app-product-builder.js. */
+.spbwc-cust-v3 .spbwc-cust-confirm {
+    position: absolute;
+    inset: 0;
+    z-index: 5;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+}
+.spbwc-cust-v3 .spbwc-cust-confirm.is-open { display: flex; }
+.spbwc-cust-v3 .spbwc-cust-confirm__backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.55);
+    backdrop-filter: blur(2px);
+    -webkit-backdrop-filter: blur(2px);
+}
+.spbwc-cust-v3 .spbwc-cust-confirm__panel {
+    position: relative;
+    width: 100%;
+    max-width: 420px;
+    background: #fff;
+    border-radius: var(--spbwc-c-radius, 12px);
+    padding: 28px 24px 22px;
+    box-shadow: 0 24px 60px -16px rgba(15, 23, 42, 0.35), 0 4px 16px -4px rgba(15, 23, 42, 0.18);
+    text-align: center;
+    animation: spbwcConfirmIn .18s ease-out;
+}
+@keyframes spbwcConfirmIn {
+    from { opacity: 0; transform: translateY(8px) scale(.96); }
+    to   { opacity: 1; transform: translateY(0)    scale(1); }
+}
+.spbwc-cust-v3 .spbwc-cust-confirm__icon {
+    width: 48px;
+    height: 48px;
+    margin: 0 auto 14px;
+    border-radius: 50%;
+    background: var(--spbwc-c-brand-soft, #dbeafe);
+    color: var(--spbwc-c-brand, #2563eb);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.spbwc-cust-v3 .spbwc-cust-confirm__title {
+    margin: 0 0 6px;
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--spbwc-c-ink, #0f172a);
+    line-height: 1.3;
+}
+.spbwc-cust-v3 .spbwc-cust-confirm__msg {
+    margin: 0 0 22px;
+    font-size: 14px;
+    color: var(--spbwc-c-ink-muted, #475569);
+    line-height: 1.5;
+}
+.spbwc-cust-v3 .spbwc-cust-confirm__actions {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+}
+.spbwc-cust-v3 .spbwc-cust-confirm__btn {
+    min-width: 120px;
+    padding: 10px 18px;
+    border-radius: var(--spbwc-c-radius-sm, 8px);
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    border: 1px solid transparent;
+    transition: background .15s ease, border-color .15s ease, color .15s ease;
+}
+.spbwc-cust-v3 .spbwc-cust-confirm__btn:focus-visible {
+    outline: 2px solid var(--spbwc-c-brand, #2563eb);
+    outline-offset: 2px;
+}
+.spbwc-cust-v3 .spbwc-cust-confirm__btn--secondary {
+    background: #fff;
+    border-color: var(--spbwc-c-line, #e2e8f0);
+    color: var(--spbwc-c-ink, #0f172a);
+}
+.spbwc-cust-v3 .spbwc-cust-confirm__btn--secondary:hover {
+    background: var(--spbwc-c-bg-soft, #f4f6f8);
+    border-color: var(--spbwc-c-line-strong, #cbd5e1);
+}
+.spbwc-cust-v3 .spbwc-cust-confirm__btn--danger {
+    background: var(--spbwc-c-danger, #ef4444);
+    color: #fff;
+}
+.spbwc-cust-v3 .spbwc-cust-confirm__btn--danger:hover {
+    background: #dc2626;
+}
+
 /* Teaching toast (Printcart Canva pattern). Floats at bottom-right of
  * the viewport — explains the live-pricing behaviour on first load.
  * Lives as a body-level sibling of the .nbdpb-popup (not inside) because
@@ -10402,4 +10499,106 @@ span.spbwc-cust-cta__price[data-spbwc-cta-price] {
     .spbwc-cust-v3 .spbwc-cust-cta { font-size: 14px; min-height: 56px; }
     .spbwc-cust-v3 .spbwc-cust-cta__label { font-size: 15px !important; }
     .spbwc-cust-v3 .spbwc-cust-cta__price { font-size: 18px !important; }
+}
+
+/* =====================================================================
+ * Free design tools — Text & Images tabs (buyer-added layers).
+ * Shares the customizer token palette (--spbwc-c-*). See
+ * docs/SPEC_CANVAS_TEXT_IMAGE_TABS.md.
+ * ===================================================================== */
+.spbwc-cust-v3 .spbwc-cust-free { display: flex; flex-direction: column; gap: 12px; padding: 14px 16px; }
+.spbwc-cust-v3 .spbwc-cust-addbtn {
+    display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+    width: 100%; padding: 11px 14px; cursor: pointer;
+    font: inherit; font-weight: 600; font-size: 14px;
+    color: #fff; background: var(--spbwc-c-brand);
+    border: 0; border-radius: var(--spbwc-c-radius-sm);
+    transition: background .15s ease;
+}
+.spbwc-cust-v3 .spbwc-cust-addbtn:hover { background: var(--spbwc-c-brand-dark); }
+.spbwc-cust-v3 .spbwc-cust-addbtn[disabled] { opacity: .5; cursor: not-allowed; }
+.spbwc-cust-v3 .spbwc-cust-free__meta {
+    display: flex; flex-wrap: wrap; align-items: center; gap: 6px 12px;
+    font-size: 12px; color: var(--spbwc-c-muted);
+}
+.spbwc-cust-v3 .spbwc-cust-free__fee { color: var(--spbwc-c-brand); font-weight: 600; }
+.spbwc-cust-v3 .spbwc-cust-free__hint { flex: 1 1 100%; }
+
+.spbwc-cust-v3 .spbwc-cust-free__list { display: flex; flex-direction: column; gap: 8px; }
+.spbwc-cust-v3 .spbwc-cust-free__item {
+    border: 1px solid var(--spbwc-c-line);
+    border-radius: var(--spbwc-c-radius-sm);
+    background: var(--spbwc-c-bg);
+    overflow: hidden;
+}
+.spbwc-cust-v3 .spbwc-cust-free__item.is-active { border-color: var(--spbwc-c-brand); box-shadow: 0 0 0 1px var(--spbwc-c-brand-soft); }
+.spbwc-cust-v3 .spbwc-cust-free__item-head {
+    display: flex; align-items: center; gap: 8px;
+    padding: 9px 10px; cursor: pointer;
+}
+.spbwc-cust-v3 .spbwc-cust-free__item-grip { color: var(--spbwc-c-muted); flex: 0 0 auto; display: inline-flex; }
+.spbwc-cust-v3 .spbwc-cust-free__item-title {
+    flex: 1 1 auto; min-width: 0; font-size: 13px; font-weight: 600; color: var(--spbwc-c-ink);
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.spbwc-cust-v3 .spbwc-cust-free__item-price { flex: 0 0 auto; font-size: 12px; font-weight: 600; color: var(--spbwc-c-brand); }
+.spbwc-cust-v3 .spbwc-cust-free__del {
+    flex: 0 0 auto; display: inline-flex; align-items: center; justify-content: center;
+    width: 28px; height: 28px; padding: 0; cursor: pointer;
+    color: var(--spbwc-c-muted); background: transparent; border: 0; border-radius: 6px;
+    transition: color .15s ease, background .15s ease;
+}
+.spbwc-cust-v3 .spbwc-cust-free__del:hover { color: var(--spbwc-c-danger); background: var(--spbwc-c-bg-soft); }
+.spbwc-cust-v3 .spbwc-cust-free__item-body {
+    display: flex; flex-direction: column; gap: 10px;
+    padding: 10px; border-top: 1px solid var(--spbwc-c-line);
+    background: var(--spbwc-c-bg-soft);
+}
+.spbwc-cust-v3 .spbwc-cust-field__color {
+    width: 44px; height: 32px; padding: 2px; cursor: pointer;
+    border: 1px solid var(--spbwc-c-line); border-radius: var(--spbwc-c-radius-sm); background: var(--spbwc-c-bg);
+}
+
+.spbwc-cust-v3 .spbwc-cust-free__thumb {
+    flex: 0 0 auto; width: 40px; height: 40px; border-radius: 6px; overflow: hidden;
+    display: inline-flex; align-items: center; justify-content: center;
+    background: var(--spbwc-c-bg-mute); color: var(--spbwc-c-muted);
+}
+.spbwc-cust-v3 .spbwc-cust-free__thumb img { width: 100%; height: 100%; object-fit: cover; }
+
+.spbwc-cust-v3 .spbwc-cust-free__recent { display: flex; flex-direction: column; gap: 6px; }
+.spbwc-cust-v3 .spbwc-cust-free__recent-label { font-size: 12px; font-weight: 600; color: var(--spbwc-c-muted); }
+.spbwc-cust-v3 .spbwc-cust-free__recent-grid { display: flex; flex-wrap: wrap; gap: 6px; }
+.spbwc-cust-v3 .spbwc-cust-free__recent-grid img {
+    width: 44px; height: 44px; object-fit: cover; cursor: pointer;
+    border: 1px solid var(--spbwc-c-line); border-radius: 6px;
+    transition: border-color .15s ease;
+}
+.spbwc-cust-v3 .spbwc-cust-free__recent-grid img:hover { border-color: var(--spbwc-c-brand); }
+
+.spbwc-cust-v3 .spbwc-cust-free__limit {
+    font-size: 12px; color: var(--spbwc-c-danger);
+    padding: 8px 10px; background: var(--spbwc-c-bg-soft); border-radius: var(--spbwc-c-radius-sm);
+}
+
+/* Layer-count badge on the Text / Images tab buttons. */
+.spbwc-cust-v3 .spbwc-cust-tabbtn { position: relative; }
+.spbwc-cust-v3 .spbwc-cust-tabbtn__badge {
+    position: absolute; top: 6px; right: 8px;
+    min-width: 16px; height: 16px; padding: 0 4px;
+    display: inline-flex; align-items: center; justify-content: center;
+    font-size: 10px; font-weight: 700; line-height: 1;
+    color: #fff; background: var(--spbwc-c-brand);
+    border-radius: 999px;
+}
+/* Quick-pick colour swatches inside a free text layer (reuses .spbwc-cust-color). */
+.spbwc-cust-v3 .spbwc-cust-free__item-body .spbwc-cust-color-row {
+    display: flex; flex-wrap: wrap; align-items: center; gap: 6px;
+}
+.spbwc-cust-v3 .spbwc-cust-free__item-body .spbwc-cust-color {
+    width: 22px; height: 22px; border-radius: 50%; cursor: pointer;
+    box-shadow: inset 0 0 0 1px rgba(0,0,0,.12);
+}
+.spbwc-cust-v3 .spbwc-cust-free__item-body .spbwc-cust-color.is-active {
+    box-shadow: 0 0 0 2px var(--spbwc-c-bg), 0 0 0 4px var(--spbwc-c-brand);
 }

@@ -4,8 +4,8 @@ Donate link: https://storelly.com/
 Tags: product builder, product customize, product customizer, woocommerce custom product
 Requires at least: 4.7
 Tested up to: 7.0
-Stable tag: 1.5.6
-Version: 1.5.6
+Stable tag: 1.5.7
+Version: 1.5.7
 Requires PHP: 7.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -132,6 +132,12 @@ This plugin connects to the following external services:
 3. Storelly settings page with API keys and sync options
 
 == Changelog ==
+= 1.5.7 =
+* Customizer V3 — three follow-ups surfaced by the thorough flow test on 1.5.6:
+  - **(P0) Reset all no longer leaves the canvas blank.** The previous implementation looped `selectAttribute(0)` over every component, racing 5 parallel `fabric.Image.fromURL` callbacks onto the same canvases — the last one to land "won" and could leave Fabric in a corrupted state where the base view image was no longer painted, even after closing and re-opening the modal. The only recovery was a full page reload. Reset now does that page reload itself, deterministically: it clears the localStorage build, shows the success toast, and reloads after a brief 600ms delay so the toast remains visible. The buyer lands back on the product page with a clean customizer (the canvas re-renders, the carousel transform resets to 0, all stage states are pristine). A page reload here is a fair trade — Reset all is a rare action, and the previous in-place implementation was outright broken.
+  - **(P2) In-modal Reset confirmation replaces the native `window.confirm()` dialog.** The browser-native confirm was modal-blocking, unstyled, and jarring against the V3 design system. The new dialog sits inside the popup (outside the `.nbdpb-carousel` subtree so the legacy script doesn't sweep it), uses the V3 design tokens (brand-soft icon ring, danger-red CTA), supports keyboard close (Esc) and backdrop dismiss, and matches the elevated card look used by the rest of the customizer. JS `$scope.showConfirm()` returns a Promise so the caller can chain — falls back to the native `confirm()` if the host node isn't rendered (older wrapper template, smoke tests).
+  - **(P3) Onboarding teach-toast no longer lingers across a Reset.** `resetAll` now explicitly hides any active `.spbwc-cust-teachtoast` before showing its own "All customizations have been reset" toast, so the buyer doesn't see two stacked toasts or a leftover "Live pricing" message that reads as if the reset triggered it.
+
 = 1.5.6 =
 * Customizer V3 — Order Summary sticky-bottom restructure so the "Add to cart" CTA is the LAST visible element pinned to the browser edge:
   - The "Free design preview — no charge until your design is locked in" trust note used to live at the very bottom of the sticky band, BELOW the Reset/Cancel row, BELOW the CTA. On shorter viewports — or when the browser added chrome (autofill bar, address bar showing again on scroll, etc.) — that trust note was the element that got clipped by the browser, so users reported "phía dưới add to cart - reset có 1 mục đang bị che bởi trình duyệt".
