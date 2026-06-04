@@ -76,14 +76,9 @@ if ( ! class_exists( 'SPBWC_B2B_Storefront' ) ) {
             exit;
         }
 
-        /** Enqueue the brand-store stylesheet. */
+        /** Enqueue the brand-store stylesheet (+ token dependency). */
         protected static function enqueue() {
-            wp_enqueue_style(
-                'spbwc-b2b',
-                SPBWC_PB_CSS_URL . 'b2b.css',
-                array(),
-                SPBWC_PB_VERSION
-            );
+            SPBWC_B2B_Assets::storefront();
         }
 
         /**

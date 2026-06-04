@@ -144,8 +144,14 @@ require_once(SPBWC_PB_PLUGIN_DIR .  'includes/quote/class-quote-migrator.php');
 require_once(SPBWC_PB_PLUGIN_DIR .  'includes/quote/class-quote-template.php');
 require_once(SPBWC_PB_PLUGIN_DIR .  'includes/quote/class-quote-pdf.php');
 require_once(SPBWC_PB_PLUGIN_DIR .  'includes/quote/class-quote-bucket.php');
+require_once(SPBWC_PB_PLUGIN_DIR .  'includes/quote/import/class-quote-source-adapter.php');
+require_once(SPBWC_PB_PLUGIN_DIR .  'includes/quote/import/class-quote-adapter-woo-orders.php');
+require_once(SPBWC_PB_PLUGIN_DIR .  'includes/quote/class-quote-import.php');
 if ( class_exists( 'SPBWC_Quote_Post_Type' ) ) {
     SPBWC_Quote_Post_Type::instance()->init();
+}
+if ( class_exists( 'SPBWC_Quote_Import' ) ) {
+    SPBWC_Quote_Import::init();
 }
 if ( class_exists( 'SPBWC_Quote_Bucket' ) ) {
     ( new SPBWC_Quote_Bucket() )->init();
@@ -177,6 +183,7 @@ if ( class_exists( 'SPBWC_Quote_Migrator' ) ) {
  * external service, no phone-home. */
 require_once(SPBWC_PB_PLUGIN_DIR .  'includes/b2b/class-b2b-company.php');
 require_once(SPBWC_PB_PLUGIN_DIR .  'includes/b2b/class-b2b-company-post-type.php');
+require_once(SPBWC_PB_PLUGIN_DIR .  'includes/b2b/class-b2b-assets.php');
 require_once(SPBWC_PB_PLUGIN_DIR .  'includes/b2b/class-b2b-storefront.php');
 require_once(SPBWC_PB_PLUGIN_DIR .  'includes/b2b/class-b2b-account.php');
 require_once(SPBWC_PB_PLUGIN_DIR .  'includes/b2b/class-b2b-admin.php');
@@ -190,8 +197,13 @@ require_once(SPBWC_PB_PLUGIN_DIR .  'includes/b2b/class-b2b-price-rules.php');
 /* M5 — team procurement: team management + approval gate/queue. */
 require_once(SPBWC_PB_PLUGIN_DIR .  'includes/b2b/class-b2b-team.php');
 require_once(SPBWC_PB_PLUGIN_DIR .  'includes/b2b/class-b2b-procurement.php');
+/* B2B notifications routed through the standard WC email pipeline (E2). */
+require_once(SPBWC_PB_PLUGIN_DIR .  'includes/b2b/class-b2b-emails.php');
 if ( class_exists( 'SPBWC_B2B_Company_Post_Type' ) ) {
     SPBWC_B2B_Company_Post_Type::instance()->init();
+}
+if ( class_exists( 'SPBWC_B2B_Assets' ) ) {
+    SPBWC_B2B_Assets::init();
 }
 if ( class_exists( 'SPBWC_B2B_Storefront' ) ) {
     SPBWC_B2B_Storefront::init();
@@ -213,6 +225,9 @@ if ( class_exists( 'SPBWC_B2B_Team' ) ) {
 }
 if ( class_exists( 'SPBWC_B2B_Procurement' ) ) {
     SPBWC_B2B_Procurement::init();
+}
+if ( class_exists( 'SPBWC_B2B_Emails' ) ) {
+    SPBWC_B2B_Emails::init();
 }
 if ( is_admin() && class_exists( 'SPBWC_B2B_Admin' ) ) {
     SPBWC_B2B_Admin::instance()->init();

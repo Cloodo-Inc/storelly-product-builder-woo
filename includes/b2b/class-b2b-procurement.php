@@ -119,7 +119,7 @@ if ( ! class_exists( 'SPBWC_B2B_Procurement' ) ) {
             if ( ! self::cart_is_gated() ) {
                 return;
             }
-            wp_enqueue_style( 'spbwc-b2b', SPBWC_PB_CSS_URL . 'b2b.css', array(), SPBWC_PB_VERSION );
+            SPBWC_B2B_Assets::storefront();
             $url = wp_nonce_url(
                 add_query_arg( 'spbwc_submit_approval', '1', wc_get_cart_url() ),
                 'spbwc_submit_approval'
@@ -326,7 +326,7 @@ if ( ! class_exists( 'SPBWC_B2B_Procurement' ) ) {
                 echo '<p>' . esc_html__( 'You do not have approval access.', 'storelly-product-builder-for-woocommerce' ) . '</p>';
                 return;
             }
-            wp_enqueue_style( 'spbwc-b2b', SPBWC_PB_CSS_URL . 'b2b.css', array(), SPBWC_PB_VERSION );
+            SPBWC_B2B_Assets::storefront();
             self::print_notice();
 
             $company_id = SPBWC_Company::get_user_company_id();
@@ -418,45 +418,13 @@ if ( ! class_exists( 'SPBWC_B2B_Procurement' ) ) {
         }
 
         protected static function notify_approvers( $request_id ) {
-            $company_id = (int) get_post_meta( $request_id, self::META_COMPANY, true );
-            $total      = wp_strip_all_tags( wc_price( (float) get_post_meta( $request_id, self::META_TOTAL, true ) ) );
-            $url        = wc_get_endpoint_url( self::ENDPOINT, '', wc_get_page_permalink( 'myaccount' ) );
-            foreach ( SPBWC_Company::get_members( $company_id ) as $m ) {
-                if ( ! SPBWC_Company::user_can_approve( $m->ID ) || ! is_email( $m->user_email ) ) {
-                    continue;
-                }
-                wp_mail(
-                    $m->user_email,
-                    __( 'A team order needs your approval', 'storelly-product-builder-for-woocommerce' ),
-                    sprintf(
-                        /* translators: 1: total, 2: queue URL. */
-                        __( "A team member submitted an order of %1\$s for approval.\n\nReview it here:\n%2\$s", 'storelly-product-builder-for-woocommerce' ),
-                        $total,
-                        $url
-                    )
-                );
-            }
+            // Routed through the WC email pipeline (SPBWC_Email_B2B_Approval_Needed).
+            do_action( 'spbwc_b2b_approval_needed_notification', $request_id );
         }
 
         protected static function notify_requester( $request_id, $outcome, $order_id ) {
-            $requester = get_userdata( (int) get_post_meta( $request_id, self::META_REQUESTER, true ) );
-            if ( ! $requester || ! is_email( $requester->user_email ) ) {
-                return;
-            }
-            if ( 'approved' === $outcome ) {
-                $order   = $order_id ? wc_get_order( $order_id ) : null;
-                $pay     = $order ? $order->get_checkout_payment_url() : wc_get_page_permalink( 'myaccount' );
-                $subject = __( 'Your order was approved', 'storelly-product-builder-for-woocommerce' );
-                $body    = sprintf(
-                    /* translators: %s: payment URL. */
-                    __( "Your procurement request was approved and an order was created.\n\nComplete it here:\n%s", 'storelly-product-builder-for-woocommerce' ),
-                    $pay
-                );
-            } else {
-                $subject = __( 'Your order request was rejected', 'storelly-product-builder-for-woocommerce' );
-                $body    = __( 'Your procurement request was not approved. Please contact your company administrator.', 'storelly-product-builder-for-woocommerce' );
-            }
-            wp_mail( $requester->user_email, $subject, $body );
+            // Routed through the WC email pipeline (SPBWC_Email_B2B_Approval_Outcome).
+            do_action( 'spbwc_b2b_approval_outcome_notification', $request_id, $outcome, (int) $order_id );
         }
 
         protected static function redirect_account( $code ) {

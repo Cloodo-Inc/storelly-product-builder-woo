@@ -43,7 +43,7 @@ if ( ! class_exists( 'SPBWC_B2B_Pricing' ) ) {
             if ( ! self::current_company_id() ) {
                 return;
             }
-            wp_enqueue_style( 'spbwc-b2b', SPBWC_PB_CSS_URL . 'b2b.css', array(), SPBWC_PB_VERSION );
+            SPBWC_B2B_Assets::storefront();
         }
 
         /**

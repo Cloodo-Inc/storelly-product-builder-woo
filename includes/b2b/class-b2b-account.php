@@ -38,24 +38,8 @@ if ( ! class_exists( 'SPBWC_B2B_Account' ) ) {
          * @param int $owner_id   Owner user ID.
          */
         public static function notify_owner( $company_id, $owner_id ) {
-            $owner = get_userdata( $owner_id );
-            if ( ! $owner || ! is_email( $owner->user_email ) ) {
-                return;
-            }
-            $store   = wc_get_endpoint_url( self::ENDPOINT, '', wc_get_page_permalink( 'myaccount' ) );
-            $name    = get_the_title( $company_id );
-            $subject = sprintf(
-                /* translators: %s: company name. */
-                __( 'Your B2B Brand Store "%s" is ready', 'storelly-product-builder-for-woocommerce' ),
-                $name
-            );
-            $body = sprintf(
-                /* translators: 1: company name, 2: Brand Store URL. */
-                __( "Good news! Your account has been upgraded to a B2B company: %1\$s.\n\nSet up your Brand Store profile here:\n%2\$s", 'storelly-product-builder-for-woocommerce' ),
-                $name,
-                $store
-            );
-            wp_mail( $owner->user_email, $subject, $body );
+            // Routed through the WC email pipeline (SPBWC_Email_B2B_Company_Ready).
+            do_action( 'spbwc_b2b_company_ready_notification', $company_id, $owner_id );
         }
 
         public static function add_endpoint() {
@@ -99,7 +83,7 @@ if ( ! class_exists( 'SPBWC_B2B_Account' ) ) {
                 echo '<p>' . esc_html__( 'You are not part of a B2B company.', 'storelly-product-builder-for-woocommerce' ) . '</p>';
                 return;
             }
-            wp_enqueue_style( 'spbwc-b2b', SPBWC_PB_CSS_URL . 'b2b.css', array(), SPBWC_PB_VERSION );
+            SPBWC_B2B_Assets::storefront();
 
             self::print_notice();
             self::render_header( $company_id );

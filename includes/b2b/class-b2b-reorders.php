@@ -115,7 +115,7 @@ if ( ! class_exists( 'SPBWC_B2B_Reorders' ) ) {
                 wc_get_template( 'myaccount/form-login.php' );
                 return;
             }
-            wp_enqueue_style( 'spbwc-b2b', SPBWC_PB_CSS_URL . 'b2b.css', array(), SPBWC_PB_VERSION );
+            SPBWC_B2B_Assets::storefront();
             self::print_notice();
 
             $items = self::collect( get_current_user_id() );

@@ -310,6 +310,19 @@ if ( ! class_exists( 'SPBWC_B2B_Admin' ) ) {
             echo '<hr class="wp-header-end" />';
             echo '<p class="description">' . esc_html__( 'Upgrade a customer to B2B from Users → hover a row → "Upgrade to B2B".', 'storelly-product-builder-for-woocommerce' ) . '</p>';
 
+            // Stat cards.
+            echo '<div class="spbwc-b2b-stats">';
+            $stat_cards = array(
+                array( self::count_all(), __( 'Total companies', 'storelly-product-builder-for-woocommerce' ) ),
+                array( self::count_by_status( SPBWC_Company::STATUS_ACTIVE ), __( 'Active', 'storelly-product-builder-for-woocommerce' ) ),
+                array( self::count_by_status( SPBWC_Company::STATUS_PENDING ), __( 'Pending approval', 'storelly-product-builder-for-woocommerce' ) ),
+            );
+            foreach ( $stat_cards as $card ) {
+                echo '<div class="spbwc-b2b-stat"><div class="spbwc-b2b-stat__value">' . esc_html( number_format_i18n( $card[0] ) ) . '</div>';
+                echo '<div class="spbwc-b2b-stat__label">' . esc_html( $card[1] ) . '</div></div>';
+            }
+            echo '</div>';
+
             // Status tabs with counts.
             $tabs = array_merge( array( 'all' => __( 'All', 'storelly-product-builder-for-woocommerce' ) ), SPBWC_Company::statuses() );
             echo '<ul class="subsubsub">';
@@ -448,10 +461,33 @@ if ( ! class_exists( 'SPBWC_B2B_Admin' ) ) {
             $thresh  = (float) get_post_meta( $company_id, SPBWC_Company::META_APPROVAL_THRESHOLD, true );
             $nonce   = wp_create_nonce( 'spbwc_b2b_' . $company_id );
 
+            $tier       = (string) get_post_meta( $company_id, SPBWC_Company::META_TIER, true );
+            $tier_label = ( '' !== $tier && class_exists( 'SPBWC_B2B_Pricing' ) ) ? SPBWC_B2B_Pricing::tier_label( $tier ) : __( 'No tier', 'storelly-product-builder-for-woocommerce' );
+
             echo '<p><a href="' . esc_url( self::page_url() ) . '">&larr; ' . esc_html__( 'All companies', 'storelly-product-builder-for-woocommerce' ) . '</a></p>';
-            echo '<h1>' . esc_html( get_the_title( $company_id ) ) . ' ' . self::status_pill( $status ) . '</h1>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- pill escaped internally.
-            echo '<p class="description">' . esc_html__( 'Owner:', 'storelly-product-builder-for-woocommerce' ) . ' ' . esc_html( $owner ? $owner->user_email : '—' )
-                . ' &middot; <a href="' . esc_url( $store ) . '" target="_blank" rel="noopener">' . esc_html( $store ) . '</a></p>';
+
+            // Hero.
+            echo '<div class="spbwc-b2b-hero"><div>';
+            echo '<h1 class="spbwc-b2b-hero__title">' . esc_html( get_the_title( $company_id ) ) . ' ' . self::status_pill( $status ) . '</h1>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- pill escaped internally.
+            echo '<div class="spbwc-b2b-hero__meta">' . esc_html__( 'Owner:', 'storelly-product-builder-for-woocommerce' ) . ' ' . esc_html( $owner ? $owner->user_email : '—' ) . '</div>';
+            echo '</div><div>';
+            if ( '' !== $store ) {
+                echo '<a class="button" href="' . esc_url( $store ) . '" target="_blank" rel="noopener">' . esc_html__( 'View Brand Store →', 'storelly-product-builder-for-woocommerce' ) . '</a>';
+            }
+            echo '</div></div>';
+
+            // Quick stats.
+            echo '<div class="spbwc-b2b-stats">';
+            $detail_stats = array(
+                array( count( $members ) . ' / ' . $seats, __( 'Team members', 'storelly-product-builder-for-woocommerce' ) ),
+                array( $tier_label, __( 'Pricing tier', 'storelly-product-builder-for-woocommerce' ) ),
+                array( SPBWC_Company::statuses()[ $status ], __( 'Status', 'storelly-product-builder-for-woocommerce' ) ),
+            );
+            foreach ( $detail_stats as $card ) {
+                echo '<div class="spbwc-b2b-stat"><div class="spbwc-b2b-stat__value" style="font-size:var(--text-2xl)">' . esc_html( $card[0] ) . '</div>';
+                echo '<div class="spbwc-b2b-stat__label">' . esc_html( $card[1] ) . '</div></div>';
+            }
+            echo '</div>';
 
             // Status actions.
             echo '<div class="spbwc-b2b-actions" style="margin:12px 0;">';

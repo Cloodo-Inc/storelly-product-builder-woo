@@ -75,7 +75,7 @@ if ( ! class_exists( 'SPBWC_B2B_Team' ) ) {
                 echo '<p>' . esc_html__( 'You are not part of a B2B company.', 'storelly-product-builder-for-woocommerce' ) . '</p>';
                 return;
             }
-            wp_enqueue_style( 'spbwc-b2b', SPBWC_PB_CSS_URL . 'b2b.css', array(), SPBWC_PB_VERSION );
+            SPBWC_B2B_Assets::storefront();
             self::print_notice();
 
             $can_manage = SPBWC_Company::user_can_manage();
@@ -328,25 +328,8 @@ if ( ! class_exists( 'SPBWC_B2B_Team' ) ) {
             if ( ! is_email( $email ) ) {
                 return;
             }
-            $accept = add_query_arg(
-                array( 'spbwc_accept_invite' => rawurlencode( $token ), 'company' => $company_id ),
-                wc_get_page_permalink( 'myaccount' )
-            );
-            $name = get_the_title( $company_id );
-            wp_mail(
-                $email,
-                sprintf(
-                    /* translators: %s: company name. */
-                    __( 'You are invited to join %s', 'storelly-product-builder-for-woocommerce' ),
-                    $name
-                ),
-                sprintf(
-                    /* translators: 1: company, 2: accept URL. */
-                    __( "You've been invited to join %1\$s as a team member.\n\nAccept your invitation (log in or create an account first):\n%2\$s", 'storelly-product-builder-for-woocommerce' ),
-                    $name,
-                    $accept
-                )
-            );
+            // Routed through the WC email pipeline (SPBWC_Email_B2B_Invite).
+            do_action( 'spbwc_b2b_invite_notification', $company_id, $email, $token );
         }
 
         protected static function url() {
