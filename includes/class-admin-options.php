@@ -1239,6 +1239,7 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
                     'admin_email'       => isset( $_POST['admin_email'] ) ? sanitize_email( wp_unslash( $_POST['admin_email'] ) ) : '', // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce checked above.
                     'success_message'   => isset( $_POST['success_message'] ) ? sanitize_textarea_field( wp_unslash( $_POST['success_message'] ) ) : '', // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce checked above.
                     'display_mode'      => $posted_mode,
+                    'terms_url'         => isset( $_POST['terms_url'] ) ? esc_url_raw( wp_unslash( $_POST['terms_url'] ) ) : '', // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce checked above.
                     // Site-wide floating "Request a Quote" badge (M6).
                     'enable_quote_badge'   => isset( $_POST['enable_quote_badge'] ) ? 'yes' : 'no', // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce checked above.
                     'quote_badge_position' => $posted_pos,
@@ -1304,6 +1305,7 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
             $admin_email = isset( $settings['admin_email'] ) ? $settings['admin_email'] : get_option( 'admin_email' );
             $success_message = isset( $settings['success_message'] ) ? $settings['success_message'] : __( 'Your quote request has been sent successfully.', 'storelly-product-builder-for-woocommerce' );
             $display_mode = isset( $settings['display_mode'] ) ? $settings['display_mode'] : 'both';
+            $terms_url    = isset( $settings['terms_url'] ) ? $settings['terms_url'] : '';
             $enable_quote_badge   = isset( $settings['enable_quote_badge'] ) ? $settings['enable_quote_badge'] : 'yes';
             $quote_badge_position = isset( $settings['quote_badge_position'] ) ? $settings['quote_badge_position'] : 'bottom-right';
             $quote_badge_label    = ( isset( $settings['quote_badge_label'] ) && '' !== $settings['quote_badge_label'] ) ? $settings['quote_badge_label'] : __( 'Request a Quote', 'storelly-product-builder-for-woocommerce' );
@@ -1421,6 +1423,20 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
                                         </select>
                                     </div>
                                     <p class="spbwc-setting-row__hint"><?php esc_html_e( 'How quote-enabled products appear by default. Each product can override this in its Storelly settings.', 'storelly-product-builder-for-woocommerce' ); ?></p>
+                                </div>
+                                <!-- Terms & Conditions URL (shown on the buyer Accept step) -->
+                                <div class="spbwc-setting-row">
+                                    <div class="spbwc-setting-row__label">
+                                        <label for="spbwc_quote_terms_url">
+                                            <?php esc_html_e( 'Terms & Conditions URL', 'storelly-product-builder-for-woocommerce' ); ?>
+                                        </label>
+                                    </div>
+                                    <div class="spbwc-setting-row__control">
+                                        <input id="spbwc_quote_terms_url" type="url" name="terms_url"
+                                            value="<?php echo esc_attr( $terms_url ); ?>"
+                                            class="spbwc-input" style="width:420px;" placeholder="https://" />
+                                    </div>
+                                    <p class="spbwc-setting-row__hint"><?php esc_html_e( 'Linked from the “I agree to the terms” checkbox when a customer accepts a quote. Leave empty to show plain text.', 'storelly-product-builder-for-woocommerce' ); ?></p>
                                 </div>
                                 <!-- Site-wide floating "Request a Quote" badge (M6) -->
                                 <div class="spbwc-setting-row">
@@ -1835,14 +1851,17 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
             $posts_table = $wpdb->posts;
 
             // phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter -- Read-only admin listing; interpolated table names are trusted $wpdb properties, all user values bound via prepare().
+            // HPOS-safe: query design line items directly (woocommerce_order_items /
+            // _itemmeta exist regardless of order storage). The previous wp_posts JOIN
+            // returned 0 rows once HPOS moved orders out of wp_posts. order_item_type
+            // restricts to real line items (no shipping/fee/refund rows).
             $total_orders = (int) $wpdb->get_var(
                 $wpdb->prepare(
                     "SELECT COUNT(DISTINCT oi.order_id)
                     FROM {$order_items_table} oi
                     INNER JOIN {$order_itemmeta_table} oim ON oi.order_item_id = oim.order_item_id
-                    INNER JOIN {$posts_table} p ON p.ID = oi.order_id
                     WHERE oim.meta_key = %s
-                    AND p.post_type IN ('shop_order', 'shop_order_refund')
+                    AND oi.order_item_type = 'line_item'
                     AND (%s = '' OR CAST(oi.order_id AS CHAR) LIKE %s)",
                     '_pcpb_option_price',
                     $search,
@@ -1855,9 +1874,8 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
                     "SELECT DISTINCT oi.order_id
                     FROM {$order_items_table} oi
                     INNER JOIN {$order_itemmeta_table} oim ON oi.order_item_id = oim.order_item_id
-                    INNER JOIN {$posts_table} p ON p.ID = oi.order_id
                     WHERE oim.meta_key = %s
-                    AND p.post_type IN ('shop_order', 'shop_order_refund')
+                    AND oi.order_item_type = 'line_item'
                     AND (%s = '' OR CAST(oi.order_id AS CHAR) LIKE %s)
                     ORDER BY oi.order_id DESC
                     LIMIT %d OFFSET %d",
@@ -1924,9 +1942,11 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
                         <table class="spbwc-admin-table">
                             <thead>
                                 <tr>
+                                    <th><?php esc_html_e( 'Design', 'storelly-product-builder-for-woocommerce' ); ?></th>
                                     <th><?php esc_html_e( 'Order', 'storelly-product-builder-for-woocommerce' ); ?></th>
                                     <th><?php esc_html_e( 'Date', 'storelly-product-builder-for-woocommerce' ); ?></th>
                                     <th><?php esc_html_e( 'Status', 'storelly-product-builder-for-woocommerce' ); ?></th>
+                                    <th><?php esc_html_e( 'PDF', 'storelly-product-builder-for-woocommerce' ); ?></th>
                                     <th><?php esc_html_e( 'Customer', 'storelly-product-builder-for-woocommerce' ); ?></th>
                                     <th><?php esc_html_e( 'Total', 'storelly-product-builder-for-woocommerce' ); ?></th>
                                     <th><?php esc_html_e( 'Actions', 'storelly-product-builder-for-woocommerce' ); ?></th>
@@ -1949,8 +1969,32 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
                                             $pill_mod = 'neutral';
                                         }
                                         $customer_name = trim( $order->get_formatted_billing_full_name() );
+
+                                        // Design thumbnail + aggregate PDF status across the order's design items.
+                                        $spbwc_thumb = '';
+                                        $spbwc_has_done = false; $spbwc_has_failed = false; $spbwc_has_pending = false; $spbwc_has_design = false;
+                                        foreach ( $order->get_items() as $spbwc_oi ) {
+                                            $spbwc_f = is_callable( array( $spbwc_oi, 'get_meta' ) ) ? (string) $spbwc_oi->get_meta( '_pcpb_folder' ) : '';
+                                            if ( '' === $spbwc_f ) { continue; }
+                                            $spbwc_has_design = true;
+                                            if ( '' === $spbwc_thumb ) {
+                                                $spbwc_imgs = SPBWC_Storelly_IO::spbwc_get_list_images( SPBWC_PB_CUSTOMER_DIR . '/' . $spbwc_f . '/preview', 1 );
+                                                if ( ! empty( $spbwc_imgs ) ) { sort( $spbwc_imgs ); $spbwc_thumb = SPBWC_Storelly_IO::spbwc_convert_path_to_url( $spbwc_imgs[0] ); }
+                                            }
+                                            $spbwc_ps = (string) $spbwc_oi->get_meta( '_pcpb_pdf_status' );
+                                            if ( 'done' === $spbwc_ps ) { $spbwc_has_done = true; }
+                                            elseif ( 'failed' === $spbwc_ps ) { $spbwc_has_failed = true; }
+                                            elseif ( '' !== $spbwc_ps ) { $spbwc_has_pending = true; }
+                                        }
                                         ?>
                                         <tr>
+                                            <td>
+                                                <?php if ( '' !== $spbwc_thumb ) : ?>
+                                                    <img src="<?php echo esc_url( $spbwc_thumb ); ?>" alt="" loading="lazy" style="width:48px;height:48px;object-fit:contain;border:1px solid var(--nbd-st-border-light,#dcdcde);border-radius:var(--nbd-radius,6px);background:var(--nbd-st-bg-soft,#f6f7f7);" />
+                                                <?php else : ?>
+                                                    <span class="dashicons dashicons-format-image" style="color:var(--nbd-st-text-mute,#8c8f94);" aria-hidden="true"></span>
+                                                <?php endif; ?>
+                                            </td>
                                             <td class="spbwc-admin-table__id">
                                                 <strong>#<?php echo esc_html( (string) $order->get_id() ); ?></strong>
                                             </td>
@@ -1961,6 +2005,19 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
                                                 <span class="spbwc-pill spbwc-pill--<?php echo esc_attr( $pill_mod ); ?>">
                                                     <?php echo esc_html( wc_get_order_status_name( $o_status ) ); ?>
                                                 </span>
+                                            </td>
+                                            <td>
+                                                <?php
+                                                if ( $spbwc_has_failed ) {
+                                                    echo '<span class="spbwc-pill spbwc-pill--off">' . esc_html__( 'Failed', 'storelly-product-builder-for-woocommerce' ) . '</span>';
+                                                } elseif ( $spbwc_has_done && ! $spbwc_has_pending ) {
+                                                    echo '<span class="spbwc-pill spbwc-pill--ok">' . esc_html__( 'Ready', 'storelly-product-builder-for-woocommerce' ) . '</span>';
+                                                } elseif ( $spbwc_has_done || $spbwc_has_pending ) {
+                                                    echo '<span class="spbwc-pill spbwc-pill--warn">' . esc_html__( 'Partial', 'storelly-product-builder-for-woocommerce' ) . '</span>';
+                                                } else {
+                                                    echo '<span class="spbwc-admin-table__muted">—</span>';
+                                                }
+                                                ?>
                                             </td>
                                             <td><?php echo esc_html( $customer_name ? $customer_name : __( 'Guest', 'storelly-product-builder-for-woocommerce' ) ); ?></td>
                                             <td><?php echo wp_kses_post( $order->get_formatted_order_total() ); ?></td>
@@ -1975,7 +2032,7 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
                                     <?php endforeach; ?>
                                 <?php else : ?>
                                     <tr>
-                                        <td colspan="6" style="padding:0;border:0;">
+                                        <td colspan="8" style="padding:0;border:0;">
                                             <div class="spbwc-empty-state">
                                                 <div class="spbwc-empty-state__icon">
                                                     <span class="dashicons dashicons-cart" aria-hidden="true"></span>
@@ -2200,6 +2257,32 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
             if ( ! isset( $options['quantity_discount_type'] ) ) { $options['quantity_discount_type'] = 'p'; }
             if ( ! isset( $options['quantity_breaks'] ) || ! is_array( $options['quantity_breaks'] ) ) {
                 $options['quantity_breaks'] = array();
+            }
+            // Customer design tools (free-form text/image layers on the canvas).
+            // Per-option-set config; resolved with a global fallback at runtime
+            // via SPBWC_Storelly_PB_Util::spbwc_get_free_design_tools(). Exposed
+            // here so the admin UI can ng-model-bind without a separate fetch.
+            if ( ! isset( $options['free_design_tools'] ) || ! is_array( $options['free_design_tools'] ) ) {
+                $options['free_design_tools'] = array();
+            }
+            if ( ! isset( $options['free_design_tools']['text'] ) || ! is_array( $options['free_design_tools']['text'] ) ) {
+                $options['free_design_tools']['text'] = array(
+                    'enabled'            => 'n',
+                    'max_layers'         => 3,
+                    'price_per_layer'    => 0,
+                    'allow_change_color' => 'y',
+                    'default_text'       => '',
+                );
+            }
+            if ( ! isset( $options['free_design_tools']['image'] ) || ! is_array( $options['free_design_tools']['image'] ) ) {
+                $options['free_design_tools']['image'] = array(
+                    'enabled'         => 'n',
+                    'max_layers'      => 2,
+                    'price_per_layer' => 0,
+                    'allow_type'      => 'png,jpg,jpeg,svg',
+                    'min_size'        => 0,
+                    'max_size'        => SPBWC_Storelly_PB_Util::spbwc_get_max_upload_default(),
+                );
             }
             // Frontend display mode — controls how the option group renders
             // on the product page (Sections list, Matrix grid, or Stepper wizard).
@@ -3420,6 +3503,7 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
             $order_items[] = '_pcpb_original_price';
             $order_items[] = '_pcpb_folder';
             $order_items[] = '_pcpb_pdf_status';
+            $order_items[] = '_pcpb_preview_downloads';
             return $order_items;
         }
         public function spbwc_admin_order_item_thumbnail($image = "", $item_id = "", $item = "") {
@@ -3717,6 +3801,31 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
             $message = '';
             $status = '';
 
+            // User Account tab: one-click Cart compatibility switch (block ↔ classic).
+            if ( isset( $_POST['spbwc_cart_action'] ) && current_user_can( 'manage_woocommerce' ) ) {
+                $cart_nonce = isset( $_POST['spbwc_cart_mode_nonce'] ) ? sanitize_text_field( wp_unslash( $_POST['spbwc_cart_mode_nonce'] ) ) : '';
+                if ( ! $cart_nonce || ! wp_verify_nonce( $cart_nonce, 'spbwc_cart_mode_action' ) ) {
+                    wp_die( esc_html__( 'Security error.', 'storelly-product-builder-for-woocommerce' ) );
+                }
+                $cart_action  = sanitize_text_field( wp_unslash( $_POST['spbwc_cart_action'] ) );
+                $cart_page_id = function_exists( 'wc_get_page_id' ) ? (int) wc_get_page_id( 'cart' ) : 0;
+                if ( $cart_page_id > 0 ) {
+                    $current = (string) get_post_field( 'post_content', $cart_page_id );
+                    if ( 'to_classic' === $cart_action && false === strpos( $current, '[woocommerce_cart]' ) ) {
+                        update_option( 'spbwc_cart_block_backup', $current );
+                        wp_update_post( array( 'ID' => $cart_page_id, 'post_content' => '[woocommerce_cart]' ) );
+                        $message = esc_html__( 'Cart page switched to the classic shortcode.', 'storelly-product-builder-for-woocommerce' );
+                        $status  = 'updated';
+                    } elseif ( 'to_block' === $cart_action ) {
+                        $backup  = (string) get_option( 'spbwc_cart_block_backup', '' );
+                        $restore = ( '' !== $backup ) ? $backup : '<!-- wp:woocommerce/cart --><div class="wp-block-woocommerce-cart is-loading"><!-- wp:woocommerce/filled-cart-block --><!-- wp:woocommerce/cart-items-block /--><!-- /wp:woocommerce/filled-cart-block --></div><!-- /wp:woocommerce/cart -->';
+                        wp_update_post( array( 'ID' => $cart_page_id, 'post_content' => $restore ) );
+                        $message = esc_html__( 'Cart page restored to the WooCommerce block.', 'storelly-product-builder-for-woocommerce' );
+                        $status  = 'updated';
+                    }
+                }
+            }
+
             if ( isset( $_POST['_action_storelly_settings'] ) && 'submit' === sanitize_text_field( wp_unslash( $_POST['_action_storelly_settings'] ) ) ) {
                 $settings_nonce = isset( $_POST['spbwc_settings_nonce'] ) ? sanitize_text_field( wp_unslash( $_POST['spbwc_settings_nonce'] ) ) : '';
                 if ( ! $settings_nonce || ! wp_verify_nonce( $settings_nonce, 'spbwc_settings_action' ) ) {
@@ -3731,6 +3840,12 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
                 $status         = 'updated';
                 $storelly_pb_settings['enable_cloud2print_api'] = $storelly_enable_cloud2print_api;
                 $storelly_pb_settings['enable_api_sync'] = $storelly_enable_api_sync;
+                // Save-design entry points (User Account tab). Radios always submit yes/no.
+                foreach ( array( 'save_on_cart', 'save_on_order', 'save_on_builder' ) as $spbwc_ep ) {
+                    if ( isset( $_POST[ 'storelly_' . $spbwc_ep ] ) ) {
+                        $storelly_pb_settings[ $spbwc_ep ] = ( 'no' === sanitize_text_field( wp_unslash( $_POST[ 'storelly_' . $spbwc_ep ] ) ) ) ? 'no' : 'yes';
+                    }
+                }
                 update_option('spbwc_pb_settings', $storelly_pb_settings);
                 
                 // Save API keys FIRST so they are available when registering with Storelly.
@@ -3984,6 +4099,34 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
                     $total_quotes += isset( $quote_counts[ $quote_status ] ) ? (int) $quote_counts[ $quote_status ] : 0;
                 }
             }
+
+            // --- Customer design activity (M14) ---
+            $spbwc_saved_total = 0;
+            if ( post_type_exists( 'spbwc_saved_design' ) ) {
+                $spbwc_saved_counts = (array) wp_count_posts( 'spbwc_saved_design' );
+                $spbwc_saved_total  = isset( $spbwc_saved_counts['publish'] ) ? (int) $spbwc_saved_counts['publish'] : 0;
+            }
+            // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Lightweight admin dashboard count.
+            $spbwc_saved_authors = (int) $wpdb->get_var( "SELECT COUNT(DISTINCT post_author) FROM {$wpdb->posts} WHERE post_type='spbwc_saved_design' AND post_status='publish'" );
+            // Order line items that carry a builder design (HPOS-safe — line items stay in
+            // woocommerce_order_itemmeta regardless of order storage).
+            // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Lightweight admin dashboard count.
+            $spbwc_design_items   = (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$wpdb->prefix}woocommerce_order_itemmeta WHERE meta_key='_pcpb_folder' AND meta_value<>''" );
+            $spbwc_preview_dls    = (int) get_option( 'spbwc_preview_download_count', 0 );
+            $spbwc_recent_saved   = get_posts( array(
+                'post_type'   => 'spbwc_saved_design',
+                'post_status' => 'publish',
+                'numberposts' => 5,
+                'orderby'     => 'date',
+                'order'       => 'DESC',
+            ) );
+            $spbwc_design_activity = array(
+                'saved_total'   => $spbwc_saved_total,
+                'saved_authors' => $spbwc_saved_authors,
+                'design_items'  => $spbwc_design_items,
+                'preview_dls'   => $spbwc_preview_dls,
+                'recent'        => $spbwc_recent_saved,
+            );
 
             // --- Remote (Storelly) stats overlay ---
             $remote_stats = SPBWC_License_Manager::get_overview_stats();
