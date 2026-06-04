@@ -215,7 +215,11 @@ M6  ✅ DONE  Request Quote site-wide CTA badge (floating, settings: toggle/vị
             + Quote Settings (class-admin-options.php). Commit 69d5504. Test render PASS.
 M7  ✅ DONE  Freemium contextual upsell: SPBWC_Upsell_Notice chỉ hiện trên màn Storelly khi Free   (yc #10)
             plan + chạm limit (max_products/max_pricing_options), dismiss snooze 30 ngày. Commit 69d5504.
-M8  Compliance: plugin check 0 error + POT regen + readme + version bump
+M8  ✅ DONE (2026-06-04) Compliance cho M9: code mới 0 ERROR thật (PCP) · POT regen gồm string M9.1 ·
+        readme changelog 1.5.7 + sửa External services (demo Welcome là local) · 3 version khớp 1.5.7.
+        ⚠️ Ngoài phạm vi: 603 lỗi PCP fork cũ ở file KHÁC (escaping/heredoc/fwrite/ABSPATH) + ~3370
+        TextDomainMismatch (false positive do tên thư mục dev) — cần đợt dọn compliance riêng + chạy
+        PCP dưới slug chuẩn `storelly-product-builder-for-woocommerce`.
 M9  ⏳ REMEDIATION (2026-06-03) — vá gap audit phát hiện sau khi M1–M7 ship. Xem §8.
         M9.1/M9.2/M9.3/M9.4 ✅ DONE + test PASS (2026-06-04).
 ```
