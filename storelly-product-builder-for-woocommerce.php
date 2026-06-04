@@ -8,7 +8,7 @@
 Plugin Name:            Storelly Product Builder for WooCommerce
 Plugin URI:             https://storelly.com/product-builder
 Description:            Create product builder for Woocommerce products
-Version:                1.5.6
+Version:                1.5.7
 Requires Plugins:       woocommerce
 WC requires at least:   6.0.0
 WC tested up to:        6.9.4
@@ -24,8 +24,8 @@ Domain Path:            /languages
 $spbwc_upload_dir = wp_upload_dir();
 $spbwc_basedir    = $spbwc_upload_dir['basedir'];
 $spbwc_baseurl    = $spbwc_upload_dir['baseurl'];
-define('SPBWC_PB_VERSION',                  '1.5.6');
-define('SPBWC_PB_NUMBER_VERSION',           128);
+define('SPBWC_PB_VERSION',                  '1.5.7');
+define('SPBWC_PB_NUMBER_VERSION',           129);
 define('SPBWC_PB_PLUGIN_URL',               plugin_dir_url(__FILE__));
 define('SPBWC_PB_PLUGIN_DIR',               plugin_dir_path(__FILE__));
 define('SPBWC_PB_DATA_DIR',                 $spbwc_basedir . '/storelly-product-builder');
@@ -180,6 +180,9 @@ require_once(SPBWC_PB_PLUGIN_DIR .  'includes/b2b/class-b2b-company-post-type.ph
 require_once(SPBWC_PB_PLUGIN_DIR .  'includes/b2b/class-b2b-storefront.php');
 require_once(SPBWC_PB_PLUGIN_DIR .  'includes/b2b/class-b2b-account.php');
 require_once(SPBWC_PB_PLUGIN_DIR .  'includes/b2b/class-b2b-admin.php');
+/* M2 — tier pricing: discount engine (cart + display) + admin tier ladder. */
+require_once(SPBWC_PB_PLUGIN_DIR .  'includes/b2b/class-b2b-pricing.php');
+require_once(SPBWC_PB_PLUGIN_DIR .  'includes/b2b/class-b2b-pricing-admin.php');
 if ( class_exists( 'SPBWC_B2B_Company_Post_Type' ) ) {
     SPBWC_B2B_Company_Post_Type::instance()->init();
 }
@@ -189,8 +192,14 @@ if ( class_exists( 'SPBWC_B2B_Storefront' ) ) {
 if ( class_exists( 'SPBWC_B2B_Account' ) ) {
     SPBWC_B2B_Account::init();
 }
+if ( class_exists( 'SPBWC_B2B_Pricing' ) ) {
+    SPBWC_B2B_Pricing::init();
+}
 if ( is_admin() && class_exists( 'SPBWC_B2B_Admin' ) ) {
     SPBWC_B2B_Admin::instance()->init();
+}
+if ( is_admin() && class_exists( 'SPBWC_B2B_Pricing_Admin' ) ) {
+    SPBWC_B2B_Pricing_Admin::instance()->init();
 }
 
 require_once(SPBWC_PB_PLUGIN_DIR .  'includes/class-global-import.php');

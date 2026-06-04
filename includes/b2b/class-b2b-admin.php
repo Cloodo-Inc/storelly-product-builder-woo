@@ -191,9 +191,23 @@ if ( ! class_exists( 'SPBWC_B2B_Admin' ) ) {
                     $seats     = isset( $_POST['seats'] ) ? absint( wp_unslash( $_POST['seats'] ) ) : SPBWC_Company::default_seats();
                     $threshold = isset( $_POST['approval_threshold'] ) ? (float) wp_unslash( $_POST['approval_threshold'] ) : 0;
                     $terms     = isset( $_POST['payment_terms'] ) ? sanitize_key( wp_unslash( $_POST['payment_terms'] ) ) : 'prepaid';
+                    $tier      = isset( $_POST['tier'] ) ? sanitize_key( wp_unslash( $_POST['tier'] ) ) : '';
                     update_post_meta( $company_id, SPBWC_Company::META_SEATS, $seats );
                     update_post_meta( $company_id, SPBWC_Company::META_APPROVAL_THRESHOLD, $threshold );
                     update_post_meta( $company_id, SPBWC_Company::META_PAYMENT_TERMS, $terms );
+                    $old_tier = (string) get_post_meta( $company_id, SPBWC_Company::META_TIER, true );
+                    if ( $tier !== $old_tier ) {
+                        update_post_meta( $company_id, SPBWC_Company::META_TIER, $tier );
+                        $tier_label = '' !== $tier && class_exists( 'SPBWC_B2B_Pricing' ) ? SPBWC_B2B_Pricing::tier_label( $tier ) : __( 'none', 'storelly-product-builder-for-woocommerce' );
+                        SPBWC_Company::add_timeline_event(
+                            $company_id,
+                            sprintf(
+                                /* translators: %s: tier label. */
+                                __( 'Pricing tier changed to %s.', 'storelly-product-builder-for-woocommerce' ),
+                                $tier_label
+                            )
+                        );
+                    }
                     $this->notice = 'saved';
                     break;
             }
@@ -407,6 +421,28 @@ if ( ! class_exists( 'SPBWC_B2B_Admin' ) ) {
             echo '<input type="hidden" name="company" value="' . esc_attr( $company_id ) . '" />';
             echo '<input type="hidden" name="_spbwc_b2b_nonce" value="' . esc_attr( $nonce ) . '" />';
             echo '<table class="form-table" role="presentation"><tbody>';
+            // Pricing tier (M2).
+            $current_tier = (string) get_post_meta( $company_id, SPBWC_Company::META_TIER, true );
+            $tiers        = class_exists( 'SPBWC_B2B_Pricing' ) ? SPBWC_B2B_Pricing::get_tiers() : array();
+            echo '<tr><th>' . esc_html__( 'Pricing tier', 'storelly-product-builder-for-woocommerce' ) . '</th><td><select name="tier">';
+            echo '<option value="">' . esc_html__( '— No tier —', 'storelly-product-builder-for-woocommerce' ) . '</option>';
+            foreach ( $tiers as $tslug => $tier ) {
+                $tlabel = isset( $tier['label'] ) ? $tier['label'] : $tslug;
+                $tpct   = isset( $tier['discount_pct'] ) ? (float) $tier['discount_pct'] : 0;
+                echo '<option value="' . esc_attr( $tslug ) . '"' . selected( $current_tier, $tslug, false ) . '>'
+                    . esc_html( $tlabel . ' (' . rtrim( rtrim( number_format( $tpct, 1 ), '0' ), '.' ) . '%)' ) . '</option>';
+            }
+            echo '</select>';
+            if ( empty( $tiers ) ) {
+                echo ' <span class="description">' . wp_kses_post(
+                    sprintf(
+                        /* translators: %s: B2B Pricing page URL. */
+                        __( 'No tiers yet. <a href="%s">Create a pricing tier</a> first.', 'storelly-product-builder-for-woocommerce' ),
+                        esc_url( class_exists( 'SPBWC_B2B_Pricing_Admin' ) ? SPBWC_B2B_Pricing_Admin::page_url() : '' )
+                    )
+                ) . '</span>';
+            }
+            echo '</td></tr>';
             echo '<tr><th>' . esc_html__( 'Team seats', 'storelly-product-builder-for-woocommerce' ) . '</th>';
             echo '<td><input type="number" name="seats" min="1" value="' . esc_attr( $seats ) . '" class="small-text" /></td></tr>';
             echo '<tr><th>' . esc_html__( 'Approval threshold', 'storelly-product-builder-for-woocommerce' ) . '</th>';

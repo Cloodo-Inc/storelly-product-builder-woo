@@ -177,3 +177,26 @@
         align-items: flex-start;
     }
 }
+
+/* B2B tier price display (Pattern 7) */
+.spbwc-b2b-price del {
+    opacity: .6;
+    margin-right: 6px;
+}
+
+.spbwc-b2b-price ins {
+    text-decoration: none;
+    font-weight: 700;
+}
+
+.spbwc-b2b-price-note {
+    display: inline-block;
+    margin-left: 6px;
+    font-size: 11px;
+    font-weight: 600;
+    color: #166534;
+    background: #dcfce7;
+    border-radius: 9999px;
+    padding: 1px 8px;
+    vertical-align: middle;
+}
