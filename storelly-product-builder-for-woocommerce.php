@@ -183,6 +183,8 @@ require_once(SPBWC_PB_PLUGIN_DIR .  'includes/b2b/class-b2b-admin.php');
 /* M2 — tier pricing: discount engine (cart + display) + admin tier ladder. */
 require_once(SPBWC_PB_PLUGIN_DIR .  'includes/b2b/class-b2b-pricing.php');
 require_once(SPBWC_PB_PLUGIN_DIR .  'includes/b2b/class-b2b-pricing-admin.php');
+/* M3 — reorder: My-Account Reorders tab + one-click reorder (reuse clone). */
+require_once(SPBWC_PB_PLUGIN_DIR .  'includes/b2b/class-b2b-reorders.php');
 if ( class_exists( 'SPBWC_B2B_Company_Post_Type' ) ) {
     SPBWC_B2B_Company_Post_Type::instance()->init();
 }
@@ -194,6 +196,9 @@ if ( class_exists( 'SPBWC_B2B_Account' ) ) {
 }
 if ( class_exists( 'SPBWC_B2B_Pricing' ) ) {
     SPBWC_B2B_Pricing::init();
+}
+if ( class_exists( 'SPBWC_B2B_Reorders' ) ) {
+    SPBWC_B2B_Reorders::init();
 }
 if ( is_admin() && class_exists( 'SPBWC_B2B_Admin' ) ) {
     SPBWC_B2B_Admin::instance()->init();

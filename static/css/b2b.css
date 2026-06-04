@@ -178,6 +178,71 @@
     }
 }
 
+/* B2B Reorders grid */
+.spbwc-reorders__grid {
+    list-style: none;
+    margin: 16px 0 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 18px;
+}
+
+.spbwc-reorders__card {
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+.spbwc-reorders__thumb {
+    width: 100%;
+    height: 160px;
+    object-fit: cover;
+    display: block;
+    background: #f9fafb;
+}
+
+.spbwc-reorders__body {
+    padding: 12px 14px 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.spbwc-reorders__name {
+    font-weight: 600;
+}
+
+.spbwc-reorders__meta {
+    font-size: 12px;
+    color: #6b7280;
+}
+
+.spbwc-reorders__form {
+    display: flex;
+    align-items: flex-end;
+    gap: 8px;
+    margin: 6px 0 0;
+}
+
+.spbwc-reorders__qty {
+    display: flex;
+    flex-direction: column;
+    font-size: 12px;
+    color: #6b7280;
+}
+
+.spbwc-reorders__qty input {
+    width: 64px;
+}
+
+.spbwc-reorders__unavailable {
+    font-size: 12px;
+    color: #b91c1c;
+}
+
 /* B2B tier price display (Pattern 7) */
 .spbwc-b2b-price del {
     opacity: .6;
