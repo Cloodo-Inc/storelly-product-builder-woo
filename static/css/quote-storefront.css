@@ -367,6 +367,7 @@
 }
 .spbwc-rfq-accept-total > span { font-size: 13px; color: var(--spbwc-rfq-muted); }
 .spbwc-rfq-accept-total > strong { font-size: 18px; color: var(--spbwc-rfq-text); }
+.spbwc-rfq-terms-note { margin: 0 0 10px; font-size: 12.5px; color: var(--spbwc-rfq-muted); }
 .spbwc-rfq-check {
     display: flex;
     align-items: flex-start;

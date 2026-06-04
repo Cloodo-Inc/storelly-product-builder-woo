@@ -630,9 +630,11 @@ if ( ! class_exists( 'SPBWC_Quote_Admin' ) ) {
                                         <div class="spbwc-q-field">
                                             <label for="spbwc-q-terms"><?php esc_html_e( 'Payment terms', 'storelly-product-builder-for-woocommerce' ); ?></label>
                                             <select id="spbwc-q-terms" name="quote_payment_terms" class="spbwc-input">
-                                                <option value="prepay" <?php selected( $terms ? $terms : 'prepay', 'prepay' ); ?>><?php esc_html_e( 'Pre-payment', 'storelly-product-builder-for-woocommerce' ); ?></option>
+                                                <?php foreach ( SPBWC_Quote::payment_terms_options() as $pt_key => $pt_label ) : ?>
+                                                    <option value="<?php echo esc_attr( $pt_key ); ?>" <?php selected( $terms ? $terms : 'prepay', $pt_key ); ?>><?php echo esc_html( $pt_label ); ?></option>
+                                                <?php endforeach; ?>
                                             </select>
-                                            <span class="spbwc-setting-row__hint"><?php esc_html_e( 'Net terms & deposits arrive in a later release.', 'storelly-product-builder-for-woocommerce' ); ?></span>
+                                            <span class="spbwc-setting-row__hint"><?php esc_html_e( 'How the customer pays once they accept. Net terms create an unpaid invoice; the deposit option charges 50% now.', 'storelly-product-builder-for-woocommerce' ); ?></span>
                                         </div>
                                         <div class="spbwc-q-field spbwc-q-field--full">
                                             <label for="spbwc-q-note"><?php esc_html_e( 'Note to customer', 'storelly-product-builder-for-woocommerce' ); ?></label>

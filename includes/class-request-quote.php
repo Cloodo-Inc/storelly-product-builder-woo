@@ -922,11 +922,30 @@ if ( ! class_exists( 'SPBWC_Request_Quote' ) ) {
             } elseif ( SPBWC_Quote::STATUS_NEGOTIATING === $status ) {
                 echo '<div class="spbwc-rfq-banner spbwc-rfq-banner--info">' . esc_html__( 'Your change request has been sent. We will get back to you with a revised quote.', 'storelly-product-builder-for-woocommerce' ) . '</div>';
             } elseif ( SPBWC_Quote::STATUS_CONVERTED === $status ) {
-                $order_id = (int) get_post_meta( $quote_id, SPBWC_Quote::META_ORDER_ID, true );
-                $order    = $order_id ? wc_get_order( $order_id ) : false;
+                $order_id  = (int) get_post_meta( $quote_id, SPBWC_Quote::META_ORDER_ID, true );
+                $order     = $order_id ? wc_get_order( $order_id ) : false;
+                $pay_terms = (string) get_post_meta( $quote_id, SPBWC_Quote::META_PAYMENT_TERMS, true );
+                $net       = SPBWC_Quote::term_net_days( $pay_terms );
                 echo '<div class="spbwc-rfq-banner spbwc-rfq-banner--ok">' . esc_html__( 'You accepted this quote — an order has been created.', 'storelly-product-builder-for-woocommerce' ) . '</div>';
+                if ( $net > 0 ) {
+                    $due = (string) get_post_meta( $quote_id, '_spbwc_quote_due_date', true );
+                    echo '<div class="spbwc-rfq-banner spbwc-rfq-banner--info">' . sprintf(
+                        /* translators: 1: net days, 2: due date */
+                        esc_html__( 'On account — Net-%1$d. We will invoice you; payment is due %2$s.', 'storelly-product-builder-for-woocommerce' ),
+                        (int) $net,
+                        esc_html( $due ? date_i18n( get_option( 'date_format' ), strtotime( $due ) ) : '' )
+                    ) . '</div>';
+                } elseif ( 'deposit_50' === $pay_terms ) {
+                    $balance = (float) get_post_meta( $quote_id, '_spbwc_quote_balance', true );
+                    echo '<div class="spbwc-rfq-banner spbwc-rfq-banner--info">' . sprintf(
+                        /* translators: %s: balance amount */
+                        esc_html__( 'A 50%% deposit is due now; the balance of %s is due on shipment.', 'storelly-product-builder-for-woocommerce' ),
+                        wp_kses_post( wc_price( $balance, $cur ) )
+                    ) . '</div>';
+                }
                 if ( $order && $order->needs_payment() ) {
-                    echo '<p><a class="spbwc-rfq-paybtn" href="' . esc_url( $order->get_checkout_payment_url() ) . '">' . esc_html__( 'Pay now', 'storelly-product-builder-for-woocommerce' ) . '</a></p>';
+                    $pay_label = ( 'deposit_50' === $pay_terms ) ? __( 'Pay deposit', 'storelly-product-builder-for-woocommerce' ) : __( 'Pay now', 'storelly-product-builder-for-woocommerce' );
+                    echo '<p><a class="spbwc-rfq-paybtn" href="' . esc_url( $order->get_checkout_payment_url() ) . '">' . esc_html( $pay_label ) . '</a></p>';
                 } elseif ( $order ) {
                     echo '<p><a class="spbwc-rfq-btn spbwc-rfq-btn--ghost" href="' . esc_url( $order->get_view_order_url() ) . '">' . esc_html__( 'View order', 'storelly-product-builder-for-woocommerce' ) . '</a></p>';
                 }
@@ -1018,6 +1037,8 @@ if ( ! class_exists( 'SPBWC_Request_Quote' ) ) {
                     '<a href="' . esc_url( $terms_url ) . '" target="_blank" rel="noopener">' . esc_html__( 'terms &amp; conditions', 'storelly-product-builder-for-woocommerce' ) . '</a>'
                 )
                 : esc_html__( 'I agree to the quote terms.', 'storelly-product-builder-for-woocommerce' );
+            $pay_terms  = (string) get_post_meta( $quote_id, SPBWC_Quote::META_PAYMENT_TERMS, true );
+            $accept_net = SPBWC_Quote::term_net_days( $pay_terms );
             $decline_reasons = array(
                 'price'     => __( 'Price too high', 'storelly-product-builder-for-woocommerce' ),
                 'timeline'  => __( "Timeline doesn't work", 'storelly-product-builder-for-woocommerce' ),
@@ -1044,9 +1065,20 @@ if ( ! class_exists( 'SPBWC_Request_Quote' ) ) {
                         <input type="hidden" name="quote_id" value="<?php echo esc_attr( $quote_id ); ?>" />
                         <input type="hidden" name="spbwc_quote_buyer_action" value="accept" />
                         <div class="spbwc-rfq-accept-total">
-                            <span><?php esc_html_e( 'Total due', 'storelly-product-builder-for-woocommerce' ); ?></span>
-                            <strong><?php echo wp_kses_post( wc_price( isset( $totals['total'] ) ? (float) $totals['total'] : 0, $accept_cur ) ); ?></strong>
+                            <span><?php echo ( 'deposit_50' === $pay_terms ) ? esc_html__( 'Deposit due now', 'storelly-product-builder-for-woocommerce' ) : esc_html__( 'Total', 'storelly-product-builder-for-woocommerce' ); ?></span>
+                            <strong><?php echo wp_kses_post( wc_price( ( 'deposit_50' === $pay_terms ) ? round( ( isset( $totals['total'] ) ? (float) $totals['total'] : 0 ) / 2, 2 ) : ( isset( $totals['total'] ) ? (float) $totals['total'] : 0 ), $accept_cur ) ); ?></strong>
                         </div>
+                        <?php if ( $accept_net > 0 ) : ?>
+                            <p class="spbwc-rfq-terms-note"><?php
+                                /* translators: %d: net days */
+                                printf( esc_html__( 'Net-%d — you will be invoiced; no payment is taken now.', 'storelly-product-builder-for-woocommerce' ), (int) $accept_net );
+                            ?></p>
+                        <?php elseif ( 'deposit_50' === $pay_terms ) : ?>
+                            <p class="spbwc-rfq-terms-note"><?php
+                                /* translators: %s: full total */
+                                printf( esc_html__( '50%% deposit of %s now; balance on shipment.', 'storelly-product-builder-for-woocommerce' ), wp_kses_post( wc_price( isset( $totals['total'] ) ? (float) $totals['total'] : 0, $accept_cur ) ) );
+                            ?></p>
+                        <?php endif; ?>
                         <label for="spbwc-rfq-po"><?php esc_html_e( 'PO number (optional)', 'storelly-product-builder-for-woocommerce' ); ?></label>
                         <input type="text" id="spbwc-rfq-po" name="po_number" value="" />
                         <label class="spbwc-rfq-check">
@@ -1193,47 +1225,88 @@ if ( ! class_exists( 'SPBWC_Request_Quote' ) ) {
         protected function spawn_order_from_quote( $quote_id, $po = '' ) {
             $lines  = SPBWC_Quote::get_lines( $quote_id );
             $totals = SPBWC_Quote::get_totals( $quote_id );
+            $terms  = (string) get_post_meta( $quote_id, SPBWC_Quote::META_PAYMENT_TERMS, true );
+            $terms  = $terms ? $terms : 'prepay';
+            $grand  = isset( $totals['total'] ) ? (float) $totals['total'] : 0;
+            $cur    = array( 'currency' => isset( $totals['currency'] ) && $totals['currency'] ? $totals['currency'] : get_woocommerce_currency() );
             $order  = wc_create_order( array( 'customer_id' => (int) get_post_field( 'post_author', $quote_id ) ) );
             if ( is_wp_error( $order ) || ! $order ) {
                 return false;
             }
-            foreach ( $lines as $line ) {
-                $amount = isset( $line['line_total'] ) ? (float) $line['line_total'] : 0;
-                $label  = isset( $line['label'] ) ? $line['label'] : '';
-                $qty    = isset( $line['qty'] ) ? (float) $line['qty'] : 0;
-                if ( '' === $label && 0.0 === $amount ) {
-                    continue;
+            $plain = function ( $amount ) use ( $cur ) {
+                return html_entity_decode( wp_strip_all_tags( wc_price( $amount, $cur ) ) );
+            };
+
+            if ( 'deposit_50' === $terms ) {
+                // Charge a 50% deposit now; the balance is tracked for a later invoice.
+                $deposit = round( $grand / 2, 2 );
+                $balance = round( $grand - $deposit, 2 );
+                $fee     = new WC_Order_Item_Fee();
+                /* translators: %s: full quote total */
+                $fee->set_name( sprintf( __( 'Deposit (50%% of %s)', 'storelly-product-builder-for-woocommerce' ), $plain( $grand ) ) );
+                $fee->set_amount( $deposit );
+                $fee->set_total( $deposit );
+                $fee->set_tax_status( 'none' );
+                $order->add_item( $fee );
+                $order->update_meta_data( '_spbwc_quote_deposit', $deposit );
+                $order->update_meta_data( '_spbwc_quote_balance', $balance );
+                update_post_meta( $quote_id, '_spbwc_quote_balance', $balance );
+                /* translators: 1: deposit amount, 2: balance amount */
+                $order->add_order_note( sprintf( __( '50%% deposit %1$s now; balance %2$s due on shipment.', 'storelly-product-builder-for-woocommerce' ), $plain( $deposit ), $plain( $balance ) ) );
+            } else {
+                // Full order: one fee per quote line, plus discount/tax.
+                foreach ( $lines as $line ) {
+                    $amount = isset( $line['line_total'] ) ? (float) $line['line_total'] : 0;
+                    $label  = isset( $line['label'] ) ? $line['label'] : '';
+                    $qty    = isset( $line['qty'] ) ? (float) $line['qty'] : 0;
+                    if ( '' === $label && 0.0 === $amount ) {
+                        continue;
+                    }
+                    $name = ( $qty > 1 ) ? sprintf( '%s × %s', $label, 0 + $qty ) : $label;
+                    $fee  = new WC_Order_Item_Fee();
+                    $fee->set_name( $name ? $name : __( 'Quote item', 'storelly-product-builder-for-woocommerce' ) );
+                    $fee->set_amount( $amount );
+                    $fee->set_total( $amount );
+                    $fee->set_tax_status( 'none' );
+                    $order->add_item( $fee );
                 }
-                $name = ( $qty > 1 ) ? sprintf( '%s × %s', $label, 0 + $qty ) : $label;
-                $fee  = new WC_Order_Item_Fee();
-                $fee->set_name( $name ? $name : __( 'Quote item', 'storelly-product-builder-for-woocommerce' ) );
-                $fee->set_amount( $amount );
-                $fee->set_total( $amount );
-                $fee->set_tax_status( 'none' );
-                $order->add_item( $fee );
+                if ( ! empty( $totals['discount'] ) ) {
+                    $fee = new WC_Order_Item_Fee();
+                    $fee->set_name( __( 'Discount', 'storelly-product-builder-for-woocommerce' ) );
+                    $fee->set_amount( -1 * (float) $totals['discount'] );
+                    $fee->set_total( -1 * (float) $totals['discount'] );
+                    $fee->set_tax_status( 'none' );
+                    $order->add_item( $fee );
+                }
+                if ( ! empty( $totals['tax'] ) ) {
+                    $fee = new WC_Order_Item_Fee();
+                    $fee->set_name( __( 'Tax', 'storelly-product-builder-for-woocommerce' ) );
+                    $fee->set_amount( (float) $totals['tax'] );
+                    $fee->set_total( (float) $totals['tax'] );
+                    $fee->set_tax_status( 'none' );
+                    $order->add_item( $fee );
+                }
             }
-            if ( ! empty( $totals['discount'] ) ) {
-                $fee = new WC_Order_Item_Fee();
-                $fee->set_name( __( 'Discount', 'storelly-product-builder-for-woocommerce' ) );
-                $fee->set_amount( -1 * (float) $totals['discount'] );
-                $fee->set_total( -1 * (float) $totals['discount'] );
-                $fee->set_tax_status( 'none' );
-                $order->add_item( $fee );
-            }
-            if ( ! empty( $totals['tax'] ) ) {
-                $fee = new WC_Order_Item_Fee();
-                $fee->set_name( __( 'Tax', 'storelly-product-builder-for-woocommerce' ) );
-                $fee->set_amount( (float) $totals['tax'] );
-                $fee->set_total( (float) $totals['tax'] );
-                $fee->set_tax_status( 'none' );
-                $order->add_item( $fee );
-            }
+
             if ( '' !== $po ) {
                 $order->update_meta_data( '_spbwc_quote_po_number', $po );
                 update_post_meta( $quote_id, SPBWC_Quote::META_PO_NUMBER, $po );
             }
             $order->update_meta_data( '_spbwc_source_quote', $quote_id );
-            $order->set_status( 'pending' );
+            $order->update_meta_data( '_spbwc_quote_payment_terms', $terms );
+
+            // Net terms → an unpaid invoice held until the due date.
+            $net = SPBWC_Quote::term_net_days( $terms );
+            if ( $net > 0 ) {
+                $due = gmdate( 'Y-m-d', strtotime( '+' . $net . ' days', current_time( 'timestamp' ) ) );
+                $order->update_meta_data( '_spbwc_quote_due_date', $due );
+                update_post_meta( $quote_id, '_spbwc_quote_due_date', $due );
+                $order->set_status( 'on-hold' );
+                /* translators: 1: net days, 2: due date */
+                $order->add_order_note( sprintf( __( 'Net-%1$d invoice — payment due %2$s.', 'storelly-product-builder-for-woocommerce' ), $net, $due ) );
+            } else {
+                $order->set_status( 'pending' );
+            }
             $order->calculate_totals( false );
             $order->save();
             update_post_meta( $quote_id, SPBWC_Quote::META_ORDER_ID, $order->get_id() );

@@ -72,6 +72,32 @@ if ( ! class_exists( 'SPBWC_Quote' ) ) {
         }
 
         /**
+         * Payment-terms options for the pricing reply (P4.2).
+         *
+         * @return array<string,string> slug => label
+         */
+        public static function payment_terms_options() {
+            return array(
+                'prepay'     => __( 'Pre-payment', 'storelly-product-builder-for-woocommerce' ),
+                'net_15'     => __( 'Net-15 (invoice, due in 15 days)', 'storelly-product-builder-for-woocommerce' ),
+                'net_30'     => __( 'Net-30 (invoice, due in 30 days)', 'storelly-product-builder-for-woocommerce' ),
+                'net_60'     => __( 'Net-60 (invoice, due in 60 days)', 'storelly-product-builder-for-woocommerce' ),
+                'deposit_50' => __( '50% deposit now, balance on shipment', 'storelly-product-builder-for-woocommerce' ),
+            );
+        }
+
+        /**
+         * Net days for a payment-terms slug (0 when not a net term).
+         *
+         * @param string $terms Terms slug.
+         * @return int
+         */
+        public static function term_net_days( $terms ) {
+            $map = array( 'net_15' => 15, 'net_30' => 30, 'net_60' => 60 );
+            return isset( $map[ $terms ] ) ? $map[ $terms ] : 0;
+        }
+
+        /**
          * Labels for the buyer "Request changes" asks (shared by the storefront
          * form and the admin detail).
          *
