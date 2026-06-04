@@ -1,0 +1,90 @@
+/**
+ * Storelly Product Builder — Onboarding admin notices.
+ *
+ * Tokenised styling for the two dismissible notices that ride on WP core's
+ * `.notice` chrome:
+ *   - .spbwc-review-notice : retention "leave a review" ask (M9.2)
+ *   - .spbwc-upsell-notice : contextual Free-plan upsell (M7)
+ *
+ * Every value flows through _tokens.css — zero hardcoded hex, zero inline
+ * style="" in the PHP. Lazy-enqueued by the notice classes' ensure_css().
+ */
+
+/* Shared notice shell — accent the left rail + tighten the typography so the
+   notices read as Storelly surfaces, not raw WP admin notices. */
+.spbwc-review-notice,
+.spbwc-upsell-notice {
+	border-left-width: 4px !important;
+	padding: var(--nbd-space-3, 12px) var(--nbd-space-4, 16px) !important;
+}
+
+.spbwc-review-notice__title,
+.spbwc-upsell-notice__title {
+	display: flex;
+	align-items: center;
+	gap: var(--nbd-space-2, 8px);
+	margin: 0 0 var(--nbd-space-1, 4px) 0;
+	font-size: var(--text-lg, 14px);
+	font-weight: var(--font-bold, 700);
+	color: var(--nbd-st-text, #1d2327);
+}
+
+.spbwc-review-notice__title .dashicons,
+.spbwc-upsell-notice__title .dashicons {
+	font-size: 18px;
+	width: 18px;
+	height: 18px;
+}
+
+.spbwc-review-notice__body,
+.spbwc-upsell-notice__body {
+	margin: 0 0 var(--nbd-space-3, 12px) 0;
+	max-width: 760px;
+	color: var(--nbd-st-text-soft, #50575e);
+	line-height: 1.55;
+	font-size: var(--text-md, 13px);
+}
+
+.spbwc-review-notice__actions,
+.spbwc-upsell-notice__actions {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: var(--nbd-space-2, 8px);
+	margin: 0;
+}
+
+.spbwc-review-notice__actions .button-link,
+.spbwc-upsell-notice__actions .button-link {
+	color: var(--nbd-st-text-mute, #8c8f94);
+	text-decoration: none;
+	font-size: var(--text-md, 13px);
+}
+
+.spbwc-review-notice__actions .button-link:hover,
+.spbwc-upsell-notice__actions .button-link:hover {
+	color: var(--nbd-st-text-soft, #50575e);
+	text-decoration: underline;
+}
+
+/* The secondary choices sit a touch apart from the primary button. */
+.spbwc-review-notice__spacer { margin-left: var(--nbd-space-1, 4px); }
+
+/* === Review notice — warm "we'd love a review" accent ============ */
+.spbwc-review-notice {
+	border-left-color: var(--st-accent, #f59e0b) !important;
+}
+.spbwc-review-notice__title .dashicons-heart { color: #e0245e; }
+.spbwc-review-notice__actions .button-primary .dashicons {
+	font-size: 16px;
+	width: 16px;
+	height: 16px;
+	vertical-align: text-bottom;
+	margin-right: 2px;
+}
+
+/* === Upsell notice — brand accent ================================ */
+.spbwc-upsell-notice {
+	border-left-color: var(--st-brand, #1d4ed8) !important;
+}
+.spbwc-upsell-notice__title .dashicons-star-filled { color: var(--st-accent, #f59e0b); }

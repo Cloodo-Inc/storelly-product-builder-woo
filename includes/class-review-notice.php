@@ -95,33 +95,53 @@ if ( ! class_exists( 'SPBWC_Review_Notice' ) ) {
 			if ( ! self::should_show() ) {
 				return;
 			}
+			self::ensure_css();
 
 			$did_url   = self::action_url( 'did' );
 			$later_url = self::action_url( 'later' );
 			$never_url = self::action_url( 'never' );
 			?>
 			<div class="notice notice-info is-dismissible spbwc-review-notice">
-				<p style="font-weight:600;margin-bottom:4px;">
-					<span class="dashicons dashicons-heart" aria-hidden="true" style="color:#e0245e;"></span>
+				<p class="spbwc-review-notice__title">
+					<span class="dashicons dashicons-heart" aria-hidden="true"></span>
 					<?php esc_html_e( 'Enjoying Storelly Product Builder?', 'storelly-product-builder-for-woocommerce' ); ?>
 				</p>
-				<p style="margin-top:0;">
+				<p class="spbwc-review-notice__body">
 					<?php esc_html_e( 'You\'ve got the builder up and running on your store — that\'s great to see! A quick review on WordPress.org helps other merchants find us and means a lot to our small team.', 'storelly-product-builder-for-woocommerce' ); ?>
 				</p>
-				<p>
+				<p class="spbwc-review-notice__actions">
 					<a class="button button-primary" href="<?php echo esc_url( $did_url ); ?>">
-						<span class="dashicons dashicons-star-filled" aria-hidden="true" style="vertical-align:middle;"></span>
+						<span class="dashicons dashicons-star-filled" aria-hidden="true"></span>
 						<?php esc_html_e( 'Sure, I\'ll leave a review', 'storelly-product-builder-for-woocommerce' ); ?>
 					</a>
-					<a class="button-link" href="<?php echo esc_url( $later_url ); ?>" style="margin-left:8px;">
+					<a class="button-link spbwc-review-notice__spacer" href="<?php echo esc_url( $later_url ); ?>">
 						<?php esc_html_e( 'Maybe later', 'storelly-product-builder-for-woocommerce' ); ?>
 					</a>
-					<a class="button-link" href="<?php echo esc_url( $never_url ); ?>" style="margin-left:8px;">
+					<a class="button-link" href="<?php echo esc_url( $never_url ); ?>">
 						<?php esc_html_e( 'Already did / No thanks', 'storelly-product-builder-for-woocommerce' ); ?>
 					</a>
 				</p>
 			</div>
 			<?php
+		}
+
+		/**
+		 * Lazy-enqueue the shared onboarding-notice stylesheet. Registers the
+		 * design tokens too, since this notice can render on the WC product
+		 * editor where the Storelly admin bundle isn't loaded. WP prints styles
+		 * enqueued during admin_notices in the admin footer.
+		 */
+		protected static function ensure_css() {
+			if ( ! defined( 'SPBWC_PB_CSS_URL' ) || ! defined( 'SPBWC_PB_VERSION' ) ) {
+				return;
+			}
+			if ( ! wp_style_is( 'spbwc-tokens', 'registered' ) ) {
+				wp_register_style( 'spbwc-tokens', SPBWC_PB_CSS_URL . '_tokens.css', array(), SPBWC_PB_VERSION );
+			}
+			if ( ! wp_style_is( 'spbwc-onboarding-notices', 'registered' ) ) {
+				wp_register_style( 'spbwc-onboarding-notices', SPBWC_PB_CSS_URL . 'onboarding-notices.css', array( 'spbwc-tokens', 'dashicons' ), SPBWC_PB_VERSION );
+			}
+			wp_enqueue_style( 'spbwc-onboarding-notices' );
 		}
 
 		/** Nonce-protected URL for one of the three choices. */

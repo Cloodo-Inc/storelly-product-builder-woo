@@ -66,44 +66,59 @@ if ( ! class_exists( 'SPBWC_Upsell_Notice' ) ) {
 				return; // Not at a limit yet — stay silent.
 			}
 
-			// Contextual message: lead with whichever limit was hit.
+			// Contextual nudge: the merchant is actively using the builder, so
+			// introduce Storelly Cloud. These counts are an engagement signal,
+			// NOT a cap — the free plan has no product/option-group limit.
 			if ( $hit_products ) {
 				$headline = sprintf(
-					/* translators: 1: linked product count, 2: Free plan product limit. */
-					__( 'You\'re using %1$d of %2$d products on the Free plan', 'storelly-product-builder-for-woocommerce' ),
-					(int) $linked,
-					(int) $max_products
+					/* translators: %d: number of products the merchant has set up with the builder. */
+					_n( 'You\'ve set up %d product with Storelly', 'You\'ve set up %d products with Storelly', (int) $linked, 'storelly-product-builder-for-woocommerce' ),
+					(int) $linked
 				);
 			} else {
 				$headline = sprintf(
-					/* translators: 1: pricing option group count, 2: Free plan option-group limit. */
-					__( 'You\'re using %1$d of %2$d option groups on the Free plan', 'storelly-product-builder-for-woocommerce' ),
-					(int) $pricing,
-					(int) $max_pricing
+					/* translators: %d: number of pricing option groups the merchant has created. */
+					_n( 'You\'ve created %d option group with Storelly', 'You\'ve created %d option groups with Storelly', (int) $pricing, 'storelly-product-builder-for-woocommerce' ),
+					(int) $pricing
 				);
 			}
 
 			$license_url = admin_url( 'admin.php?page=' . SPBWC_PB_LICENSE_SLUG );
 			$dismiss_url = wp_nonce_url( add_query_arg( self::NONCE_QUERY, '1' ), self::NONCE_QUERY );
+			self::ensure_css();
 			?>
 			<div class="notice notice-info is-dismissible spbwc-upsell-notice">
-				<p style="font-weight:600;margin-bottom:4px;">
-					<span class="dashicons dashicons-star-filled" aria-hidden="true" style="color:#f59e0b;"></span>
+				<p class="spbwc-upsell-notice__title">
+					<span class="dashicons dashicons-star-filled" aria-hidden="true"></span>
 					<?php echo esc_html( $headline ); ?>
 				</p>
-				<p style="margin-top:0;">
-					<?php esc_html_e( 'Upgrade to unlock unlimited products and option groups, premium templates and priority support. Your existing setup stays exactly as it is.', 'storelly-product-builder-for-woocommerce' ); ?>
+				<p class="spbwc-upsell-notice__body">
+					<?php esc_html_e( 'Add a Storelly Cloud plan to enable print-ready PDF rendering, order sync and dashboard analytics. Your builder, quotes and custom orders stay free and unchanged.', 'storelly-product-builder-for-woocommerce' ); ?>
 				</p>
-				<p>
+				<p class="spbwc-upsell-notice__actions">
 					<a class="button button-primary" href="<?php echo esc_url( $license_url ); ?>">
 						<?php esc_html_e( 'See upgrade options', 'storelly-product-builder-for-woocommerce' ); ?>
 					</a>
-					<a class="button-link" href="<?php echo esc_url( $dismiss_url ); ?>" style="margin-left:8px;">
+					<a class="button-link" href="<?php echo esc_url( $dismiss_url ); ?>">
 						<?php esc_html_e( 'Maybe later', 'storelly-product-builder-for-woocommerce' ); ?>
 					</a>
 				</p>
 			</div>
 			<?php
+		}
+
+		/** Lazy-enqueue the shared onboarding-notice stylesheet (tokens + dashicons deps). */
+		protected static function ensure_css() {
+			if ( ! defined( 'SPBWC_PB_CSS_URL' ) || ! defined( 'SPBWC_PB_VERSION' ) ) {
+				return;
+			}
+			if ( ! wp_style_is( 'spbwc-tokens', 'registered' ) ) {
+				wp_register_style( 'spbwc-tokens', SPBWC_PB_CSS_URL . '_tokens.css', array(), SPBWC_PB_VERSION );
+			}
+			if ( ! wp_style_is( 'spbwc-onboarding-notices', 'registered' ) ) {
+				wp_register_style( 'spbwc-onboarding-notices', SPBWC_PB_CSS_URL . 'onboarding-notices.css', array( 'spbwc-tokens', 'dashicons' ), SPBWC_PB_VERSION );
+			}
+			wp_enqueue_style( 'spbwc-onboarding-notices' );
 		}
 
 		public static function maybe_dismiss() {
