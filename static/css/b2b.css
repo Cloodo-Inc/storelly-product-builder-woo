@@ -1,0 +1,179 @@
+/* Storelly B2B — Brand Store (public /store/<slug> + My-Account profile). M1. */
+
+.spbwc-store {
+    --spbwc-brand-primary: #2563eb;
+    --spbwc-brand-secondary: #1e40af;
+    max-width: 1080px;
+    margin: 0 auto;
+    padding: 0 16px 48px;
+}
+
+/* Brand Page Header (Pattern 9) */
+.spbwc-store__header {
+    position: relative;
+    border-radius: 16px;
+    overflow: hidden;
+    margin: 24px 0 28px;
+    padding: 28px 28px;
+    color: #fff;
+    background: linear-gradient(135deg, var(--spbwc-brand-primary), var(--spbwc-brand-secondary));
+}
+
+.spbwc-store__header.has-banner {
+    background-image: var(--spbwc-brand-banner), linear-gradient(135deg, var(--spbwc-brand-primary), var(--spbwc-brand-secondary));
+    background-size: cover;
+    background-position: center;
+    background-blend-mode: overlay;
+}
+
+.spbwc-store__header--account {
+    margin-top: 0;
+}
+
+.spbwc-store__header-inner {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    position: relative;
+    z-index: 1;
+}
+
+.spbwc-store__logo {
+    width: 64px;
+    height: 64px;
+    border-radius: 12px;
+    background: #fff;
+    object-fit: contain;
+    padding: 6px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, .15);
+}
+
+.spbwc-store__eyebrow {
+    display: block;
+    font-size: 11px;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+    opacity: .85;
+    margin-bottom: 4px;
+}
+
+.spbwc-store__title {
+    margin: 0;
+    font-size: 26px;
+    line-height: 1.2;
+    color: #fff;
+}
+
+.spbwc-store__tagline {
+    margin: 6px 0 0;
+    font-size: 14px;
+    opacity: .9;
+}
+
+.spbwc-store__link {
+    color: #fff;
+    text-decoration: underline;
+    font-size: 13px;
+}
+
+.spbwc-store__desc {
+    color: #4b5563;
+    max-width: 640px;
+    margin: 0 0 24px;
+}
+
+.spbwc-store__section-title {
+    font-size: 18px;
+    margin: 8px 0 16px;
+}
+
+.spbwc-store__empty {
+    color: #6b7280;
+    background: #f9fafb;
+    border: 1px dashed #d1d5db;
+    border-radius: 10px;
+    padding: 20px;
+    text-align: center;
+}
+
+/* Pre-approved products grid */
+.spbwc-store__grid {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 18px;
+}
+
+.spbwc-store__card {
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    overflow: hidden;
+    transition: box-shadow .15s ease;
+}
+
+.spbwc-store__card:hover {
+    box-shadow: 0 6px 20px rgba(0, 0, 0, .08);
+}
+
+.spbwc-store__card-link {
+    display: block;
+    text-decoration: none;
+    color: inherit;
+    padding-bottom: 12px;
+}
+
+.spbwc-store__card-link img {
+    width: 100%;
+    height: auto;
+    display: block;
+}
+
+.spbwc-store__card-name {
+    display: block;
+    font-weight: 600;
+    padding: 12px 12px 4px;
+}
+
+.spbwc-store__card-price {
+    display: block;
+    padding: 0 12px;
+    color: var(--spbwc-brand-primary);
+}
+
+/* My-Account edit form */
+.spbwc-store__form .spbwc-store__section {
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    padding: 16px 20px 8px;
+    margin: 0 0 20px;
+}
+
+.spbwc-store__form legend {
+    font-weight: 700;
+    padding: 0 8px;
+}
+
+.spbwc-store__form .form-row {
+    margin-bottom: 14px;
+}
+
+.spbwc-store__form label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 4px;
+}
+
+.spbwc-store__form input[type="text"],
+.spbwc-store__form textarea {
+    width: 100%;
+    max-width: 480px;
+}
+
+@media (max-width: 600px) {
+    .spbwc-store__header-inner {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+}
