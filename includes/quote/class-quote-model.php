@@ -49,6 +49,7 @@ if ( ! class_exists( 'SPBWC_Quote' ) ) {
         const META_ORDER_ID     = '_spbwc_quote_order_id';
         const META_PO_NUMBER    = '_spbwc_quote_po_number';
         const META_DECLINE_REASON = '_spbwc_quote_decline_reason';
+        const META_VERSIONS     = '_spbwc_quote_versions';
 
         /**
          * Human-readable label for each status.
@@ -302,6 +303,92 @@ if ( ! class_exists( 'SPBWC_Quote' ) ) {
                 'tax'      => 0,
                 'total'    => 0,
                 'currency' => '',
+            );
+        }
+
+        /* ── Version history & diff (P3.9) ────────────────────────── */
+
+        /**
+         * Snapshot the current priced state into the immutable version history.
+         * Called each time a quote is sent / counter-sent.
+         *
+         * @param int $post_id Quote post ID.
+         * @return int New revision count.
+         */
+        public static function push_version( $post_id ) {
+            $post_id  = absint( $post_id );
+            $versions = self::get_versions( $post_id );
+            $versions[] = array(
+                'revision'      => count( $versions ) + 1,
+                'lines'         => self::get_lines( $post_id ),
+                'totals'        => self::get_totals( $post_id ),
+                'valid_until'   => (string) get_post_meta( $post_id, self::META_VALID_UNTIL, true ),
+                'payment_terms' => (string) get_post_meta( $post_id, self::META_PAYMENT_TERMS, true ),
+                'customer_note' => (string) get_post_meta( $post_id, self::META_CUSTOMER_NOTE, true ),
+                'sent_at'       => time(),
+            );
+            update_post_meta( $post_id, self::META_VERSIONS, $versions );
+            update_post_meta( $post_id, self::META_REVISION, count( $versions ) );
+            return count( $versions );
+        }
+
+        /**
+         * @param int $post_id Quote post ID.
+         * @return array[] Ordered version snapshots (oldest first).
+         */
+        public static function get_versions( $post_id ) {
+            $v = get_post_meta( absint( $post_id ), self::META_VERSIONS, true );
+            return is_array( $v ) ? $v : array();
+        }
+
+        /**
+         * Diff two version snapshots by line label.
+         *
+         * @param array $prev Older snapshot.
+         * @param array $curr Newer snapshot.
+         * @return array{added:array,removed:array,changed:array,total_old:float,total_new:float}
+         */
+        public static function diff_versions( $prev, $curr ) {
+            $key = function ( $l ) {
+                return strtolower( trim( isset( $l['label'] ) ? $l['label'] : '' ) );
+            };
+            $prev_lines = array();
+            foreach ( (array) ( isset( $prev['lines'] ) ? $prev['lines'] : array() ) as $l ) {
+                $prev_lines[ $key( $l ) ] = $l;
+            }
+            $curr_lines = array();
+            foreach ( (array) ( isset( $curr['lines'] ) ? $curr['lines'] : array() ) as $l ) {
+                $curr_lines[ $key( $l ) ] = $l;
+            }
+            $added   = array();
+            $removed = array();
+            $changed = array();
+            foreach ( $curr_lines as $k => $l ) {
+                if ( ! isset( $prev_lines[ $k ] ) ) {
+                    $added[] = $l;
+                    continue;
+                }
+                $p = $prev_lines[ $k ];
+                if ( (float) ( isset( $l['qty'] ) ? $l['qty'] : 0 ) !== (float) ( isset( $p['qty'] ) ? $p['qty'] : 0 )
+                    || (float) ( isset( $l['unit_price'] ) ? $l['unit_price'] : 0 ) !== (float) ( isset( $p['unit_price'] ) ? $p['unit_price'] : 0 ) ) {
+                    $changed[] = array(
+                        'label' => isset( $l['label'] ) ? $l['label'] : '',
+                        'old'   => $p,
+                        'new'   => $l,
+                    );
+                }
+            }
+            foreach ( $prev_lines as $k => $l ) {
+                if ( ! isset( $curr_lines[ $k ] ) ) {
+                    $removed[] = $l;
+                }
+            }
+            return array(
+                'added'     => $added,
+                'removed'   => $removed,
+                'changed'   => $changed,
+                'total_old' => (float) ( isset( $prev['totals']['total'] ) ? $prev['totals']['total'] : 0 ),
+                'total_new' => (float) ( isset( $curr['totals']['total'] ) ? $curr['totals']['total'] : 0 ),
             );
         }
 

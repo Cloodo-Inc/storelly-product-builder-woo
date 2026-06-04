@@ -41,6 +41,54 @@ if ( ! class_exists( 'SPBWC_Quote_Admin' ) ) {
 
         public function init() {
             add_action( 'admin_menu', array( $this, 'register_menu' ), 20 );
+            add_action( 'wp_ajax_spbwc_save_quote_template', array( $this, 'ajax_save_template' ) );
+            add_action( 'wp_ajax_spbwc_delete_quote_template', array( $this, 'ajax_delete_template' ) );
+        }
+
+        /** AJAX: save the posted pricing reply as a named template. */
+        public function ajax_save_template() {
+            check_ajax_referer( 'spbwc_quote_template', 'nonce' );
+            if ( ! current_user_can( self::CAPABILITY ) ) {
+                wp_send_json_error( array( 'message' => esc_html__( 'Permission denied.', 'storelly-product-builder-for-woocommerce' ) ) );
+            }
+            $name   = isset( $_POST['name'] ) ? sanitize_text_field( wp_unslash( $_POST['name'] ) ) : '';
+            // phpcs:disable WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- sanitized in SPBWC_Quote_Template::sanitize_lines().
+            $labels = isset( $_POST['line_label'] ) ? (array) wp_unslash( $_POST['line_label'] ) : array();
+            $descs  = isset( $_POST['line_desc'] ) ? (array) wp_unslash( $_POST['line_desc'] ) : array();
+            $qtys   = isset( $_POST['line_qty'] ) ? (array) wp_unslash( $_POST['line_qty'] ) : array();
+            $prices = isset( $_POST['line_price'] ) ? (array) wp_unslash( $_POST['line_price'] ) : array();
+            // phpcs:enable WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+            $rows  = array();
+            $count = max( count( $labels ), count( $qtys ), count( $prices ) );
+            for ( $i = 0; $i < $count; $i++ ) {
+                $rows[] = array(
+                    'label'      => isset( $labels[ $i ] ) ? $labels[ $i ] : '',
+                    'desc'       => isset( $descs[ $i ] ) ? $descs[ $i ] : '',
+                    'qty'        => isset( $qtys[ $i ] ) ? $qtys[ $i ] : 0,
+                    'unit_price' => isset( $prices[ $i ] ) ? $prices[ $i ] : 0,
+                );
+            }
+            $terms = array(
+                'valid_days'    => isset( $_POST['valid_days'] ) ? (int) $_POST['valid_days'] : 0,
+                'payment_terms' => isset( $_POST['payment_terms'] ) ? sanitize_key( wp_unslash( $_POST['payment_terms'] ) ) : 'prepay',
+                'note'          => isset( $_POST['note'] ) ? sanitize_textarea_field( wp_unslash( $_POST['note'] ) ) : '',
+            );
+            $res = SPBWC_Quote_Template::create( $name, $rows, $terms );
+            if ( is_wp_error( $res ) ) {
+                wp_send_json_error( array( 'message' => $res->get_error_message() ) );
+            }
+            wp_send_json_success( array( 'templates' => SPBWC_Quote_Template::get_all() ) );
+        }
+
+        /** AJAX: delete a template. */
+        public function ajax_delete_template() {
+            check_ajax_referer( 'spbwc_quote_template', 'nonce' );
+            if ( ! current_user_can( self::CAPABILITY ) ) {
+                wp_send_json_error( array( 'message' => esc_html__( 'Permission denied.', 'storelly-product-builder-for-woocommerce' ) ) );
+            }
+            $tid = isset( $_POST['template_id'] ) ? absint( wp_unslash( $_POST['template_id'] ) ) : 0;
+            SPBWC_Quote_Template::delete( $tid );
+            wp_send_json_success( array( 'templates' => SPBWC_Quote_Template::get_all() ) );
         }
 
         public function register_menu() {
@@ -156,10 +204,8 @@ if ( ! class_exists( 'SPBWC_Quote_Admin' ) ) {
                 $note = ( SPBWC_Quote::STATUS_NEGOTIATING === $from )
                     ? __( 'Revised quote sent to customer.', 'storelly-product-builder-for-woocommerce' )
                     : __( 'Quote sent to customer.', 'storelly-product-builder-for-woocommerce' );
-                if ( SPBWC_Quote::STATUS_NEGOTIATING === $from ) {
-                    $rev = (int) get_post_meta( $quote_id, SPBWC_Quote::META_REVISION, true );
-                    update_post_meta( $quote_id, SPBWC_Quote::META_REVISION, $rev + 1 );
-                }
+                // Snapshot this priced version for the revision history / diff (P3.9).
+                SPBWC_Quote::push_version( $quote_id );
                 $res = SPBWC_Quote::set_status( $quote_id, SPBWC_Quote::STATUS_SENT, $note );
                 if ( ! is_wp_error( $res ) ) {
                     do_action( 'spbwc_quote_sent_notification', $quote_id );
@@ -435,6 +481,7 @@ if ( ! class_exists( 'SPBWC_Quote_Admin' ) ) {
                 // Seed an empty editable row so the merchant has somewhere to type.
                 $lines = array( array( 'label' => '', 'desc' => '', 'qty' => 1, 'unit_price' => 0, 'line_total' => 0 ) );
             }
+            $templates = class_exists( 'SPBWC_Quote_Template' ) ? SPBWC_Quote_Template::get_all() : array();
             ?>
             <div class="wrap spbwc-settings-wrap">
                 <?php
@@ -495,6 +542,20 @@ if ( ! class_exists( 'SPBWC_Quote_Admin' ) ) {
                                     </h3>
                                 </div>
                                 <div class="spbwc-block__body">
+                                    <?php if ( $editable ) : ?>
+                                        <div class="spbwc-q-tmpl-bar">
+                                            <select id="spbwc-q-tmpl-select" class="spbwc-input spbwc-input--sm">
+                                                <option value=""><?php esc_html_e( 'Load template…', 'storelly-product-builder-for-woocommerce' ); ?></option>
+                                                <?php foreach ( $templates as $tpl ) : ?>
+                                                    <option value="<?php echo esc_attr( $tpl['id'] ); ?>"><?php echo esc_html( $tpl['name'] ); ?></option>
+                                                <?php endforeach; ?>
+                                            </select>
+                                            <button type="button" class="spbwc-cta-btn spbwc-cta-btn--ghost spbwc-cta-btn--sm" id="spbwc-q-tmpl-apply"><?php esc_html_e( 'Apply', 'storelly-product-builder-for-woocommerce' ); ?></button>
+                                            <button type="button" class="spbwc-cta-btn spbwc-cta-btn--ghost spbwc-cta-btn--sm" id="spbwc-q-tmpl-delete" title="<?php esc_attr_e( 'Delete selected template', 'storelly-product-builder-for-woocommerce' ); ?>"><span class="dashicons dashicons-trash" aria-hidden="true"></span></button>
+                                            <span class="spbwc-q-spacer"></span>
+                                            <button type="button" class="spbwc-cta-btn spbwc-cta-btn--ghost spbwc-cta-btn--sm" id="spbwc-q-tmpl-save"><span class="dashicons dashicons-saved" aria-hidden="true"></span> <?php esc_html_e( 'Save as template', 'storelly-product-builder-for-woocommerce' ); ?></button>
+                                        </div>
+                                    <?php endif; ?>
                                     <table class="spbwc-q-lines" id="spbwc-q-lines">
                                         <thead>
                                             <tr>
@@ -658,7 +719,7 @@ if ( ! class_exists( 'SPBWC_Quote_Admin' ) ) {
                 </form>
             </div>
             <?php
-            $this->render_detail_script( $currency );
+            $this->render_detail_script( $currency, $templates );
         }
 
         /**
@@ -804,13 +865,16 @@ if ( ! class_exists( 'SPBWC_Quote_Admin' ) ) {
          *
          * @param string $currency Currency code for display.
          */
-        protected function render_detail_script( $currency ) {
+        protected function render_detail_script( $currency, $templates = array() ) {
             $symbol = function_exists( 'get_woocommerce_currency_symbol' ) ? html_entity_decode( get_woocommerce_currency_symbol( $currency ) ) : '';
             ?>
             <script>
             (function () {
                 'use strict';
                 var sym = <?php echo wp_json_encode( $symbol ); ?>;
+                var TPL = <?php echo wp_json_encode( array_values( $templates ) ); ?>;
+                var TPL_NONCE = <?php echo wp_json_encode( wp_create_nonce( 'spbwc_quote_template' ) ); ?>;
+                var TPL_AJAX = <?php echo wp_json_encode( admin_url( 'admin-ajax.php' ) ); ?>;
                 var table = document.getElementById('spbwc-q-lines');
                 if (!table) { return; }
                 var tbody = table.querySelector('tbody');
@@ -860,13 +924,103 @@ if ( ! class_exists( 'SPBWC_Quote_Admin' ) ) {
                 document.getElementById('spbwc-q-tax').addEventListener('input', recalc);
 
                 var preset = document.getElementById('spbwc-q-validity-preset');
+                function setValidityDays(d) {
+                    d = parseInt(d, 10);
+                    if (!d) { return; }
+                    var dt = new Date();
+                    dt.setDate(dt.getDate() + d);
+                    var iso = dt.toISOString().slice(0, 10);
+                    var v = document.getElementById('spbwc-q-validity');
+                    if (v) { v.value = iso; }
+                    if (preset) { preset.value = String(d); }
+                }
                 if (preset) {
-                    preset.addEventListener('change', function () {
-                        var d = parseInt(this.value, 10);
-                        if (!d) { return; }
-                        var dt = new Date();
-                        dt.setDate(dt.getDate() + d);
-                        document.getElementById('spbwc-q-validity').value = dt.toISOString().slice(0, 10);
+                    preset.addEventListener('change', function () { setValidityDays(this.value); });
+                }
+
+                /* ── Templates (P3.12) ───────────────────────────────── */
+                function addRow(label, qty, price) {
+                    var tr = rowTemplate();
+                    tr.querySelector('input[name="line_label[]"]').value = label || '';
+                    tr.querySelector('.spbwc-q-qty').value = (qty != null ? qty : 1);
+                    tr.querySelector('.spbwc-q-price').value = (price != null ? price : 0);
+                    tbody.appendChild(tr);
+                }
+                function tplById(id) {
+                    for (var i = 0; i < TPL.length; i++) { if (String(TPL[i].id) === String(id)) { return TPL[i]; } }
+                    return null;
+                }
+                var sel = document.getElementById('spbwc-q-tmpl-select');
+                var applyBtn = document.getElementById('spbwc-q-tmpl-apply');
+                var saveBtn = document.getElementById('spbwc-q-tmpl-save');
+                var delBtn = document.getElementById('spbwc-q-tmpl-delete');
+
+                if (applyBtn) {
+                    applyBtn.addEventListener('click', function () {
+                        var t = tplById(sel && sel.value);
+                        if (!t) { return; }
+                        tbody.innerHTML = '';
+                        (t.lines || []).forEach(function (l) { addRow(l.label, l.qty, l.unit_price); });
+                        if (!tbody.children.length) { addRow('', 1, 0); }
+                        var terms = t.terms || {};
+                        if (terms.payment_terms) { var pt = document.getElementById('spbwc-q-terms'); if (pt) { pt.value = terms.payment_terms; } }
+                        if (terms.note != null) { var nt = document.getElementById('spbwc-q-note'); if (nt) { nt.value = terms.note; } }
+                        if (terms.valid_days) { setValidityDays(terms.valid_days); }
+                        recalc();
+                    });
+                }
+                function refreshTemplates(list) {
+                    TPL = list || [];
+                    if (!sel) { return; }
+                    var cur = sel.value;
+                    sel.innerHTML = '<option value="">' + (sel.getAttribute('data-placeholder') || 'Load template…') + '</option>';
+                    TPL.forEach(function (t) {
+                        var o = document.createElement('option');
+                        o.value = t.id; o.textContent = t.name;
+                        sel.appendChild(o);
+                    });
+                    if (tplById(cur)) { sel.value = cur; }
+                }
+                if (sel) { sel.setAttribute('data-placeholder', sel.options.length ? sel.options[0].textContent : 'Load template…'); }
+                function tplPost(action, extra, cb) {
+                    var fd = new FormData();
+                    fd.append('action', action);
+                    fd.append('nonce', TPL_NONCE);
+                    Object.keys(extra || {}).forEach(function (k) { fd.append(k, extra[k]); });
+                    fetch(TPL_AJAX, { method: 'POST', credentials: 'same-origin', body: fd })
+                        .then(function (r) { return r.json(); })
+                        .then(function (res) { if (res && res.success) { cb(res.data); } else { window.alert((res && res.data && res.data.message) || 'Failed'); } })
+                        .catch(function () { window.alert('Request failed.'); });
+                }
+                if (saveBtn) {
+                    saveBtn.addEventListener('click', function () {
+                        var name = window.prompt(<?php echo wp_json_encode( __( 'Template name:', 'storelly-product-builder-for-woocommerce' ) ); ?>);
+                        if (!name) { return; }
+                        var fd = new FormData();
+                        fd.append('action', 'spbwc_save_quote_template');
+                        fd.append('nonce', TPL_NONCE);
+                        fd.append('name', name);
+                        tbody.querySelectorAll('tr.spbwc-q-line').forEach(function (tr) {
+                            fd.append('line_label[]', tr.querySelector('input[name="line_label[]"]').value);
+                            fd.append('line_qty[]', tr.querySelector('.spbwc-q-qty').value);
+                            fd.append('line_price[]', tr.querySelector('.spbwc-q-price').value);
+                        });
+                        fd.append('valid_days', (preset && preset.value) ? preset.value : 0);
+                        var pt = document.getElementById('spbwc-q-terms');
+                        fd.append('payment_terms', pt ? pt.value : 'prepay');
+                        var nt = document.getElementById('spbwc-q-note');
+                        fd.append('note', nt ? nt.value : '');
+                        fetch(TPL_AJAX, { method: 'POST', credentials: 'same-origin', body: fd })
+                            .then(function (r) { return r.json(); })
+                            .then(function (res) { if (res && res.success) { refreshTemplates(res.data.templates); } else { window.alert((res && res.data && res.data.message) || 'Failed'); } })
+                            .catch(function () { window.alert('Request failed.'); });
+                    });
+                }
+                if (delBtn) {
+                    delBtn.addEventListener('click', function () {
+                        if (!sel || !sel.value) { return; }
+                        if (!window.confirm(<?php echo wp_json_encode( __( 'Delete this template?', 'storelly-product-builder-for-woocommerce' ) ); ?>)) { return; }
+                        tplPost('spbwc_delete_quote_template', { template_id: sel.value }, function (data) { refreshTemplates(data.templates); });
                     });
                 }
 

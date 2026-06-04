@@ -315,6 +315,13 @@
 }
 .spbwc-rfq-card > h3 { margin: 0 0 10px; font-size: 15px; }
 
+/* Revision diff (P3.9) */
+.spbwc-rfq-diff__list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
+.spbwc-rfq-diff__list li { display: flex; align-items: center; gap: 8px; font-size: 13.5px; }
+.spbwc-rfq-diff__list .spbwc-rfq-pill { flex: 0 0 auto; }
+.spbwc-rfq-diff__total { margin: 10px 0 0; font-size: 14px; }
+.spbwc-rfq-diff__total del { color: var(--spbwc-rfq-muted); }
+
 .spbwc-rfq-banner {
     padding: 12px 14px;
     border-radius: 10px;
@@ -349,6 +356,26 @@
     box-sizing: border-box;
     background: #fff;
 }
+.spbwc-rfq-accept-total {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    margin-bottom: 12px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--spbwc-rfq-border);
+}
+.spbwc-rfq-accept-total > span { font-size: 13px; color: var(--spbwc-rfq-muted); }
+.spbwc-rfq-accept-total > strong { font-size: 18px; color: var(--spbwc-rfq-text); }
+.spbwc-rfq-check {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    margin: 10px 0 0;
+    font-weight: 400 !important;
+    font-size: 13.5px;
+    line-height: 1.4;
+}
+.spbwc-rfq-check input { margin-top: 2px; }
 .spbwc-rfq-checks { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 8px; margin-bottom: 12px; }
 .spbwc-rfq-checks label { font-weight: 400; display: flex; gap: 6px; align-items: center; margin: 0; font-size: 13.5px; }
 

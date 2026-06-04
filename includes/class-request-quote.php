@@ -158,9 +158,15 @@ if ( ! class_exists( 'SPBWC_Request_Quote' ) ) {
          */
         public function render_quote_badge() {
             $settings = get_option( 'spbwc_quote_settings', array() );
+            // Badge is published by default (M9.3): an absent sub-setting means
+            // "on", matching the Quote Settings form default. An explicit 'no'
+            // still hides it, so a merchant who turned it off stays in control.
+            // We still require the quote feature itself to be enabled — the
+            // badge never silently turns the whole quote system on.
+            $badge_on = ! isset( $settings['enable_quote_badge'] ) || 'yes' === $settings['enable_quote_badge'];
             if ( ! is_array( $settings )
                 || ! isset( $settings['enable_quote'] ) || 'yes' !== $settings['enable_quote']
-                || ! isset( $settings['enable_quote_badge'] ) || 'yes' !== $settings['enable_quote_badge'] ) {
+                || ! $badge_on ) {
                 return;
             }
 
@@ -863,6 +869,9 @@ if ( ! class_exists( 'SPBWC_Request_Quote' ) ) {
                 }
             }
 
+            // Revision diff (P3.9) — what changed since the previous quote.
+            $this->render_revision_diff( $quote_id, $cur );
+
             // Priced line items.
             if ( ! empty( $lines ) ) {
                 echo '<div class="spbwc-rfq-summary"><h3>' . esc_html__( "What's included", 'storelly-product-builder-for-woocommerce' ) . '</h3>';
@@ -943,12 +952,69 @@ if ( ! class_exists( 'SPBWC_Request_Quote' ) ) {
         }
 
         /**
+         * Render a "what changed" card comparing the two most recent quote
+         * versions (P3.9). No-op when there is only one version.
+         *
+         * @param int   $quote_id Quote post ID.
+         * @param array $cur      Currency args for wc_price.
+         */
+        protected function render_revision_diff( $quote_id, $cur ) {
+            $versions = SPBWC_Quote::get_versions( $quote_id );
+            if ( count( $versions ) < 2 ) {
+                return;
+            }
+            $diff = SPBWC_Quote::diff_versions( $versions[ count( $versions ) - 2 ], $versions[ count( $versions ) - 1 ] );
+            if ( empty( $diff['added'] ) && empty( $diff['removed'] ) && empty( $diff['changed'] ) && $diff['total_old'] === $diff['total_new'] ) {
+                return;
+            }
+            echo '<div class="spbwc-rfq-card spbwc-rfq-diff">';
+            echo '<h3>' . esc_html__( 'What changed since the last quote', 'storelly-product-builder-for-woocommerce' ) . '</h3>';
+            echo '<ul class="spbwc-rfq-diff__list">';
+            foreach ( $diff['added'] as $l ) {
+                echo '<li class="spbwc-rfq-diff__add"><span class="spbwc-rfq-pill spbwc-rfq-pill--ok">' . esc_html__( 'Added', 'storelly-product-builder-for-woocommerce' ) . '</span> ' . esc_html( isset( $l['label'] ) ? $l['label'] : '' ) . '</li>';
+            }
+            foreach ( $diff['removed'] as $l ) {
+                echo '<li class="spbwc-rfq-diff__rm"><span class="spbwc-rfq-pill spbwc-rfq-pill--danger">' . esc_html__( 'Removed', 'storelly-product-builder-for-woocommerce' ) . '</span> ' . esc_html( isset( $l['label'] ) ? $l['label'] : '' ) . '</li>';
+            }
+            foreach ( $diff['changed'] as $c ) {
+                $o = $c['old'];
+                $n = $c['new'];
+                $detail = sprintf(
+                    /* translators: 1: label, 2: old qty, 3: new qty, 4: old unit price, 5: new unit price */
+                    esc_html__( '%1$s: qty %2$s → %3$s, unit %4$s → %5$s', 'storelly-product-builder-for-woocommerce' ),
+                    esc_html( $c['label'] ),
+                    esc_html( (string) ( 0 + ( isset( $o['qty'] ) ? $o['qty'] : 0 ) ) ),
+                    esc_html( (string) ( 0 + ( isset( $n['qty'] ) ? $n['qty'] : 0 ) ) ),
+                    wp_kses_post( wc_price( isset( $o['unit_price'] ) ? (float) $o['unit_price'] : 0, $cur ) ),
+                    wp_kses_post( wc_price( isset( $n['unit_price'] ) ? (float) $n['unit_price'] : 0, $cur ) )
+                );
+                echo '<li class="spbwc-rfq-diff__chg"><span class="spbwc-rfq-pill spbwc-rfq-pill--warn">' . esc_html__( 'Changed', 'storelly-product-builder-for-woocommerce' ) . '</span> ' . $detail . '</li>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- parts escaped above.
+            }
+            echo '</ul>';
+            if ( $diff['total_old'] !== $diff['total_new'] ) {
+                echo '<p class="spbwc-rfq-diff__total">' . esc_html__( 'Total:', 'storelly-product-builder-for-woocommerce' ) . ' <del>' . wp_kses_post( wc_price( $diff['total_old'], $cur ) ) . '</del> → <strong>' . wp_kses_post( wc_price( $diff['total_new'], $cur ) ) . '</strong></p>';
+            }
+            echo '</div>';
+        }
+
+        /**
          * Render the Accept / Request-changes / Decline forms.
          *
          * @param int $quote_id Quote post ID.
          */
         protected function render_buyer_actions( $quote_id ) {
             $action_url = wc_get_endpoint_url( 'view-quote', $quote_id, wc_get_page_permalink( 'myaccount' ) );
+            $totals     = SPBWC_Quote::get_totals( $quote_id );
+            $accept_cur = array( 'currency' => isset( $totals['currency'] ) && $totals['currency'] ? $totals['currency'] : get_woocommerce_currency() );
+            $settings   = get_option( 'spbwc_quote_settings', array() );
+            $terms_url  = isset( $settings['terms_url'] ) ? $settings['terms_url'] : '';
+            $tos_label  = $terms_url
+                ? sprintf(
+                    /* translators: %s: link to the terms & conditions */
+                    __( 'I agree to the quote %s.', 'storelly-product-builder-for-woocommerce' ),
+                    '<a href="' . esc_url( $terms_url ) . '" target="_blank" rel="noopener">' . esc_html__( 'terms &amp; conditions', 'storelly-product-builder-for-woocommerce' ) . '</a>'
+                )
+                : esc_html__( 'I agree to the quote terms.', 'storelly-product-builder-for-woocommerce' );
             $decline_reasons = array(
                 'price'     => __( 'Price too high', 'storelly-product-builder-for-woocommerce' ),
                 'timeline'  => __( "Timeline doesn't work", 'storelly-product-builder-for-woocommerce' ),
@@ -974,8 +1040,20 @@ if ( ! class_exists( 'SPBWC_Request_Quote' ) ) {
                         <?php wp_nonce_field( 'spbwc_quote_buyer_' . $quote_id, 'spbwc_quote_buyer_nonce' ); ?>
                         <input type="hidden" name="quote_id" value="<?php echo esc_attr( $quote_id ); ?>" />
                         <input type="hidden" name="spbwc_quote_buyer_action" value="accept" />
+                        <div class="spbwc-rfq-accept-total">
+                            <span><?php esc_html_e( 'Total due', 'storelly-product-builder-for-woocommerce' ); ?></span>
+                            <strong><?php echo wp_kses_post( wc_price( isset( $totals['total'] ) ? (float) $totals['total'] : 0, $accept_cur ) ); ?></strong>
+                        </div>
                         <label for="spbwc-rfq-po"><?php esc_html_e( 'PO number (optional)', 'storelly-product-builder-for-woocommerce' ); ?></label>
                         <input type="text" id="spbwc-rfq-po" name="po_number" value="" />
+                        <label class="spbwc-rfq-check">
+                            <input type="checkbox" name="tos_accepted" value="1" required />
+                            <span><?php echo wp_kses_post( $tos_label ); ?></span>
+                        </label>
+                        <label class="spbwc-rfq-check">
+                            <input type="checkbox" name="updates_optin" value="1" />
+                            <span><?php esc_html_e( 'Email me production / order updates.', 'storelly-product-builder-for-woocommerce' ); ?></span>
+                        </label>
                         <p style="margin-top:10px;"><button type="submit" class="spbwc-rfq-btn"><?php esc_html_e( 'Accept &amp; create order', 'storelly-product-builder-for-woocommerce' ); ?></button></p>
                     </form>
                 </div>
@@ -1023,6 +1101,7 @@ if ( ! class_exists( 'SPBWC_Request_Quote' ) ) {
                 'accepted' => array( 'ok', __( 'Quote accepted. Your order is ready below.', 'storelly-product-builder-for-woocommerce' ) ),
                 'declined' => array( 'danger', __( 'You have declined this quote.', 'storelly-product-builder-for-woocommerce' ) ),
                 'changes'  => array( 'info', __( 'Your change request has been sent.', 'storelly-product-builder-for-woocommerce' ) ),
+                'tos'      => array( 'danger', __( 'Please agree to the quote terms before accepting.', 'storelly-product-builder-for-woocommerce' ) ),
             );
             if ( isset( $map[ $msg ] ) ) {
                 echo '<div class="spbwc-rfq-banner spbwc-rfq-banner--' . esc_attr( $map[ $msg ][0] ) . '">' . esc_html( $map[ $msg ][1] ) . '</div>';
@@ -1052,10 +1131,22 @@ if ( ! class_exists( 'SPBWC_Request_Quote' ) ) {
             $action = sanitize_key( wp_unslash( $_POST['spbwc_quote_buyer_action'] ) );
 
             if ( 'accept' === $action ) {
-                $po = isset( $_POST['po_number'] ) ? sanitize_text_field( wp_unslash( $_POST['po_number'] ) ) : '';
+                // Terms acceptance is mandatory before a quote becomes an order.
+                if ( empty( $_POST['tos_accepted'] ) ) {
+                    $this->redirect_view_quote( $quote_id, 'tos' );
+                }
+                $po     = isset( $_POST['po_number'] ) ? sanitize_text_field( wp_unslash( $_POST['po_number'] ) ) : '';
+                $optin  = ! empty( $_POST['updates_optin'] ) ? 'yes' : 'no';
+                update_post_meta( $quote_id, '_spbwc_quote_tos_accepted_at', time() );
+                update_post_meta( $quote_id, '_spbwc_quote_updates_optin', $optin );
                 SPBWC_Quote::set_status( $quote_id, SPBWC_Quote::STATUS_ACCEPTED, __( 'Customer accepted the quote.', 'storelly-product-builder-for-woocommerce' ) );
                 $order_id = $this->spawn_order_from_quote( $quote_id, $po );
                 if ( $order_id ) {
+                    $order = wc_get_order( $order_id );
+                    if ( $order ) {
+                        $order->update_meta_data( '_spbwc_order_updates_optin', $optin );
+                        $order->save();
+                    }
                     SPBWC_Quote::set_status( $quote_id, SPBWC_Quote::STATUS_CONVERTED, sprintf( /* translators: %d: order ID */ __( 'Order #%d created from accepted quote.', 'storelly-product-builder-for-woocommerce' ), $order_id ) );
                 }
                 do_action( 'spbwc_quote_accepted_notification', $quote_id );
