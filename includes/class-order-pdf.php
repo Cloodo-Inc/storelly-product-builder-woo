@@ -39,6 +39,73 @@ if ( ! class_exists( 'SPBWC_Order_PDF' ) ) {
             add_action( 'woocommerce_order_status_processing', array( __CLASS__, 'maybe_schedule' ) );
             add_action( 'woocommerce_order_status_completed', array( __CLASS__, 'maybe_schedule' ) );
             add_action( self::GENERATE_HOOK, array( __CLASS__, 'generate' ) );
+
+            // Housekeeping (M5): prune an order's design folders when the order is
+            // PERMANENTLY deleted (not on trash, which is reversible). HPOS fires
+            // woocommerce_before_delete_order; legacy CPT orders fire before_delete_post.
+            add_action( 'woocommerce_before_delete_order', array( __CLASS__, 'cleanup_order_folders' ) );
+            add_action( 'before_delete_post', array( __CLASS__, 'cleanup_legacy_order_folders' ) );
+
+            // Admin: re-trigger PDF generation for an order (M5).
+            add_action( 'admin_init', array( __CLASS__, 'maybe_regenerate' ) );
+        }
+
+        /** Nonce URL that re-queues PDF generation for an order (admin metabox). */
+        public static function regenerate_url( $order_id ) {
+            return wp_nonce_url(
+                add_query_arg( 'spbwc_regen_pdf', (int) $order_id ),
+                'spbwc_regen_pdf_' . (int) $order_id
+            );
+        }
+
+        /** Handle the admin "Regenerate print PDFs" action. */
+        public static function maybe_regenerate() {
+            if ( ! isset( $_GET['spbwc_regen_pdf'] ) ) {
+                return;
+            }
+            $order_id = absint( wp_unslash( $_GET['spbwc_regen_pdf'] ) );
+            $nonce    = isset( $_GET['_wpnonce'] ) ? sanitize_text_field( wp_unslash( $_GET['_wpnonce'] ) ) : '';
+            if ( ! $order_id || ! $nonce || ! wp_verify_nonce( $nonce, 'spbwc_regen_pdf_' . $order_id ) ) {
+                return;
+            }
+            if ( ! current_user_can( 'manage_woocommerce' ) ) {
+                wp_die( esc_html__( 'You do not have permission.', 'storelly-product-builder-for-woocommerce' ), 403 );
+            }
+            // Re-run generation now (admin-initiated, expects an immediate result).
+            self::generate( $order_id );
+            wp_safe_redirect( remove_query_arg( array( 'spbwc_regen_pdf', '_wpnonce' ) ) );
+            exit;
+        }
+
+        /**
+         * Delete the design folders owned by an order being permanently removed.
+         * Each order owns its own copy-on-write folder, so this never touches another
+         * order's or a saved design's clone.
+         *
+         * @param int $order_id Order ID.
+         */
+        public static function cleanup_order_folders( $order_id ) {
+            $order = wc_get_order( absint( $order_id ) );
+            if ( ! $order ) {
+                return;
+            }
+            foreach ( $order->get_items() as $item ) {
+                $folder = is_callable( array( $item, 'get_meta' ) ) ? (string) $item->get_meta( '_pcpb_folder' ) : '';
+                if ( '' !== $folder && $folder === basename( $folder ) ) {
+                    SPBWC_Storelly_IO::spbwc_delete_folder( SPBWC_PB_CUSTOMER_DIR . '/' . $folder );
+                }
+            }
+        }
+
+        /**
+         * Legacy (non-HPOS) order permanent delete bridge.
+         *
+         * @param int $post_id Post ID being deleted.
+         */
+        public static function cleanup_legacy_order_folders( $post_id ) {
+            if ( 'shop_order' === get_post_type( $post_id ) ) {
+                self::cleanup_order_folders( $post_id );
+            }
         }
 
         /** Whether the cloud PDF engine is opted in. */

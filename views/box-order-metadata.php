@@ -12,11 +12,24 @@
             // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Template variable.
             $folder_design = wc_get_order_item_meta($order_item_id, '_pcpb_folder', true);
             if ($folder_design) : ?>
+                <?php
+                // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Template variable.
+                $spbwc_order_id = is_callable( array( $order_item, 'get_order_id' ) ) ? (int) $order_item->get_order_id() : 0;
+                // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Template variable.
+                $spbwc_pdf_status = wc_get_order_item_meta( $order_item_id, '_pcpb_pdf_status', true );
+                ?>
                 <div class="storelly_order_product_name">
                     <b>
                         <?php esc_html_e('Product:', 'storelly-product-builder-for-woocommerce'); ?>
                     </b>
                     <?php echo esc_html($order_item->get_name()); ?>
+                    <?php if ( 'done' === $spbwc_pdf_status ) : ?>
+                        <span style="display:inline-block;margin-left:4px;padding:1px 8px;border-radius:999px;font-size:11px;font-weight:600;background:#dcfce7;color:#14532d;"><?php esc_html_e('PDF ready', 'storelly-product-builder-for-woocommerce'); ?></span>
+                    <?php elseif ( 'failed' === $spbwc_pdf_status ) : ?>
+                        <span style="display:inline-block;margin-left:4px;padding:1px 8px;border-radius:999px;font-size:11px;font-weight:600;background:#fee2e2;color:#991b1b;"><?php esc_html_e('PDF failed', 'storelly-product-builder-for-woocommerce'); ?></span>
+                    <?php elseif ( '' !== (string) $spbwc_pdf_status ) : ?>
+                        <span style="display:inline-block;margin-left:4px;padding:1px 8px;border-radius:999px;font-size:11px;font-weight:600;background:#fef3c7;color:#92400e;"><?php echo esc_html( ucfirst( (string) $spbwc_pdf_status ) ); ?></span>
+                    <?php endif; ?>
                 </div>
                 <hr />
                 <?php
@@ -66,6 +79,13 @@
                 <div style="padding-bottom: 4px">
                     <a href="#" class="button button-primary" id="storelly_download_design_by_type"><?php esc_html_e('Download', 'storelly-product-builder-for-woocommerce'); ?></a>
                 </div>
+                <?php if ( ! empty( $spbwc_order_id ) && class_exists( 'SPBWC_Order_PDF' ) && SPBWC_Order_PDF::is_enabled() ) : ?>
+                    <div style="padding-top:4px;border-top:1px solid #f0f0f1;margin-top:4px;">
+                        <a href="<?php echo esc_url( SPBWC_Order_PDF::regenerate_url( $spbwc_order_id ) ); ?>" class="button button-secondary" style="width:100%;text-align:center;">
+                            <?php esc_html_e('Regenerate print PDFs', 'storelly-product-builder-for-woocommerce'); ?>
+                        </a>
+                    </div>
+                <?php endif; ?>
             </div>
         <?php else : ?>
             <p><?php esc_html_e('No design in this order', 'storelly-product-builder-for-woocommerce'); ?></p>
