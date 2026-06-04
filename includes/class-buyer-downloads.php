@@ -209,6 +209,10 @@ if ( ! class_exists( 'SPBWC_Buyer_Downloads' ) ) {
             }
             sort( $images );
 
+            // Count the download for the Overview activity stats (M14).
+            update_option( 'spbwc_preview_download_count', (int) get_option( 'spbwc_preview_download_count', 0 ) + 1, false );
+            wc_update_order_item_meta( $item_id, '_pcpb_preview_downloads', (int) wc_get_order_item_meta( $item_id, '_pcpb_preview_downloads', true ) + 1 );
+
             // Single view → stream the PNG directly (no needless 1-file zip). Multiple
             // views → bundle a zip. The PNG is the real preview file, so don't delete it.
             if ( count( $images ) === 1 ) {

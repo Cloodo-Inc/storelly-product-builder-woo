@@ -101,6 +101,19 @@ if ( ! class_exists( 'SPBWC_Saved_Designs' ) ) {
             return (int) apply_filters( 'spbwc_saved_design_max', 0 );
         }
 
+        /**
+         * Whether a Save-design entry point is enabled (User Account settings, default on).
+         *
+         * @param string $where 'cart' | 'order' | 'builder'.
+         * @return bool
+         */
+        public static function entry_enabled( $where ) {
+            $settings = get_option( 'spbwc_pb_settings', array() );
+            $key = 'save_on_' . $where;
+            // Default to enabled when the setting was never saved.
+            return ! ( isset( $settings[ $key ] ) && 'no' === $settings[ $key ] );
+        }
+
         // ------------------------------------------------------------------
         //  Entry point: "Save design" link on a My Account order line item
         // ------------------------------------------------------------------
@@ -112,6 +125,9 @@ if ( ! class_exists( 'SPBWC_Saved_Designs' ) ) {
          * @param bool          $plain_text Plain-text email context.
          */
         public static function render_save_link( $item_id, $item, $order, $plain_text = false ) {
+            if ( ! self::entry_enabled( 'order' ) ) {
+                return;
+            }
             if ( $plain_text || ! is_user_logged_in() || ! ( $order instanceof WC_Order ) || ! is_callable( array( $item, 'get_meta' ) ) ) {
                 return;
             }
@@ -146,6 +162,9 @@ if ( ! class_exists( 'SPBWC_Saved_Designs' ) ) {
          * @param string $cart_item_key Cart item key.
          */
         public static function render_cart_save_link( $cart_item, $cart_item_key ) {
+            if ( ! self::entry_enabled( 'cart' ) ) {
+                return;
+            }
             if ( ! is_array( $cart_item ) || empty( $cart_item['pcpb_meta'] ) || empty( $cart_item['pcpb_meta']['pcpb'] ) ) {
                 return;
             }
@@ -216,7 +235,8 @@ if ( ! class_exists( 'SPBWC_Saved_Designs' ) ) {
          */
         public static function store_api_item_data( $cart_item ) {
             $folder = isset( $cart_item['pcpb_meta']['pcpb'] ) ? (string) $cart_item['pcpb_meta']['pcpb'] : '';
-            $is_design = ( '' !== $folder );
+            // Respect the cart entry-point toggle for the block cart too.
+            $is_design = ( '' !== $folder ) && self::entry_enabled( 'cart' );
             $key = isset( $cart_item['key'] ) ? (string) $cart_item['key'] : '';
             return array(
                 'is_design' => $is_design,
