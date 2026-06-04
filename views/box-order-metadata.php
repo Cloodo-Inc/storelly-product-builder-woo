@@ -24,11 +24,11 @@
                     </b>
                     <?php echo esc_html($order_item->get_name()); ?>
                     <?php if ( 'done' === $spbwc_pdf_status ) : ?>
-                        <span style="display:inline-block;margin-left:4px;padding:1px 8px;border-radius:999px;font-size:11px;font-weight:600;background:#dcfce7;color:#14532d;"><?php esc_html_e('PDF ready', 'storelly-product-builder-for-woocommerce'); ?></span>
+                        <span style="display:inline-block;margin-left:4px;padding:1px 8px;border-radius:var(--nbd-radius-full,999px);font-size:11px;font-weight:600;background:var(--st-pill-active-bg,#dcfce7);color:var(--st-pill-active-text,#14532d);"><?php esc_html_e('PDF ready', 'storelly-product-builder-for-woocommerce'); ?></span>
                     <?php elseif ( 'failed' === $spbwc_pdf_status ) : ?>
-                        <span style="display:inline-block;margin-left:4px;padding:1px 8px;border-radius:999px;font-size:11px;font-weight:600;background:#fee2e2;color:#991b1b;"><?php esc_html_e('PDF failed', 'storelly-product-builder-for-woocommerce'); ?></span>
+                        <span style="display:inline-block;margin-left:4px;padding:1px 8px;border-radius:var(--nbd-radius-full,999px);font-size:11px;font-weight:600;background:var(--st-pill-danger-bg,#fee2e2);color:var(--st-pill-danger-text,#991b1b);"><?php esc_html_e('PDF failed', 'storelly-product-builder-for-woocommerce'); ?></span>
                     <?php elseif ( '' !== (string) $spbwc_pdf_status ) : ?>
-                        <span style="display:inline-block;margin-left:4px;padding:1px 8px;border-radius:999px;font-size:11px;font-weight:600;background:#fef3c7;color:#92400e;"><?php echo esc_html( ucfirst( (string) $spbwc_pdf_status ) ); ?></span>
+                        <span style="display:inline-block;margin-left:4px;padding:1px 8px;border-radius:var(--nbd-radius-full,999px);font-size:11px;font-weight:600;background:var(--st-pill-pending-bg,#fef3c7);color:var(--st-pill-pending-text,#92400e);"><?php echo esc_html( ucfirst( (string) $spbwc_pdf_status ) ); ?></span>
                     <?php endif; ?>
                 </div>
                 <hr />
