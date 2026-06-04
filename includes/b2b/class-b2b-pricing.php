@@ -38,12 +38,23 @@ if ( ! class_exists( 'SPBWC_B2B_Pricing' ) ) {
             add_action( 'wp_enqueue_scripts', array( __CLASS__, 'maybe_enqueue' ), 20 );
         }
 
-        /** Enqueue b2b.css on the storefront when the buyer has a tier discount. */
+        /** Enqueue b2b.css on the storefront when the buyer is an active company member. */
         public static function maybe_enqueue() {
-            if ( self::discount_pct() <= 0 ) {
+            if ( ! self::current_company_id() ) {
                 return;
             }
             wp_enqueue_style( 'spbwc-b2b', SPBWC_PB_CSS_URL . 'b2b.css', array(), SPBWC_PB_VERSION );
+        }
+
+        /**
+         * The current user's active company id, or 0.
+         *
+         * @param int $user_id User (0 = current).
+         * @return int
+         */
+        public static function current_company_id( $user_id = 0 ) {
+            $company_id = SPBWC_Company::get_user_company_id( $user_id );
+            return ( $company_id && SPBWC_Company::is_active( $company_id ) ) ? $company_id : 0;
         }
 
         /* ── Tier registry ────────────────────────────────────────── */
@@ -89,15 +100,21 @@ if ( ! class_exists( 'SPBWC_B2B_Pricing' ) ) {
          * @return float Percent (e.g. 15.0).
          */
         public static function discount_pct( $user_id = 0 ) {
-            $user_id = $user_id ? absint( $user_id ) : get_current_user_id();
-            if ( ! $user_id ) {
+            $company_id = self::current_company_id( $user_id );
+            if ( ! $company_id ) {
                 return 0.0;
             }
-            $company_id = SPBWC_Company::get_user_company_id( $user_id );
-            if ( ! $company_id || ! SPBWC_Company::is_active( $company_id ) ) {
-                return 0.0;
-            }
-            $tier  = (string) get_post_meta( $company_id, SPBWC_Company::META_TIER, true );
+            return self::tier_pct_for_company( $company_id );
+        }
+
+        /**
+         * Tier discount % assigned to a company (0 when no/unknown tier).
+         *
+         * @param int $company_id Company.
+         * @return float
+         */
+        public static function tier_pct_for_company( $company_id ) {
+            $tier = (string) get_post_meta( absint( $company_id ), SPBWC_Company::META_TIER, true );
             if ( '' === $tier ) {
                 return 0.0;
             }
@@ -105,10 +122,39 @@ if ( ! class_exists( 'SPBWC_B2B_Pricing' ) ) {
             if ( ! isset( $tiers[ $tier ]['discount_pct'] ) ) {
                 return 0.0;
             }
-            $pct = (float) $tiers[ $tier ]['discount_pct'];
-            // Clamp to a sane range; allow a filter for M4 per-company overrides.
-            $pct = max( 0.0, min( 100.0, $pct ) );
-            return (float) apply_filters( 'spbwc_b2b_discount_pct', $pct, $user_id, $company_id, $tier );
+            return max( 0.0, min( 100.0, (float) $tiers[ $tier ]['discount_pct'] ) );
+        }
+
+        /**
+         * Cascade-resolve the effective base unit price for a product and the
+         * current (or given) user: per-company fixed > per-company pct > tier % >
+         * retail. Returns $base unchanged when the user is not an active company
+         * member or nothing applies. Quantity gates per-company rules' min_qty
+         * (pass 0 for display, where min_qty is ignored).
+         *
+         * @param float $base       Retail base unit price.
+         * @param int   $product_id Product/variation.
+         * @param int   $qty        Cart quantity (0 = display).
+         * @param int   $user_id    User (0 = current).
+         * @return float
+         */
+        public static function resolve_unit_price( $base, $product_id, $qty = 0, $user_id = 0 ) {
+            $orig       = (float) $base;
+            $company_id = self::current_company_id( $user_id );
+            if ( ! $company_id ) {
+                return $orig;
+            }
+            // 1-2. Per-company product override (fixed or pct).
+            if ( class_exists( 'SPBWC_B2B_Price_Rules' ) ) {
+                $resolved = SPBWC_B2B_Price_Rules::resolve( $company_id, $product_id, $orig, $qty );
+                if ( null !== $resolved ) {
+                    return (float) apply_filters( 'spbwc_b2b_unit_price', (float) $resolved, $orig, $product_id, $company_id, $qty );
+                }
+            }
+            // 3. Tier %.
+            $pct  = self::tier_pct_for_company( $company_id );
+            $final = ( $pct > 0 ) ? $orig * ( ( 100.0 - $pct ) / 100.0 ) : $orig;
+            return (float) apply_filters( 'spbwc_b2b_unit_price', $final, $orig, $product_id, $company_id, $qty );
         }
 
         /* ── Cart price ───────────────────────────────────────────── */
@@ -122,37 +168,38 @@ if ( ! class_exists( 'SPBWC_B2B_Pricing' ) ) {
             if ( is_admin() && ! defined( 'DOING_AJAX' ) ) {
                 return;
             }
-            if ( ! $cart instanceof WC_Cart ) {
+            if ( ! $cart instanceof WC_Cart || ! self::current_company_id() ) {
                 return;
             }
-            $pct = self::discount_pct();
-            if ( $pct <= 0 ) {
-                return;
-            }
-            $factor = ( 100.0 - $pct ) / 100.0;
+            $decimals = wc_get_price_decimals();
 
             foreach ( $cart->get_cart() as $cart_item ) {
                 if ( empty( $cart_item['data'] ) || ! is_object( $cart_item['data'] ) ) {
                     continue;
                 }
                 $product = $cart_item['data'];
+                $pid     = $cart_item['variation_id'] ? (int) $cart_item['variation_id'] : (int) $cart_item['product_id'];
+                $qty     = isset( $cart_item['quantity'] ) ? (int) $cart_item['quantity'] : 1;
 
-                // Builder item: discount only the base (original_price), keep options.
+                // Builder item: resolve the base (original_price), keep option surcharge.
                 if ( ! empty( $cart_item['pcpb_meta'] ) && isset( $cart_item['pcpb_meta']['price'] ) ) {
                     $pm       = $cart_item['pcpb_meta'];
                     $base     = isset( $pm['original_price'] ) ? (float) $pm['original_price'] : 0.0;
                     $composed = (float) $pm['price'];
-                    $new      = $composed - ( $base * ( $pct / 100.0 ) );
-                    if ( $new < 0 ) {
-                        $new = 0.0;
+                    if ( $base <= 0 ) {
+                        continue;
                     }
-                    $product->set_price( $new );
+                    $resolved = self::resolve_unit_price( $base, $pid, $qty );
+                    if ( $resolved === $base ) {
+                        continue;
+                    }
+                    $new = $composed - ( $base - $resolved ); // Swap the base portion only.
+                    $product->set_price( max( 0.0, round( $new, $decimals ) ) );
                     continue;
                 }
 
-                // Regular product: discount a FRESH catalog price (avoid compounding
+                // Regular product: resolve a FRESH catalog price (avoid compounding
                 // across multiple before_calculate_totals fires).
-                $pid   = $cart_item['variation_id'] ? (int) $cart_item['variation_id'] : (int) $cart_item['product_id'];
                 $fresh = wc_get_product( $pid );
                 if ( ! $fresh ) {
                     continue;
@@ -161,7 +208,10 @@ if ( ! class_exists( 'SPBWC_B2B_Pricing' ) ) {
                 if ( $base <= 0 ) {
                     continue;
                 }
-                $product->set_price( round( $base * $factor, wc_get_price_decimals() ) );
+                $resolved = self::resolve_unit_price( $base, $pid, $qty );
+                if ( $resolved !== $base ) {
+                    $product->set_price( round( $resolved, $decimals ) );
+                }
             }
         }
 
@@ -175,17 +225,19 @@ if ( ! class_exists( 'SPBWC_B2B_Pricing' ) ) {
          * @return string
          */
         public static function price_html( $html, $product ) {
-            $pct = self::discount_pct();
-            if ( $pct <= 0 || ! $product instanceof WC_Product ) {
+            if ( ! $product instanceof WC_Product || ! self::current_company_id() ) {
                 return $html;
             }
             $regular = (float) $product->get_price();
             if ( $regular <= 0 ) {
                 return $html;
             }
-            $factor   = ( 100.0 - $pct ) / 100.0;
-            $company  = wc_price( $regular * $factor );
-            $note     = '<span class="spbwc-b2b-price-note">' . esc_html__( 'Your company price', 'storelly-product-builder-for-woocommerce' ) . '</span>';
+            $resolved = self::resolve_unit_price( $regular, $product->get_id(), 0 );
+            if ( $resolved >= $regular ) {
+                return $html; // No company discount on this product.
+            }
+            $company = wc_price( $resolved );
+            $note    = '<span class="spbwc-b2b-price-note">' . esc_html__( 'Your company price', 'storelly-product-builder-for-woocommerce' ) . '</span>';
             return '<span class="spbwc-b2b-price"><del>' . wp_kses_post( $html ) . '</del> <ins>' . wp_kses_post( $company ) . '</ins> ' . $note . '</span>';
         }
     }

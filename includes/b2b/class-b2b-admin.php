@@ -210,7 +210,59 @@ if ( ! class_exists( 'SPBWC_B2B_Admin' ) ) {
                     }
                     $this->notice = 'saved';
                     break;
+                case 'bind_price':
+                    $pid   = isset( $_POST['product_id'] ) ? absint( wp_unslash( $_POST['product_id'] ) ) : 0;
+                    $ptype = isset( $_POST['override_type'] ) ? sanitize_key( wp_unslash( $_POST['override_type'] ) ) : 'pct';
+                    $pval  = isset( $_POST['value'] ) ? (float) wp_unslash( $_POST['value'] ) : 0;
+                    $pmin  = isset( $_POST['min_qty'] ) ? absint( wp_unslash( $_POST['min_qty'] ) ) : 0;
+                    $puntil = isset( $_POST['valid_until'] ) ? sanitize_text_field( wp_unslash( $_POST['valid_until'] ) ) : '';
+                    if ( $pid && wc_get_product( $pid ) && class_exists( 'SPBWC_B2B_Price_Rules' ) ) {
+                        SPBWC_B2B_Price_Rules::save_rule( $company_id, $pid, $ptype, $pval, $pmin, $puntil );
+                        self::add_to_allow_list( $company_id, $pid );
+                        $this->notice = 'saved';
+                    } else {
+                        $this->notice = 'error';
+                    }
+                    break;
+                case 'unbind_price':
+                    $pid = isset( $_POST['product_id'] ) ? absint( wp_unslash( $_POST['product_id'] ) ) : 0;
+                    if ( $pid && class_exists( 'SPBWC_B2B_Price_Rules' ) ) {
+                        SPBWC_B2B_Price_Rules::delete_rule( $company_id, $pid );
+                        self::remove_from_allow_list( $company_id, $pid );
+                        $this->notice = 'saved';
+                    }
+                    break;
             }
+        }
+
+        /**
+         * Add a product to the company's Brand Store allow-list.
+         *
+         * @param int $company_id Company.
+         * @param int $product_id Product.
+         */
+        protected static function add_to_allow_list( $company_id, $product_id ) {
+            $list = get_post_meta( $company_id, SPBWC_Company::META_ALLOWED_PRODUCTS, true );
+            $list = is_array( $list ) ? array_map( 'absint', $list ) : array();
+            if ( ! in_array( (int) $product_id, $list, true ) ) {
+                $list[] = (int) $product_id;
+                update_post_meta( $company_id, SPBWC_Company::META_ALLOWED_PRODUCTS, $list );
+            }
+        }
+
+        /**
+         * Remove a product from the company's Brand Store allow-list.
+         *
+         * @param int $company_id Company.
+         * @param int $product_id Product.
+         */
+        protected static function remove_from_allow_list( $company_id, $product_id ) {
+            $list = get_post_meta( $company_id, SPBWC_Company::META_ALLOWED_PRODUCTS, true );
+            if ( ! is_array( $list ) ) {
+                return;
+            }
+            $list = array_values( array_diff( array_map( 'absint', $list ), array( (int) $product_id ) ) );
+            update_post_meta( $company_id, SPBWC_Company::META_ALLOWED_PRODUCTS, $list );
         }
 
         /** Create a company from a regular customer (the upgrade). */
@@ -470,7 +522,89 @@ if ( ! class_exists( 'SPBWC_B2B_Admin' ) ) {
                 echo '<td>' . esc_html( isset( $roles[ $role ] ) ? $roles[ $role ] : $role ) . '</td></tr>';
             }
             echo '</tbody></table>';
-            echo '<p class="description">' . esc_html__( 'Team invitations and roles are managed by the company owner in My Account (Team Procurement, M5).', 'storelly-product-builder-for-woocommerce' ) . '</p>';
+            echo '<p class="description">' . esc_html__( 'Team invitations and roles are managed by the company owner in My Account (Team Procurement).', 'storelly-product-builder-for-woocommerce' ) . '</p>';
+
+            $this->render_price_rules( $company_id, $nonce );
+        }
+
+        /* ── Per-company product pricing (M4) ─────────────────────── */
+
+        /**
+         * @param int    $company_id Company.
+         * @param string $nonce      Action nonce.
+         */
+        protected function render_price_rules( $company_id, $nonce ) {
+            if ( ! class_exists( 'SPBWC_B2B_Price_Rules' ) ) {
+                return;
+            }
+            $rules    = SPBWC_B2B_Price_Rules::get_rules_for_company( $company_id );
+            $tier_pct = class_exists( 'SPBWC_B2B_Pricing' ) ? SPBWC_B2B_Pricing::tier_pct_for_company( $company_id ) : 0;
+            $sym      = get_woocommerce_currency_symbol();
+
+            echo '<h2>' . esc_html__( 'Per-company product pricing', 'storelly-product-builder-for-woocommerce' ) . '</h2>';
+            echo '<p class="description">' . esc_html(
+                sprintf(
+                    /* translators: %s: tier discount percent. */
+                    __( 'Bind specific products to this company at a custom price. These override the tier baseline (%s%% off). Bound products are added to the Brand Store.', 'storelly-product-builder-for-woocommerce' ),
+                    rtrim( rtrim( number_format( (float) $tier_pct, 1 ), '0' ), '.' )
+                )
+            ) . '</p>';
+
+            echo '<table class="wp-list-table widefat fixed striped"><thead><tr>';
+            echo '<th>' . esc_html__( 'Product', 'storelly-product-builder-for-woocommerce' ) . '</th>';
+            echo '<th>' . esc_html__( 'Base price', 'storelly-product-builder-for-woocommerce' ) . '</th>';
+            echo '<th>' . esc_html__( 'Override', 'storelly-product-builder-for-woocommerce' ) . '</th>';
+            echo '<th>' . esc_html__( 'Effective', 'storelly-product-builder-for-woocommerce' ) . '</th>';
+            echo '<th>' . esc_html__( 'Min qty', 'storelly-product-builder-for-woocommerce' ) . '</th>';
+            echo '<th>' . esc_html__( 'Valid until', 'storelly-product-builder-for-woocommerce' ) . '</th>';
+            echo '<th></th></tr></thead><tbody>';
+
+            if ( empty( $rules ) ) {
+                echo '<tr><td colspan="7">' . esc_html__( 'No bound products yet.', 'storelly-product-builder-for-woocommerce' ) . '</td></tr>';
+            }
+            foreach ( $rules as $rule ) {
+                $product = wc_get_product( $rule->product_id );
+                $base    = $product ? (float) $product->get_price() : 0;
+                if ( SPBWC_B2B_Price_Rules::TYPE_FIXED === $rule->override_type ) {
+                    $override = $sym . number_format( (float) $rule->value, 2 ) . ' ' . esc_html__( 'fixed', 'storelly-product-builder-for-woocommerce' );
+                    $eff      = (float) $rule->value;
+                } else {
+                    $override = rtrim( rtrim( number_format( (float) $rule->value, 1 ), '0' ), '.' ) . '% ' . esc_html__( 'off', 'storelly-product-builder-for-woocommerce' );
+                    $eff      = $base * ( ( 100 - (float) $rule->value ) / 100 );
+                }
+                echo '<tr>';
+                echo '<td>' . esc_html( $product ? $product->get_name() : '#' . (int) $rule->product_id ) . '</td>';
+                echo '<td>' . esc_html( $sym . number_format( $base, 2 ) ) . '</td>';
+                echo '<td>' . esc_html( $override ) . '</td>';
+                echo '<td><strong>' . esc_html( $sym . number_format( $eff, 2 ) ) . '</strong></td>';
+                echo '<td>' . esc_html( (int) $rule->min_qty > 0 ? (int) $rule->min_qty : '—' ) . '</td>';
+                echo '<td>' . esc_html( ! empty( $rule->valid_until ) ? mysql2date( get_option( 'date_format' ), $rule->valid_until ) : '—' ) . '</td>';
+                echo '<td><form method="post" action="' . esc_url( self::page_url( array( 'company' => $company_id ) ) ) . '">';
+                echo '<input type="hidden" name="spbwc_b2b_do" value="unbind_price" />';
+                echo '<input type="hidden" name="company" value="' . esc_attr( $company_id ) . '" />';
+                echo '<input type="hidden" name="product_id" value="' . esc_attr( $rule->product_id ) . '" />';
+                echo '<input type="hidden" name="_spbwc_b2b_nonce" value="' . esc_attr( $nonce ) . '" />';
+                echo '<button type="submit" class="button-link delete">' . esc_html__( 'Remove', 'storelly-product-builder-for-woocommerce' ) . '</button>';
+                echo '</form></td></tr>';
+            }
+            echo '</tbody></table>';
+
+            // Bind form.
+            echo '<form method="post" class="spbwc-b2b-bind" action="' . esc_url( self::page_url( array( 'company' => $company_id ) ) ) . '" style="margin-top:10px;">';
+            echo '<input type="hidden" name="spbwc_b2b_do" value="bind_price" />';
+            echo '<input type="hidden" name="company" value="' . esc_attr( $company_id ) . '" />';
+            echo '<input type="hidden" name="_spbwc_b2b_nonce" value="' . esc_attr( $nonce ) . '" />';
+            echo '<input type="number" name="product_id" min="1" placeholder="' . esc_attr__( 'Product ID', 'storelly-product-builder-for-woocommerce' ) . '" required class="small-text" /> ';
+            echo '<select name="override_type">';
+            echo '<option value="pct">' . esc_html__( '% off', 'storelly-product-builder-for-woocommerce' ) . '</option>';
+            echo '<option value="fixed">' . esc_html__( 'Fixed price', 'storelly-product-builder-for-woocommerce' ) . '</option>';
+            echo '</select> ';
+            echo '<input type="number" name="value" min="0" step="0.01" placeholder="' . esc_attr__( 'Value', 'storelly-product-builder-for-woocommerce' ) . '" required class="small-text" /> ';
+            echo '<input type="number" name="min_qty" min="0" placeholder="' . esc_attr__( 'Min qty', 'storelly-product-builder-for-woocommerce' ) . '" class="small-text" /> ';
+            echo '<input type="date" name="valid_until" /> ';
+            echo '<button type="submit" class="button">' . esc_html__( 'Bind product', 'storelly-product-builder-for-woocommerce' ) . '</button>';
+            echo ' <span class="description">' . esc_html__( 'Tip: the product ID is shown in the Products list URL.', 'storelly-product-builder-for-woocommerce' ) . '</span>';
+            echo '</form>';
         }
 
         /**
