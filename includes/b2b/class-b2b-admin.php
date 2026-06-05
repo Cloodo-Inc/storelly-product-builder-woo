@@ -314,11 +314,12 @@ if ( ! class_exists( 'SPBWC_B2B_Admin' ) ) {
          * @param string $actions  Pre-escaped action-button HTML.
          * @param string $icon     Title dashicon slug.
          */
-        protected function render_hero( $title, $subtitle, $actions = '', $icon = 'groups' ) {
+        protected function render_hero( $title, $subtitle, $actions = '', $icon = 'groups', $suffix = '' ) {
             echo '<header class="spbwc-page-hero"><div class="spbwc-page-hero__grid"><div class="spbwc-page-hero__body">';
             echo '<div class="spbwc-page-hero__eyebrow"><span class="dashicons dashicons-admin-plugins" aria-hidden="true"></span>'
                 . esc_html__( 'Storelly · B2B', 'storelly-product-builder-for-woocommerce' ) . '</div>';
-            echo '<h1 class="spbwc-page-hero__title"><span class="dashicons dashicons-' . esc_attr( $icon ) . '" aria-hidden="true"></span> ' . esc_html( $title ) . '</h1>';
+            echo '<h1 class="spbwc-page-hero__title"><span class="dashicons dashicons-' . esc_attr( $icon ) . '" aria-hidden="true"></span> ' . esc_html( $title )
+                . ( '' !== $suffix ? ' ' . $suffix : '' ) . '</h1>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- $suffix is pre-escaped pill HTML.
             echo '<p class="spbwc-page-hero__subtitle">' . esc_html( $subtitle ) . '</p>';
             echo '</div>';
             if ( '' !== $actions ) {
@@ -565,110 +566,167 @@ if ( ! class_exists( 'SPBWC_B2B_Admin' ) ) {
             $store   = SPBWC_Company::store_url( $company_id );
             $members = SPBWC_Company::get_members( $company_id );
             $seats   = SPBWC_Company::get_seats( $company_id );
-            $terms   = (string) get_post_meta( $company_id, SPBWC_Company::META_PAYMENT_TERMS, true );
-            $thresh  = (float) get_post_meta( $company_id, SPBWC_Company::META_APPROVAL_THRESHOLD, true );
             $nonce   = wp_create_nonce( 'spbwc_b2b_' . $company_id );
+            $tier    = (string) get_post_meta( $company_id, SPBWC_Company::META_TIER, true );
+            $tier_lbl = ( '' !== $tier && class_exists( 'SPBWC_B2B_Pricing' ) ) ? SPBWC_B2B_Pricing::tier_label( $tier ) : __( 'No tier', 'storelly-product-builder-for-woocommerce' );
+            $rules    = class_exists( 'SPBWC_B2B_Price_Rules' ) ? SPBWC_B2B_Price_Rules::get_rules_for_company( $company_id ) : array();
 
-            $tier       = (string) get_post_meta( $company_id, SPBWC_Company::META_TIER, true );
-            $tier_label = ( '' !== $tier && class_exists( 'SPBWC_B2B_Pricing' ) ) ? SPBWC_B2B_Pricing::tier_label( $tier ) : __( 'No tier', 'storelly-product-builder-for-woocommerce' );
+            // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only tab routing.
+            $active = isset( $_GET['detail_tab'] ) ? sanitize_key( wp_unslash( $_GET['detail_tab'] ) ) : 'overview';
 
-            echo '<p><a href="' . esc_url( self::page_url() ) . '">&larr; ' . esc_html__( 'All companies', 'storelly-product-builder-for-woocommerce' ) . '</a></p>';
-
-            // Hero.
-            echo '<div class="spbwc-b2b-hero"><div>';
-            echo '<h1 class="spbwc-b2b-hero__title">' . esc_html( get_the_title( $company_id ) ) . ' ' . self::status_pill( $status ) . '</h1>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- pill escaped internally.
-            echo '<div class="spbwc-b2b-hero__meta">' . esc_html__( 'Owner:', 'storelly-product-builder-for-woocommerce' ) . ' ' . esc_html( $owner ? $owner->user_email : '—' ) . '</div>';
-            echo '</div><div>';
+            // Hero actions: back + view store + status action.
+            $actions = '<a class="spbwc-cta-btn spbwc-cta-btn--ghost spbwc-cta-btn--sm" href="' . esc_url( self::page_url() ) . '"><span class="dashicons dashicons-arrow-left-alt2" aria-hidden="true"></span> ' . esc_html__( 'Companies', 'storelly-product-builder-for-woocommerce' ) . '</a>';
             if ( '' !== $store ) {
-                echo '<a class="button" href="' . esc_url( $store ) . '" target="_blank" rel="noopener">' . esc_html__( 'View Brand Store →', 'storelly-product-builder-for-woocommerce' ) . '</a>';
+                $actions .= ' <a class="spbwc-cta-btn spbwc-cta-btn--ghost" href="' . esc_url( $store ) . '" target="_blank" rel="noopener"><span class="dashicons dashicons-store" aria-hidden="true"></span> ' . esc_html__( 'Brand Store ↗', 'storelly-product-builder-for-woocommerce' ) . '</a>';
             }
-            echo '</div></div>';
-
-            // Quick stats.
-            echo '<div class="spbwc-b2b-stats">';
-            $detail_stats = array(
-                array( count( $members ) . ' / ' . $seats, __( 'Team members', 'storelly-product-builder-for-woocommerce' ) ),
-                array( $tier_label, __( 'Pricing tier', 'storelly-product-builder-for-woocommerce' ) ),
-                array( SPBWC_Company::statuses()[ $status ], __( 'Status', 'storelly-product-builder-for-woocommerce' ) ),
-            );
-            foreach ( $detail_stats as $card ) {
-                echo '<div class="spbwc-b2b-stat"><div class="spbwc-b2b-stat__value" style="font-size:var(--text-2xl)">' . esc_html( $card[0] ) . '</div>';
-                echo '<div class="spbwc-b2b-stat__label">' . esc_html( $card[1] ) . '</div></div>';
-            }
-            echo '</div>';
-
-            // Status actions.
-            echo '<div class="spbwc-b2b-actions" style="margin:12px 0;">';
             if ( SPBWC_Company::STATUS_PENDING === $status ) {
-                echo $this->action_button( $company_id, 'approve', __( 'Approve & activate', 'storelly-product-builder-for-woocommerce' ), 'button-primary', $nonce ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- builder escapes.
+                $actions .= $this->action_button( $company_id, 'approve', __( 'Approve & activate', 'storelly-product-builder-for-woocommerce' ), 'solid', $nonce );
+            } elseif ( SPBWC_Company::STATUS_ACTIVE === $status ) {
+                $actions .= $this->action_button( $company_id, 'suspend', __( 'Suspend', 'storelly-product-builder-for-woocommerce' ), 'ghost', $nonce );
+            } elseif ( SPBWC_Company::STATUS_SUSPENDED === $status ) {
+                $actions .= $this->action_button( $company_id, 'reactivate', __( 'Reactivate', 'storelly-product-builder-for-woocommerce' ), 'solid', $nonce );
             }
-            if ( SPBWC_Company::STATUS_ACTIVE === $status ) {
-                echo $this->action_button( $company_id, 'suspend', __( 'Suspend', 'storelly-product-builder-for-woocommerce' ), '', $nonce ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-            }
-            if ( SPBWC_Company::STATUS_SUSPENDED === $status ) {
-                echo $this->action_button( $company_id, 'reactivate', __( 'Reactivate', 'storelly-product-builder-for-woocommerce' ), 'button-primary', $nonce ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+            $this->render_hero(
+                get_the_title( $company_id ),
+                $owner ? ( __( 'Owner:', 'storelly-product-builder-for-woocommerce' ) . ' ' . $owner->user_email ) : '',
+                $actions,
+                'store',
+                self::status_pill( $status )
+            );
+
+            // KPIs.
+            $kpis = array(
+                array( 'icon' => 'groups',     'tone' => 'info', 'value' => count( $members ) . ' / ' . $seats, 'label' => __( 'Team members', 'storelly-product-builder-for-woocommerce' ) ),
+                array( 'icon' => 'tag',        'tone' => 'ok',   'value' => $tier_lbl, 'label' => __( 'Pricing tier', 'storelly-product-builder-for-woocommerce' ) ),
+                array( 'icon' => 'cart',       'tone' => 'info', 'value' => number_format_i18n( count( $rules ) ), 'label' => __( 'Priced products', 'storelly-product-builder-for-woocommerce' ) ),
+                array( 'icon' => 'info',       'tone' => 'warn', 'value' => SPBWC_Company::statuses()[ $status ], 'label' => __( 'Status', 'storelly-product-builder-for-woocommerce' ) ),
+            );
+            echo '<div class="spbwc-q-kpis">';
+            foreach ( $kpis as $c ) {
+                echo '<div class="spbwc-q-kpi spbwc-q-kpi--' . esc_attr( $c['tone'] ) . '">';
+                echo '<span class="spbwc-q-kpi__icon dashicons dashicons-' . esc_attr( $c['icon'] ) . '" aria-hidden="true"></span>';
+                echo '<span class="spbwc-q-kpi__value">' . esc_html( $c['value'] ) . '</span>';
+                echo '<span class="spbwc-q-kpi__label">' . esc_html( $c['label'] ) . '</span></div>';
             }
             echo '</div>';
 
-            // Settings form.
-            echo '<h2>' . esc_html__( 'Settings', 'storelly-product-builder-for-woocommerce' ) . '</h2>';
-            echo '<form method="post" action="' . esc_url( self::page_url( array( 'company' => $company_id ) ) ) . '">';
-            echo '<input type="hidden" name="spbwc_b2b_do" value="save" />';
-            echo '<input type="hidden" name="company" value="' . esc_attr( $company_id ) . '" />';
-            echo '<input type="hidden" name="_spbwc_b2b_nonce" value="' . esc_attr( $nonce ) . '" />';
-            echo '<table class="form-table" role="presentation"><tbody>';
-            // Pricing tier (M2).
+            // Tabs nav (server-side).
+            $tabs = array(
+                'overview' => __( 'Overview', 'storelly-product-builder-for-woocommerce' ),
+                'members'  => __( 'Members', 'storelly-product-builder-for-woocommerce' ),
+                'pricing'  => __( 'Pricing & products', 'storelly-product-builder-for-woocommerce' ),
+                'activity' => __( 'Activity', 'storelly-product-builder-for-woocommerce' ),
+            );
+            echo '<nav class="spbwc-tabs">';
+            foreach ( $tabs as $slug => $label ) {
+                $cls = ( $active === $slug ) ? ' is-active' : '';
+                echo '<a class="spbwc-tab' . $cls . '" href="' . esc_url( self::page_url( array( 'company' => $company_id, 'detail_tab' => $slug ) ) ) . '">' . esc_html( $label ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static literal.
+                if ( 'members' === $slug ) {
+                    echo ' <span class="count">' . esc_html( count( $members ) ) . '</span>';
+                } elseif ( 'pricing' === $slug && ! empty( $rules ) ) {
+                    echo ' <span class="count">' . esc_html( count( $rules ) ) . '</span>';
+                }
+                echo '</a>';
+            }
+            echo '</nav>';
+
+            switch ( $active ) {
+                case 'members':
+                    $this->render_members_tab( $company_id, $members, $seats );
+                    break;
+                case 'pricing':
+                    $this->render_price_rules( $company_id, $nonce );
+                    break;
+                case 'activity':
+                    $this->render_activity_tab( $company_id );
+                    break;
+                default:
+                    $this->render_overview_tab( $company_id, $nonce, $seats );
+            }
+        }
+
+        /** Overview tab: settings + profile snapshot. */
+        protected function render_overview_tab( $company_id, $nonce, $seats ) {
+            $terms        = (string) get_post_meta( $company_id, SPBWC_Company::META_PAYMENT_TERMS, true );
+            $thresh       = (float) get_post_meta( $company_id, SPBWC_Company::META_APPROVAL_THRESHOLD, true );
             $current_tier = (string) get_post_meta( $company_id, SPBWC_Company::META_TIER, true );
             $tiers        = class_exists( 'SPBWC_B2B_Pricing' ) ? SPBWC_B2B_Pricing::get_tiers() : array();
-            echo '<tr><th>' . esc_html__( 'Pricing tier', 'storelly-product-builder-for-woocommerce' ) . '</th><td><select name="tier">';
-            echo '<option value="">' . esc_html__( '— No tier —', 'storelly-product-builder-for-woocommerce' ) . '</option>';
-            foreach ( $tiers as $tslug => $tier ) {
-                $tlabel = isset( $tier['label'] ) ? $tier['label'] : $tslug;
-                $tpct   = isset( $tier['discount_pct'] ) ? (float) $tier['discount_pct'] : 0;
-                echo '<option value="' . esc_attr( $tslug ) . '"' . selected( $current_tier, $tslug, false ) . '>'
-                    . esc_html( $tlabel . ' (' . rtrim( rtrim( number_format( $tpct, 1 ), '0' ), '.' ) . '%)' ) . '</option>';
+            $profile      = (array) get_post_meta( $company_id, SPBWC_Company::META_PROFILE, true );
+
+            echo '<form method="post" action="' . esc_url( self::page_url( array( 'company' => $company_id ) ) ) . '">';
+            echo '<input type="hidden" name="spbwc_b2b_do" value="save" /><input type="hidden" name="company" value="' . esc_attr( $company_id ) . '" /><input type="hidden" name="_spbwc_b2b_nonce" value="' . esc_attr( $nonce ) . '" />';
+            echo '<div class="spbwc-block"><div class="spbwc-block__head"><h3 class="spbwc-block__title">' . esc_html__( 'Account settings', 'storelly-product-builder-for-woocommerce' ) . '</h3></div><div class="spbwc-block__body"><div class="spbwc-setting-rows">';
+
+            echo '<div class="spbwc-setting-row"><label class="spbwc-setting-row__label">' . esc_html__( 'Pricing tier', 'storelly-product-builder-for-woocommerce' ) . '</label><select class="spbwc-input" name="tier" style="max-width:260px"><option value="">' . esc_html__( '— No tier —', 'storelly-product-builder-for-woocommerce' ) . '</option>';
+            foreach ( $tiers as $tslug => $t ) {
+                $tlabel = isset( $t['label'] ) ? $t['label'] : $tslug;
+                $tpct   = isset( $t['discount_pct'] ) ? (float) $t['discount_pct'] : 0;
+                echo '<option value="' . esc_attr( $tslug ) . '"' . selected( $current_tier, $tslug, false ) . '>' . esc_html( $tlabel . ' (' . rtrim( rtrim( number_format( $tpct, 1 ), '0' ), '.' ) . '%)' ) . '</option>';
             }
             echo '</select>';
-            if ( empty( $tiers ) ) {
-                echo ' <span class="description">' . wp_kses_post(
-                    sprintf(
-                        /* translators: %s: B2B Pricing page URL. */
-                        __( 'No tiers yet. <a href="%s">Create a pricing tier</a> first.', 'storelly-product-builder-for-woocommerce' ),
-                        esc_url( class_exists( 'SPBWC_B2B_Pricing_Admin' ) ? SPBWC_B2B_Pricing_Admin::page_url() : '' )
-                    )
-                ) . '</span>';
-            }
-            echo '</td></tr>';
-            echo '<tr><th>' . esc_html__( 'Team seats', 'storelly-product-builder-for-woocommerce' ) . '</th>';
-            echo '<td><input type="number" name="seats" min="1" value="' . esc_attr( $seats ) . '" class="small-text" /></td></tr>';
-            echo '<tr><th>' . esc_html__( 'Approval threshold', 'storelly-product-builder-for-woocommerce' ) . '</th>';
-            echo '<td>' . esc_html( get_woocommerce_currency_symbol() ) . ' <input type="number" name="approval_threshold" min="0" step="0.01" value="' . esc_attr( $thresh ) . '" class="small-text" /> <span class="description">' . esc_html__( 'Orders above this need approval (Team Procurement, M5).', 'storelly-product-builder-for-woocommerce' ) . '</span></td></tr>';
-            echo '<tr><th>' . esc_html__( 'Payment terms', 'storelly-product-builder-for-woocommerce' ) . '</th><td><select name="payment_terms">';
+            $hint = empty( $tiers ) && class_exists( 'SPBWC_B2B_Pricing_Admin' )
+                ? '<span class="spbwc-setting-row__hint"><a href="' . esc_url( SPBWC_B2B_Pricing_Admin::page_url() ) . '">' . esc_html__( 'Create a tier first', 'storelly-product-builder-for-woocommerce' ) . '</a></span>'
+                : '<span class="spbwc-setting-row__hint">' . esc_html__( 'Discount applied to this company.', 'storelly-product-builder-for-woocommerce' ) . '</span>';
+            echo $hint . '</div>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- built from escaped parts.
+
+            echo '<div class="spbwc-setting-row"><label class="spbwc-setting-row__label">' . esc_html__( 'Team seats', 'storelly-product-builder-for-woocommerce' ) . '</label><input class="spbwc-input" type="number" name="seats" min="1" value="' . esc_attr( $seats ) . '" style="max-width:120px" /></div>';
+            echo '<div class="spbwc-setting-row"><label class="spbwc-setting-row__label">' . esc_html__( 'Approval threshold', 'storelly-product-builder-for-woocommerce' ) . '</label><input class="spbwc-input" type="number" name="approval_threshold" min="0" step="0.01" value="' . esc_attr( $thresh ) . '" style="max-width:160px" /><span class="spbwc-setting-row__hint">' . esc_html( get_woocommerce_currency_symbol() ) . ' · ' . esc_html__( 'orders above this need approval.', 'storelly-product-builder-for-woocommerce' ) . '</span></div>';
+            echo '<div class="spbwc-setting-row"><label class="spbwc-setting-row__label">' . esc_html__( 'Payment terms', 'storelly-product-builder-for-woocommerce' ) . '</label><select class="spbwc-input" name="payment_terms" style="max-width:220px">';
             foreach ( self::payment_terms() as $slug => $label ) {
                 echo '<option value="' . esc_attr( $slug ) . '"' . selected( $terms, $slug, false ) . '>' . esc_html( $label ) . '</option>';
             }
-            echo '</select></td></tr>';
-            echo '</tbody></table>';
-            echo '<p class="submit"><button type="submit" class="button button-primary">' . esc_html__( 'Save changes', 'storelly-product-builder-for-woocommerce' ) . '</button></p>';
+            echo '</select></div>';
+            echo '</div></div><div class="spbwc-block__foot"><button type="submit" class="spbwc-cta-btn spbwc-cta-btn--solid">' . esc_html__( 'Save changes', 'storelly-product-builder-for-woocommerce' ) . '</button></div></div>';
             echo '</form>';
 
-            // Members.
-            echo '<h2>' . esc_html__( 'Members', 'storelly-product-builder-for-woocommerce' ) . ' (' . esc_html( count( $members ) . ' / ' . $seats ) . ')</h2>';
-            echo '<table class="wp-list-table widefat fixed striped"><thead><tr>';
-            echo '<th>' . esc_html__( 'Member', 'storelly-product-builder-for-woocommerce' ) . '</th>';
-            echo '<th>' . esc_html__( 'Email', 'storelly-product-builder-for-woocommerce' ) . '</th>';
-            echo '<th>' . esc_html__( 'Role', 'storelly-product-builder-for-woocommerce' ) . '</th>';
-            echo '</tr></thead><tbody>';
-            $roles = SPBWC_Company::roles();
+            // Profile snapshot.
+            echo '<div class="spbwc-block"><div class="spbwc-block__head"><h3 class="spbwc-block__title">' . esc_html__( 'Company profile', 'storelly-product-builder-for-woocommerce' ) . '</h3>';
+            echo '<span class="spbwc-pill spbwc-pill--' . ( SPBWC_Company::profile_is_complete( $company_id ) ? 'success">' . esc_html__( 'Complete', 'storelly-product-builder-for-woocommerce' ) : 'warn">' . esc_html__( 'Incomplete', 'storelly-product-builder-for-woocommerce' ) ) . '</span>';
+            echo '</div><div class="spbwc-block__body"><div class="spbwc-q-recap">';
+            $rows = array(
+                __( 'Legal name', 'storelly-product-builder-for-woocommerce' )  => isset( $profile['legal_name'] ) ? $profile['legal_name'] : '',
+                __( 'Industry', 'storelly-product-builder-for-woocommerce' )    => isset( $profile['industry'] ) ? $profile['industry'] : '',
+                __( 'Tax / VAT ID', 'storelly-product-builder-for-woocommerce' ) => isset( $profile['tax_id'] ) ? $profile['tax_id'] : '',
+            );
+            foreach ( $rows as $label => $val ) {
+                echo '<span class="spbwc-q-recap__label">' . esc_html( $label ) . '</span><span class="spbwc-q-recap__value">' . esc_html( '' !== $val ? $val : '—' ) . '</span>';
+            }
+            echo '</div><p class="description">' . esc_html__( 'The company owner edits the full Brand Store profile from My Account.', 'storelly-product-builder-for-woocommerce' ) . '</p></div></div>';
+        }
+
+        /** Members tab: rich roster list. */
+        protected function render_members_tab( $company_id, $members, $seats ) {
+            $roles    = SPBWC_Company::roles();
+            $owner_id = (int) get_post_field( 'post_author', $company_id );
+            echo '<div class="spbwc-block"><div class="spbwc-block__head"><h3 class="spbwc-block__title">' . esc_html__( 'Members', 'storelly-product-builder-for-woocommerce' ) . ' (' . esc_html( count( $members ) . ' / ' . $seats ) . ')</h3></div><div class="spbwc-block__body spbwc-block__body--flush"><ul class="spbwc-list">';
             foreach ( $members as $m ) {
                 $role = SPBWC_Company::get_user_role( $m->ID );
-                echo '<tr><td>' . esc_html( $m->display_name ) . '</td><td>' . esc_html( $m->user_email ) . '</td>';
-                echo '<td>' . esc_html( isset( $roles[ $role ] ) ? $roles[ $role ] : $role ) . '</td></tr>';
+                $lim  = SPBWC_Company::get_order_limit( $m->ID );
+                echo '<li class="spbwc-list__item">' . self::avatar( $m ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- avatar escapes.
+                echo '<div style="flex:1;min-width:0;"><strong>' . esc_html( $m->display_name ) . ( (int) $m->ID === $owner_id ? ' <span class="spbwc-role-chip spbwc-role-chip--owner">' . esc_html__( 'Owner', 'storelly-product-builder-for-woocommerce' ) . '</span>' : '' ) . '</strong><br /><span style="color:var(--nbd-st-text-mute);font-size:var(--text-sm)">' . esc_html( $m->user_email ) . '</span></div>';
+                echo '<span class="spbwc-role-chip spbwc-role-chip--' . esc_attr( $role ) . '">' . esc_html( isset( $roles[ $role ] ) ? $roles[ $role ] : $role ) . '</span>';
+                echo '<span style="min-width:120px;color:var(--nbd-st-text-soft);font-size:var(--text-sm)">' . esc_html( $lim > 0 ? get_woocommerce_currency_symbol() . number_format( $lim, 0 ) . '/order' : __( 'No limit', 'storelly-product-builder-for-woocommerce' ) ) . '</span>';
+                echo '</li>';
             }
-            echo '</tbody></table>';
-            echo '<p class="description">' . esc_html__( 'Team invitations and roles are managed by the company owner in My Account (Team Procurement).', 'storelly-product-builder-for-woocommerce' ) . '</p>';
+            echo '</ul></div></div>';
+            echo '<p class="description">' . esc_html__( 'Team invitations, roles and spending limits are managed by the company owner in My Account → Team.', 'storelly-product-builder-for-woocommerce' ) . '</p>';
+        }
 
-            $this->render_price_rules( $company_id, $nonce );
+        /** Activity tab: company timeline. */
+        protected function render_activity_tab( $company_id ) {
+            $events = SPBWC_Company::get_timeline( $company_id );
+            echo '<div class="spbwc-block"><div class="spbwc-block__head"><h3 class="spbwc-block__title">' . esc_html__( 'Activity', 'storelly-product-builder-for-woocommerce' ) . '</h3></div><div class="spbwc-block__body">';
+            if ( empty( $events ) ) {
+                echo '<p class="description">' . esc_html__( 'No activity recorded yet.', 'storelly-product-builder-for-woocommerce' ) . '</p>';
+            } else {
+                echo '<div class="spbwc-q-timeline">';
+                foreach ( array_reverse( $events ) as $ev ) {
+                    echo '<div class="spbwc-q-timeline__item"><span class="spbwc-q-timeline__dot"></span>';
+                    echo '<div class="spbwc-q-timeline__body">' . esc_html( $ev->comment_content ) . '<span class="spbwc-q-timeline__time"> · ' . esc_html( mysql2date( get_option( 'date_format' ) . ' ' . get_option( 'time_format' ), $ev->comment_date ) ) . '</span></div></div>';
+                }
+                echo '</div>';
+            }
+            echo '</div></div>';
         }
 
         /* ── Per-company product pricing (M4) ─────────────────────── */
@@ -685,16 +743,16 @@ if ( ! class_exists( 'SPBWC_B2B_Admin' ) ) {
             $tier_pct = class_exists( 'SPBWC_B2B_Pricing' ) ? SPBWC_B2B_Pricing::tier_pct_for_company( $company_id ) : 0;
             $sym      = get_woocommerce_currency_symbol();
 
-            echo '<h2>' . esc_html__( 'Per-company product pricing', 'storelly-product-builder-for-woocommerce' ) . '</h2>';
-            echo '<p class="description">' . esc_html(
+            echo '<div class="spbwc-block"><div class="spbwc-block__head"><h3 class="spbwc-block__title">' . esc_html__( 'Per-company product pricing', 'storelly-product-builder-for-woocommerce' ) . '</h3></div><div class="spbwc-block__body">';
+            echo '<p class="description" style="margin-top:0">' . esc_html(
                 sprintf(
                     /* translators: %s: tier discount percent. */
-                    __( 'Bind specific products to this company at a custom price. These override the tier baseline (%s%% off). Bound products are added to the Brand Store.', 'storelly-product-builder-for-woocommerce' ),
+                    __( 'Bind products to this company at a custom price — these override the tier baseline (%s%% off). Bound products are added to the Brand Store.', 'storelly-product-builder-for-woocommerce' ),
                     rtrim( rtrim( number_format( (float) $tier_pct, 1 ), '0' ), '.' )
                 )
             ) . '</p>';
 
-            echo '<table class="wp-list-table widefat fixed striped"><thead><tr>';
+            echo '<table class="spbwc-admin-table"><thead><tr>';
             echo '<th>' . esc_html__( 'Product', 'storelly-product-builder-for-woocommerce' ) . '</th>';
             echo '<th>' . esc_html__( 'Base price', 'storelly-product-builder-for-woocommerce' ) . '</th>';
             echo '<th>' . esc_html__( 'Override', 'storelly-product-builder-for-woocommerce' ) . '</th>';
@@ -704,7 +762,7 @@ if ( ! class_exists( 'SPBWC_B2B_Admin' ) ) {
             echo '<th></th></tr></thead><tbody>';
 
             if ( empty( $rules ) ) {
-                echo '<tr><td colspan="7">' . esc_html__( 'No bound products yet.', 'storelly-product-builder-for-woocommerce' ) . '</td></tr>';
+                echo '<tr><td colspan="7" style="color:var(--nbd-st-text-mute)">' . esc_html__( 'No bound products yet — add one below.', 'storelly-product-builder-for-woocommerce' ) . '</td></tr>';
             }
             foreach ( $rules as $rule ) {
                 $product = wc_get_product( $rule->product_id );
@@ -728,27 +786,21 @@ if ( ! class_exists( 'SPBWC_B2B_Admin' ) ) {
                 echo '<input type="hidden" name="company" value="' . esc_attr( $company_id ) . '" />';
                 echo '<input type="hidden" name="product_id" value="' . esc_attr( $rule->product_id ) . '" />';
                 echo '<input type="hidden" name="_spbwc_b2b_nonce" value="' . esc_attr( $nonce ) . '" />';
-                echo '<button type="submit" class="button-link delete">' . esc_html__( 'Remove', 'storelly-product-builder-for-woocommerce' ) . '</button>';
+                echo '<button type="submit" class="spbwc-cta-btn spbwc-cta-btn--ghost spbwc-cta-btn--sm" style="color:var(--nbd-color-danger);border-color:var(--nbd-color-danger)">' . esc_html__( 'Remove', 'storelly-product-builder-for-woocommerce' ) . '</button>';
                 echo '</form></td></tr>';
             }
             echo '</tbody></table>';
 
-            // Bind form.
-            echo '<form method="post" class="spbwc-b2b-bind" action="' . esc_url( self::page_url( array( 'company' => $company_id ) ) ) . '" style="margin-top:10px;">';
-            echo '<input type="hidden" name="spbwc_b2b_do" value="bind_price" />';
-            echo '<input type="hidden" name="company" value="' . esc_attr( $company_id ) . '" />';
-            echo '<input type="hidden" name="_spbwc_b2b_nonce" value="' . esc_attr( $nonce ) . '" />';
-            echo '<input type="number" name="product_id" min="1" placeholder="' . esc_attr__( 'Product ID', 'storelly-product-builder-for-woocommerce' ) . '" required class="small-text" /> ';
-            echo '<select name="override_type">';
-            echo '<option value="pct">' . esc_html__( '% off', 'storelly-product-builder-for-woocommerce' ) . '</option>';
-            echo '<option value="fixed">' . esc_html__( 'Fixed price', 'storelly-product-builder-for-woocommerce' ) . '</option>';
-            echo '</select> ';
-            echo '<input type="number" name="value" min="0" step="0.01" placeholder="' . esc_attr__( 'Value', 'storelly-product-builder-for-woocommerce' ) . '" required class="small-text" /> ';
-            echo '<input type="number" name="min_qty" min="0" placeholder="' . esc_attr__( 'Min qty', 'storelly-product-builder-for-woocommerce' ) . '" class="small-text" /> ';
-            echo '<input type="date" name="valid_until" /> ';
-            echo '<button type="submit" class="button">' . esc_html__( 'Bind product', 'storelly-product-builder-for-woocommerce' ) . '</button>';
-            echo ' <span class="description">' . esc_html__( 'Tip: the product ID is shown in the Products list URL.', 'storelly-product-builder-for-woocommerce' ) . '</span>';
-            echo '</form>';
+            // Bind form (labelled).
+            echo '<form method="post" class="spbwc-b2b-bind" action="' . esc_url( self::page_url( array( 'company' => $company_id ) ) ) . '">';
+            echo '<input type="hidden" name="spbwc_b2b_do" value="bind_price" /><input type="hidden" name="company" value="' . esc_attr( $company_id ) . '" /><input type="hidden" name="_spbwc_b2b_nonce" value="' . esc_attr( $nonce ) . '" />';
+            echo '<label>' . esc_html__( 'Product ID', 'storelly-product-builder-for-woocommerce' ) . '<input class="spbwc-input" type="number" name="product_id" min="1" required style="width:110px" /></label>';
+            echo '<label>' . esc_html__( 'Type', 'storelly-product-builder-for-woocommerce' ) . '<select class="spbwc-input" name="override_type" style="width:120px"><option value="pct">' . esc_html__( '% off', 'storelly-product-builder-for-woocommerce' ) . '</option><option value="fixed">' . esc_html__( 'Fixed price', 'storelly-product-builder-for-woocommerce' ) . '</option></select></label>';
+            echo '<label>' . esc_html__( 'Value', 'storelly-product-builder-for-woocommerce' ) . '<input class="spbwc-input" type="number" name="value" min="0" step="0.01" required style="width:110px" /></label>';
+            echo '<label>' . esc_html__( 'Min qty', 'storelly-product-builder-for-woocommerce' ) . '<input class="spbwc-input" type="number" name="min_qty" min="0" style="width:90px" /></label>';
+            echo '<label>' . esc_html__( 'Valid until', 'storelly-product-builder-for-woocommerce' ) . '<input class="spbwc-input" type="date" name="valid_until" /></label>';
+            echo '<button type="submit" class="spbwc-cta-btn spbwc-cta-btn--solid"><span class="dashicons dashicons-plus-alt2" aria-hidden="true"></span> ' . esc_html__( 'Bind', 'storelly-product-builder-for-woocommerce' ) . '</button>';
+            echo '</form></div></div>';
         }
 
         /**
@@ -759,12 +811,13 @@ if ( ! class_exists( 'SPBWC_B2B_Admin' ) ) {
          * @param string $nonce      Nonce.
          * @return string Form HTML.
          */
-        protected function action_button( $company_id, $do, $label, $class, $nonce ) {
-            $html  = '<form method="post" style="display:inline-block;margin-right:8px;" action="' . esc_url( self::page_url( array( 'company' => $company_id ) ) ) . '">';
+        protected function action_button( $company_id, $do, $label, $variant, $nonce ) {
+            $cls   = 'spbwc-cta-btn spbwc-cta-btn--' . ( 'ghost' === $variant ? 'ghost' : 'solid' );
+            $html  = '<form method="post" style="display:inline-block;" action="' . esc_url( self::page_url( array( 'company' => $company_id ) ) ) . '">';
             $html .= '<input type="hidden" name="spbwc_b2b_do" value="' . esc_attr( $do ) . '" />';
             $html .= '<input type="hidden" name="company" value="' . esc_attr( $company_id ) . '" />';
             $html .= '<input type="hidden" name="_spbwc_b2b_nonce" value="' . esc_attr( $nonce ) . '" />';
-            $html .= '<button type="submit" class="button ' . esc_attr( $class ) . '">' . esc_html( $label ) . '</button>';
+            $html .= '<button type="submit" class="' . esc_attr( $cls ) . '">' . esc_html( $label ) . '</button>';
             $html .= '</form>';
             return $html;
         }
