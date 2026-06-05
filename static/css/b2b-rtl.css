@@ -1,0 +1,884 @@
+/**
+ * Storelly B2B — storefront surfaces (public /store/<slug> + My-Account: Brand
+ * Store, Team, Approvals, Reorders, and the tier price note).
+ *
+ * Uses the Storelly storefront design tokens (_tokens-storefront.css, the
+ * --nbd-mb-* / --nbd-color-* set). Load order is guaranteed by the dependency
+ * declared in SPBWC_B2B_Assets::storefront().
+ */
+
+.spbwc-store,
+.spbwc-team,
+.spbwc-proc,
+.spbwc-reorders {
+    font-family: var(--nbd-font-family);
+    color: var(--nbd-mb-text);
+}
+
+/* ============================================================ *
+ *  Layout utilities (token-driven; replace inline styles)
+ * ============================================================ */
+.spbwc-row { display: flex; align-items: center; gap: var(--nbd-space-3); flex-wrap: wrap; }
+.spbwc-row--sm { gap: var(--nbd-space-2); }
+.spbwc-row--tight { gap: var(--nbd-space-1); }
+.spbwc-row--between { justify-content: space-between; }
+.spbwc-row--top { align-items: flex-start; }
+.spbwc-row--push { margin-right: auto; }
+.spbwc-stack { display: flex; flex-direction: column; gap: var(--nbd-space-1); }
+.spbwc-icon-xl { font-size: 32px; width: 32px; height: 32px; }
+.spbwc-muted { color: var(--nbd-mb-text-soft); }
+.spbwc-muted-sm { color: var(--nbd-mb-text-soft); font-size: 12px; }
+.spbwc-amount { font-size: 20px; font-weight: 700; color: var(--nbd-mb-primary-pressed); }
+
+/* ============================================================ *
+ *  Brand Page Header (Pattern 9)
+ * ============================================================ */
+
+.spbwc-store {
+    --spbwc-brand-primary: var(--nbd-mb-primary);
+    --spbwc-brand-secondary: var(--nbd-mb-primary-pressed);
+    max-width: 1080px;
+    margin: 0 auto;
+    padding: 0 var(--nbd-space-4) var(--nbd-space-12);
+}
+
+.spbwc-store__header,
+.spbwc-proc__hero,
+.spbwc-team__hero {
+    position: relative;
+    border-radius: var(--nbd-radius-2xl);
+    overflow: hidden;
+    margin: var(--nbd-space-6) 0 var(--nbd-space-8);
+    padding: var(--nbd-space-8);
+    color: #fff;
+    background: linear-gradient(-135deg, var(--spbwc-brand-primary, var(--nbd-mb-primary)), var(--spbwc-brand-secondary, var(--nbd-mb-primary-pressed)));
+    box-shadow: var(--nbd-shadow-lg);
+}
+
+/* Decorative radial blob — premium feel */
+.spbwc-store__header::after,
+.spbwc-proc__hero::after,
+.spbwc-team__hero::after {
+    content: "";
+    position: absolute;
+    top: -40%;
+    left: -10%;
+    width: 320px;
+    height: 320px;
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.18) 0%, rgba(255, 255, 255, 0) 70%);
+    pointer-events: none;
+}
+
+.spbwc-store__header.has-banner {
+    background-image: var(--spbwc-brand-banner), linear-gradient(-135deg, var(--spbwc-brand-primary), var(--spbwc-brand-secondary));
+    background-size: cover;
+    background-position: center;
+    background-blend-mode: overlay;
+}
+
+.spbwc-store__header--account {
+    margin-top: 0;
+}
+
+.spbwc-store__header-inner {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    gap: var(--nbd-space-4);
+}
+
+.spbwc-store__logo {
+    width: 64px;
+    height: 64px;
+    border-radius: var(--nbd-radius-xl);
+    background: #fff;
+    object-fit: contain;
+    padding: var(--nbd-space-1);
+    box-shadow: var(--nbd-shadow-md);
+}
+
+.spbwc-store__eyebrow {
+    display: block;
+    font-size: 11px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    opacity: 0.85;
+    margin-bottom: var(--nbd-space-1);
+}
+
+.spbwc-store__title {
+    margin: 0;
+    font-size: 26px;
+    line-height: 1.2;
+    color: #fff;
+    font-weight: 700;
+}
+
+.spbwc-store__tagline {
+    margin: var(--nbd-space-1) 0 0;
+    font-size: 14px;
+    opacity: 0.92;
+}
+
+.spbwc-store__link {
+    color: #fff;
+    text-decoration: underline;
+    font-size: 13px;
+    opacity: 0.95;
+}
+
+.spbwc-store__link:hover {
+    opacity: 1;
+}
+
+/* ============================================================ *
+ *  Public Brand Store — banner-forward hero
+ *  (scoped to .spbwc-store__hero; the shared .spbwc-store__header
+ *   above still drives the My-Account / Team / Procurement heroes.)
+ * ============================================================ */
+
+.spbwc-store__hero {
+    position: relative;
+    isolation: isolate;
+    border-radius: var(--nbd-radius-2xl);
+    overflow: hidden;
+    margin: var(--nbd-space-6) 0 var(--nbd-space-6);
+    min-height: 220px;
+    display: flex;
+    align-items: flex-end;
+    padding: var(--nbd-space-8);
+    color: #fff;
+    background: linear-gradient(-135deg, var(--spbwc-brand-primary, var(--nbd-mb-primary)), var(--spbwc-brand-secondary, var(--nbd-mb-primary-pressed)));
+    box-shadow: var(--nbd-shadow-lg);
+}
+
+/* Banner image layer (sits under the readability veil). */
+.spbwc-store__banner {
+    position: absolute;
+    inset: 0;
+    z-index: -2;
+    background-size: cover;
+    background-position: center;
+}
+
+/* Readability veil: brand gradient on plain heroes, dark-to-brand wash on
+   banner heroes so the logo + title stay legible over any image. */
+.spbwc-store__hero-veil {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+}
+.spbwc-store__hero.has-banner .spbwc-store__hero-veil {
+    background:
+        linear-gradient(0deg, rgba(15, 23, 42, 0.78) 0%, rgba(15, 23, 42, 0.12) 70%, rgba(15, 23, 42, 0.05) 100%),
+        linear-gradient(-135deg, color-mix(in srgb, var(--spbwc-brand-primary) 55%, transparent), color-mix(in srgb, var(--spbwc-brand-secondary) 45%, transparent));
+}
+/* Decorative blob on plain (no-banner) heroes only. */
+.spbwc-store__hero:not(.has-banner) .spbwc-store__hero-veil::after {
+    content: "";
+    position: absolute;
+    top: -45%;
+    left: -8%;
+    width: 340px;
+    height: 340px;
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.20) 0%, rgba(255, 255, 255, 0) 70%);
+}
+
+.spbwc-store__hero-inner {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    align-items: flex-end;
+    gap: var(--nbd-space-5, var(--nbd-space-4));
+    width: 100%;
+}
+
+.spbwc-store__logo-wrap {
+    flex: 0 0 auto;
+    width: 92px;
+    height: 92px;
+    border-radius: var(--nbd-radius-xl);
+    background: #fff;
+    box-shadow: var(--nbd-shadow-md);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+.spbwc-store__logo-wrap .spbwc-store__logo {
+    width: 100%;
+    height: 100%;
+    border-radius: inherit;
+    object-fit: contain;
+    padding: var(--nbd-space-2);
+    background: #fff;
+    box-shadow: none;
+}
+/* Monogram fallback when no logo is uploaded. */
+.spbwc-store__monogram {
+    font-size: 34px;
+    font-weight: 800;
+    letter-spacing: 0.02em;
+    line-height: 1;
+    background: linear-gradient(-135deg, var(--spbwc-brand-primary, var(--nbd-mb-primary)), var(--spbwc-brand-secondary, var(--nbd-mb-primary-pressed)));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+}
+
+.spbwc-store__hero .spbwc-store__title {
+    font-size: 30px;
+    text-shadow: 0 1px 2px rgba(15, 23, 42, 0.25);
+}
+.spbwc-store__hero .spbwc-store__eyebrow,
+.spbwc-store__hero .spbwc-store__tagline {
+    text-shadow: 0 1px 2px rgba(15, 23, 42, 0.25);
+}
+
+/* ============================================================ *
+ *  Brand-safe badge row (cards assigned to the store)
+ * ============================================================ */
+
+.spbwc-store__badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--nbd-space-2);
+    margin: 0 0 var(--nbd-space-6);
+}
+
+.spbwc-store__badge {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--nbd-space-1);
+    padding: 7px var(--nbd-space-3);
+    border-radius: var(--nbd-radius-full);
+    background: var(--nbd-mb-bg);
+    border: 1px solid var(--nbd-mb-border);
+    box-shadow: var(--nbd-shadow-sm);
+    font-size: 13px;
+    font-weight: 600;
+    line-height: 1;
+    color: var(--nbd-mb-text);
+}
+.spbwc-store__badge-ic {
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
+    color: var(--spbwc-brand-primary, var(--nbd-mb-primary));
+}
+.spbwc-store__badge-tx { white-space: nowrap; }
+
+/* The tier badge wears the brand colours as a filled pill. */
+.spbwc-store__badge--tier {
+    background: color-mix(in srgb, var(--spbwc-brand-primary) 12%, var(--nbd-mb-bg));
+    border-color: color-mix(in srgb, var(--spbwc-brand-primary) 35%, var(--nbd-mb-border));
+    color: var(--spbwc-brand-secondary, var(--nbd-mb-primary-pressed));
+}
+.spbwc-store__badge--tier .spbwc-store__badge-ic {
+    color: var(--spbwc-brand-secondary, var(--nbd-mb-primary-pressed));
+}
+
+/* ============================================================ *
+ *  Section head (title + count)
+ * ============================================================ */
+.spbwc-store__section-head {
+    display: flex;
+    align-items: baseline;
+    gap: var(--nbd-space-3);
+    margin: var(--nbd-space-2) 0 var(--nbd-space-4);
+}
+.spbwc-store__section-head .spbwc-store__section-title { margin: 0; }
+.spbwc-store__section-count {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--nbd-mb-text-soft);
+    background: var(--nbd-mb-bg-soft);
+    border-radius: var(--nbd-radius-full);
+    padding: 3px var(--nbd-space-2);
+}
+
+.spbwc-store__body {
+    margin-top: var(--nbd-space-4);
+}
+
+.spbwc-store__desc {
+    color: var(--nbd-mb-text-soft);
+    max-width: 640px;
+    margin: 0 0 var(--nbd-space-6);
+}
+
+.spbwc-store__section-title,
+.spbwc-team h2,
+.spbwc-proc h2,
+.spbwc-reorders h2 {
+    font-size: 18px;
+    font-weight: 700;
+    margin: var(--nbd-space-2) 0 var(--nbd-space-4);
+    color: var(--nbd-mb-text);
+}
+
+/* ============================================================ *
+ *  Empty states
+ * ============================================================ */
+
+.spbwc-store__empty {
+    color: var(--nbd-mb-text-soft);
+    background: var(--nbd-mb-bg-soft);
+    border: 1px dashed var(--nbd-mb-border-strong);
+    border-radius: var(--nbd-radius-xl);
+    padding: var(--nbd-space-8);
+    text-align: center;
+}
+
+/* ============================================================ *
+ *  Product grids (Brand Store + Reorders)
+ * ============================================================ */
+
+.spbwc-store__grid,
+.spbwc-reorders__grid {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: var(--nbd-space-4);
+}
+
+.spbwc-store__card,
+.spbwc-reorders__card {
+    border: 1px solid var(--nbd-mb-border);
+    border-radius: var(--nbd-radius-xl);
+    overflow: hidden;
+    background: var(--nbd-mb-bg);
+    box-shadow: var(--nbd-shadow-sm);
+    transition: box-shadow var(--nbd-duration-normal) var(--nbd-ease-out),
+                transform var(--nbd-duration-normal) var(--nbd-ease-out);
+    display: flex;
+    flex-direction: column;
+}
+
+.spbwc-store__card:hover,
+.spbwc-reorders__card:hover {
+    box-shadow: var(--nbd-shadow-lg);
+    transform: translateY(-2px);
+}
+
+.spbwc-store__card-link {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    text-decoration: none;
+    color: inherit;
+}
+
+/* Brand-store card thumb (fixed ratio + Sale flag overlay). */
+.spbwc-store__card-thumb {
+    position: relative;
+    display: block;
+    background: var(--nbd-mb-bg-canvas);
+    aspect-ratio: 4 / 3;
+    overflow: hidden;
+}
+.spbwc-store__card-thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    transition: transform var(--nbd-duration-normal) var(--nbd-ease-out);
+}
+.spbwc-store__card:hover .spbwc-store__card-thumb img { transform: scale(1.04); }
+.spbwc-store__card-flag {
+    position: absolute;
+    top: var(--nbd-space-2);
+    right: var(--nbd-space-2);
+    z-index: 1;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: #fff;
+    background: var(--spbwc-brand-primary, var(--nbd-mb-primary));
+    border-radius: var(--nbd-radius-full);
+    padding: 3px 10px;
+    box-shadow: var(--nbd-shadow-sm);
+}
+
+.spbwc-store__card-body {
+    display: flex;
+    flex-direction: column;
+    gap: var(--nbd-space-1);
+    padding: var(--nbd-space-3) var(--nbd-space-4) var(--nbd-space-4);
+    flex: 1;
+}
+.spbwc-store__card-cta {
+    margin-top: auto;
+    padding-top: var(--nbd-space-2);
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--spbwc-brand-primary, var(--nbd-mb-primary));
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+.spbwc-store__card-cta::after {
+    content: "→";
+    transition: transform var(--nbd-duration-fast) var(--nbd-ease-out);
+}
+.spbwc-store__card:hover .spbwc-store__card-cta::after { transform: translateX(-3px); }
+
+.spbwc-reorders__thumbwrap { position: relative; display: block; }
+.spbwc-reorders__thumb {
+    width: 100%;
+    height: 170px;
+    object-fit: cover;
+    display: block;
+    background: var(--nbd-mb-bg-canvas);
+}
+.spbwc-reorders__thumb--ph {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--nbd-mb-text-soft);
+}
+.spbwc-reorders__thumb--ph .dashicons { font-size: 36px; width: 36px; height: 36px; }
+.spbwc-reorders__badge {
+    position: absolute;
+    top: var(--nbd-space-2);
+    right: var(--nbd-space-2);
+    background: rgba(17, 24, 39, .78);
+    color: #fff;
+    font-size: 11px;
+    font-weight: 700;
+    border-radius: var(--nbd-radius-full);
+    padding: 2px 9px;
+}
+.spbwc-reorders__meta .dashicons { font-size: 14px; width: 14px; height: 14px; vertical-align: text-bottom; }
+
+.spbwc-store__card-name,
+.spbwc-reorders__name {
+    display: block;
+    font-weight: 600;
+    padding: var(--nbd-space-3) var(--nbd-space-3) var(--nbd-space-1);
+}
+
+/* Inside the new card-body the padding is on the wrapper, not the items. */
+.spbwc-store__card-body .spbwc-store__card-name { padding: 0; }
+.spbwc-store__card-body .spbwc-store__card-price { padding: 0; }
+
+.spbwc-store__card-price {
+    display: block;
+    padding: 0 var(--nbd-space-3);
+    color: var(--nbd-mb-text);
+    font-weight: 700;
+}
+.spbwc-store__card-price .amount { color: var(--spbwc-brand-secondary, var(--nbd-mb-primary-pressed)); }
+
+/* Reorders */
+.spbwc-reorders__body {
+    padding: var(--nbd-space-3) var(--nbd-space-4) var(--nbd-space-4);
+    display: flex;
+    flex-direction: column;
+    gap: var(--nbd-space-2);
+}
+
+.spbwc-reorders__meta {
+    font-size: 12px;
+    color: var(--nbd-mb-text-soft);
+}
+
+.spbwc-reorders__form {
+    display: flex;
+    align-items: flex-end;
+    gap: var(--nbd-space-2);
+    margin: var(--nbd-space-1) 0 0;
+}
+
+.spbwc-reorders__qty {
+    display: flex;
+    flex-direction: column;
+    font-size: 12px;
+    color: var(--nbd-mb-text-soft);
+}
+
+.spbwc-reorders__qty input {
+    width: 64px;
+}
+
+.spbwc-reorders__unavailable {
+    font-size: 12px;
+    color: var(--nbd-color-error);
+}
+
+/* ============================================================ *
+ *  Brand Store edit form
+ * ============================================================ */
+
+.spbwc-store__section {
+    margin: 0 0 var(--nbd-space-4);
+}
+.spbwc-store__section h3 {
+    margin: 0 0 var(--nbd-space-4);
+    font-size: 15px;
+    font-weight: 700;
+}
+
+/* Two-column field grid inside a card */
+.spbwc-store__grid2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0 var(--nbd-space-4);
+}
+@media (max-width: 560px) { .spbwc-store__grid2 { grid-template-columns: 1fr; } }
+
+/* Upload zones */
+.spbwc-store__uploads { display: flex; gap: var(--nbd-space-4); flex-wrap: wrap; margin-bottom: var(--nbd-space-3); }
+.spbwc-store__upload { flex: 1; min-width: 200px; display: block; }
+.spbwc-store__upload-label { display: block; font-weight: 600; margin-bottom: var(--nbd-space-1); }
+.spbwc-store__upload-box {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: var(--nbd-space-1);
+    min-height: 110px;
+    padding: var(--nbd-space-3);
+    border: 1.5px dashed var(--nbd-mb-border-strong);
+    border-radius: var(--nbd-radius-lg);
+    background: var(--nbd-mb-bg-soft);
+    text-align: center;
+    transition: border-color var(--nbd-duration-fast) var(--nbd-ease-out), background var(--nbd-duration-fast) var(--nbd-ease-out);
+}
+.spbwc-store__upload-box:hover { border-color: var(--nbd-mb-primary); background: var(--nbd-mb-primary-soft); }
+.spbwc-store__upload-box input[type="file"] { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+.spbwc-store__upload-icon { font-size: 28px; color: var(--nbd-mb-text-soft); }
+.spbwc-store__upload-preview { max-height: 64px; width: auto; border-radius: var(--nbd-radius-md); }
+.spbwc-store__upload-hint { font-size: 11px; color: var(--nbd-mb-text-soft); }
+
+/* Colour fields */
+.spbwc-store__colours { display: flex; gap: var(--nbd-space-4); flex-wrap: wrap; }
+.spbwc-color-field { display: inline-flex; align-items: center; gap: var(--nbd-space-2); }
+.spbwc-color-field input[type="color"] {
+    width: 44px; height: 32px; padding: 0; border: 1px solid var(--nbd-mb-border-strong);
+    border-radius: var(--nbd-radius-md); background: none; cursor: pointer;
+}
+.spbwc-color-field code { font-size: 12px; color: var(--nbd-mb-text-soft); }
+
+/* Sticky-ish save bar */
+.spbwc-store__savebar {
+    position: sticky;
+    bottom: 0;
+    margin-top: var(--nbd-space-4);
+    padding: var(--nbd-space-3) 0;
+    background: linear-gradient(to top, var(--nbd-mb-bg) 70%, transparent);
+}
+
+/* Completion meter in the brand header */
+.spbwc-store__completion { display: flex; align-items: center; gap: var(--nbd-space-2); margin: var(--nbd-space-2) 0; }
+.spbwc-store__completion-bar { width: 160px; height: 6px; border-radius: var(--nbd-radius-full); background: rgba(255,255,255,.3); overflow: hidden; }
+.spbwc-store__completion-bar > span { display: block; height: 100%; background: #fff; border-radius: var(--nbd-radius-full); }
+.spbwc-store__completion-label { font-size: 12px; opacity: .92; }
+
+/* ============================================================ *
+ *  Buttons (shared, token-driven primary)
+ * ============================================================ */
+
+.spbwc-store .button,
+.spbwc-team .button,
+.spbwc-proc .button,
+.spbwc-reorders .button,
+.spbwc-proc-gate .button {
+    border-radius: var(--nbd-radius-md);
+}
+
+.spbwc-proc__btns .button.alt,
+.spbwc-store__form button[type="submit"] {
+    background: var(--nbd-mb-primary);
+    border-color: var(--nbd-mb-primary);
+    color: #fff;
+}
+
+.spbwc-proc__btns .button.alt:hover {
+    background: var(--nbd-mb-primary-pressed);
+}
+
+/* ============================================================ *
+ *  Team
+ * ============================================================ */
+
+.spbwc-team__table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: var(--nbd-space-6);
+}
+
+.spbwc-team__table th,
+.spbwc-team__table td {
+    vertical-align: middle;
+    padding: var(--nbd-space-3);
+    border-bottom: 1px solid var(--nbd-mb-border);
+    text-align: right;
+}
+
+.spbwc-team__table thead th {
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--nbd-mb-text-soft);
+    background: var(--nbd-mb-bg-soft);
+}
+
+.spbwc-team__table small {
+    color: var(--nbd-mb-text-soft);
+}
+
+.spbwc-team__limit {
+    width: 90px;
+}
+
+.spbwc-team__row {
+    display: flex;
+    align-items: center;
+    gap: var(--nbd-space-2);
+    flex-wrap: wrap;
+    margin: 0;
+}
+
+.spbwc-team__pending {
+    list-style: none;
+    margin: 0 0 var(--nbd-space-4);
+    padding: 0;
+}
+
+.spbwc-team__pending li {
+    padding: var(--nbd-space-2) 0;
+    border-bottom: 1px solid var(--nbd-mb-border-subtle);
+    color: var(--nbd-mb-text-soft);
+}
+
+.spbwc-team__invite {
+    display: flex;
+    gap: var(--nbd-space-2);
+    flex-wrap: wrap;
+    align-items: center;
+    padding: var(--nbd-space-4);
+    background: var(--nbd-mb-bg-soft);
+    border-radius: var(--nbd-radius-xl);
+}
+
+.spbwc-team__invite input[type="email"] {
+    min-width: 240px;
+    border: 1px solid var(--nbd-mb-border-strong);
+    border-radius: var(--nbd-radius-md);
+    padding: var(--nbd-space-2) var(--nbd-space-3);
+}
+
+/* Role chips */
+.spbwc-role {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+    border-radius: var(--nbd-radius-full);
+    padding: 2px 10px;
+    background: var(--nbd-mb-primary-soft);
+    color: var(--nbd-mb-primary-pressed);
+}
+
+/* ============================================================ *
+ *  Procurement / Approval Queue
+ * ============================================================ */
+
+.spbwc-proc__card {
+    border: 1px solid var(--nbd-mb-border);
+    border-radius: var(--nbd-radius-xl);
+    padding: var(--nbd-space-4);
+    margin: 0 0 var(--nbd-space-4);
+    background: var(--nbd-mb-bg);
+    box-shadow: var(--nbd-shadow-sm);
+}
+
+.spbwc-proc__head {
+    margin-bottom: var(--nbd-space-2);
+    font-size: 15px;
+}
+
+.spbwc-proc__budget { margin-bottom: var(--nbd-space-2); }
+
+.spbwc-proc__items {
+    margin: 0 0 var(--nbd-space-3);
+    padding-right: var(--nbd-space-5);
+    color: var(--nbd-mb-text-soft);
+    font-size: 13px;
+}
+
+.spbwc-proc__actions textarea {
+    width: 100%;
+    margin-bottom: var(--nbd-space-2);
+    border: 1px solid var(--nbd-mb-border-strong);
+    border-radius: var(--nbd-radius-md);
+    padding: var(--nbd-space-2);
+}
+
+.spbwc-proc__btns {
+    display: flex;
+    gap: var(--nbd-space-2);
+}
+
+.spbwc-proc-gate {
+    border-radius: var(--nbd-radius-lg);
+}
+
+.spbwc-proc-gate .button {
+    margin-right: var(--nbd-space-2);
+}
+
+/* ============================================================ *
+ *  Status badges (storefront)
+ * ============================================================ */
+
+.spbwc-badge {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 600;
+    border-radius: var(--nbd-radius-full);
+    padding: 2px 10px;
+    vertical-align: middle;
+}
+
+.spbwc-badge--active { background: var(--nbd-color-success-soft); color: #065f46; }
+.spbwc-badge--pending { background: var(--nbd-color-warning-soft); color: #92400e; }
+.spbwc-badge--danger { background: var(--nbd-color-error-soft); color: #991b1b; }
+
+/* ============================================================ *
+ *  Tier price display (Pattern 7)
+ * ============================================================ */
+
+.spbwc-b2b-price del {
+    opacity: 0.55;
+    margin-left: var(--nbd-space-1);
+}
+
+.spbwc-b2b-price ins {
+    text-decoration: none;
+    font-weight: 700;
+    color: var(--nbd-mb-primary-pressed);
+}
+
+.spbwc-b2b-price-note {
+    display: inline-block;
+    margin-right: var(--nbd-space-1);
+    font-size: 11px;
+    font-weight: 600;
+    color: #166534;
+    background: var(--nbd-color-success-soft);
+    border-radius: var(--nbd-radius-full);
+    padding: 1px 8px;
+    vertical-align: middle;
+}
+
+/* ============================================================ *
+ *  Shared atoms (storefront tokens) — tabs / avatar / meter / role chip
+ * ============================================================ */
+
+.spbwc-tabs {
+    display: flex;
+    gap: var(--nbd-space-1);
+    flex-wrap: wrap;
+    border-bottom: 1px solid var(--nbd-mb-border);
+    margin: 0 0 var(--nbd-space-5);
+}
+.spbwc-tab {
+    appearance: none;
+    background: none;
+    border: 0;
+    border-bottom: 2px solid transparent;
+    padding: var(--nbd-space-2) var(--nbd-space-3);
+    font-weight: 600;
+    color: var(--nbd-mb-text-soft);
+    cursor: pointer;
+    text-decoration: none;
+}
+.spbwc-tab:hover { color: var(--nbd-mb-primary); }
+.spbwc-tab.is-active { color: var(--nbd-mb-primary); border-bottom-color: var(--nbd-mb-primary); }
+
+.spbwc-avatar {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border-radius: var(--nbd-radius-full);
+    background: var(--nbd-mb-primary-soft);
+    color: var(--nbd-mb-primary-pressed);
+    font-weight: 700;
+    text-transform: uppercase;
+    flex: 0 0 auto;
+    overflow: hidden;
+}
+.spbwc-avatar img { width: 100%; height: 100%; object-fit: cover; }
+.spbwc-avatar--sm { width: 28px; height: 28px; font-size: 12px; }
+
+.spbwc-meter {
+    display: block;
+    width: 100%;
+    max-width: 180px;
+    height: 6px;
+    border-radius: var(--nbd-radius-full);
+    background: var(--nbd-mb-border-subtle);
+    overflow: hidden;
+}
+.spbwc-meter__fill { display: block; height: 100%; border-radius: var(--nbd-radius-full); background: var(--nbd-color-success); }
+.spbwc-meter--warn .spbwc-meter__fill { background: var(--nbd-color-warning); }
+.spbwc-meter--danger .spbwc-meter__fill { background: var(--nbd-color-error); }
+.spbwc-meter__label { font-size: 12px; color: var(--nbd-mb-text-soft); }
+
+.spbwc-role-chip {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+    border-radius: var(--nbd-radius-full);
+    padding: 2px 9px;
+    background: var(--nbd-mb-bg-canvas);
+    color: var(--nbd-mb-text-soft);
+}
+.spbwc-role-chip--owner    { background: var(--nbd-color-info-soft);    color: var(--nbd-mb-primary-pressed); }
+.spbwc-role-chip--admin    { background: var(--nbd-mb-primary-soft);    color: var(--nbd-mb-primary-pressed); }
+.spbwc-role-chip--approver { background: var(--nbd-color-success-soft); color: #065f46; }
+.spbwc-role-chip--requester{ background: var(--nbd-color-warning-soft); color: #92400e; }
+.spbwc-role-chip--viewer   { background: var(--nbd-mb-bg-canvas);       color: var(--nbd-mb-text-soft); }
+
+/* ============================================================ *
+ *  Responsive
+ * ============================================================ */
+
+@media (max-width: 600px) {
+    .spbwc-store__header-inner {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .spbwc-store__hero {
+        padding: var(--nbd-space-5);
+        min-height: 180px;
+    }
+    .spbwc-store__hero-inner {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: var(--nbd-space-3);
+    }
+    .spbwc-store__logo-wrap {
+        width: 72px;
+        height: 72px;
+    }
+    .spbwc-store__hero .spbwc-store__title { font-size: 24px; }
+
+    .spbwc-team__invite input[type="email"] {
+        min-width: 100%;
+    }
+}

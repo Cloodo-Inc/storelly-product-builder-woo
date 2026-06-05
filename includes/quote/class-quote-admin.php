@@ -43,6 +43,11 @@ if ( ! class_exists( 'SPBWC_Quote_Admin' ) ) {
             add_action( 'admin_menu', array( $this, 'register_menu' ), 20 );
             add_action( 'wp_ajax_spbwc_save_quote_template', array( $this, 'ajax_save_template' ) );
             add_action( 'wp_ajax_spbwc_delete_quote_template', array( $this, 'ajax_delete_template' ) );
+            // Sample-quote seeding for the empty state (M6).
+            require_once __DIR__ . '/class-quote-sample.php';
+            if ( class_exists( 'SPBWC_Quote_Sample' ) ) {
+                SPBWC_Quote_Sample::init();
+            }
         }
 
         /** AJAX: save the posted pricing reply as a named template. */
@@ -356,9 +361,17 @@ if ( ! class_exists( 'SPBWC_Quote_Admin' ) ) {
                     __( 'Review quote requests, reply with pricing, and track them through to conversion.', 'storelly-product-builder-for-woocommerce' )
                 );
                 $this->notice_html();
+                // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only post-redirect flag.
+                $sample_flag = isset( $_GET['spbwc_sample'] ) ? sanitize_key( wp_unslash( $_GET['spbwc_sample'] ) ) : '';
+                if ( 'added' === $sample_flag ) {
+                    echo '<div class="notice notice-success is-dismissible"><p>' . esc_html__( 'Sample quote added. Open it to try pricing and sending a reply.', 'storelly-product-builder-for-woocommerce' ) . '</p></div>';
+                } elseif ( 'removed' === $sample_flag ) {
+                    echo '<div class="notice notice-success is-dismissible"><p>' . esc_html__( 'Sample quotes removed.', 'storelly-product-builder-for-woocommerce' ) . '</p></div>';
+                }
                 $this->render_kpis();
                 ?>
                 <div class="spbwc-block spbwc-quotes-listwrap">
+                    <?php $this->render_sample_banner(); ?>
                     <div class="spbwc-list-toolbar">
                         <?php $table->views(); ?>
                         <form method="get" role="search" class="spbwc-quotes-searchform">
@@ -451,13 +464,78 @@ if ( ! class_exists( 'SPBWC_Quote_Admin' ) ) {
         }
 
         protected function render_empty_state() {
+            // Is there anything to import from existing tools?
+            $import_total = 0;
+            $import_url   = '';
+            if ( class_exists( 'SPBWC_Quote_Import' ) ) {
+                foreach ( SPBWC_Quote_Import::scan() as $source ) {
+                    $import_total += (int) $source['count'];
+                }
+                $import_url = SPBWC_Quote_Import::tab_url();
+            }
+            $getquote_url = add_query_arg(
+                array( 'page' => SPBWC_PB_QUOTES_SLUG, 'tab' => 'get-quote' ),
+                admin_url( 'admin.php' )
+            );
             ?>
             <div class="spbwc-empty-state">
                 <div class="spbwc-empty-state__icon">
                     <span class="dashicons dashicons-money-alt" aria-hidden="true"></span>
                 </div>
                 <p class="spbwc-empty-state__title"><?php esc_html_e( 'No quotes yet', 'storelly-product-builder-for-woocommerce' ); ?></p>
-                <p class="spbwc-empty-state__text"><?php esc_html_e( 'When customers request a quote it will appear here, ready for you to price and send.', 'storelly-product-builder-for-woocommerce' ); ?></p>
+                <p class="spbwc-empty-state__text"><?php esc_html_e( 'When customers request a quote it will appear here, ready for you to price and send. Get started:', 'storelly-product-builder-for-woocommerce' ); ?></p>
+
+                <div class="spbwc-empty-state__actions">
+                    <?php if ( $import_total > 0 && $import_url ) : ?>
+                        <a class="spbwc-cta-btn spbwc-cta-btn--solid" href="<?php echo esc_url( $import_url ); ?>">
+                            <span class="dashicons dashicons-download" aria-hidden="true"></span>
+                            <?php
+                            printf(
+                                /* translators: %s: number of importable quotes. */
+                                esc_html( _n( 'Import %s existing quote', 'Import %s existing quotes', $import_total, 'storelly-product-builder-for-woocommerce' ) ),
+                                esc_html( number_format_i18n( $import_total ) )
+                            );
+                            ?>
+                        </a>
+                    <?php elseif ( $import_url ) : ?>
+                        <a class="spbwc-cta-btn" href="<?php echo esc_url( $import_url ); ?>">
+                            <span class="dashicons dashicons-download" aria-hidden="true"></span>
+                            <?php esc_html_e( 'Import from another plugin', 'storelly-product-builder-for-woocommerce' ); ?>
+                        </a>
+                    <?php endif; ?>
+
+                    <form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" style="display:inline;">
+                        <?php wp_nonce_field( 'spbwc_quote_sample' ); ?>
+                        <input type="hidden" name="action" value="spbwc_quote_seed_sample" />
+                        <button type="submit" class="spbwc-cta-btn<?php echo ( $import_total > 0 ) ? '' : ' spbwc-cta-btn--solid'; ?>">
+                            <span class="dashicons dashicons-lightbulb" aria-hidden="true"></span>
+                            <?php esc_html_e( 'Add a sample quote', 'storelly-product-builder-for-woocommerce' ); ?>
+                        </button>
+                    </form>
+
+                    <a class="spbwc-cta-btn spbwc-cta-btn--ghost" href="<?php echo esc_url( $getquote_url ); ?>">
+                        <span class="dashicons dashicons-admin-settings" aria-hidden="true"></span>
+                        <?php esc_html_e( 'Set up the Get Quote button', 'storelly-product-builder-for-woocommerce' ); ?>
+                    </a>
+                </div>
+            </div>
+            <?php
+        }
+
+        /** Banner shown above the list while sample quotes are present (M6). */
+        protected function render_sample_banner() {
+            if ( ! class_exists( 'SPBWC_Quote_Sample' ) || SPBWC_Quote_Sample::count() < 1 ) {
+                return;
+            }
+            ?>
+            <div class="spbwc-sample-banner">
+                <span class="dashicons dashicons-lightbulb" aria-hidden="true"></span>
+                <span class="spbwc-sample-banner__text"><?php esc_html_e( 'Some of these are sample quotes to show you the workflow.', 'storelly-product-builder-for-woocommerce' ); ?></span>
+                <form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>">
+                    <?php wp_nonce_field( 'spbwc_quote_sample' ); ?>
+                    <input type="hidden" name="action" value="spbwc_quote_remove_samples" />
+                    <button type="submit" class="spbwc-sample-banner__remove"><?php esc_html_e( 'Remove samples', 'storelly-product-builder-for-woocommerce' ); ?></button>
+                </form>
             </div>
             <?php
         }
@@ -827,6 +905,31 @@ if ( ! class_exists( 'SPBWC_Quote_Admin' ) ) {
                     echo '<div class="spbwc-q-recap__label">' . esc_html( ucwords( str_replace( '_', ' ', (string) $k ) ) ) . '</div>';
                     echo '<div class="spbwc-q-recap__value">' . esc_html( (string) $v ) . '</div>';
                 }
+            }
+            // Uploaded attachments (QF3): download links for the merchant.
+            if ( ! empty( $request['attachments'] ) && is_array( $request['attachments'] ) ) {
+                $shown = true;
+                echo '<div class="spbwc-q-recap__label">' . esc_html__( 'Attachments', 'storelly-product-builder-for-woocommerce' ) . '</div>';
+                echo '<div class="spbwc-q-recap__value"><ul class="spbwc-q-recap__files">';
+                foreach ( $request['attachments'] as $att ) {
+                    if ( empty( $att['name'] ) ) {
+                        continue;
+                    }
+                    $url     = ! empty( $att['url'] ) ? $att['url'] : '';
+                    $missing = ! empty( $att['file'] ) && ! file_exists( SPBWC_PB_UPLOAD_DIR . '/' . ltrim( (string) $att['file'], '/' ) );
+                    $size    = isset( $att['size'] ) ? size_format( (int) $att['size'] ) : '';
+                    echo '<li>';
+                    if ( $url && ! $missing ) {
+                        echo '<a href="' . esc_url( $url ) . '" target="_blank" rel="noopener"><span class="dashicons dashicons-media-default" aria-hidden="true"></span> ' . esc_html( (string) $att['name'] ) . '</a>';
+                    } else {
+                        echo '<span class="spbwc-q-recap__file-missing"><span class="dashicons dashicons-media-default" aria-hidden="true"></span> ' . esc_html( (string) $att['name'] ) . ' — ' . esc_html__( 'file removed', 'storelly-product-builder-for-woocommerce' ) . '</span>';
+                    }
+                    if ( $size && ! $missing ) {
+                        echo ' <span class="spbwc-q-recap__file-size">(' . esc_html( $size ) . ')</span>';
+                    }
+                    echo '</li>';
+                }
+                echo '</ul></div>';
             }
             if ( ! $shown ) {
                 echo '<div class="spbwc-q-recap__value">' . esc_html__( 'No request details captured.', 'storelly-product-builder-for-woocommerce' ) . '</div>';

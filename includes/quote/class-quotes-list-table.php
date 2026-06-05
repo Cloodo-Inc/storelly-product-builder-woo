@@ -101,7 +101,11 @@ if ( ! class_exists( 'SPBWC_Quotes_List_Table' ) ) {
             $title = $item['number'] ? $item['number'] : '#' . $item['id'];
             $sub   = $item['summary'] ? $item['summary'] : '';
             $html  = '<div class="spbwc-q-rowtitle">';
-            $html .= '<a class="spbwc-q-rowtitle__num" href="' . esc_url( $url ) . '">' . esc_html( $title ) . '</a>';
+            $num   = '<a class="spbwc-q-rowtitle__num" href="' . esc_url( $url ) . '">' . esc_html( $title ) . '</a>';
+            if ( get_post_meta( (int) $item['id'], '_spbwc_sample', true ) ) {
+                $num .= '<span class="spbwc-q-sample-tag">' . esc_html__( 'Sample', 'storelly-product-builder-for-woocommerce' ) . '</span>';
+            }
+            $html .= '<span class="spbwc-q-rowtitle__numwrap">' . $num . '</span>';
             if ( $sub ) {
                 $html .= '<span class="spbwc-q-rowtitle__sub">' . esc_html( wp_trim_words( $sub, 8, '…' ) ) . '</span>';
             }

@@ -49,6 +49,8 @@ if ( ! class_exists( 'SPBWC_B2B_Assets' ) ) {
             wp_enqueue_style( 'spbwc-quote-storefront' );
             wp_enqueue_style( 'spbwc-custom-order' );
             wp_enqueue_style( 'spbwc-b2b' );
+            // Brand-store badges and B2B atoms use dashicons glyphs.
+            wp_enqueue_style( 'dashicons' );
         }
 
         /** Enqueue the admin B2B stylesheet on our own admin pages only. */
@@ -76,7 +78,9 @@ if ( ! class_exists( 'SPBWC_B2B_Assets' ) ) {
             }
             wp_enqueue_style( 'spbwc-admin-ui' );
             wp_enqueue_style( 'spbwc-quotes-admin' );
-            wp_enqueue_style( 'spbwc-b2b-admin', SPBWC_PB_CSS_URL . 'b2b-admin.css', array( 'spbwc-tokens', 'spbwc-admin-ui', 'dashicons' ), SPBWC_PB_VERSION );
+            $admin_rtl  = function_exists( 'is_rtl' ) && is_rtl() && file_exists( SPBWC_PB_ASSETS_DIR . 'css/b2b-admin-rtl.css' );
+            $admin_file = $admin_rtl ? 'b2b-admin-rtl.css' : 'b2b-admin.css';
+            wp_enqueue_style( 'spbwc-b2b-admin', SPBWC_PB_CSS_URL . $admin_file, array( 'spbwc-tokens', 'spbwc-admin-ui', 'dashicons' ), SPBWC_PB_VERSION );
 
             // Customer-picker JS only on the B2B Companies hub.
             if ( class_exists( 'SPBWC_B2B_Admin' ) && SPBWC_B2B_Admin::PAGE_SLUG === $page ) {

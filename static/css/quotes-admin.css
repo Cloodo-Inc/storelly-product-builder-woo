@@ -458,3 +458,55 @@
 .spbwc-import-map__target { font-size: 11.5px; font-weight: 600; text-transform: uppercase; letter-spacing: .03em; color: var(--nbd-st-text-mute); }
 .spbwc-import-map select.spbwc-input--sm { width: 100%; height: 30px; }
 .spbwc-import-form__foot { text-align: right; }
+
+/* ── Empty-state actions + sample banner (M6) ─────────────────────────── */
+.spbwc-empty-state__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    justify-content: center;
+    margin-top: 18px;
+}
+.spbwc-empty-state__actions form { margin: 0; }
+.spbwc-empty-state__actions .spbwc-cta-btn .dashicons { font-size: 16px; width: 16px; height: 16px; vertical-align: text-bottom; }
+
+.spbwc-sample-banner {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 0 0 14px;
+    padding: 10px 14px;
+    border-radius: var(--nbd-radius-md);
+    background: var(--nbd-color-warning-soft, #fef3c7);
+    border: 1px solid var(--nbd-color-warning, #f59e0b);
+    color: var(--nbd-st-text);
+    font-size: 13px;
+}
+.spbwc-sample-banner .dashicons { color: var(--nbd-color-warning-deep, #b45309); flex: 0 0 auto; }
+.spbwc-sample-banner__text { flex: 1 1 auto; }
+.spbwc-sample-banner form { margin: 0; flex: 0 0 auto; }
+.spbwc-sample-banner__remove {
+    border: 1px solid var(--nbd-st-border, #c3c4c7);
+    background: var(--nbd-st-bg, #fff);
+    color: var(--nbd-st-text);
+    border-radius: var(--nbd-radius-sm);
+    padding: 5px 12px;
+    font-size: 12.5px;
+    cursor: pointer;
+}
+.spbwc-sample-banner__remove:hover { border-color: var(--nbd-color-error, #ef4444); color: var(--nbd-color-error, #ef4444); }
+
+/* "Sample" badge on a quote row */
+.spbwc-q-sample-tag {
+    display: inline-block;
+    margin-left: 6px;
+    padding: 1px 7px;
+    border-radius: 999px;
+    font-size: 10.5px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .03em;
+    background: var(--nbd-color-warning-soft, #fef3c7);
+    color: var(--nbd-color-warning-deep, #b45309);
+    vertical-align: middle;
+}
