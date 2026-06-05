@@ -337,8 +337,19 @@ if ( ! class_exists( 'SPBWC_B2B_Procurement' ) ) {
 
             echo '<div class="spbwc-proc">';
             echo '<h2>' . esc_html__( 'Approval Queue', 'storelly-product-builder-for-woocommerce' ) . '</h2>';
+
+            // Stats.
+            $pending_total = 0.0;
+            foreach ( $pending as $r ) {
+                $pending_total += (float) get_post_meta( $r->ID, self::META_TOTAL, true );
+            }
+            echo '<div class="spbwc-rfq-stats">';
+            echo '<div class="spbwc-rfq-stat spbwc-rfq-stat--accent"><span class="spbwc-rfq-stat__value">' . esc_html( number_format_i18n( count( $pending ) ) ) . '</span><span class="spbwc-rfq-stat__label">' . esc_html__( 'Awaiting approval', 'storelly-product-builder-for-woocommerce' ) . '</span></div>';
+            echo '<div class="spbwc-rfq-stat"><span class="spbwc-rfq-stat__value">' . wp_kses_post( wc_price( $pending_total ) ) . '</span><span class="spbwc-rfq-stat__label">' . esc_html__( 'Value pending', 'storelly-product-builder-for-woocommerce' ) . '</span></div>';
+            echo '</div>';
+
             if ( empty( $pending ) ) {
-                echo '<p class="spbwc-store__empty">' . esc_html__( 'No requests awaiting approval.', 'storelly-product-builder-for-woocommerce' ) . '</p></div>';
+                echo '<div class="spbwc-store__empty"><span class="dashicons dashicons-yes-alt" aria-hidden="true" style="font-size:32px"></span><p>' . esc_html__( 'No requests awaiting approval.', 'storelly-product-builder-for-woocommerce' ) . '</p></div></div>';
                 return;
             }
             foreach ( $pending as $req ) {
@@ -346,30 +357,57 @@ if ( ! class_exists( 'SPBWC_B2B_Procurement' ) ) {
                 $total     = (float) get_post_meta( $req->ID, self::META_TOTAL, true );
                 $snapshot  = (array) get_post_meta( $req->ID, self::META_SNAPSHOT, true );
                 $nonce     = wp_create_nonce( 'spbwc_proc_' . $req->ID );
+                $r_role    = $requester ? SPBWC_Company::get_user_role( $requester->ID ) : '';
+                $r_limit   = $requester ? SPBWC_Company::get_order_limit( $requester->ID ) : 0;
+                $when      = human_time_diff( get_post_time( 'U', true, $req ), time() );
 
-                echo '<div class="spbwc-proc__card">';
-                echo '<div class="spbwc-proc__head"><strong>' . esc_html( wp_strip_all_tags( wc_price( $total ) ) ) . '</strong> · ';
-                echo esc_html(
+                echo '<div class="spbwc-rfq-card spbwc-proc__card">';
+                // Header: amount + requester.
+                echo '<div class="spbwc-proc__head" style="display:flex;align-items:center;gap:12px;justify-content:space-between;flex-wrap:wrap;">';
+                echo '<span style="display:flex;align-items:center;gap:10px;">' . self::avatar( $requester ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- avatar escapes.
+                echo '<span><strong>' . esc_html( $requester ? $requester->display_name : '—' ) . '</strong> ';
+                if ( '' !== $r_role ) {
+                    echo '<span class="spbwc-role-chip spbwc-role-chip--' . esc_attr( $r_role ) . '">' . esc_html( SPBWC_Company::roles()[ $r_role ] ) . '</span>';
+                }
+                echo '<br /><small style="color:var(--nbd-mb-text-soft)">' . esc_html(
                     sprintf(
-                        /* translators: 1: requester, 2: item count. */
-                        __( 'by %1$s · %2$d item(s)', 'storelly-product-builder-for-woocommerce' ),
-                        $requester ? $requester->display_name : '—',
-                        count( $snapshot )
+                        /* translators: 1: count, 2: relative time. */
+                        __( '%1$d item(s) · submitted %2$s ago', 'storelly-product-builder-for-woocommerce' ),
+                        count( $snapshot ),
+                        $when
                     )
-                ) . '</div>';
+                ) . '</small></span></span>';
+                echo '<span style="font-size:20px;font-weight:700;color:var(--nbd-mb-primary-pressed)">' . wp_kses_post( wc_price( $total ) ) . '</span>';
+                echo '</div>';
+
                 echo '<ul class="spbwc-proc__items">';
                 foreach ( $snapshot as $row ) {
                     $p = wc_get_product( ! empty( $row['variation_id'] ) ? $row['variation_id'] : $row['product_id'] );
                     echo '<li>' . esc_html( ( $p ? $p->get_name() : '#' . (int) $row['product_id'] ) . ' × ' . (int) $row['quantity'] ) . '</li>';
                 }
                 echo '</ul>';
+
+                // Budget context.
+                if ( $r_limit > 0 ) {
+                    $pct = min( 100, (int) round( $total / $r_limit * 100 ) );
+                    $mod = $pct >= 100 ? ' spbwc-meter--danger' : ( $pct >= 80 ? ' spbwc-meter--warn' : '' );
+                    echo '<div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">';
+                    echo '<span class="spbwc-meter' . $mod . '" style="max-width:200px;"><span class="spbwc-meter__fill" style="width:' . esc_attr( $pct ) . '%"></span></span>';
+                    echo '<span class="spbwc-meter__label">' . esc_html( sprintf(
+                        /* translators: 1: order total, 2: per-order limit. */
+                        __( '%1$s of %2$s per-order limit', 'storelly-product-builder-for-woocommerce' ),
+                        wp_strip_all_tags( wc_price( $total ) ),
+                        wp_strip_all_tags( wc_price( $r_limit ) )
+                    ) ) . '</span></div>';
+                }
+
                 echo '<form method="post" class="spbwc-proc__actions" action="' . esc_url( wc_get_endpoint_url( self::ENDPOINT, '', wc_get_page_permalink( 'myaccount' ) ) ) . '">';
                 echo '<input type="hidden" name="request_id" value="' . esc_attr( $req->ID ) . '" />';
                 echo '<input type="hidden" name="_spbwc_proc_nonce" value="' . esc_attr( $nonce ) . '" />';
                 echo '<textarea name="comment" rows="2" placeholder="' . esc_attr__( 'Optional comment…', 'storelly-product-builder-for-woocommerce' ) . '"></textarea>';
                 echo '<div class="spbwc-proc__btns">';
-                echo '<button type="submit" name="spbwc_proc_decision" value="approve" class="button alt">' . esc_html__( 'Approve', 'storelly-product-builder-for-woocommerce' ) . '</button> ';
-                echo '<button type="submit" name="spbwc_proc_decision" value="reject" class="button">' . esc_html__( 'Reject', 'storelly-product-builder-for-woocommerce' ) . '</button>';
+                echo '<button type="submit" name="spbwc_proc_decision" value="approve" class="spbwc-rfq-btn" style="width:auto;">' . esc_html__( 'Approve', 'storelly-product-builder-for-woocommerce' ) . '</button> ';
+                echo '<button type="submit" name="spbwc_proc_decision" value="reject" class="spbwc-rfq-btn spbwc-rfq-btn--danger" style="width:auto;">' . esc_html__( 'Reject', 'storelly-product-builder-for-woocommerce' ) . '</button>';
                 echo '</div></form>';
                 echo '</div>';
             }

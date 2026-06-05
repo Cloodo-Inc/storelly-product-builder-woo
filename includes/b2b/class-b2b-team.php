@@ -63,6 +63,21 @@ if ( ! class_exists( 'SPBWC_B2B_Team' ) ) {
             return $roles;
         }
 
+        /** Circular initials avatar for a user. */
+        protected static function avatar( $user ) {
+            $name     = $user ? $user->display_name : '?';
+            $initials = '';
+            foreach ( preg_split( '/\s+/', trim( (string) $name ) ) as $p ) {
+                if ( '' !== $p ) {
+                    $initials .= function_exists( 'mb_substr' ) ? mb_substr( $p, 0, 1 ) : substr( $p, 0, 1 );
+                }
+                if ( strlen( $initials ) >= 2 ) {
+                    break;
+                }
+            }
+            return '<span class="spbwc-avatar">' . esc_html( '' !== $initials ? strtoupper( $initials ) : '?' ) . '</span>';
+        }
+
         /* ── Render ───────────────────────────────────────────────── */
 
         public static function render_endpoint() {
@@ -85,10 +100,30 @@ if ( ! class_exists( 'SPBWC_B2B_Team' ) ) {
             $sym        = get_woocommerce_currency_symbol();
             $owner_id   = (int) get_post_field( 'post_author', $company_id );
 
-            echo '<div class="spbwc-team">';
-            echo '<h2>' . esc_html__( 'Team', 'storelly-product-builder-for-woocommerce' ) . ' (' . esc_html( count( $members ) . ' / ' . $seats ) . ')</h2>';
+            $pending_n  = count( SPBWC_Company::get_pending_invites( $company_id ) );
+            $approver_n = 0;
+            foreach ( $members as $mm ) {
+                if ( SPBWC_Company::user_can_approve( $mm->ID ) ) {
+                    $approver_n++;
+                }
+            }
 
-            echo '<table class="shop_table spbwc-team__table"><thead><tr>';
+            echo '<div class="spbwc-team">';
+
+            // Stats.
+            echo '<div class="spbwc-rfq-stats">';
+            $stats = array(
+                array( count( $members ) . ' / ' . $seats, __( 'Members', 'storelly-product-builder-for-woocommerce' ) ),
+                array( number_format_i18n( $pending_n ), __( 'Pending invites', 'storelly-product-builder-for-woocommerce' ) ),
+                array( number_format_i18n( $approver_n ), __( 'Approvers', 'storelly-product-builder-for-woocommerce' ) ),
+            );
+            foreach ( $stats as $s ) {
+                echo '<div class="spbwc-rfq-stat"><span class="spbwc-rfq-stat__value">' . esc_html( $s[0] ) . '</span><span class="spbwc-rfq-stat__label">' . esc_html( $s[1] ) . '</span></div>';
+            }
+            echo '</div>';
+
+            echo '<div class="spbwc-rfq-card"><h3>' . esc_html__( 'Team members', 'storelly-product-builder-for-woocommerce' ) . '</h3>';
+            echo '<table class="spbwc-rfq-table spbwc-team__table"><thead><tr>';
             echo '<th>' . esc_html__( 'Member', 'storelly-product-builder-for-woocommerce' ) . '</th>';
             echo '<th>' . esc_html__( 'Role', 'storelly-product-builder-for-woocommerce' ) . '</th>';
             echo '<th>' . esc_html__( 'Per-order limit', 'storelly-product-builder-for-woocommerce' ) . '</th>';
@@ -103,7 +138,9 @@ if ( ! class_exists( 'SPBWC_B2B_Team' ) ) {
                 $is_owner = ( (int) $m->ID === $owner_id );
 
                 echo '<tr>';
-                echo '<td>' . esc_html( $m->display_name ) . '<br /><small>' . esc_html( $m->user_email ) . '</small></td>';
+                echo '<td><span style="display:flex;align-items:center;gap:10px;">' . self::avatar( $m ) // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- avatar escapes.
+                    . '<span><strong>' . esc_html( $m->display_name ) . '</strong>' . ( $is_owner ? ' <span class="spbwc-role-chip spbwc-role-chip--owner">' . esc_html__( 'You', 'storelly-product-builder-for-woocommerce' ) . '</span>' : '' )
+                    . '<br /><small>' . esc_html( $m->user_email ) . '</small></span></span></td>';
 
                 if ( $can_manage && ! $is_owner ) {
                     echo '<td colspan="' . ( $can_manage ? 2 : 1 ) . '">';
@@ -126,15 +163,15 @@ if ( ! class_exists( 'SPBWC_B2B_Team' ) ) {
                     echo '<button type="submit" class="button-link delete">' . esc_html__( 'Remove', 'storelly-product-builder-for-woocommerce' ) . '</button>';
                     echo '</form></td>';
                 } else {
-                    echo '<td>' . esc_html( isset( $roles[ $role ] ) ? $roles[ $role ] : $role ) . ( $is_owner ? ' (' . esc_html__( 'you', 'storelly-product-builder-for-woocommerce' ) . ')' : '' ) . '</td>';
-                    echo '<td>' . esc_html( $limit > 0 ? $sym . number_format( $limit, 2 ) : '—' ) . '</td>';
+                    echo '<td><span class="spbwc-role-chip spbwc-role-chip--' . esc_attr( $role ) . '">' . esc_html( isset( $roles[ $role ] ) ? $roles[ $role ] : $role ) . '</span></td>';
+                    echo '<td>' . esc_html( $limit > 0 ? $sym . number_format( $limit, 2 ) : __( 'No limit', 'storelly-product-builder-for-woocommerce' ) ) . '</td>';
                     if ( $can_manage ) {
                         echo '<td></td>';
                     }
                 }
                 echo '</tr>';
             }
-            echo '</tbody></table>';
+            echo '</tbody></table></div>';
 
             if ( $can_manage ) {
                 self::render_invites( $company_id );
@@ -148,25 +185,24 @@ if ( ! class_exists( 'SPBWC_B2B_Team' ) ) {
             $roles   = SPBWC_Company::roles();
 
             if ( ! empty( $pending ) ) {
-                echo '<h3>' . esc_html__( 'Pending invitations', 'storelly-product-builder-for-woocommerce' ) . '</h3><ul class="spbwc-team__pending">';
+                echo '<div class="spbwc-rfq-card"><h3>' . esc_html__( 'Pending invitations', 'storelly-product-builder-for-woocommerce' ) . '</h3><ul class="spbwc-team__pending">';
                 foreach ( $pending as $inv ) {
-                    echo '<li>' . esc_html( $inv['email'] . ' — ' . ( isset( $roles[ $inv['role'] ] ) ? $roles[ $inv['role'] ] : $inv['role'] ) );
-                    echo ' <form method="post" style="display:inline" action="' . esc_url( self::url() ) . '">';
+                    echo '<li style="display:flex;align-items:center;gap:10px;justify-content:space-between;">';
+                    echo '<span>' . esc_html( $inv['email'] ) . ' <span class="spbwc-role-chip spbwc-role-chip--' . esc_attr( $inv['role'] ) . '">' . esc_html( isset( $roles[ $inv['role'] ] ) ? $roles[ $inv['role'] ] : $inv['role'] ) . '</span></span>';
+                    echo '<form method="post" style="display:inline" action="' . esc_url( self::url() ) . '">';
                     wp_nonce_field( 'spbwc_team_revoke', '_spbwc_team_nonce' );
-                    echo '<input type="hidden" name="spbwc_team_do" value="revoke" />';
-                    echo '<input type="hidden" name="email" value="' . esc_attr( $inv['email'] ) . '" />';
-                    echo '<button type="submit" class="button-link delete">' . esc_html__( 'Revoke', 'storelly-product-builder-for-woocommerce' ) . '</button>';
+                    echo '<input type="hidden" name="spbwc_team_do" value="revoke" /><input type="hidden" name="email" value="' . esc_attr( $inv['email'] ) . '" />';
+                    echo '<button type="submit" class="spbwc-rfq-btn spbwc-rfq-btn--danger" style="width:auto;padding:6px 12px;">' . esc_html__( 'Revoke', 'storelly-product-builder-for-woocommerce' ) . '</button>';
                     echo '</form></li>';
                 }
-                echo '</ul>';
+                echo '</ul></div>';
             }
 
+            echo '<div class="spbwc-rfq-card"><h3>' . esc_html__( 'Invite a teammate', 'storelly-product-builder-for-woocommerce' ) . '</h3>';
             if ( ! SPBWC_Company::has_free_seat( $company_id ) ) {
-                echo '<p class="description">' . esc_html__( 'No team seats left. Ask the store to raise your seat limit.', 'storelly-product-builder-for-woocommerce' ) . '</p>';
+                echo '<p class="description">' . esc_html__( 'No team seats left. Ask the store to raise your seat limit.', 'storelly-product-builder-for-woocommerce' ) . '</p></div>';
                 return;
             }
-
-            echo '<h3>' . esc_html__( 'Invite a teammate', 'storelly-product-builder-for-woocommerce' ) . '</h3>';
             echo '<form method="post" class="spbwc-team__invite" action="' . esc_url( self::url() ) . '">';
             wp_nonce_field( 'spbwc_team_invite', '_spbwc_team_nonce' );
             echo '<input type="hidden" name="spbwc_team_do" value="invite" />';
@@ -176,8 +212,8 @@ if ( ! class_exists( 'SPBWC_B2B_Team' ) ) {
                 echo '<option value="' . esc_attr( $rslug ) . '"' . selected( SPBWC_Company::ROLE_REQUESTER, $rslug, false ) . '>' . esc_html( $rlabel ) . '</option>';
             }
             echo '</select> ';
-            echo '<button type="submit" class="button">' . esc_html__( 'Send invite', 'storelly-product-builder-for-woocommerce' ) . '</button>';
-            echo '</form>';
+            echo '<button type="submit" class="spbwc-rfq-btn" style="width:auto;">' . esc_html__( 'Send invite', 'storelly-product-builder-for-woocommerce' ) . '</button>';
+            echo '</form></div>';
         }
 
         /* ── Actions ──────────────────────────────────────────────── */
