@@ -145,6 +145,10 @@ body.spbwc-modal-open { overflow: hidden; }
     padding: 0 6px;
     font-size: var(--text-sm);
 }
+/* Detail panels: JS shows one at a time (instant switch, no reload); without
+   JS every panel stays visible so the content is always reachable. */
+.spbwc-b2b-detail.js .spbwc-b2b-panel { display: none; }
+.spbwc-b2b-detail.js .spbwc-b2b-panel.is-active { display: block; }
 
 /* ── Atom: avatar ────────────────────────────────────────── */
 .spbwc-avatar {

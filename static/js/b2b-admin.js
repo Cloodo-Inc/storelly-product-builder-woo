@@ -1,10 +1,61 @@
 /**
- * Storelly B2B admin — "Upgrade a customer" picker (B2B Companies hub).
+ * Storelly B2B admin — company-detail tabs + "Upgrade a customer" picker.
  *
- * Opens a modal, searches WooCommerce customers not already in a company via
- * AJAX, and jumps to the upgrade form for the chosen customer. Vanilla JS, no
- * dependencies. Data + nonce come from wp_localize_script (spbwcB2BAdmin).
+ * Vanilla JS, no dependencies. Data + nonce come from wp_localize_script
+ * (spbwcB2BAdmin).
  */
+
+/**
+ * Company-detail tabs — instant client-side switching.
+ *
+ * All panels are server-rendered; this only shows/hides the active one (no AJAX,
+ * no reload → tabs switch instantly). Adds `.js` to the detail root so CSS hides
+ * inactive panels; without JS every panel stays visible (graceful fallback).
+ * Deep-links via location.hash and supports ARIA arrow-key navigation. Runs in
+ * its own IIFE so it is independent from the picker below.
+ */
+( function () {
+	'use strict';
+	var root = document.querySelector( '.spbwc-b2b-detail' );
+	if ( ! root ) { return; }
+	root.classList.add( 'js' );
+
+	var btns   = Array.prototype.slice.call( root.querySelectorAll( '.spbwc-tab[data-tab]' ) );
+	var panels = Array.prototype.slice.call( root.querySelectorAll( '.spbwc-b2b-panel' ) );
+	if ( ! btns.length || ! panels.length ) { return; }
+
+	function activate( id, focus ) {
+		btns.forEach( function ( b ) {
+			var on = b.getAttribute( 'data-tab' ) === id;
+			b.classList.toggle( 'is-active', on );
+			b.setAttribute( 'aria-selected', on ? 'true' : 'false' );
+			b.tabIndex = on ? 0 : -1;
+			if ( on && focus ) { b.focus(); }
+		} );
+		panels.forEach( function ( p ) {
+			p.classList.toggle( 'is-active', p.id === 'spbwc-b2b-panel-' + id );
+		} );
+		if ( history.replaceState ) { history.replaceState( null, '', '#b2b-tab-' + id ); }
+	}
+
+	btns.forEach( function ( b, i ) {
+		b.addEventListener( 'click', function () { activate( b.getAttribute( 'data-tab' ) ); } );
+		b.addEventListener( 'keydown', function ( e ) {
+			var dir = e.key === 'ArrowRight' ? 1 : ( e.key === 'ArrowLeft' ? -1 : 0 );
+			if ( ! dir ) { return; }
+			e.preventDefault();
+			var next = btns[ ( i + dir + btns.length ) % btns.length ];
+			activate( next.getAttribute( 'data-tab' ), true );
+		} );
+	} );
+
+	// Initial tab: location.hash wins, else the server-marked active button.
+	var hash  = ( location.hash || '' ).replace( /^#b2b-tab-/, '' );
+	var valid = btns.some( function ( b ) { return b.getAttribute( 'data-tab' ) === hash; } );
+	var seed  = root.querySelector( '.spbwc-tab.is-active[data-tab]' );
+	activate( valid ? hash : ( seed ? seed.getAttribute( 'data-tab' ) : btns[0].getAttribute( 'data-tab' ) ) );
+} )();
+
 ( function () {
 	'use strict';
 

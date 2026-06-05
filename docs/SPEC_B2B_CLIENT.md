@@ -185,6 +185,8 @@ Merchant management surface: **Storelly → B2B Companies** page (new), tabs `Al
 
 `modal-approve-store` equivalent for self-applied companies: set tier, payment-terms label, credit limit (informational), seats, internal note → **Approve & activate**.
 
+**Company detail tabs** (`Overview · Members · Pricing & products · Account credit · Activity`) are **instant client-side tabs** — all panels are server-rendered once and `static/js/b2b-admin.js` shows the active one with no page reload (ARIA `tablist`/`tab`/`tabpanel`, arrow-key nav, `#b2b-tab-<slug>` deep-link). Without JS every panel stays visible (graceful fallback). `?detail_tab=<slug>` still seeds the initial panel so a form save (e.g. pricing bind, credit transaction) returns the merchant to the tab they were on.
+
 ### 4.2 Company flow (My-Account) — "Brand Store" profile
 New My-Account endpoint **`brand-store`** (registered like `saved-designs`/`quotes`). Edit screen mirrors Printcart's 5-step `brand-store-edit`, but **inline accordion, not a wizard tab** (lighter):
 
