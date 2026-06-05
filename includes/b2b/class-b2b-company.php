@@ -52,6 +52,8 @@ if ( ! class_exists( 'SPBWC_Company' ) ) {
         const META_CONTACT      = '_spbwc_company_contact';
         const META_PAYMENT_TERMS = '_spbwc_company_payment_terms';
         const META_CREDIT_LIMIT = '_spbwc_company_credit_limit';
+        const META_REBATE_PCT   = '_spbwc_company_rebate_pct';
+        const META_REBATE_LAST  = '_spbwc_company_rebate_last_period';
         const META_SEATS        = '_spbwc_company_seats';
         const META_APPROVAL_THRESHOLD = '_spbwc_company_approval_threshold';
         const META_ALLOWED_PRODUCTS   = '_spbwc_company_allowed_products';

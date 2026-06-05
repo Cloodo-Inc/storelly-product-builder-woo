@@ -142,8 +142,10 @@ get_aging( $owner_id )                           // nhóm quá hạn 0/30/60/90 
   `spbwc_order_needs_approval` + `gate_over_credit` (net-terms order vượt available → approval);
   action `spbwc_b2b_procurement_approved` → charge order với `allow_overdraft` (idempotent).
   Test 7/7.
-- **M5 — Rebate.** ⏳ Cấu hình rule per-company "rebate %"; Action Scheduler job hàng tháng quét
-  order `completed` qua cửa sổ refund → `post_rebate`.
+- **M5 — Rebate.** ✅ DONE. Per-company field "Volume rebate %" (`META_REBATE_PCT`); class
+  `SPBWC_B2B_Rebate` — Action Scheduler recurring monthly (`spbwc_b2b_rebate_run`) →
+  `accrue_for_company` cộng `pct%` của net spend (order `completed`, trừ refund) của members vào
+  ví qua `post_rebate`; idempotent per period (`META_REBATE_LAST`). Test 5/5.
 - **M6 — Lifecycle & compliance.** ⏳ `woocommerce_order_refunded` → đảo bút toán partial; aging
   report admin; Plugin Check 0 error; POT; readme; uninstall drop bảng.
 - **M7 — Pro/cloud (ngoài v1 free).** Auto-settlement online net-30 (Stripe), dunning tự

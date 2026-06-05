@@ -255,6 +255,7 @@ require_once(SPBWC_PB_PLUGIN_DIR .  'includes/b2b/class-b2b-price-rules.php');
  * storefront surface (My-Account statement + "Pay with Company Account" gateway). */
 require_once(SPBWC_PB_PLUGIN_DIR .  'includes/b2b/class-b2b-ledger.php');
 require_once(SPBWC_PB_PLUGIN_DIR .  'includes/b2b/class-b2b-credit.php');
+require_once(SPBWC_PB_PLUGIN_DIR .  'includes/b2b/class-b2b-rebate.php');
 /* M5 — team procurement: team management + approval gate/queue. */
 require_once(SPBWC_PB_PLUGIN_DIR .  'includes/b2b/class-b2b-team.php');
 require_once(SPBWC_PB_PLUGIN_DIR .  'includes/b2b/class-b2b-procurement.php');
@@ -286,6 +287,9 @@ if ( class_exists( 'SPBWC_B2B_Ledger' ) ) {
 }
 if ( class_exists( 'SPBWC_B2B_Credit' ) ) {
     SPBWC_B2B_Credit::init();
+}
+if ( class_exists( 'SPBWC_B2B_Rebate' ) ) {
+    SPBWC_B2B_Rebate::init();
 }
 if ( class_exists( 'SPBWC_B2B_Team' ) ) {
     SPBWC_B2B_Team::init();
