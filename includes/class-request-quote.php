@@ -339,11 +339,16 @@ if ( ! class_exists( 'SPBWC_Request_Quote' ) ) {
                     'nonce'       => wp_create_nonce( 'spbwc_submit_quote_action' ),
                     'myQuotesUrl' => is_user_logged_in() ? wc_get_endpoint_url( 'quotes', '', wc_get_page_permalink( 'myaccount' ) ) : '',
                     'i18n'        => array(
-                        'sending'    => __( 'Sending…', 'storelly-product-builder-for-woocommerce' ),
-                        'submit'     => __( 'Submit request', 'storelly-product-builder-for-woocommerce' ),
-                        'failed'     => __( 'Something went wrong. Please review the form.', 'storelly-product-builder-for-woocommerce' ),
-                        'network'    => __( 'Request failed. Please try again.', 'storelly-product-builder-for-woocommerce' ),
-                        'trackQuote' => __( 'Track your quote', 'storelly-product-builder-for-woocommerce' ),
+                        'sending'      => __( 'Sending…', 'storelly-product-builder-for-woocommerce' ),
+                        'submit'       => __( 'Submit request', 'storelly-product-builder-for-woocommerce' ),
+                        'failed'       => __( 'Something went wrong. Please review the form.', 'storelly-product-builder-for-woocommerce' ),
+                        'network'      => __( 'Request failed. Please try again.', 'storelly-product-builder-for-woocommerce' ),
+                        'trackQuote'   => __( 'Track your quote', 'storelly-product-builder-for-woocommerce' ),
+                        'required'     => __( 'This field is required.', 'storelly-product-builder-for-woocommerce' ),
+                        'invalidEmail' => __( 'Please enter a valid email.', 'storelly-product-builder-for-woocommerce' ),
+                        'invalidPhone' => __( 'Please enter a valid phone number.', 'storelly-product-builder-for-woocommerce' ),
+                        'fixErrors'    => __( 'Please correct the highlighted fields.', 'storelly-product-builder-for-woocommerce' ),
+                        'guestHint'    => __( 'We have emailed you a copy — watch your inbox for our reply with pricing.', 'storelly-product-builder-for-woocommerce' ),
                     ),
                 )
             );
@@ -840,16 +845,15 @@ if ( ! class_exists( 'SPBWC_Request_Quote' ) ) {
             }
             $this->quote_upload_subdir = $subdir;
             add_filter( 'upload_dir', array( $this, 'quote_upload_dir' ) );
-            $movefile = wp_handle_upload(
-                array(
-                    'name'     => $new_name,
-                    'type'     => $type,
-                    'tmp_name' => $tmp,
-                    'error'    => UPLOAD_ERR_OK,
-                    'size'     => $size,
-                ),
-                array( 'test_form' => false )
+            // wp_handle_upload() takes $file by reference — must be a variable.
+            $file_arr = array(
+                'name'     => $new_name,
+                'type'     => $type,
+                'tmp_name' => $tmp,
+                'error'    => UPLOAD_ERR_OK,
+                'size'     => $size,
             );
+            $movefile = wp_handle_upload( $file_arr, array( 'test_form' => false ) );
             remove_filter( 'upload_dir', array( $this, 'quote_upload_dir' ) );
             remove_filter( 'upload_mimes', array( $this, 'widen_quote_mimes' ) );
 

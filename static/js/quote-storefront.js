@@ -81,7 +81,9 @@
 
     function showFieldErrors(errors) {
         Object.keys(errors || {}).forEach(function (name) {
-            var input = form.querySelector('[name="quote_fields[' + name + ']"]');
+            var input = form.querySelector('[name="quote_fields[' + name + ']"]')
+                || form.querySelector('[name="quote_files[' + name + ']"]')
+                || form.querySelector('[name="quote_files[' + name + '][]"]');
             var field = input ? input.closest('.spbwc-rfq-field') : null;
             if (!field) { return; }
             field.classList.add('has-error');
@@ -107,43 +109,144 @@
                 cta.href = cfg.myQuotesUrl;
                 cta.textContent = (cfg.i18n && cfg.i18n.trackQuote) ? cfg.i18n.trackQuote : 'Track your quote';
                 cta.style.display = '';
+            } else if (cfg.i18n && cfg.i18n.guestHint) {
+                // Guests have no My-Account quotes list — tell them to watch their inbox.
+                var hint = successBox.querySelector('.spbwc-rfq-success__hint');
+                if (!hint) {
+                    hint = document.createElement('p');
+                    hint.className = 'spbwc-rfq-success__hint spbwc-rfq-success__text';
+                    successBox.appendChild(hint);
+                }
+                hint.textContent = cfg.i18n.guestHint;
             }
             successBox.classList.add('is-visible');
             successBox.setAttribute('role', 'status');
         }
     }
 
+    // Progress bar lives just above the footer; created lazily.
+    function progressEl() {
+        var foot = form ? form.querySelector('.spbwc-rfq-foot') : null;
+        if (!foot) { return null; }
+        var el = form.querySelector('.spbwc-rfq-progress');
+        if (!el) {
+            el = document.createElement('div');
+            el.className = 'spbwc-rfq-progress';
+            el.innerHTML = '<div class="spbwc-rfq-progress__bar"></div>';
+            foot.parentNode.insertBefore(el, foot);
+        }
+        return el;
+    }
+
+    function hasFiles() {
+        if (!form) { return false; }
+        var inputs = form.querySelectorAll('input[type="file"]');
+        for (var i = 0; i < inputs.length; i++) {
+            if (inputs[i].files && inputs[i].files.length) { return true; }
+        }
+        return false;
+    }
+
+    function resetBtn() {
+        if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = cfg.i18n && cfg.i18n.submit ? cfg.i18n.submit : 'Submit request'; }
+    }
+
+    function handleResponse(res) {
+        resetBtn();
+        if (res && res.success) {
+            showSuccess(res.data && res.data.message ? res.data.message : '');
+        } else {
+            var d = res && res.data ? res.data : {};
+            if (d.errors) { showFieldErrors(d.errors); }
+            showAlert(d.message || (cfg.i18n && cfg.i18n.failed ? cfg.i18n.failed : 'Something went wrong.'));
+        }
+    }
+
     function submit(e) {
         e.preventDefault();
         clearErrors();
+        // Final client-side pass so obvious mistakes never round-trip.
+        if (!validateAll()) { return; }
         if (submitBtn) { submitBtn.disabled = true; submitBtn.textContent = cfg.i18n && cfg.i18n.sending ? cfg.i18n.sending : 'Sending…'; }
 
         var data = new FormData(form);
         data.append('action', cfg.action || 'spbwc_submit_quote');
         data.append('nonce', cfg.nonce || '');
 
-        fetch(cfg.ajaxUrl, { method: 'POST', credentials: 'same-origin', body: data })
-            .then(function (r) { return r.json(); })
-            .then(function (res) {
-                if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = cfg.i18n && cfg.i18n.submit ? cfg.i18n.submit : 'Submit request'; }
-                if (res && res.success) {
-                    showSuccess(res.data && res.data.message ? res.data.message : '');
-                } else {
-                    var d = res && res.data ? res.data : {};
-                    if (d.errors) { showFieldErrors(d.errors); }
-                    showAlert(d.message || (cfg.i18n && cfg.i18n.failed ? cfg.i18n.failed : 'Something went wrong.'));
+        // Use XHR (not fetch) so we can render real upload progress when the
+        // buyer attached files; plain text submissions skip the bar.
+        var bar = hasFiles() ? progressEl() : null;
+        var fill = bar ? bar.querySelector('.spbwc-rfq-progress__bar') : null;
+        if (bar) { bar.classList.add('is-active'); if (fill) { fill.style.width = '0%'; } }
+
+        var xhr = new XMLHttpRequest();
+        xhr.open('POST', cfg.ajaxUrl, true);
+        xhr.withCredentials = true;
+        if (bar && xhr.upload) {
+            xhr.upload.addEventListener('progress', function (ev) {
+                if (ev.lengthComputable && fill) {
+                    fill.style.width = Math.round((ev.loaded / ev.total) * 100) + '%';
                 }
-            })
-            .catch(function () {
-                if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = cfg.i18n && cfg.i18n.submit ? cfg.i18n.submit : 'Submit request'; }
-                showAlert(cfg.i18n && cfg.i18n.network ? cfg.i18n.network : 'Request failed. Please try again.');
             });
+        }
+        xhr.addEventListener('load', function () {
+            if (bar) { bar.classList.remove('is-active'); }
+            var res = null;
+            try { res = JSON.parse(xhr.responseText); } catch (err) { res = null; }
+            if (res) { handleResponse(res); }
+            else { resetBtn(); showAlert(cfg.i18n && cfg.i18n.failed ? cfg.i18n.failed : 'Something went wrong.'); }
+        });
+        xhr.addEventListener('error', function () {
+            if (bar) { bar.classList.remove('is-active'); }
+            resetBtn();
+            showAlert(cfg.i18n && cfg.i18n.network ? cfg.i18n.network : 'Request failed. Please try again.');
+        });
+        xhr.send(data);
+    }
+
+    /* ── Lightweight client-side validation ───────────────────────────── */
+    function validateField(input) {
+        if (!input) { return true; }
+        var field = input.closest('.spbwc-rfq-field');
+        if (!field) { return true; }
+        var val = (input.value || '').trim();
+        var msg = '';
+        if (input.hasAttribute('required') && '' === val) {
+            msg = (cfg.i18n && cfg.i18n.required) ? cfg.i18n.required : 'This field is required.';
+        } else if ('' !== val && (input.type === 'email' || /\[email\]/.test(input.name)) && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val)) {
+            msg = (cfg.i18n && cfg.i18n.invalidEmail) ? cfg.i18n.invalidEmail : 'Please enter a valid email.';
+        } else if ('' !== val && input.type === 'tel' && !/^[0-9\-\+\(\)\s]{6,20}$/.test(val)) {
+            msg = (cfg.i18n && cfg.i18n.invalidPhone) ? cfg.i18n.invalidPhone : 'Please enter a valid phone.';
+        }
+        field.classList.toggle('has-error', !!msg);
+        input.setAttribute('aria-invalid', msg ? 'true' : 'false');
+        var err = field.querySelector('.spbwc-rfq-error');
+        if (err) { err.textContent = msg; }
+        return !msg;
+    }
+
+    function validateAll() {
+        if (!form) { return true; }
+        var ok = true;
+        form.querySelectorAll('input[required], textarea[required], input[type="email"], input[type="tel"]').forEach(function (input) {
+            if (input.type === 'file') { return; }
+            if (!validateField(input)) { ok = false; }
+        });
+        if (!ok) { showAlert(cfg.i18n && cfg.i18n.fixErrors ? cfg.i18n.fixErrors : 'Please correct the highlighted fields.'); }
+        return ok;
     }
 
     trigger.addEventListener('click', open);
     if (closeBtn) { closeBtn.addEventListener('click', close); }
     overlay.addEventListener('click', function (e) { if (e.target === overlay) { close(); } });
-    if (form) { form.addEventListener('submit', submit); }
+    if (form) {
+        form.addEventListener('submit', submit);
+        // Validate text fields on blur (skip files — those have their own checks).
+        form.querySelectorAll('input, textarea').forEach(function (input) {
+            if (input.type === 'file') { return; }
+            input.addEventListener('blur', function () { validateField(input); });
+        });
+    }
 
     // Quantity stepper.
     var qtyInput = document.getElementById('spbwc_quote_quantity');
@@ -156,4 +259,119 @@
             qtyInput.value = val;
         });
     });
+
+    // File-upload fields: drag-and-drop, file chips with remove, client-side
+    // count/size checks. Files live in the native input (rebuilt via
+    // DataTransfer when supported) so FormData picks them up on submit.
+    function humanSize(bytes) {
+        if (!bytes) { return '0 B'; }
+        var units = ['B', 'KB', 'MB', 'GB'];
+        var i = Math.floor(Math.log(bytes) / Math.log(1024));
+        return (bytes / Math.pow(1024, i)).toFixed(i ? 1 : 0) + ' ' + units[i];
+    }
+
+    function initFileField(field) {
+        var input = field.querySelector('.spbwc-rfq-file');
+        var drop = field.querySelector('.spbwc-rfq-drop');
+        var list = field.querySelector('.spbwc-rfq-files');
+        if (!input || !drop || !list) { return; }
+
+        var multiple = field.getAttribute('data-multiple') === '1';
+        var maxFiles = parseInt(field.getAttribute('data-max-files'), 10) || 1;
+        var maxSizeMB = parseFloat(field.getAttribute('data-max-size')) || 0;
+        var supportsDT = (typeof DataTransfer !== 'undefined');
+        var store = [];
+
+        function fieldError(msg) {
+            var err = field.querySelector('.spbwc-rfq-error');
+            field.classList.toggle('has-error', !!msg);
+            if (err) { err.textContent = msg || ''; }
+        }
+
+        function sync() {
+            if (supportsDT) {
+                var dt = new DataTransfer();
+                store.forEach(function (f) { dt.items.add(f); });
+                input.files = dt.files;
+            }
+            render();
+        }
+
+        function render() {
+            list.innerHTML = '';
+            store.forEach(function (f, idx) {
+                var li = document.createElement('li');
+                li.className = 'spbwc-rfq-file-chip';
+                var nameEl = document.createElement('span');
+                nameEl.className = 'spbwc-rfq-file-chip__name';
+                nameEl.textContent = f.name;
+                var sizeEl = document.createElement('span');
+                sizeEl.className = 'spbwc-rfq-file-chip__size';
+                sizeEl.textContent = humanSize(f.size);
+                li.appendChild(nameEl);
+                li.appendChild(sizeEl);
+                if (supportsDT) {
+                    var rm = document.createElement('button');
+                    rm.type = 'button';
+                    rm.className = 'spbwc-rfq-file-chip__remove';
+                    rm.setAttribute('aria-label', 'Remove');
+                    rm.textContent = '×';
+                    rm.addEventListener('click', function () {
+                        store.splice(idx, 1);
+                        fieldError('');
+                        sync();
+                    });
+                    li.appendChild(rm);
+                }
+                list.appendChild(li);
+            });
+        }
+
+        function accept(fileList) {
+            var incoming = Array.prototype.slice.call(fileList || []);
+            if (!incoming.length) { return; }
+            fieldError('');
+            if (!multiple) { store = []; }
+            for (var i = 0; i < incoming.length; i++) {
+                var f = incoming[i];
+                if (maxSizeMB > 0 && f.size > maxSizeMB * 1024 * 1024) {
+                    fieldError(f.name + ' — too large.');
+                    continue;
+                }
+                if (store.length >= maxFiles) {
+                    fieldError('At most ' + maxFiles + ' file(s).');
+                    break;
+                }
+                store.push(f);
+            }
+            sync();
+        }
+
+        // When DataTransfer is unavailable we cannot rebuild input.files, so let
+        // the native input own the selection and just render its current files.
+        if (!supportsDT) {
+            input.addEventListener('change', function () {
+                store = Array.prototype.slice.call(input.files || []);
+                render();
+            });
+            return;
+        }
+
+        input.addEventListener('change', function () { accept(input.files); });
+        drop.addEventListener('click', function (e) {
+            if (e.target === input) { return; }
+            input.click();
+        });
+        ['dragenter', 'dragover'].forEach(function (ev) {
+            drop.addEventListener(ev, function (e) { e.preventDefault(); drop.classList.add('is-drag'); });
+        });
+        ['dragleave', 'drop'].forEach(function (ev) {
+            drop.addEventListener(ev, function (e) { e.preventDefault(); drop.classList.remove('is-drag'); });
+        });
+        drop.addEventListener('drop', function (e) {
+            if (e.dataTransfer && e.dataTransfer.files) { accept(e.dataTransfer.files); }
+        });
+    }
+
+    modal.querySelectorAll('.spbwc-rfq-field--file').forEach(initFileField);
 }());

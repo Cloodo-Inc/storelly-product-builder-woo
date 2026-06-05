@@ -163,6 +163,20 @@ if ( ! class_exists( 'SPBWC_Email_Quote_New' ) ) {
                 $body .= '<strong>' . esc_html__( 'Message:', 'storelly-product-builder-for-woocommerce' ) . '</strong> ' . esc_html( $r['message'] );
             }
             $body .= '</p>';
+            if ( ! empty( $r['attachments'] ) && is_array( $r['attachments'] ) ) {
+                $body .= '<p><strong>' . esc_html__( 'Attachments:', 'storelly-product-builder-for-woocommerce' ) . '</strong></p><ul>';
+                foreach ( $r['attachments'] as $att ) {
+                    if ( empty( $att['name'] ) ) {
+                        continue;
+                    }
+                    if ( ! empty( $att['url'] ) ) {
+                        $body .= '<li><a href="' . esc_url( $att['url'] ) . '">' . esc_html( (string) $att['name'] ) . '</a></li>';
+                    } else {
+                        $body .= '<li>' . esc_html( (string) $att['name'] ) . '</li>';
+                    }
+                }
+                $body .= '</ul>';
+            }
             $body .= '<p><a href="' . esc_url( $this->admin_quote_url() ) . '">' . esc_html__( 'Open and reply with pricing', 'storelly-product-builder-for-woocommerce' ) . '</a></p>';
             return $body;
         }
