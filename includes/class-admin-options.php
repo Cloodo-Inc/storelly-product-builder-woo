@@ -275,7 +275,11 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
                     'spbwc_manage_product_builder',
                     SPBWC_PB_OVERVIEW_SLUG,
                     array($this, 'spbwc_overview'),
-                    SPBWC_PB_ASSETS_URL . 'images/logo.png'
+                    SPBWC_PB_ASSETS_URL . 'images/logo.png',
+                    // Surface Storelly in the commerce cluster, right below WooCommerce
+                    // (its top-level menu sits at 55.5) instead of at the very bottom
+                    // beneath Settings. WP 5.3+ auto-nudges on position collisions.
+                    '55.9'
                 );
                 // Set Overview as the first child of the main menu slug to prevent double entries
                 add_submenu_page(

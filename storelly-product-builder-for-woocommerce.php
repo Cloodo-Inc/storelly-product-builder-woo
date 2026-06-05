@@ -72,9 +72,11 @@ register_activation_hook(__FILE__, 'spbwc_plugin_activation');
 function spbwc_plugin_activation() {
     if (!is_plugin_active('woocommerce/woocommerce.php')) {
         $message  = '<div class="error"><p>';
-        $message .= esc_html__('WooCommerce is not active. Please activate WooCommerce before using', 'storelly-product-builder-for-woocommerce');
-        $message .= ' <b>' . esc_html__('Product Builder Integration', 'storelly-product-builder-for-woocommerce') . '</b>';
-        $message .= '</p></div>';
+        $message .= esc_html__('WooCommerce is not active. Please install and activate WooCommerce before using', 'storelly-product-builder-for-woocommerce');
+        $message .= ' <b>' . esc_html__('Storelly Product Builder', 'storelly-product-builder-for-woocommerce') . '</b>.';
+        $message .= '</p><p><a class="button button-primary" href="' . esc_url( admin_url( 'plugin-install.php?s=woocommerce&tab=search&type=term' ) ) . '">';
+        $message .= esc_html__('Install WooCommerce', 'storelly-product-builder-for-woocommerce');
+        $message .= '</a> <a class="button" href="' . esc_url( admin_url( 'plugins.php' ) ) . '">&larr; ' . esc_html__('Back to Plugins', 'storelly-product-builder-for-woocommerce') . '</a></p></div>';
         wp_die(wp_kses_post($message));
     }
     SPBWC_Storelly_Product_Builder_Backend::spbwc_plugin_activation();
@@ -83,6 +85,50 @@ function spbwc_plugin_activation() {
     if ( class_exists( 'SPBWC_Onboarding' ) ) {
         SPBWC_Onboarding::on_activate();
     }
+}
+
+/**
+ * Persistent admin notice when WooCommerce is missing or inactive.
+ *
+ * The activation hook above blocks first activation without WooCommerce, but a
+ * site can deactivate WooCommerce later while Storelly stays active. This notice
+ * makes the dependency obvious at any time and gives a one-click path to fix it
+ * (install if absent, activate if installed-but-inactive).
+ */
+add_action( 'admin_notices', 'spbwc_woocommerce_missing_notice' );
+function spbwc_woocommerce_missing_notice() {
+    if ( ! current_user_can( 'activate_plugins' ) ) {
+        return;
+    }
+    if ( ! function_exists( 'is_plugin_active' ) ) {
+        require_once ABSPATH . 'wp-admin/includes/plugin.php';
+    }
+    if ( is_plugin_active( 'woocommerce/woocommerce.php' ) ) {
+        return;
+    }
+
+    $wc_installed = file_exists( WP_PLUGIN_DIR . '/woocommerce/woocommerce.php' );
+    if ( $wc_installed ) {
+        $action_url   = wp_nonce_url(
+            self_admin_url( 'plugins.php?action=activate&plugin=woocommerce/woocommerce.php' ),
+            'activate-plugin_woocommerce/woocommerce.php'
+        );
+        $action_label = esc_html__( 'Activate WooCommerce', 'storelly-product-builder-for-woocommerce' );
+    } else {
+        $action_url   = self_admin_url( 'plugin-install.php?s=woocommerce&tab=search&type=term' );
+        $action_label = esc_html__( 'Install WooCommerce', 'storelly-product-builder-for-woocommerce' );
+    }
+    ?>
+    <div class="notice notice-error">
+        <p>
+            <strong><?php esc_html_e( 'Storelly Product Builder', 'storelly-product-builder-for-woocommerce' ); ?></strong>
+            <?php esc_html_e( 'requires WooCommerce to be installed and active. Most features stay disabled until WooCommerce is enabled.', 'storelly-product-builder-for-woocommerce' ); ?>
+        </p>
+        <p>
+            <a class="button button-primary" href="<?php echo esc_url( $action_url ); ?>"><?php echo esc_html( $action_label ); ?></a>
+        </p>
+    </div>
+    <?php
 }
 
 require_once(SPBWC_PB_PLUGIN_DIR .  'includes/class-script-hook.php');
