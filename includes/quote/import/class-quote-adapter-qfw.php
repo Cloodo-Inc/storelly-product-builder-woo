@@ -1,14 +1,16 @@
 <?php
 /**
- * Import adapter: WooCommerce unpaid orders → quotes (Quote Import & Sync, M1).
+ * Import adapter: Quotes for WooCommerce (WisdmLabs) → quotes (Quote Import M2).
  *
- * Every WooCommerce store has unpaid manual orders (status pending / on-hold)
- * that merchants already use as de-facto quotes/invoices — "create order, send
- * the customer payment page". This adapter turns each into a spbwc_quote so they
- * surface in the Storelly workspace. Universal: no third-party plugin required.
+ * QFW stores a quote as a WooCommerce order (WC status "pending") flagged with
+ * meta `_qwc_quote` = '1' and a `_quote_status` lifecycle meta
+ * (quote-pending → quote-sent → quote-complete → quote-paid). We import the open
+ * ones (quote-pending / quote-sent) — requests the merchant has not yet turned
+ * into a paid order. Verified against the live free plugin (class Quotes_WC,
+ * class-quotes-wc.php / class-qwc-data-tracking.php).
  *
- * Non-destructive: the source order is kept; we only stamp it with
- * `_spbwc_imported_to_quote` for dedupe. HPOS-safe via wc_get_orders.
+ * The universal Woo-orders adapter excludes `_qwc_quote` orders so each quote is
+ * owned by exactly one source.
  *
  * @package Storelly
  */
@@ -17,37 +19,31 @@ if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }
 
-if ( ! class_exists( 'SPBWC_Quote_Adapter_Woo_Orders' ) ) {
+if ( ! class_exists( 'SPBWC_Quote_Adapter_Qfw' ) ) {
 
-    class SPBWC_Quote_Adapter_Woo_Orders extends SPBWC_Quote_Source_Adapter {
+    class SPBWC_Quote_Adapter_Qfw extends SPBWC_Quote_Source_Adapter {
 
         const DONE_META = '_spbwc_imported_to_quote';
 
         public function id() {
-            return 'woo_orders';
+            return 'qfw';
         }
 
         public function label() {
-            return __( 'WooCommerce unpaid orders', 'storelly-product-builder-for-woocommerce' );
+            return __( 'Quotes for WooCommerce', 'storelly-product-builder-for-woocommerce' );
         }
 
         public function description() {
-            return __( 'Pending / on-hold orders you use as quotes or unpaid invoices.', 'storelly-product-builder-for-woocommerce' );
+            return __( 'Open quote requests (pending / sent) created by the Quotes for WooCommerce plugin.', 'storelly-product-builder-for-woocommerce' );
         }
 
         public function is_available() {
-            return function_exists( 'wc_get_orders' );
-        }
-
-        /** Statuses that read as "quote / unpaid invoice". */
-        protected function statuses() {
-            return array( 'pending', 'on-hold' );
+            return function_exists( 'wc_get_orders' ) && ( class_exists( 'Quotes_WC' ) || class_exists( 'Quotes_For_WC' ) );
         }
 
         /**
-         * Query un-imported candidate orders.
-         *
-         * @param int $limit -1 for all (count), N for a batch.
+         * @param int  $limit    -1 (count) or N (batch).
+         * @param bool $ids_only Return ids.
          * @return WC_Order[]|int[]
          */
         protected function query( $limit, $ids_only = false ) {
@@ -57,33 +53,26 @@ if ( ! class_exists( 'SPBWC_Quote_Adapter_Woo_Orders' ) ) {
             return (array) wc_get_orders(
                 array(
                     'type'       => 'shop_order',
-                    'status'     => $this->statuses(),
+                    'status'     => array_keys( wc_get_order_statuses() ),
                     'limit'      => $limit,
                     'orderby'    => 'date',
                     'order'      => 'ASC',
                     'return'     => $ids_only ? 'ids' : 'objects',
-                    // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query -- Admin-triggered import scan, not a request-time query.
+                    // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query -- Admin-triggered import scan.
                     'meta_query' => array(
                         'relation' => 'AND',
-                        // Not already imported by us.
-                        array(
-                            'key'     => self::DONE_META,
-                            'compare' => 'NOT EXISTS',
-                        ),
-                        // Not an order WE spawned from a quote (Accept → order).
-                        array(
-                            'key'     => '_spbwc_source_quote',
-                            'compare' => 'NOT EXISTS',
-                        ),
-                        // Not a legacy quote-order (the M7 migrator owns those).
-                        array(
-                            'key'     => '_spbwc_quote_request',
-                            'compare' => 'NOT EXISTS',
-                        ),
-                        // Not a Quotes-for-WooCommerce quote order (its own
-                        // adapter owns those — those orders are also "pending").
                         array(
                             'key'     => '_qwc_quote',
+                            'value'   => '1',
+                            'compare' => '=',
+                        ),
+                        array(
+                            'key'     => '_quote_status',
+                            'value'   => array( 'quote-pending', 'quote-sent' ),
+                            'compare' => 'IN',
+                        ),
+                        array(
+                            'key'     => self::DONE_META,
                             'compare' => 'NOT EXISTS',
                         ),
                     ),
@@ -108,7 +97,6 @@ if ( ! class_exists( 'SPBWC_Quote_Adapter_Woo_Orders' ) ) {
             if ( ! $order ) {
                 return array();
             }
-
             $request = array(
                 'first_name' => $order->get_billing_first_name(),
                 'last_name'  => $order->get_billing_last_name(),
@@ -117,7 +105,6 @@ if ( ! class_exists( 'SPBWC_Quote_Adapter_Woo_Orders' ) ) {
                 'company'    => $order->get_billing_company(),
                 'message'    => (string) $order->get_customer_note(),
             );
-
             $lines      = array();
             $product_id = 0;
             foreach ( $order->get_items() as $item ) {
@@ -133,7 +120,6 @@ if ( ! class_exists( 'SPBWC_Quote_Adapter_Woo_Orders' ) ) {
                     'unit_price' => $qty > 0 ? round( $total / $qty, 2 ) : $total,
                 );
             }
-
             return array(
                 'request'    => $request,
                 'user_id'    => (int) $order->get_customer_id(),

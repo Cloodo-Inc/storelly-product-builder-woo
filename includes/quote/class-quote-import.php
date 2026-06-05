@@ -14,6 +14,11 @@ if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }
 
+// Source adapters (the base + Woo-orders are loaded by the main plugin file;
+// these third-party ones are pulled in here so no loader edit is needed).
+require_once __DIR__ . '/import/class-quote-adapter-qfw.php';
+require_once __DIR__ . '/import/class-quote-adapter-yith-raq.php';
+
 if ( ! class_exists( 'SPBWC_Quote_Import' ) ) {
 
     class SPBWC_Quote_Import {
@@ -62,6 +67,12 @@ if ( ! class_exists( 'SPBWC_Quote_Import' ) ) {
             $built_in = array();
             if ( class_exists( 'SPBWC_Quote_Adapter_Woo_Orders' ) ) {
                 $built_in[] = new SPBWC_Quote_Adapter_Woo_Orders();
+            }
+            if ( class_exists( 'SPBWC_Quote_Adapter_Qfw' ) ) {
+                $built_in[] = new SPBWC_Quote_Adapter_Qfw();
+            }
+            if ( class_exists( 'SPBWC_Quote_Adapter_Yith_Raq' ) ) {
+                $built_in[] = new SPBWC_Quote_Adapter_Yith_Raq();
             }
             /**
              * Register additional quote import source adapters.
