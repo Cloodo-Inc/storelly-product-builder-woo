@@ -122,12 +122,27 @@ if ( ! class_exists( 'SPBWC_B2B_Reorders' ) ) {
 
             echo '<div class="spbwc-reorders">';
             echo '<h2>' . esc_html__( 'Reorders', 'storelly-product-builder-for-woocommerce' ) . '</h2>';
-            echo '<p class="description">' . esc_html__( 'Reorder a past design with the same artwork and specs. Your company pricing is applied automatically at checkout.', 'storelly-product-builder-for-woocommerce' ) . '</p>';
+            echo '<p class="description">' . esc_html__( 'Reorder a past design with the same artwork and specs. Your company pricing is applied automatically at checkout — no setup fees on reorders.', 'storelly-product-builder-for-woocommerce' ) . '</p>';
 
             if ( empty( $items ) ) {
-                echo '<p class="spbwc-store__empty">' . esc_html__( 'You have no past designs to reorder yet.', 'storelly-product-builder-for-woocommerce' ) . '</p></div>';
+                echo '<div class="spbwc-store__empty"><span class="dashicons dashicons-update" aria-hidden="true" style="font-size:32px"></span><p>' . esc_html__( 'You have no past designs to reorder yet.', 'storelly-product-builder-for-woocommerce' ) . '</p></div></div>';
                 return;
             }
+
+            // Stats.
+            $cats = array();
+            foreach ( $items as $it ) {
+                $p = wc_get_product( $it['product_id'] );
+                if ( $p ) {
+                    foreach ( $p->get_category_ids() as $cid ) {
+                        $cats[ $cid ] = true;
+                    }
+                }
+            }
+            echo '<div class="spbwc-rfq-stats">';
+            echo '<div class="spbwc-rfq-stat spbwc-rfq-stat--accent"><span class="spbwc-rfq-stat__value">' . esc_html( number_format_i18n( count( $items ) ) ) . '</span><span class="spbwc-rfq-stat__label">' . esc_html__( 'Reorderable designs', 'storelly-product-builder-for-woocommerce' ) . '</span></div>';
+            echo '<div class="spbwc-rfq-stat"><span class="spbwc-rfq-stat__value">' . esc_html( number_format_i18n( count( $cats ) ) ) . '</span><span class="spbwc-rfq-stat__label">' . esc_html__( 'Categories', 'storelly-product-builder-for-woocommerce' ) . '</span></div>';
+            echo '</div>';
 
             echo '<ul class="spbwc-reorders__grid">';
             foreach ( $items as $it ) {
@@ -135,16 +150,20 @@ if ( ! class_exists( 'SPBWC_B2B_Reorders' ) ) {
                 $can     = $product && $product->is_purchasable() && $product->is_in_stock();
 
                 echo '<li class="spbwc-reorders__card">';
+                echo '<span class="spbwc-reorders__thumbwrap">';
                 if ( '' !== $it['preview'] ) {
                     echo '<img class="spbwc-reorders__thumb" src="' . esc_url( $it['preview'] ) . '" alt="" loading="lazy" />';
+                } else {
+                    echo '<span class="spbwc-reorders__thumb spbwc-reorders__thumb--ph"><span class="dashicons dashicons-format-image" aria-hidden="true"></span></span>';
                 }
+                echo '<span class="spbwc-reorders__badge">' . esc_html( sprintf( '×%d', $it['qty'] ) ) . '</span>';
+                echo '</span>';
                 echo '<div class="spbwc-reorders__body">';
                 echo '<span class="spbwc-reorders__name">' . esc_html( $it['name'] ) . '</span>';
-                echo '<span class="spbwc-reorders__meta">' . esc_html(
+                echo '<span class="spbwc-reorders__meta"><span class="dashicons dashicons-clock" aria-hidden="true"></span> ' . esc_html(
                     sprintf(
-                        /* translators: 1: quantity, 2: date. */
-                        __( 'Last ordered ×%1$d · %2$s', 'storelly-product-builder-for-woocommerce' ),
-                        $it['qty'],
+                        /* translators: %s: date. */
+                        __( 'Last ordered %s', 'storelly-product-builder-for-woocommerce' ),
                         $it['date']
                     )
                 ) . '</span>';
@@ -157,7 +176,7 @@ if ( ! class_exists( 'SPBWC_B2B_Reorders' ) ) {
                     echo '<input type="hidden" name="item_id" value="' . esc_attr( $it['item_id'] ) . '" />';
                     echo '<label class="spbwc-reorders__qty"><span>' . esc_html__( 'Qty', 'storelly-product-builder-for-woocommerce' ) . '</span>';
                     echo '<input type="number" name="qty" min="1" value="' . esc_attr( max( 1, $it['qty'] ) ) . '" /></label>';
-                    echo '<button type="submit" class="button">' . esc_html__( 'Reorder', 'storelly-product-builder-for-woocommerce' ) . '</button>';
+                    echo '<button type="submit" class="spbwc-rfq-btn" style="width:auto;"><span class="dashicons dashicons-update" aria-hidden="true"></span> ' . esc_html__( 'Reorder', 'storelly-product-builder-for-woocommerce' ) . '</button>';
                     echo '</form>';
                 } else {
                     echo '<span class="spbwc-reorders__unavailable">' . esc_html__( 'Product unavailable', 'storelly-product-builder-for-woocommerce' ) . '</span>';
