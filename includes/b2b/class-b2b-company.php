@@ -402,16 +402,24 @@ if ( ! class_exists( 'SPBWC_Company' ) ) {
             $total      = (float) $total;
             $order_lim  = self::get_order_limit( $user_id );
             $threshold  = self::get_approval_threshold( $company_id );
+            $needs      = false;
             if ( $order_lim > 0 && $total > $order_lim ) {
-                return true;
+                $needs = true;
             }
             if ( $threshold > 0 && $total > $threshold ) {
-                return true;
+                $needs = true;
             }
-            // A requester with no limits and a zero threshold still needs approval
-            // when the company opts every requester order into review (threshold 0
-            // means "always" only if explicitly a requester role with no allowance).
-            return false;
+            /**
+             * Filter whether an order needs approval. Lets other modules add reasons
+             * (e.g. the Account Credit module gates orders that would exceed the
+             * company's available credit line).
+             *
+             * @param bool  $needs      Whether approval is required by the base rules.
+             * @param float $total      Order total.
+             * @param int   $user_id    Buyer.
+             * @param int   $company_id Company.
+             */
+            return (bool) apply_filters( 'spbwc_order_needs_approval', $needs, $total, $user_id, $company_id );
         }
 
         /**

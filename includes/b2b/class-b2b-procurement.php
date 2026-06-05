@@ -241,6 +241,16 @@ if ( ! class_exists( 'SPBWC_B2B_Procurement' ) ) {
                 if ( $order_id ) {
                     update_post_meta( $id, self::META_STATUS, self::STATUS_APPROVED );
                     update_post_meta( $id, self::META_ORDER, $order_id );
+                    /**
+                     * Fires after a procurement request is approved and its order
+                     * created. The Account Credit module uses this to charge a
+                     * net-terms company's account for the approved order.
+                     *
+                     * @param int $order_id   Created WooCommerce order.
+                     * @param int $id         Procurement request post id.
+                     * @param int $company_id Company.
+                     */
+                    do_action( 'spbwc_b2b_procurement_approved', $order_id, $id, $company_id );
                     self::add_event(
                         $id,
                         sprintf(

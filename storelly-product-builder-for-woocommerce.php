@@ -140,6 +140,7 @@ require_once(SPBWC_PB_PLUGIN_DIR .  'includes/class-install.php');
 require_once(SPBWC_PB_PLUGIN_DIR .  'includes/class-product-builder-backend.php');
 require_once(SPBWC_PB_PLUGIN_DIR .  'includes/class-product-builder-frontend.php');
 require_once(SPBWC_PB_PLUGIN_DIR .  'includes/class-admin-options.php');
+require_once(SPBWC_PB_PLUGIN_DIR .  'includes/admin/class-admin-menu.php');
 require_once(SPBWC_PB_PLUGIN_DIR .  'includes/class-i18n-notice.php');
 require_once(SPBWC_PB_PLUGIN_DIR .  'includes/class-onboarding.php');
 require_once(SPBWC_PB_PLUGIN_DIR .  'includes/class-upsell-notice.php');
@@ -250,6 +251,10 @@ require_once(SPBWC_PB_PLUGIN_DIR .  'includes/b2b/class-b2b-pricing-admin.php');
 require_once(SPBWC_PB_PLUGIN_DIR .  'includes/b2b/class-b2b-reorders.php');
 /* M4 — per-company product price overrides (table + cascade in pricing). */
 require_once(SPBWC_PB_PLUGIN_DIR .  'includes/b2b/class-b2b-price-rules.php');
+/* Account Credit — Wallet/Net-Terms/Rebate ledger (one table, one balance) +
+ * storefront surface (My-Account statement + "Pay with Company Account" gateway). */
+require_once(SPBWC_PB_PLUGIN_DIR .  'includes/b2b/class-b2b-ledger.php');
+require_once(SPBWC_PB_PLUGIN_DIR .  'includes/b2b/class-b2b-credit.php');
 /* M5 — team procurement: team management + approval gate/queue. */
 require_once(SPBWC_PB_PLUGIN_DIR .  'includes/b2b/class-b2b-team.php');
 require_once(SPBWC_PB_PLUGIN_DIR .  'includes/b2b/class-b2b-procurement.php');
@@ -275,6 +280,12 @@ if ( class_exists( 'SPBWC_B2B_Reorders' ) ) {
 }
 if ( class_exists( 'SPBWC_B2B_Price_Rules' ) ) {
     SPBWC_B2B_Price_Rules::init();
+}
+if ( class_exists( 'SPBWC_B2B_Ledger' ) ) {
+    SPBWC_B2B_Ledger::init();
+}
+if ( class_exists( 'SPBWC_B2B_Credit' ) ) {
+    SPBWC_B2B_Credit::init();
 }
 if ( class_exists( 'SPBWC_B2B_Team' ) ) {
     SPBWC_B2B_Team::init();
