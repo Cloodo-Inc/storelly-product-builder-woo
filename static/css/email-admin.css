@@ -1,107 +1,171 @@
 /**
- * Storelly › Emails dashboard (E6c).
- * Design-token styled — depends on _tokens.css being enqueued first.
+ * Storelly › Emails dashboard.
+ *
+ * Page-specific styling only. Layout primitives (page hero, stat cards,
+ * blocks, notice banners, CTA buttons, empty state) come from the shared
+ * component library `storelly-admin-ui.css`, which is enqueued first.
+ * Both depend on `_tokens.css` for var() resolution.
  */
 
 .spbwc-email-admin {
-    max-width: 1100px;
+    max-width: 1180px;
     font-family: var(--st-font-sans);
     color: var(--nbd-st-text, #1d2327);
 }
 
-.spbwc-email-admin__title {
-    font-size: var(--text-4xl, 24px);
-    font-weight: var(--font-bold, 700);
-    margin: var(--nbd-space-4, 16px) 0 var(--nbd-space-2, 8px);
+/* === KPI row spacing ========================================= */
+.spbwc-email-stats {
+    margin-bottom: var(--nbd-space-6, 24px);
 }
 
-.spbwc-email-admin__lead {
-    color: var(--nbd-st-text-soft, #50575e);
-    font-size: var(--text-md, 13px);
-    max-width: 70ch;
+/* === Sender bar ============================================== */
+.spbwc-email-sender {
+    display: flex;
+    align-items: center;
+    gap: var(--nbd-space-4, 16px);
+    background: var(--nbd-st-bg, #fff);
+    border: 1px solid var(--nbd-st-border-light, #dcdcde);
+    border-radius: var(--nbd-radius-md, 8px);
+    box-shadow: var(--shadow-card, 0 1px 2px rgba(16,24,40,.04), 0 6px 16px rgba(16,24,40,.06));
+    padding: var(--nbd-space-3, 12px) var(--nbd-space-5, 20px);
     margin: 0 0 var(--nbd-space-6, 24px);
 }
 
-/* === Card shell ============================================== */
-.spbwc-card {
-    background: var(--nbd-st-bg, #fff);
-    border: 1px solid var(--nbd-st-border-light, #dcdcde);
-    border-radius: var(--nbd-radius-lg, 12px);
-    box-shadow: var(--shadow-card, 0 1px 2px rgba(16,24,40,.04), 0 6px 16px rgba(16,24,40,.06));
-    padding: var(--nbd-space-6, 24px);
-    margin: 0 0 var(--nbd-space-5, 20px);
+.spbwc-email-sender__icon {
+    width: 40px;
+    height: 40px;
+    flex-shrink: 0;
+    border-radius: var(--nbd-radius-md, 8px);
+    background: var(--st-brand-soft, #dbeafe);
+    color: var(--st-brand, #1d4ed8);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: var(--shadow-sm, 0 1px 2px rgba(0,0,0,.04));
 }
 
-.spbwc-card__title {
-    display: block;
-    font-size: var(--text-lg, 14px);
+.spbwc-email-sender__icon .dashicons { font-size: 20px; width: 20px; height: 20px; }
+
+.spbwc-email-sender__body {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+}
+
+.spbwc-email-sender__label {
+    font-size: var(--text-sm, 11px);
     font-weight: var(--font-semibold, 600);
-    margin: 0 0 var(--nbd-space-4, 16px);
-    letter-spacing: .01em;
+    text-transform: uppercase;
+    letter-spacing: var(--st-tracking-wide, .04em);
+    color: var(--nbd-st-text-mute, #8c8f94);
 }
 
-/* === Sender card ============================================= */
-.spbwc-email-admin__from p {
-    margin: 0 0 var(--nbd-space-3, 12px);
-    color: var(--nbd-st-text-soft, #50575e);
+.spbwc-email-sender__value {
+    font-size: var(--text-md, 13px);
+    color: var(--nbd-st-text, #1d2327);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
-/* === Group tables ============================================ */
-.spbwc-email-group__title {
-    color: var(--nbd-st-text-brand, #1e40af);
-}
+.spbwc-email-sender__addr { color: var(--nbd-st-text-soft, #50575e); }
 
-.spbwc-email-group__table {
+/* === Group / log tables ===================================== */
+.spbwc-email-group { margin-bottom: var(--nbd-space-5, 20px); }
+
+.spbwc-email-table {
     border-collapse: collapse;
     width: 100%;
-}
-
-.spbwc-email-group__table th {
-    text-align: left;
-    font-size: var(--text-sm, 11px);
-    text-transform: uppercase;
-    letter-spacing: .04em;
-    color: var(--nbd-st-text-mute, #8c8f94);
-    padding: var(--nbd-space-2, 8px) var(--nbd-space-3, 12px);
-    border-bottom: 1px solid var(--nbd-st-border-light, #dcdcde);
-}
-
-.spbwc-email-group__table td {
-    padding: var(--nbd-space-3, 12px);
-    border-bottom: 1px solid var(--nbd-st-border-subtle, #f0f0f1);
-    vertical-align: middle;
     font-size: var(--text-md, 13px);
 }
 
-.spbwc-email-group__table tr:last-child td {
-    border-bottom: 0;
+.spbwc-email-table thead th {
+    text-align: left;
+    font-size: var(--text-sm, 11px);
+    font-weight: var(--font-semibold, 600);
+    text-transform: uppercase;
+    letter-spacing: var(--st-tracking-wide, .04em);
+    color: var(--nbd-st-text-mute, #8c8f94);
+    padding: var(--nbd-space-3, 12px) var(--nbd-space-5, 20px);
+    border-bottom: 1px solid var(--nbd-st-border-light, #dcdcde);
+    background: var(--nbd-st-bg-soft, #f6f7f7);
 }
 
-.spbwc-email-row__desc {
+.spbwc-email-table td {
+    padding: var(--nbd-space-3, 12px) var(--nbd-space-5, 20px);
+    border-bottom: 1px solid var(--nbd-st-border-subtle, #f0f0f1);
+    vertical-align: middle;
+}
+
+.spbwc-email-table tr:last-child td { border-bottom: 0; }
+
+.spbwc-email-table tbody tr {
+    transition: background var(--transition-fast, all .15s ease);
+}
+
+.spbwc-email-table tbody tr:hover { background: var(--nbd-st-bg-soft, #f6f7f7); }
+
+.spbwc-email-table__main { width: 55%; }
+
+.spbwc-email-table__name {
+    display: block;
+    font-weight: var(--font-semibold, 600);
+    color: var(--nbd-st-text, #1d2327);
+}
+
+.spbwc-email-table__desc {
     display: block;
     color: var(--nbd-st-text-soft, #50575e);
     font-size: var(--text-base, 12px);
     margin-top: 2px;
-    max-width: 60ch;
+    max-width: 62ch;
+    line-height: var(--st-leading-snug, 1.4);
 }
 
-.spbwc-email-row__actions {
+.spbwc-email-table__status { white-space: nowrap; }
+
+.spbwc-email-table__actions {
+    white-space: nowrap;
+    text-align: right;
+}
+
+.spbwc-email-table__actions .spbwc-cta-btn { margin-left: var(--nbd-space-2, 8px); }
+
+/* Log-specific cells */
+.spbwc-email-table--log td { font-size: var(--text-base, 12px); }
+.spbwc-email-table__when { white-space: nowrap; color: var(--nbd-st-text-soft, #50575e); }
+
+.spbwc-email-table__id {
+    font-size: var(--text-sm, 11px);
+    color: var(--nbd-st-text-soft, #50575e);
+    background: var(--nbd-st-bg-soft, #f6f7f7);
+    padding: 2px 6px;
+    border-radius: var(--nbd-radius-sm, 4px);
+}
+
+.spbwc-email-table__subject {
+    max-width: 32ch;
+    overflow: hidden;
+    text-overflow: ellipsis;
     white-space: nowrap;
 }
 
-.spbwc-email-row__actions .button {
-    margin-left: var(--nbd-space-1, 4px);
-}
-
-/* === Status badge ============================================ */
+/* === Status badge =========================================== */
 .spbwc-badge {
-    display: inline-block;
-    padding: 2px 10px;
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    padding: 3px 10px;
     border-radius: var(--nbd-radius-pill, 9999px);
     font-size: var(--text-sm, 11px);
     font-weight: var(--font-semibold, 600);
-    line-height: 1.6;
+    line-height: 1.5;
+    text-transform: capitalize;
 }
+
+.spbwc-badge .dashicons { font-size: 13px; width: 13px; height: 13px; }
 
 .spbwc-badge--on {
     background: var(--st-pill-active-bg, #dcfce7);
@@ -113,36 +177,23 @@
     color: var(--st-pill-draft-text, #4b5563);
 }
 
-/* === Notice banner =========================================== */
-.spbwc-notice-banner {
-    border-radius: var(--nbd-radius-md, 8px);
-    padding: var(--nbd-space-3, 12px) var(--nbd-space-4, 16px);
-    margin: 0 0 var(--nbd-space-5, 20px);
-    font-size: var(--text-md, 13px);
-    box-shadow: var(--shadow-sm, 0 1px 2px rgba(0,0,0,.04));
-    border: 1px solid transparent;
+.spbwc-badge--test {
+    background: var(--st-pill-featured-bg, #dbeafe);
+    color: var(--st-pill-featured-text, #1e40af);
 }
 
-.spbwc-notice-banner--success {
-    background: var(--st-pill-active-bg, #dcfce7);
-    color: var(--st-pill-active-text, #14532d);
-    border-color: var(--nbd-color-success, #16a34a);
-}
+/* === Responsive ============================================= */
+@media screen and (max-width: 782px) {
+    /* Group rows stack vertically; the log table scrolls horizontally. */
+    .spbwc-email-group .spbwc-email-table tr { display: block; }
+    .spbwc-email-group .spbwc-email-table td { display: block; width: auto; padding: var(--nbd-space-1, 4px) var(--nbd-space-4, 16px); border-bottom: 0; }
+    .spbwc-email-group .spbwc-email-table__main { padding-top: var(--nbd-space-3, 12px); }
+    .spbwc-email-group .spbwc-email-table__actions { text-align: left; padding-bottom: var(--nbd-space-3, 12px); border-bottom: 1px solid var(--nbd-st-border-subtle, #f0f0f1); }
+    .spbwc-email-group .spbwc-email-table__actions .spbwc-cta-btn { margin: var(--nbd-space-1, 4px) var(--nbd-space-2, 8px) 0 0; }
+    .spbwc-email-group .spbwc-email-table tr:last-child .spbwc-email-table__actions { border-bottom: 0; }
 
-.spbwc-notice-banner--error {
-    background: var(--nbd-color-danger-soft, #fef2f2);
-    color: var(--st-pill-danger-text, #991b1b);
-    border-color: var(--nbd-color-danger, #dc2626);
-}
+    .spbwc-email-log .spbwc-block__body { overflow-x: auto; }
+    .spbwc-email-table--log { min-width: 640px; }
 
-/* === Log ===================================================== */
-.spbwc-email-log__empty {
-    color: var(--nbd-st-text-mute, #8c8f94);
-    font-style: italic;
-    margin: 0;
-}
-
-.spbwc-email-log code {
-    font-size: var(--text-sm, 11px);
-    color: var(--nbd-st-text-soft, #50575e);
+    .spbwc-email-sender { flex-wrap: wrap; }
 }
