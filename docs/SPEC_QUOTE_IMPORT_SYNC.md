@@ -129,8 +129,17 @@ Three layers, evaluated at activation / first Quotes-screen visit:
   QFW order (also "pending") is owned by one source. YITH adapter: the **free** plugin keeps quotes in
   session+email (nothing persisted) so it's inert; the adapter gates on the YITH **Premium** class and
   resolves the open `wc-ywraq-*` statuses dynamically — needs validation on a live YITH Premium install.
-- **M3 — Contact-form sources + field-mapping UI.** Flamingo (CF7) + the generic form-entry readers
-  (WPForms/GF/Fluent/Forminator/Ninja) behind a field-mapping step.
+- **M3 — Contact-form sources + field-mapping UI. DONE (commit 0b90317).** `SPBWC_Quote_Form_Adapter`
+  base (forms() + entries + saved mapping; auto_map heuristic; single "name" split to first/last;
+  canonical-ref dedupe). Mapping store on the controller (option `spbwc_quote_import_maps`, get/save +
+  imported_refs). Import tab renders a per-form mapping editor (quote field → form field select,
+  pre-filled) + "Save mapping & import". Concrete adapters: Flamingo (CF7 — flamingo_inbound CPT +
+  channel taxonomy + _field_*/_from_* meta) and Fluent Forms (fluentform_forms + fluentform_submissions
+  response JSON), both gated on the source plugin. Verified via a stub form adapter (auto-map, mapping
+  gate, import, name-split, dedupe, UI render). ⚠ The CF7/Fluent plugins fatal on the dev box's
+  pre-release WP, so the concrete adapters were verified by schema + stub, not against the live plugins —
+  validate on a supported WP. Remaining form plugins (WPForms/GF/Forminator/Ninja) follow the same
+  pattern (M3b).
 - **M4 — Other B2B/quote plugins.** B2BKing / Addify / ELEX adapters.
 - **M5 — Ongoing sync.** Opt-in live listeners for every wired source + saved mappings + dedupe.
 - **M6 — Sample seed / empty-state.** Integrate the 3-layer onboarding (import / convert-drafts /
