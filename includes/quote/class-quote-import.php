@@ -25,6 +25,9 @@ require_once __DIR__ . '/import/class-quote-adapter-wpforms.php';
 require_once __DIR__ . '/import/class-quote-adapter-gravityforms.php';
 require_once __DIR__ . '/import/class-quote-adapter-forminator.php';
 require_once __DIR__ . '/import/class-quote-adapter-ninjaforms.php';
+require_once __DIR__ . '/import/class-quote-adapter-elex.php';
+require_once __DIR__ . '/import/class-quote-adapter-addify.php';
+require_once __DIR__ . '/import/class-quote-adapter-b2bking.php';
 
 if ( ! class_exists( 'SPBWC_Quote_Import' ) ) {
 
@@ -98,6 +101,15 @@ if ( ! class_exists( 'SPBWC_Quote_Import' ) ) {
             }
             if ( class_exists( 'SPBWC_Quote_Adapter_Ninjaforms' ) ) {
                 $built_in[] = new SPBWC_Quote_Adapter_Ninjaforms();
+            }
+            if ( class_exists( 'SPBWC_Quote_Adapter_Elex' ) ) {
+                $built_in[] = new SPBWC_Quote_Adapter_Elex();
+            }
+            if ( class_exists( 'SPBWC_Quote_Adapter_Addify' ) ) {
+                $built_in[] = new SPBWC_Quote_Adapter_Addify();
+            }
+            if ( class_exists( 'SPBWC_Quote_Adapter_B2bking' ) ) {
+                $built_in[] = new SPBWC_Quote_Adapter_B2bking();
             }
             /**
              * Register additional quote import source adapters.
