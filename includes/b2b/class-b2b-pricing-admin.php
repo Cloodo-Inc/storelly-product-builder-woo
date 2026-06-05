@@ -65,23 +65,31 @@ if ( ! class_exists( 'SPBWC_B2B_Pricing_Admin' ) ) {
 
             $tiers = SPBWC_B2B_Pricing::get_tiers();
 
-            echo '<div class="wrap spbwc-b2b-pricing">';
-            echo '<h1>' . esc_html__( 'B2B Pricing', 'storelly-product-builder-for-woocommerce' ) . '</h1>';
+            echo '<div class="wrap spbwc-settings-wrap spbwc-b2b-admin spbwc-b2b-pricing">';
             $this->print_notice();
-            echo '<p class="description">' . esc_html__( 'Define tier discounts off retail prices. Only the discount % is applied at checkout in this version; min order, payment terms and free-shipping are labels shown to companies. Assign a tier to a company on its detail page.', 'storelly-product-builder-for-woocommerce' ) . '</p>';
+
+            // Hero.
+            echo '<header class="spbwc-page-hero"><div class="spbwc-page-hero__grid"><div class="spbwc-page-hero__body">';
+            echo '<div class="spbwc-page-hero__eyebrow"><span class="dashicons dashicons-admin-plugins" aria-hidden="true"></span>' . esc_html__( 'Storelly · B2B', 'storelly-product-builder-for-woocommerce' ) . '</div>';
+            echo '<h1 class="spbwc-page-hero__title"><span class="dashicons dashicons-tag" aria-hidden="true"></span> ' . esc_html__( 'B2B Pricing', 'storelly-product-builder-for-woocommerce' ) . '</h1>';
+            echo '<p class="spbwc-page-hero__subtitle">' . esc_html__( 'Tier discounts off retail. Assign a tier to a company on its detail page.', 'storelly-product-builder-for-woocommerce' ) . '</p>';
+            echo '</div></div></header>';
+
+            echo '<div class="spbwc-notice-banner spbwc-notice-banner--info"><span class="dashicons dashicons-info-outline" aria-hidden="true"></span><span>' . esc_html__( 'Only the discount % is charged at checkout. Min order, payment terms and free-shipping are labels shown to companies. Quantity breaks stack on top.', 'storelly-product-builder-for-woocommerce' ) . '</span></div>';
 
             echo '<form method="post" action="' . esc_url( self::page_url() ) . '">';
             wp_nonce_field( 'spbwc_b2b_tiers_save', '_spbwc_tiers_nonce' );
             echo '<input type="hidden" name="spbwc_b2b_tiers_do" value="save" />';
 
-            echo '<table class="wp-list-table widefat fixed striped"><thead><tr>';
+            echo '<div class="spbwc-block"><div class="spbwc-block__head"><h3 class="spbwc-block__title">' . esc_html__( 'Tier discount ladder', 'storelly-product-builder-for-woocommerce' ) . '</h3></div><div class="spbwc-block__body spbwc-block__body--flush">';
+            echo '<table class="spbwc-admin-table"><thead><tr>';
             echo '<th>' . esc_html__( 'Tier label', 'storelly-product-builder-for-woocommerce' ) . '</th>';
             echo '<th>' . esc_html__( 'Discount %', 'storelly-product-builder-for-woocommerce' ) . '</th>';
             echo '<th>' . esc_html__( 'Min order', 'storelly-product-builder-for-woocommerce' ) . '</th>';
             echo '<th>' . esc_html__( 'Payment terms', 'storelly-product-builder-for-woocommerce' ) . '</th>';
             echo '<th>' . esc_html__( 'Free ship over', 'storelly-product-builder-for-woocommerce' ) . '</th>';
             echo '<th>' . esc_html__( 'Companies', 'storelly-product-builder-for-woocommerce' ) . '</th>';
-            echo '<th>' . esc_html__( 'Delete', 'storelly-product-builder-for-woocommerce' ) . '</th>';
+            echo '<th>' . esc_html__( 'Remove', 'storelly-product-builder-for-woocommerce' ) . '</th>';
             echo '</tr></thead><tbody>';
 
             $i = 0;
@@ -89,11 +97,10 @@ if ( ! class_exists( 'SPBWC_B2B_Pricing_Admin' ) ) {
                 $this->render_row( $i, $slug, $tier );
                 $i++;
             }
-            // Blank "add tier" row.
-            $this->render_row( $i, '', array() );
+            $this->render_row( $i, '', array() ); // Blank "add tier" row.
 
-            echo '</tbody></table>';
-            echo '<p class="submit"><button type="submit" class="button button-primary">' . esc_html__( 'Save tiers', 'storelly-product-builder-for-woocommerce' ) . '</button></p>';
+            echo '</tbody></table></div>';
+            echo '<div class="spbwc-block__foot"><button type="submit" class="spbwc-cta-btn spbwc-cta-btn--solid"><span class="dashicons dashicons-saved" aria-hidden="true"></span> ' . esc_html__( 'Save tiers', 'storelly-product-builder-for-woocommerce' ) . '</button></div></div>';
             echo '</form>';
             echo '</div>';
         }
@@ -113,21 +120,22 @@ if ( ! class_exists( 'SPBWC_B2B_Pricing_Admin' ) ) {
             $ship  = isset( $tier['free_ship_over'] ) ? $tier['free_ship_over'] : '';
             $count = ( '' !== $slug ) ? self::count_companies_on_tier( $slug ) : 0;
 
+            $is_new = ( '' === $slug );
             echo '<tr>';
             echo '<td><input type="hidden" name="tier_slug[' . esc_attr( $i ) . ']" value="' . esc_attr( $slug ) . '" />';
-            echo '<input type="text" name="tier_label[' . esc_attr( $i ) . ']" value="' . esc_attr( $label ) . '" placeholder="' . esc_attr__( 'e.g. Tier A', 'storelly-product-builder-for-woocommerce' ) . '" /></td>';
-            echo '<td><input type="number" min="0" max="100" step="0.1" name="tier_pct[' . esc_attr( $i ) . ']" value="' . esc_attr( $pct ) . '" class="small-text" /></td>';
-            echo '<td><input type="number" min="0" step="0.01" name="tier_min[' . esc_attr( $i ) . ']" value="' . esc_attr( $min ) . '" class="small-text" /></td>';
-            echo '<td><select name="tier_terms[' . esc_attr( $i ) . ']">';
+            echo '<input class="spbwc-input" type="text" name="tier_label[' . esc_attr( $i ) . ']" value="' . esc_attr( $label ) . '" placeholder="' . ( $is_new ? esc_attr__( '+ Add tier…', 'storelly-product-builder-for-woocommerce' ) : esc_attr__( 'e.g. Tier A', 'storelly-product-builder-for-woocommerce' ) ) . '" style="min-width:140px" /></td>';
+            echo '<td><input class="spbwc-input" type="number" min="0" max="100" step="0.1" name="tier_pct[' . esc_attr( $i ) . ']" value="' . esc_attr( $pct ) . '" style="width:80px" /></td>';
+            echo '<td><input class="spbwc-input" type="number" min="0" step="0.01" name="tier_min[' . esc_attr( $i ) . ']" value="' . esc_attr( $min ) . '" style="width:90px" /></td>';
+            echo '<td><select class="spbwc-input" name="tier_terms[' . esc_attr( $i ) . ']" style="min-width:150px">';
             foreach ( SPBWC_B2B_Admin::payment_terms() as $tslug => $tlabel ) {
                 echo '<option value="' . esc_attr( $tslug ) . '"' . selected( $terms, $tslug, false ) . '>' . esc_html( $tlabel ) . '</option>';
             }
             echo '</select></td>';
-            echo '<td><input type="number" min="0" step="0.01" name="tier_ship[' . esc_attr( $i ) . ']" value="' . esc_attr( $ship ) . '" class="small-text" /></td>';
-            echo '<td>' . esc_html( '' !== $slug ? number_format_i18n( $count ) : '—' ) . '</td>';
+            echo '<td><input class="spbwc-input" type="number" min="0" step="0.01" name="tier_ship[' . esc_attr( $i ) . ']" value="' . esc_attr( $ship ) . '" style="width:90px" /></td>';
+            echo '<td>' . ( $is_new ? '<span style="color:var(--nbd-st-text-mute)">—</span>' : '<span class="spbwc-pill spbwc-pill--neutral">' . esc_html( number_format_i18n( $count ) ) . '</span>' ) . '</td>';
             echo '<td>';
-            if ( '' !== $slug ) {
-                echo '<label><input type="checkbox" name="tier_delete[' . esc_attr( $i ) . ']" value="1" /> ' . esc_html__( 'Remove', 'storelly-product-builder-for-woocommerce' ) . '</label>';
+            if ( ! $is_new ) {
+                echo '<label style="white-space:nowrap"><input type="checkbox" name="tier_delete[' . esc_attr( $i ) . ']" value="1" /> ' . esc_html__( 'Remove', 'storelly-product-builder-for-woocommerce' ) . '</label>';
             }
             echo '</td></tr>';
         }
