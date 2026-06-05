@@ -262,7 +262,32 @@ if ( ! class_exists( 'SPBWC_Demo_Seeder' ) ) {
 				'error'    => 0,
 				'size'     => filesize( $tmp ),
 			);
+
+			// WordPress only whitelists the webp mime since 5.8. The plugin still
+			// supports older cores (readme "Requires at least"), where
+			// media_handle_sideload() would reject our bundled .webp files with
+			// "file type not permitted" and the demo would import with no images.
+			// Force-allow webp ONLY for the duration of this sideload, then remove
+			// the filters so we never widen uploads globally.
+			$allow_webp = static function ( $mimes ) {
+				$mimes['webp'] = 'image/webp';
+				return $mimes;
+			};
+			$force_webp = static function ( $data, $unused_file, $unused_filename, $unused_mimes, $real_mime ) {
+				if ( 'image/webp' === $real_mime || ( empty( $data['ext'] ) && empty( $data['type'] ) ) ) {
+					$data['ext']  = 'webp';
+					$data['type'] = 'image/webp';
+				}
+				return $data;
+			};
+			add_filter( 'upload_mimes', $allow_webp );
+			add_filter( 'wp_check_filetype_and_ext', $force_webp, 10, 5 );
+
 			$id = media_handle_sideload( $file, 0, null, array( 'test_form' => false, 'test_size' => false ) );
+
+			remove_filter( 'upload_mimes', $allow_webp );
+			remove_filter( 'wp_check_filetype_and_ext', $force_webp, 10 );
+
 			if ( is_wp_error( $id ) ) {
 				if ( file_exists( $tmp ) ) {
 					wp_delete_file( $tmp );

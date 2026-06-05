@@ -104,16 +104,6 @@
                                     "sattr_display_type": "s",
                                     "sub_attributes": [
                                         {
-                                            "name": "Black",
-                                            "des": "",
-                                            "price": [
-                                                "0.3"
-                                            ],
-                                            "preview_type": "i",
-                                            "image": "130",
-                                            "color": "#ffffff"
-                                        },
-                                        {
                                             "name": "Grey",
                                             "des": "",
                                             "price": [
@@ -224,19 +214,6 @@
                         "component_icon": "171",
                         "pb_config": [
                             [
-                                {
-                                    "views": [
-                                        {
-                                            "image": "141"
-                                        },
-                                        {
-                                            "image": "142"
-                                        },
-                                        {
-                                            "image": "143"
-                                        }
-                                    ]
-                                },
                                 {
                                     "views": [
                                         {
@@ -2117,9 +2094,6 @@
         138,
         139,
         140,
-        141,
-        142,
-        143,
         144,
         145,
         146,
