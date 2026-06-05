@@ -77,6 +77,11 @@ if ( ! class_exists( 'SPBWC_B2B_Assets' ) ) {
             wp_enqueue_style( 'spbwc-admin-ui' );
             wp_enqueue_style( 'spbwc-quotes-admin' );
             wp_enqueue_style( 'spbwc-b2b-admin', SPBWC_PB_CSS_URL . 'b2b-admin.css', array( 'spbwc-tokens', 'spbwc-admin-ui', 'dashicons' ), SPBWC_PB_VERSION );
+
+            // The B2B Pricing page adds/removes tier rows client-side.
+            if ( class_exists( 'SPBWC_B2B_Pricing_Admin' ) && SPBWC_B2B_Pricing_Admin::PAGE_SLUG === $page ) {
+                wp_enqueue_script( 'spbwc-b2b-pricing-admin', SPBWC_PB_JS_URL . 'b2b-pricing-admin.js', array(), SPBWC_PB_VERSION, true );
+            }
         }
     }
 }

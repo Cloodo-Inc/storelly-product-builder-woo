@@ -20,6 +20,8 @@ if ( ! class_exists( 'SPBWC_Request_Quote' ) ) {
 
             add_action( 'init', array( $this, 'add_account_endpoints' ) );
             add_filter( 'woocommerce_account_menu_items', array( $this, 'add_quotes_account_menu' ) );
+            // Keep the menu-badge count cache fresh: drop it whenever a quote changes status.
+            add_action( 'spbwc_quote_status_changed', array( __CLASS__, 'invalidate_awaiting_count' ), 10, 3 );
             add_action( 'woocommerce_account_quotes_endpoint', array( $this, 'render_quotes_endpoint' ) );
             add_action( 'woocommerce_account_view-quote_endpoint', array( $this, 'render_view_quote_endpoint' ) );
             add_action( 'wp_loaded', array( $this, 'handle_quote_action' ) );
@@ -39,7 +41,13 @@ if ( ! class_exists( 'SPBWC_Request_Quote' ) ) {
 
             add_action( 'wp_ajax_spbwc_submit_quote', array( $this, 'ajax_submit_quote' ) );
             add_action( 'wp_ajax_nopriv_spbwc_submit_quote', array( $this, 'ajax_submit_quote' ) );
+
+            // Remove uploaded attachment files when a quote is permanently deleted.
+            add_action( 'before_delete_post', array( $this, 'cleanup_quote_attachments' ) );
         }
+
+        /** Subdir (under the quote-attachments folder) used by the in-flight upload. */
+        protected $quote_upload_subdir = '';
 
         public function get_form_fields() {
             $fields = get_option( 'spbwc_quote_form_fields', array() );
@@ -398,18 +406,56 @@ if ( ! class_exists( 'SPBWC_Request_Quote' ) ) {
                                 $required = isset( $field['required'] ) && '1' === (string) $field['required'];
                                 $ph       = isset( $field['placeholder'] ) ? $field['placeholder'] : '';
                                 ?>
-                                <div class="spbwc-rfq-field">
-                                    <label for="spbwc_quote_<?php echo esc_attr( $name ); ?>">
-                                        <?php echo esc_html( isset( $field['label'] ) ? $field['label'] : ucfirst( $name ) ); ?>
-                                        <?php if ( $required ) : ?><span class="spbwc-rfq-req" aria-hidden="true">*</span><?php endif; ?>
-                                    </label>
-                                    <?php if ( 'textarea' === $type ) : ?>
-                                        <textarea id="spbwc_quote_<?php echo esc_attr( $name ); ?>" name="quote_fields[<?php echo esc_attr( $name ); ?>]" <?php echo $required ? 'required' : ''; ?> placeholder="<?php echo esc_attr( $ph ); ?>"></textarea>
-                                    <?php else : ?>
-                                        <input id="spbwc_quote_<?php echo esc_attr( $name ); ?>" type="<?php echo esc_attr( in_array( $type, array( 'text', 'email', 'tel', 'number' ), true ) ? $type : 'text' ); ?>" name="quote_fields[<?php echo esc_attr( $name ); ?>]" <?php echo $required ? 'required' : ''; ?> placeholder="<?php echo esc_attr( $ph ); ?>" />
-                                    <?php endif; ?>
-                                    <span class="spbwc-rfq-error"></span>
-                                </div>
+                                <?php if ( 'file' === $type ) : ?>
+                                    <?php
+                                    $multiple  = isset( $field['allow_multiple'] ) && '1' === (string) $field['allow_multiple'];
+                                    $max_files = isset( $field['max_files'] ) ? max( 1, (int) $field['max_files'] ) : 5;
+                                    $max_size  = isset( $field['max_size'] ) ? (float) $field['max_size'] : 0;
+                                    $allow_str = isset( $field['allow_type'] ) ? trim( (string) $field['allow_type'] ) : '';
+                                    $exts      = '' !== $allow_str ? array_filter( array_map( 'trim', explode( ',', $allow_str ) ) ) : array();
+                                    $accept    = '';
+                                    if ( ! empty( $exts ) ) {
+                                        $accept = implode( ',', array_map( static function ( $e ) { return '.' . ltrim( $e, '.' ); }, $exts ) );
+                                    }
+                                    $input_name = 'quote_files[' . $name . ']' . ( $multiple ? '[]' : '' );
+                                    $hint_bits  = array();
+                                    if ( ! empty( $exts ) ) {
+                                        $hint_bits[] = strtoupper( implode( ', ', $exts ) );
+                                    }
+                                    if ( $max_size > 0 ) {
+                                        /* translators: %s: maximum file size in megabytes */
+                                        $hint_bits[] = sprintf( esc_html__( 'up to %s MB each', 'storelly-product-builder-for-woocommerce' ), (string) ( 0 + $max_size ) );
+                                    }
+                                    ?>
+                                    <div class="spbwc-rfq-field spbwc-rfq-field--file" data-field="<?php echo esc_attr( $name ); ?>" data-multiple="<?php echo $multiple ? '1' : '0'; ?>" data-max-files="<?php echo esc_attr( (string) ( $multiple ? $max_files : 1 ) ); ?>" data-max-size="<?php echo esc_attr( (string) $max_size ); ?>">
+                                        <label for="spbwc_quote_<?php echo esc_attr( $name ); ?>">
+                                            <?php echo esc_html( isset( $field['label'] ) ? $field['label'] : ucfirst( $name ) ); ?>
+                                            <?php if ( $required ) : ?><span class="spbwc-rfq-req" aria-hidden="true">*</span><?php endif; ?>
+                                        </label>
+                                        <div class="spbwc-rfq-drop">
+                                            <input class="spbwc-rfq-file" id="spbwc_quote_<?php echo esc_attr( $name ); ?>" type="file" name="<?php echo esc_attr( $input_name ); ?>" <?php echo $multiple ? 'multiple' : ''; ?> <?php echo $required ? 'required' : ''; ?> <?php echo $accept ? 'accept="' . esc_attr( $accept ) . '"' : ''; ?> />
+                                            <span class="spbwc-rfq-drop__text"><?php echo wp_kses_post( __( 'Drag files here or <span class="spbwc-rfq-drop__browse">browse</span>', 'storelly-product-builder-for-woocommerce' ) ); ?></span>
+                                            <?php if ( ! empty( $hint_bits ) ) : ?>
+                                                <span class="spbwc-rfq-drop__hint"><?php echo esc_html( implode( ' · ', $hint_bits ) ); ?></span>
+                                            <?php endif; ?>
+                                        </div>
+                                        <ul class="spbwc-rfq-files" aria-live="polite"></ul>
+                                        <span class="spbwc-rfq-error"></span>
+                                    </div>
+                                <?php else : ?>
+                                    <div class="spbwc-rfq-field">
+                                        <label for="spbwc_quote_<?php echo esc_attr( $name ); ?>">
+                                            <?php echo esc_html( isset( $field['label'] ) ? $field['label'] : ucfirst( $name ) ); ?>
+                                            <?php if ( $required ) : ?><span class="spbwc-rfq-req" aria-hidden="true">*</span><?php endif; ?>
+                                        </label>
+                                        <?php if ( 'textarea' === $type ) : ?>
+                                            <textarea id="spbwc_quote_<?php echo esc_attr( $name ); ?>" name="quote_fields[<?php echo esc_attr( $name ); ?>]" <?php echo $required ? 'required' : ''; ?> placeholder="<?php echo esc_attr( $ph ); ?>"></textarea>
+                                        <?php else : ?>
+                                            <input id="spbwc_quote_<?php echo esc_attr( $name ); ?>" type="<?php echo esc_attr( in_array( $type, array( 'text', 'email', 'tel', 'number' ), true ) ? $type : 'text' ); ?>" name="quote_fields[<?php echo esc_attr( $name ); ?>]" <?php echo $required ? 'required' : ''; ?> placeholder="<?php echo esc_attr( $ph ); ?>" />
+                                        <?php endif; ?>
+                                        <span class="spbwc-rfq-error"></span>
+                                    </div>
+                                <?php endif; ?>
                             <?php endforeach; ?>
 
                             <div class="spbwc-rfq-foot">
@@ -486,6 +532,19 @@ if ( ! class_exists( 'SPBWC_Request_Quote' ) ) {
                 );
             }
 
+            // Process file-upload fields only after the text fields validate, so a
+            // failed submission never leaves orphaned uploads behind.
+            $upload      = $this->handle_quote_uploads( $schema );
+            $attachments = $upload['attachments'];
+            if ( ! empty( $upload['errors'] ) ) {
+                wp_send_json_error(
+                    array(
+                        'message' => esc_html__( 'Please correct the highlighted fields.', 'storelly-product-builder-for-woocommerce' ),
+                        'errors'  => $upload['errors'],
+                    )
+                );
+            }
+
             // Build the canonical request payload for the quote CPT. Known
             // contact keys are promoted to the top level; the rest are kept
             // under "fields" so the form builder stays fully customizable.
@@ -510,8 +569,19 @@ if ( ! class_exists( 'SPBWC_Request_Quote' ) ) {
                 }
             }
 
+            if ( ! empty( $attachments ) ) {
+                $request['attachments'] = $attachments;
+            }
+
             $quote_id = SPBWC_Quote::create( $request, get_current_user_id() );
             if ( is_wp_error( $quote_id ) || ! $quote_id ) {
+                // Don't leave uploaded files orphaned if the quote never persisted.
+                foreach ( $attachments as $a ) {
+                    if ( ! empty( $a['file'] ) ) {
+                        $this->delete_attachment_file( $a['file'] );
+                        $this->remove_attachment_dir( dirname( ltrim( (string) $a['file'], '/' ) ) );
+                    }
+                }
                 wp_send_json_error( array( 'message' => esc_html__( 'Could not create your quote request. Please try again.', 'storelly-product-builder-for-woocommerce' ) ) );
             }
 
@@ -546,6 +616,353 @@ if ( ! class_exists( 'SPBWC_Request_Quote' ) ) {
                     'quote_id' => $quote_id,
                 )
             );
+        }
+
+        /* ── File attachments (QF1–QF4) ───────────────────────────── */
+
+        /**
+         * Process every enabled `file` field in the form schema.
+         *
+         * Files are stored under a single per-request folder so a failed
+         * submission can be wiped wholesale. The caller has already verified the
+         * nonce in ajax_submit_quote().
+         *
+         * @param array $schema Form-field schema (from get_form_fields()).
+         * @return array{attachments:array,errors:array<string,string>}
+         */
+        protected function handle_quote_uploads( $schema ) {
+            $attachments = array();
+            $errors      = array();
+
+            // Anything to do?
+            $has_file_field = false;
+            foreach ( $schema as $f ) {
+                if ( isset( $f['type'], $f['enabled'] ) && 'file' === $f['type'] && '1' === (string) $f['enabled'] ) {
+                    $has_file_field = true;
+                    break;
+                }
+            }
+            if ( ! $has_file_field ) {
+                return array( 'attachments' => array(), 'errors' => array() );
+            }
+
+            $max_total = (int) apply_filters( 'spbwc_quote_max_upload_bytes', 25 * 1024 * 1024 );
+            $total     = 0;
+            $subdir    = 'q-' . substr( md5( uniqid( '', true ) ), 0, 16 );
+
+            foreach ( $schema as $f ) {
+                if ( ! isset( $f['type'], $f['enabled'] ) || 'file' !== $f['type'] || '1' !== (string) $f['enabled'] ) {
+                    continue;
+                }
+                $name = isset( $f['name'] ) ? sanitize_key( $f['name'] ) : '';
+                if ( '' === $name ) {
+                    continue;
+                }
+                $label    = isset( $f['label'] ) ? $f['label'] : $name;
+                $required = isset( $f['required'] ) && '1' === (string) $f['required'];
+                $files    = $this->normalize_field_files( $name );
+
+                if ( empty( $files ) ) {
+                    if ( $required ) {
+                        /* translators: %s: form field label of the missing required upload */
+                        $errors[ $name ] = sprintf( esc_html__( '%s is required.', 'storelly-product-builder-for-woocommerce' ), $label );
+                    }
+                    continue;
+                }
+
+                $multiple  = isset( $f['allow_multiple'] ) && '1' === (string) $f['allow_multiple'];
+                $max_files = isset( $f['max_files'] ) ? max( 1, (int) $f['max_files'] ) : 5;
+                if ( ! $multiple ) {
+                    $files = array_slice( $files, 0, 1 );
+                } elseif ( count( $files ) > $max_files ) {
+                    /* translators: 1: field label, 2: maximum number of files */
+                    $errors[ $name ] = sprintf( esc_html__( '%1$s allows at most %2$d files.', 'storelly-product-builder-for-woocommerce' ), $label, $max_files );
+                    continue;
+                }
+
+                $cfg = array(
+                    'allow_type' => isset( $f['allow_type'] ) ? (string) $f['allow_type'] : '',
+                    'max_size'   => isset( $f['max_size'] ) ? (float) $f['max_size'] : 0,
+                );
+
+                foreach ( $files as $file ) {
+                    $total += isset( $file['size'] ) ? (int) $file['size'] : 0;
+                    if ( $total > $max_total ) {
+                        $errors[ $name ] = esc_html__( 'The total size of all attachments is too large.', 'storelly-product-builder-for-woocommerce' );
+                        break;
+                    }
+                    $stored = $this->store_quote_file( $file, $cfg, $subdir );
+                    if ( is_wp_error( $stored ) ) {
+                        /* translators: 1: field label, 2: reason the file was rejected */
+                        $errors[ $name ] = sprintf( esc_html__( '%1$s: %2$s', 'storelly-product-builder-for-woocommerce' ), $label, $stored->get_error_message() );
+                        continue;
+                    }
+                    $stored['field']  = $name;
+                    $attachments[]    = $stored;
+                }
+            }
+
+            // Roll back any stored files if the field set produced errors.
+            if ( ! empty( $errors ) ) {
+                foreach ( $attachments as $a ) {
+                    if ( ! empty( $a['file'] ) ) {
+                        $this->delete_attachment_file( $a['file'] );
+                    }
+                }
+                $this->remove_attachment_dir( 'quote-attachments/' . $subdir );
+                return array( 'attachments' => array(), 'errors' => $errors );
+            }
+
+            return array( 'attachments' => $attachments, 'errors' => array() );
+        }
+
+        /**
+         * Normalize $_FILES['quote_files'][<field>] (single or multiple) into a
+         * flat list of per-file arrays.
+         *
+         * @param string $field Sanitized field key.
+         * @return array<int,array{name:string,type:string,tmp_name:string,error:int,size:int}>
+         */
+        protected function normalize_field_files( $field ) {
+            $out = array();
+            // phpcs:disable WordPress.Security.NonceVerification.Missing -- Nonce verified in ajax_submit_quote(); raw paths validated via is_uploaded_file() + wp_check_filetype_and_ext() before use.
+            if ( empty( $_FILES['quote_files'] ) || ! isset( $_FILES['quote_files']['name'][ $field ] ) ) {
+                // phpcs:enable WordPress.Security.NonceVerification.Missing
+                return $out;
+            }
+            $bucket = $_FILES['quote_files']; // phpcs:ignore WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized, WordPress.Security.ValidatedSanitizedInput.MissingUnslash -- File array; entries validated by the uploader below.
+            $names  = $bucket['name'][ $field ];
+            if ( is_array( $names ) ) {
+                foreach ( $names as $i => $n ) {
+                    if ( '' === $n ) {
+                        continue;
+                    }
+                    $out[] = array(
+                        'name'     => sanitize_file_name( wp_basename( (string) $n ) ),
+                        'type'     => isset( $bucket['type'][ $field ][ $i ] ) ? (string) $bucket['type'][ $field ][ $i ] : '',
+                        'tmp_name' => isset( $bucket['tmp_name'][ $field ][ $i ] ) ? (string) $bucket['tmp_name'][ $field ][ $i ] : '',
+                        'error'    => isset( $bucket['error'][ $field ][ $i ] ) ? (int) $bucket['error'][ $field ][ $i ] : UPLOAD_ERR_NO_FILE,
+                        'size'     => isset( $bucket['size'][ $field ][ $i ] ) ? (int) $bucket['size'][ $field ][ $i ] : 0,
+                    );
+                }
+            } elseif ( '' !== $names ) {
+                $out[] = array(
+                    'name'     => sanitize_file_name( wp_basename( (string) $names ) ),
+                    'type'     => isset( $bucket['type'][ $field ] ) ? (string) $bucket['type'][ $field ] : '',
+                    'tmp_name' => isset( $bucket['tmp_name'][ $field ] ) ? (string) $bucket['tmp_name'][ $field ] : '',
+                    'error'    => isset( $bucket['error'][ $field ] ) ? (int) $bucket['error'][ $field ] : UPLOAD_ERR_NO_FILE,
+                    'size'     => isset( $bucket['size'][ $field ] ) ? (int) $bucket['size'][ $field ] : 0,
+                );
+            }
+            return $out;
+        }
+
+        /**
+         * Validate and move one uploaded file into the quote-attachments folder.
+         *
+         * Mirrors the hardened option-upload path: a fixed safe extension
+         * whitelist (never executables) intersected with the merchant's
+         * allow_type, real MIME sniffing via wp_check_filetype_and_ext(), and a
+         * server-enforced size cap.
+         *
+         * @param array  $file   Single normalized file array.
+         * @param array  $cfg    Field config (allow_type, max_size).
+         * @param string $subdir Per-request subfolder name.
+         * @return array|WP_Error Stored attachment descriptor or error.
+         */
+        protected function store_quote_file( $file, $cfg, $subdir ) {
+            if ( UPLOAD_ERR_OK !== (int) $file['error'] ) {
+                return new WP_Error( 'spbwc_upload', esc_html__( 'upload failed.', 'storelly-product-builder-for-woocommerce' ) );
+            }
+            $tmp = isset( $file['tmp_name'] ) ? $file['tmp_name'] : '';
+            if ( '' === $tmp || ! is_uploaded_file( $tmp ) ) {
+                return new WP_Error( 'spbwc_upload', esc_html__( 'invalid upload.', 'storelly-product-builder-for-woocommerce' ) );
+            }
+            $clean = isset( $file['name'] ) ? $file['name'] : '';
+            if ( '' === $clean ) {
+                return new WP_Error( 'spbwc_upload', esc_html__( 'invalid file name.', 'storelly-product-builder-for-woocommerce' ) );
+            }
+
+            // Safe server-side whitelist (shared with the option-upload path).
+            $safe = apply_filters(
+                'spbwc_upload_file_allowed_extensions',
+                array( 'json', 'svg', 'png', 'jpg', 'jpeg', 'gif', 'pdf', 'webp', 'bmp', 'tiff', 'tif', 'ai', 'eps', 'psd' )
+            );
+            $allowed = $safe;
+            if ( isset( $cfg['allow_type'] ) && '' !== trim( (string) $cfg['allow_type'] ) ) {
+                $merchant = array_filter( array_map(
+                    static function ( $t ) { return strtolower( trim( $t ) ); },
+                    explode( ',', (string) $cfg['allow_type'] )
+                ) );
+                if ( in_array( 'jpg', $merchant, true ) || in_array( 'jpeg', $merchant, true ) ) {
+                    $merchant[] = 'jpg';
+                    $merchant[] = 'jpeg';
+                }
+                if ( in_array( 'tiff', $merchant, true ) || in_array( 'tif', $merchant, true ) ) {
+                    $merchant[] = 'tiff';
+                    $merchant[] = 'tif';
+                }
+                $allowed = array_values( array_intersect( $safe, $merchant ) );
+            }
+            if ( empty( $allowed ) ) {
+                return new WP_Error( 'spbwc_type', esc_html__( 'file type not allowed.', 'storelly-product-builder-for-woocommerce' ) );
+            }
+
+            add_filter( 'upload_mimes', array( $this, 'widen_quote_mimes' ) );
+            $check = wp_check_filetype_and_ext( $tmp, $clean );
+            $ext   = isset( $check['ext'] ) ? $check['ext'] : '';
+            $type  = isset( $check['type'] ) ? $check['type'] : '';
+            if ( '' === $ext || '' === $type || ! in_array( $ext, $allowed, true ) ) {
+                remove_filter( 'upload_mimes', array( $this, 'widen_quote_mimes' ) );
+                return new WP_Error( 'spbwc_type', esc_html__( 'file type not allowed.', 'storelly-product-builder-for-woocommerce' ) );
+            }
+
+            $size = isset( $file['size'] ) ? (int) $file['size'] : 0;
+            if ( isset( $cfg['max_size'] ) && (float) $cfg['max_size'] > 0 ) {
+                if ( $size > (float) $cfg['max_size'] * 1024 * 1024 ) {
+                    remove_filter( 'upload_mimes', array( $this, 'widen_quote_mimes' ) );
+                    return new WP_Error( 'spbwc_size', esc_html__( 'file is too large.', 'storelly-product-builder-for-woocommerce' ) );
+                }
+            }
+
+            $rel_dir  = 'quote-attachments/' . $subdir;
+            $abs_dir  = SPBWC_PB_UPLOAD_DIR . '/' . $rel_dir;
+            if ( ! wp_mkdir_p( $abs_dir ) ) {
+                remove_filter( 'upload_mimes', array( $this, 'widen_quote_mimes' ) );
+                return new WP_Error( 'spbwc_dir', esc_html__( 'could not store the file.', 'storelly-product-builder-for-woocommerce' ) );
+            }
+            $this->guard_dir( $abs_dir );
+
+            $new_name = (string) time() . substr( md5( (string) wp_rand( 1111, 9999 ) ), 0, 8 ) . '.' . $ext;
+
+            if ( ! function_exists( 'wp_handle_upload' ) ) {
+                require_once ABSPATH . 'wp-admin/includes/file.php';
+            }
+            $this->quote_upload_subdir = $subdir;
+            add_filter( 'upload_dir', array( $this, 'quote_upload_dir' ) );
+            $movefile = wp_handle_upload(
+                array(
+                    'name'     => $new_name,
+                    'type'     => $type,
+                    'tmp_name' => $tmp,
+                    'error'    => UPLOAD_ERR_OK,
+                    'size'     => $size,
+                ),
+                array( 'test_form' => false )
+            );
+            remove_filter( 'upload_dir', array( $this, 'quote_upload_dir' ) );
+            remove_filter( 'upload_mimes', array( $this, 'widen_quote_mimes' ) );
+
+            if ( ! $movefile || isset( $movefile['error'] ) ) {
+                return new WP_Error( 'spbwc_move', esc_html__( 'could not store the file.', 'storelly-product-builder-for-woocommerce' ) );
+            }
+
+            return array(
+                'field' => '',
+                'name'  => $clean,
+                'file'  => $rel_dir . '/' . $new_name,
+                'url'   => SPBWC_PB_UPLOAD_URL . '/' . $rel_dir . '/' . $new_name,
+                'size'  => $size,
+                'type'  => $type,
+            );
+        }
+
+        /** upload_dir override → quote-attachments/<subdir>. */
+        public function quote_upload_dir( $dirs ) {
+            $sub            = '/storelly-product-builder/uploads/quote-attachments/' . $this->quote_upload_subdir;
+            $dirs['subdir'] = $sub;
+            $dirs['path']   = $dirs['basedir'] . $sub;
+            $dirs['url']    = $dirs['baseurl'] . $sub;
+            return $dirs;
+        }
+
+        /** Print/design mimes allowed only around a quote upload (non-executable). */
+        public function widen_quote_mimes( $mimes ) {
+            $mimes['pdf']      = 'application/pdf';
+            $mimes['ai']       = 'application/postscript';
+            $mimes['eps']      = 'application/postscript';
+            $mimes['psd']      = 'image/vnd.adobe.photoshop';
+            $mimes['tiff|tif'] = 'image/tiff';
+            $mimes['webp']     = 'image/webp';
+            $mimes['bmp']      = 'image/bmp';
+            return $mimes;
+        }
+
+        /** Drop an index.html into an attachment folder to block directory listing. */
+        protected function guard_dir( $abs_dir ) {
+            $index = trailingslashit( $abs_dir ) . 'index.html';
+            if ( ! file_exists( $index ) ) {
+                // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents -- Tiny local guard file; WP_Filesystem is overkill here.
+                @file_put_contents( $index, '' ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+            }
+        }
+
+        /**
+         * Resolve + delete one stored attachment file, guarding the path so we
+         * only ever touch our own quote-attachments folder.
+         *
+         * @param string $rel Path relative to SPBWC_PB_UPLOAD_DIR.
+         */
+        protected function delete_attachment_file( $rel ) {
+            $rel = ltrim( (string) $rel, '/' );
+            if ( 0 !== strpos( $rel, 'quote-attachments/' ) || false !== strpos( $rel, '..' ) ) {
+                return;
+            }
+            $full = SPBWC_PB_UPLOAD_DIR . '/' . $rel;
+            if ( file_exists( $full ) ) {
+                wp_delete_file( $full );
+            }
+        }
+
+        /**
+         * Remove an attachment folder (index guard + the now-empty directory).
+         *
+         * @param string $rel_dir Folder relative to SPBWC_PB_UPLOAD_DIR.
+         */
+        protected function remove_attachment_dir( $rel_dir ) {
+            $rel_dir = ltrim( (string) $rel_dir, '/' );
+            if ( 0 !== strpos( $rel_dir, 'quote-attachments/' ) || false !== strpos( $rel_dir, '..' ) ) {
+                return;
+            }
+            $abs   = SPBWC_PB_UPLOAD_DIR . '/' . $rel_dir;
+            $index = trailingslashit( $abs ) . 'index.html';
+            if ( file_exists( $index ) ) {
+                wp_delete_file( $index );
+            }
+            if ( is_dir( $abs ) ) {
+                @rmdir( $abs ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged, WordPress.WP.AlternativeFunctions.file_system_operations_rmdir -- Best-effort cleanup of our own empty folder.
+            }
+        }
+
+        /**
+         * Delete a quote's uploaded attachments when the quote is permanently
+         * removed (before_delete_post).
+         *
+         * @param int $post_id Post being deleted.
+         */
+        public function cleanup_quote_attachments( $post_id ) {
+            $post = get_post( $post_id );
+            if ( ! $post || SPBWC_Quote::POST_TYPE !== $post->post_type ) {
+                return;
+            }
+            $request = get_post_meta( $post_id, SPBWC_Quote::META_REQUEST, true );
+            if ( ! is_array( $request ) || empty( $request['attachments'] ) || ! is_array( $request['attachments'] ) ) {
+                return;
+            }
+            $dirs = array();
+            foreach ( $request['attachments'] as $a ) {
+                if ( empty( $a['file'] ) ) {
+                    continue;
+                }
+                $this->delete_attachment_file( $a['file'] );
+                $rel_dir = dirname( ltrim( (string) $a['file'], '/' ) );
+                if ( 0 === strpos( $rel_dir, 'quote-attachments/' ) ) {
+                    $dirs[ $rel_dir ] = true;
+                }
+            }
+            foreach ( array_keys( $dirs ) as $rel_dir ) {
+                $this->remove_attachment_dir( $rel_dir );
+            }
         }
 
         public function register_quote_order_statuses() {
@@ -613,16 +1030,7 @@ if ( ! class_exists( 'SPBWC_Request_Quote' ) ) {
             }
             $label = __( 'Quotes', 'storelly-product-builder-for-woocommerce' );
             if ( is_user_logged_in() ) {
-                $awaiting = get_posts(
-                    array(
-                        'post_type'   => SPBWC_Quote::POST_TYPE,
-                        'post_status' => SPBWC_Quote::STATUS_SENT,
-                        'author'      => get_current_user_id(),
-                        'numberposts' => 20,
-                        'fields'      => 'ids',
-                    )
-                );
-                $count = is_array( $awaiting ) ? count( $awaiting ) : 0;
+                $count = self::get_awaiting_count( get_current_user_id() );
                 if ( $count > 0 ) {
                     /* translators: %d: number of quotes awaiting the customer's response */
                     $label .= ' ' . sprintf( __( '(%d)', 'storelly-product-builder-for-woocommerce' ), $count );
@@ -633,6 +1041,56 @@ if ( ! class_exists( 'SPBWC_Request_Quote' ) ) {
                 $items['customer-logout'] = $logout;
             }
             return $items;
+        }
+
+        /**
+         * Number of quotes awaiting the buyer's response (status = sent).
+         *
+         * Cached per-user for 60s so the My-Account menu badge does not run a
+         * get_posts() on every account page-load. Invalidated immediately by
+         * invalidate_awaiting_count() when any quote authored by the user changes
+         * status (hooked to spbwc_quote_status_changed), so the badge stays fresh.
+         *
+         * @param int $user_id Buyer user ID.
+         * @return int
+         */
+        public static function get_awaiting_count( $user_id ) {
+            $user_id = absint( $user_id );
+            if ( ! $user_id ) {
+                return 0;
+            }
+            $key    = 'spbwc_q_await_' . $user_id;
+            $cached = get_transient( $key );
+            if ( false !== $cached ) {
+                return (int) $cached;
+            }
+            $awaiting = get_posts(
+                array(
+                    'post_type'      => SPBWC_Quote::POST_TYPE,
+                    'post_status'    => SPBWC_Quote::STATUS_SENT,
+                    'author'         => $user_id,
+                    'posts_per_page' => 20,
+                    'fields'         => 'ids',
+                    'no_found_rows'  => true,
+                )
+            );
+            $count = is_array( $awaiting ) ? count( $awaiting ) : 0;
+            set_transient( $key, $count, MINUTE_IN_SECONDS );
+            return $count;
+        }
+
+        /**
+         * Drop the cached awaiting-count for a quote's author on any status change.
+         *
+         * @param int    $post_id Quote post ID.
+         * @param string $from    Previous status (unused).
+         * @param string $to      New status (unused).
+         */
+        public static function invalidate_awaiting_count( $post_id, $from = '', $to = '' ) {
+            $author = (int) get_post_field( 'post_author', absint( $post_id ) );
+            if ( $author ) {
+                delete_transient( 'spbwc_q_await_' . $author );
+            }
         }
 
         /**

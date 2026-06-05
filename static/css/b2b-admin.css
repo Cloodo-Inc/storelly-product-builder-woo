@@ -141,3 +141,30 @@
     color: var(--st-brand);
     line-height: 1;
 }
+
+/* B2B Pricing — tier ladder rows. */
+.spbwc-block__head .js-spbwc-add-tier { margin-left: auto; }
+.spbwc-tier-row.is-new { background: var(--nbd-st-bg-soft); }
+.spbwc-tier-row.is-new .spbwc-input { border-style: dashed; }
+
+/* Square icon button used to drop an unsaved tier row. */
+.spbwc-icon-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 30px;
+    height: 30px;
+    padding: 0;
+    border: 1px solid var(--nbd-st-border-light);
+    border-radius: var(--nbd-radius-md);
+    background: var(--nbd-st-bg);
+    color: var(--nbd-st-text-mute);
+    cursor: pointer;
+    transition: color .12s ease, border-color .12s ease, background .12s ease;
+}
+.spbwc-icon-btn:hover {
+    color: var(--nbd-color-danger);
+    border-color: var(--nbd-color-danger);
+    background: var(--st-pill-danger-bg);
+}
+.spbwc-icon-btn .dashicons { font-size: 18px; width: 18px; height: 18px; line-height: 1; }

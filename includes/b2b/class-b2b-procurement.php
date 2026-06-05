@@ -87,7 +87,7 @@ if ( ! class_exists( 'SPBWC_B2B_Procurement' ) ) {
             if ( null !== $logout ) {
                 unset( $items['customer-logout'] );
             }
-            $pending = count( self::get_pending_for_company( SPBWC_Company::get_user_company_id() ) );
+            $pending = self::get_pending_count( SPBWC_Company::get_user_company_id() );
             $label   = __( 'Approvals', 'storelly-product-builder-for-woocommerce' );
             if ( $pending > 0 ) {
                 $label .= ' (' . number_format_i18n( $pending ) . ')';
@@ -205,6 +205,7 @@ if ( ! class_exists( 'SPBWC_B2B_Procurement' ) ) {
             update_post_meta( $post_id, self::META_TOTAL, $total );
             update_post_meta( $post_id, self::META_STATUS, self::STATUS_PENDING );
             self::add_event( $post_id, __( 'Submitted for approval.', 'storelly-product-builder-for-woocommerce' ), $user_id );
+            self::invalidate_pending_count( $company_id );
 
             // Clear the cart so it can't be checked out directly.
             WC()->cart->empty_cart();
@@ -232,6 +233,8 @@ if ( ! class_exists( 'SPBWC_B2B_Procurement' ) ) {
             if ( self::STATUS_PENDING !== (string) get_post_meta( $id, self::META_STATUS, true ) ) {
                 self::redirect_account( 'error' ); // Already decided (idempotent).
             }
+            // The decision below moves this request out of "pending"; drop the cache.
+            self::invalidate_pending_count( $company_id );
 
             if ( 'approve' === $decision ) {
                 $order_id = self::create_order( $id );
@@ -403,6 +406,44 @@ if ( ! class_exists( 'SPBWC_B2B_Procurement' ) ) {
                     ),
                 )
             );
+        }
+
+        /**
+         * Cached count of pending approvals for a company.
+         *
+         * The My-Account menu badge only needs the number, not the full post set,
+         * so this caches the integer per-company for 60s to avoid a 100-row
+         * get_posts() on every account page-load. Invalidated immediately by
+         * invalidate_pending_count() when a request is submitted or decided.
+         *
+         * @param int $company_id Company.
+         * @return int
+         */
+        public static function get_pending_count( $company_id ) {
+            $company_id = absint( $company_id );
+            if ( ! $company_id ) {
+                return 0;
+            }
+            $key    = 'spbwc_proc_pending_' . $company_id;
+            $cached = get_transient( $key );
+            if ( false !== $cached ) {
+                return (int) $cached;
+            }
+            $count = count( self::get_pending_for_company( $company_id ) );
+            set_transient( $key, $count, MINUTE_IN_SECONDS );
+            return $count;
+        }
+
+        /**
+         * Drop the cached pending-count for a company.
+         *
+         * @param int $company_id Company.
+         */
+        public static function invalidate_pending_count( $company_id ) {
+            $company_id = absint( $company_id );
+            if ( $company_id ) {
+                delete_transient( 'spbwc_proc_pending_' . $company_id );
+            }
         }
 
         protected static function add_event( $post_id, $message, $user_id = 0 ) {
