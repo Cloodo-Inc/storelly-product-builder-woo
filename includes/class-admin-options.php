@@ -1850,6 +1850,14 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
                 wp_die( esc_html__( 'You do not have permission to access this page.', 'storelly-product-builder-for-woocommerce' ) );
             }
 
+            // Native Custom Order detail workspace (?view={id}).
+            // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only view router; capability checked above + in render().
+            $spbwc_view_id = isset( $_GET['view'] ) ? absint( wp_unslash( $_GET['view'] ) ) : 0;
+            if ( $spbwc_view_id && class_exists( 'SPBWC_Custom_Order_Detail' ) ) {
+                SPBWC_Custom_Order_Detail::render( $spbwc_view_id );
+                return;
+            }
+
             global $wpdb; // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Global variable $wpdb.
 
             // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only listing filters.
@@ -2036,7 +2044,7 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
                                             <td><?php echo wp_kses_post( $order->get_formatted_order_total() ); ?></td>
                                             <td>
                                                 <a class="spbwc-cta-btn spbwc-cta-btn--ghost spbwc-cta-btn--sm"
-                                                   href="<?php echo esc_url( $order->get_edit_order_url() ); ?>">
+                                                   href="<?php echo esc_url( SPBWC_Custom_Order_Detail::url( $order->get_id() ) ); ?>">
                                                     <?php esc_html_e( 'View', 'storelly-product-builder-for-woocommerce' ); ?>
                                                     <span class="dashicons dashicons-arrow-right-alt2" aria-hidden="true"></span>
                                                 </a>

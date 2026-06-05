@@ -127,6 +127,15 @@ if ( class_exists( 'SPBWC_Saved_Designs' ) ) {
     SPBWC_Saved_Designs::init();
 }
 
+/* Storelly-native Custom Order Detail workspace — the primary place to manage a
+ * single custom order (artwork, print files, options, history, customer activity,
+ * production, files). WC order edit becomes secondary. See
+ * docs/SPEC_CUSTOM_ORDER_DETAIL.md. Rendered by spbwc_orders_manager when ?view= set. */
+require_once(SPBWC_PB_PLUGIN_DIR .  'includes/class-custom-order-detail.php');
+if ( class_exists( 'SPBWC_Custom_Order_Detail' ) ) {
+    SPBWC_Custom_Order_Detail::init();
+}
+
 require_once(SPBWC_PB_PLUGIN_DIR .  'includes/class-request-quote.php');
 
 /* B2B Quote redesign (CPT `spbwc_quote`) — see docs/SPEC_QUOTE_USER_FLOW_UX.md
