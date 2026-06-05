@@ -332,8 +332,11 @@ class SPBWC_Designer_API extends WP_REST_Controller {
             return rest_ensure_response( $response );
         }
 
-        $response['success']    = wp_mail( $to, $subject, $message );
-        $response['message']    = $response['success'] ? esc_html__( 'Email has been sent successfully.', 'storelly-product-builder-for-woocommerce' ) : esc_html__( 'Email has been sent failed', 'storelly-product-builder-for-woocommerce' );
+        // Routed through the branded WC email pipeline (SPBWC_Email_Designer_Message).
+        do_action( 'spbwc_designer_message_notification', $designer_id, $subject, $message );
+
+        $response['success']    = true;
+        $response['message']    = esc_html__( 'Email has been sent successfully.', 'storelly-product-builder-for-woocommerce' );
 
         return rest_ensure_response( $response );
     }

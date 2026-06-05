@@ -182,6 +182,7 @@ if ( ! class_exists( 'SPBWC_Order_PDF' ) ) {
                 return;
             }
 
+            $any_done = false;
             foreach ( $order->get_items() as $item_id => $item ) {
                 $folder = (string) $item->get_meta( '_pcpb_folder' );
                 if ( '' === $folder ) {
@@ -197,7 +198,17 @@ if ( ! class_exists( 'SPBWC_Order_PDF' ) ) {
 
                 $pdf_path = $design_path . '/customer-pdfs';
                 $pdfs     = SPBWC_Storelly_IO::spbwc_get_list_files_by_type( $pdf_path, 'pdf', 1 );
-                wc_update_order_item_meta( $item_id, '_pcpb_pdf_status', empty( $pdfs ) ? 'failed' : 'done' );
+                $done     = ! empty( $pdfs );
+                $any_done = $any_done || $done;
+                wc_update_order_item_meta( $item_id, '_pcpb_pdf_status', $done ? 'done' : 'failed' );
+            }
+
+            // Notify the customer that the print-ready proof is available (E6a).
+            // Fired once per order; the email itself is opt-out via WC settings.
+            if ( $any_done && ! $order->get_meta( '_spbwc_proof_email_sent' ) ) {
+                $order->update_meta_data( '_spbwc_proof_email_sent', current_time( 'mysql' ) );
+                $order->save();
+                do_action( 'spbwc_order_pdf_ready_notification', $order_id );
             }
         }
     }

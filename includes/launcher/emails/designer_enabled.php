@@ -14,7 +14,7 @@ if ( !class_exists( 'SPBWC_Email_Designer_Enabled' ) ) {
         public $enable_bcc = false;
 
         public function __construct() {
-            $this->id               = 'nbdl_email_designer_enable';
+            $this->id               = 'spbwc_email_designer_enable';
             $this->title            = esc_html__( 'Designer Enable', 'storelly-product-builder-for-woocommerce' );
             $this->description      = esc_html__( 'This email is sent to a designer when his/her designer account enabled from admin settings', 'storelly-product-builder-for-woocommerce' );
             $this->heading          = esc_html__( 'Your designer account is activated', 'storelly-product-builder-for-woocommerce' );

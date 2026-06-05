@@ -49,6 +49,7 @@ define('SPBWC_PB_BUILDER_SLUG',             'storelly-product-builder-for-woocom
 define('SPBWC_PB_PRODUCTS_SLUG',            'storelly-product-builder-for-woocommerce-products');
 define('SPBWC_PB_ORDERS_SLUG',              'storelly-product-builder-for-woocommerce-orders');
 define('SPBWC_PB_QUOTES_SLUG',              'storelly-product-builder-for-woocommerce-quotes');
+define('SPBWC_PB_EMAILS_SLUG',              'storelly-product-builder-for-woocommerce-emails');
 define('SPBWC_PB_LICENSE_SLUG',             'storelly-product-builder-for-woocommerce-license');
 define('SPBWC_PB_OVERVIEW_SLUG',            'storelly-product-builder-for-woocommerce-overview');
 define('SPBWC_PB_TEMPLATE_LIBRARY_SLUG',    'storelly-product-builder-for-woocommerce-templates');
@@ -238,6 +239,26 @@ if ( class_exists( 'SPBWC_B2B_Procurement' ) ) {
 if ( class_exists( 'SPBWC_B2B_Emails' ) ) {
     SPBWC_B2B_Emails::init();
 }
+
+/* Email subsystem: delivery log, installer/migrator (nbdl_ rename + log table),
+ * Custom Order emails, and the aggregated Storelly › Emails dashboard. Local only. */
+require_once(SPBWC_PB_PLUGIN_DIR .  'includes/email/class-email-log.php');
+require_once(SPBWC_PB_PLUGIN_DIR .  'includes/email/class-email-install.php');
+require_once(SPBWC_PB_PLUGIN_DIR .  'includes/email/class-order-emails.php');
+require_once(SPBWC_PB_PLUGIN_DIR .  'includes/email/class-email-admin.php');
+if ( class_exists( 'SPBWC_Email_Log' ) ) {
+    SPBWC_Email_Log::init();
+}
+if ( class_exists( 'SPBWC_Email_Install' ) ) {
+    SPBWC_Email_Install::init();
+}
+if ( class_exists( 'SPBWC_Order_Emails' ) ) {
+    SPBWC_Order_Emails::init();
+}
+if ( is_admin() && class_exists( 'SPBWC_Email_Admin' ) ) {
+    SPBWC_Email_Admin::init();
+}
+
 if ( is_admin() && class_exists( 'SPBWC_B2B_Admin' ) ) {
     SPBWC_B2B_Admin::instance()->init();
 }

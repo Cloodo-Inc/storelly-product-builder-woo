@@ -406,6 +406,10 @@ class SPBWC_Marketplace{
         $emails['SPBWC_Email_Withdraw_Request']        = include( NBDESIGNER_PLUGIN_DIR . 'includes/launcher/emails/withdraw_request.php' );
         $emails['SPBWC_Email_Withdraw_Approved']       = include( NBDESIGNER_PLUGIN_DIR . 'includes/launcher/emails/withdraw_approved.php' );
         $emails['SPBWC_Email_Withdraw_Cancelled']      = include( NBDESIGNER_PLUGIN_DIR . 'includes/launcher/emails/withdraw_cancelled.php' );
+        $designer_message = include( NBDESIGNER_PLUGIN_DIR . 'includes/launcher/emails/designer_message.php' );
+        if ( $designer_message ) {
+            $emails['SPBWC_Email_Designer_Message']    = $designer_message;
+        }
         return $emails;
     }
     public function add_email_actions( $actions ){
@@ -414,6 +418,7 @@ class SPBWC_Marketplace{
         $actions[] = 'spbwc_marketplace_after_withdraw_request';
         $actions[] = 'spbwc_marketplace_withdraw_request_approved';
         $actions[] = 'spbwc_marketplace_withdraw_request_cancelled';
+        $actions[] = 'spbwc_designer_message_notification';
         return $actions;
     }
     public function admin_enqueue_scripts( $hook ) {

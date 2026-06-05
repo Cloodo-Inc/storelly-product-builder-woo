@@ -9,7 +9,7 @@ if ( !class_exists( 'SPBWC_Email_Designer_Disabled' ) ) {
     class SPBWC_Email_Designer_Disabled extends WC_Email {
 
         public function __construct() {
-            $this->id               = 'nbdl_email_designer_disable';
+            $this->id               = 'spbwc_email_designer_disable';
             $this->title            = esc_html__( 'Designer Disable', 'storelly-product-builder-for-woocommerce' );
             $this->description      = esc_html__( 'This email is sent to a designer when his/her designer account is deactivated by admin', 'storelly-product-builder-for-woocommerce' );
             $this->template_html    = 'launcher/emails/designer_disabled.php';

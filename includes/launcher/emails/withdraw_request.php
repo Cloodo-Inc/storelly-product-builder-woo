@@ -8,7 +8,7 @@ if ( ! class_exists( 'SPBWC_Email_Withdraw_Request' ) ) {
     class SPBWC_Email_Withdraw_Request  extends WC_Email {
 
         public function __construct() {
-            $this->id               = 'nbdl_email__withdraw_request';
+            $this->id               = 'spbwc_email_withdraw_request';
             $this->title            = esc_html__( 'NBDesigner Withdrawal Request', 'storelly-product-builder-for-woocommerce' );
             $this->description      = esc_html__( 'These emails are sent to chosen recipient(s) when a designer send request to withdraw', 'storelly-product-builder-for-woocommerce' );
             $this->template_html    = 'launcher/emails/withdraw_request.php';

@@ -5,9 +5,11 @@
 > Owner modules: `includes/quote/`, `includes/b2b/`, `includes/launcher/`, `includes/class-request-quote.php`
 > Last updated: 2026-06-04
 
-> **Tiến độ build:** E1 (xoá dead code + sanitize REST designer) ✅ · E2 (base class
-> `SPBWC_Email_Base` + 4 email B2B WC_Email + refactor nguồn sang `do_action`) ✅ ·
-> E3/E5/E6 + lớp Premium: chưa. Chi tiết §14.
+> **Tiến độ build:** E1 ✅ · E2 ✅ · E3 (designer-message → WC_Email) ✅ · E5 (rename
+> `nbdl_*` → `spbwc_email_*` + migration) ✅ · E6a (Custom Order: received + proof) ✅ ·
+> E6b (email log table) ✅ · E6c (Send test) ✅ · Menu **Storelly › Emails** dashboard
+> (gom email + toggle/deep-link WC + log) + design token ✅. Còn: lớp Premium/watermark
+> (đang cân nhắc). Chi tiết §14.
 
 Spec này lập bản đồ **toàn bộ** email mà Storelly phát ra hôm nay (Part A — mọi finding có
 `file:line`), chỉ ra **lỗ hổng & nợ kỹ thuật** (Part B), rồi đề xuất một **kiến trúc email hợp
@@ -272,11 +274,17 @@ mới, KHÔNG refactor Quote/Launcher. **D5** = B2B dùng `do_action` đồng b�
 |---|---|---|
 | **E1** | Dọn dead code (§10.1) + sanitize REST designer (§10.3). | ✅ DONE |
 | **E2** | `SPBWC_Email_Base` + `class-b2b-emails.php`, migrate 4 email B2B sang WC_Email (§3.3). | ✅ DONE |
-| **E3** | Migrate designer-message REST sang WC_Email. | ⬜ chưa |
+| **E3** | Migrate designer-message REST sang WC_Email (`SPBWC_Email_Designer_Message`, free-form subject; REST fire `do_action`). | ✅ DONE |
 | **E4** | ~~init_form_fields subject/heading cho quote~~ — BỎ (đã có sẵn từ cha, §10.5). | ✖ N/A |
-| **E5** | Xử lý prefix `nbdl_` theo D2 (+ migration nếu đổi). | ⬜ chưa (D2) |
-| **E6** | (Tuỳ chọn) Email Custom Order (D3), email log + test-send (D4). | ⬜ chưa |
-| **E7** | Compliance: `wp plugin check` (TextDomainMismatch là artifact folder≠slug, không phải lỗi thật), regen POT (skill `wp-plugin-i18n`) cho chuỗi B2B mới. | ◑ check OK, POT pending |
+| **E5** | Rename `nbdl_email_*` → `spbwc_email_*` + `SPBWC_Email_Install::migrate_nbdl_settings()` copy `woocommerce_<old>_settings`. | ✅ DONE (D2=rename+migrate) |
+| **E6** | Custom Order emails (`spbwc_order_received` local + `spbwc_order_proof` cloud, đính PDF), email log (bảng `spbwc_email_log`), Send test. | ✅ DONE (D3=cả 2 email; D4=bảng DB) |
+| **Menu** | **Storelly › Emails** dashboard (`SPBWC_Email_Admin`): gom email theo nhóm + badge enable/disable + deep-link WC editor + Send test + log viewer; design token `static/css/email-admin.css`. | ✅ DONE |
+| **E7** | `wp plugin check` 0 ERROR (chỉ WARNING custom-table + TextDomainMismatch môi trường); POT regen có chuỗi mới. | ✅ DONE |
+
+**Kiến trúc email mới (E3/E5/E6):** mọi email Storelly giờ chung prefix `spbwc_` (giúp log filter
+sạch). Base `SPBWC_Email_Base` tách ra `includes/email/class-email-base.php` (B2B + Order + Designer-
+message kế thừa). Log bắt qua `woocommerce_email_sent` (lọc `spbwc_`). Installer version-gated trên
+`admin_init`. Launcher email + designer-message chỉ surface khi `spbwc_marketplace_enabled=yes`.
 
 ### 15. Impact tới flow WooCommerce
 
