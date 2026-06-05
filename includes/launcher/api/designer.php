@@ -314,14 +314,25 @@ class SPBWC_Designer_API extends WP_REST_Controller {
         return $response;
     }
     public function send_email_to_designer( $request ){
-        $response       = array( 'success' => true );
-        $designer_id    = $request['id'];
+        $response       = array( 'success' => false );
+        $designer_id    = absint( $request['id'] );
         $designer       = new SPBWC_Designer( $designer_id );
+        $to             = $designer->get_email();
 
-        $subject   = $request['subject'];
-        $message   = $request['message'];
+        if ( ! is_email( $to ) ) {
+            $response['message'] = esc_html__( 'Designer has no valid email address.', 'storelly-product-builder-for-woocommerce' );
+            return rest_ensure_response( $response );
+        }
 
-        $response['success']    = wp_mail( $designer->get_email(), $subject, $message );
+        $subject   = sanitize_text_field( wp_unslash( $request['subject'] ) );
+        $message   = wp_kses_post( wp_unslash( $request['message'] ) );
+
+        if ( '' === $subject || '' === trim( wp_strip_all_tags( $message ) ) ) {
+            $response['message'] = esc_html__( 'Subject and message are required.', 'storelly-product-builder-for-woocommerce' );
+            return rest_ensure_response( $response );
+        }
+
+        $response['success']    = wp_mail( $to, $subject, $message );
         $response['message']    = $response['success'] ? esc_html__( 'Email has been sent successfully.', 'storelly-product-builder-for-woocommerce' ) : esc_html__( 'Email has been sent failed', 'storelly-product-builder-for-woocommerce' );
 
         return rest_ensure_response( $response );

@@ -548,32 +548,6 @@ if ( ! class_exists( 'SPBWC_Request_Quote' ) ) {
             );
         }
 
-        protected function send_quote_notification_email( $order, $event = 'new' ) {
-            $settings = get_option( 'spbwc_quote_settings', array() );
-            $admin_email = isset( $settings['admin_email'] ) ? sanitize_email( $settings['admin_email'] ) : get_option( 'admin_email' );
-            if ( ! is_email( $admin_email ) ) {
-                return;
-            }
-            $subject = sprintf( '[Storelly Quote] #%d - %s', $order->get_id(), strtoupper( $event ) );
-            $body = "Quote order #" . $order->get_id() . "\n";
-            $body .= "Status: " . wc_get_order_status_name( $order->get_status() ) . "\n";
-            $body .= "Customer: " . $order->get_meta( '_raq_customer_name' ) . "\n";
-            $body .= "Email: " . $order->get_meta( '_raq_customer_email' ) . "\n";
-            $body .= "Message: " . $order->get_meta( '_spbwc_quote_request' ) . "\n";
-            $body .= "Admin URL: " . $order->get_edit_order_url() . "\n";
-            wp_mail( $admin_email, $subject, $body );
-        }
-
-        protected function send_quote_customer_email( $order, $event = 'new', $to = '' ) {
-            if ( ! is_email( $to ) ) {
-                return;
-            }
-            $subject = sprintf( '[Storelly Quote] #%d - %s', $order->get_id(), strtoupper( $event ) );
-            $body = sprintf( "Hello,\nYour quote request #%d is now %s.\n", $order->get_id(), wc_get_order_status_name( $order->get_status() ) );
-            $body .= "You can view details here: " . wc_get_endpoint_url( 'view-quote', $order->get_id(), wc_get_page_permalink( 'myaccount' ) );
-            wp_mail( $to, $subject, $body );
-        }
-
         public function register_quote_order_statuses() {
             register_post_status(
                 'wc-spbwc-quote-new',
