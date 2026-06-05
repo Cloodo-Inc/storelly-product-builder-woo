@@ -88,21 +88,46 @@ if ( ! class_exists( 'SPBWC_B2B_Admin' ) ) {
         }
 
         /**
+         * Company counts per status + 'all', computed in ONE query and cached for
+         * the request (the hub previously ran ~9 full get_posts() per load).
+         *
+         * @return array<string,int> status slug => count, plus 'all'
+         */
+        public static function status_counts() {
+            static $cache = null;
+            if ( null !== $cache ) {
+                return $cache;
+            }
+            global $wpdb;
+            $rows = $wpdb->get_results( // phpcs:ignore WordPress.DB.DirectDatabaseQuery
+                $wpdb->prepare(
+                    "SELECT pm.meta_value AS status, COUNT(*) AS n
+                     FROM {$wpdb->posts} p
+                     INNER JOIN {$wpdb->postmeta} pm ON pm.post_id = p.ID AND pm.meta_key = %s
+                     WHERE p.post_type = %s AND p.post_status = 'publish'
+                     GROUP BY pm.meta_value",
+                    SPBWC_Company::META_STATUS,
+                    SPBWC_Company::POST_TYPE
+                )
+            );
+            $cache = array( 'all' => 0 );
+            foreach ( array_keys( SPBWC_Company::statuses() ) as $s ) {
+                $cache[ $s ] = 0;
+            }
+            foreach ( (array) $rows as $r ) {
+                $cache[ (string) $r->status ] = (int) $r->n;
+                $cache['all']                += (int) $r->n;
+            }
+            return $cache;
+        }
+
+        /**
          * @param string $status Status slug.
          * @return int
          */
         public static function count_by_status( $status ) {
-            $ids = get_posts(
-                array(
-                    'post_type'   => SPBWC_Company::POST_TYPE,
-                    'post_status' => 'publish',
-                    'numberposts' => -1,
-                    'fields'      => 'ids',
-                    'meta_key'    => SPBWC_Company::META_STATUS, // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key
-                    'meta_value'  => $status,                    // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_value
-                )
-            );
-            return count( $ids );
+            $c = self::status_counts();
+            return isset( $c[ $status ] ) ? $c[ $status ] : 0;
         }
 
         /**
@@ -494,15 +519,8 @@ if ( ! class_exists( 'SPBWC_B2B_Admin' ) ) {
         }
 
         protected static function count_all() {
-            $ids = get_posts(
-                array(
-                    'post_type'   => SPBWC_Company::POST_TYPE,
-                    'post_status' => 'publish',
-                    'numberposts' => -1,
-                    'fields'      => 'ids',
-                )
-            );
-            return count( $ids );
+            $c = self::status_counts();
+            return isset( $c['all'] ) ? $c['all'] : 0;
         }
 
         /* ── Screen: upgrade form ─────────────────────────────────── */

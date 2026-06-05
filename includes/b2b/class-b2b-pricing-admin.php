@@ -227,21 +227,42 @@ if ( ! class_exists( 'SPBWC_B2B_Pricing_Admin' ) ) {
         /* ── Helpers ──────────────────────────────────────────────── */
 
         /**
+         * Companies-per-tier counts in ONE query, cached for the request (the
+         * ladder previously ran a full get_posts() per tier row).
+         *
+         * @return array<string,int> tier slug => count
+         */
+        public static function tier_counts() {
+            static $cache = null;
+            if ( null !== $cache ) {
+                return $cache;
+            }
+            global $wpdb;
+            $rows  = $wpdb->get_results( // phpcs:ignore WordPress.DB.DirectDatabaseQuery
+                $wpdb->prepare(
+                    "SELECT pm.meta_value AS tier, COUNT(*) AS n
+                     FROM {$wpdb->posts} p
+                     INNER JOIN {$wpdb->postmeta} pm ON pm.post_id = p.ID AND pm.meta_key = %s
+                     WHERE p.post_type = %s AND p.post_status = 'publish' AND pm.meta_value <> ''
+                     GROUP BY pm.meta_value",
+                    SPBWC_Company::META_TIER,
+                    SPBWC_Company::POST_TYPE
+                )
+            );
+            $cache = array();
+            foreach ( (array) $rows as $r ) {
+                $cache[ (string) $r->tier ] = (int) $r->n;
+            }
+            return $cache;
+        }
+
+        /**
          * @param string $slug Tier slug.
          * @return int Companies assigned to this tier.
          */
         public static function count_companies_on_tier( $slug ) {
-            $ids = get_posts(
-                array(
-                    'post_type'   => SPBWC_Company::POST_TYPE,
-                    'post_status' => 'publish',
-                    'numberposts' => -1,
-                    'fields'      => 'ids',
-                    'meta_key'    => SPBWC_Company::META_TIER, // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key
-                    'meta_value'  => $slug,                    // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_value
-                )
-            );
-            return count( $ids );
+            $c = self::tier_counts();
+            return isset( $c[ $slug ] ) ? $c[ $slug ] : 0;
         }
 
         protected function print_notice() {

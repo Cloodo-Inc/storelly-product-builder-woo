@@ -442,7 +442,34 @@ if ( ! class_exists( 'SPBWC_Company' ) ) {
          * @return int
          */
         public static function count_members( $company_id ) {
-            return count( self::get_members( $company_id ) );
+            $map = self::member_counts();
+            return isset( $map[ (int) $company_id ] ) ? $map[ (int) $company_id ] : 0;
+        }
+
+        /**
+         * Member count for EVERY company in a single query (avoids the N+1 of
+         * calling get_members() per company on the B2B Companies hub). Cached for
+         * the request.
+         *
+         * @return array<int,int> company_id => member count
+         */
+        public static function member_counts() {
+            static $cache = null;
+            if ( null !== $cache ) {
+                return $cache;
+            }
+            global $wpdb;
+            $rows  = $wpdb->get_results( // phpcs:ignore WordPress.DB.DirectDatabaseQuery
+                $wpdb->prepare(
+                    "SELECT meta_value AS company_id, COUNT(*) AS n FROM {$wpdb->usermeta} WHERE meta_key = %s GROUP BY meta_value",
+                    self::USER_COMPANY_ID
+                )
+            );
+            $cache = array();
+            foreach ( (array) $rows as $r ) {
+                $cache[ (int) $r->company_id ] = (int) $r->n;
+            }
+            return $cache;
         }
 
         /* ── Seats ────────────────────────────────────────────────── */

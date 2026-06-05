@@ -131,11 +131,37 @@ if ( ! class_exists( 'SPBWC_B2B_Price_Rules' ) ) {
          * @return object|null Raw row.
          */
         public static function get_rule_row( $company_id, $product_id ) {
+            $company_id = absint( $company_id );
+            $product_id = absint( $product_id );
+            $map        = self::company_rule_map( $company_id );
+            return isset( $map[ $product_id ] ) ? $map[ $product_id ] : null;
+        }
+
+        /**
+         * All of a company's rules as a [product_id => row] map, loaded once and
+         * cached for the request. This collapses the per-cart-item SELECT that
+         * ran on every cart recalculation into a single query per company.
+         *
+         * @param int $company_id Company.
+         * @return array<int,object>
+         */
+        protected static function company_rule_map( $company_id ) {
+            static $cache = array();
+            $company_id = absint( $company_id );
+            if ( isset( $cache[ $company_id ] ) ) {
+                return $cache[ $company_id ];
+            }
             global $wpdb;
             $table = self::table();
-            return $wpdb->get_row( // phpcs:ignore WordPress.DB.DirectDatabaseQuery
-                $wpdb->prepare( "SELECT * FROM {$table} WHERE company_id = %d AND product_id = %d", absint( $company_id ), absint( $product_id ) )
+            $rows  = $wpdb->get_results( // phpcs:ignore WordPress.DB.DirectDatabaseQuery
+                $wpdb->prepare( "SELECT * FROM {$table} WHERE company_id = %d", $company_id )
             );
+            $map = array();
+            foreach ( (array) $rows as $r ) {
+                $map[ (int) $r->product_id ] = $r;
+            }
+            $cache[ $company_id ] = $map;
+            return $map;
         }
 
         /**
