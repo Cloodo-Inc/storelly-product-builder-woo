@@ -145,7 +145,18 @@ Three layers, evaluated at activation / first Quotes-screen visit:
   (Ninja_Forms() API + nf_sub CPT). Shared `flatten_value()` on the form base. All gate on their source
   plugin (registry shows 9 adapters; 8 off on a clean store). Written against each plugin's documented
   API — validate live on a supported WP; the shared form pipeline is already stub-verified (M3).
-- **M4 — Other B2B/quote plugins.** B2BKing / Addify / ELEX adapters.
+- **M4 — Other B2B/quote plugins. DONE (commit 3263b58).** ELEX (order-based, statuses
+  wc-quote-requested/-approved/-rejected — **verified from the free plugin source**; line items map
+  across), Addify (`wc_quote` CPT — contact via candidate meta + author fallback; items left for the
+  reply), B2BKing (quote "Conversations" = b2bking_message posts grouped by thread; customer + message
+  mapped; items left for the reply). All gated on their source plugin (registry now 12 adapters, inert
+  when absent). Addify/B2BKing are commercial with non-public storage → best-effort + flagged.
+
+> **WordPress version compatibility:** every adapter uses only long-stable WP/Woo + first-party plugin
+> APIs (get_posts, wc_get_orders, get_option, get_terms, GFAPI, Ninja_Forms(), …) — no WP-7-only calls.
+> readme declares **Requires at least: 4.7**, so the import code runs on WP 6.x. The dev box happens to
+> run a pre-release WP 7.0 that the third-party *form* plugins fatal on; that's a plugin-vs-core issue,
+> not a Storelly one. Verify the unverified adapters on a stable WP 6.x install with the real plugins.
 - **M5 — Ongoing sync.** Opt-in live listeners for every wired source + saved mappings + dedupe.
 - **M6 — Sample seed / empty-state.** Integrate the 3-layer onboarding (import / convert-drafts /
   sample) with the demo-seeder + Quotes empty-state.
