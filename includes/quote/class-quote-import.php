@@ -18,6 +18,9 @@ if ( ! defined( 'ABSPATH' ) ) {
 // these third-party ones are pulled in here so no loader edit is needed).
 require_once __DIR__ . '/import/class-quote-adapter-qfw.php';
 require_once __DIR__ . '/import/class-quote-adapter-yith-raq.php';
+require_once __DIR__ . '/import/class-quote-form-adapter.php';
+require_once __DIR__ . '/import/class-quote-adapter-flamingo.php';
+require_once __DIR__ . '/import/class-quote-adapter-fluentforms.php';
 
 if ( ! class_exists( 'SPBWC_Quote_Import' ) ) {
 
@@ -32,7 +35,7 @@ if ( ! class_exists( 'SPBWC_Quote_Import' ) ) {
         protected static $adapters = null;
 
         public static function init() {
-            add_action( self::HOOK, array( __CLASS__, 'run_batch' ), 10, 1 );
+            add_action( self::HOOK, array( __CLASS__, 'run_batch' ), 10, 2 );
             add_action( 'admin_post_spbwc_quote_import', array( __CLASS__, 'handle_import' ) );
             add_action( 'admin_enqueue_scripts', array( __CLASS__, 'enqueue_assets' ) );
         }
@@ -73,6 +76,12 @@ if ( ! class_exists( 'SPBWC_Quote_Import' ) ) {
             }
             if ( class_exists( 'SPBWC_Quote_Adapter_Yith_Raq' ) ) {
                 $built_in[] = new SPBWC_Quote_Adapter_Yith_Raq();
+            }
+            if ( class_exists( 'SPBWC_Quote_Adapter_Flamingo' ) ) {
+                $built_in[] = new SPBWC_Quote_Adapter_Flamingo();
+            }
+            if ( class_exists( 'SPBWC_Quote_Adapter_Fluentforms' ) ) {
+                $built_in[] = new SPBWC_Quote_Adapter_Fluentforms();
             }
             /**
              * Register additional quote import source adapters.
@@ -128,6 +137,66 @@ if ( ! class_exists( 'SPBWC_Quote_Import' ) ) {
          */
         protected static function quote_statuses() {
             return array_keys( SPBWC_Quote::statuses() );
+        }
+
+        /**
+         * Set of already-imported source refs for an adapter (prefix stripped),
+         * so a form adapter can skip imported entries without one query per row.
+         *
+         * @param string $adapter_id Adapter id.
+         * @return array ref => true
+         */
+        public static function imported_refs( $adapter_id ) {
+            $prefix = $adapter_id . ':';
+            $quotes = get_posts(
+                array(
+                    'post_type'   => SPBWC_Quote::POST_TYPE,
+                    'post_status' => self::quote_statuses(),
+                    'fields'      => 'ids',
+                    'numberposts' => -1,
+                    // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query -- One-time import scan.
+                    'meta_query'  => array(
+                        array(
+                            'key'     => self::META_REF,
+                            'value'   => $prefix,
+                            'compare' => 'LIKE',
+                        ),
+                    ),
+                )
+            );
+            $set = array();
+            foreach ( (array) $quotes as $qid ) {
+                $ref = (string) get_post_meta( $qid, self::META_REF, true );
+                if ( 0 === strpos( $ref, $prefix ) ) {
+                    $set[ substr( $ref, strlen( $prefix ) ) ] = true;
+                }
+            }
+            return $set;
+        }
+
+        /* ── Field mapping store (contact-form sources, M3) ──────────── */
+
+        const MAPS_OPTION = 'spbwc_quote_import_maps';
+
+        /** Saved field mapping (target => form field key) for one form. */
+        public static function get_mapping( $adapter_id, $form_id ) {
+            $maps = get_option( self::MAPS_OPTION, array() );
+            $key  = $adapter_id . ':' . $form_id;
+            return ( is_array( $maps ) && ! empty( $maps[ $key ] ) && is_array( $maps[ $key ] ) ) ? $maps[ $key ] : array();
+        }
+
+        /** Persist a sanitized field mapping for one form. */
+        public static function save_mapping( $adapter_id, $form_id, array $map ) {
+            $maps  = get_option( self::MAPS_OPTION, array() );
+            $maps  = is_array( $maps ) ? $maps : array();
+            $clean = array();
+            foreach ( SPBWC_Quote_Form_Adapter::TARGETS as $target ) {
+                if ( ! empty( $map[ $target ] ) ) {
+                    $clean[ $target ] = sanitize_text_field( $map[ $target ] );
+                }
+            }
+            $maps[ $adapter_id . ':' . $form_id ] = $clean;
+            update_option( self::MAPS_OPTION, $maps, false );
         }
 
         /** Has a quote already been imported for this source ref? */
@@ -195,10 +264,14 @@ if ( ! class_exists( 'SPBWC_Quote_Import' ) ) {
          * @param string $adapter_id Adapter id.
          * @return int Imported this run.
          */
-        public static function run_batch( $adapter_id ) {
+        public static function run_batch( $adapter_id, $form_id = '' ) {
             $adapter = self::get_adapter( $adapter_id );
             if ( ! $adapter || ! $adapter->is_available() ) {
                 return 0;
+            }
+            // Form sources can be scoped to a single form.
+            if ( $adapter instanceof SPBWC_Quote_Form_Adapter ) {
+                $adapter->scope_form = (string) $form_id;
             }
             $rows = $adapter->fetch_batch( self::BATCH );
             $done = 0;
@@ -208,7 +281,7 @@ if ( ! class_exists( 'SPBWC_Quote_Import' ) ) {
                 }
             }
             if ( count( (array) $rows ) >= self::BATCH && function_exists( 'as_schedule_single_action' ) ) {
-                as_schedule_single_action( time() + 20, self::HOOK, array( $adapter_id ), 'spbwc-quote' );
+                as_schedule_single_action( time() + 20, self::HOOK, array( $adapter_id, (string) $form_id ), 'spbwc-quote' );
             }
             return $done;
         }
@@ -230,12 +303,24 @@ if ( ! class_exists( 'SPBWC_Quote_Import' ) ) {
             }
             check_admin_referer( 'spbwc_quote_import' );
             $adapter_id = isset( $_POST['adapter'] ) ? sanitize_key( wp_unslash( $_POST['adapter'] ) ) : '';
+            $form_id    = isset( $_POST['form_id'] ) ? sanitize_text_field( wp_unslash( $_POST['form_id'] ) ) : '';
             $adapter    = self::get_adapter( $adapter_id );
             $imported   = 0;
             $remaining  = 0;
+
+            // Contact-form sources post a field mapping with the chosen form.
+            if ( $adapter instanceof SPBWC_Quote_Form_Adapter && '' !== $form_id ) {
+                // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Sanitized per element in save_mapping().
+                $raw_map = isset( $_POST['mapping'] ) ? (array) wp_unslash( $_POST['mapping'] ) : array();
+                self::save_mapping( $adapter_id, $form_id, $raw_map );
+            }
+
             if ( $adapter && $adapter->is_available() ) {
                 // Run one batch synchronously for instant feedback, queue the rest.
-                $imported  = self::run_batch( $adapter_id );
+                $imported  = self::run_batch( $adapter_id, $form_id );
+                if ( $adapter instanceof SPBWC_Quote_Form_Adapter ) {
+                    $adapter->scope_form = $form_id;
+                }
                 $remaining = (int) $adapter->count_importable();
             }
             wp_safe_redirect( self::tab_url( array( 'imported' => $imported, 'remaining' => $remaining ) ) );
@@ -250,10 +335,29 @@ if ( ! class_exists( 'SPBWC_Quote_Import' ) ) {
             if ( ! current_user_can( SPBWC_Quote_Admin::CAPABILITY ) ) {
                 return;
             }
-            $sources   = self::scan();
             $imported  = isset( $_GET['imported'] ) ? absint( wp_unslash( $_GET['imported'] ) ) : -1; // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only notice flag.
             $remaining = isset( $_GET['remaining'] ) ? absint( wp_unslash( $_GET['remaining'] ) ) : 0; // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only notice flag.
             $workspace = SPBWC_Quote_Admin::page_url();
+
+            // Partition available sources: simple order-based vs field-mapped forms.
+            $order_sources = array();
+            $form_adapters = array();
+            foreach ( self::adapters() as $adapter ) {
+                if ( ! $adapter->is_available() ) {
+                    continue;
+                }
+                if ( $adapter instanceof SPBWC_Quote_Form_Adapter ) {
+                    $form_adapters[] = $adapter;
+                } else {
+                    $order_sources[] = array(
+                        'id'          => $adapter->id(),
+                        'label'       => $adapter->label(),
+                        'description' => $adapter->description(),
+                        'count'       => (int) $adapter->count_importable(),
+                    );
+                }
+            }
+            $has_any = ! empty( $order_sources ) || ! empty( $form_adapters );
             ?>
             <div class="spbwc-block">
                 <div class="spbwc-block__head">
@@ -291,46 +395,133 @@ if ( ! class_exists( 'SPBWC_Quote_Import' ) ) {
                         </div>
                     <?php endif; ?>
 
-                    <?php if ( empty( $sources ) ) : ?>
+                    <?php if ( ! $has_any ) : ?>
                         <div class="spbwc-empty-state">
                             <span class="dashicons dashicons-search" aria-hidden="true"></span>
                             <p><?php esc_html_e( 'No importable sources detected on this site yet.', 'storelly-product-builder-for-woocommerce' ); ?></p>
                             <p class="spbwc-empty-state__hint"><?php esc_html_e( 'Storelly can import from WooCommerce unpaid orders and popular quote / contact-form plugins. Install or activate one, then return here.', 'storelly-product-builder-for-woocommerce' ); ?></p>
                         </div>
                     <?php else : ?>
-                        <ul class="spbwc-import-list">
-                            <?php foreach ( $sources as $source ) : ?>
-                                <li class="spbwc-import-source">
-                                    <div class="spbwc-import-source__info">
-                                        <span class="spbwc-import-source__name"><?php echo esc_html( $source['label'] ); ?></span>
-                                        <?php if ( $source['description'] ) : ?>
-                                            <span class="spbwc-import-source__desc"><?php echo esc_html( $source['description'] ); ?></span>
-                                        <?php endif; ?>
-                                    </div>
-                                    <span class="spbwc-import-source__count">
-                                        <strong><?php echo esc_html( number_format_i18n( $source['count'] ) ); ?></strong>
-                                        <?php esc_html_e( 'found', 'storelly-product-builder-for-woocommerce' ); ?>
-                                    </span>
-                                    <div class="spbwc-import-source__action">
-                                        <?php if ( $source['count'] > 0 ) : ?>
-                                            <form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>">
-                                                <?php wp_nonce_field( 'spbwc_quote_import' ); ?>
-                                                <input type="hidden" name="action" value="spbwc_quote_import" />
-                                                <input type="hidden" name="adapter" value="<?php echo esc_attr( $source['id'] ); ?>" />
-                                                <button type="submit" class="spbwc-cta-btn spbwc-cta-btn--solid">
-                                                    <span class="dashicons dashicons-download" aria-hidden="true"></span>
-                                                    <?php esc_html_e( 'Import', 'storelly-product-builder-for-woocommerce' ); ?>
-                                                </button>
-                                            </form>
-                                        <?php else : ?>
-                                            <span class="spbwc-pill spbwc-pill--neutral"><?php esc_html_e( 'Nothing to import', 'storelly-product-builder-for-woocommerce' ); ?></span>
-                                        <?php endif; ?>
-                                    </div>
-                                </li>
-                            <?php endforeach; ?>
-                        </ul>
+                        <?php if ( ! empty( $order_sources ) ) : ?>
+                            <ul class="spbwc-import-list">
+                                <?php foreach ( $order_sources as $source ) : ?>
+                                    <li class="spbwc-import-source">
+                                        <div class="spbwc-import-source__info">
+                                            <span class="spbwc-import-source__name"><?php echo esc_html( $source['label'] ); ?></span>
+                                            <?php if ( $source['description'] ) : ?>
+                                                <span class="spbwc-import-source__desc"><?php echo esc_html( $source['description'] ); ?></span>
+                                            <?php endif; ?>
+                                        </div>
+                                        <span class="spbwc-import-source__count">
+                                            <strong><?php echo esc_html( number_format_i18n( $source['count'] ) ); ?></strong>
+                                            <?php esc_html_e( 'found', 'storelly-product-builder-for-woocommerce' ); ?>
+                                        </span>
+                                        <div class="spbwc-import-source__action">
+                                            <?php if ( $source['count'] > 0 ) : ?>
+                                                <form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>">
+                                                    <?php wp_nonce_field( 'spbwc_quote_import' ); ?>
+                                                    <input type="hidden" name="action" value="spbwc_quote_import" />
+                                                    <input type="hidden" name="adapter" value="<?php echo esc_attr( $source['id'] ); ?>" />
+                                                    <button type="submit" class="spbwc-cta-btn spbwc-cta-btn--solid">
+                                                        <span class="dashicons dashicons-download" aria-hidden="true"></span>
+                                                        <?php esc_html_e( 'Import', 'storelly-product-builder-for-woocommerce' ); ?>
+                                                    </button>
+                                                </form>
+                                            <?php else : ?>
+                                                <span class="spbwc-pill spbwc-pill--neutral"><?php esc_html_e( 'Nothing to import', 'storelly-product-builder-for-woocommerce' ); ?></span>
+                                            <?php endif; ?>
+                                        </div>
+                                    </li>
+                                <?php endforeach; ?>
+                            </ul>
+                        <?php endif; ?>
+
+                        <?php foreach ( $form_adapters as $form_adapter ) : ?>
+                            <?php self::render_form_source( $form_adapter ); ?>
+                        <?php endforeach; ?>
                     <?php endif; ?>
                 </div>
+            </div>
+            <?php
+        }
+
+        /**
+         * Render a contact-form source: per form, a field-mapping editor
+         * (quote field → form field, pre-filled by heuristic) + an Import button.
+         *
+         * @param SPBWC_Quote_Form_Adapter $adapter Form adapter.
+         */
+        protected static function render_form_source( $adapter ) {
+            $forms = $adapter->forms();
+            if ( empty( $forms ) ) {
+                return;
+            }
+            $labels = array(
+                'name'    => __( 'Name', 'storelly-product-builder-for-woocommerce' ),
+                'email'   => __( 'Email', 'storelly-product-builder-for-woocommerce' ),
+                'phone'   => __( 'Phone', 'storelly-product-builder-for-woocommerce' ),
+                'company' => __( 'Company', 'storelly-product-builder-for-woocommerce' ),
+                'message' => __( 'Message', 'storelly-product-builder-for-woocommerce' ),
+            );
+            ?>
+            <div class="spbwc-import-formsrc">
+                <div class="spbwc-import-formsrc__head">
+                    <span class="spbwc-import-formsrc__name"><?php echo esc_html( $adapter->label() ); ?></span>
+                    <?php if ( $adapter->description() ) : ?>
+                        <span class="spbwc-import-source__desc"><?php echo esc_html( $adapter->description() ); ?></span>
+                    <?php endif; ?>
+                </div>
+                <?php
+                foreach ( $forms as $form ) :
+                    $fid    = (string) $form['id'];
+                    $fields = isset( $form['fields'] ) ? (array) $form['fields'] : array();
+                    $saved  = self::get_mapping( $adapter->id(), $fid );
+                    $map    = ! empty( $saved ) ? $saved : SPBWC_Quote_Form_Adapter::auto_map( $fields );
+                    $adapter->scope_form = $fid;
+                    $count               = (int) $adapter->count_importable();
+                    $adapter->scope_form = '';
+                    ?>
+                    <form class="spbwc-import-form" method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>">
+                        <?php wp_nonce_field( 'spbwc_quote_import' ); ?>
+                        <input type="hidden" name="action" value="spbwc_quote_import" />
+                        <input type="hidden" name="adapter" value="<?php echo esc_attr( $adapter->id() ); ?>" />
+                        <input type="hidden" name="form_id" value="<?php echo esc_attr( $fid ); ?>" />
+                        <div class="spbwc-import-form__head">
+                            <span class="spbwc-import-form__title"><?php echo esc_html( $form['title'] ); ?></span>
+                            <span class="spbwc-import-form__count">
+                                <?php
+                                printf(
+                                    /* translators: %s: number of form entries. */
+                                    esc_html( _n( '%s entry', '%s entries', $count, 'storelly-product-builder-for-woocommerce' ) ),
+                                    esc_html( number_format_i18n( $count ) )
+                                );
+                                ?>
+                            </span>
+                        </div>
+                        <div class="spbwc-import-map">
+                            <?php foreach ( $labels as $target => $label ) : ?>
+                                <label class="spbwc-import-map__row">
+                                    <span class="spbwc-import-map__target"><?php echo esc_html( $label ); ?></span>
+                                    <select name="mapping[<?php echo esc_attr( $target ); ?>]" class="spbwc-input spbwc-input--sm">
+                                        <option value=""><?php esc_html_e( '— not mapped —', 'storelly-product-builder-for-woocommerce' ); ?></option>
+                                        <?php foreach ( $fields as $field ) : ?>
+                                            <?php $fkey = isset( $field['key'] ) ? (string) $field['key'] : ''; ?>
+                                            <option value="<?php echo esc_attr( $fkey ); ?>" <?php selected( isset( $map[ $target ] ) ? $map[ $target ] : '', $fkey ); ?>>
+                                                <?php echo esc_html( isset( $field['label'] ) && '' !== $field['label'] ? $field['label'] : $fkey ); ?>
+                                            </option>
+                                        <?php endforeach; ?>
+                                    </select>
+                                </label>
+                            <?php endforeach; ?>
+                        </div>
+                        <div class="spbwc-import-form__foot">
+                            <button type="submit" class="spbwc-cta-btn spbwc-cta-btn--solid" <?php disabled( 0, $count ); ?>>
+                                <span class="dashicons dashicons-download" aria-hidden="true"></span>
+                                <?php esc_html_e( 'Save mapping & import', 'storelly-product-builder-for-woocommerce' ); ?>
+                            </button>
+                        </div>
+                    </form>
+                <?php endforeach; ?>
             </div>
             <?php
         }

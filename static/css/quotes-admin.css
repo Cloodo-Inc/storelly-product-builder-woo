@@ -421,3 +421,40 @@
 .spbwc-import-source__action .spbwc-cta-btn .dashicons { font-size: 16px; width: 16px; height: 16px; vertical-align: text-bottom; }
 
 .spbwc-empty-state__hint { font-size: 12.5px; color: var(--nbd-st-text-mute); margin-top: 6px; }
+
+/* ── Import: contact-form sources + field mapping (M3) ─────────────────── */
+.spbwc-import-formsrc {
+    margin-top: 18px;
+    padding-top: 16px;
+    border-top: 1px solid var(--nbd-st-border-light);
+}
+.spbwc-import-formsrc__head { margin-bottom: 12px; }
+.spbwc-import-formsrc__name { display: block; font-size: 14px; font-weight: 700; color: var(--nbd-st-text); }
+
+.spbwc-import-form {
+    margin: 0 0 12px;
+    padding: 14px 16px;
+    border: 1px solid var(--nbd-st-border-light);
+    border-radius: var(--nbd-radius-md);
+    background: var(--nbd-st-bg-soft);
+}
+.spbwc-import-form__head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 10px;
+}
+.spbwc-import-form__title { font-size: 13.5px; font-weight: 600; color: var(--nbd-st-text); }
+.spbwc-import-form__count { font-size: 12.5px; color: var(--nbd-st-text-soft); white-space: nowrap; }
+
+.spbwc-import-map {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 8px 16px;
+    margin-bottom: 12px;
+}
+.spbwc-import-map__row { display: flex; flex-direction: column; gap: 3px; }
+.spbwc-import-map__target { font-size: 11.5px; font-weight: 600; text-transform: uppercase; letter-spacing: .03em; color: var(--nbd-st-text-mute); }
+.spbwc-import-map select.spbwc-input--sm { width: 100%; height: 30px; }
+.spbwc-import-form__foot { text-align: right; }
