@@ -123,8 +123,12 @@ Three layers, evaluated at activation / first Quotes-screen visit:
 - **M1 — Import framework + Woo-orders adapter.** Adapter interface + registry + dedupe meta + AS
   batch + Quotes-toolbar "Import quotes" screen (scan/count/import/progress). Woo draft/pending-order
   adapter (universal, no external unknowns). *Foundation; build first.*
-- **M2 — Order-based quote plugins.** YITH RAQ + Quotes for WooCommerce adapters (verify slugs/meta
-  on a live install; reuse migrator query).
+- **M2 — Order-based quote plugins. DONE (commit b9d43a8).** Quotes for WooCommerce adapter verified
+  live: a QFW quote = WC order with `_qwc_quote=1` + `_quote_status` (quote-pending/sent/complete/paid);
+  import the open ones (pending/sent). The universal Woo-orders adapter now excludes `_qwc_quote` so a
+  QFW order (also "pending") is owned by one source. YITH adapter: the **free** plugin keeps quotes in
+  session+email (nothing persisted) so it's inert; the adapter gates on the YITH **Premium** class and
+  resolves the open `wc-ywraq-*` statuses dynamically — needs validation on a live YITH Premium install.
 - **M3 — Contact-form sources + field-mapping UI.** Flamingo (CF7) + the generic form-entry readers
   (WPForms/GF/Fluent/Forminator/Ninja) behind a field-mapping step.
 - **M4 — Other B2B/quote plugins.** B2BKing / Addify / ELEX adapters.
