@@ -255,11 +255,13 @@ if ( ! class_exists( 'SPBWC_B2B_Admin' ) ) {
                     $threshold = isset( $_POST['approval_threshold'] ) ? (float) wp_unslash( $_POST['approval_threshold'] ) : 0;
                     $terms     = isset( $_POST['payment_terms'] ) ? sanitize_key( wp_unslash( $_POST['payment_terms'] ) ) : 'prepaid';
                     $climit    = isset( $_POST['credit_limit'] ) ? max( 0, (float) wp_unslash( $_POST['credit_limit'] ) ) : 0;
+                    $rebate    = isset( $_POST['rebate_pct'] ) ? min( 100, max( 0, (float) wp_unslash( $_POST['rebate_pct'] ) ) ) : 0;
                     $tier      = isset( $_POST['tier'] ) ? sanitize_key( wp_unslash( $_POST['tier'] ) ) : '';
                     update_post_meta( $company_id, SPBWC_Company::META_SEATS, $seats );
                     update_post_meta( $company_id, SPBWC_Company::META_APPROVAL_THRESHOLD, $threshold );
                     update_post_meta( $company_id, SPBWC_Company::META_PAYMENT_TERMS, $terms );
                     update_post_meta( $company_id, SPBWC_Company::META_CREDIT_LIMIT, $climit );
+                    update_post_meta( $company_id, SPBWC_Company::META_REBATE_PCT, $rebate );
                     $old_tier = (string) get_post_meta( $company_id, SPBWC_Company::META_TIER, true );
                     if ( $tier !== $old_tier ) {
                         update_post_meta( $company_id, SPBWC_Company::META_TIER, $tier );
@@ -440,7 +442,7 @@ if ( ! class_exists( 'SPBWC_B2B_Admin' ) ) {
         protected static function meter( $used, $total ) {
             $pct = $total > 0 ? min( 100, (int) round( $used / $total * 100 ) ) : 0;
             $mod = $pct >= 90 ? ' spbwc-meter--danger' : ( $pct >= 70 ? ' spbwc-meter--warn' : '' );
-            return '<span class="spbwc-meter' . $mod . '"><span class="spbwc-meter__fill" style="width:' . esc_attr( $pct ) . '%"></span></span>';
+            return '<span class="' . esc_attr( 'spbwc-meter' . $mod ) . '"><span class="spbwc-meter__fill" style="width:' . esc_attr( $pct ) . '%"></span></span>';
         }
 
         protected function render_list() {
@@ -734,7 +736,10 @@ if ( ! class_exists( 'SPBWC_B2B_Admin' ) ) {
             }
             echo '</div>';
 
-            // Tabs nav (server-side).
+            // Tabs. Every panel is rendered server-side; static/js/b2b-admin.js
+            // shows the active one and switches instantly on click — no reload.
+            // Without JS the CSS leaves all panels visible (graceful fallback).
+            // `detail_tab` seeds the initial panel (used by post-save redirects).
             $tabs = array(
                 'overview' => __( 'Overview', 'storelly-product-builder-for-woocommerce' ),
                 'members'  => __( 'Members', 'storelly-product-builder-for-woocommerce' ),
@@ -742,35 +747,53 @@ if ( ! class_exists( 'SPBWC_B2B_Admin' ) ) {
                 'credit'   => __( 'Account credit', 'storelly-product-builder-for-woocommerce' ),
                 'activity' => __( 'Activity', 'storelly-product-builder-for-woocommerce' ),
             );
-            echo '<nav class="spbwc-tabs">';
+            if ( ! isset( $tabs[ $active ] ) ) {
+                $active = 'overview';
+            }
+
+            echo '<div class="spbwc-b2b-detail">';
+            echo '<nav class="spbwc-tabs" role="tablist" aria-label="' . esc_attr__( 'Company sections', 'storelly-product-builder-for-woocommerce' ) . '">';
             foreach ( $tabs as $slug => $label ) {
-                $cls = ( $active === $slug ) ? ' is-active' : '';
-                echo '<a class="spbwc-tab' . $cls . '" href="' . esc_url( self::page_url( array( 'company' => $company_id, 'detail_tab' => $slug ) ) ) . '">' . esc_html( $label ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static literal.
+                $on = ( $active === $slug );
+                echo '<button type="button" class="spbwc-tab' . ( $on ? ' is-active' : '' ) . '"'
+                    . ' data-tab="' . esc_attr( $slug ) . '" id="spbwc-b2b-tabbtn-' . esc_attr( $slug ) . '"'
+                    . ' role="tab" aria-controls="spbwc-b2b-panel-' . esc_attr( $slug ) . '"'
+                    . ' aria-selected="' . ( $on ? 'true' : 'false' ) . '" tabindex="' . ( $on ? '0' : '-1' ) . '">'
+                    . esc_html( $label );
                 if ( 'members' === $slug ) {
                     echo ' <span class="count">' . esc_html( count( $members ) ) . '</span>';
                 } elseif ( 'pricing' === $slug && ! empty( $rules ) ) {
                     echo ' <span class="count">' . esc_html( count( $rules ) ) . '</span>';
                 }
-                echo '</a>';
+                echo '</button>';
             }
             echo '</nav>';
 
-            switch ( $active ) {
-                case 'members':
-                    $this->render_members_tab( $company_id, $members, $seats );
-                    break;
-                case 'pricing':
-                    $this->render_price_rules( $company_id, $nonce );
-                    break;
-                case 'credit':
-                    $this->render_credit_tab( $company_id, $nonce );
-                    break;
-                case 'activity':
-                    $this->render_activity_tab( $company_id );
-                    break;
-                default:
+            $panels = array(
+                'overview' => function () use ( $company_id, $nonce, $seats ) {
                     $this->render_overview_tab( $company_id, $nonce, $seats );
+                },
+                'members'  => function () use ( $company_id, $members, $seats ) {
+                    $this->render_members_tab( $company_id, $members, $seats );
+                },
+                'pricing'  => function () use ( $company_id, $nonce ) {
+                    $this->render_price_rules( $company_id, $nonce );
+                },
+                'credit'   => function () use ( $company_id, $nonce ) {
+                    $this->render_credit_tab( $company_id, $nonce );
+                },
+                'activity' => function () use ( $company_id ) {
+                    $this->render_activity_tab( $company_id );
+                },
+            );
+            foreach ( $panels as $slug => $render ) {
+                echo '<div class="spbwc-b2b-panel' . ( $active === $slug ? ' is-active' : '' ) . '"'
+                    . ' id="spbwc-b2b-panel-' . esc_attr( $slug ) . '" role="tabpanel"'
+                    . ' aria-labelledby="spbwc-b2b-tabbtn-' . esc_attr( $slug ) . '">';
+                $render();
+                echo '</div>';
             }
+            echo '</div>';
         }
 
         /** Overview tab: settings + profile snapshot. */
@@ -778,6 +801,7 @@ if ( ! class_exists( 'SPBWC_B2B_Admin' ) ) {
             $terms        = (string) get_post_meta( $company_id, SPBWC_Company::META_PAYMENT_TERMS, true );
             $thresh       = (float) get_post_meta( $company_id, SPBWC_Company::META_APPROVAL_THRESHOLD, true );
             $climit       = (float) get_post_meta( $company_id, SPBWC_Company::META_CREDIT_LIMIT, true );
+            $rebate_pct   = (float) get_post_meta( $company_id, SPBWC_Company::META_REBATE_PCT, true );
             $current_tier = (string) get_post_meta( $company_id, SPBWC_Company::META_TIER, true );
             $tiers        = class_exists( 'SPBWC_B2B_Pricing' ) ? SPBWC_B2B_Pricing::get_tiers() : array();
             $profile      = (array) get_post_meta( $company_id, SPBWC_Company::META_PROFILE, true );
@@ -806,6 +830,7 @@ if ( ! class_exists( 'SPBWC_B2B_Admin' ) ) {
             }
             echo '</select></div>';
             echo '<div class="spbwc-setting-row"><label class="spbwc-setting-row__label">' . esc_html__( 'Credit limit', 'storelly-product-builder-for-woocommerce' ) . '</label><input class="spbwc-input" type="number" name="credit_limit" min="0" step="0.01" value="' . esc_attr( $climit ) . '" style="max-width:160px" /><span class="spbwc-setting-row__hint">' . esc_html( get_woocommerce_currency_symbol() ) . ' · ' . esc_html__( 'net-terms ceiling. 0 = prepaid wallet only.', 'storelly-product-builder-for-woocommerce' ) . '</span></div>';
+            echo '<div class="spbwc-setting-row"><label class="spbwc-setting-row__label">' . esc_html__( 'Volume rebate', 'storelly-product-builder-for-woocommerce' ) . '</label><input class="spbwc-input" type="number" name="rebate_pct" min="0" max="100" step="0.1" value="' . esc_attr( $rebate_pct ) . '" style="max-width:120px" /><span class="spbwc-setting-row__hint">% · ' . esc_html__( 'monthly cashback on completed orders, credited to the wallet. 0 = off.', 'storelly-product-builder-for-woocommerce' ) . '</span></div>';
             echo '</div></div><div class="spbwc-block__foot"><button type="submit" class="spbwc-cta-btn spbwc-cta-btn--solid">' . esc_html__( 'Save changes', 'storelly-product-builder-for-woocommerce' ) . '</button></div></div>';
             echo '</form>';
 
@@ -978,7 +1003,7 @@ if ( ! class_exists( 'SPBWC_B2B_Admin' ) ) {
                 echo '<td><strong>' . esc_html( $sym . number_format( $eff, 2 ) ) . '</strong></td>';
                 echo '<td>' . esc_html( (int) $rule->min_qty > 0 ? (int) $rule->min_qty : '—' ) . '</td>';
                 echo '<td>' . esc_html( ! empty( $rule->valid_until ) ? mysql2date( get_option( 'date_format' ), $rule->valid_until ) : '—' ) . '</td>';
-                echo '<td><form method="post" action="' . esc_url( self::page_url( array( 'company' => $company_id ) ) ) . '">';
+                echo '<td><form method="post" action="' . esc_url( self::page_url( array( 'company' => $company_id, 'detail_tab' => 'pricing' ) ) ) . '">';
                 echo '<input type="hidden" name="spbwc_b2b_do" value="unbind_price" />';
                 echo '<input type="hidden" name="company" value="' . esc_attr( $company_id ) . '" />';
                 echo '<input type="hidden" name="product_id" value="' . esc_attr( $rule->product_id ) . '" />';
@@ -989,7 +1014,7 @@ if ( ! class_exists( 'SPBWC_B2B_Admin' ) ) {
             echo '</tbody></table>';
 
             // Bind form (labelled).
-            echo '<form method="post" class="spbwc-b2b-bind" action="' . esc_url( self::page_url( array( 'company' => $company_id ) ) ) . '">';
+            echo '<form method="post" class="spbwc-b2b-bind" action="' . esc_url( self::page_url( array( 'company' => $company_id, 'detail_tab' => 'pricing' ) ) ) . '">';
             echo '<input type="hidden" name="spbwc_b2b_do" value="bind_price" /><input type="hidden" name="company" value="' . esc_attr( $company_id ) . '" /><input type="hidden" name="_spbwc_b2b_nonce" value="' . esc_attr( $nonce ) . '" />';
             echo '<label>' . esc_html__( 'Product ID', 'storelly-product-builder-for-woocommerce' ) . '<input class="spbwc-input" type="number" name="product_id" min="1" required style="width:110px" /></label>';
             echo '<label>' . esc_html__( 'Type', 'storelly-product-builder-for-woocommerce' ) . '<select class="spbwc-input" name="override_type" style="width:120px"><option value="pct">' . esc_html__( '% off', 'storelly-product-builder-for-woocommerce' ) . '</option><option value="fixed">' . esc_html__( 'Fixed price', 'storelly-product-builder-for-woocommerce' ) . '</option></select></label>';

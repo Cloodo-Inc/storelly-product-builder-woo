@@ -402,7 +402,7 @@ if ( ! class_exists( 'SPBWC_B2B_Procurement' ) ) {
                     $pct = min( 100, (int) round( $total / $r_limit * 100 ) );
                     $mod = $pct >= 100 ? ' spbwc-meter--danger' : ( $pct >= 80 ? ' spbwc-meter--warn' : '' );
                     echo '<div class="spbwc-row spbwc-row--sm spbwc-proc__budget">';
-                    echo '<span class="spbwc-meter' . $mod . '"><span class="spbwc-meter__fill" style="width:' . esc_attr( $pct ) . '%"></span></span>';
+                    echo '<span class="' . esc_attr( 'spbwc-meter' . $mod ) . '"><span class="spbwc-meter__fill" style="width:' . esc_attr( $pct ) . '%"></span></span>';
                     echo '<span class="spbwc-meter__label">' . esc_html( sprintf(
                         /* translators: 1: order total, 2: per-order limit. */
                         __( '%1$s of %2$s per-order limit', 'storelly-product-builder-for-woocommerce' ),
