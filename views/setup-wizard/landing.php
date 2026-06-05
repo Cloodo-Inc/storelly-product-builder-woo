@@ -29,6 +29,57 @@ $last_seed = null;
 if ( class_exists( 'SPBWC_Woo_Seed_Scanner' ) ) {
 	$last_seed = ( new SPBWC_Woo_Seed_Scanner() )->get_last_seed();
 }
+
+/*
+ * Cross-links to other import / configuration screens that help finish setting
+ * up the store. Each card is guarded so a disabled or absent module never
+ * renders a dead link, and the whole section hides when nothing is available.
+ */
+$more_cards = array();
+
+// Import existing quote requests from orders / quote plugins / contact forms.
+if ( class_exists( 'SPBWC_Quote_Import' ) && method_exists( 'SPBWC_Quote_Import', 'tab_url' ) ) {
+	$more_cards[] = array(
+		'url'   => SPBWC_Quote_Import::tab_url(),
+		'icon'  => 'dashicons-migrate',
+		'title' => __( 'Import Quotes', 'storelly-product-builder-for-woocommerce' ),
+		'desc'  => __( 'Pull existing quote requests from WooCommerce orders, request-a-quote plugins (YITH, ELEX, Addify, B2BKing) and contact forms into Storelly Quotes.', 'storelly-product-builder-for-woocommerce' ),
+		'solid' => false,
+	);
+}
+
+// Configure the request-a-quote experience.
+if ( defined( 'SPBWC_PB_QUOTES_SLUG' ) ) {
+	$more_cards[] = array(
+		'url'   => admin_url( 'admin.php?page=' . SPBWC_PB_QUOTES_SLUG ),
+		'icon'  => 'dashicons-format-status',
+		'title' => __( 'Quote Settings', 'storelly-product-builder-for-woocommerce' ),
+		'desc'  => __( 'Set up the request-a-quote form fields, statuses and the email notifications buyers receive.', 'storelly-product-builder-for-woocommerce' ),
+		'solid' => false,
+	);
+}
+
+// B2B companies, approval rules and tiered pricing.
+if ( class_exists( 'SPBWC_B2B_Admin' ) ) {
+	$more_cards[] = array(
+		'url'   => admin_url( 'admin.php?page=' . SPBWC_B2B_Admin::PAGE_SLUG ),
+		'icon'  => 'dashicons-groups',
+		'title' => __( 'B2B Companies', 'storelly-product-builder-for-woocommerce' ),
+		'desc'  => __( 'Create companies, approve members and apply tiered pricing for your wholesale and B2B customers.', 'storelly-product-builder-for-woocommerce' ),
+		'solid' => false,
+	);
+}
+
+// Global product-builder behaviour.
+if ( defined( 'SPBWC_PB_OPTIONS_SLUG' ) ) {
+	$more_cards[] = array(
+		'url'   => admin_url( 'admin.php?page=' . SPBWC_PB_OPTIONS_SLUG ),
+		'icon'  => 'dashicons-admin-generic',
+		'title' => __( 'General Settings', 'storelly-product-builder-for-woocommerce' ),
+		'desc'  => __( 'Currency, decimals, designer defaults and the global behaviour of the product builder.', 'storelly-product-builder-for-woocommerce' ),
+		'solid' => false,
+	);
+}
 ?>
 <div class="wrap spbwc-wizard-landing">
 
@@ -104,5 +155,37 @@ if ( class_exists( 'SPBWC_Woo_Seed_Scanner' ) ) {
 
 		</div>
 	</div>
+
+	<?php if ( ! empty( $more_cards ) ) : ?>
+	<div class="spbwc-section">
+		<header class="spbwc-section__header">
+			<h2 class="spbwc-section__title">
+				<?php esc_html_e( 'More setup tools', 'storelly-product-builder-for-woocommerce' ); ?>
+			</h2>
+			<p class="spbwc-section__subtitle">
+				<?php esc_html_e( 'Other import and configuration screens that help finish setting up your store.', 'storelly-product-builder-for-woocommerce' ); ?>
+			</p>
+		</header>
+		<div class="spbwc-quick-grid">
+			<?php foreach ( $more_cards as $card ) : ?>
+				<a class="spbwc-quick-card" href="<?php echo esc_url( $card['url'] ); ?>">
+					<div class="spbwc-quick-card__head">
+						<div class="spbwc-quick-card__icon">
+							<span class="dashicons <?php echo esc_attr( $card['icon'] ); ?>" aria-hidden="true"></span>
+						</div>
+						<h2 class="spbwc-quick-card__title"><?php echo esc_html( $card['title'] ); ?></h2>
+					</div>
+					<p class="spbwc-quick-card__desc"><?php echo esc_html( $card['desc'] ); ?></p>
+					<div class="spbwc-quick-card__footer">
+						<span class="spbwc-cta-btn <?php echo ! empty( $card['solid'] ) ? 'spbwc-cta-btn--solid' : 'spbwc-cta-btn--ghost'; ?> spbwc-cta-btn--sm">
+							<?php esc_html_e( 'Open', 'storelly-product-builder-for-woocommerce' ); ?>
+							<span class="dashicons dashicons-arrow-right-alt" aria-hidden="true"></span>
+						</span>
+					</div>
+				</a>
+			<?php endforeach; ?>
+		</div>
+	</div>
+	<?php endif; ?>
 
 </div>
