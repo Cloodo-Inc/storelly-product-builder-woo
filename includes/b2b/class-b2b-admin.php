@@ -38,6 +38,44 @@ if ( ! class_exists( 'SPBWC_B2B_Admin' ) ) {
         public function init() {
             add_action( 'admin_menu', array( $this, 'register_menu' ), 21 );
             add_filter( 'user_row_actions', array( $this, 'user_row_action' ), 10, 2 );
+            add_action( 'wp_ajax_spbwc_b2b_search_customers', array( $this, 'ajax_search_customers' ) );
+        }
+
+        /**
+         * AJAX: search WooCommerce customers NOT already in a company, for the
+         * "Upgrade a customer" picker on the hub.
+         */
+        public function ajax_search_customers() {
+            check_ajax_referer( 'spbwc_b2b_picker', 'nonce' );
+            if ( ! current_user_can( self::CAPABILITY ) ) {
+                wp_send_json_error( array( 'message' => esc_html__( 'Permission denied.', 'storelly-product-builder-for-woocommerce' ) ), 403 );
+            }
+            $term = isset( $_POST['term'] ) ? sanitize_text_field( wp_unslash( $_POST['term'] ) ) : '';
+            $q    = new WP_User_Query(
+                array(
+                    'search'         => '*' . esc_attr( $term ) . '*',
+                    'search_columns' => array( 'user_login', 'user_email', 'user_nicename', 'display_name' ),
+                    'number'         => 12,
+                    'fields'         => array( 'ID', 'display_name', 'user_email' ),
+                    // Exclude users already linked to a company.
+                    'meta_query'     => array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
+                        array(
+                            'key'     => SPBWC_Company::USER_COMPANY_ID,
+                            'compare' => 'NOT EXISTS',
+                        ),
+                    ),
+                )
+            );
+            $out = array();
+            foreach ( $q->get_results() as $u ) {
+                $out[] = array(
+                    'id'    => (int) $u->ID,
+                    'name'  => $u->display_name,
+                    'email' => $u->user_email,
+                    'url'   => self::page_url( array( 'action' => 'upgrade', 'user' => (int) $u->ID ) ),
+                );
+            }
+            wp_send_json_success( array( 'results' => $out ) );
         }
 
         /* ── Menu ─────────────────────────────────────────────────── */
@@ -409,13 +447,16 @@ if ( ! class_exists( 'SPBWC_B2B_Admin' ) ) {
             // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only filter.
             $tab = isset( $_GET['status'] ) ? sanitize_key( wp_unslash( $_GET['status'] ) ) : 'all';
 
-            $actions = '';
+            // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only search filter.
+            $search = isset( $_GET['s'] ) ? sanitize_text_field( wp_unslash( $_GET['s'] ) ) : '';
+
+            $actions = '<button type="button" class="spbwc-cta-btn spbwc-cta-btn--solid js-spbwc-open-picker"><span class="dashicons dashicons-plus-alt2" aria-hidden="true"></span> ' . esc_html__( 'Upgrade a customer', 'storelly-product-builder-for-woocommerce' ) . '</button>';
             if ( class_exists( 'SPBWC_B2B_Pricing_Admin' ) ) {
-                $actions = '<a class="spbwc-cta-btn spbwc-cta-btn--solid" href="' . esc_url( SPBWC_B2B_Pricing_Admin::page_url() ) . '"><span class="dashicons dashicons-tag" aria-hidden="true"></span> ' . esc_html__( 'Manage tiers', 'storelly-product-builder-for-woocommerce' ) . '</a>';
+                $actions .= ' <a class="spbwc-cta-btn spbwc-cta-btn--ghost" href="' . esc_url( SPBWC_B2B_Pricing_Admin::page_url() ) . '"><span class="dashicons dashicons-tag" aria-hidden="true"></span> ' . esc_html__( 'Manage tiers', 'storelly-product-builder-for-woocommerce' ) . '</a>';
             }
             $this->render_hero(
                 __( 'B2B Companies', 'storelly-product-builder-for-woocommerce' ),
-                __( 'Branded accounts, tier pricing and team procurement. Upgrade a customer from Users → row → "Upgrade to B2B".', 'storelly-product-builder-for-woocommerce' ),
+                __( 'Branded accounts, tier pricing and team procurement.', 'storelly-product-builder-for-woocommerce' ),
                 $actions
             );
 
@@ -450,7 +491,18 @@ if ( ! class_exists( 'SPBWC_B2B_Admin' ) ) {
                     . esc_html( $label ) . ' <span class="count">(' . esc_html( number_format_i18n( $count ) ) . ')</span></a></li>';
                 $i++;
             }
-            echo '</ul></div>';
+            echo '</ul>';
+            // Search by company name.
+            echo '<form method="get" class="spbwc-search-bar" style="margin-left:auto;">';
+            echo '<input type="hidden" name="page" value="' . esc_attr( self::PAGE_SLUG ) . '" />';
+            if ( 'all' !== $tab ) {
+                echo '<input type="hidden" name="status" value="' . esc_attr( $tab ) . '" />';
+            }
+            echo '<span class="spbwc-search-bar__icon" aria-hidden="true"><span class="dashicons dashicons-search"></span></span>';
+            echo '<input class="spbwc-search-bar__input" type="search" name="s" value="' . esc_attr( $search ) . '" placeholder="' . esc_attr__( 'Search companies…', 'storelly-product-builder-for-woocommerce' ) . '" />';
+            echo '<button class="spbwc-search-bar__btn" type="submit">' . esc_html__( 'Search', 'storelly-product-builder-for-woocommerce' ) . '</button>';
+            echo '</form>';
+            echo '</div>';
 
             $args = array(
                 'post_type'   => SPBWC_Company::POST_TYPE,
@@ -463,12 +515,21 @@ if ( ! class_exists( 'SPBWC_B2B_Admin' ) ) {
                 $args['meta_key']   = SPBWC_Company::META_STATUS; // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key
                 $args['meta_value'] = $tab;                       // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_value
             }
+            if ( '' !== $search ) {
+                $args['s'] = $search;
+            }
             $companies = get_posts( $args );
 
             if ( empty( $companies ) ) {
+                $msg = '' !== $search
+                    ? __( 'No companies match your search.', 'storelly-product-builder-for-woocommerce' )
+                    : __( 'Upgrade a customer to create their first company account.', 'storelly-product-builder-for-woocommerce' );
                 echo '<div class="spbwc-empty-state"><div class="spbwc-empty-state__icon"><span class="dashicons dashicons-groups" aria-hidden="true"></span></div>';
-                echo '<p class="spbwc-empty-state__title">' . esc_html__( 'No B2B companies yet', 'storelly-product-builder-for-woocommerce' ) . '</p>';
-                echo '<p class="spbwc-empty-state__text">' . esc_html__( 'Upgrade a customer from the Users list to create their first company account.', 'storelly-product-builder-for-woocommerce' ) . '</p></div></div>';
+                echo '<p class="spbwc-empty-state__title">' . esc_html__( 'No B2B companies', 'storelly-product-builder-for-woocommerce' ) . '</p>';
+                echo '<p class="spbwc-empty-state__text">' . esc_html( $msg ) . '</p>';
+                echo '<button type="button" class="spbwc-cta-btn spbwc-cta-btn--solid js-spbwc-open-picker"><span class="dashicons dashicons-plus-alt2" aria-hidden="true"></span> ' . esc_html__( 'Upgrade a customer', 'storelly-product-builder-for-woocommerce' ) . '</button>';
+                echo '</div></div>';
+                $this->render_picker_modal();
                 return;
             }
 
@@ -516,6 +577,22 @@ if ( ! class_exists( 'SPBWC_B2B_Admin' ) ) {
                 echo '</td></tr>';
             }
             echo '</tbody></table></div>';
+            $this->render_picker_modal();
+        }
+
+        /** Customer-picker modal — search a customer and jump to the upgrade form. */
+        protected function render_picker_modal() {
+            echo '<div class="spbwc-modal" id="spbwc-b2b-picker" hidden>';
+            echo '<div class="spbwc-modal__backdrop js-spbwc-close-picker"></div>';
+            echo '<div class="spbwc-modal__dialog" role="dialog" aria-modal="true" aria-labelledby="spbwc-b2b-picker-title">';
+            echo '<div class="spbwc-modal__head"><h2 id="spbwc-b2b-picker-title">' . esc_html__( 'Upgrade a customer to B2B', 'storelly-product-builder-for-woocommerce' ) . '</h2>';
+            echo '<button type="button" class="spbwc-modal__close js-spbwc-close-picker" aria-label="' . esc_attr__( 'Close', 'storelly-product-builder-for-woocommerce' ) . '">&times;</button></div>';
+            echo '<div class="spbwc-modal__body">';
+            echo '<div class="spbwc-search-bar"><span class="spbwc-search-bar__icon" aria-hidden="true"><span class="dashicons dashicons-search"></span></span>';
+            echo '<input class="spbwc-search-bar__input js-spbwc-picker-input" type="search" placeholder="' . esc_attr__( 'Search by name or email…', 'storelly-product-builder-for-woocommerce' ) . '" autocomplete="off" /></div>';
+            echo '<ul class="spbwc-picker__results js-spbwc-picker-results"></ul>';
+            echo '<p class="spbwc-picker__hint description">' . esc_html__( 'Only customers not already in a company are shown.', 'storelly-product-builder-for-woocommerce' ) . '</p>';
+            echo '</div></div></div>';
         }
 
         protected static function count_all() {

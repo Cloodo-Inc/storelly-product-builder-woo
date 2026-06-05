@@ -35,6 +35,63 @@
 .spbwc-kv__v { font-size: var(--text-3xl); font-weight: var(--font-bold); color: var(--st-brand); line-height: 1.1; }
 .spbwc-kv__l { font-size: var(--text-sm); color: var(--nbd-st-text-mute); text-transform: uppercase; letter-spacing: .04em; }
 
+/* ── Customer-picker modal ───────────────────────────────── */
+body.spbwc-modal-open { overflow: hidden; }
+.spbwc-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 100000;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    padding: 8vh var(--nbd-space-4) var(--nbd-space-4);
+}
+.spbwc-modal[hidden] { display: none; }
+.spbwc-modal__backdrop { position: absolute; inset: 0; background: rgba(16, 24, 40, 0.55); }
+.spbwc-modal__dialog {
+    position: relative;
+    width: 100%;
+    max-width: 520px;
+    background: var(--nbd-st-bg);
+    border-radius: var(--nbd-radius-lg);
+    box-shadow: var(--shadow-xl);
+    overflow: hidden;
+    animation: spbwc-modal-in 0.16s ease-out;
+}
+@keyframes spbwc-modal-in { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: none; } }
+.spbwc-modal__head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--nbd-space-4) var(--nbd-space-5);
+    border-bottom: 1px solid var(--nbd-st-border-light);
+}
+.spbwc-modal__head h2 { margin: 0; font-size: var(--text-2xl); }
+.spbwc-modal__close {
+    appearance: none; background: none; border: 0; cursor: pointer;
+    font-size: 24px; line-height: 1; color: var(--nbd-st-text-mute); padding: 0 4px;
+}
+.spbwc-modal__close:hover { color: var(--nbd-st-text); }
+.spbwc-modal__body { padding: var(--nbd-space-5); }
+.spbwc-modal__body .spbwc-search-bar { max-width: none; margin-bottom: var(--nbd-space-3); }
+
+.spbwc-picker__results { list-style: none; margin: 0; padding: 0; max-height: 320px; overflow-y: auto; }
+.spbwc-picker__results li { margin: 0; }
+.spbwc-picker__item {
+    display: flex;
+    align-items: center;
+    gap: var(--nbd-space-3);
+    padding: var(--nbd-space-2) var(--nbd-space-2);
+    border-radius: var(--nbd-radius-md);
+    text-decoration: none;
+    color: var(--nbd-st-text);
+}
+.spbwc-picker__item:hover { background: var(--nbd-st-bg-soft); }
+.spbwc-picker__meta { display: flex; flex-direction: column; flex: 1; min-width: 0; }
+.spbwc-picker__item .dashicons { color: var(--nbd-st-text-mute); }
+.spbwc-picker__empty { padding: var(--nbd-space-4); color: var(--nbd-st-text-mute); text-align: center; }
+.spbwc-picker__hint { margin-top: var(--nbd-space-3); }
+
 /* Status pill variants used by SPBWC_B2B_Admin::status_pill(). */
 .spbwc-pill {
     display: inline-block;

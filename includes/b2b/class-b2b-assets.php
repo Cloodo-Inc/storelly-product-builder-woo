@@ -78,6 +78,19 @@ if ( ! class_exists( 'SPBWC_B2B_Assets' ) ) {
             wp_enqueue_style( 'spbwc-quotes-admin' );
             wp_enqueue_style( 'spbwc-b2b-admin', SPBWC_PB_CSS_URL . 'b2b-admin.css', array( 'spbwc-tokens', 'spbwc-admin-ui', 'dashicons' ), SPBWC_PB_VERSION );
 
+            // Customer-picker JS only on the B2B Companies hub.
+            if ( class_exists( 'SPBWC_B2B_Admin' ) && SPBWC_B2B_Admin::PAGE_SLUG === $page ) {
+                wp_enqueue_script( 'spbwc-b2b-admin', SPBWC_PB_JS_URL . 'b2b-admin.js', array(), SPBWC_PB_VERSION, true );
+                wp_localize_script( 'spbwc-b2b-admin', 'spbwcB2BAdmin', array(
+                    'ajaxUrl' => admin_url( 'admin-ajax.php' ),
+                    'nonce'   => wp_create_nonce( 'spbwc_b2b_picker' ),
+                    'i18n'    => array(
+                        'empty'    => __( 'No matching customers.', 'storelly-product-builder-for-woocommerce' ),
+                        'searching' => __( 'Searching…', 'storelly-product-builder-for-woocommerce' ),
+                    ),
+                ) );
+            }
+
             // The B2B Pricing page adds/removes tier rows client-side.
             if ( class_exists( 'SPBWC_B2B_Pricing_Admin' ) && SPBWC_B2B_Pricing_Admin::PAGE_SLUG === $page ) {
                 wp_enqueue_script( 'spbwc-b2b-pricing-admin', SPBWC_PB_JS_URL . 'b2b-pricing-admin.js', array(), SPBWC_PB_VERSION, true );
