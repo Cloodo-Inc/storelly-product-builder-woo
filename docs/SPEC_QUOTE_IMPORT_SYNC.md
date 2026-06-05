@@ -140,6 +140,11 @@ Three layers, evaluated at activation / first Quotes-screen visit:
   pre-release WP, so the concrete adapters were verified by schema + stub, not against the live plugins —
   validate on a supported WP. Remaining form plugins (WPForms/GF/Forminator/Ninja) follow the same
   pattern (M3b).
+- **M3b — more contact forms. DONE (commit b1ee6e7).** WPForms (wpforms CPT + entry handler), Gravity
+  Forms (GFAPI, name sub-inputs recombined), Forminator (Forminator_API + entry model), Ninja Forms
+  (Ninja_Forms() API + nf_sub CPT). Shared `flatten_value()` on the form base. All gate on their source
+  plugin (registry shows 9 adapters; 8 off on a clean store). Written against each plugin's documented
+  API — validate live on a supported WP; the shared form pipeline is already stub-verified (M3).
 - **M4 — Other B2B/quote plugins.** B2BKing / Addify / ELEX adapters.
 - **M5 — Ongoing sync.** Opt-in live listeners for every wired source + saved mappings + dedupe.
 - **M6 — Sample seed / empty-state.** Integrate the 3-layer onboarding (import / convert-drafts /
