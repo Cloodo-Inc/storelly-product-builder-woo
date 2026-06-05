@@ -1,29 +1,14 @@
 /**
- * Storelly B2B — admin surfaces (B2B Companies hub + detail + upgrade form,
- * B2B Pricing tier ladder). Uses the Storelly admin design tokens (_tokens.css,
- * the --st-* / --nbd-st-* set). Dependency declared in SPBWC_B2B_Assets.
+ * Storelly B2B — admin slim layer.
+ *
+ * The B2B admin pages reuse the shared component library (storelly-admin-ui.css =
+ * .spbwc-page-hero/.spbwc-block/.spbwc-stat-card/.spbwc-admin-table/.spbwc-empty-state…
+ * and quotes-admin.css = .spbwc-q-detail/.spbwc-q-kpi/.spbwc-q-recap/.spbwc-q-timeline).
+ * This file only adds the few B2B-specific atoms + status-pill variants on the
+ * admin design tokens (_tokens.css → --st-*).
  */
 
-.spbwc-b2b-admin,
-.spbwc-b2b-pricing {
-    --b2b-max: 1100px;
-}
-
-.spbwc-b2b-admin h1,
-.spbwc-b2b-pricing h1 {
-    font-weight: var(--font-bold);
-}
-
-.spbwc-b2b-admin .description,
-.spbwc-b2b-pricing .description {
-    color: var(--nbd-st-text-soft);
-    font-size: var(--text-md);
-}
-
-/* ============================================================ *
- *  Status / role pills
- * ============================================================ */
-
+/* Status pill variants used by SPBWC_B2B_Admin::status_pill(). */
 .spbwc-pill {
     display: inline-block;
     font-size: var(--text-sm);
@@ -35,7 +20,6 @@
     background: var(--st-pill-draft-bg);
     color: var(--st-pill-draft-text);
 }
-
 .spbwc-pill--success { background: var(--st-pill-active-bg);   color: var(--st-pill-active-text); }
 .spbwc-pill--warn    { background: var(--st-pill-pending-bg);  color: var(--st-pill-pending-text); }
 .spbwc-pill--danger  { background: var(--st-pill-danger-bg);   color: var(--st-pill-danger-text); }
@@ -43,161 +27,117 @@
 .spbwc-pill--off,
 .spbwc-pill--neutral { background: var(--st-pill-draft-bg);    color: var(--st-pill-draft-text); }
 
-/* ============================================================ *
- *  Company detail hero
- * ============================================================ */
-
-.spbwc-b2b-hero {
+/* ── Atom: tabs ──────────────────────────────────────────── */
+.spbwc-tabs {
     display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
-    gap: var(--nbd-space-6);
-    background: var(--st-brand-gradient);
-    color: var(--nbd-st-text-inverse);
-    border-radius: var(--nbd-radius-lg);
-    padding: var(--nbd-space-6);
-    margin: var(--nbd-space-4) 0 var(--nbd-space-6);
-    box-shadow: var(--shadow-hero);
-    max-width: var(--b2b-max);
+    gap: var(--nbd-space-1);
+    flex-wrap: wrap;
+    border-bottom: 1px solid var(--nbd-st-border-light);
+    margin: var(--nbd-space-6) 0 var(--nbd-space-5);
 }
-
-.spbwc-b2b-hero__title {
-    margin: 0 0 var(--nbd-space-2);
-    font-size: var(--text-5xl);
-    font-weight: var(--font-bold);
-    color: #fff;
-    display: flex;
-    align-items: center;
-    gap: var(--nbd-space-3);
-}
-
-.spbwc-b2b-hero__meta {
+.spbwc-tab {
+    appearance: none;
+    background: none;
+    border: 0;
+    border-bottom: 2px solid transparent;
+    padding: var(--nbd-space-2) var(--nbd-space-3);
     font-size: var(--text-md);
-    opacity: 0.92;
-}
-
-.spbwc-b2b-hero__meta a {
-    color: #fff;
-    text-decoration: underline;
-}
-
-.spbwc-b2b-hero .spbwc-pill {
-    background: rgba(255, 255, 255, 0.2);
-    color: #fff;
-}
-
-/* Quick stats row */
-.spbwc-b2b-stats {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-    gap: var(--nbd-space-4);
-    margin: 0 0 var(--nbd-space-6);
-    max-width: var(--b2b-max);
-}
-
-.spbwc-b2b-stat {
-    background: var(--nbd-st-bg);
-    border: 1px solid var(--nbd-st-border-light);
-    border-radius: var(--nbd-radius-md);
-    padding: var(--nbd-space-4);
-    box-shadow: var(--shadow-card);
-}
-
-.spbwc-b2b-stat__value {
-    font-size: var(--text-4xl);
-    font-weight: var(--font-bold);
-    color: var(--nbd-st-text);
-    line-height: 1.1;
-}
-
-.spbwc-b2b-stat__label {
-    font-size: var(--text-sm);
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
-    color: var(--nbd-st-text-mute);
-    margin-top: var(--nbd-space-1);
-}
-
-/* ============================================================ *
- *  Section cards
- * ============================================================ */
-
-.spbwc-b2b-admin h2,
-.spbwc-b2b-pricing h2 {
-    font-size: var(--text-2xl);
     font-weight: var(--font-semibold);
-    margin: var(--nbd-space-8) 0 var(--nbd-space-3);
+    color: var(--nbd-st-text-soft);
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: var(--nbd-space-1);
+}
+.spbwc-tab:hover { color: var(--st-brand); }
+.spbwc-tab.is-active {
+    color: var(--st-brand);
+    border-bottom-color: var(--st-brand);
+}
+.spbwc-tab .count {
+    background: var(--nbd-st-bg-soft);
+    border-radius: var(--nbd-radius-pill);
+    padding: 0 6px;
+    font-size: var(--text-sm);
 }
 
-.spbwc-b2b-admin .wp-list-table,
-.spbwc-b2b-pricing .wp-list-table,
-.spbwc-b2b-admin .form-table {
-    max-width: var(--b2b-max);
-    box-shadow: var(--shadow-card);
-    border-radius: var(--nbd-radius-md);
+/* ── Atom: avatar ────────────────────────────────────────── */
+.spbwc-avatar {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: var(--nbd-radius-pill);
+    background: var(--st-brand-soft);
+    color: var(--st-brand-pressed);
+    font-size: var(--text-base);
+    font-weight: var(--font-bold);
+    text-transform: uppercase;
+    flex: 0 0 auto;
     overflow: hidden;
 }
+.spbwc-avatar img { width: 100%; height: 100%; object-fit: cover; }
+.spbwc-avatar--sm { width: 24px; height: 24px; font-size: var(--text-sm); }
+.spbwc-avatar--lg { width: 44px; height: 44px; font-size: var(--text-lg); }
 
-.spbwc-b2b-admin .wp-list-table thead th,
-.spbwc-b2b-pricing .wp-list-table thead th {
-    background: var(--nbd-st-bg-soft);
-    font-weight: var(--font-semibold);
+/* ── Atom: usage meter ───────────────────────────────────── */
+.spbwc-meter {
+    display: block;
+    width: 100%;
+    max-width: 160px;
+    height: 6px;
+    border-radius: var(--nbd-radius-pill);
+    background: var(--nbd-st-border-subtle);
+    overflow: hidden;
 }
-
-/* ============================================================ *
- *  Forms (upgrade, bind, tiers)
- * ============================================================ */
-
-.spbwc-b2b-form .form-table,
-.spbwc-b2b-admin .form-table {
-    background: var(--nbd-st-bg);
+.spbwc-meter__fill {
+    display: block;
+    height: 100%;
+    border-radius: var(--nbd-radius-pill);
+    background: var(--nbd-color-success);
 }
+.spbwc-meter--warn .spbwc-meter__fill { background: var(--nbd-color-warning); }
+.spbwc-meter--danger .spbwc-meter__fill { background: var(--nbd-color-danger); }
+.spbwc-meter__label { font-size: var(--text-sm); color: var(--nbd-st-text-mute); }
 
-.spbwc-b2b-form .form-table th {
-    color: var(--nbd-st-text);
-    font-weight: var(--font-semibold);
+/* ── Atom: role chip ─────────────────────────────────────── */
+.spbwc-role-chip {
+    display: inline-block;
+    font-size: var(--text-sm);
+    font-weight: var(--font-bold);
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+    border-radius: var(--nbd-radius-pill);
+    padding: 2px 9px;
+    background: var(--st-pill-draft-bg);
+    color: var(--st-pill-draft-text);
 }
+.spbwc-role-chip--owner    { background: var(--st-pill-featured-bg); color: var(--st-pill-featured-text); }
+.spbwc-role-chip--admin    { background: var(--st-brand-soft);      color: var(--st-brand-pressed); }
+.spbwc-role-chip--approver { background: var(--st-pill-active-bg);  color: var(--st-pill-active-text); }
+.spbwc-role-chip--requester{ background: var(--st-pill-pending-bg); color: var(--st-pill-pending-text); }
+.spbwc-role-chip--viewer   { background: var(--st-pill-draft-bg);   color: var(--st-pill-draft-text); }
 
+/* ── B2B-specific: per-company pricing bind form ─────────── */
 .spbwc-b2b-bind {
     display: flex;
-    align-items: center;
+    align-items: flex-end;
     flex-wrap: wrap;
-    gap: var(--nbd-space-2);
+    gap: var(--nbd-space-3);
     padding: var(--nbd-space-4);
     background: var(--nbd-st-bg-soft);
     border: 1px solid var(--nbd-st-border-light);
     border-radius: var(--nbd-radius-md);
-    max-width: var(--b2b-max);
     margin-top: var(--nbd-space-3);
 }
+.spbwc-b2b-bind label { display: flex; flex-direction: column; gap: var(--nbd-space-1); font-size: var(--text-sm); color: var(--nbd-st-text-soft); font-weight: var(--font-semibold); }
 
-.spbwc-b2b-actions {
-    display: flex;
-    gap: var(--nbd-space-2);
-    flex-wrap: wrap;
-    align-items: center;
-    margin: var(--nbd-space-4) 0;
-}
-
-/* Primary CTA tint to Storelly brand */
-.spbwc-b2b-admin .button-primary,
-.spbwc-b2b-pricing .button-primary {
-    background: var(--st-brand);
-    border-color: var(--st-brand-pressed);
-}
-
-.spbwc-b2b-admin .button-primary:hover,
-.spbwc-b2b-pricing .button-primary:hover {
-    background: var(--st-brand-pressed);
-}
-
-/* Subsubsub tabs spacing */
-.spbwc-b2b-admin .subsubsub {
-    margin-bottom: var(--nbd-space-3);
-}
-
-@media (max-width: 782px) {
-    .spbwc-b2b-hero {
-        flex-direction: column;
-    }
+/* Tier cards grid (B2B Pricing) reuses .spbwc-list-grid + .spbwc-block. */
+.spbwc-tier-discount {
+    font-size: var(--text-4xl);
+    font-weight: var(--font-bold);
+    color: var(--st-brand);
+    line-height: 1;
 }

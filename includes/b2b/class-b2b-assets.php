@@ -23,17 +23,31 @@ if ( ! class_exists( 'SPBWC_B2B_Assets' ) ) {
             add_action( 'admin_enqueue_scripts', array( __CLASS__, 'maybe_admin' ) );
         }
 
-        /** Enqueue the storefront B2B stylesheet (+ its token dependency). */
+        /**
+         * Enqueue the storefront B2B stylesheets: the shared storefront component
+         * library (quote-storefront.css = .spbwc-rfq-* ; custom-order.css =
+         * .spbwc-saved-designs and .spbwc-co-chip + the My-Account frame) plus the
+         * slim B2B layer (brand header + atoms), all on the storefront token set.
+         */
         public static function storefront() {
             if ( ! wp_style_is( 'spbwc-tokens-storefront', 'registered' ) ) {
                 wp_register_style( 'spbwc-tokens-storefront', SPBWC_PB_CSS_URL . '_tokens-storefront.css', array(), SPBWC_PB_VERSION );
             }
+            // Shared storefront component libraries.
+            if ( ! wp_style_is( 'spbwc-quote-storefront', 'registered' ) ) {
+                wp_register_style( 'spbwc-quote-storefront', SPBWC_PB_CSS_URL . 'quote-storefront.css', array( 'spbwc-tokens-storefront' ), SPBWC_PB_VERSION );
+            }
+            if ( ! wp_style_is( 'spbwc-custom-order', 'registered' ) ) {
+                wp_register_style( 'spbwc-custom-order', SPBWC_PB_CSS_URL . 'custom-order.css', array( 'spbwc-tokens-storefront' ), SPBWC_PB_VERSION );
+            }
             $is_rtl = function_exists( 'is_rtl' ) && is_rtl();
             $file   = $is_rtl && file_exists( SPBWC_PB_ASSETS_DIR . 'css/b2b-rtl.css' ) ? 'b2b-rtl.css' : 'b2b.css';
             if ( ! wp_style_is( 'spbwc-b2b', 'registered' ) ) {
-                wp_register_style( 'spbwc-b2b', SPBWC_PB_CSS_URL . $file, array( 'spbwc-tokens-storefront' ), SPBWC_PB_VERSION );
+                wp_register_style( 'spbwc-b2b', SPBWC_PB_CSS_URL . $file, array( 'spbwc-tokens-storefront', 'spbwc-quote-storefront', 'spbwc-custom-order' ), SPBWC_PB_VERSION );
             }
             wp_enqueue_style( 'spbwc-tokens-storefront' );
+            wp_enqueue_style( 'spbwc-quote-storefront' );
+            wp_enqueue_style( 'spbwc-custom-order' );
             wp_enqueue_style( 'spbwc-b2b' );
         }
 
@@ -54,7 +68,15 @@ if ( ! class_exists( 'SPBWC_B2B_Assets' ) ) {
             if ( ! wp_style_is( 'spbwc-tokens', 'registered' ) ) {
                 wp_register_style( 'spbwc-tokens', SPBWC_PB_CSS_URL . '_tokens.css', array(), SPBWC_PB_VERSION );
             }
-            wp_enqueue_style( 'spbwc-b2b-admin', SPBWC_PB_CSS_URL . 'b2b-admin.css', array( 'spbwc-tokens', 'dashicons' ), SPBWC_PB_VERSION );
+            // Shared admin component library is enqueued globally on Storelly pages
+            // (spbwc-admin-ui). Add the quote workspace stylesheet so the B2B detail
+            // can reuse its .spbwc-q-* patterns (2-col detail, KPI, recap, timeline).
+            if ( ! wp_style_is( 'spbwc-quotes-admin', 'registered' ) ) {
+                wp_register_style( 'spbwc-quotes-admin', SPBWC_PB_CSS_URL . 'quotes-admin.css', array( 'spbwc-tokens' ), SPBWC_PB_VERSION );
+            }
+            wp_enqueue_style( 'spbwc-admin-ui' );
+            wp_enqueue_style( 'spbwc-quotes-admin' );
+            wp_enqueue_style( 'spbwc-b2b-admin', SPBWC_PB_CSS_URL . 'b2b-admin.css', array( 'spbwc-tokens', 'spbwc-admin-ui', 'dashicons' ), SPBWC_PB_VERSION );
         }
     }
 }
