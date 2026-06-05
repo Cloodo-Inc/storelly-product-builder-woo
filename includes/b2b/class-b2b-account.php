@@ -123,10 +123,34 @@ if ( ! class_exists( 'SPBWC_B2B_Account' ) ) {
             echo '<div class="spbwc-store__id">';
             echo '<span class="spbwc-store__eyebrow">' . esc_html( $name ) . ' &middot; ' . esc_html__( 'Brand Store', 'storelly-product-builder-for-woocommerce' ) . '</span>';
             echo '<h2 class="spbwc-store__title">' . esc_html__( 'Brand Store profile', 'storelly-product-builder-for-woocommerce' ) . '</h2>';
+            $pct = self::completion_pct( $company_id );
+            echo '<div class="spbwc-store__completion"><span class="spbwc-store__completion-bar"><span style="width:' . esc_attr( $pct ) . '%"></span></span><span class="spbwc-store__completion-label">' . esc_html( sprintf(
+                /* translators: %d: completion percent. */
+                __( 'Profile %d%% complete', 'storelly-product-builder-for-woocommerce' ),
+                $pct
+            ) ) . '</span></div>';
             if ( '' !== $store ) {
                 echo '<a class="spbwc-store__link" href="' . esc_url( $store ) . '" target="_blank" rel="noopener">' . esc_html__( 'View public store →', 'storelly-product-builder-for-woocommerce' ) . '</a>';
             }
             echo '</div></div></div>';
+        }
+
+        /** Rough profile-completion percentage for the header meter. */
+        protected static function completion_pct( $company_id ) {
+            $profile = (array) get_post_meta( $company_id, SPBWC_Company::META_PROFILE, true );
+            $contact = (array) get_post_meta( $company_id, SPBWC_Company::META_CONTACT, true );
+            $checks  = array(
+                (int) get_post_meta( $company_id, SPBWC_Company::META_LOGO, true ) > 0,
+                '' !== (string) get_post_meta( $company_id, SPBWC_Company::META_TAGLINE, true ),
+                ! empty( $profile['legal_name'] ),
+                ! empty( $profile['industry'] ),
+                ! empty( $profile['tax_id'] ),
+                ! empty( $contact['email'] ),
+                ! empty( $contact['name'] ),
+                '' !== (string) get_post_meta( $company_id, SPBWC_Company::META_DESCRIPTION, true ),
+            );
+            $done = count( array_filter( $checks ) );
+            return (int) round( $done / max( 1, count( $checks ) ) * 100 );
         }
 
         /** Read-only summary for non-managers. */
@@ -166,71 +190,84 @@ if ( ! class_exists( 'SPBWC_B2B_Account' ) ) {
             echo '<input type="hidden" name="spbwc_b2b_save" value="1" />';
             echo '<input type="hidden" name="company" value="' . esc_attr( $company_id ) . '" />';
 
-            // 1. Branding.
-            echo '<fieldset class="spbwc-store__section"><legend>' . esc_html__( 'Branding', 'storelly-product-builder-for-woocommerce' ) . '</legend>';
+            // 1. Branding card.
+            echo '<section class="spbwc-rfq-card spbwc-store__section"><h3>🎨 ' . esc_html__( 'Branding', 'storelly-product-builder-for-woocommerce' ) . '</h3>';
             self::field_text( 'company_name', __( 'Store name', 'storelly-product-builder-for-woocommerce' ), get_the_title( $company_id ), true );
             self::field_text( 'tagline', __( 'Tagline', 'storelly-product-builder-for-woocommerce' ), $tagline );
-            echo '<p class="form-row"><label>' . esc_html__( 'Logo (square, min 400×400)', 'storelly-product-builder-for-woocommerce' ) . '</label>';
-            if ( $logo_id ) {
-                echo wp_get_attachment_image( $logo_id, 'thumbnail', false, array( 'style' => 'display:block;max-width:96px;height:auto;margin-bottom:6px;' ) );
-            }
-            echo '<input type="file" name="logo" accept="image/png,image/jpeg,image/svg+xml" /></p>';
-            echo '<p class="form-row"><label>' . esc_html__( 'Banner (≈1920×400)', 'storelly-product-builder-for-woocommerce' ) . '</label>';
-            if ( $banner_id ) {
-                echo wp_get_attachment_image( $banner_id, 'medium', false, array( 'style' => 'display:block;max-width:240px;height:auto;margin-bottom:6px;' ) );
-            }
-            echo '<input type="file" name="banner" accept="image/png,image/jpeg" /></p>';
+            echo '<div class="spbwc-store__uploads">';
+            self::field_upload( 'logo', __( 'Logo', 'storelly-product-builder-for-woocommerce' ), __( 'Square · min 400×400 · PNG/SVG', 'storelly-product-builder-for-woocommerce' ), $logo_id, 'image/png,image/jpeg,image/svg+xml', 'thumbnail' );
+            self::field_upload( 'banner', __( 'Banner', 'storelly-product-builder-for-woocommerce' ), __( '≈1920×400 · PNG/JPG', 'storelly-product-builder-for-woocommerce' ), $banner_id, 'image/png,image/jpeg', 'medium' );
+            echo '</div>';
+            echo '<div class="spbwc-store__colours">';
             self::field_color( 'brand_primary', __( 'Primary colour', 'storelly-product-builder-for-woocommerce' ), $primary );
             self::field_color( 'brand_secondary', __( 'Secondary colour', 'storelly-product-builder-for-woocommerce' ), $secondary );
+            echo '</div>';
             self::field_textarea( 'description', __( 'Brand description', 'storelly-product-builder-for-woocommerce' ), $desc );
-            echo '</fieldset>';
+            echo '</section>';
 
-            // 2. Corporate profile.
-            echo '<fieldset class="spbwc-store__section"><legend>' . esc_html__( 'Corporate profile', 'storelly-product-builder-for-woocommerce' ) . '</legend>';
+            // 2. Corporate profile card.
+            echo '<section class="spbwc-rfq-card spbwc-store__section"><h3>🏢 ' . esc_html__( 'Corporate profile', 'storelly-product-builder-for-woocommerce' ) . '</h3><div class="spbwc-store__grid2">';
             self::field_text( 'legal_name', __( 'Legal company name', 'storelly-product-builder-for-woocommerce' ), $p( $profile, 'legal_name' ), true );
             self::field_text( 'dba', __( 'Trade / DBA name', 'storelly-product-builder-for-woocommerce' ), $p( $profile, 'dba' ) );
             self::field_text( 'industry', __( 'Industry', 'storelly-product-builder-for-woocommerce' ), $p( $profile, 'industry' ) );
             self::field_text( 'employees', __( 'Number of employees', 'storelly-product-builder-for-woocommerce' ), $p( $profile, 'employees' ) );
             self::field_text( 'tax_id', __( 'VAT / Tax ID', 'storelly-product-builder-for-woocommerce' ), $p( $profile, 'tax_id' ) );
-            echo '</fieldset>';
+            echo '</div></section>';
 
-            // 3. Address.
-            echo '<fieldset class="spbwc-store__section"><legend>' . esc_html__( 'Address', 'storelly-product-builder-for-woocommerce' ) . '</legend>';
+            // 3. Address card.
+            echo '<section class="spbwc-rfq-card spbwc-store__section"><h3>📍 ' . esc_html__( 'Address', 'storelly-product-builder-for-woocommerce' ) . '</h3>';
             self::field_text( 'addr_street', __( 'Street address', 'storelly-product-builder-for-woocommerce' ), $p( $address, 'street' ) );
+            echo '<div class="spbwc-store__grid2">';
             self::field_text( 'addr_city', __( 'City', 'storelly-product-builder-for-woocommerce' ), $p( $address, 'city' ) );
             self::field_text( 'addr_state', __( 'State / Province', 'storelly-product-builder-for-woocommerce' ), $p( $address, 'state' ) );
             self::field_text( 'addr_postcode', __( 'Postcode', 'storelly-product-builder-for-woocommerce' ), $p( $address, 'postcode' ) );
             self::field_text( 'addr_country', __( 'Country', 'storelly-product-builder-for-woocommerce' ), $p( $address, 'country' ) );
-            echo '</fieldset>';
+            echo '</div></section>';
 
-            // 4. Contact.
-            echo '<fieldset class="spbwc-store__section"><legend>' . esc_html__( 'Official contact', 'storelly-product-builder-for-woocommerce' ) . '</legend>';
+            // 4. Contact card.
+            echo '<section class="spbwc-rfq-card spbwc-store__section"><h3>📞 ' . esc_html__( 'Official contact', 'storelly-product-builder-for-woocommerce' ) . '</h3><div class="spbwc-store__grid2">';
             self::field_text( 'contact_name', __( 'Primary contact name', 'storelly-product-builder-for-woocommerce' ), $p( $contact, 'name' ) );
             self::field_text( 'contact_title', __( 'Title / Role', 'storelly-product-builder-for-woocommerce' ), $p( $contact, 'title' ) );
             self::field_text( 'contact_email', __( 'Business email', 'storelly-product-builder-for-woocommerce' ), $p( $contact, 'email' ) );
             self::field_text( 'contact_phone', __( 'Business phone', 'storelly-product-builder-for-woocommerce' ), $p( $contact, 'phone' ) );
             self::field_text( 'contact_website', __( 'Website', 'storelly-product-builder-for-woocommerce' ), $p( $contact, 'website' ) );
-            echo '</fieldset>';
+            echo '</div></section>';
 
-            echo '<p class="form-row"><button type="submit" class="button">' . esc_html__( 'Save Brand Store', 'storelly-product-builder-for-woocommerce' ) . '</button></p>';
+            echo '<div class="spbwc-store__savebar"><button type="submit" class="spbwc-rfq-btn">' . esc_html__( 'Save Brand Store', 'storelly-product-builder-for-woocommerce' ) . '</button></div>';
             echo '</form>';
+        }
+
+        /** Styled upload zone with current-image preview. */
+        protected static function field_upload( $name, $label, $hint, $attachment_id, $accept, $size ) {
+            echo '<label class="spbwc-store__upload"><span class="spbwc-store__upload-label">' . esc_html( $label ) . '</span>';
+            echo '<span class="spbwc-store__upload-box">';
+            if ( $attachment_id ) {
+                echo wp_get_attachment_image( (int) $attachment_id, $size, false, array( 'class' => 'spbwc-store__upload-preview' ) );
+            } else {
+                echo '<span class="spbwc-store__upload-icon dashicons dashicons-format-image" aria-hidden="true"></span>';
+            }
+            echo '<span class="spbwc-store__upload-hint">' . esc_html( $hint ) . '</span>';
+            echo '<input type="file" name="' . esc_attr( $name ) . '" accept="' . esc_attr( $accept ) . '" />';
+            echo '</span></label>';
         }
 
         /* ── Field helpers ────────────────────────────────────────── */
 
         protected static function field_text( $name, $label, $value, $required = false ) {
-            echo '<p class="form-row"><label for="spbwc-f-' . esc_attr( $name ) . '">' . esc_html( $label ) . ( $required ? ' *' : '' ) . '</label>';
-            echo '<input type="text" class="input-text" id="spbwc-f-' . esc_attr( $name ) . '" name="' . esc_attr( $name ) . '" value="' . esc_attr( $value ) . '"' . ( $required ? ' required' : '' ) . ' /></p>';
+            echo '<p class="spbwc-rfq-field"><label for="spbwc-f-' . esc_attr( $name ) . '">' . esc_html( $label ) . ( $required ? ' *' : '' ) . '</label>';
+            echo '<input type="text" id="spbwc-f-' . esc_attr( $name ) . '" name="' . esc_attr( $name ) . '" value="' . esc_attr( $value ) . '"' . ( $required ? ' required' : '' ) . ' /></p>';
         }
 
         protected static function field_textarea( $name, $label, $value ) {
-            echo '<p class="form-row"><label for="spbwc-f-' . esc_attr( $name ) . '">' . esc_html( $label ) . '</label>';
-            echo '<textarea class="input-text" id="spbwc-f-' . esc_attr( $name ) . '" name="' . esc_attr( $name ) . '" rows="3">' . esc_textarea( $value ) . '</textarea></p>';
+            echo '<p class="spbwc-rfq-field"><label for="spbwc-f-' . esc_attr( $name ) . '">' . esc_html( $label ) . '</label>';
+            echo '<textarea id="spbwc-f-' . esc_attr( $name ) . '" name="' . esc_attr( $name ) . '" rows="3">' . esc_textarea( $value ) . '</textarea></p>';
         }
 
         protected static function field_color( $name, $label, $value ) {
-            echo '<p class="form-row"><label for="spbwc-f-' . esc_attr( $name ) . '">' . esc_html( $label ) . '</label>';
-            echo '<input type="color" id="spbwc-f-' . esc_attr( $name ) . '" name="' . esc_attr( $name ) . '" value="' . esc_attr( '' !== $value ? $value : '#2563eb' ) . '" /></p>';
+            $value = '' !== $value ? $value : '#2563eb';
+            echo '<p class="spbwc-rfq-field"><label for="spbwc-f-' . esc_attr( $name ) . '">' . esc_html( $label ) . '</label>';
+            echo '<span class="spbwc-color-field"><input type="color" id="spbwc-f-' . esc_attr( $name ) . '" name="' . esc_attr( $name ) . '" value="' . esc_attr( $value ) . '" />';
+            echo '<code>' . esc_html( $value ) . '</code></span></p>';
         }
 
         /* ── Save ─────────────────────────────────────────────────── */
