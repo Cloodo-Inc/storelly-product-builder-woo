@@ -93,12 +93,16 @@ No new external services. All read/derived from existing order + design data.
 
 | # | Milestone | Scope | Status |
 | --- | --- | --- | --- |
-| **D1** | **Routing + detail shell** | `view` branch in `spbwc_orders_manager`; `views/custom-order-detail.php`; header summary (S1) + back link + "Open in WooCommerce"; list "View" → native detail. | todo |
-| **D2** | **Design items (S2)** | Preview gallery + option spec + print specs + per-item download/regenerate/designer + status/badges. In-page download wired. | todo |
-| **D3** | **Summary + history (S3+S4)** | Order summary + addresses; notes/timeline + add-note form. | todo |
-| **D4** | **Customer activity (S5)** | Sidebar lifetime + saved designs + downloads + other custom orders (HPOS-safe). | todo |
-| **D5** | **Production checklist + Files panel (S6+S7)** | Production meta checkboxes; files list + download-all-zip. | todo |
-| **D6** | **Polish + compliance** | Tokens, responsive, `wp plugin check` 0 errors, POT, browser-verify. | todo |
+| **D1** | **Routing + detail shell** | `view` branch in `spbwc_orders_manager`; `SPBWC_Custom_Order_Detail::render()` (echo, no separate view file); header summary (S1) + back link + "Open in WooCommerce"; list "View" → native detail. | **done** |
+| **D2** | **Design items (S2)** | Preview gallery + option spec + print specs (config.json) + per-item PDF badge + designer link; multi-format Download reused via `#post_ID` + storelly-general.js; Regenerate in header. | **done** |
+| **D3** | **Summary + history (S3+S4)** | Order summary + billing/shipping addresses; `wc_get_order_notes` timeline + add-internal-note form (nonce+cap). | **done** |
+| **D4** | **Customer activity (S5)** | Sidebar lifetime orders/spend + saved designs + preview downloads + other custom orders (HPOS-safe `wc_get_orders`). | **done** |
+| **D5** | **Production checklist + Files panel (S6+S7)** | Production meta checkboxes (`_spbwc_production_steps`, nonce+cap); files list (png/jpg/svg/pdf per design folder) with size + download. | **done** |
+| **D6** | **Polish + compliance** | Admin tokens (`--st-*`/`--nbd-*`), responsive (single-col <1024px), `wp plugin check` 0 real errors, POT regen, browser-verified (6 sections render with real data). | **done** |
+
+> Built as one self-contained class `includes/class-custom-order-detail.php` (echoes HTML — no
+> separate view file — to stay isolated from the concurrently-churned admin-options). Download-all-zip
+> deferred in favour of reusing the proven multi-format download control. Verified on order #1428.
 
 > Rules: ABSPATH guard; `spbwc_` prefix; text domain `storelly-product-builder-for-woocommerce`;
 > nonce + capability on every action; escape all output; HPOS-safe (no `wp_posts` order queries);
