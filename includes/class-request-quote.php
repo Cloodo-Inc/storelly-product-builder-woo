@@ -597,6 +597,13 @@ if ( ! class_exists( 'SPBWC_Request_Quote' ) ) {
         public function add_account_endpoints() {
             add_rewrite_endpoint( 'quotes', EP_ROOT | EP_PAGES );
             add_rewrite_endpoint( 'view-quote', EP_ROOT | EP_PAGES );
+            // Self-healing one-time flush so the endpoints resolve right after
+            // activation without re-saving permalinks, and without depending on
+            // another endpoint class flushing the whole rule set for us.
+            if ( 'yes' !== get_option( 'spbwc_quotes_endpoint_flushed' ) ) {
+                flush_rewrite_rules( false );
+                update_option( 'spbwc_quotes_endpoint_flushed', 'yes' );
+            }
         }
 
         public function add_quotes_account_menu( $items ) {

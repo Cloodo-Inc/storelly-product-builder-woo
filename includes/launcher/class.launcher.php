@@ -90,6 +90,13 @@ class SPBWC_Marketplace{
         foreach ( $this->query_vars as $var ){
             add_rewrite_endpoint($var, EP_ROOT | EP_PAGES);
         }
+        // Self-healing one-time flush so the designer-store endpoint resolves
+        // right after activation without re-saving permalinks, and without
+        // relying on another endpoint class flushing the rule set for us.
+        if ( 'yes' !== get_option( 'spbwc_marketplace_endpoint_flushed' ) ) {
+            flush_rewrite_rules( false );
+            update_option( 'spbwc_marketplace_endpoint_flushed', 'yes' );
+        }
     }
     public function add_query_vars($vars) {
         foreach ( $this->query_vars as $var ){

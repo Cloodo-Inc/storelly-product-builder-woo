@@ -70,6 +70,24 @@ if (!class_exists('SPBWC_Storelly_Product_Builder_Backend')) {
             SPBWC_Storelly_Install::spbwc_create_tables();
             SPBWC_Storelly_Install::spbwc_init_files_and_folders();
             update_option('spbwc_version_plugin', SPBWC_PB_VERSION);
+            // Clear every account-endpoint flush flag so the next `init` re-flushes
+            // rewrite rules and all My-Account endpoints resolve without the user
+            // having to re-save permalinks. Endpoints register on `init`, after this
+            // activation hook, so we cannot flush here directly — we arm the lazy
+            // flush instead (covers (re)activation cleanly).
+            $flush_flags = array(
+                'spbwc_quotes_endpoint_flushed',
+                'spbwc_marketplace_endpoint_flushed',
+                'spbwc_saved_designs_flushed',
+                'spbwc_b2b_account_flushed',
+                'spbwc_b2b_reorders_flushed',
+                'spbwc_b2b_team_flushed',
+                'spbwc_b2b_approval_flushed',
+                'spbwc_b2b_store_flushed',
+            );
+            foreach ( $flush_flags as $flag ) {
+                delete_option( $flag );
+            }
         }
     }
 }
