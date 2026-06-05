@@ -94,7 +94,7 @@ Post meta (prefix `_spbwc_company_`):
 | `_spbwc_company_contact` | array | primary contact name, title, business email, phone, website, socials |
 | `_spbwc_company_payment_terms` | string | `prepaid`, `net15`, `net30`, `custom` (display/label only in v1 — see §7) |
 | `_spbwc_company_credit_limit` | decimal | informational in v1 |
-| `_spbwc_company_seats` | int | max team size (default 5; see Free/Pro §11) |
+| `_spbwc_company_seats` | int | max team size (default 5, a filterable default — not a paywall; see §11) |
 | `_spbwc_company_approval_threshold` | decimal | orders above this need approval (default 0 = always for requesters) |
 | `_spbwc_company_allowed_products` | array | product IDs in the company's "pre-approved" Brand Store (empty = all) |
 
@@ -196,6 +196,15 @@ New My-Account endpoint **`brand-store`** (registered like `saved-designs`/`quot
 
 Every company-side page renders the **Brand Page Header (Pattern 9)**: gradient using `_spbwc_company_brand_primary/secondary`, logo, eyebrow "Company · Section", optional stats row. Falls back to Storelly default brand color when unset.
 
+**Public `/store/<slug>` layout (redesigned).** The public storefront (`SPBWC_B2B_Storefront::render_store()`) uses a richer, token-driven **banner-forward hero** distinct from the shared company-page header:
+- **Banner** — when `_spbwc_company_banner_id` is set it renders as a full-bleed image layer (`.spbwc-store__banner`) under a brand-gradient readability veil (`.spbwc-store__hero-veil`); with no banner the hero is the brand gradient + decorative blob.
+- **Logo** — `_spbwc_company_logo_id` in a white rounded plate; when no logo is uploaded a **brand-tinted monogram** (1–2 initials of the company name) fills the plate so the hero never looks empty.
+- **Identity** — eyebrow "Brand Store", title, tagline; **description** sits below the hero.
+- **Badge row** (`.spbwc-store__badges`) — brand-safe cards *assigned to the store*: **tier name only** (never the discount %), industry (from the profile), catalogue size, team size. Commercial terms (discount %, payment terms, approval thresholds) and internal status are **intentionally not exposed** on this public page.
+- **Catalogue** — section head with live item count + enhanced product cards (4∶3 thumb, Sale flag, brand-coloured price, "View product" CTA).
+
+All colours/spacing/radius/shadow use the storefront design tokens (`--nbd-mb-*` / `--nbd-color-*`); the company brand colours are injected as `--spbwc-brand-primary/secondary` so the whole page re-tints. `dashicons` is enqueued by `SPBWC_B2B_Assets::storefront()` for the badge glyphs.
+
 **States:** not-a-company (no endpoint shown) → invited (accept banner) → pending approval ("We'll review shortly") → active (full brand store) → incomplete profile (nudge to finish). Mirrors the source's tier-pill upgrade handshake.
 
 ---
@@ -240,7 +249,7 @@ Converts Printcart `pricing` page + `modal-new-pricing-rule`.
 Three stacked cards, matching the source:
 1. **Tier discount ladder** — table `Tier | Discount % | Min order | Payment terms | Free shipping | Companies | Edit`. `+ Add tier`. Edits `spbwc_b2b_tiers`. "Companies" count = companies on that tier.
 2. **Quantity-based discounts** — surfaced read-only here, but they reuse the existing `quantity_breaks` engine; link to the option editor. (No new engine — memory: quantity_breaks already has cart engine.)
-3. **Special rules** — promo / product-specific overrides. v1: **defer** complex promo codes to Pro/later; show the section but ship only per-company overrides (Feature 2) + tier ladder.
+3. **Special rules** — promo / product-specific overrides. v1: **defer** complex promo codes to a later release; show the section but ship only per-company overrides (Feature 2) + tier ladder.
 
 ### 6.2 Assigning a tier to a company
 Three entry points, all writing `_spbwc_company_tier`:
@@ -301,7 +310,7 @@ Teams (header [Invite member])
        approve ≤ threshold · view activity · invite members)
     Spending: per-order limit · monthly limit · used → [Adjust limits]
 ```
-Invite teammate = add to `_spbwc_company_invites` (role) + WC email accept link. Seat limit enforced against `_spbwc_company_seats` (Free/Pro gate §11).
+Invite teammate = add to `_spbwc_company_invites` (role) + WC email accept link. Seat limit enforced against `_spbwc_company_seats` (a filterable default cap, not a paywall — §11).
 
 ### 8.2 Procurement & approval gate
 ```
@@ -382,7 +391,8 @@ choice predates surfacing this hard freemium constraint — flagged to the user.
 2. **One user → one company in v1.** Enforced in `SPBWC_Company::create()` (dup guard).
 3. **Brand Store has its own public URL** `/store/<slug>` (pretty permalinks) with a `?spbwc_store=<slug>` fallback for plain-permalink sites. **Shipped in M1.**
 4. **"Upgrade to B2B" = WC Users-list row action** + the Storelly **B2B Companies** hub. **Shipped in M1.**
-5. **Free-tier seat cap = 5** (`SPBWC_Company::DEFAULT_SEATS`, filterable via `spbwc_company_default_seats`).
+5. **Default seat cap = 5** (`SPBWC_Company::DEFAULT_SEATS`, filterable via `spbwc_company_default_seats`) — a sensible configurable default, **not** a freemium paywall (B2B is fully free under the Local=Free model).
+6. **Public store is brand-safe (confirmed 2026-06-05).** The `/store/<slug>` page is fully public (no login gate), so its badge row surfaces only non-sensitive facts — tier **name**, industry, catalogue size, team size. Discount %, payment terms, approval thresholds and internal status are never rendered there. Banner-forward hero with monogram logo-fallback shipped the same day.
 
 **Remaining (later milestones):**
 - **Quantity-break "save %" chips in reorder (M3)** — pull live from the product's `quantity_breaks`. *(Recommend: live.)*
