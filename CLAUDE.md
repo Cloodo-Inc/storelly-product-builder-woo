@@ -28,6 +28,32 @@ plugin TUÂN THỦ guideline wordpress.org và pass Plugin Check.
 
 Cung cấp impact report ngắn trước khi sửa: ảnh hưởng gì, có phá flow WooCommerce/đồng bộ order không.
 
+## Definition of Done — sau khi code xong (BẮT BUỘC, tự động)
+
+Sau khi hoàn thành một thay đổi code mạch lạc, **trước khi báo "xong" hoặc commit**, tự chạy skill
+`storelly-finish-task` (không cần user nhắc). Pipeline 5 bước:
+
+1. **Design token + UX/UI** (nếu đụng UI: `static/css/**`, `static/js/**`, `views/**`, PHP render
+   HTML/enqueue): rà soát & bổ sung token từ `static/css/_tokens.css`, bỏ giá trị hardcode + inline
+   style, giữ nhất quán + RTL.
+2. **Tự test trên Chrome**: mở **session Chrome riêng** (skill `chrome-multi-session`, ưu tiên Rung 3),
+   đăng nhập qua `wp-admin-login`, vào đúng trang bị ảnh hưởng, chụp screenshot + check console error.
+3. **Tự check tuân thủ wordpress.org** trên diff (ABSPATH, sanitize+escape, nonce+cap, 1 prefix,
+   text domain literal, `$wpdb->prepare`, enqueue, no phone-home) — xem skill `wp-org-plugin-compliance`.
+   Thay đổi lớn / trước release: chạy full `wp plugin check`.
+4. **Cập nhật spec**: nếu thay đổi đụng feature có trong `docs/SPEC_*.md` thì update spec trong cùng
+   thay đổi (đánh dấu milestone, sửa hành vi, ghi option/flag mới). Đừng để spec lệch.
+5. **Tự commit local** (xem mục dưới).
+
+## Quy trình commit (tự động, KHÔNG cần hỏi)
+
+- Sau mỗi task hoàn thành + check Bước 3 sạch + test xanh → **tự `git add` + `git commit` local,
+  KHÔNG hỏi**. Conventional commit (`feat/fix/refactor/perf/docs/chore(scope): …`), tiếng Anh, kết
+  thúc bằng `Co-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>`.
+- Commit ở mỗi mốc mạch lạc — không commit từng micro-edit, không gộp một cục khổng lồ.
+- **KHÔNG commit khi test đỏ** trừ khi user yêu cầu (rule toàn cục).
+- **TUYỆT ĐỐI không `git push`, không tạo remote branch** — người duyệt & push cuối ngày (rule toàn cục).
+
 ## Quy trình release
 
 ```
