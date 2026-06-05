@@ -110,6 +110,13 @@ Three layers, evaluated at activation / first Quotes-screen visit:
 3. **Nothing** → seed **1 sample quote** (via the demo-seeder), clearly badged "Sample" and
    one-click removable, so the workspace shows the populated UI instead of a blank slate.
 
+**M6 — DONE (bundled into commit b9a23c6).** `SPBWC_Quote_Sample` seeds/removes a flagged
+(`_spbwc_sample`) sample quote (realistic request + 2 line items) via nonce-guarded admin-post
+actions. The Quotes empty state is now actionable + import-aware: leads with "Import N existing
+quotes" when sources have data, else "Add a sample quote" + "Set up the Get Quote button". While
+samples exist the list shows a "Remove samples" banner and each sample row a "Sample" badge.
+Verified via wp eval (create → spbwc-q-new + 2 lines + flag; count; remove_all).
+
 ## 7. Compliance (wp.org)
 
 - 100% local: every adapter reads the local DB only. **No phone-home, no external service** to declare.
