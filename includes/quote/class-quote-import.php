@@ -21,6 +21,10 @@ require_once __DIR__ . '/import/class-quote-adapter-yith-raq.php';
 require_once __DIR__ . '/import/class-quote-form-adapter.php';
 require_once __DIR__ . '/import/class-quote-adapter-flamingo.php';
 require_once __DIR__ . '/import/class-quote-adapter-fluentforms.php';
+require_once __DIR__ . '/import/class-quote-adapter-wpforms.php';
+require_once __DIR__ . '/import/class-quote-adapter-gravityforms.php';
+require_once __DIR__ . '/import/class-quote-adapter-forminator.php';
+require_once __DIR__ . '/import/class-quote-adapter-ninjaforms.php';
 
 if ( ! class_exists( 'SPBWC_Quote_Import' ) ) {
 
@@ -82,6 +86,18 @@ if ( ! class_exists( 'SPBWC_Quote_Import' ) ) {
             }
             if ( class_exists( 'SPBWC_Quote_Adapter_Fluentforms' ) ) {
                 $built_in[] = new SPBWC_Quote_Adapter_Fluentforms();
+            }
+            if ( class_exists( 'SPBWC_Quote_Adapter_Wpforms' ) ) {
+                $built_in[] = new SPBWC_Quote_Adapter_Wpforms();
+            }
+            if ( class_exists( 'SPBWC_Quote_Adapter_Gravityforms' ) ) {
+                $built_in[] = new SPBWC_Quote_Adapter_Gravityforms();
+            }
+            if ( class_exists( 'SPBWC_Quote_Adapter_Forminator' ) ) {
+                $built_in[] = new SPBWC_Quote_Adapter_Forminator();
+            }
+            if ( class_exists( 'SPBWC_Quote_Adapter_Ninjaforms' ) ) {
+                $built_in[] = new SPBWC_Quote_Adapter_Ninjaforms();
             }
             /**
              * Register additional quote import source adapters.

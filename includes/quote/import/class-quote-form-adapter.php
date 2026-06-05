@@ -142,6 +142,26 @@ if ( ! class_exists( 'SPBWC_Quote_Form_Adapter' ) ) {
             );
         }
 
+        /** Flatten a form value (scalar, name/address sub-object, or list) to text. */
+        protected function flatten_value( $value ) {
+            if ( is_scalar( $value ) ) {
+                return (string) $value;
+            }
+            if ( is_array( $value ) ) {
+                if ( isset( $value['first_name'] ) || isset( $value['last_name'] ) ) {
+                    return trim( ( isset( $value['first_name'] ) ? $value['first_name'] : '' ) . ' ' . ( isset( $value['last_name'] ) ? $value['last_name'] : '' ) );
+                }
+                $parts = array();
+                foreach ( $value as $v ) {
+                    if ( is_scalar( $v ) && '' !== (string) $v ) {
+                        $parts[] = (string) $v;
+                    }
+                }
+                return implode( ', ', $parts );
+            }
+            return '';
+        }
+
         /* ── Auto-mapping heuristic (UI pre-fill) ────────────────────── */
 
         /**
