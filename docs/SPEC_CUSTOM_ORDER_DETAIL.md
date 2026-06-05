@@ -107,3 +107,66 @@ No new external services. All read/derived from existing order + design data.
 > Rules: ABSPATH guard; `spbwc_` prefix; text domain `storelly-product-builder-for-woocommerce`;
 > nonce + capability on every action; escape all output; HPOS-safe (no `wp_posts` order queries);
 > design tokens (no raw hex); reuse existing handlers (download/regenerate) — don't duplicate.
+
+---
+
+## 8. Refinement plan — UX/UI v2 (confirmed 2026-06-05, spec-first)
+
+The D1–D6 detail page works but is a long inline-styled scroll. This pass makes it fast,
+professional and token-driven. Scope confirmed: tabs + CSS-token + CTA + workflow notes + perf +
+buyer card + re-order/download-all.
+
+### R1 — Tabbed layout (instant, no reload)
+- Render ALL sections server-side once, wrapped in tab panels: **Design · Summary · History ·
+  Customer · Production · Files**. A small `static/js/custom-order-admin.js` toggles
+  `.is-active` (show/hide) — no AJAX, no page reload → tabs open instantly.
+- Default tab **Design**; deep-link via `location.hash` (`#tab-design`); ARIA `role=tablist`/`tab`/
+  `tabpanel`, keyboard arrows; works without JS (all panels visible as a fallback).
+
+### R2 — CSS extracted + token-driven
+- New `static/css/custom-order-admin.css` using `--st-*` / `--nbd-*` (no raw hex, no inline
+  `<style>`/`style=""`). Enqueue ONLY on the detail view (`?page=…-orders&view=` present), so the
+  list page stays light. Cacheable; matches the storefront token approach.
+
+### R3 — Clear CTA hierarchy
+- Sticky header action bar: **Download print PDFs** (primary), **Regenerate** (secondary), **Open
+  in WooCommerce** (ghost/secondary). Per-item: primary **Download**, ghost **View in designer**.
+- Consistent button classes (`spbwc-cta-btn` + `--solid`/`--ghost`/`--sm`), dashicons, focus states.
+
+### R4 — Workflow notes
+- One concise hint per tab: Design ("Print-ready files to send to your printer"), Production (what
+  each step means), Files ("All generated + uploaded assets"), a PDF-status legend
+  (Ready/Partial/Failed). Muted `.spbwc-co-note` style.
+
+### R5 — Performance
+- Cache `customer_stats` in a 5-minute transient keyed by `customer_id` (invalidate is non-critical).
+- Cap order scan; avoid `@filesize` blowups (limit listed files, guard large dirs).
+- One page load renders all tabs → switching is pure CSS/JS (no server round-trips). `loading=lazy`
+  on every preview/thumbnail.
+
+### R6 — Buyer "Your design" card (My Account)
+- Refactor the per-item hook output (thumbnail + View/Download/Save chips) into ONE cohesive
+  `.spbwc-co-design-card` with a heading, a short note, and a clear CTA row — instead of three
+  loose `<p>` blocks. Token-driven (`custom-order.css`).
+
+### R7 — Re-order for customer + Download-all (zip)
+- **Re-order**: admin action (nonce + cap) that clones each design folder (M0) and creates a new
+  draft WC order for the same customer with the same items/options → admin can re-run a print job.
+- **Download all (zip)**: header action zipping every design file of the order (reuses
+  `spbwc_zip_files`), streamed then deleted.
+
+### Open decisions (R)
+- **OD-R1 Re-order target:** new **draft order** for the customer (proposed) vs add to their cart
+  vs full duplicate (incl. payment).
+- **OD-R2 Download-all scope:** print PDFs only vs all files (png/svg/pdf/uploads).
+- **OD-R3 No-JS fallback:** show all panels stacked (proposed) vs first panel only.
+
+### Milestones
+
+| # | Milestone | Scope | Status |
+| --- | --- | --- | --- |
+| **R1** | **Tabs + CSS + CTA (A/B/C)** | Tab panels + `custom-order-admin.{css,js}` (token-driven, enqueue on detail only); sticky CTA header; remove inline styles. | todo |
+| **R2** | **Workflow notes + perf (D/E)** | Per-tab hints + PDF legend; transient-cached customer stats; query/file-list guards. | todo |
+| **R3** | **Buyer "Your design" card (F)** | Cohesive design card + note + CTA row on My Account order detail. | todo |
+| **R4** | **Re-order + Download-all (R7)** | Admin re-order (clone → new draft order) + download-all-zip. | todo |
+| **R5** | **Polish + compliance** | `wp plugin check` 0 errors; POT; browser-verify tabs/CTA/perf on real orders. | todo |
