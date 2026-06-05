@@ -1270,6 +1270,15 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
                 $posted_required = isset( $_POST['field_required'] ) ? (array) wp_unslash( $_POST['field_required'] ) : array();
                 // phpcs:ignore WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Nonce checked above; values compared as string indices via in_array() only.
                 $posted_enabled = isset( $_POST['field_enabled'] ) ? (array) wp_unslash( $_POST['field_enabled'] ) : array();
+                // File-field config (parallel-indexed text/number inputs always submit; allow_multiple is presence-based by index like required/enabled).
+                // phpcs:ignore WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Nonce checked above; sanitized in the loop below.
+                $posted_allow_type = isset( $_POST['field_allow_type'] ) ? (array) wp_unslash( $_POST['field_allow_type'] ) : array();
+                // phpcs:ignore WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Nonce checked above; cast to float/int in the loop below.
+                $posted_max_size = isset( $_POST['field_max_size'] ) ? (array) wp_unslash( $_POST['field_max_size'] ) : array();
+                // phpcs:ignore WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Nonce checked above; cast to int in the loop below.
+                $posted_max_files = isset( $_POST['field_max_files'] ) ? (array) wp_unslash( $_POST['field_max_files'] ) : array();
+                // phpcs:ignore WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Nonce checked above; values compared as string indices via in_array() only.
+                $posted_allow_multiple = isset( $_POST['field_allow_multiple'] ) ? (array) wp_unslash( $_POST['field_allow_multiple'] ) : array();
                 $rows = max(
                     count( $posted_names ),
                     count( $posted_types ),
@@ -1284,10 +1293,10 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
                         continue;
                     }
                     $type = isset( $posted_types[ $i ] ) ? sanitize_key( $posted_types[ $i ] ) : 'text';
-                    if ( ! in_array( $type, array( 'text', 'email', 'textarea', 'tel', 'select' ), true ) ) {
+                    if ( ! in_array( $type, array( 'text', 'email', 'textarea', 'tel', 'select', 'file' ), true ) ) {
                         $type = 'text';
                     }
-                    $new_fields[ $name ] = array(
+                    $field = array(
                         'name'        => $name,
                         'type'        => $type,
                         'label'       => isset( $posted_labels[ $i ] ) ? sanitize_text_field( $posted_labels[ $i ] ) : ucfirst( $name ),
@@ -1296,6 +1305,21 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
                         'required'    => in_array( (string) $i, $posted_required, true ) ? '1' : '0',
                         'enabled'     => in_array( (string) $i, $posted_enabled, true ) ? '1' : '0',
                     );
+                    if ( 'file' === $type ) {
+                        // Normalize the comma list to lowercase a-z0-9 extensions.
+                        $raw_exts = isset( $posted_allow_type[ $i ] ) ? sanitize_text_field( $posted_allow_type[ $i ] ) : '';
+                        $exts     = array_filter( array_map(
+                            static function ( $e ) {
+                                return preg_replace( '/[^a-z0-9]/', '', strtolower( trim( $e ) ) );
+                            },
+                            explode( ',', $raw_exts )
+                        ) );
+                        $field['allow_multiple'] = in_array( (string) $i, $posted_allow_multiple, true ) ? '1' : '0';
+                        $field['max_files']      = isset( $posted_max_files[ $i ] ) ? max( 1, absint( $posted_max_files[ $i ] ) ) : 5;
+                        $field['max_size']       = isset( $posted_max_size[ $i ] ) ? max( 0, (float) $posted_max_size[ $i ] ) : 0;
+                        $field['allow_type']     = implode( ',', array_unique( $exts ) );
+                    }
+                    $new_fields[ $name ] = $field;
                 }
                 if ( ! empty( $new_fields ) ) {
                     $fields = $new_fields;
@@ -1340,6 +1364,8 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
                         </div>
                     </div>
                 </header>
+                <?php // Anchor so WP admin notices land below the hero, not on it. ?>
+                <hr class="wp-header-end" />
 
                 <!-- Tab navigation — switching is JS-powered (no reload) -->
                 <h2 class="nav-tab-wrapper spbwc-settings-tabs" id="spbwc-quotes-nav">
@@ -1543,12 +1569,13 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
                                                 <td><span class="dashicons dashicons-menu" style="cursor:move;color:var(--nbd-st-text-mute);" aria-hidden="true"></span></td>
                                                 <td><input type="text" name="field_name[]" class="spbwc-qf-input" value="<?php echo esc_attr( isset( $field['name'] ) ? $field['name'] : '' ); ?>" /></td>
                                                 <td>
-                                                    <select name="field_type[]" class="spbwc-qf-select">
+                                                    <select name="field_type[]" class="spbwc-qf-select spbwc-qf-type">
                                                         <option value="text"     <?php selected( isset( $field['type'] ) ? $field['type'] : '', 'text' ); ?>><?php esc_html_e( 'Text', 'storelly-product-builder-for-woocommerce' ); ?></option>
                                                         <option value="email"    <?php selected( isset( $field['type'] ) ? $field['type'] : '', 'email' ); ?>><?php esc_html_e( 'Email', 'storelly-product-builder-for-woocommerce' ); ?></option>
                                                         <option value="tel"      <?php selected( isset( $field['type'] ) ? $field['type'] : '', 'tel' ); ?>><?php esc_html_e( 'Phone', 'storelly-product-builder-for-woocommerce' ); ?></option>
                                                         <option value="textarea" <?php selected( isset( $field['type'] ) ? $field['type'] : '', 'textarea' ); ?>><?php esc_html_e( 'Textarea', 'storelly-product-builder-for-woocommerce' ); ?></option>
                                                         <option value="select"   <?php selected( isset( $field['type'] ) ? $field['type'] : '', 'select' ); ?>><?php esc_html_e( 'Select', 'storelly-product-builder-for-woocommerce' ); ?></option>
+                                                        <option value="file"     <?php selected( isset( $field['type'] ) ? $field['type'] : '', 'file' ); ?>><?php esc_html_e( 'File upload', 'storelly-product-builder-for-woocommerce' ); ?></option>
                                                     </select>
                                                 </td>
                                                 <td><input type="text" name="field_label[]" class="spbwc-qf-input" value="<?php echo esc_attr( isset( $field['label'] ) ? $field['label'] : '' ); ?>" /></td>
@@ -1566,6 +1593,32 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
                                                     <button type="button" class="spbwc-cta-btn spbwc-cta-btn--ghost spbwc-cta-btn--sm spbwc-remove-field">
                                                         <span class="dashicons dashicons-trash" aria-hidden="true"></span>
                                                     </button>
+                                                </td>
+                                            </tr>
+                                            <?php
+                                            $spbwc_is_file = ( isset( $field['type'] ) && 'file' === $field['type'] );
+                                            ?>
+                                            <tr class="spbwc-qf-config-row"<?php echo $spbwc_is_file ? '' : ' style="display:none;"'; ?>>
+                                                <td></td>
+                                                <td colspan="8">
+                                                    <div class="spbwc-qf-filecfg">
+                                                        <label class="spbwc-qf-filecfg__item">
+                                                            <input type="checkbox" name="field_allow_multiple[]" value="<?php echo esc_attr( (string) $index ); ?>" <?php checked( isset( $field['allow_multiple'] ) ? $field['allow_multiple'] : '0', '1' ); ?> />
+                                                            <span><?php esc_html_e( 'Allow multiple files', 'storelly-product-builder-for-woocommerce' ); ?></span>
+                                                        </label>
+                                                        <label class="spbwc-qf-filecfg__item">
+                                                            <span><?php esc_html_e( 'Max files', 'storelly-product-builder-for-woocommerce' ); ?></span>
+                                                            <input type="number" min="1" step="1" name="field_max_files[]" value="<?php echo esc_attr( isset( $field['max_files'] ) ? (string) $field['max_files'] : '5' ); ?>" style="width:80px;" />
+                                                        </label>
+                                                        <label class="spbwc-qf-filecfg__item">
+                                                            <span><?php esc_html_e( 'Max size (MB)', 'storelly-product-builder-for-woocommerce' ); ?></span>
+                                                            <input type="number" min="0" step="1" name="field_max_size[]" value="<?php echo esc_attr( isset( $field['max_size'] ) ? (string) $field['max_size'] : '10' ); ?>" style="width:90px;" />
+                                                        </label>
+                                                        <label class="spbwc-qf-filecfg__item spbwc-qf-filecfg__item--wide">
+                                                            <span><?php esc_html_e( 'Allowed extensions', 'storelly-product-builder-for-woocommerce' ); ?></span>
+                                                            <input type="text" name="field_allow_type[]" value="<?php echo esc_attr( isset( $field['allow_type'] ) ? (string) $field['allow_type'] : '' ); ?>" placeholder="pdf,ai,png,jpg" />
+                                                        </label>
+                                                    </div>
                                                 </td>
                                             </tr>
                                             <?php $index++; ?>
@@ -1590,14 +1643,15 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
                     <?php endif; ?>
                     <script>
                         (function($){
-                            function nextIndex(){ return $('#spbwc-quote-fields-table tbody tr').length; }
+                            // Count only the main field rows (config rows are paired siblings).
+                            function nextIndex(){ return $('#spbwc-quote-fields-table tbody tr').not('.spbwc-qf-config-row').length; }
                             function buildRow(name){
                                 var idx = nextIndex();
                                 var label = name ? name.replace(/_/g, ' ').replace(/\b\w/g, function(l){ return l.toUpperCase(); }) : '';
-                                return '<tr>'
+                                var main = '<tr>'
                                     + '<td><span class="dashicons dashicons-menu" style="cursor:move;color:var(--nbd-st-text-mute);"></span></td>'
                                     + '<td><input type="text" name="field_name[]" class="spbwc-qf-input" value="'+ (name || '') +'" /></td>'
-                                    + '<td><select name="field_type[]" class="spbwc-qf-select"><option value="text">Text</option><option value="email">Email</option><option value="tel">Phone</option><option value="textarea">Textarea</option><option value="select">Select</option></select></td>'
+                                    + '<td><select name="field_type[]" class="spbwc-qf-select spbwc-qf-type"><option value="text">Text</option><option value="email">Email</option><option value="tel">Phone</option><option value="textarea">Textarea</option><option value="select">Select</option><option value="file">File upload</option></select></td>'
                                     + '<td><input type="text" name="field_label[]" class="spbwc-qf-input" value="'+ label +'" /></td>'
                                     + '<td><input type="text" name="field_placeholder[]" class="spbwc-qf-input" value="" /></td>'
                                     + '<td><select name="field_validation[]" class="spbwc-qf-select"><option value="">None</option><option value="email">Email</option><option value="phone">Phone</option></select></td>'
@@ -1605,15 +1659,44 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
                                     + '<td style="text-align:center;"><input type="checkbox" name="field_enabled[]" value="'+ idx +'" checked /></td>'
                                     + '<td><button type="button" class="spbwc-cta-btn spbwc-cta-btn--ghost spbwc-cta-btn--sm spbwc-remove-field"><span class="dashicons dashicons-trash"></span></button></td>'
                                     + '</tr>';
+                                var cfg = '<tr class="spbwc-qf-config-row" style="display:none;">'
+                                    + '<td></td><td colspan="8"><div class="spbwc-qf-filecfg">'
+                                    + '<label class="spbwc-qf-filecfg__item"><input type="checkbox" name="field_allow_multiple[]" value="'+ idx +'" /> <span>Allow multiple files</span></label>'
+                                    + '<label class="spbwc-qf-filecfg__item"><span>Max files</span><input type="number" min="1" step="1" name="field_max_files[]" value="5" style="width:80px;" /></label>'
+                                    + '<label class="spbwc-qf-filecfg__item"><span>Max size (MB)</span><input type="number" min="0" step="1" name="field_max_size[]" value="10" style="width:90px;" /></label>'
+                                    + '<label class="spbwc-qf-filecfg__item spbwc-qf-filecfg__item--wide"><span>Allowed extensions</span><input type="text" name="field_allow_type[]" value="" placeholder="pdf,ai,png,jpg" /></label>'
+                                    + '</div></td></tr>';
+                                return main + cfg;
                             }
                             $('#spbwc-add-quote-field').on('click', function(){
-                                var val = ($('#spbwc-new-field-name').val() || '').toLowerCase().replace(/[^a-z0-9_]/g, '_');
-                                if(!val){ return; }
-                                $('#spbwc-quote-fields-table tbody').append(buildRow(val));
+                                var val = ($('#spbwc-new-field-name').val() || '').toLowerCase().replace(/[^a-z0-9_]/g, '_').replace(/^_+|_+$/g, '');
+                                // Always add a row — if no name was typed, generate one so the
+                                // button never appears dead. The merchant can rename it inline.
+                                var name = val || ('field_' + (nextIndex() + 1));
+                                var $rows = $(buildRow(name));
+                                $('#spbwc-quote-fields-table tbody').append($rows);
                                 $('#spbwc-new-field-name').val('');
+                                // Focus the new row's name input so it's ready to edit.
+                                $rows.filter('tr').not('.spbwc-qf-config-row')
+                                    .find('input[name="field_name[]"]').trigger('focus').trigger('select');
                             });
+                            // Pressing Enter in the name box adds the field too.
+                            $('#spbwc-new-field-name').on('keydown', function(e){
+                                if (e.key === 'Enter' || e.keyCode === 13) {
+                                    e.preventDefault();
+                                    $('#spbwc-add-quote-field').trigger('click');
+                                }
+                            });
+                            // Remove a field: drop its main row AND its paired config row.
                             $(document).on('click', '.spbwc-remove-field', function(){
-                                $(this).closest('tr').remove();
+                                var $row = $(this).closest('tr');
+                                $row.next('.spbwc-qf-config-row').remove();
+                                $row.remove();
+                            });
+                            // Toggle the file-config row when the type select changes.
+                            $(document).on('change', '.spbwc-qf-type', function(){
+                                var $cfg = $(this).closest('tr').next('.spbwc-qf-config-row');
+                                $cfg.toggle( $(this).val() === 'file' );
                             });
                         })(jQuery);
                     </script>
@@ -1797,10 +1880,12 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
                         </div>
                     </div>
                 </header>
+                <?php // Anchor so WP admin notices land below the hero, not on it. ?>
+                <hr class="wp-header-end" />
 
                 <div class="spbwc-block">
                     <div class="spbwc-block__body--flush">
-                        <table class="widefat striped">
+                        <table class="spbwc-admin-table spbwc-sysinfo-table">
                     <tbody>
                         <tr><th><?php esc_html_e( 'Plugin Version', 'storelly-product-builder-for-woocommerce' ); ?></th><td><?php echo esc_html( SPBWC_PB_VERSION ); ?></td></tr>
                         <tr><th><?php esc_html_e( 'WordPress Version', 'storelly-product-builder-for-woocommerce' ); ?></th><td><?php echo esc_html( $wp_version ); ?></td></tr>
@@ -1833,19 +1918,97 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
             if ( ! current_user_can( 'spbwc_manage_product_builder' ) ) {
                 wp_die( esc_html__( 'You do not have permission to access this page.', 'storelly-product-builder-for-woocommerce' ) );
             }
+            global $wp_version; // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Core global.
+            $sys_url   = admin_url( 'admin.php?page=' . SPBWC_PB_OPTIONS_SLUG . '/system-infor' );
+            $setup_url = admin_url( 'admin.php?page=' . SPBWC_PB_OPTIONS_SLUG . '/global-import' );
+            $facts = array(
+                array( 'label' => __( 'Plugin', 'storelly-product-builder-for-woocommerce' ),      'value' => SPBWC_PB_VERSION ),
+                array( 'label' => __( 'WordPress', 'storelly-product-builder-for-woocommerce' ),   'value' => $wp_version ),
+                array( 'label' => __( 'WooCommerce', 'storelly-product-builder-for-woocommerce' ), 'value' => defined( 'WC_VERSION' ) ? WC_VERSION : 'N/A' ),
+                array( 'label' => __( 'PHP', 'storelly-product-builder-for-woocommerce' ),          'value' => phpversion() ),
+            );
             ?>
             <div class="wrap spbwc-settings-wrap spbwc-about-wrap">
-            <div class="spbwc-about-container">
-                <span class="spbwc-about-icon">
+                <header class="spbwc-page-hero">
+                    <div class="spbwc-page-hero__grid">
+                        <div class="spbwc-page-hero__body">
+                            <div class="spbwc-page-hero__eyebrow">
+                                <span class="dashicons dashicons-admin-plugins" aria-hidden="true"></span>
+                                <?php esc_html_e( 'Storelly Product Builder', 'storelly-product-builder-for-woocommerce' ); ?>
+                            </div>
+                            <h1 class="spbwc-page-hero__title">
+                                <span class="dashicons dashicons-info-outline" aria-hidden="true"></span>
+                                <?php esc_html_e( 'About', 'storelly-product-builder-for-woocommerce' ); ?>
+                            </h1>
+                            <p class="spbwc-page-hero__subtitle">
+                                <?php esc_html_e( 'Advanced product builder, pricing options, quotes and custom orders for WooCommerce.', 'storelly-product-builder-for-woocommerce' ); ?>
+                            </p>
+                        </div>
+                    </div>
+                </header>
+                <?php // Anchor so WP admin notices land below the hero, not on it. ?>
+                <hr class="wp-header-end" />
+
+                <!-- Brand intro -->
+                <section class="spbwc-block spbwc-about-intro">
+                    <div class="spbwc-block__body spbwc-about-intro__body">
+                        <span class="spbwc-about-icon">
                     <svg xmlns="http://www.w3.org/2000/svg" width="304" height="243"><path fill="none" d="M0 0h304v243h-40a768 768 0 0 1 6.539-3.24c3.164-2.263 4.182-4.425 5.844-7.932l.888-1.857c3.443-7.3 6.532-14.758 9.604-22.221q1.304-3.145 2.61-6.29 1.162-2.803 2.32-5.61c.686-1.636 1.401-3.263 2.195-4.85h-11l-1.898 4.559-2.477 5.879-1.25 3.01-1.21 2.86-1.112 2.65C274 212 274 212 272 213c-1.51-3.267-3.006-6.539-4.5-9.812l-1.3-2.815-1.231-2.705-1.143-2.491C263 193 263 193 263 190h-13l1.723 3.594c3.85 8.06 7.678 16.133 11.34 24.281l.904 1.959c1.558 3.515 2.484 6.312 2.033 10.166-1.125 1.813-1.125 1.813-3 3-3.543.302-6.604.045-10-1l-3 7 9 3v1H0zm147.688 7.375-3.211 1.703L141 11l-1.778.979a941 941 0 0 0-11.925 6.71 4233 4233 0 0 1-7.39 4.206A2241 2241 0 0 0 94.25 37.688l-2.185 1.279C87.122 41.878 87.122 41.878 86 43c-.104 2.51-.144 4.992-.142 7.501l-.01 2.38a2319 2319 0 0 0-.017 5.134q-.012 4.059-.041 8.118c-.053 7.696-.1 15.392-.116 23.089-.01 4.702-.04 9.404-.081 14.106q-.02 2.692-.015 5.385c.002 2.51-.02 5.017-.048 7.527l.02 2.257c-.092 5.056-.092 5.056-2.583 7.488L81 127c.09 1.758.09 1.758 1 4 2.176 1.475 4.24 2.676 6.563 3.875q2.21 1.192 4.417 2.39l2.443 1.319c4.706 2.586 9.323 5.322 13.952 8.041a4710 4710 0 0 0 30.16 17.489l3.133 1.804 2.759 1.587C148 169 148 169 150.52 170.818 153 172 153 172 155.5 171.356L158 170l2.434-1.258 2.574-1.437c.973-.543 1.946-1.087 2.95-1.646l3.167-1.784 3.314-1.86c9.432-5.322 18.752-10.821 28.05-16.374 6.91-4.122 13.852-8.167 20.933-11.992 2.919-1.599 5.393-3.112 7.578-5.649l-2.959-1.512C223 124 223 124 222.288 120.478a104 104 0 0 1 .05-4.288l.002-2.372q.008-2.544.054-5.089c.048-2.686.057-5.37.056-8.058.005-6.671.071-13.341.144-20.012.061-5.638.095-11.275.089-16.914.008-2.645.058-5.287.109-7.931q.003-2.438 0-4.874l.076-2.222c-.04-2.965-.27-5.108-2.391-7.27A49 49 0 0 0 215 38l-2.506-1.375-2.283-1.07c-5.334-2.584-10.455-5.467-15.586-8.43l-2.774-1.592a1297 1297 0 0 1-14.726-8.596C173.164 14.61 169.248 12.735 165 11l-5-3h-2V6c-4.334-1.296-6.365-.736-10.312 1.375M214 176v52h11v-52zm20 0v52h11v-52zM17 186c-2.217 3.73-2.28 6.89-1.602 11.074 1.334 4.269 4.555 6.34 8.293 8.434 3.611 1.628 7.223 2.639 11.059 3.554 6.98 1.669 6.98 1.669 9.25 3.938.125 2.625.125 2.625 0 5-9.443 2.29-17.483.259-26-4l-5 9 3.125 1.875 1.758 1.055c5.68 2.871 10.745 3.435 16.992 3.445l2.316.074c5.715.03 10.04-1.251 14.809-4.449 4.305-4.636 5.322-7.573 5.203-13.75-.294-3.253-.99-4.829-3.203-7.25-6.112-3.879-12.73-5.342-19.707-6.973-3.077-.96-4.38-1.516-6.293-4.027.813-1.937.813-1.937 2-4 7.42-2.473 13.87-.454 21 2 4.045-5.394 4.045-5.394 3.844-8.094C54 181 54 181 50.437 179.25c-4.483-1.31-8.917-1.567-13.562-1.625l-2.026-.042C27.3 177.653 21.873 180.152 17 186m48-5v9h-7v9l6 1 .028 1.94c.054 2.917.138 5.832.222 8.748l.043 3.052c.247 7.47.247 7.47 2.504 11.342 3.907 3.401 6.517 4.196 11.703 4.168l2.844.016c2.696-.27 4.345-.893 6.656-2.266l-2-8-2.875.063C80 219 80 219 78 218c-1.206-3.619-1.108-6.925-1.062-10.687l.013-2.127q.02-2.594.049-5.186l9-1v-8l-10-1v-9zm28 16c-3.655 5.352-4.44 9.517-4 16 2.356 6.833 5.444 11.722 12 15 6.671 2.11 15.18 2.293 21.563-.687 5.561-3.365 8.112-7.806 9.96-13.91 1.075-5.418.318-9.784-2.21-14.653-4.728-5.622-9.183-9.266-16.633-9.969-8.643-.317-15 1.403-20.68 8.219m77.063-1c-4.373 6.36-4.87 11.306-4.063 19 1.719 5.41 5.478 8.834 10 12 4.43 1.795 8.233 2.297 13 2.313l3.563.05c3.794-.4 6.194-1.383 9.437-3.363 1.375-2.187 1.375-2.187 2-4l-4-5-2.437 1c-5.387 1.512-10.281 1.971-15.5-.25C180 216 180 216 178 212h29c0-12.601 0-12.601-5-18-9.635-7.273-23.663-7.532-31.937 2M152 192l-1 1-1-3h-12v38h12l.148-4.453.227-5.797c.03-.968.062-1.936.094-2.934l.117-2.832.095-2.602c.34-2.542.985-4.204 2.319-6.382 3.333-2.346 7.025-2.541 11-3v-10c-4.795-1.598-7.6-.2-12 2" id="svg-layer-0" style="pointer-events: all; fill: none;"></path><path fill="#305C83" d="M158 6v2l2.063.75c3.506 1.492 6.653 3.318 9.937 5.25v2l2.125.75c7.986 3.472 7.986 3.472 9.875 7.25.07 1.874.084 3.75.063 5.625l-.028 3.04L182 35h2v9h-2v13h2v5l-5 2v2q5.922-3.25 11.84-6.506l4.015-2.205a3931 3931 0 0 0 5.825-3.203l1.917-1.054a228 228 0 0 0 13.357-8.014C218 44 218 44 222 44v63c-2.36-2.36-2.332-3.124-2.633-6.352l-.254-2.578-.238-2.695-.262-2.719A954 954 0 0 1 218 86l-3-1v-1l-6-1v-3l-2 1-2-3-3-1-2 4h-5l-1-4c-2.791 1.207-4.605 2.217-6 4.98-.73 1.985-1.371 4.001-2 6.02h-2v2l-6-1 2-1c1.627-3.56 2.79-7.282 4-11h-2v-4h-6v2c-1.014-.23-2.029-.461-3.074-.7-4.688-.358-6.684.598-10.738 2.888l-3.395 1.855c-2.704 1.895-3.728 2.896-4.793 5.957l-.632-2.278c-1.806-3.593-3.705-4.431-7.25-6.273l-3.536-1.865-3.707-1.897q-1.867-.975-3.73-1.955Q130.582 68.346 126 66l3-1v-5h-2V49h2v-5l-3-1V32h2l1-5h-2v-3l-11 4-1-2 2.832-1.582 3.98-2.23 2.136-1.198c6.656-3.744 13.259-7.577 19.842-11.446l2.323-1.357 2.056-1.207C151.876 4.995 154.008 5.03 158 6" id="svg-layer-1" style="pointer-events: all;"></path><path fill="#254266" d="m174 74 2 1v-2h6v4h2c.255 3.063.278 4.576-1.437 7.188L181 86l-1 2-1.875.25C176 89 176 89 174.25 91.5c-1.36 3.808-1.392 6.478-1.062 10.45-.244 2.664-1.27 3.274-3.188 5.05-.687 3.188-.687 3.188-1 6h3l2 2c1.317.697 2.65 1.37 4 2l-1 8c2.867-.573 3.861-.861 6-3 2.625.375 2.625.375 5 1v3c2.875-.5 2.875-.5 6-2 .739-2.04 1.066-4.022 1.441-6.156C196 116 196 116 198.5 114.5c2.5-.5 2.5-.5 4.5-.5 1.688-2.125 1.688-2.125 3-5l-.5-2.937c-.653-4.002.423-5.65 2.5-9.063l1.688-2.062c1.656-2.446 1.553-4.046 1.312-6.938l-4 1c-2.125-4.625-2.125-4.625-1-8h2l1-2 1 3c3.438 1.125 3.438 1.125 7 2l2 1c.395 1.918.395 1.918.598 4.402l.24 2.698.225 2.838q.23 2.764.472 5.527l.2 2.488C221 105 221 105 222 107c.31 2.61.508 5.13.625 7.75l.215 2.133c.082 2.322-.028 3.933-.84 6.117-2.673 2.59-5.739 4.243-9 6q-2.28 1.34-4.559 2.684-2.436 1.38-4.879 2.754l-5.519 3.128-2.944 1.669c-6.672 3.8-13.31 7.66-19.952 11.513-3.044 1.76-6.095 3.507-9.147 5.252l-3.112 1.813-2.974 1.695-2.65 1.528C155 162 155 162 152 161l2-1-.013-2.814q-.06-13.131-.09-26.263-.015-6.752-.048-13.502-.032-6.517-.039-13.033-.005-2.485-.021-4.97c-.015-2.322-.017-4.643-.016-6.966l-.022-2.07c.017-3.893.392-6.935 2.249-10.382 2.863-2.055 2.863-2.055 6.313-3.875l3.425-1.867c3.456-1.333 4.822-1.44 8.262-.258" id="svg-layer-2" style="pointer-events: all;"></path><path fill="#6DADD4" d="m86 43 3 1 .031 2.365q.147 11.036.308 22.07.084 5.674.158 11.347.072 5.475.156 10.951.03 2.088.056 4.177.038 2.926.086 5.853c.015 1.11.03 2.22.047 3.364C90 107 90 107 91 111l16 1 2-4 .96 1.793c3.734 6.321 7.86 10.146 15.04 12.207 2.305-.383 2.305-.383 4-1v2l-3 1c-1.387 1.41-1.387 1.41-2.687 3.063L121 130l1.828-1.277 2.422-1.66 2.39-1.653c2.36-1.41 2.36-1.41 4.594-1.914L134 123l1-3c3 1 3 1 4 3l3.125-.187C146 123 146 123 152 126l1-32h1v65c-3.361-1.345-6.316-2.623-9.457-4.328l-2.586-1.403-2.77-1.519-2.906-1.589c-10.32-5.677-20.469-11.637-30.621-17.606-4.755-2.78-9.547-5.493-14.344-8.2C89 123 89 123 88 122a134 134 0 0 1-.19-6.232l-.025-1.971q-.025-2.125-.045-4.25-.032-3.36-.077-6.718-.088-7.134-.163-14.266c-.06-5.506-.121-11.01-.192-16.516-.027-2.21-.047-4.42-.068-6.63l-.05-4.055-.039-3.585C87 55 87 55 86 53a95 95 0 0 1-.062-5.125l.027-2.758z" id="svg-layer-3" style="pointer-events: all;"></path><path fill="#A1D3EA" d="M89 45c3.608 1.443 6.792 2.883 10.176 4.723l2.983 1.617 3.153 1.722 3.265 1.777c12.043 6.569 23.978 13.307 35.86 20.161l2.535 1.46 2.337 1.353 2.087 1.207C153 80 153 80 154 81c.152 2.1.222 4.207.25 6.313l.078 3.488c-.35 3.416-1.015 4.733-3.328 7.199v-2l-2.703-.367-3.547-.508-3.516-.492C136.03 93.615 136.03 93.615 134 92l-1-6-1 17h2l-1-5 3 1-.25 2.25c.25 2.75.25 2.75 2.25 4.469 2.799 3.192 2.405 5.36 2.25 9.531l-.11 3.828L140 122l-2-1c-.1-1.915-.13-3.833-.125-5.75-.332-5.708-.332-5.708-2.715-8.086-2.223-1.289-2.223-1.289-4.445-2.297L129 104v-2h2l-1-18-7.625-3.812L108 73v9l-7-1v2l-8-1-1 2h-3z" id="svg-layer-4" style="pointer-events: all;"></path><path fill="#C3D2DF" d="m86 123 2.184 1.258c7.97 4.574 15.98 9.075 24.004 13.555 8.554 4.777 17.074 9.607 25.535 14.548q2.085 1.216 4.18 2.413c1.49.872 2.96 1.78 4.413 2.714l2.34 1.446 2.088 1.341c3.316 1.066 5.102.081 8.256-1.275a137 137 0 0 0 5.902-3.238l3.414-1.967 3.621-2.107q1.875-1.084 3.75-2.164 2.863-1.65 5.725-3.303c6.005-3.47 12.044-6.881 18.088-10.284 7.538-4.25 15.052-8.532 22.5-12.937l7 5c-4.778 4.187-10.205 7.16-15.687 10.313l-3.187 1.844Q205.066 143.084 200 146l-10.016 5.786q-3.284 1.894-6.573 3.78c-5.07 2.907-10.114 5.843-15.099 8.895l-2.639 1.595q-2.415 1.463-4.801 2.972l-2.142 1.288-1.83 1.14c-3.526 1.01-6.29-1.14-9.382-2.746l-2.631-1.476-2.996-1.676-3.203-1.808-3.347-1.882C117.05 151.548 98.974 140.863 81 130c.742-3.781.742-3.781 3.063-5.75z" id="svg-layer-5" style="pointer-events: all;"></path><path fill="#2C373E" d="M54 181c.844 1.906.844 1.906 1 4-1.937 3.25-1.937 3.25-4 6l-1.906-.656c-12.59-4.096-12.59-4.096-19.094-.844l-2 1.5c.266 1.906.266 1.906 1 4 1.61.906 1.61.906 3.75 1.5l2.438.727q3.06.84 6.124 1.671C52.34 202.031 52.34 202.031 56 207c1.738 3.476 1.455 7.199 1 11-2.389 4.87-5.333 7.32-10 10-8.815 2.938-20.785 2.02-29.152-1.832C16 225 16 225 13 222l5-8 4.188 1.938C29.477 219.156 36.146 219.904 44 218c.313-2.312.313-2.312 0-5-4.851-3.652-10.505-4.487-16.309-5.84-5.032-1.581-8.573-3.573-11.628-7.91-1.35-4.13-1.28-7.1-.063-11.25 2.595-4.912 5.36-7.787 10.676-9.559 8.84-1.678 19.218-1.423 27.324 2.559M250 190h13l1.934 4.559 2.503 5.879 1.276 3.01 1.22 2.86 1.127 2.65C272 211 272 211 273 212l.81-1.912q1.811-4.264 3.627-8.525l1.276-3.01 1.22-2.862 1.127-2.65C282 191 282 191 283 190c2.02-.072 4.042-.084 6.063-.062l3.347.027L295 190l-1.906 4.582-1.244 2.989q-1.359 3.263-2.722 6.524a1624 1624 0 0 0-6.398 15.483l-1.05 2.563a535 535 0 0 0-1.903 4.704c-2.486 6.027-5.283 12.276-11.464 15.155-5.946 1.824-11.92 1.197-17.438-1.562L249 239l4-8 2.117.29c.91.11 1.82.22 2.758.335l2.742.352L263 232l2-2c-.203-6.587-2.316-11.49-5.25-17.312l-2.45-5.016-1.196-2.424a372 372 0 0 1-4.166-8.81l-1.16-2.504C250 192 250 192 250 190M124 192c4.356 3.892 8.057 8.108 9 14 .18 7.094-1.313 12.588-6 18-7.045 5.495-13.324 5.587-22 5-5.715-1.359-10.4-4.713-13.75-9.5-2.517-5.033-3.097-9.993-1.754-15.555 2.229-6.673 6.23-10.728 12.504-13.945 7.14-2.164 15.564-2.01 22 2m-22 11c-1.62 3.24-1.565 6.498-1 10 1.34 2.807 2.547 3.86 5 6 4.369 1.43 6.172 1.406 10.313-.625 2.905-2.568 4.012-3.58 4.687-7.375-.366-4.148-1.018-7.753-3.625-11.062-6.219-2.455-10.772-1.68-15.375 3.062M199 192c3.41 2.945 6.24 5.833 8 10v10h-29c3.49 5.817 3.49 5.817 7 7 5.323.658 10.023.042 15-2l4 5c-1.035 3.001-1.898 3.938-4.656 5.613-6.592 2.734-14.95 2.446-21.781.387-4.584-2.054-7.742-5.945-10.563-10-1.832-5.497-2.177-11.966-.059-17.426 2.979-4.957 6.462-8.366 11.746-10.824 7.286-1.65 13.698-1.511 20.313 2.25m-21 10v4h18c-2.476-6.19-2.476-6.19-6-8-5.396-.687-8.28-.059-12 4" id="svg-layer-6" style="pointer-events: all;"></path><path fill="#254367" d="M127 24v3h2l-1 5h-2q.172 2.72.375 5.438l.21 3.058c.07.413.07.413.415 2.504l2 1v5h-2v11h2v5c-4.943-.54-8.403-2.058-12.719-4.492l-1.881-1.05a1029 1029 0 0 1-5.9-3.333 3983 3983 0 0 0-5.9-3.311q-2.679-1.506-5.352-3.02C94 48 94 48 90.643 46.452 88 45 88 45 87 42l9.063-5.25 2.568-1.488q2.51-1.454 5.023-2.903 2.215-1.282 4.417-2.589c3.73-2.197 6.64-3.198 10.929-3.77l2.125-1.062C123 24 123 24 127 24" id="svg-layer-7" style="pointer-events: all;"></path><path fill="#6EAFD6" d="M170 14a80.5 80.5 0 0 1 9.773 4.504l2.728 1.482 2.874 1.576 2.966 1.622a514 514 0 0 1 20.499 11.91c3.48 2.1 7.019 4.051 10.62 5.933C221 42 221 42 222 44l-3.072 1.27c-3.719 1.595-7.239 3.455-10.78 5.417l-1.884 1.042q-1.955 1.082-3.908 2.168-2.972 1.654-5.95 3.298c-9.803 5.43-9.803 5.43-13.193 7.535C181 66 181 66 179 66v-2l1.938-.687C183 62 183 62 183.75 59.375L184 57h-2V44h2v-9h-2l-.078-2.266c-.464-8.046-.464-8.046-2.547-11.172-3.058-2.011-6.15-3.826-9.375-5.562z" id="svg-layer-8" style="pointer-events: all;"></path><path fill="#2C373E" d="M65 181h11v9l10 1v8l-9 1q-.04 3.656-.062 7.313l-.026 2.091c-.015 3.144.086 5.59 1.088 8.596l3.375.375C85 219 85 219 87 221c.398 1.988.738 3.99 1 6-4.783 2.807-9.6 2.649-15 2-3.91-1.99-5.577-3.365-8-7-.319-2.36-.319-2.36-.414-5.105l-.117-2.979-.094-3.103-.117-3.14Q64.117 203.838 64 200l-6-1v-9h7z" id="svg-layer-9" style="pointer-events: all;"></path><path fill="#2C3941" d="M164 190v10l-6.738 1.27c-2.533.817-3.592 1.69-5.262 3.73-1.203 2.405-1.203 4.104-1.316 6.79l-.127 2.85-.12 2.985-.13 3.008q-.159 3.683-.307 7.367h-12v-38h12l1 3 1.75-1.437c3.995-2.775 6.584-2.73 11.25-1.563" id="svg-layer-10" style="pointer-events: all;"></path><path fill="#2C363C" d="M234 176h11v52h-11zM214 176h11v52h-11z" id="svg-layer-11" style="pointer-events: all;"></path><path fill="#305C83" d="M102 82c2.438.688 2.438.688 5 2 .813 2.625.813 2.625 1 5h-2v2l2.191.836c4.81 1.993 9.27 4.623 13.809 7.164l1.84 1.028q2.865 1.606 5.722 3.222l1.842 1.034c2.483 1.413 4.566 2.686 6.596 4.716.195 2.82.195 2.82.125 6.125l-.055 3.32L138 121c-3.77-1.417-7.204-3.14-10.71-5.117l-3.274-1.84-3.391-1.918-3.367-1.895c-5.43-3.057-10.852-6.13-16.258-9.23V88l3-1-2-1z" id="svg-layer-12" style="pointer-events: all;"></path><path fill="#84BEDE" d="m132 85 2 1c.625 3.063.625 3.063 1 6 4.547.996 9.038 1.372 13.672 1.719C151 94 151 94 152 95h1v32l-7-3c-2.434-.293-2.434-.293-4.437-.187L138 124l1-3c.17-2.142.266-4.29.313-6.437l.113-3.434c-.513-3.766-1.646-4.676-4.426-7.129-.25-2.75-.25-2.75 0-5l-2-1 1 5h-2z" id="svg-layer-13" style="pointer-events: all;"></path><path fill="#86C1E0" d="M108 73h2v17h-1v-5h-4c-1.75-1.5-1.75-1.5-3-3v4l3 1v1h-5c-.081 1.937-.14 3.875-.187 5.813l-.106 3.269C100 100 100 100 101.344 101.738L103 103c2.688 2.375 2.688 2.375 5 5 .145 2.664.145 2.664 0 5-2.795-.227-5.584-.48-8.375-.75l-2.406-.187-2.305-.235-2.126-.19C91 111 91 111 89.768 109.288c-.906-2.698-.995-4.865-.963-7.71l.02-3.105.05-3.223.027-3.27q.036-3.99.098-7.98h2l1-2 9 1v-2h6z" id="svg-layer-14" style="pointer-events: all;"></path><path fill="#305C83" d="M110 73c18.597 9.194 18.597 9.194 20 12 .072 2.718.093 5.409.063 8.125l-.014 2.285q-.02 2.795-.049 5.59c-4.914-1.436-9.004-3.543-13.375-6.125L110 91z" id="svg-layer-15" style="pointer-events: all;"></path><path fill="#9DD0E9" d="m194 77 1 4c2.02-.602 4.021-1.273 6-2l1-2c1.938.313 1.938.313 4 1 1 3 1 3 .438 5.563L206 86l2 2h3c1.125 4.75 1.125 4.75 0 7-3.375-.547-5.082-1.055-8-3a140 140 0 0 0-4-1l-1-1c-7.71-.436-7.71-.436-11 2a179 179 0 0 0-2 4c-1.812 1.875-1.812 1.875-4 3-2.687-.687-2.687-.687-5-2l-1-2a101 101 0 0 1 3-6l6 1v-2l2-1c.838-1.997 1.466-4.026 2.121-6.09C189.378 78.177 190.956 77 194 77" id="svg-layer-16" style="pointer-events: all;"></path><path fill="#F3F6F9" d="M115 199c3.61 2.535 4.769 4.205 6 8.438 0 4.152-.669 6.143-3 9.562-3.001 2.584-4.52 2.991-8.5 3.063-3.573-1.085-5.408-2.208-7.617-5.25-1.703-3.497-1.434-5.956-.883-9.813 3.63-5.686 7.321-7.113 14-6" id="svg-layer-17" style="pointer-events: all;"></path><path fill="#6EAFD6" d="m198 106 2 3 2-2v2c3-1 3-1 5-3-.654 3.53-1.729 6.198-4 9-3.687.813-3.687.813-7 1l-.625 3.875c-.531 2.21-.531 2.21-1.375 4.125-3.125 1.5-3.125 1.5-6 2l-1-3c-4.75.75-4.75.75-7 3-2.125-.375-2.125-.375-4-1l1-8-5-2v-6h1v5h6v-2l1.625.438L183 113l2.938.75c3.827.312 5.076-.392 8.062-2.75 2.313-2.687 2.313-2.687 4-5" id="svg-layer-18" style="pointer-events: all;"></path><path fill="#264469" d="M196 94c1 1 1 1 1.313 4.688-.064 4.436-1.344 6.942-4.313 10.312-2.75 1.375-2.75 1.375-5 2-2.062-1.562-2.062-1.562-4-4-.08-4.336.756-7.055 3.438-10.375 3.26-3.34 4.214-4.028 8.562-2.625" id="svg-layer-19" style="pointer-events: all;"></path><path fill="#2B5278" d="M86 53c2 2 2 2 2.238 4.757l-.014 3.557v1.962q.001 2.11-.01 4.221-.013 3.341.005 6.683c.028 6.334.04 12.668.011 19.003-.017 3.873-.004 7.746.026 11.62q.01 2.213-.014 4.427c-.022 2.067-.007 4.13.017 6.197l-.005 3.562C89 122 89 122 92.046 124.41L95 126l-2 2c-5.875-3.875-5.875-3.875-7-5-.094-2.178-.117-4.36-.114-6.54v-2.069c0-2.267.009-4.534.016-6.801l.005-4.704q.006-6.203.024-12.404.014-6.324.02-12.648Q85.967 65.417 86 53" id="svg-layer-20" style="pointer-events: all;"></path><path fill="#2C5379" d="M94 127c4.085.6 7.069 1.937 10.656 3.957l3.32 1.856 3.524 2 3.626 2.036c3.63 2.04 7.253 4.094 10.874 6.151l3.205 1.82a3575 3575 0 0 1 15.684 8.967A3627 3627 0 0 0 154 159l-3 2a2444 2444 0 0 1-39-22l-2.568-1.474q-3.595-2.068-7.182-4.151l-2.186-1.254c-4.949-2.89-4.949-2.89-6.064-5.121" id="svg-layer-21" style="pointer-events: all;"></path><path fill="#2A4F74" d="M108 106c15.745 8.262 15.745 8.262 23 13-2.386 1.892-4.072 3.024-7 4-7.472-2.958-12.477-7.839-16-15z" id="svg-layer-22" style="pointer-events: all;"></path><path fill="#7BB8DB" d="M100 88h1v13l5 2q2.547 1.302 5.055 2.68l2.863 1.566 2.957 1.629 2.934 1.605A810 810 0 0 1 135 119c-.227 1.84-.227 1.84-1 4-1.96 1.379-1.96 1.379-4.375 2.563-3.054 1.517-5.336 2.89-7.625 5.437l-2-1a271 271 0 0 1 2.813-3.5l1.582-1.969C126 123 126 123 129 123l1-4c-3.45-2.034-6.912-4.05-10.375-6.062l-2.984-1.76c-.941-.545-1.882-1.09-2.852-1.65l-2.634-1.54L109 107l-2 1-4-4-2.25-1.687C98.091 98.799 98.521 95.263 99 91z" id="svg-layer-23" style="pointer-events: all;"></path><path fill="#EDF1F5" d="M190 198c4.019 2.446 4.836 3.344 6 8h-18c1-5 1-5 2.625-6.812 3.359-1.68 5.665-1.644 9.375-1.188" id="svg-layer-24" style="pointer-events: all;"></path><path fill="#7CB7D9" d="M197 91c2.384 2.384 2.296 2.994 2.313 6.25-.144 5.595-1.638 9.12-5.688 13.063-2.7 1.736-4.428 2.519-7.625 2.687-3-2-3-2-3.824-4.7-.21-3.927.587-6.458 2.012-10.112l1.292-3.458C187 92 187 92 188.98 91.125c2.713-.168 5.303-.302 8.02-.125m-10 6c-1.882 3.45-3.025 5.864-2.937 9.813C185 109 185 109 186.75 110.5c2.25.5 2.25.5 4.813-.562 3.243-2.579 5.167-4.743 5.687-8.97.063-2.156.063-2.156-.25-5.968l-2-2c-4.046 0-5.128 1.2-8 4" id="svg-layer-25" style="pointer-events: all;"></path><path fill="#86C0E0" d="M204.824 91.777 210 95l-.875 1.574c-3.687 6.927-3.687 6.927-3.125 11.426l-6 2-1-1c.091-2.494.238-4.952.438-7.437.562-7.48.562-7.48.562-9.563 3-1 3-1 4.824-.223" id="svg-layer-26" style="pointer-events: all;"></path><path fill="#2C547A" d="M191 89c3.438-.5 3.438-.5 7 0 2.547 2.711 2.953 4.643 3.438 8.313-.703 5.922-3.096 9.983-6.75 14.624-3.345 2.568-5.49 3.063-9.688 3.063-2.437-.875-2.437-.875-4-3-1.304-6.63.701-11.33 4-17l1 2c-.594 1.734-.594 1.734-1.5 3.75-1.523 3.776-1.6 6.251-.5 10.25 2.125.75 2.125.75 5 1 4.857-2.429 7.253-4.857 9-10 .271-3.024.33-5.98 0-9-1-1-1-1-2.848-1.098L189 92z" id="svg-layer-27" style="pointer-events: all;"></path><path fill="#84BFDF" d="m176 97 2.313.5C181 98 181 98 184 98l-.937 1.938c-1.382 3.982-1.717 7.879-2.063 12.062h-2v2h-6c-.187-2.812-.187-2.812 0-6q1.47-1.53 3-3c1.315-5.37 1.315-5.37 0-8" id="svg-layer-28" style="pointer-events: all;"></path><path fill="#305C83" d="M176 88h2c-.523 2.763-1.109 5.326-2 8l1.063 1.813c.937 2.187.937 2.187.25 5.25-1.233 2.757-2.199 3.915-4.313 5.937-.687 2.188-.687 2.188-1 4h-3c-.187-2.812-.187-2.812 0-6l1.516-1.434C172 104 172 104 172.152 101.984l-.214-2.234C171.73 94.703 173.19 92.128 176 88" id="svg-layer-29" style="pointer-events: all;"></path><path fill="#89C3E1" d="m129 83 2 1v18c-4 1-4 1-6.953-.512l-3.297-2.175c-4.796-3.103-9.58-5.88-14.75-8.313v-2h2l1-4 .22 2.32c.78 2.68.78 2.68 2.73 4.257l2.523 1.318 2.724 1.455 2.865 1.463 2.877 1.521A739 739 0 0 0 130 101z" id="svg-layer-30" style="pointer-events: all;"></path></svg>
                 </span>
-                <div class="spbwc-about-title"><?php esc_html_e( 'Storelly Product Builder', 'storelly-product-builder-for-woocommerce' ); ?></div>
-                <div class="spbwc-about-desc"><?php esc_html_e( 'Storelly Product Builder for WooCommerce helps merchants create advanced printing options and product builder workflows.', 'storelly-product-builder-for-woocommerce' ); ?></div>
-                <div class="spbwc-about-btns">
-                    <a class="button button-primary" href="https://storelly.com/product-builder" target="_blank" rel="noopener"><?php esc_html_e( 'Visit Website', 'storelly-product-builder-for-woocommerce' ); ?></a>
-                    <a class="button" href="https://storelly.com" target="_blank" rel="noopener"><?php esc_html_e( 'Storelly', 'storelly-product-builder-for-woocommerce' ); ?></a>
+                        <div class="spbwc-about-intro__text">
+                            <div class="spbwc-about-title">
+                                <?php esc_html_e( 'Storelly Product Builder', 'storelly-product-builder-for-woocommerce' ); ?>
+                                <span class="spbwc-about-version">v<?php echo esc_html( SPBWC_PB_VERSION ); ?></span>
+                            </div>
+                            <p class="spbwc-about-desc"><?php esc_html_e( 'Storelly Product Builder for WooCommerce helps merchants create advanced printing options and product builder workflows — pricing options, visual builder, quotes and custom orders, all WooCommerce-native.', 'storelly-product-builder-for-woocommerce' ); ?></p>
+                            <div class="spbwc-about-btns">
+                                <a class="spbwc-cta-btn spbwc-cta-btn--solid" href="https://storelly.com/product-builder" target="_blank" rel="noopener">
+                                    <span class="dashicons dashicons-admin-home" aria-hidden="true"></span>
+                                    <?php esc_html_e( 'Visit website', 'storelly-product-builder-for-woocommerce' ); ?>
+                                </a>
+                                <a class="spbwc-cta-btn spbwc-cta-btn--ghost" href="https://wordpress.org/support/plugin/storelly-product-builder-for-woocommerce/reviews/#new-post" target="_blank" rel="noopener">
+                                    <span class="dashicons dashicons-star-filled" aria-hidden="true"></span>
+                                    <?php esc_html_e( 'Leave a review', 'storelly-product-builder-for-woocommerce' ); ?>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Environment quick-facts -->
+                <div class="spbwc-stat-grid spbwc-about-facts">
+                    <?php foreach ( $facts as $fact ) : ?>
+                        <div class="spbwc-stat-card spbwc-stat-card--brand">
+                            <span class="spbwc-stat-card__label"><?php echo esc_html( $fact['label'] ); ?></span>
+                            <div class="spbwc-stat-card__value spbwc-about-facts__value"><?php echo esc_html( $fact['value'] ); ?></div>
+                        </div>
+                    <?php endforeach; ?>
                 </div>
-            </div>
+
+                <!-- Resources / help -->
+                <section class="spbwc-help-section">
+                    <div class="spbwc-help-section__body">
+                        <h2 class="spbwc-help-section__title">
+                            <span class="dashicons dashicons-sos" aria-hidden="true"></span>
+                            <?php esc_html_e( 'Need a hand?', 'storelly-product-builder-for-woocommerce' ); ?>
+                        </h2>
+                        <p class="spbwc-help-section__text"><?php esc_html_e( 'Re-run the setup wizard, check your environment, or reach the support team.', 'storelly-product-builder-for-woocommerce' ); ?></p>
+                    </div>
+                    <div class="spbwc-help-section__links">
+                        <a class="spbwc-cta-btn spbwc-cta-btn--ghost" href="<?php echo esc_url( $setup_url ); ?>">
+                            <span class="dashicons dashicons-admin-tools" aria-hidden="true"></span>
+                            <?php esc_html_e( 'Setup Wizard', 'storelly-product-builder-for-woocommerce' ); ?>
+                        </a>
+                        <a class="spbwc-cta-btn spbwc-cta-btn--ghost" href="<?php echo esc_url( $sys_url ); ?>">
+                            <span class="dashicons dashicons-info-outline" aria-hidden="true"></span>
+                            <?php esc_html_e( 'System Information', 'storelly-product-builder-for-woocommerce' ); ?>
+                        </a>
+                        <a class="spbwc-cta-btn" href="https://storelly.com/support" target="_blank" rel="noopener">
+                            <span class="dashicons dashicons-email-alt" aria-hidden="true"></span>
+                            <?php esc_html_e( 'Contact support', 'storelly-product-builder-for-woocommerce' ); ?>
+                        </a>
+                    </div>
+                </section>
             </div>
             <?php
         }
@@ -1931,6 +2094,8 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
                         </div>
                     </div>
                 </header>
+                <?php // Anchor so WP admin notices land below the hero, not on it. ?>
+                <hr class="wp-header-end" />
 
                 <div class="spbwc-block">
                     <!-- Toolbar: search + count -->
