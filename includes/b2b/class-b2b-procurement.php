@@ -416,6 +416,21 @@ if ( ! class_exists( 'SPBWC_B2B_Procurement' ) ) {
 
         /* ── Helpers ──────────────────────────────────────────────── */
 
+        /** Circular initials avatar for a user. */
+        protected static function avatar( $user ) {
+            $name     = $user ? $user->display_name : '?';
+            $initials = '';
+            foreach ( preg_split( '/\s+/', trim( (string) $name ) ) as $p ) {
+                if ( '' !== $p ) {
+                    $initials .= function_exists( 'mb_substr' ) ? mb_substr( $p, 0, 1 ) : substr( $p, 0, 1 );
+                }
+                if ( strlen( $initials ) >= 2 ) {
+                    break;
+                }
+            }
+            return '<span class="spbwc-avatar">' . esc_html( '' !== $initials ? strtoupper( $initials ) : '?' ) . '</span>';
+        }
+
         /**
          * @param int $company_id Company.
          * @return WP_Post[] Pending requests.
