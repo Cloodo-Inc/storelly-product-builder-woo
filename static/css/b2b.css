@@ -16,6 +16,21 @@
 }
 
 /* ============================================================ *
+ *  Layout utilities (token-driven; replace inline styles)
+ * ============================================================ */
+.spbwc-row { display: flex; align-items: center; gap: var(--nbd-space-3); flex-wrap: wrap; }
+.spbwc-row--sm { gap: var(--nbd-space-2); }
+.spbwc-row--tight { gap: var(--nbd-space-1); }
+.spbwc-row--between { justify-content: space-between; }
+.spbwc-row--top { align-items: flex-start; }
+.spbwc-row--push { margin-left: auto; }
+.spbwc-stack { display: flex; flex-direction: column; gap: var(--nbd-space-1); }
+.spbwc-icon-xl { font-size: 32px; width: 32px; height: 32px; }
+.spbwc-muted { color: var(--nbd-mb-text-soft); }
+.spbwc-muted-sm { color: var(--nbd-mb-text-soft); font-size: 12px; }
+.spbwc-amount { font-size: 20px; font-weight: 700; color: var(--nbd-mb-primary-pressed); }
+
+/* ============================================================ *
  *  Brand Page Header (Pattern 9)
  * ============================================================ */
 
@@ -463,6 +478,8 @@
     margin-bottom: var(--nbd-space-2);
     font-size: 15px;
 }
+
+.spbwc-proc__budget { margin-bottom: var(--nbd-space-2); }
 
 .spbwc-proc__items {
     margin: 0 0 var(--nbd-space-3);

@@ -349,7 +349,7 @@ if ( ! class_exists( 'SPBWC_B2B_Procurement' ) ) {
             echo '</div>';
 
             if ( empty( $pending ) ) {
-                echo '<div class="spbwc-store__empty"><span class="dashicons dashicons-yes-alt" aria-hidden="true" style="font-size:32px"></span><p>' . esc_html__( 'No requests awaiting approval.', 'storelly-product-builder-for-woocommerce' ) . '</p></div></div>';
+                echo '<div class="spbwc-store__empty"><span class="dashicons dashicons-yes-alt spbwc-icon-xl" aria-hidden="true"></span><p>' . esc_html__( 'No requests awaiting approval.', 'storelly-product-builder-for-woocommerce' ) . '</p></div></div>';
                 return;
             }
             foreach ( $pending as $req ) {
@@ -363,13 +363,13 @@ if ( ! class_exists( 'SPBWC_B2B_Procurement' ) ) {
 
                 echo '<div class="spbwc-rfq-card spbwc-proc__card">';
                 // Header: amount + requester.
-                echo '<div class="spbwc-proc__head" style="display:flex;align-items:center;gap:12px;justify-content:space-between;flex-wrap:wrap;">';
-                echo '<span style="display:flex;align-items:center;gap:10px;">' . self::avatar( $requester ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- avatar escapes.
+                echo '<div class="spbwc-proc__head spbwc-row spbwc-row--between">';
+                echo '<span class="spbwc-row spbwc-row--sm">' . self::avatar( $requester ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- avatar escapes.
                 echo '<span><strong>' . esc_html( $requester ? $requester->display_name : '—' ) . '</strong> ';
                 if ( '' !== $r_role ) {
                     echo '<span class="spbwc-role-chip spbwc-role-chip--' . esc_attr( $r_role ) . '">' . esc_html( SPBWC_Company::roles()[ $r_role ] ) . '</span>';
                 }
-                echo '<br /><small style="color:var(--nbd-mb-text-soft)">' . esc_html(
+                echo '<br /><small class="spbwc-muted">' . esc_html(
                     sprintf(
                         /* translators: 1: count, 2: relative time. */
                         __( '%1$d item(s) · submitted %2$s ago', 'storelly-product-builder-for-woocommerce' ),
@@ -377,7 +377,7 @@ if ( ! class_exists( 'SPBWC_B2B_Procurement' ) ) {
                         $when
                     )
                 ) . '</small></span></span>';
-                echo '<span style="font-size:20px;font-weight:700;color:var(--nbd-mb-primary-pressed)">' . wp_kses_post( wc_price( $total ) ) . '</span>';
+                echo '<span class="spbwc-amount">' . wp_kses_post( wc_price( $total ) ) . '</span>';
                 echo '</div>';
 
                 echo '<ul class="spbwc-proc__items">';
@@ -391,8 +391,8 @@ if ( ! class_exists( 'SPBWC_B2B_Procurement' ) ) {
                 if ( $r_limit > 0 ) {
                     $pct = min( 100, (int) round( $total / $r_limit * 100 ) );
                     $mod = $pct >= 100 ? ' spbwc-meter--danger' : ( $pct >= 80 ? ' spbwc-meter--warn' : '' );
-                    echo '<div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">';
-                    echo '<span class="spbwc-meter' . $mod . '" style="max-width:200px;"><span class="spbwc-meter__fill" style="width:' . esc_attr( $pct ) . '%"></span></span>';
+                    echo '<div class="spbwc-row spbwc-row--sm spbwc-proc__budget">';
+                    echo '<span class="spbwc-meter' . $mod . '"><span class="spbwc-meter__fill" style="width:' . esc_attr( $pct ) . '%"></span></span>';
                     echo '<span class="spbwc-meter__label">' . esc_html( sprintf(
                         /* translators: 1: order total, 2: per-order limit. */
                         __( '%1$s of %2$s per-order limit', 'storelly-product-builder-for-woocommerce' ),

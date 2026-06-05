@@ -138,7 +138,7 @@ if ( ! class_exists( 'SPBWC_B2B_Team' ) ) {
                 $is_owner = ( (int) $m->ID === $owner_id );
 
                 echo '<tr>';
-                echo '<td><span style="display:flex;align-items:center;gap:10px;">' . self::avatar( $m ) // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- avatar escapes.
+                echo '<td><span class="spbwc-row spbwc-row--sm">' . self::avatar( $m ) // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- avatar escapes.
                     . '<span><strong>' . esc_html( $m->display_name ) . '</strong>' . ( $is_owner ? ' <span class="spbwc-role-chip spbwc-role-chip--owner">' . esc_html__( 'You', 'storelly-product-builder-for-woocommerce' ) . '</span>' : '' )
                     . '<br /><small>' . esc_html( $m->user_email ) . '</small></span></span></td>';
 
@@ -187,7 +187,7 @@ if ( ! class_exists( 'SPBWC_B2B_Team' ) ) {
             if ( ! empty( $pending ) ) {
                 echo '<div class="spbwc-rfq-card"><h3>' . esc_html__( 'Pending invitations', 'storelly-product-builder-for-woocommerce' ) . '</h3><ul class="spbwc-team__pending">';
                 foreach ( $pending as $inv ) {
-                    echo '<li style="display:flex;align-items:center;gap:10px;justify-content:space-between;">';
+                    echo '<li class="spbwc-row spbwc-row--sm spbwc-row--between">';
                     echo '<span>' . esc_html( $inv['email'] ) . ' <span class="spbwc-role-chip spbwc-role-chip--' . esc_attr( $inv['role'] ) . '">' . esc_html( isset( $roles[ $inv['role'] ] ) ? $roles[ $inv['role'] ] : $inv['role'] ) . '</span></span>';
                     echo '<form method="post" style="display:inline" action="' . esc_url( self::url() ) . '">';
                     wp_nonce_field( 'spbwc_team_revoke', '_spbwc_team_nonce' );

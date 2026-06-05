@@ -8,6 +8,33 @@
  * admin design tokens (_tokens.css → --st-*).
  */
 
+/* ── Layout utilities (token-driven; replace inline styles) ── */
+.spbwc-row { display: flex; align-items: center; gap: var(--nbd-space-3); flex-wrap: wrap; }
+.spbwc-row--sm { gap: var(--nbd-space-2); }
+.spbwc-row--tight { gap: var(--nbd-space-1); }
+.spbwc-row--between { justify-content: space-between; }
+.spbwc-row--end { justify-content: flex-end; }
+.spbwc-row--top { align-items: flex-start; }
+.spbwc-row--push { margin-left: auto; }
+.spbwc-stack { display: flex; flex-direction: column; gap: var(--nbd-space-1); }
+.spbwc-stack--end { align-items: flex-end; text-align: right; }
+.spbwc-icon-xl { font-size: 32px; width: 32px; height: 32px; }
+.spbwc-muted { color: var(--nbd-st-text-mute); }
+.spbwc-muted-sm { color: var(--nbd-st-text-soft); font-size: var(--text-sm); }
+.spbwc-amount { font-size: var(--text-3xl); font-weight: var(--font-bold); color: var(--st-brand-pressed); }
+.spbwc-list__item-grow { flex: 1; min-width: 0; }
+/* Compact input widths for inline forms */
+.spbwc-input--xs { width: 90px; }
+.spbwc-input--sm { width: 120px; }
+.spbwc-input--md { width: 150px; }
+.spbwc-input--mw-sm { max-width: 130px; }
+.spbwc-input--mw-md { max-width: 220px; }
+.spbwc-input--mw-lg { max-width: 260px; }
+/* Mini key-value stat (recap cards) */
+.spbwc-kv { display: flex; flex-direction: column; text-align: right; }
+.spbwc-kv__v { font-size: var(--text-3xl); font-weight: var(--font-bold); color: var(--st-brand); line-height: 1.1; }
+.spbwc-kv__l { font-size: var(--text-sm); color: var(--nbd-st-text-mute); text-transform: uppercase; letter-spacing: .04em; }
+
 /* Status pill variants used by SPBWC_B2B_Admin::status_pill(). */
 .spbwc-pill {
     display: inline-block;
