@@ -376,3 +376,48 @@
     color: var(--nbd-st-text-soft);
 }
 .spbwc-q-back:hover { color: var(--st-brand); }
+
+/* ── Import tab (Quote Settings › Import) ──────────────────────────────── */
+.spbwc-block__intro {
+    margin: 0 0 16px;
+    font-size: 13px;
+    line-height: 1.6;
+    color: var(--nbd-st-text-soft);
+    max-width: 720px;
+}
+.spbwc-import-result {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0 0 16px;
+    padding: 11px 14px;
+    border-radius: var(--nbd-radius-md);
+    background: var(--nbd-color-success-soft, #edfaf0);
+    border: 1px solid var(--nbd-color-success-border, #a7e3b8);
+    color: var(--nbd-color-success-text, #14532d);
+    font-size: 13px;
+}
+.spbwc-import-result .dashicons { color: var(--nbd-color-success, #1a7f37); }
+.spbwc-import-result a { margin-left: 4px; font-weight: 600; }
+
+.spbwc-import-list { margin: 0; padding: 0; list-style: none; border: 1px solid var(--nbd-st-border-light); border-radius: var(--nbd-radius-md); overflow: hidden; }
+.spbwc-import-source {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 14px 16px;
+    background: var(--nbd-st-bg);
+    border-bottom: 1px solid var(--nbd-st-border-light);
+}
+.spbwc-import-source:last-child { border-bottom: 0; }
+.spbwc-import-source:nth-child(even) { background: var(--nbd-st-bg-soft); }
+.spbwc-import-source__info { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.spbwc-import-source__name { font-size: 14px; font-weight: 600; color: var(--nbd-st-text); }
+.spbwc-import-source__desc { font-size: 12.5px; color: var(--nbd-st-text-soft); }
+.spbwc-import-source__count { flex: 0 0 auto; font-size: 12.5px; color: var(--nbd-st-text-soft); white-space: nowrap; }
+.spbwc-import-source__count strong { font-size: 15px; color: var(--nbd-st-text); margin-right: 2px; }
+.spbwc-import-source__action { flex: 0 0 auto; }
+.spbwc-import-source__action form { margin: 0; }
+.spbwc-import-source__action .spbwc-cta-btn .dashicons { font-size: 16px; width: 16px; height: 16px; vertical-align: text-bottom; }
+
+.spbwc-empty-state__hint { font-size: 12.5px; color: var(--nbd-st-text-mute); margin-top: 6px; }

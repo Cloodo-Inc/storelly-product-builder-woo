@@ -1220,7 +1220,7 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
 
             // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only tab/search query args.
             $tab = isset( $_GET['tab'] ) ? sanitize_key( wp_unslash( $_GET['tab'] ) ) : 'get-quote';
-            if ( ! in_array( $tab, array( 'get-quote', 'form-builder' ), true ) ) {
+            if ( ! in_array( $tab, array( 'get-quote', 'form-builder', 'import' ), true ) ) {
                 $tab = 'get-quote';
             }
 
@@ -1349,6 +1349,13 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
                         <span class="dashicons dashicons-feedback" aria-hidden="true"></span>
                         <?php esc_html_e( 'Form Builder', 'storelly-product-builder-for-woocommerce' ); ?>
                     </a>
+                    <?php if ( class_exists( 'SPBWC_Quote_Import' ) ) : ?>
+                    <a href="<?php echo esc_url( add_query_arg( array( 'page' => SPBWC_PB_QUOTES_SLUG, 'tab' => 'import' ), admin_url( 'admin.php' ) ) ); ?>"
+                       data-tab="import" class="nav-tab <?php echo ( 'import' === $tab ) ? 'nav-tab-active' : ''; ?>">
+                        <span class="dashicons dashicons-download" aria-hidden="true"></span>
+                        <?php esc_html_e( 'Import', 'storelly-product-builder-for-woocommerce' ); ?>
+                    </a>
+                    <?php endif; ?>
                 </h2>
                     <!-- ── Get Quote Settings ──────────────────────────── -->
                     <div class="spbwc-quotes-panel" data-panel="get-quote"<?php echo ( 'get-quote' !== $tab ) ? ' style="display:none;"' : ''; ?>>
@@ -1571,6 +1578,12 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
                         </form>
                     </div>
                     </div><!-- .spbwc-quotes-panel (form-builder) -->
+                    <?php if ( class_exists( 'SPBWC_Quote_Import' ) ) : ?>
+                    <!-- ── Import quotes ───────────────────────────────── -->
+                    <div class="spbwc-quotes-panel" data-panel="import"<?php echo ( 'import' !== $tab ) ? ' style="display:none;"' : ''; ?>>
+                        <?php SPBWC_Quote_Import::render_tab(); ?>
+                    </div><!-- .spbwc-quotes-panel (import) -->
+                    <?php endif; ?>
                     <script>
                         (function($){
                             function nextIndex(){ return $('#spbwc-quote-fields-table tbody tr').length; }

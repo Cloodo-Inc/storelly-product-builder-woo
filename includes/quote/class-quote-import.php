@@ -28,8 +28,25 @@ if ( ! class_exists( 'SPBWC_Quote_Import' ) ) {
 
         public static function init() {
             add_action( self::HOOK, array( __CLASS__, 'run_batch' ), 10, 1 );
-            add_action( 'admin_menu', array( __CLASS__, 'register_menu' ), 60 );
             add_action( 'admin_post_spbwc_quote_import', array( __CLASS__, 'handle_import' ) );
+            add_action( 'admin_enqueue_scripts', array( __CLASS__, 'enqueue_assets' ) );
+        }
+
+        /** Load the tokenized quote stylesheet on the Quote Settings page. */
+        public static function enqueue_assets() {
+            $slug = defined( 'SPBWC_PB_QUOTES_SLUG' ) ? SPBWC_PB_QUOTES_SLUG : 'storelly-product-builder-for-woocommerce-quotes';
+            // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only page check for asset loading.
+            if ( ! isset( $_GET['page'] ) || $slug !== sanitize_key( wp_unslash( $_GET['page'] ) ) ) {
+                return;
+            }
+            $css = SPBWC_PB_PLUGIN_DIR . 'static/css/quotes-admin.css';
+            wp_enqueue_style(
+                'spbwc-quotes-admin',
+                SPBWC_PB_CSS_URL . 'quotes-admin.css',
+                array(),
+                file_exists( $css ) ? filemtime( $css ) : SPBWC_PB_VERSION
+            );
+            wp_enqueue_style( 'dashicons' );
         }
 
         /**
@@ -185,21 +202,15 @@ if ( ! class_exists( 'SPBWC_Quote_Import' ) ) {
             return $done;
         }
 
-        /* ── Admin ─────────────────────────────────────────────────── */
+        /* ── Admin (renders inside the Quote Settings "Import" tab) ──── */
 
-        public static function register_menu() {
-            add_submenu_page(
-                SPBWC_Quote_Admin::PAGE_SLUG,
-                __( 'Import quotes', 'storelly-product-builder-for-woocommerce' ),
-                __( 'Import', 'storelly-product-builder-for-woocommerce' ),
-                SPBWC_Quote_Admin::CAPABILITY,
-                self::PAGE,
-                array( __CLASS__, 'render_page' )
+        /** URL of the Import tab on the Quote Settings screen. */
+        public static function tab_url( $args = array() ) {
+            $base = defined( 'SPBWC_PB_QUOTES_SLUG' ) ? SPBWC_PB_QUOTES_SLUG : 'storelly-product-builder-for-woocommerce-quotes';
+            return add_query_arg(
+                array_merge( array( 'page' => $base, 'tab' => 'import' ), $args ),
+                admin_url( 'admin.php' )
             );
-        }
-
-        public static function page_url() {
-            return admin_url( 'admin.php?page=' . self::PAGE );
         }
 
         public static function handle_import() {
@@ -216,87 +227,99 @@ if ( ! class_exists( 'SPBWC_Quote_Import' ) ) {
                 $imported  = self::run_batch( $adapter_id );
                 $remaining = (int) $adapter->count_importable();
             }
-            $url = add_query_arg(
-                array(
-                    'imported'  => $imported,
-                    'remaining' => $remaining,
-                ),
-                self::page_url()
-            );
-            wp_safe_redirect( $url );
+            wp_safe_redirect( self::tab_url( array( 'imported' => $imported, 'remaining' => $remaining ) ) );
             exit;
         }
 
-        public static function render_page() {
+        /**
+         * Render the "Import" tab body (called from the Quote Settings page).
+         * Uses the shared admin design-token components only — no bespoke CSS.
+         */
+        public static function render_tab() {
             if ( ! current_user_can( SPBWC_Quote_Admin::CAPABILITY ) ) {
                 return;
             }
             $sources   = self::scan();
             $imported  = isset( $_GET['imported'] ) ? absint( wp_unslash( $_GET['imported'] ) ) : -1; // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only notice flag.
             $remaining = isset( $_GET['remaining'] ) ? absint( wp_unslash( $_GET['remaining'] ) ) : 0; // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only notice flag.
+            $workspace = SPBWC_Quote_Admin::page_url();
             ?>
-            <div class="wrap spbwc-quote-import">
-                <h1><?php esc_html_e( 'Import quotes', 'storelly-product-builder-for-woocommerce' ); ?></h1>
-                <p class="description"><?php esc_html_e( 'Bring existing quotes and unpaid orders into Storelly. Importing is non-destructive — the original records are kept — and safe to re-run.', 'storelly-product-builder-for-woocommerce' ); ?></p>
+            <div class="spbwc-block">
+                <div class="spbwc-block__head">
+                    <h3 class="spbwc-block__title">
+                        <span class="dashicons dashicons-download" aria-hidden="true"></span>
+                        <?php esc_html_e( 'Import existing quotes', 'storelly-product-builder-for-woocommerce' ); ?>
+                    </h3>
+                </div>
+                <div class="spbwc-block__body">
+                    <p class="spbwc-block__intro">
+                        <?php esc_html_e( 'Already taking quotes elsewhere? Bring them into Storelly so every request lives in one workspace. Importing is non-destructive — your original records are untouched — and safe to re-run; nothing is imported twice.', 'storelly-product-builder-for-woocommerce' ); ?>
+                    </p>
 
-                <?php if ( $imported >= 0 ) : ?>
-                    <div class="notice notice-success is-dismissible"><p>
-                        <?php
-                        printf(
-                            /* translators: %d: number of quotes imported. */
-                            esc_html( _n( 'Imported %d quote.', 'Imported %d quotes.', $imported, 'storelly-product-builder-for-woocommerce' ) ),
-                            (int) $imported
-                        );
-                        if ( $remaining > 0 ) {
-                            echo ' ';
-                            printf(
-                                /* translators: %d: number of quotes still importing in the background. */
-                                esc_html( _n( '%d more is importing in the background.', '%d more are importing in the background.', $remaining, 'storelly-product-builder-for-woocommerce' ) ),
-                                (int) $remaining
-                            );
-                        }
-                        ?>
-                    </p></div>
-                <?php endif; ?>
+                    <?php if ( $imported >= 0 ) : ?>
+                        <div class="spbwc-import-result" role="status">
+                            <span class="dashicons dashicons-yes-alt" aria-hidden="true"></span>
+                            <span>
+                                <?php
+                                printf(
+                                    /* translators: %d: number of quotes imported. */
+                                    esc_html( _n( 'Imported %d quote.', 'Imported %d quotes.', $imported, 'storelly-product-builder-for-woocommerce' ) ),
+                                    (int) $imported
+                                );
+                                if ( $remaining > 0 ) {
+                                    echo ' ';
+                                    printf(
+                                        /* translators: %d: number of quotes still importing in the background. */
+                                        esc_html( _n( '%d more is importing in the background.', '%d more are importing in the background.', $remaining, 'storelly-product-builder-for-woocommerce' ) ),
+                                        (int) $remaining
+                                    );
+                                }
+                                ?>
+                                <a href="<?php echo esc_url( $workspace ); ?>"><?php esc_html_e( 'View quotes →', 'storelly-product-builder-for-woocommerce' ); ?></a>
+                            </span>
+                        </div>
+                    <?php endif; ?>
 
-                <table class="widefat striped" style="max-width:760px;margin-top:16px;">
-                    <thead>
-                        <tr>
-                            <th><?php esc_html_e( 'Source', 'storelly-product-builder-for-woocommerce' ); ?></th>
-                            <th style="width:120px;"><?php esc_html_e( 'Found', 'storelly-product-builder-for-woocommerce' ); ?></th>
-                            <th style="width:160px;"></th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <?php if ( empty( $sources ) ) : ?>
-                            <tr><td colspan="3"><?php esc_html_e( 'No importable sources detected on this site.', 'storelly-product-builder-for-woocommerce' ); ?></td></tr>
-                        <?php else : ?>
+                    <?php if ( empty( $sources ) ) : ?>
+                        <div class="spbwc-empty-state">
+                            <span class="dashicons dashicons-search" aria-hidden="true"></span>
+                            <p><?php esc_html_e( 'No importable sources detected on this site yet.', 'storelly-product-builder-for-woocommerce' ); ?></p>
+                            <p class="spbwc-empty-state__hint"><?php esc_html_e( 'Storelly can import from WooCommerce unpaid orders and popular quote / contact-form plugins. Install or activate one, then return here.', 'storelly-product-builder-for-woocommerce' ); ?></p>
+                        </div>
+                    <?php else : ?>
+                        <ul class="spbwc-import-list">
                             <?php foreach ( $sources as $source ) : ?>
-                                <tr>
-                                    <td>
-                                        <strong><?php echo esc_html( $source['label'] ); ?></strong>
+                                <li class="spbwc-import-source">
+                                    <div class="spbwc-import-source__info">
+                                        <span class="spbwc-import-source__name"><?php echo esc_html( $source['label'] ); ?></span>
                                         <?php if ( $source['description'] ) : ?>
-                                            <br /><span class="description"><?php echo esc_html( $source['description'] ); ?></span>
+                                            <span class="spbwc-import-source__desc"><?php echo esc_html( $source['description'] ); ?></span>
                                         <?php endif; ?>
-                                    </td>
-                                    <td><?php echo esc_html( number_format_i18n( $source['count'] ) ); ?></td>
-                                    <td>
+                                    </div>
+                                    <span class="spbwc-import-source__count">
+                                        <strong><?php echo esc_html( number_format_i18n( $source['count'] ) ); ?></strong>
+                                        <?php esc_html_e( 'found', 'storelly-product-builder-for-woocommerce' ); ?>
+                                    </span>
+                                    <div class="spbwc-import-source__action">
                                         <?php if ( $source['count'] > 0 ) : ?>
                                             <form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>">
                                                 <?php wp_nonce_field( 'spbwc_quote_import' ); ?>
                                                 <input type="hidden" name="action" value="spbwc_quote_import" />
                                                 <input type="hidden" name="adapter" value="<?php echo esc_attr( $source['id'] ); ?>" />
-                                                <button type="submit" class="button button-primary"><?php esc_html_e( 'Import', 'storelly-product-builder-for-woocommerce' ); ?></button>
+                                                <button type="submit" class="spbwc-cta-btn spbwc-cta-btn--solid">
+                                                    <span class="dashicons dashicons-download" aria-hidden="true"></span>
+                                                    <?php esc_html_e( 'Import', 'storelly-product-builder-for-woocommerce' ); ?>
+                                                </button>
                                             </form>
                                         <?php else : ?>
-                                            <span class="description"><?php esc_html_e( 'Nothing to import', 'storelly-product-builder-for-woocommerce' ); ?></span>
+                                            <span class="spbwc-pill spbwc-pill--neutral"><?php esc_html_e( 'Nothing to import', 'storelly-product-builder-for-woocommerce' ); ?></span>
                                         <?php endif; ?>
-                                    </td>
-                                </tr>
+                                    </div>
+                                </li>
                             <?php endforeach; ?>
-                        <?php endif; ?>
-                    </tbody>
-                </table>
+                        </ul>
+                    <?php endif; ?>
+                </div>
             </div>
             <?php
         }
