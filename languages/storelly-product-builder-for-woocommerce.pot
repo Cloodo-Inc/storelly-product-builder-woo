@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-06-06T02:23:28+00:00\n"
+"POT-Creation-Date: 2026-06-06T02:37:05+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: storelly-product-builder-for-woocommerce\n"
@@ -167,7 +167,7 @@ msgid "VAT / Tax ID"
 msgstr ""
 
 #: includes/b2b/class-b2b-account.php:218
-#: includes/launcher/class.launcher.php:1432
+#: includes/launcher/class.launcher.php:1476
 #: templates/launcher/store/settings.php:47
 #: views/marketplace-admin/designer-edit.php:135
 msgid "Address"
@@ -236,11 +236,11 @@ msgstr ""
 #: includes/class-custom-order-detail.php:186
 #: includes/class-demo-seeder.php:73
 #: includes/class-order-pdf.php:72
-#: includes/class-saved-designs.php:373
-#: includes/class-saved-designs.php:446
-#: includes/class-saved-designs.php:451
-#: includes/class-saved-designs.php:515
-#: includes/class-saved-designs.php:519
+#: includes/class-saved-designs.php:400
+#: includes/class-saved-designs.php:473
+#: includes/class-saved-designs.php:478
+#: includes/class-saved-designs.php:542
+#: includes/class-saved-designs.php:546
 #: includes/setup-wizard/class-woo-prepare.php:546
 #: includes/setup-wizard/class-woo-seed-controller.php:297
 msgid "You do not have permission."
@@ -259,7 +259,7 @@ msgstr ""
 #: includes/class-admin-options.php:4407
 #: includes/class-admin-options.php:4435
 #: includes/class-product-exporter.php:188
-#: includes/launcher/class.launcher.php:565
+#: includes/launcher/class.launcher.php:609
 #: includes/marketplace/admin/class-marketplace-admin-ajax.php:32
 #: includes/quote/class-quote-admin.php:57
 #: includes/quote/class-quote-admin.php:92
@@ -365,7 +365,7 @@ msgstr ""
 
 #: includes/b2b/class-b2b-admin.php:485
 #: includes/class-request-quote.php:1281
-#: includes/launcher/class.launcher.php:1422
+#: includes/launcher/class.launcher.php:1466
 #: includes/quote/class-quotes-list-table.php:70
 #: views/marketplace-admin/designers.php:46
 #: views/options/options-list-table.php:124
@@ -423,7 +423,7 @@ msgstr ""
 #: includes/class-admin-options.php:2175
 #: includes/class-request-quote.php:1322
 #: includes/email/class-email-admin.php:410
-#: includes/launcher/class.launcher.php:1518
+#: includes/launcher/class.launcher.php:1562
 #: includes/marketplace/admin/class-designers-list-table.php:34
 #: includes/marketplace/admin/class-designs-list-table.php:35
 #: includes/marketplace/admin/class-withdraws-list-table.php:35
@@ -568,7 +568,7 @@ msgid "Create company"
 msgstr ""
 
 #: includes/b2b/class-b2b-admin.php:683
-#: includes/launcher/class.launcher.php:1435
+#: includes/launcher/class.launcher.php:1479
 #: includes/marketplace/admin/class-withdraws-list-table.php:45
 #: includes/marketplace/admin/class-withdraws-list-table.php:105
 #: includes/setup-wizard/class-woo-seed-controller.php:210
@@ -623,7 +623,7 @@ msgid "Priced products"
 msgstr ""
 
 #: includes/b2b/class-b2b-admin.php:744
-#: includes/launcher/class.launcher.php:1489
+#: includes/launcher/class.launcher.php:1533
 #: includes/quote/class-quote-admin.php:765
 #: templates/launcher/store/tabs.php:10
 #: views/overview.php:81
@@ -780,7 +780,7 @@ msgid "Record a transaction"
 msgstr ""
 
 #: includes/b2b/class-b2b-admin.php:929
-#: includes/launcher/class.launcher.php:1424
+#: includes/launcher/class.launcher.php:1468
 #: includes/marketplace/admin/class-withdraws-list-table.php:32
 #: templates/launcher/store/withdraw-table.php:8
 #: templates/launcher/store/withdraw-table.php:17
@@ -801,7 +801,7 @@ msgstr ""
 
 #: includes/b2b/class-b2b-admin.php:933
 #: includes/b2b/class-b2b-admin.php:946
-#: includes/launcher/class.launcher.php:1483
+#: includes/launcher/class.launcher.php:1527
 #: includes/marketplace/admin/class-withdraws-list-table.php:34
 msgid "Note"
 msgstr ""
@@ -838,7 +838,7 @@ msgstr ""
 #: includes/b2b/class-b2b-credit.php:248
 #: includes/class-admin-options.php:2174
 #: includes/class-request-quote.php:1321
-#: includes/launcher/class.launcher.php:1449
+#: includes/launcher/class.launcher.php:1493
 #: includes/options/fields-list-table.php:46
 #: templates/launcher/store/design-table.php:16
 #: templates/launcher/store/design-table.php:37
@@ -889,7 +889,7 @@ msgid "Bind products to this company at a custom price — these override the ti
 msgstr ""
 
 #: includes/b2b/class-b2b-admin.php:1005
-#: includes/launcher/class.launcher.php:1501
+#: includes/launcher/class.launcher.php:1545
 #: includes/marketplace/admin/class-designs-list-table.php:34
 #: includes/quote/class-quote-admin.php:871
 #: templates/launcher/store/design-table.php:15
@@ -973,7 +973,7 @@ msgid "Net 30"
 msgstr ""
 
 #: includes/b2b/class-b2b-admin.php:1086
-#: includes/launcher/class.launcher.php:1447
+#: includes/launcher/class.launcher.php:1491
 msgid "Custom"
 msgstr ""
 
@@ -1001,7 +1001,7 @@ msgstr ""
 #: includes/b2b/class-b2b-admin.php:1106
 #: includes/b2b/class-b2b-procurement.php:551
 #: includes/b2b/class-b2b-team.php:396
-#: includes/class-saved-designs.php:634
+#: includes/class-saved-designs.php:661
 #: includes/templates/class-template-library-admin.php:105
 #: views/options/options-list-table.php:461
 #: views/overview.php:378
@@ -1022,7 +1022,7 @@ msgid "Suspended"
 msgstr ""
 
 #: includes/b2b/class-b2b-company.php:102
-#: includes/launcher/class.launcher.php:348
+#: includes/launcher/class.launcher.php:363
 msgid "Admin"
 msgstr ""
 
@@ -1296,7 +1296,7 @@ msgid "Order charge"
 msgstr ""
 
 #: includes/b2b/class-b2b-ledger.php:406
-#: includes/launcher/class.launcher.php:1493
+#: includes/launcher/class.launcher.php:1537
 msgid "Payment"
 msgstr ""
 
@@ -1404,7 +1404,7 @@ msgstr ""
 
 #. translators: %s: formatted total.
 #: includes/b2b/class-b2b-procurement.php:192
-#: includes/b2b/class-b2b-sample.php:380
+#: includes/b2b/class-b2b-sample.php:396
 #, php-format
 msgid "Approval request — %s"
 msgstr ""
@@ -1536,7 +1536,7 @@ msgid "Reorder"
 msgstr ""
 
 #: includes/b2b/class-b2b-reorders.php:182
-#: includes/class-saved-designs.php:324
+#: includes/class-saved-designs.php:351
 msgid "Product unavailable"
 msgstr ""
 
@@ -1544,82 +1544,82 @@ msgstr ""
 msgid "Could not reorder that design. Please try again."
 msgstr ""
 
-#: includes/b2b/class-b2b-sample.php:132
-#: includes/b2b/class-b2b-sample.php:223
+#: includes/b2b/class-b2b-sample.php:148
+#: includes/b2b/class-b2b-sample.php:239
 msgid "Jordan Pike"
 msgstr ""
 
-#: includes/b2b/class-b2b-sample.php:164
+#: includes/b2b/class-b2b-sample.php:180
 msgid "Mara Velez"
 msgstr ""
 
-#: includes/b2b/class-b2b-sample.php:165
+#: includes/b2b/class-b2b-sample.php:181
 msgid "Theo Nguyen"
 msgstr ""
 
-#: includes/b2b/class-b2b-sample.php:208
+#: includes/b2b/class-b2b-sample.php:224
 msgid "Global digital transformation & IT solutions since 2012"
 msgstr ""
 
-#: includes/b2b/class-b2b-sample.php:209
+#: includes/b2b/class-b2b-sample.php:225
 msgid "Netbase JSC delivers custom software, e-commerce platforms and IT outsourcing for teams worldwide. This is a sample B2B client so you can explore the brand store, negotiated pricing, team approvals and reorders end to end."
 msgstr ""
 
-#: includes/b2b/class-b2b-sample.php:215
+#: includes/b2b/class-b2b-sample.php:231
 msgid "Software & IT Consulting"
 msgstr ""
 
-#: includes/b2b/class-b2b-sample.php:224
+#: includes/b2b/class-b2b-sample.php:240
 msgid "Procurement Lead"
 msgstr ""
 
-#: includes/b2b/class-b2b-sample.php:288
+#: includes/b2b/class-b2b-sample.php:304
 msgid "Jordan"
 msgstr ""
 
-#: includes/b2b/class-b2b-sample.php:289
+#: includes/b2b/class-b2b-sample.php:305
 msgid "Pike"
 msgstr ""
 
-#: includes/b2b/class-b2b-sample.php:292
+#: includes/b2b/class-b2b-sample.php:308
 msgid "Sample quote from the Netbase JSC B2B client — price the lines, send the reply, then remove the sample when you are done."
 msgstr ""
 
-#: includes/b2b/class-b2b-sample.php:303
+#: includes/b2b/class-b2b-sample.php:319
 msgid "Branded notebooks — A5, soft-touch cover"
 msgstr ""
 
-#: includes/b2b/class-b2b-sample.php:309
+#: includes/b2b/class-b2b-sample.php:325
 msgid "Event roll-up banners — 85×200cm"
 msgstr ""
 
-#: includes/b2b/class-b2b-sample.php:351
+#: includes/b2b/class-b2b-sample.php:367
 msgid "Sample B2B order."
 msgstr ""
 
-#: includes/b2b/class-b2b-sample.php:426
+#: includes/b2b/class-b2b-sample.php:442
 msgid "Tier A"
 msgstr ""
 
-#: includes/b2b/class-b2b-sample.php:427
+#: includes/b2b/class-b2b-sample.php:443
 msgid "Tier B"
 msgstr ""
 
-#: includes/b2b/class-b2b-sample.php:428
+#: includes/b2b/class-b2b-sample.php:444
 msgid "Tier C"
 msgstr ""
 
-#: includes/b2b/class-b2b-sample.php:625
+#: includes/b2b/class-b2b-sample.php:641
 #: includes/quote/class-quote-import.php:330
 #: includes/quote/class-quote-sample.php:109
 msgid "You are not allowed to do this."
 msgstr ""
 
-#: includes/b2b/class-b2b-sample.php:655
+#: includes/b2b/class-b2b-sample.php:671
 msgid "Storelly installed a sample B2B client (“Netbase JSC”) so you can explore the brand store, pricing, quotes and team approval."
 msgstr ""
 
-#: includes/b2b/class-b2b-sample.php:656
+#: includes/b2b/class-b2b-sample.php:672
 msgid "View B2B clients"
 msgstr ""
 
@@ -1774,8 +1774,8 @@ msgstr ""
 #: includes/class-admin-options.php:4213
 #: includes/class-buyer-downloads.php:182
 #: includes/class-product-builder-frontend.php:151
-#: includes/class-saved-designs.php:370
-#: includes/class-saved-designs.php:443
+#: includes/class-saved-designs.php:397
+#: includes/class-saved-designs.php:470
 msgid "Security error."
 msgstr ""
 
@@ -1959,6 +1959,7 @@ msgid "Option updated."
 msgstr ""
 
 #: includes/class-admin-options.php:895
+#: templates/account/shell-header.php:27
 #: views/options/edit-option-v3.php:51
 #: views/options/edit-option.php:53
 #: views/visual-builder/create-picker.php:22
@@ -2338,7 +2339,7 @@ msgstr ""
 #: includes/class-admin-options.php:2802
 #: includes/email/class-email-admin.php:293
 #: includes/email/class-email-admin.php:363
-#: includes/launcher/class.launcher.php:1463
+#: includes/launcher/class.launcher.php:1507
 #: includes/marketplace/admin/class-designers-list-table.php:82
 #: includes/setup-wizard/class-woo-seed-mapper.php:477
 #: views/marketplace-admin/designers.php:41
@@ -2352,7 +2353,7 @@ msgstr ""
 
 #: includes/class-admin-options.php:1599
 #: includes/class-admin-options.php:2179
-#: includes/launcher/class.launcher.php:1420
+#: includes/launcher/class.launcher.php:1464
 #: includes/marketplace/admin/class-withdraws-list-table.php:38
 #: views/products.php:208
 msgid "Actions"
@@ -2601,9 +2602,9 @@ msgstr[1] ""
 
 #: includes/class-admin-options.php:2172
 #: includes/class-custom-order-detail.php:306
-#: includes/launcher/class.launcher.php:350
-#: includes/launcher/class.launcher.php:1336
-#: includes/launcher/class.launcher.php:1337
+#: includes/launcher/class.launcher.php:365
+#: includes/launcher/class.launcher.php:1380
+#: includes/launcher/class.launcher.php:1381
 msgid "Design"
 msgstr ""
 
@@ -2623,8 +2624,8 @@ msgstr ""
 #: includes/class-request-quote.php:1603
 #: includes/launcher/api/report.php:120
 #: includes/launcher/api/report.php:127
-#: includes/launcher/class.launcher.php:202
-#: includes/launcher/class.launcher.php:209
+#: includes/launcher/class.launcher.php:217
+#: includes/launcher/class.launcher.php:224
 #: includes/quote/class-quote-admin.php:649
 #: includes/quote/class-quote-admin.php:680
 #: includes/quote/class-quote-email-types.php:77
@@ -2661,7 +2662,7 @@ msgstr ""
 
 #: includes/class-admin-options.php:2254
 #: includes/class-request-quote.php:1336
-#: includes/launcher/class.launcher.php:1529
+#: includes/launcher/class.launcher.php:1573
 #: templates/launcher/store/design-table.php:67
 #: views/options/templates/nbpb_com.php:70
 #: views/_products-cards.php:130
@@ -2978,7 +2979,7 @@ msgid "Storelly product builder"
 msgstr ""
 
 #: includes/class-admin-options.php:3427
-#: includes/class-saved-designs.php:322
+#: includes/class-saved-designs.php:349
 #: includes/templates/class-template-preview-render.php:348
 #: templates/single-product/option-builder.php:348
 #: views/options/edit-option.php:663
@@ -3140,7 +3141,7 @@ msgstr ""
 
 #: includes/class-admin-options.php:4752
 #: includes/class-admin-options.php:4755
-#: includes/launcher/class.launcher.php:1497
+#: includes/launcher/class.launcher.php:1541
 #: includes/marketplace/admin/class-designs-list-table.php:44
 #: includes/options/fields-list-table.php:418
 #: includes/options/fields-list-table.php:559
@@ -3192,7 +3193,7 @@ msgstr ""
 
 #: includes/class-admin-options.php:4786
 #: includes/email/class-email-admin.php:369
-#: includes/launcher/class.launcher.php:1461
+#: includes/launcher/class.launcher.php:1505
 #: includes/marketplace/admin/class-designers-list-table.php:59
 #: includes/options/fields-list-table.php:482
 #: templates/launcher/store/design-table.php:52
@@ -3209,8 +3210,8 @@ msgid "Duplicate"
 msgstr ""
 
 #: includes/class-admin-options.php:4799
-#: includes/class-saved-designs.php:333
-#: includes/launcher/class.launcher.php:1450
+#: includes/class-saved-designs.php:360
+#: includes/launcher/class.launcher.php:1494
 #: includes/marketplace/admin/class-designs-list-table.php:46
 #: includes/options/fields-list-table.php:417
 #: templates/launcher/store/design-table.php:61
@@ -3525,7 +3526,8 @@ msgstr ""
 
 #: includes/class-custom-order-detail.php:452
 #: includes/class-saved-designs.php:87
-#: includes/class-saved-designs.php:294
+#: includes/class-saved-designs.php:297
+#: includes/class-saved-designs.php:302
 #: views/overview.php:760
 msgid "Saved designs"
 msgstr ""
@@ -4829,32 +4831,49 @@ msgstr ""
 msgid "Design preview image URL."
 msgstr ""
 
-#: includes/class-saved-designs.php:296
+#: includes/class-saved-designs.php:298
+msgid "Reload a saved design straight into your cart."
+msgstr ""
+
+#: includes/class-saved-designs.php:311
+#: views/overview.php:1035
+msgid "No saved designs yet"
+msgstr ""
+
+#: includes/class-saved-designs.php:312
+msgid "Customise a product, then hit Save to keep your design here and reuse it anytime."
+msgstr ""
+
+#: includes/class-saved-designs.php:313
+msgid "Browse products"
+msgstr ""
+
+#: includes/class-saved-designs.php:318
 msgid "You have not saved any designs yet."
 msgstr ""
 
-#: includes/class-saved-designs.php:389
-#: includes/class-saved-designs.php:463
+#: includes/class-saved-designs.php:416
+#: includes/class-saved-designs.php:490
 msgid "Design not found."
 msgstr ""
 
-#: includes/class-saved-designs.php:406
+#: includes/class-saved-designs.php:433
 msgid "Saved design"
 msgstr ""
 
-#: includes/class-saved-designs.php:580
+#: includes/class-saved-designs.php:607
 msgid "Design added to your cart."
 msgstr ""
 
-#: includes/class-saved-designs.php:631
+#: includes/class-saved-designs.php:658
 msgid "Design saved to your account."
 msgstr ""
 
-#: includes/class-saved-designs.php:632
+#: includes/class-saved-designs.php:659
 msgid "Saved design deleted."
 msgstr ""
 
-#: includes/class-saved-designs.php:633
+#: includes/class-saved-designs.php:660
 msgid "You have reached your saved-design limit."
 msgstr ""
 
@@ -4973,7 +4992,7 @@ msgstr ""
 
 #: includes/email/class-email-admin.php:301
 #: includes/email/class-email-admin.php:363
-#: includes/launcher/class.launcher.php:1458
+#: includes/launcher/class.launcher.php:1502
 #: includes/marketplace/admin/class-designers-list-table.php:83
 #: views/marketplace-admin/designers.php:42
 #: views/options/edit-option.php:241
@@ -5041,7 +5060,7 @@ msgid "Recipient"
 msgstr ""
 
 #: includes/email/class-email-admin.php:409
-#: includes/launcher/class.launcher.php:1520
+#: includes/launcher/class.launcher.php:1564
 #: includes/launcher/emails/designer_disabled.php:92
 #: includes/launcher/emails/designer_enabled.php:110
 #: includes/launcher/emails/withdraw_approved.php:96
@@ -5191,13 +5210,13 @@ msgid "Email has been sent successfully."
 msgstr ""
 
 #: includes/launcher/api/report.php:116
-#: includes/launcher/class.launcher.php:198
+#: includes/launcher/class.launcher.php:213
 #: templates/launcher/store/dashboard.php:8
 msgid "Created designs"
 msgstr ""
 
 #: includes/launcher/api/report.php:123
-#: includes/launcher/class.launcher.php:205
+#: includes/launcher/class.launcher.php:220
 msgid "Sold designs"
 msgstr ""
 
@@ -5250,22 +5269,30 @@ msgstr ""
 msgid "Design store"
 msgstr ""
 
-#: includes/launcher/class.launcher.php:342
-#: includes/launcher/class.launcher.php:1452
+#: includes/launcher/class.launcher.php:169
+msgid "Designer Store"
+msgstr ""
+
+#: includes/launcher/class.launcher.php:170
+msgid "Manage your designs, track sales and request payouts."
+msgstr ""
+
+#: includes/launcher/class.launcher.php:357
+#: includes/launcher/class.launcher.php:1496
 #: views/marketplace-admin/designers.php:26
 #: views/marketplace-admin/header.php:17
 #: views/marketplace-admin/report.php:34
 msgid "Designers"
 msgstr ""
 
-#: includes/launcher/class.launcher.php:347
+#: includes/launcher/class.launcher.php:362
 #: views/options/field.php:77
 msgid "General"
 msgstr ""
 
-#: includes/launcher/class.launcher.php:349
-#: includes/launcher/class.launcher.php:499
-#: includes/launcher/class.launcher.php:1451
+#: includes/launcher/class.launcher.php:364
+#: includes/launcher/class.launcher.php:543
+#: includes/launcher/class.launcher.php:1495
 #: includes/marketplace/admin/class-designs-list-table.php:33
 #: includes/marketplace/admin/class-withdraws-list-table.php:31
 #: views/options/edit-option.php:133
@@ -5273,101 +5300,101 @@ msgstr ""
 msgid "Designer"
 msgstr ""
 
-#: includes/launcher/class.launcher.php:448
+#: includes/launcher/class.launcher.php:492
 msgid "Please choose all necessary files!"
 msgstr ""
 
-#: includes/launcher/class.launcher.php:460
+#: includes/launcher/class.launcher.php:504
 msgid "Allow designer upload and sell solid design"
 msgstr ""
 
-#: includes/launcher/class.launcher.php:556
+#: includes/launcher/class.launcher.php:600
 msgid "You want to sell your designs to earn commission?"
 msgstr ""
 
-#: includes/launcher/class.launcher.php:557
+#: includes/launcher/class.launcher.php:601
 msgid "Become designer"
 msgstr ""
 
-#: includes/launcher/class.launcher.php:569
+#: includes/launcher/class.launcher.php:613
 msgid "Invalid nonce."
 msgstr ""
 
-#: includes/launcher/class.launcher.php:585
+#: includes/launcher/class.launcher.php:629
 msgid "Designer has been enabled"
 msgstr ""
 
-#: includes/launcher/class.launcher.php:585
+#: includes/launcher/class.launcher.php:629
 msgid "Designer has been disabled"
 msgstr ""
 
-#: includes/launcher/class.launcher.php:589
+#: includes/launcher/class.launcher.php:633
 msgid "Featured designer has been enabled"
 msgstr ""
 
-#: includes/launcher/class.launcher.php:589
+#: includes/launcher/class.launcher.php:633
 msgid "Featured designer has been disabled"
 msgstr ""
 
-#: includes/launcher/class.launcher.php:737
+#: includes/launcher/class.launcher.php:781
 msgid "Please select a product before upload design!"
 msgstr ""
 
-#: includes/launcher/class.launcher.php:860
-#: includes/launcher/class.launcher.php:907
+#: includes/launcher/class.launcher.php:904
+#: includes/launcher/class.launcher.php:951
 msgid "Upload file error!"
 msgstr ""
 
-#: includes/launcher/class.launcher.php:865
+#: includes/launcher/class.launcher.php:909
 msgid "File size too big"
 msgstr ""
 
-#: includes/launcher/class.launcher.php:876
+#: includes/launcher/class.launcher.php:920
 msgid "Only alllow image for product preview."
 msgstr ""
 
-#: includes/launcher/class.launcher.php:882
+#: includes/launcher/class.launcher.php:926
 msgid "Fail to create design thumbnail."
 msgstr ""
 
-#: includes/launcher/class.launcher.php:888
+#: includes/launcher/class.launcher.php:932
 msgid "Only alllow zip extension for design file."
 msgstr ""
 
-#: includes/launcher/class.launcher.php:895
+#: includes/launcher/class.launcher.php:939
 msgid "Only alllow image for content design preview."
 msgstr ""
 
-#: includes/launcher/class.launcher.php:943
-#: includes/launcher/class.launcher.php:957
+#: includes/launcher/class.launcher.php:987
+#: includes/launcher/class.launcher.php:1001
 msgid "Fail to edit exist design preview image!"
 msgstr ""
 
-#: includes/launcher/class.launcher.php:977
+#: includes/launcher/class.launcher.php:1021
 msgid "Design does not exist!"
 msgstr ""
 
-#: includes/launcher/class.launcher.php:1051
+#: includes/launcher/class.launcher.php:1095
 msgid "Can not create design folder!"
 msgstr ""
 
-#: includes/launcher/class.launcher.php:1222
+#: includes/launcher/class.launcher.php:1266
 msgid "Designed by"
 msgstr ""
 
-#: includes/launcher/class.launcher.php:1312
+#: includes/launcher/class.launcher.php:1356
 msgid "Download design resource"
 msgstr ""
 
-#: includes/launcher/class.launcher.php:1421
+#: includes/launcher/class.launcher.php:1465
 msgid "Add Note"
 msgstr ""
 
-#: includes/launcher/class.launcher.php:1423
+#: includes/launcher/class.launcher.php:1467
 msgid "All user"
 msgstr ""
 
-#: includes/launcher/class.launcher.php:1425
+#: includes/launcher/class.launcher.php:1469
 #: includes/marketplace/admin/class-withdraws-list-table.php:81
 #: templates/launcher/store/dashboard.php:15
 #: templates/launcher/store/design-table.php:33
@@ -5376,92 +5403,92 @@ msgstr ""
 msgid "Approved"
 msgstr ""
 
-#: includes/launcher/class.launcher.php:1426
+#: includes/launcher/class.launcher.php:1470
 msgid "Approve Request"
 msgstr ""
 
-#: includes/launcher/class.launcher.php:1427
+#: includes/launcher/class.launcher.php:1471
 msgid "Auto publish new design"
 msgstr ""
 
-#: includes/launcher/class.launcher.php:1428
-#: includes/launcher/class.launcher.php:1431
+#: includes/launcher/class.launcher.php:1472
+#: includes/launcher/class.launcher.php:1475
 #: views/marketplace-admin/designer-edit.php:127
 msgid "Artist name"
 msgstr ""
 
-#: includes/launcher/class.launcher.php:1429
+#: includes/launcher/class.launcher.php:1473
 msgid "At a Glance"
 msgstr ""
 
-#: includes/launcher/class.launcher.php:1430
+#: includes/launcher/class.launcher.php:1474
 #: includes/quote/class-quote-admin.php:637
 #: templates/single-product/option-builder.php:101
 #: views/templates/library.php:187
 msgid "Apply"
 msgstr ""
 
-#: includes/launcher/class.launcher.php:1433
+#: includes/launcher/class.launcher.php:1477
 msgid "awaiting approval"
 msgstr ""
 
-#: includes/launcher/class.launcher.php:1434
+#: includes/launcher/class.launcher.php:1478
 msgid "Bulk actions"
 msgstr ""
 
-#: includes/launcher/class.launcher.php:1436
+#: includes/launcher/class.launcher.php:1480
 msgid "Cancel request"
 msgstr ""
 
-#: includes/launcher/class.launcher.php:1437
+#: includes/launcher/class.launcher.php:1481
 #: includes/marketplace/admin/class-withdraws-list-table.php:82
 #: templates/launcher/store/withdraw-table.php:25
 #: views/marketplace-admin/withdraws.php:42
 msgid "Cancelled"
 msgstr ""
 
-#: includes/launcher/class.launcher.php:1438
+#: includes/launcher/class.launcher.php:1482
 #: includes/settings/launcher.php:32
 msgid "Combine"
 msgstr ""
 
-#: includes/launcher/class.launcher.php:1439
+#: includes/launcher/class.launcher.php:1483
 msgid "% + "
 msgstr ""
 
-#: includes/launcher/class.launcher.php:1440
+#: includes/launcher/class.launcher.php:1484
 msgid "Do you want to delete this withdraw?"
 msgstr ""
 
-#: includes/launcher/class.launcher.php:1441
+#: includes/launcher/class.launcher.php:1485
 msgid "Do you want to delete this design?"
 msgstr ""
 
-#: includes/launcher/class.launcher.php:1442
+#: includes/launcher/class.launcher.php:1486
 msgid "Change Designer Avatar"
 msgstr ""
 
-#: includes/launcher/class.launcher.php:1443
+#: includes/launcher/class.launcher.php:1487
 msgid "Change banner"
 msgstr ""
 
-#: includes/launcher/class.launcher.php:1444
+#: includes/launcher/class.launcher.php:1488
 msgid "created this month"
 msgstr ""
 
-#: includes/launcher/class.launcher.php:1445
+#: includes/launcher/class.launcher.php:1489
 msgid "created this period"
 msgstr ""
 
-#: includes/launcher/class.launcher.php:1446
+#: includes/launcher/class.launcher.php:1490
 msgid "Current balance"
 msgstr ""
 
-#: includes/launcher/class.launcher.php:1448
+#: includes/launcher/class.launcher.php:1492
 msgid "Dashboard"
 msgstr ""
 
-#: includes/launcher/class.launcher.php:1453
+#: includes/launcher/class.launcher.php:1497
 #: includes/marketplace/admin/class-designers-list-table.php:36
 #: templates/launcher/store/designs.php:7
 #: templates/launcher/store/tabs.php:13
@@ -5471,55 +5498,55 @@ msgstr ""
 msgid "Designs"
 msgstr ""
 
-#: includes/launcher/class.launcher.php:1454
+#: includes/launcher/class.launcher.php:1498
 msgid "Designer Commission Type"
 msgstr ""
 
-#: includes/launcher/class.launcher.php:1455
+#: includes/launcher/class.launcher.php:1499
 msgid "Designer Commission"
 msgstr ""
 
-#: includes/launcher/class.launcher.php:1456
+#: includes/launcher/class.launcher.php:1500
 msgid "Design Launcher"
 msgstr ""
 
-#: includes/launcher/class.launcher.php:1457
+#: includes/launcher/class.launcher.php:1501
 msgid "Designs sold"
 msgstr ""
 
-#: includes/launcher/class.launcher.php:1459
+#: includes/launcher/class.launcher.php:1503
 msgid "Download resource"
 msgstr ""
 
-#: includes/launcher/class.launcher.php:1460
+#: includes/launcher/class.launcher.php:1504
 msgid "E-mail"
 msgstr ""
 
-#: includes/launcher/class.launcher.php:1462
+#: includes/launcher/class.launcher.php:1506
 msgid "Editable"
 msgstr ""
 
-#: includes/launcher/class.launcher.php:1464
+#: includes/launcher/class.launcher.php:1508
 msgid "Enable Selling Designs"
 msgstr ""
 
-#: includes/launcher/class.launcher.php:1465
+#: includes/launcher/class.launcher.php:1509
 msgid "Error!"
 msgstr ""
 
-#: includes/launcher/class.launcher.php:1466
+#: includes/launcher/class.launcher.php:1510
 #: includes/settings/launcher.php:31
 #: views/marketplace-admin/designer-edit.php:148
 msgid "Flat"
 msgstr ""
 
-#: includes/launcher/class.launcher.php:1467
+#: includes/launcher/class.launcher.php:1511
 #: includes/marketplace/admin/class-designers-list-table.php:35
 #: views/marketplace-admin/designers.php:47
 msgid "Featured"
 msgstr ""
 
-#: includes/launcher/class.launcher.php:1468
+#: includes/launcher/class.launcher.php:1512
 #: views/designs.php:158
 #: views/marketplace-admin/designers.php:50
 #: views/marketplace-admin/designs.php:45
@@ -5527,93 +5554,93 @@ msgstr ""
 msgid "Filter"
 msgstr ""
 
-#: includes/launcher/class.launcher.php:1469
+#: includes/launcher/class.launcher.php:1513
 #: templates/launcher/store/settings.php:82
 msgid "Flickr"
 msgstr ""
 
-#: includes/launcher/class.launcher.php:1470
+#: includes/launcher/class.launcher.php:1514
 #: templates/launcher/store/settings.php:57
 msgid "Facebook"
 msgstr ""
 
-#: includes/launcher/class.launcher.php:1471
+#: includes/launcher/class.launcher.php:1515
 msgid "Filter by registered customer"
 msgstr ""
 
-#: includes/launcher/class.launcher.php:1472
+#: includes/launcher/class.launcher.php:1516
 msgid "Filter by product"
 msgstr ""
 
-#: includes/launcher/class.launcher.php:1473
+#: includes/launcher/class.launcher.php:1517
 msgid "From"
 msgstr ""
 
-#: includes/launcher/class.launcher.php:1474
+#: includes/launcher/class.launcher.php:1518
 #: templates/single-product/option-builder.php:39
 msgid "item"
 msgstr ""
 
-#: includes/launcher/class.launcher.php:1475
+#: includes/launcher/class.launcher.php:1519
 #: templates/single-product/option-builder.php:40
 #: templates/single-product/option-builder.php:305
 #: templates/single-product/option-builder.php:327
 msgid "items"
 msgstr ""
 
-#: includes/launcher/class.launcher.php:1476
+#: includes/launcher/class.launcher.php:1520
 #: templates/launcher/store/settings.php:77
 msgid "Instagram"
 msgstr ""
 
-#: includes/launcher/class.launcher.php:1477
+#: includes/launcher/class.launcher.php:1521
 msgid "Last month"
 msgstr ""
 
-#: includes/launcher/class.launcher.php:1478
+#: includes/launcher/class.launcher.php:1522
 #: templates/launcher/store/settings.php:67
 msgid "LinkedIn"
 msgstr ""
 
-#: includes/launcher/class.launcher.php:1479
+#: includes/launcher/class.launcher.php:1523
 msgid "Make Designer Featured"
 msgstr ""
 
-#: includes/launcher/class.launcher.php:1480
+#: includes/launcher/class.launcher.php:1524
 msgid "Manage Designers"
 msgstr ""
 
-#: includes/launcher/class.launcher.php:1481
+#: includes/launcher/class.launcher.php:1525
 #: includes/quote/class-quote-admin.php:873
 #: includes/quote/class-quote-import.php:492
 msgid "Message"
 msgstr ""
 
-#: includes/launcher/class.launcher.php:1482
+#: includes/launcher/class.launcher.php:1526
 msgid "( no name )"
 msgstr ""
 
-#: includes/launcher/class.launcher.php:1484
+#: includes/launcher/class.launcher.php:1528
 msgid "No designer found."
 msgstr ""
 
-#: includes/launcher/class.launcher.php:1485
+#: includes/launcher/class.launcher.php:1529
 msgid "No transaction found."
 msgstr ""
 
-#: includes/launcher/class.launcher.php:1486
+#: includes/launcher/class.launcher.php:1530
 msgid "No design found."
 msgstr ""
 
-#: includes/launcher/class.launcher.php:1487
+#: includes/launcher/class.launcher.php:1531
 msgid "of"
 msgstr ""
 
-#: includes/launcher/class.launcher.php:1488
+#: includes/launcher/class.launcher.php:1532
 msgid "Others"
 msgstr ""
 
-#: includes/launcher/class.launcher.php:1490
+#: includes/launcher/class.launcher.php:1534
 #: includes/marketplace/admin/class-withdraws-list-table.php:80
 #: templates/launcher/store/dashboard.php:18
 #: templates/launcher/store/design-table.php:31
@@ -5623,34 +5650,34 @@ msgstr ""
 msgid "Pending"
 msgstr ""
 
-#: includes/launcher/class.launcher.php:1491
+#: includes/launcher/class.launcher.php:1535
 msgid "Pending request"
 msgstr ""
 
-#: includes/launcher/class.launcher.php:1492
+#: includes/launcher/class.launcher.php:1536
 #: includes/settings/launcher.php:30
 #: views/marketplace-admin/designer-edit.php:147
 msgid "Percentage"
 msgstr ""
 
-#: includes/launcher/class.launcher.php:1494
+#: includes/launcher/class.launcher.php:1538
 msgid "Payment information"
 msgstr ""
 
-#: includes/launcher/class.launcher.php:1495
+#: includes/launcher/class.launcher.php:1539
 msgid "PayPal Email"
 msgstr ""
 
-#: includes/launcher/class.launcher.php:1496
+#: includes/launcher/class.launcher.php:1540
 #: templates/launcher/store/settings.php:52
 msgid "Phone Number"
 msgstr ""
 
-#: includes/launcher/class.launcher.php:1498
+#: includes/launcher/class.launcher.php:1542
 msgid "Publish designs"
 msgstr ""
 
-#: includes/launcher/class.launcher.php:1499
+#: includes/launcher/class.launcher.php:1543
 #: includes/marketplace/admin/class-designs-list-table.php:31
 #: templates/launcher/store/design-table.php:13
 #: templates/launcher/store/design-table.php:23
@@ -5661,120 +5688,120 @@ msgstr ""
 msgid "Preview"
 msgstr ""
 
-#: includes/launcher/class.launcher.php:1500
+#: includes/launcher/class.launcher.php:1544
 #: views/products.php:101
 msgid "Private"
 msgstr ""
 
-#: includes/launcher/class.launcher.php:1502
+#: includes/launcher/class.launcher.php:1546
 msgid "Registered"
 msgstr ""
 
-#: includes/launcher/class.launcher.php:1503
+#: includes/launcher/class.launcher.php:1547
 msgid "Revenue"
 msgstr ""
 
-#: includes/launcher/class.launcher.php:1504
+#: includes/launcher/class.launcher.php:1548
 msgid "Registered since"
 msgstr ""
 
-#: includes/launcher/class.launcher.php:1505
+#: includes/launcher/class.launcher.php:1549
 msgid "Re-generate design preview"
 msgstr ""
 
-#: includes/launcher/class.launcher.php:1506
+#: includes/launcher/class.launcher.php:1550
 #: includes/marketplace/class-marketplace-settings-adapter.php:180
 msgid "Save Changes"
 msgstr ""
 
-#: includes/launcher/class.launcher.php:1507
+#: includes/launcher/class.launcher.php:1551
 msgid "Select Image"
 msgstr ""
 
-#: includes/launcher/class.launcher.php:1508
+#: includes/launcher/class.launcher.php:1552
 msgid "Select & Crop Image"
 msgstr ""
 
-#: includes/launcher/class.launcher.php:1509
+#: includes/launcher/class.launcher.php:1553
 msgid "Select bulk action"
 msgstr ""
 
-#: includes/launcher/class.launcher.php:1510
+#: includes/launcher/class.launcher.php:1554
 msgid "Send Email"
 msgstr ""
 
-#: includes/launcher/class.launcher.php:1511
+#: includes/launcher/class.launcher.php:1555
 msgid "signup this month"
 msgstr ""
 
-#: includes/launcher/class.launcher.php:1512
+#: includes/launcher/class.launcher.php:1556
 msgid "signup this period"
 msgstr ""
 
-#: includes/launcher/class.launcher.php:1513
+#: includes/launcher/class.launcher.php:1557
 #: views/menu-settings.php:894
 #: views/visual-builder/edit.php:736
 msgid "Show"
 msgstr ""
 
-#: includes/launcher/class.launcher.php:1514
+#: includes/launcher/class.launcher.php:1558
 msgid "Social information"
 msgstr ""
 
-#: includes/launcher/class.launcher.php:1515
+#: includes/launcher/class.launcher.php:1559
 msgid "sold this month"
 msgstr ""
 
-#: includes/launcher/class.launcher.php:1516
+#: includes/launcher/class.launcher.php:1560
 msgid "sold this period"
 msgstr ""
 
-#: includes/launcher/class.launcher.php:1517
+#: includes/launcher/class.launcher.php:1561
 msgid "Solid"
 msgstr ""
 
-#: includes/launcher/class.launcher.php:1519
+#: includes/launcher/class.launcher.php:1563
 msgid "Success!"
 msgstr ""
 
-#: includes/launcher/class.launcher.php:1521
+#: includes/launcher/class.launcher.php:1565
 msgid "This month"
 msgstr ""
 
-#: includes/launcher/class.launcher.php:1522
+#: includes/launcher/class.launcher.php:1566
 msgid "To"
 msgstr ""
 
-#: includes/launcher/class.launcher.php:1523
+#: includes/launcher/class.launcher.php:1567
 msgid "Toggle panel"
 msgstr ""
 
-#: includes/launcher/class.launcher.php:1524
+#: includes/launcher/class.launcher.php:1568
 msgid "Total designs"
 msgstr ""
 
-#: includes/launcher/class.launcher.php:1525
+#: includes/launcher/class.launcher.php:1569
 msgid "Total earning"
 msgstr ""
 
-#: includes/launcher/class.launcher.php:1526
+#: includes/launcher/class.launcher.php:1570
 #: templates/launcher/store/settings.php:62
 msgid "Twitter"
 msgstr ""
 
-#: includes/launcher/class.launcher.php:1527
+#: includes/launcher/class.launcher.php:1571
 msgid "Upload Image"
 msgstr ""
 
-#: includes/launcher/class.launcher.php:1528
+#: includes/launcher/class.launcher.php:1572
 msgid "Update Note"
 msgstr ""
 
-#: includes/launcher/class.launcher.php:1530
+#: includes/launcher/class.launcher.php:1574
 msgid "View gallery"
 msgstr ""
 
-#: includes/launcher/class.launcher.php:1531
+#: includes/launcher/class.launcher.php:1575
 #: includes/quote/class-quote-admin.php:747
 #: includes/quote/class-quotes-list-table.php:50
 #: templates/launcher/store/tabs.php:16
@@ -5782,15 +5809,15 @@ msgstr ""
 msgid "Withdraw"
 msgstr ""
 
-#: includes/launcher/class.launcher.php:1532
+#: includes/launcher/class.launcher.php:1576
 msgid "Withdrawals"
 msgstr ""
 
-#: includes/launcher/class.launcher.php:1533
+#: includes/launcher/class.launcher.php:1577
 msgid "Year"
 msgstr ""
 
-#: includes/launcher/class.launcher.php:1534
+#: includes/launcher/class.launcher.php:1578
 #: templates/launcher/store/settings.php:72
 msgid "Youtube"
 msgstr ""
@@ -11630,10 +11657,6 @@ msgstr ""
 
 #: views/overview.php:1027
 msgid "Customer designs"
-msgstr ""
-
-#: views/overview.php:1035
-msgid "No saved designs yet"
 msgstr ""
 
 #: views/overview.php:1037
