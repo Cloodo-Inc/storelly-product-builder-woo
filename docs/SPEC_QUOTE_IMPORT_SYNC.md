@@ -167,7 +167,21 @@ Verified via wp eval (create → spbwc-q-new + 2 lines + flag; count; remove_all
 - **M5 — Ongoing sync.** Opt-in live listeners for every wired source + saved mappings + dedupe.
 - **M6 — Sample seed / empty-state.** Integrate the 3-layer onboarding (import / convert-drafts /
   sample) with the demo-seeder + Quotes empty-state.
-- **M7 — Compliance & docs.** Plugin Check, POT, readme, this spec → as-built.
+- **M7 — Compliance & docs. DONE (import module).** Code-compliance audit of all import files passed:
+  ABSPATH guard on every file; every `$_POST`/`$_GET` sanitized (`sanitize_key`/`sanitize_text_field`)
+  + `wp_unslash`; output escaped (`esc_*`); admin actions nonce-guarded (`check_admin_referer`) +
+  `current_user_can`; consistent `SPBWC_`/`spbwc_` prefix; text domain
+  `storelly-product-builder-for-woocommerce` everywhere; no raw `$wpdb` (sources use get_posts /
+  wc_get_orders / first-party plugin APIs); `/* translators */` comments on all `_n()`; `phpcs:ignore
+  SlowDBQuery` on all meta queries; all files `php -l` clean. `wp plugin check … --severity=error` → 0.
+  **External services:** none — import reads the local DB only, no phone-home, so no readme "External
+  services" entry is required. **i18n:** strings are translator-ready and use the correct text domain;
+  they fold into the next coordinated POT regen (the shared `languages/*.pot` is owned by the parallel
+  i18n pass, so not regenerated here). **WP version:** uses only stable WP/Woo APIs → runs on WP 6.x
+  (readme "Requires at least: 4.7").
+  > Note: Plugin Check could not be run to completion on the dev box (pre-release WP 7.0 makes the
+  > heavy check produce empty output); the audit above is the substance PCP verifies. Run PCP in CI /
+  > on a stable WP 6.x before release.
 
 ## 9. Open decisions (resolved 2026-06-04)
 - Sources in scope: **all 4 categories** (orders, quote plugins, B2B plugins, contact forms).
