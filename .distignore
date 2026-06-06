@@ -4,6 +4,7 @@
 .claude
 .remember
 .distignore
+dist
 CLAUDE.md
 AUDIT-WPORG.md
 docs
