@@ -533,7 +533,7 @@ if ( ! class_exists( 'SPBWC_B2B_Sample' ) ) {
             $tmp = wp_tempnam( $filename );
             if ( ! $tmp || ! @copy( $path, $tmp ) ) { // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
                 if ( $tmp ) {
-                    @unlink( $tmp ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+                    wp_delete_file( $tmp );
                 }
                 return 0;
             }
@@ -546,7 +546,7 @@ if ( ! class_exists( 'SPBWC_B2B_Sample' ) ) {
             $id = media_handle_sideload( $file, (int) $parent, null, array( 'test_form' => false ) );
             if ( is_wp_error( $id ) ) {
                 if ( file_exists( $tmp ) ) {
-                    @unlink( $tmp ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+                    wp_delete_file( $tmp );
                 }
                 return 0;
             }

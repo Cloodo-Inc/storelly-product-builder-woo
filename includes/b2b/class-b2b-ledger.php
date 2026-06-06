@@ -292,7 +292,8 @@ if ( ! class_exists( 'SPBWC_B2B_Ledger' ) ) {
             }
             $on_date = $on_date ? gmdate( 'Y-m-d H:i:s', strtotime( $on_date ) ) : current_time( 'mysql' );
 
-            $sum = $wpdb->get_var( $wpdb->prepare( // phpcs:ignore WordPress.DB.DirectDatabaseQuery
+            // phpcs:disable WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery -- table() returns a safe, hardcoded $wpdb->prefix identifier; all values are bound via prepare().
+            $sum = $wpdb->get_var( $wpdb->prepare(
                 "SELECT COALESCE( SUM(credit) - SUM(debit), 0 )
                  FROM " . self::table() . "
                  WHERE owner_type = %s AND owner_id = %d AND status = %s AND effective_date <= %s",
@@ -301,6 +302,7 @@ if ( ! class_exists( 'SPBWC_B2B_Ledger' ) ) {
                 self::STATUS_POSTED,
                 $on_date
             ) );
+            // phpcs:enable WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery
 
             return round( (float) $sum, wc_get_rounding_precision() );
         }
@@ -336,7 +338,8 @@ if ( ! class_exists( 'SPBWC_B2B_Ledger' ) ) {
             if ( ! $owner_id ) {
                 return array();
             }
-            return $wpdb->get_results( $wpdb->prepare( // phpcs:ignore WordPress.DB.DirectDatabaseQuery
+            // phpcs:disable WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery -- table() returns a safe, hardcoded $wpdb->prefix identifier; all values are bound via prepare().
+            return $wpdb->get_results( $wpdb->prepare(
                 "SELECT * FROM " . self::table() . "
                  WHERE owner_type = %s AND owner_id = %d AND status <> %s
                  ORDER BY effective_date DESC, id DESC
@@ -347,6 +350,7 @@ if ( ! class_exists( 'SPBWC_B2B_Ledger' ) ) {
                 max( 1, absint( $limit ) ),
                 max( 0, absint( $offset ) )
             ) );
+            // phpcs:enable WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery
         }
 
         /**
@@ -363,7 +367,8 @@ if ( ! class_exists( 'SPBWC_B2B_Ledger' ) ) {
                 return $buckets;
             }
 
-            $rows = $wpdb->get_results( $wpdb->prepare( // phpcs:ignore WordPress.DB.DirectDatabaseQuery
+            // phpcs:disable WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery -- table() returns a safe, hardcoded $wpdb->prefix identifier; all values are bound via prepare().
+            $rows = $wpdb->get_results( $wpdb->prepare(
                 "SELECT debit, due_date FROM " . self::table() . "
                  WHERE owner_type = %s AND owner_id = %d AND status = %s
                    AND txn_type = %s AND debit > 0",
@@ -372,6 +377,7 @@ if ( ! class_exists( 'SPBWC_B2B_Ledger' ) ) {
                 self::STATUS_POSTED,
                 self::TXN_ORDER_CHARGE
             ) );
+            // phpcs:enable WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery
 
             $now = current_time( 'timestamp' ); // phpcs:ignore WordPress.DateTime.CurrentTimeTimestamp.Requested
             foreach ( (array) $rows as $row ) {
