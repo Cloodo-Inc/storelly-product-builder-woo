@@ -254,12 +254,19 @@ if ( ! class_exists( 'SPBWC_B2B_Admin' ) ) {
                     $seats     = isset( $_POST['seats'] ) ? absint( wp_unslash( $_POST['seats'] ) ) : SPBWC_Company::default_seats();
                     $threshold = isset( $_POST['approval_threshold'] ) ? (float) wp_unslash( $_POST['approval_threshold'] ) : 0;
                     $terms     = isset( $_POST['payment_terms'] ) ? sanitize_key( wp_unslash( $_POST['payment_terms'] ) ) : 'prepaid';
+                    $terms_cst = isset( $_POST['payment_terms_custom'] ) ? sanitize_text_field( wp_unslash( $_POST['payment_terms_custom'] ) ) : '';
                     $climit    = isset( $_POST['credit_limit'] ) ? max( 0, (float) wp_unslash( $_POST['credit_limit'] ) ) : 0;
                     $rebate    = isset( $_POST['rebate_pct'] ) ? min( 100, max( 0, (float) wp_unslash( $_POST['rebate_pct'] ) ) ) : 0;
                     $tier      = isset( $_POST['tier'] ) ? sanitize_key( wp_unslash( $_POST['tier'] ) ) : '';
                     update_post_meta( $company_id, SPBWC_Company::META_SEATS, $seats );
                     update_post_meta( $company_id, SPBWC_Company::META_APPROVAL_THRESHOLD, $threshold );
                     update_post_meta( $company_id, SPBWC_Company::META_PAYMENT_TERMS, $terms );
+                    // Free-text label for the "Custom" term; cleared when not on custom.
+                    if ( 'custom' === $terms && '' !== $terms_cst ) {
+                        update_post_meta( $company_id, SPBWC_Company::META_PAYMENT_TERMS_CUSTOM, $terms_cst );
+                    } else {
+                        delete_post_meta( $company_id, SPBWC_Company::META_PAYMENT_TERMS_CUSTOM );
+                    }
                     update_post_meta( $company_id, SPBWC_Company::META_CREDIT_LIMIT, $climit );
                     update_post_meta( $company_id, SPBWC_Company::META_REBATE_PCT, $rebate );
                     $old_tier = (string) get_post_meta( $company_id, SPBWC_Company::META_TIER, true );
@@ -373,6 +380,7 @@ if ( ! class_exists( 'SPBWC_B2B_Admin' ) ) {
             $name  = isset( $_POST['company_name'] ) ? sanitize_text_field( wp_unslash( $_POST['company_name'] ) ) : '';
             $seats = isset( $_POST['seats'] ) ? absint( wp_unslash( $_POST['seats'] ) ) : SPBWC_Company::default_seats();
             $terms = isset( $_POST['payment_terms'] ) ? sanitize_key( wp_unslash( $_POST['payment_terms'] ) ) : 'prepaid';
+            $terms_cst = isset( $_POST['payment_terms_custom'] ) ? sanitize_text_field( wp_unslash( $_POST['payment_terms_custom'] ) ) : '';
             $tier  = isset( $_POST['tier'] ) ? sanitize_key( wp_unslash( $_POST['tier'] ) ) : '';
             $status = ( isset( $_POST['activate'] ) && '1' === $_POST['activate'] ) ? SPBWC_Company::STATUS_ACTIVE : SPBWC_Company::STATUS_PENDING;
 
@@ -380,10 +388,11 @@ if ( ! class_exists( 'SPBWC_B2B_Admin' ) ) {
                 $name,
                 $user_id,
                 array(
-                    'seats'         => $seats,
-                    'payment_terms' => $terms,
-                    'tier'          => $tier,
-                    'status'        => $status,
+                    'seats'                => $seats,
+                    'payment_terms'        => $terms,
+                    'payment_terms_custom' => $terms_cst,
+                    'tier'                 => $tier,
+                    'status'               => $status,
                 )
             );
             if ( is_wp_error( $result ) ) {
@@ -669,11 +678,13 @@ if ( ! class_exists( 'SPBWC_B2B_Admin' ) ) {
             echo '<div class="spbwc-setting-row"><label class="spbwc-setting-row__label" for="spbwc-seats">' . esc_html__( 'Team seats', 'storelly-product-builder-for-woocommerce' ) . '</label>';
             echo '<input class="spbwc-input" name="seats" id="spbwc-seats" type="number" min="1" value="' . esc_attr( SPBWC_Company::default_seats() ) . '" style="max-width:120px" /></div>';
 
-            echo '<div class="spbwc-setting-row"><label class="spbwc-setting-row__label" for="spbwc-terms">' . esc_html__( 'Payment terms', 'storelly-product-builder-for-woocommerce' ) . '</label><select class="spbwc-input" name="payment_terms" id="spbwc-terms" style="max-width:220px">';
+            echo '<div class="spbwc-setting-row"><label class="spbwc-setting-row__label" for="spbwc-terms">' . esc_html__( 'Payment terms', 'storelly-product-builder-for-woocommerce' ) . '</label><select class="spbwc-input js-spbwc-terms-select" name="payment_terms" id="spbwc-terms" style="max-width:220px">';
             foreach ( self::payment_terms() as $slug => $label ) {
                 echo '<option value="' . esc_attr( $slug ) . '">' . esc_html( $label ) . '</option>';
             }
-            echo '</select><span class="spbwc-setting-row__hint">' . esc_html__( 'Display label only; WooCommerce + your gateway handle payment.', 'storelly-product-builder-for-woocommerce' ) . '</span></div>';
+            echo '</select>';
+            echo '<input class="spbwc-input js-spbwc-terms-custom" type="text" name="payment_terms_custom" value="" placeholder="' . esc_attr__( 'Custom label, e.g. Net 45', 'storelly-product-builder-for-woocommerce' ) . '" style="max-width:220px;margin-top:6px;display:none" />';
+            echo '<span class="spbwc-setting-row__hint">' . esc_html__( 'Display label only; WooCommerce + your gateway handle payment.', 'storelly-product-builder-for-woocommerce' ) . '</span></div>';
 
             echo '<div class="spbwc-setting-row"><span class="spbwc-setting-row__label">' . esc_html__( 'Activation', 'storelly-product-builder-for-woocommerce' ) . '</span>';
             echo '<label><input type="checkbox" name="activate" value="1" checked /> ' . esc_html__( 'Activate immediately', 'storelly-product-builder-for-woocommerce' ) . '</label><span class="spbwc-setting-row__hint">' . esc_html__( 'Uncheck to leave pending approval.', 'storelly-product-builder-for-woocommerce' ) . '</span></div>';
@@ -799,6 +810,7 @@ if ( ! class_exists( 'SPBWC_B2B_Admin' ) ) {
         /** Overview tab: settings + profile snapshot. */
         protected function render_overview_tab( $company_id, $nonce, $seats ) {
             $terms        = (string) get_post_meta( $company_id, SPBWC_Company::META_PAYMENT_TERMS, true );
+            $terms_custom = (string) get_post_meta( $company_id, SPBWC_Company::META_PAYMENT_TERMS_CUSTOM, true );
             $thresh       = (float) get_post_meta( $company_id, SPBWC_Company::META_APPROVAL_THRESHOLD, true );
             $climit       = (float) get_post_meta( $company_id, SPBWC_Company::META_CREDIT_LIMIT, true );
             $rebate_pct   = (float) get_post_meta( $company_id, SPBWC_Company::META_REBATE_PCT, true );
@@ -824,11 +836,12 @@ if ( ! class_exists( 'SPBWC_B2B_Admin' ) ) {
 
             echo '<div class="spbwc-setting-row"><label class="spbwc-setting-row__label">' . esc_html__( 'Team seats', 'storelly-product-builder-for-woocommerce' ) . '</label><input class="spbwc-input" type="number" name="seats" min="1" value="' . esc_attr( $seats ) . '" style="max-width:120px" /></div>';
             echo '<div class="spbwc-setting-row"><label class="spbwc-setting-row__label">' . esc_html__( 'Approval threshold', 'storelly-product-builder-for-woocommerce' ) . '</label><input class="spbwc-input" type="number" name="approval_threshold" min="0" step="0.01" value="' . esc_attr( $thresh ) . '" style="max-width:160px" /><span class="spbwc-setting-row__hint">' . esc_html( get_woocommerce_currency_symbol() ) . ' · ' . esc_html__( 'orders above this need approval.', 'storelly-product-builder-for-woocommerce' ) . '</span></div>';
-            echo '<div class="spbwc-setting-row"><label class="spbwc-setting-row__label">' . esc_html__( 'Payment terms', 'storelly-product-builder-for-woocommerce' ) . '</label><select class="spbwc-input" name="payment_terms" style="max-width:220px">';
+            echo '<div class="spbwc-setting-row"><label class="spbwc-setting-row__label">' . esc_html__( 'Payment terms', 'storelly-product-builder-for-woocommerce' ) . '</label><select class="spbwc-input js-spbwc-terms-select" name="payment_terms" style="max-width:220px">';
             foreach ( self::payment_terms() as $slug => $label ) {
                 echo '<option value="' . esc_attr( $slug ) . '"' . selected( $terms, $slug, false ) . '>' . esc_html( $label ) . '</option>';
             }
-            echo '</select></div>';
+            echo '</select>';
+            echo '<input class="spbwc-input js-spbwc-terms-custom" type="text" name="payment_terms_custom" value="' . esc_attr( $terms_custom ) . '" placeholder="' . esc_attr__( 'Custom label, e.g. Net 45', 'storelly-product-builder-for-woocommerce' ) . '" style="max-width:220px;margin-top:6px;' . ( 'custom' === $terms ? '' : 'display:none' ) . '" /></div>';
             echo '<div class="spbwc-setting-row"><label class="spbwc-setting-row__label">' . esc_html__( 'Credit limit', 'storelly-product-builder-for-woocommerce' ) . '</label><input class="spbwc-input" type="number" name="credit_limit" min="0" step="0.01" value="' . esc_attr( $climit ) . '" style="max-width:160px" /><span class="spbwc-setting-row__hint">' . esc_html( get_woocommerce_currency_symbol() ) . ' · ' . esc_html__( 'net-terms ceiling. 0 = prepaid wallet only.', 'storelly-product-builder-for-woocommerce' ) . '</span></div>';
             echo '<div class="spbwc-setting-row"><label class="spbwc-setting-row__label">' . esc_html__( 'Volume rebate', 'storelly-product-builder-for-woocommerce' ) . '</label><input class="spbwc-input" type="number" name="rebate_pct" min="0" max="100" step="0.1" value="' . esc_attr( $rebate_pct ) . '" style="max-width:120px" /><span class="spbwc-setting-row__hint">% · ' . esc_html__( 'monthly cashback on completed orders, credited to the wallet. 0 = off.', 'storelly-product-builder-for-woocommerce' ) . '</span></div>';
             echo '</div></div><div class="spbwc-block__foot"><button type="submit" class="spbwc-cta-btn spbwc-cta-btn--solid">' . esc_html__( 'Save changes', 'storelly-product-builder-for-woocommerce' ) . '</button></div></div>';

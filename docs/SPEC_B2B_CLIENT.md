@@ -92,7 +92,8 @@ Post meta (prefix `_spbwc_company_`):
 | `_spbwc_company_profile` | array | legal name, DBA, business type, industry, employees, year founded, tax/VAT id, resale cert attachment id |
 | `_spbwc_company_addresses` | array | billing + shipping (reuse WC address shape) |
 | `_spbwc_company_contact` | array | primary contact name, title, business email, phone, website, socials |
-| `_spbwc_company_payment_terms` | string | `prepaid`, `net15`, `net30`, `custom` (display/label only in v1 — see §7) |
+| `_spbwc_company_payment_terms` | string | `prepaid`, `net15`, `net30`, `custom` (display/label only in v1) |
+| `_spbwc_company_payment_terms_custom` | string | free-text label shown when `payment_terms === 'custom'` (e.g. "2/10 Net 30"); merchant types it on the create + Account-settings forms, cleared when the term is not custom |
 | `_spbwc_company_credit_limit` | decimal | informational in v1 |
 | `_spbwc_company_seats` | int | max team size (default 5, a filterable default — not a paywall; see §11) |
 | `_spbwc_company_approval_threshold` | decimal | orders above this need approval (default 0 = always for requesters) |

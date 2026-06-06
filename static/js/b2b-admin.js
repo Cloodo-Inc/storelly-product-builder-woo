@@ -178,3 +178,23 @@
 		} );
 	}
 } )();
+
+/**
+ * Payment-terms "Custom" label — reveal the free-text input only when the
+ * Payment terms select is on "custom". Delegated so it covers both the create
+ * form and the company-detail Account-settings form. Vanilla, no dependencies.
+ */
+( function () {
+	'use strict';
+	document.addEventListener( 'change', function ( e ) {
+		var sel = e.target.closest ? e.target.closest( '.js-spbwc-terms-select' ) : null;
+		if ( ! sel ) {
+			return;
+		}
+		var scope  = sel.closest( '.spbwc-setting-row' ) || sel.parentNode;
+		var custom = scope ? scope.querySelector( '.js-spbwc-terms-custom' ) : null;
+		if ( custom ) {
+			custom.style.display = ( 'custom' === sel.value ) ? '' : 'none';
+		}
+	} );
+} )();

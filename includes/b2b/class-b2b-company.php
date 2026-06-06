@@ -51,6 +51,7 @@ if ( ! class_exists( 'SPBWC_Company' ) ) {
         const META_ADDRESSES    = '_spbwc_company_addresses';
         const META_CONTACT      = '_spbwc_company_contact';
         const META_PAYMENT_TERMS = '_spbwc_company_payment_terms';
+        const META_PAYMENT_TERMS_CUSTOM = '_spbwc_company_payment_terms_custom';
         const META_CREDIT_LIMIT = '_spbwc_company_credit_limit';
         const META_REBATE_PCT   = '_spbwc_company_rebate_pct';
         const META_REBATE_LAST  = '_spbwc_company_rebate_last_period';
@@ -159,7 +160,11 @@ if ( ! class_exists( 'SPBWC_Company' ) ) {
             update_post_meta( $post_id, self::META_TIER, isset( $args['tier'] ) ? sanitize_key( $args['tier'] ) : '' );
             update_post_meta( $post_id, self::META_SEATS, isset( $args['seats'] ) ? absint( $args['seats'] ) : self::default_seats() );
             update_post_meta( $post_id, self::META_APPROVAL_THRESHOLD, isset( $args['approval_threshold'] ) ? (float) $args['approval_threshold'] : 0 );
-            update_post_meta( $post_id, self::META_PAYMENT_TERMS, isset( $args['payment_terms'] ) ? sanitize_key( $args['payment_terms'] ) : 'prepaid' );
+            $terms = isset( $args['payment_terms'] ) ? sanitize_key( $args['payment_terms'] ) : 'prepaid';
+            update_post_meta( $post_id, self::META_PAYMENT_TERMS, $terms );
+            if ( 'custom' === $terms && isset( $args['payment_terms_custom'] ) && '' !== trim( (string) $args['payment_terms_custom'] ) ) {
+                update_post_meta( $post_id, self::META_PAYMENT_TERMS_CUSTOM, sanitize_text_field( $args['payment_terms_custom'] ) );
+            }
 
             self::link_user( $owner_user_id, $post_id, self::ROLE_OWNER );
             self::add_timeline_event( $post_id, __( 'Company created.', 'storelly-product-builder-for-woocommerce' ) );
