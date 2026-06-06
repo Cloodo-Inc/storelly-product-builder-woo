@@ -250,29 +250,6 @@ if (!class_exists('SPBWC_Storelly_Product_Builder_API')) {
                 "price_group" => 0
             );
             $resp = SPBWC_Storelly_HTTP::spbwc_post_data(SPBWC_API_URL . '/api/v1/update-orders',$body);
-        
-            $body = array(
-                "is_quotation" => 0,
-        
-                "status" => "final",
-                "final_total" => $order->get_total(),
-                "contact_id" => 1,
-                "is_direct_sale" => 1,
-                "products" => $products,
-                "tax_rate_id" => "", 
-                "shipping_documents" => $cFile,
-                "discount_type" => "fixed",
-                "discount_amount" => $order->get_discount_total(),
-                "payment" => [
-                    [
-                        "amount" => $order->get_total() - $order->get_discount_total(),
-                        "is_return" => 0,
-                        "method" => "cash"
-                    ]
-                ],
-                "price_group" => 0
-            );
-            $resp = SPBWC_Storelly_HTTP::spbwc_post_data(SPBWC_API_URL . '/api/v1/update-orders',$body); 
         }
         public function spbwc_plugin_activation(){ 
         }
