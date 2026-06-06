@@ -85,6 +85,11 @@ function spbwc_plugin_activation() {
     if ( class_exists( 'SPBWC_Onboarding' ) ) {
         SPBWC_Onboarding::on_activate();
     }
+    // Arm the sample B2B client seeder; it installs on the next admin load,
+    // once WooCommerce + the CPTs + the media stack are guaranteed ready.
+    if ( class_exists( 'SPBWC_B2B_Sample' ) ) {
+        SPBWC_B2B_Sample::arm();
+    }
 }
 
 /**
@@ -261,6 +266,8 @@ require_once(SPBWC_PB_PLUGIN_DIR .  'includes/b2b/class-b2b-team.php');
 require_once(SPBWC_PB_PLUGIN_DIR .  'includes/b2b/class-b2b-procurement.php');
 /* B2B notifications routed through the standard WC email pipeline (E2). */
 require_once(SPBWC_PB_PLUGIN_DIR .  'includes/b2b/class-b2b-emails.php');
+/* Sample B2B client seeder ("Netbase JSC") — installs a full demo on activate. */
+require_once(SPBWC_PB_PLUGIN_DIR .  'includes/b2b/class-b2b-sample.php');
 if ( class_exists( 'SPBWC_B2B_Company_Post_Type' ) ) {
     SPBWC_B2B_Company_Post_Type::instance()->init();
 }
@@ -299,6 +306,9 @@ if ( class_exists( 'SPBWC_B2B_Procurement' ) ) {
 }
 if ( class_exists( 'SPBWC_B2B_Emails' ) ) {
     SPBWC_B2B_Emails::init();
+}
+if ( class_exists( 'SPBWC_B2B_Sample' ) ) {
+    SPBWC_B2B_Sample::init();
 }
 
 /* Email subsystem: delivery log, installer/migrator (nbdl_ rename + log table),

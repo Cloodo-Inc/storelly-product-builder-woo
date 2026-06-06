@@ -408,6 +408,7 @@ choice predates surfacing this hard freemium constraint — flagged to the user.
 4. **"Upgrade to B2B" = WC Users-list row action** + the Storelly **B2B Companies** hub. **Shipped in M1.**
 5. **Default seat cap = 5** (`SPBWC_Company::DEFAULT_SEATS`, filterable via `spbwc_company_default_seats`) — a sensible configurable default, **not** a freemium paywall (B2B is fully free under the Local=Free model).
 6. **Public store is brand-safe (confirmed 2026-06-05).** The `/store/<slug>` page is fully public (no login gate), so its badge row surfaces only non-sensitive facts — tier **name**, industry, catalogue size, team size. Discount %, payment terms, approval thresholds and internal status are never rendered there. Banner-forward hero with monogram logo-fallback shipped the same day.
+7. **Sample B2B client auto-installs on activation (confirmed 2026-06-06).** A single fully-populated "Netbase JSC" demo (company + brand + tier + price + team + quote + order + approval) seeds on the first admin load after activation so the whole suite is explorable out of the box (§4.3). Brand assets are **bundled** (no external fetch); everything is `_spbwc_sample`-flagged and removable in one click. Owner chose to ship the Netbase JSC identity (their own brand) as THE sample.
 
 **Remaining (later milestones):**
 - **Quantity-break "save %" chips in reorder (M3)** — pull live from the product's `quantity_breaks`. *(Recommend: live.)*
