@@ -1,0 +1,128 @@
+/**
+ * Custom Order Detail (admin) — token-driven styles.
+ *
+ * Replaces the inline <style>/style="" from the first cut. Uses the admin design
+ * tokens (_tokens.css: --st-* / --nbd-*) with literal fallbacks so it also renders
+ * correctly on the WooCommerce order screens where _tokens.css may not be loaded.
+ * Enqueued only on the Custom Orders detail view (?view=…) — the list page stays light.
+ *
+ * @package Storelly
+ */
+
+.spbwc-co-detail { --co-gap: var(--nbd-space-6, 24px); }
+.spbwc-co-detail__back { margin: 8px 0; }
+
+/* ── Sticky header CTA bar ──────────────────────────────────────────────── */
+.spbwc-co-head {
+    position: sticky;
+    top: 32px;
+    z-index: 20;
+    background: var(--nbd-st-bg, #fff);
+    border: 1px solid var(--nbd-st-border-light, #dcdcde);
+    border-radius: var(--nbd-radius-lg, 8px);
+    padding: var(--nbd-space-4, 16px) var(--nbd-space-5, 20px);
+    box-shadow: var(--shadow-sm, 0 1px 2px rgba(0,0,0,.05));
+    margin-bottom: var(--nbd-space-4, 16px);
+}
+.spbwc-co-head__row { display: flex; align-items: center; justify-content: space-between; gap: var(--nbd-space-4, 16px); flex-wrap: wrap; }
+.spbwc-co-head__title { margin: 0; font-size: var(--text-3xl, 20px); display: flex; align-items: center; gap: 10px; }
+.spbwc-co-head__meta { margin: 6px 0 0; color: var(--nbd-st-text-soft, #50575e); font-size: var(--text-md, 13px); }
+.spbwc-co-head__meta strong { color: var(--nbd-st-text, #1d2327); }
+.spbwc-co-head__actions { display: flex; gap: 8px; flex-wrap: wrap; }
+
+/* ── Tabs ───────────────────────────────────────────────────────────────── */
+.spbwc-co-tabs {
+    display: flex;
+    gap: 2px;
+    flex-wrap: wrap;
+    border-bottom: 1px solid var(--nbd-st-border-light, #dcdcde);
+    margin-bottom: var(--nbd-space-4, 16px);
+}
+.spbwc-co-tab-btn {
+    appearance: none;
+    border: 0;
+    background: transparent;
+    padding: 10px 16px;
+    font-size: var(--text-md, 13px);
+    font-weight: var(--font-medium, 500);
+    color: var(--nbd-st-text-soft, #50575e);
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -1px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+.spbwc-co-tab-btn:hover { color: var(--nbd-st-text, #1d2327); }
+.spbwc-co-tab-btn.is-active {
+    color: var(--st-brand, #1d4ed8);
+    border-bottom-color: var(--st-brand, #1d4ed8);
+    font-weight: var(--font-semibold, 600);
+}
+.spbwc-co-tab-btn__count {
+    background: var(--nbd-st-bg-soft, #f6f7f7);
+    color: var(--nbd-st-text-soft, #50575e);
+    border-radius: var(--nbd-radius-pill, 999px);
+    font-size: 11px;
+    padding: 0 7px;
+    line-height: 18px;
+}
+
+/* JS on: only the active panel shows. JS off: all panels stacked (graceful). */
+.js .spbwc-co-tab { display: none; }
+.js .spbwc-co-tab.is-active { display: block; }
+
+/* ── Cards / layout ─────────────────────────────────────────────────────── */
+.spbwc-co-grid { display: grid; grid-template-columns: minmax(0,2fr) minmax(0,1fr); gap: var(--co-gap); align-items: start; }
+@media (max-width: 1024px) { .spbwc-co-grid { grid-template-columns: 1fr; } }
+.spbwc-co-card {
+    background: var(--nbd-st-bg, #fff);
+    border: 1px solid var(--nbd-st-border-light, #dcdcde);
+    border-radius: var(--nbd-radius-lg, 8px);
+    padding: var(--nbd-space-5, 20px);
+    margin-bottom: var(--nbd-space-4, 16px);
+}
+.spbwc-co-card > h2 { margin: 0 0 var(--nbd-space-3, 12px); font-size: var(--text-xl, 16px); display: flex; align-items: center; gap: 8px; }
+
+/* Workflow note */
+.spbwc-co-note {
+    background: var(--nbd-st-bg-soft, #f6f7f7);
+    border-left: 3px solid var(--st-brand, #1d4ed8);
+    border-radius: var(--nbd-radius, 6px);
+    padding: 8px 12px;
+    margin: 0 0 var(--nbd-space-4, 16px);
+    font-size: var(--text-base, 12px);
+    color: var(--nbd-st-text-soft, #50575e);
+}
+
+/* Spec list */
+.spbwc-co-spec { list-style: none; margin: 8px 0 0; padding: 0; }
+.spbwc-co-spec li { display: flex; justify-content: space-between; gap: 12px; padding: 6px 0; border-bottom: 1px solid var(--nbd-st-border-subtle, #f0f0f1); font-size: var(--text-md, 13px); }
+.spbwc-co-spec li:last-child { border-bottom: 0; }
+.spbwc-co-spec .lbl { color: var(--nbd-st-text-soft, #50575e); }
+
+/* Design item */
+.spbwc-co-gallery { display: flex; flex-wrap: wrap; gap: 8px; }
+.spbwc-co-gallery img { width: 120px; height: 120px; object-fit: contain; border: 1px solid var(--nbd-st-border-light, #dcdcde); border-radius: var(--nbd-radius, 6px); background: var(--nbd-st-bg-soft, #f6f7f7); }
+.spbwc-co-item { display: grid; grid-template-columns: auto 1fr; gap: var(--nbd-space-4, 16px); padding: var(--nbd-space-4, 16px) 0; border-bottom: 1px solid var(--nbd-st-border-subtle, #f0f0f1); }
+.spbwc-co-item:last-child { border-bottom: 0; }
+
+/* Pills */
+.spbwc-co-pill { display: inline-block; padding: 2px 10px; border-radius: var(--nbd-radius-pill, 999px); font-size: 11px; font-weight: var(--font-semibold, 600); }
+.spbwc-co-pill--ok { background: var(--st-pill-active-bg, #dcfce7); color: var(--st-pill-active-text, #14532d); }
+.spbwc-co-pill--off { background: var(--st-pill-danger-bg, #fee2e2); color: var(--st-pill-danger-text, #991b1b); }
+.spbwc-co-pill--warn { background: var(--st-pill-pending-bg, #fef3c7); color: var(--st-pill-pending-text, #92400e); }
+.spbwc-co-pill--neutral { background: var(--st-pill-draft-bg, #f3f4f6); color: var(--st-pill-draft-text, #4b5563); }
+
+/* Download / production / files helpers */
+.spbwc-co-dlbar { margin-top: var(--nbd-space-3, 12px); display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.spbwc-co-files { list-style: none; margin: 0; padding: 0; font-size: var(--text-base, 12px); max-height: 320px; overflow: auto; }
+.spbwc-co-files li { padding: 5px 0; display: flex; justify-content: space-between; gap: 8px; border-bottom: 1px solid var(--nbd-st-border-subtle, #f0f0f1); }
+.spbwc-co-files a { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.spbwc-co-files .sz { color: var(--nbd-st-text-mute, #8c8f94); flex: 0 0 auto; }
+.spbwc-co-prod label { display: block; padding: 5px 0; }
+.spbwc-co-addr { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 16px; }
+@media (max-width: 600px){ .spbwc-co-addr { grid-template-columns: 1fr; } }
+.spbwc-co-timeline { list-style: none; margin: 0; padding: 0; }
+.spbwc-co-timeline li { padding: 8px 0; border-bottom: 1px solid var(--nbd-st-border-subtle, #f0f0f1); }
+.spbwc-co-timeline .meta { font-size: 11px; color: var(--nbd-st-text-mute, #8c8f94); }

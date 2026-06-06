@@ -153,6 +153,7 @@ if ( ! class_exists( 'SPBWC_Buyer_Downloads' ) ) {
             $eye = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/></svg>';
             $dl  = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>';
 
+            echo '<span class="spbwc-co-actions-label">' . esc_html__( 'Your design', 'storelly-product-builder-for-woocommerce' ) . '</span>';
             echo '<p class="spbwc-co-action spbwc-buyer-preview-dl">';
             echo '<a class="spbwc-co-chip spbwc-co-chip--ghost" href="' . esc_url( $view_url ) . '" target="_blank" rel="noopener">'
                 . $eye // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static inline SVG icon.

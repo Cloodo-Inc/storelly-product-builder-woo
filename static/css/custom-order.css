@@ -122,6 +122,15 @@
 .woocommerce-table--order-details .spbwc-co-action:first-of-type { margin-top: var(--nbd-space-3, 12px); }
 
 /* ── Order line-item action chips (view / download / save) ──────────────── */
+.spbwc-co-actions-label {
+    display: block;
+    margin: var(--nbd-space-3, 12px) 0 2px;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .04em;
+    color: var(--co-muted);
+}
 .spbwc-co-action {
     margin: var(--nbd-space-2, 8px) 0 0;
     display: flex;
