@@ -46,6 +46,8 @@ if ( ! class_exists( 'SPBWC_B2B_Credit' ) ) {
             // Reverse the charge if the order is cancelled/failed so the debit never strands.
             add_action( 'woocommerce_order_status_cancelled', array( __CLASS__, 'reverse_charge' ) );
             add_action( 'woocommerce_order_status_failed', array( __CLASS__, 'reverse_charge' ) );
+            // M6 — credit back partial/full refunds against the company account.
+            add_action( 'woocommerce_order_refunded', array( __CLASS__, 'reverse_refund' ), 10, 2 );
 
             // M4 — route over-credit orders into the existing approval queue, and
             // charge approved net-terms orders to the company account.
@@ -216,6 +218,25 @@ if ( ! class_exists( 'SPBWC_B2B_Credit' ) ) {
 
             echo '<p class="description">' . esc_html__( 'Top-ups and payments are recorded by the store. Contact the store to add funds or settle a balance.', 'storelly-product-builder-for-woocommerce' ) . '</p>';
 
+            // Aging of outstanding net-terms invoices (only when there is debt).
+            if ( $outstanding > 0 ) {
+                $aging   = SPBWC_B2B_Ledger::get_aging( $company_id );
+                $buckets = array(
+                    'current' => __( 'Current', 'storelly-product-builder-for-woocommerce' ),
+                    'd30'     => __( '1–30 days', 'storelly-product-builder-for-woocommerce' ),
+                    'd60'     => __( '31–60 days', 'storelly-product-builder-for-woocommerce' ),
+                    'd90'     => __( '60+ days', 'storelly-product-builder-for-woocommerce' ),
+                );
+                echo '<h3>' . esc_html__( 'Outstanding by age', 'storelly-product-builder-for-woocommerce' ) . '</h3>';
+                echo '<div class="spbwc-credit-cards">';
+                foreach ( $buckets as $key => $label ) {
+                    $amount = isset( $aging[ $key ] ) ? (float) $aging[ $key ] : 0;
+                    $tone   = ( 'current' !== $key && $amount > 0 ) ? 'warn' : '';
+                    self::summary_card( $label, wc_price( $amount ), $tone );
+                }
+                echo '</div>';
+            }
+
             // Statement.
             $rows = SPBWC_B2B_Ledger::get_statement( $company_id, 50 );
             echo '<h3>' . esc_html__( 'Account statement', 'storelly-product-builder-for-woocommerce' ) . '</h3>';
@@ -319,7 +340,7 @@ if ( ! class_exists( 'SPBWC_B2B_Credit' ) ) {
         }
 
         /**
-         * Reverse a previously-posted charge when an order is cancelled/failed.
+         * Reverse the full remaining charge when an order is cancelled/failed.
          *
          * @param int $order_id Order id.
          */
@@ -328,21 +349,71 @@ if ( ! class_exists( 'SPBWC_B2B_Credit' ) ) {
             if ( ! $order ) {
                 return;
             }
-            $company = (int) $order->get_meta( self::ORDER_COMPANY );
             $charged = (float) $order->get_meta( self::ORDER_CHARGED );
-            if ( ! $company || $charged <= 0 || $order->get_meta( self::ORDER_REVERSED ) ) {
-                return;
-            }
-            SPBWC_B2B_Ledger::post_refund( $company, $charged, array(
-                'ref_type' => 'order',
-                'ref_id'   => $order->get_id(),
-                'note'     => sprintf(
+            self::apply_reversal(
+                $order,
+                $charged, // target: everything charged is credited back
+                sprintf(
                     /* translators: %s: order number. */
                     __( 'Reversal — order %s cancelled', 'storelly-product-builder-for-woocommerce' ),
                     $order->get_order_number()
-                ),
+                )
+            );
+        }
+
+        /**
+         * Credit back refunds (partial or full) against the company account, so a
+         * refunded order does not keep the company in debt for money returned.
+         *
+         * @param int $order_id  Order id.
+         * @param int $refund_id Refund id (unused; we read the cumulative total).
+         */
+        public static function reverse_refund( $order_id, $refund_id = 0 ) {
+            $order = wc_get_order( $order_id );
+            if ( ! $order ) {
+                return;
+            }
+            $charged  = (float) $order->get_meta( self::ORDER_CHARGED );
+            $refunded = (float) $order->get_total_refunded();
+            // Never credit back more than was charged.
+            self::apply_reversal(
+                $order,
+                min( $refunded, $charged ),
+                sprintf(
+                    /* translators: %s: order number. */
+                    __( 'Reversal — order %s refunded', 'storelly-product-builder-for-woocommerce' ),
+                    $order->get_order_number()
+                )
+            );
+        }
+
+        /**
+         * Post the delta needed to bring the order's reversed-total up to
+         * $target_reversed (capped at the charged amount). Idempotent: ORDER_REVERSED
+         * tracks the cumulative amount already credited back.
+         *
+         * @param WC_Order $order           Order.
+         * @param float    $target_reversed Desired cumulative reversed amount.
+         * @param string   $note            Ledger note.
+         */
+        protected static function apply_reversal( $order, $target_reversed, $note ) {
+            $company = (int) $order->get_meta( self::ORDER_COMPANY );
+            $charged = (float) $order->get_meta( self::ORDER_CHARGED );
+            if ( ! $company || $charged <= 0 ) {
+                return;
+            }
+            $already = (float) $order->get_meta( self::ORDER_REVERSED );
+            $target  = min( (float) $target_reversed, $charged );
+            $delta   = round( $target - $already, wc_get_rounding_precision() );
+            if ( $delta <= 0 ) {
+                return; // Nothing new to reverse.
+            }
+            SPBWC_B2B_Ledger::post_refund( $company, $delta, array(
+                'ref_type' => 'order',
+                'ref_id'   => $order->get_id(),
+                'note'     => $note,
             ) );
-            $order->update_meta_data( self::ORDER_REVERSED, 1 );
+            $order->update_meta_data( self::ORDER_REVERSED, $already + $delta );
             $order->save();
         }
     }

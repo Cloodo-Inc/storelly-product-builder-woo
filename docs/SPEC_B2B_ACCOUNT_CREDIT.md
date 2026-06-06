@@ -146,8 +146,11 @@ get_aging( $owner_id )                           // nhóm quá hạn 0/30/60/90 
   `SPBWC_B2B_Rebate` — Action Scheduler recurring monthly (`spbwc_b2b_rebate_run`) →
   `accrue_for_company` cộng `pct%` của net spend (order `completed`, trừ refund) của members vào
   ví qua `post_rebate`; idempotent per period (`META_REBATE_LAST`). Test 5/5.
-- **M6 — Lifecycle & compliance.** ⏳ `woocommerce_order_refunded` → đảo bút toán partial; aging
-  report admin; Plugin Check 0 error; POT; readme; uninstall drop bảng.
+- **M6 — Lifecycle & compliance.** ✅ DONE (phần local). `woocommerce_order_refunded` → đảo bút
+  toán partial/full (`apply_reversal` theo "tổng đã đảo", cap ở charged, idempotent); aging buckets
+  hiển thị ở My-Account khi có công nợ; `uninstall.php` drop bảng `spbwc_b2b_ledger`; Plugin Check 0
+  ERROR ở file mới. Còn: regen POT (defer) + commit field rebate trong admin.php (đợi agent khác).
+  Test 6/6 refund + 4/4 aging render.
 - **M7 — Pro/cloud (ngoài v1 free).** Auto-settlement online net-30 (Stripe), dunning tự
   động, aging dashboard nâng cao, export kế toán, payout rebate. Chạm app.storelly.com → PAID.
 
