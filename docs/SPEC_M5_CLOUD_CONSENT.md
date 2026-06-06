@@ -6,9 +6,18 @@
 > merchant ra `app.storelly.com` cho tới khi merchant **chủ động bấm 1 nút consent**. Ô consent
 > KHÔNG được tick sẵn. Vi phạm = plugin bị gỡ kho (CLAUDE.md rule #6).
 >
-> **Trạng thái: DRAFT — chờ review, CHƯA code.**
-> Quyết định đã chốt: **1-click consent** (không auto). Store UUID ổn định để reinstall nhận lại
-> store cũ.
+> **Trạng thái: SHIPPED (client).** 1-click consent + manual key + store-UUID re-link đã code
+> (`SPBWC_Cloud_Connect`, `SPBWC_Onboarding`, payload `store_uuid`). Cập nhật 1.6.4:
+> - Activation KHÔNG còn provision WC key (bỏ `register_activation_hook` → tránh fatal; key sinh
+>   trong `connect()`).
+> - **Site tự gửi email tài khoản** cho admin sau register (password sinh client-side nên server
+>   có thể không biết — xem §2.2).
+> - `uninstall.php` xoá secrets + flags, GIỮ `spbwc_store_uuid` (M5.5 done).
+> - CTA "Connect Storelly" hiện trên Custom Order ▸ Design khi cloud PDF chưa bật.
+> - Settings save default `enable_cloud2print_api='no'`.
+>
+> CÒN backend-phụ thuộc: register idempotent-by-uuid (§3.2 Q1) và **payment plan** trên License
+> menu (chưa có — chỉ có activate_key; cần Storelly payment API).
 
 ---
 
@@ -45,7 +54,8 @@ Bấm "Bật Cloud"
   → [ngầm] spbwc_create_user_storelly() // POST /api/v1/register (kèm store_uuid)
   → nếu success: set enable_api_sync='yes' + enable_cloud2print_api='yes'
                  lưu consent log (user id + time + version)
-  → server gửi email welcome (KHÔNG tự gửi từ site — tránh deliverability/spam)
+  → site gửi email tài khoản tới admin_email (username + password sinh client-side +
+    link app.storelly.com/login); filter spbwc_send_account_email để tắt/đổi
   → reload: card → "Cloud connected ✓"
   → nếu fail: hiện lỗi nhẹ + nút thử lại; KHÔNG bật flag, KHÔNG chặn onboarding
 ```

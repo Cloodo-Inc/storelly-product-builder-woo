@@ -13,11 +13,14 @@ if (!class_exists('SPBWC_Storelly_Product_Builder_API')) {
             // User creation now only happens when admin explicitly connects account in settings page.
             
             add_action('activated_plugin', array($this, 'spbwc_activation_redirect'), 10, 1);
-            
-            // lấy thông tin order trong woocommerce và đồng bộ qua curl 
-            add_action('woocommerce_checkout_order_processed', array($this, 'spbwc_order_processed'), 10, 1);
 
-            add_action('woocommerce_store_api_checkout_order_processed', array($this, 'spbwc_notify_on_new_order'), 10, 1); 
+            // Sync new orders to the Storelly Dashboard. Both classic and
+            // Store-API (blocks) checkout enqueue an async job so the customer's
+            // checkout request is never blocked by Cloud2Print PDF rendering or
+            // the dashboard HTTP round-trip (runs via Action Scheduler).
+            add_action('woocommerce_checkout_order_processed', array($this, 'spbwc_maybe_queue_order_sync'), 10, 1);
+            add_action('woocommerce_store_api_checkout_order_processed', array($this, 'spbwc_maybe_queue_order_sync'), 10, 1);
+            add_action('spbwc_sync_order_to_storelly', array($this, 'spbwc_run_order_sync'), 10, 1);
 
             // get img preview 
             add_action('woocommerce_order_item_meta_end', array($this, 'spbwc_img_design_order_items'), 10, 4); 
@@ -104,6 +107,13 @@ if (!class_exists('SPBWC_Storelly_Product_Builder_API')) {
                         }
                         $option['log'] = esc_html__('Connected successfully', 'storelly-product-builder-for-woocommerce') . ' - ' . current_time('mysql');
                         update_option('spbwc_connect_api_keys', $option);
+
+                        // Notify the site admin of their new Storelly account
+                        // (only when the server actually provisioned one, i.e. a
+                        // username came back AND we just generated the password).
+                        if (isset($resp['username'])) {
+                            self::spbwc_send_account_email($option['username'], $user_name);
+                        }
                     } else {
                         $option['log'] = isset($resp['msg']) ? sanitize_text_field($resp['msg']) : esc_html__('Registration failed: unknown error', 'storelly-product-builder-for-woocommerce');
                         $option['log'] .= ' - ' . current_time('mysql');
@@ -115,20 +125,68 @@ if (!class_exists('SPBWC_Storelly_Product_Builder_API')) {
                 }
             }
         }
+        /**
+         * Email the site admin the credentials of the Storelly account that was
+         * auto-provisioned for them during cloud connect, so they can sign in to
+         * the dashboard (app.storelly.com). Sent once, to the site admin email
+         * only. Filterable so it can be disabled or re-targeted.
+         *
+         * @param string $username Storelly username returned by the API.
+         * @param string $password Generated password (same value used at register).
+         */
+        public static function spbwc_send_account_email($username, $password){
+            /**
+             * Filter whether to email the admin their new Storelly account details.
+             *
+             * @since 1.6.4
+             * @param bool $send Default true.
+             */
+            if (!apply_filters('spbwc_send_account_email', true)) {
+                return;
+            }
+            $to        = get_option('admin_email');
+            if (!$to || !is_email($to)) {
+                return;
+            }
+            $login_url = SPBWC_API_URL . '/login';
+            $site      = wp_specialchars_decode(get_option('blogname'), ENT_QUOTES);
+            /* translators: %s: site name. */
+            $subject   = sprintf(__('[%s] Your Storelly account is ready', 'storelly-product-builder-for-woocommerce'), $site);
+            $lines     = array(
+                __('Your store has been connected to Storelly Cloud and a dashboard account was created for you.', 'storelly-product-builder-for-woocommerce'),
+                '',
+                __('Sign in at:', 'storelly-product-builder-for-woocommerce') . ' ' . esc_url_raw($login_url),
+                /* translators: %s: account username. */
+                sprintf(__('Username: %s', 'storelly-product-builder-for-woocommerce'), $username),
+                /* translators: %s: account password. */
+                sprintf(__('Password: %s', 'storelly-product-builder-for-woocommerce'), $password),
+                '',
+                __('For your security, please sign in and change this password.', 'storelly-product-builder-for-woocommerce'),
+            );
+            $message = implode("\n", $lines);
+            wp_mail($to, $subject, $message);
+        }
+
         public static function spbwc_generate_key(){
-            
+
             $response = get_option('spbwc_connect_api_keys');
-            if ($response) {
-            } else {
+            if (!is_array($response)) {
                 $response = array();
             }
-            if(!empty($response)) return;
-        
+            // Only skip when WC REST keys already exist. A previous failed
+            // registration may have written only `log`/`username` to this option;
+            // returning on a merely non-empty array (the old check) would then
+            // leave the store without consumer keys and register with blanks.
+            if (!empty($response['consumer_key']) && !empty($response['consumer_secret'])) {
+                return;
+            }
+
             global $wpdb; // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Global variable $wpdb.
             $description = __('Storelly', 'storelly-product-builder-for-woocommerce');
             $permissions = 'read_write';
             $user_id     = get_current_user_id();
-            $response      = array();
+            // Keep any data already stored (username/unauth_token/store_id/log);
+            // we only (re)write the WC REST key pair below.
             $consumer_key    = 'ck_' . wc_rand_hash();
             $consumer_secret = 'cs_' . wc_rand_hash();
         
@@ -180,26 +238,52 @@ if (!class_exists('SPBWC_Storelly_Product_Builder_API')) {
             // Removed automatic user creation - now only happens when admin enables API sync in settings.
         }
 
-        public function spbwc_order_processed($order_id){
-            // Only sync orders if API sync is enabled (opt-in).
+        /** True when the merchant opted into Dashboard order sync. */
+        protected static function spbwc_api_sync_enabled() {
             $api_settings = get_option('spbwc_pb_settings', array());
-            $enable_api_sync = isset($api_settings['enable_api_sync']) && 'yes' === $api_settings['enable_api_sync'];
-            
-            if (!$enable_api_sync) {
-                return; // Exit early if API sync is not enabled.
+            return isset($api_settings['enable_api_sync']) && 'yes' === $api_settings['enable_api_sync'];
+        }
+
+        /**
+         * Checkout hook (classic + Store API). Normalises the argument to an
+         * order id and queues an async sync so checkout stays fast. The classic
+         * hook passes an order id; the Store-API hook passes a WC_Order.
+         *
+         * @param int|WC_Order $order_or_id
+         */
+        public function spbwc_maybe_queue_order_sync($order_or_id){
+            if (!self::spbwc_api_sync_enabled()) {
+                return; // Opt-in gate.
             }
-            
-            $order = wc_get_order($order_id);
-            $this->spbwc_notify_on_new_order($order);
-        } 
-        
-        public function spbwc_notify_on_new_order($order){
-            // Only sync orders if API sync is enabled (opt-in).
-            $api_settings = get_option('spbwc_pb_settings', array());
-            $enable_api_sync = isset($api_settings['enable_api_sync']) && 'yes' === $api_settings['enable_api_sync'];
-            
-            if (!$enable_api_sync) {
-                return; // Exit early if API sync is not enabled.
+            $order_id = ($order_or_id instanceof WC_Order) ? $order_or_id->get_id() : absint($order_or_id);
+            if (!$order_id) {
+                return;
+            }
+            if (function_exists('as_enqueue_async_action')) {
+                // De-dupe: don't queue a second job if one is already pending.
+                if (function_exists('as_has_scheduled_action') && as_has_scheduled_action('spbwc_sync_order_to_storelly', array($order_id), 'spbwc-order-sync')) {
+                    return;
+                }
+                as_enqueue_async_action('spbwc_sync_order_to_storelly', array($order_id), 'spbwc-order-sync');
+            } else {
+                // No Action Scheduler — fall back to inline sync.
+                $this->spbwc_run_order_sync($order_id);
+            }
+        }
+
+        /**
+         * Action Scheduler worker: build the order payload and POST it to the
+         * Storelly Dashboard. Re-checks the opt-in gate at run time.
+         *
+         * @param int $order_id
+         */
+        public function spbwc_run_order_sync($order_id){
+            if (!self::spbwc_api_sync_enabled()) {
+                return;
+            }
+            $order = wc_get_order(absint($order_id));
+            if (!$order) {
+                return;
             }
             $products = array();
             $cFile = [];

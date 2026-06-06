@@ -344,6 +344,18 @@ if ( ! class_exists( 'SPBWC_Custom_Order_Detail' ) ) {
                 <?php if ( empty( $items ) ) : ?>
                     <p><?php esc_html_e( 'No custom designs in this order.', 'storelly-product-builder-for-woocommerce' ); ?></p>
                 <?php else : ?>
+                    <?php if ( class_exists( 'SPBWC_Order_PDF' ) && ! SPBWC_Order_PDF::is_enabled() ) : ?>
+                        <div class="spbwc-co-cloud-cta" style="display:flex;align-items:center;gap:12px;padding:12px 14px;margin-bottom:14px;border:1px solid var(--st-pill-pending-bg,#fde68a);background:var(--st-cloud-cta-bg,#fffbeb);border-radius:var(--nbd-radius-md,8px);">
+                            <span class="dashicons dashicons-cloud" aria-hidden="true" style="color:var(--st-pill-pending-text,#92400e);"></span>
+                            <div style="flex:1;">
+                                <strong><?php esc_html_e( 'Print-ready PDF needs Storelly Cloud', 'storelly-product-builder-for-woocommerce' ); ?></strong>
+                                <div class="spbwc-co-note" style="margin:2px 0 0;"><?php esc_html_e( 'Connect your store to Storelly to generate and download print PDFs. Setup runs automatically inside wp-admin — no need to leave for storelly.com.', 'storelly-product-builder-for-woocommerce' ); ?></div>
+                            </div>
+                            <a class="spbwc-cta-btn spbwc-cta-btn--solid" href="<?php echo esc_url( admin_url( 'admin.php?page=' . SPBWC_PB_OVERVIEW_SLUG ) ); ?>">
+                                <?php esc_html_e( 'Connect Storelly', 'storelly-product-builder-for-woocommerce' ); ?>
+                            </a>
+                        </div>
+                    <?php endif; ?>
                     <?php foreach ( $items as $it ) : ?>
                         <div class="spbwc-co-item">
                             <div>

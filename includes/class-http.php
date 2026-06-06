@@ -18,16 +18,6 @@ if (!class_exists('SPBWC_Storelly_HTTP')) {
             );
         }
 
-        public static function spbwc_get_header_unauth_token() {
-            $storelly_account = get_option('storelly_w2p_account');
-
-            $unauth_token = isset($storelly_account['unauth_token']) ? $storelly_account['unauth_token'] : '';
-
-            return array(
-                'X-Storelly-Unauth-Token' => $unauth_token
-            );
-        }
-
         public static function spbwc_response($response, $format = true) {
             $body = wp_remote_retrieve_body($response);
 
