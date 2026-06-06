@@ -3,6 +3,20 @@ if (!defined('ABSPATH')) {
     exit; // Exit if accessed directly
 }
 
+/*
+ * Coexistence guard. Storelly descends from the NBDesigner / pc-designer
+ * web-to-print codebase, and this marketplace module still exposes a handful of
+ * legacy nbd_/nbdl_ global helpers. A bare top-level declaration would be
+ * hoisted at compile time and fatal ("Cannot redeclare ...") whenever another
+ * NBDesigner-derived plugin is active. Wrapping the whole module in this
+ * conditional makes the declarations late-bound, so when those legacy helpers
+ * already exist we simply skip declaring our own. Storelly's designer
+ * marketplace is opt-in and cannot run alongside another designer plugin
+ * anyway; every caller of the spbwc_marketplace_* helpers is function_exists()-
+ * guarded and degrades gracefully when this module is skipped.
+ */
+if ( ! function_exists( 'nbdl_count_designs' ) && ! function_exists( 'nbd_get_designers_by' ) ) {
+
 function spbwc_marketplace_get_designers( $args, $get_info = true ){
     $designers  = array();
     $defaults   = array(
@@ -860,3 +874,5 @@ function spbwc_marketplace_generate_color_product_design( $approved ){
         $nbdl_processor->save()->dispatch();
     }
 }
+
+} // end coexistence guard — see top of file.

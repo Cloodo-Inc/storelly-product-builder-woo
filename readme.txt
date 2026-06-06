@@ -4,8 +4,8 @@ Donate link: https://storelly.com/
 Tags: product builder, product customize, product customizer, woocommerce custom product
 Requires at least: 4.7
 Tested up to: 7.0
-Stable tag: 1.6.0
-Version: 1.6.0
+Stable tag: 1.6.1
+Version: 1.6.1
 Requires PHP: 7.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -133,6 +133,9 @@ This plugin connects to the following external services:
 3. Storelly settings page with API keys and sync options
 
 == Changelog ==
+= 1.6.1 =
+* Fixed a fatal error ("Cannot redeclare function") that could occur on activation when another NBDesigner / pc-designer–derived web-to-print plugin was already active. The optional designer-marketplace module now detects those legacy helpers and steps aside instead of crashing the site. (Note: Storelly is intended to replace such plugins, not run alongside them.)
+
 = 1.6.0 =
 A major feature release turning Storelly into a full B2B-capable, quote-driven WooCommerce product platform. Everything below runs locally and stays free; only the optional Storelly Cloud features (print-ready PDF, order sync, dashboard analytics) require a paid plan.
 
@@ -332,6 +335,9 @@ A major feature release turning Storelly into a full B2B-capable, quote-driven W
 * Initial release.
 
 == Upgrade Notice ==
+= 1.6.1 =
+Fixes a possible activation fatal error when another NBDesigner-derived web-to-print plugin is active. Recommended for everyone on 1.6.0.
+
 = 1.6.0 =
 Major update: B2B company accounts and wholesale pricing, Account Credit (wallet, net terms, rebates), expanded Request-a-Quote with imports, redesigned admin and emails, and free-form text/image on the designer canvas. All local features remain free.
 
