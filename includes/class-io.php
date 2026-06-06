@@ -42,8 +42,10 @@ if (!class_exists('SPBWC_Storelly_IO')) {
                         $files[] = $folder . '/' . $file;
                     }
                 }
+                // closedir() only accepts a valid handle; on PHP 8 closedir(false)
+                // is a fatal TypeError (which @ does not suppress).
+                closedir($dir);
             }
-            @closedir($dir);
             return $files;
         }
         public static function spbwc_copy_dir($src, $dst, $skip = array()) {
@@ -180,10 +182,41 @@ if (!class_exists('SPBWC_Storelly_IO')) {
             if ( ! $wp_filesystem ) {
                 WP_Filesystem();
             }
-            if ( ! $wp_filesystem ) {
-                return false; // Unable to initialize filesystem
+            if ( $wp_filesystem ) {
+                $contents = $wp_filesystem->get_contents( $path );
+                if ( false !== $contents ) {
+                    return $contents;
+                }
             }
-            return $wp_filesystem->get_contents( $path );
+            // Fallback: on hosts where get_filesystem_method() resolves to a
+            // non-'direct' transport (e.g. ftpsockets) WP_Filesystem cannot read
+            // local plugin-owned files and returns false even on the frontend.
+            // These are our own internal files under uploads, so a direct read is
+            // safe and avoids silently losing design/config/fee data.
+            if ( is_readable( $path ) ) {
+                return file_get_contents( $path ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- Local internal plugin file; WP_Filesystem unavailable on this host.
+            }
+            return false;
+        }
+        public static function spbwc_put_local_file_contents( $path, $contents ) {
+            if ( ! function_exists( 'WP_Filesystem' ) ) {
+                require_once ABSPATH . 'wp-admin/includes/file.php';
+            }
+            global $wp_filesystem;
+            if ( ! $wp_filesystem ) {
+                WP_Filesystem();
+            }
+            if ( $wp_filesystem ) {
+                $spbwc_chmod = defined( 'FS_CHMOD_FILE' ) ? FS_CHMOD_FILE : 0644;
+                $res = $wp_filesystem->put_contents( $path, $contents, $spbwc_chmod );
+                if ( false !== $res ) {
+                    return $res;
+                }
+            }
+            // Fallback direct write when WP_Filesystem is unavailable (non-'direct'
+            // transport without credentials). Local internal plugin file.
+            $bytes = file_put_contents( $path, $contents ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_put_contents_file_put_contents, WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents -- Local internal plugin file; WP_Filesystem unavailable on this host.
+            return ( false !== $bytes );
         }
     }
 }
