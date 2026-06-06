@@ -4,8 +4,8 @@ Donate link: https://storelly.com/
 Tags: product builder, product customize, product customizer, woocommerce custom product
 Requires at least: 4.7
 Tested up to: 7.0
-Stable tag: 1.6.2
-Version: 1.6.2
+Stable tag: 1.6.3
+Version: 1.6.3
 Requires PHP: 7.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -133,6 +133,9 @@ This plugin connects to the following external services:
 3. Storelly settings page with API keys and sync options
 
 == Changelog ==
+= 1.6.3 =
+* Removed the vestigial designer-marketplace / "launcher" module entirely. It was bundled-but-disabled scaffolding inherited from the NBDesigner / pc-designer codebase (no UI entry point) and was the only place Storelly still carried that lineage's legacy globals. Deleting it permanently eliminates any possibility of a symbol collision with another NBDesigner / PC Designer–derived web-to-print plugin — superseding the 1.6.1 / 1.6.2 mitigations, which are no longer needed. Core product builder, quotes, B2B, custom orders and saved designs are unchanged.
+
 = 1.6.2 =
 * Comprehensive conflict handling for sites that also run an NBDesigner / PC Designer–derived web-to-print plugin. Storelly now reliably detects a sibling designer plugin (both by a class probe and by scanning the active-plugins list, so it works regardless of plugin load order) and cleanly disables only its own optional designer-marketplace module instead of loading code that would collide. A clear admin notice asks you to deactivate the other plugin. This fully resolves the activation fatal introduced when both were active. Storelly's core product builder, quotes and B2B features are unaffected, and the marketplace module is opt-in (off by default).
 
@@ -338,6 +341,9 @@ A major feature release turning Storelly into a full B2B-capable, quote-driven W
 * Initial release.
 
 == Upgrade Notice ==
+= 1.6.3 =
+Removes the unused designer-marketplace module, permanently ending any conflict with NBDesigner / PC Designer-derived plugins. Core features unchanged.
+
 = 1.6.2 =
 Definitive fix for activation fatals when another NBDesigner / PC Designer web-to-print plugin is active. Recommended for everyone.
 

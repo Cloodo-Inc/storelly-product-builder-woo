@@ -77,7 +77,6 @@ if (!class_exists('SPBWC_Storelly_Product_Builder_Backend')) {
             // flush instead (covers (re)activation cleanly).
             $flush_flags = array(
                 'spbwc_quotes_endpoint_flushed',
-                'spbwc_marketplace_endpoint_flushed',
                 'spbwc_saved_designs_flushed',
                 'spbwc_b2b_account_flushed',
                 'spbwc_b2b_reorders_flushed',

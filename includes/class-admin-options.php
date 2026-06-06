@@ -338,15 +338,7 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
                     SPBWC_PB_QUOTES_SLUG,
                     array($this, 'spbwc_quotes_manager')
                 );
-                add_submenu_page(
-                    SPBWC_PB_OVERVIEW_SLUG,
-                    esc_html__('Design Files', 'storelly-product-builder-for-woocommerce'),
-                    esc_html__('Design Files', 'storelly-product-builder-for-woocommerce'),
-                    'manage_options',
-                    SPBWC_PB_DESIGNS_SLUG,
-                    array($this, 'spbwc_designs_page')
-                );
-                // License submenu – placed right after Designs
+                // License submenu
                 add_submenu_page(
                     SPBWC_PB_OVERVIEW_SLUG,
                     esc_html__('License Plan', 'storelly-product-builder-for-woocommerce'),
@@ -585,24 +577,6 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
                 wp_enqueue_style('spbwc-manager-fonts');
             }
 
-            // Designs page — reuse marketplace-admin styles + JS for pill/card/toggle logic.
-            if ( defined( 'SPBWC_PB_DESIGNS_SLUG' ) && false !== strpos( $hook, SPBWC_PB_DESIGNS_SLUG ) ) {
-                wp_enqueue_style( 'spbwc-marketplace-admin', SPBWC_PB_CSS_URL . 'marketplace-admin.css', array( 'spbwc-admin-ui' ), SPBWC_PB_VERSION );
-                wp_register_script( 'spbwc-marketplace-chartjs', SPBWC_PB_ASSETS_URL . 'libs/chartjs/chart.umd.js', array(), '4.4.0', true );
-                wp_register_script( 'spbwc-marketplace-admin', SPBWC_PB_JS_URL . 'marketplace-admin.js', array( 'jquery', 'spbwc-marketplace-chartjs' ), SPBWC_PB_VERSION, true );
-                wp_enqueue_script( 'spbwc-marketplace-admin' );
-                wp_localize_script( 'spbwc-marketplace-admin', 'spbwcMarketplaceAdmin', array(
-                    'ajaxUrl' => admin_url( 'admin-ajax.php' ),
-                    'nonce'   => wp_create_nonce( 'spbwc_marketplace_admin' ),
-                    'i18n'    => array(
-                        'confirmDelete'  => __( 'Are you sure you want to delete this design?', 'storelly-product-builder-for-woocommerce' ),
-                        'confirmApprove' => __( 'Approve this request?', 'storelly-product-builder-for-woocommerce' ),
-                        'confirmCancel'  => __( 'Cancel this request?', 'storelly-product-builder-for-woocommerce' ),
-                        'processing'     => __( 'Processing…', 'storelly-product-builder-for-woocommerce' ),
-                        'failed'         => __( 'Action failed. Please try again.', 'storelly-product-builder-for-woocommerce' ),
-                    ),
-                ) );
-            }
         }
         public function spbwc_product_builder_options() {
             if (isset($_GET['action']) && sanitize_text_field(wp_unslash($_GET['action'])) != 'copy') {
@@ -1182,40 +1156,6 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
             ) );
         }
 
-        public function spbwc_designs_page() {
-            if ( ! current_user_can( 'spbwc_manage_product_builder' ) ) {
-                wp_die( esc_html__( 'You do not have permission to access this page.', 'storelly-product-builder-for-woocommerce' ) );
-            }
-
-            // Handle bulk actions before output.
-            $action = '';
-            if ( isset( $_REQUEST['action'] ) && '-1' !== $_REQUEST['action'] ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-                $action = sanitize_key( wp_unslash( $_REQUEST['action'] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-            } elseif ( isset( $_REQUEST['action2'] ) && '-1' !== $_REQUEST['action2'] ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-                $action = sanitize_key( wp_unslash( $_REQUEST['action2'] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-            }
-
-            if ( ! empty( $action ) && in_array( $action, array( 'publish', 'unpublish', 'delete' ), true ) && ! empty( $_REQUEST['design_ids'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-                check_admin_referer( 'bulk-designs' );
-                global $wpdb; // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals
-                $table      = $wpdb->prefix . 'storelly_marketplace_designs';
-                $design_ids = array_map( 'absint', (array) wp_unslash( $_REQUEST['design_ids'] ) );
-                foreach ( $design_ids as $did ) {
-                    if ( $did < 1 ) {
-                        continue;
-                    }
-                    if ( 'delete' === $action ) {
-                        $wpdb->delete( $table, array( 'id' => $did ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery
-                    } else {
-                        $wpdb->update( $table, array( 'publish' => ( 'publish' === $action ) ? 1 : 0 ), array( 'id' => $did ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery
-                    }
-                }
-                wp_safe_redirect( add_query_arg( array( 'page' => SPBWC_PB_DESIGNS_SLUG, 'bulk_done' => $action ), admin_url( 'admin.php' ) ) );
-                exit;
-            }
-
-            require_once SPBWC_PB_PLUGIN_DIR . 'views/designs.php';
-        }
 
         public function spbwc_quotes_manager() {
             if ( ! current_user_can( 'spbwc_manage_product_builder' ) ) {
@@ -4196,7 +4136,7 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
                     $tagName = $xdoc->getElementsByTagName('text')->item($i);
                     $attribNode = $tagName->getAttributeNode('font-family');
                     $font_family = $attribNode->value;
-                    $font = nbd_get_font_by_alias($font_family);
+                    $font = function_exists('nbd_get_font_by_alias') ? nbd_get_font_by_alias($font_family) : false;
                     if ($font) {
                         $tagName->setAttribute('font-family', $font->name);
                     }

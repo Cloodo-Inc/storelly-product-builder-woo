@@ -74,7 +74,6 @@ if ( ! class_exists( 'SPBWC_Admin_Menu' ) ) {
 				SPBWC_PB_PRODUCTS_SLUG,
 				SPBWC_PB_TEMPLATE_LIBRARY_SLUG,
 				$opts . '/manager-fonts',
-				SPBWC_PB_DESIGNS_SLUG,
 
 				array( 'heading', __( 'Sell', 'storelly-product-builder-for-woocommerce' ), 'sell' ),
 				SPBWC_PB_ORDERS_SLUG,
@@ -82,8 +81,6 @@ if ( ! class_exists( 'SPBWC_Admin_Menu' ) ) {
 				SPBWC_PB_QUOTES_SLUG,
 				'storelly-product-builder-for-woocommerce-b2b-companies',
 				'storelly-product-builder-for-woocommerce-b2b-pricing',
-				'spbwc-marketplace-settings',
-				'spbwc-marketplace',
 
 				array( 'heading', __( 'Configure', 'storelly-product-builder-for-woocommerce' ), 'configure' ),
 				$opts,
