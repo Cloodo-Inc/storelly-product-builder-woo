@@ -216,14 +216,22 @@ if (!class_exists('SPBWC_Storelly_Product_Builder_Frontend')) {
                     }
                     if (is_array($config_views)) {
                         foreach ($config_views as $index => $view) {
-                            // Construct the exact key we expect
-                            $key = 'frame_' . $index;
+                            // Each view uploads two artefacts: the rasterised PNG
+                            // (frame_<i>) used for previews, and the vector SVG
+                            // (frame_<i>_svg) the print-PDF pipeline rebuilds the page
+                            // from (see SPBWC_Storelly_Export_PDF::spbwc_export_pdf()).
+                            // Both must be persisted — dropping the _svg variant leaves
+                            // PDF generation with nothing to render and the order stuck
+                            // at "PDF failed".
+                            $frame_keys = array('frame_' . $index, 'frame_' . $index . '_svg');
 
-                            // Only process if this specific key exists
-                            // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- $_FILES[$key] is sanitized inside spbwc_sanitize_file_upload() method.
-                            if (isset($_FILES[$key]) && !empty($_FILES[$key]['tmp_name'])) {
+                            foreach ($frame_keys as $key) {
+                                // Only process if this specific key exists
                                 // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- $_FILES[$key] is sanitized inside spbwc_sanitize_file_upload() method.
-                                $filtered_files[$key] = $this->spbwc_sanitize_file_upload($_FILES[$key]);
+                                if (isset($_FILES[$key]) && !empty($_FILES[$key]['tmp_name'])) {
+                                    // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- $_FILES[$key] is sanitized inside spbwc_sanitize_file_upload() method.
+                                    $filtered_files[$key] = $this->spbwc_sanitize_file_upload($_FILES[$key]);
+                                }
                             }
                         }
                     }

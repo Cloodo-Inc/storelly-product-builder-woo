@@ -538,10 +538,51 @@ if ( ! class_exists( 'SPBWC_Custom_Order_Detail' ) ) {
                     'options'      => $options,
                     'specs'        => self::print_specs( $folder ),
                     'pdf_status'   => (string) $item->get_meta( '_pcpb_pdf_status' ),
-                    'designer_url' => add_query_arg( array( 'nbd_item_key' => $folder ), SPBWC_Storelly_PB_Util::spbwc_get_url_page( 'product_builder' ) ),
+                    'designer_url' => self::designer_url( $item, $folder ),
                 );
             }
             return $out;
+        }
+
+        /**
+         * Build the "View in designer" URL for an order line item.
+         *
+         * Opens the storefront builder pre-loaded with the buyer's saved design
+         * folder (config.json + design.json). Mirrors the established builder
+         * preview link (oid + pid + spbwc_builder_preview_action nonce, see
+         * SPBWC_Visual_Builder_Admin / SPBWC_B2B_Reorders) and adds
+         * spbwc_view_folder so js_config.php loads this exact design rather than
+         * the option-set template. Empty when the builder page is unpublished or
+         * the product no longer maps to an option set.
+         *
+         * @param WC_Order_Item_Product $item   Order line item.
+         * @param string                $folder Design folder name.
+         * @return string Designer URL, or '' when unavailable.
+         */
+        public static function designer_url( $item, $folder ) {
+            if ( '' === $folder || ! class_exists( 'STORELLY_FRONTEND_OPTIONS' ) ) {
+                return '';
+            }
+            $pb_page = SPBWC_Storelly_PB_Util::spbwc_get_url_page( 'product_builder' );
+            if ( '' === $pb_page || '#' === $pb_page ) {
+                return '';
+            }
+            $pid = is_callable( array( $item, 'get_variation_id' ) ) && (int) $item->get_variation_id()
+                ? (int) $item->get_variation_id()
+                : (int) $item->get_product_id();
+            $oid = (int) STORELLY_FRONTEND_OPTIONS::get_product_option( $pid );
+            if ( $oid <= 0 ) {
+                return '';
+            }
+            return add_query_arg(
+                array(
+                    'oid'               => $oid,
+                    'pid'               => $pid,
+                    'spbwc_view_folder' => rawurlencode( $folder ),
+                    '_wpnonce'          => wp_create_nonce( 'spbwc_builder_preview_action' ),
+                ),
+                $pb_page
+            );
         }
 
         protected static function order_files( $items ) {

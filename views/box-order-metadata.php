@@ -50,11 +50,13 @@
                     <?php endforeach; ?>
                     <?php
                     // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Template variable.
-                    $link_view_detail = add_query_arg(array(
-                        'nbd_item_key'   => $folder_design,
-                    ), SPBWC_Storelly_PB_Util::spbwc_get_url_page('product_builder'));
+                    $link_view_detail = class_exists('SPBWC_Custom_Order_Detail')
+                        ? SPBWC_Custom_Order_Detail::designer_url($order_item, $folder_design)
+                        : '';
                     ?>
-                    <a class="nbstorelly-right button button-small button-secondary" href="<?php echo esc_url($link_view_detail); ?>"><?php esc_html_e('View detail', 'storelly-product-builder-for-woocommerce'); ?></a>
+                    <?php if ('' !== $link_view_detail) : ?>
+                        <a class="nbstorelly-right button button-small button-secondary" href="<?php echo esc_url($link_view_detail); ?>"><?php esc_html_e('View detail', 'storelly-product-builder-for-woocommerce'); ?></a>
+                    <?php endif; ?>
                 <?php endif; ?>
             <?php endif; ?>
         <?php endforeach; ?>

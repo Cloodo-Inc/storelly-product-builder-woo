@@ -41,8 +41,19 @@ Per custom line item:
 - **Print specs** — dimensions / DPI / unit / page count read from the design `config.json` /
   `design_output.json` when present.
 - **Per-item actions** — Download (png / svg / pdf / pdf-preview, reusing the existing
-  `spbwc_download_order_designs` AJAX + `storelly-general.js`), Regenerate, **View in designer**
-  (existing `nbd_item_key` link), per-item `_pcpb_pdf_status` badge + `_pcpb_preview_downloads` count.
+  `spbwc_download_order_designs` AJAX + `storelly-general.js`), Regenerate, **View in designer**,
+  per-item `_pcpb_pdf_status` badge + `_pcpb_preview_downloads` count.
+  - **View in designer** opens the storefront builder pre-loaded with the buyer's actual saved
+    design. `SPBWC_Custom_Order_Detail::designer_url()` builds the link as
+    `oid` (the product's option set via `STORELLY_FRONTEND_OPTIONS::get_product_option()`) + `pid`
+    + `spbwc_view_folder` (the line item's `_pcpb_folder`) + an `spbwc_builder_preview_action`
+      nonce. `views/product-builder/js_config.php` consumes `spbwc_view_folder` **only** when the
+      nonce is valid AND `current_user_can('spbwc_manage_product_builder')` AND the value is a
+      single existing path segment under the customer dir, then loads that folder's
+      `config.json`/`design.json` via `SPBWC_Storelly_PB_Util::spbwc_get_product_pre_builder(..., $folder)`.
+      The link is omitted when the builder page is unpublished or the product no longer maps to an
+      option set. (The legacy `nbd_item_key` query arg was an orphan from the cmsmart fork with no
+      consumer — replaced by this gated path.)
 
 ### S3 — Order summary + addresses
 - Line items (all, incl. non-design) with qty/price, subtotal/shipping/tax/total.

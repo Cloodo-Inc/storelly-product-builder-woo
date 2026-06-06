@@ -26,6 +26,30 @@ if ( isset( $_GET['_wpnonce'] ) ) {
         $redirect_url = isset( $_GET['rd'] ) ? SPBWC_Storelly_PB_Util::spbwc_get_redirect_url() : '';
     }
 }
+// Admin "View in designer" (Custom Order workspace): load a specific saved
+// design folder into the canvas so staff see the buyer's actual artwork. Gated
+// by the same preview nonce + the builder-management capability, and the folder
+// is validated to a single path segment that exists under the customer dir.
+// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Local template variable.
+$spbwc_view_folder = '';
+if ( isset( $_GET['spbwc_view_folder'], $_GET['_wpnonce'] ) ) {
+    $spbwc_view_nonce = sanitize_text_field( wp_unslash( $_GET['_wpnonce'] ) );
+    if (
+        wp_verify_nonce( $spbwc_view_nonce, 'spbwc_builder_preview_action' )
+        && current_user_can( 'spbwc_manage_product_builder' )
+    ) {
+        $spbwc_view_candidate = sanitize_file_name( wp_unslash( $_GET['spbwc_view_folder'] ) );
+        if (
+            '' !== $spbwc_view_candidate
+            && $spbwc_view_candidate === basename( $spbwc_view_candidate )
+            && is_dir( SPBWC_PB_CUSTOMER_DIR . '/' . $spbwc_view_candidate )
+        ) {
+            // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Local template variable.
+            $spbwc_view_folder = $spbwc_view_candidate;
+        }
+    }
+}
+
 if ($is_creating_task == 0) { // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Global variable defined by parent template.
     $oid = $option_id; // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Local template variable.
 } else if ($oid == 0) { // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Local template variable.
@@ -120,7 +144,7 @@ wp_localize_script( 'product-builder', 'SPBWC_PB_CONFIG', array(
         'oid' => $oid, 
         'redirect_url' => $redirect_url,
         'google_fonts' => wp_json_encode((array) $google_fonts),
-        'pre_builder' => wp_json_encode((array) SPBWC_Storelly_PB_Util::spbwc_get_product_pre_builder($oid, $pcpb_cart_item_key)),
+        'pre_builder' => wp_json_encode((array) SPBWC_Storelly_PB_Util::spbwc_get_product_pre_builder($oid, $pcpb_cart_item_key, $spbwc_view_folder)),
         'fonts' => wp_json_encode((array) $fonts),
         'font_url' => $font_url,
         'i18n' => array(

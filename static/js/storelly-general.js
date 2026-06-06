@@ -42,14 +42,30 @@ jQuery(document).ready(function ($) {
       .done(function (data) {
         $("#storelly_order_submit_loading").addClass("storelly_loaded");
         $("#storelly_download_design_by_type").attr("disabled", false);
-        var res = JSON.parse(data);
-        if (res.flag == 1 && res.file) {
+        var res;
+        try {
+          res = JSON.parse(data);
+        } catch (e) {
+          res = null;
+        }
+        if (res && res.flag == 1 && res.file) {
           var link = document.createElement("a");
           link.href = res.file;
           document.body.appendChild(link);
           link.click();
           document.body.removeChild(link);
+        } else {
+          // No files came back. For PDF/SVG this usually means the print-ready
+          // files have not been generated yet for this design.
+          alert(
+            "No files are available for the selected format yet. Try \"Regenerate PDFs\", or pick PNG / PNG preview."
+          );
         }
+      })
+      .fail(function () {
+        $("#storelly_order_submit_loading").addClass("storelly_loaded");
+        $("#storelly_download_design_by_type").attr("disabled", false);
+        alert("Download failed. Please try again.");
       });
   });
   

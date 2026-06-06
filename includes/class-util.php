@@ -443,9 +443,19 @@ if (!class_exists('SPBWC_Storelly_PB_Util')) {
             }
             return apply_filters('storelly_redirect_url', $redirect_url);
         }
-        public static function spbwc_get_product_pre_builder($option_id, $pcpb_cart_item_key)
+        public static function spbwc_get_product_pre_builder($option_id, $pcpb_cart_item_key, $explicit_folder = '')
         {
             $data = array();
+            // Explicit folder wins: an admin opening a saved customer design
+            // (e.g. "View in designer" from a Custom Order) loads that exact
+            // design folder rather than the option-set template or a cart item.
+            // Caller is responsible for validating the folder + capability/nonce.
+            if ($explicit_folder !== '') {
+                $path = SPBWC_PB_CUSTOMER_DIR . '/' . $explicit_folder;
+                $data['config'] = self::spbwc_get_data_from_json($path . '/config.json');
+                $data['design'] = self::spbwc_get_data_from_json($path . '/design.json');
+                return $data;
+            }
             if ($pcpb_cart_item_key != '') {
                 $cart_item = WC()->cart->get_cart_item($pcpb_cart_item_key);
                 if (isset($cart_item['pcpb_meta'])) {
