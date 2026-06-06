@@ -171,5 +171,38 @@ M5.6  POT regen + plugin check 0 error.
 **Còn cần xác nhận (không chặn code phần client, chỉ chặn re-link & email):**
 1. **Backend idempotent-by-uuid** ở `/api/v1/register`: nhận `store_uuid`, cùng uuid → trả store
    cũ (không tạo trùng). → cần team backend Storelly build/confirm (user OK bổ sung endpoint).
-2. **Email welcome**: gửi bởi Storelly sau register — xác nhận backend có gửi + nội dung.
+2. ~~Email welcome bởi Storelly~~ → **đã chuyển sang site tự gửi** (§2.2). Backend không cần lo.
 3. **`activated_at` legacy = 0**: set `activated_at = time()` lần đầu nếu đang 0 (gài kèm M5.0).
+
+---
+
+## 7. Backlog — CHƯA LÀM (chờ API backend Storelly)
+
+> Quyết định 1.6.4: chỉ ghi spec, **chưa code**. Cả hai phụ thuộc hợp đồng API phía Storelly.
+
+### M5.7 — Store chooser khi re-install (mở rộng §3.2 fallback)
+- **Hiện trạng:** client gửi `store_uuid` tất định + ô nhập `store_id` tay (`ajax_link_manual`).
+  Đủ cho ca auto-match (DB còn / cùng url+email) và ca paste tay.
+- **Thiếu:** UI cho admin **chọn** store khi có nhiều store khớp email/url (thay vì nhớ & paste id).
+- **Cần backend:** endpoint lookup, vd `GET /api/v1/stores/lookup?store_uuid=&email=&app_url=` →
+  trả `[{store_id, name, app_url, last_seen}]` (auth bằng unauth_token hoặc signed nonce).
+- **Client (khi có endpoint):** sau khi register/derive uuid, nếu server trả `multiple_candidates`,
+  card consent hiện danh sách radio store → admin pick → gửi `store_id` đã chọn qua
+  `spbwc_cloud_link_manual` (đã có). Không cần phone-home thêm trước consent.
+
+### M5.8 — Thanh toán plan in-wp-admin qua payment API Storelly
+- **Hiện trạng:** `views/license.php` nút "Upgrade to X" chỉ mở `app.storelly.com/subscription`
+  ở tab mới; `SPBWC_License_Manager::activate_key()` chỉ kích hoạt key đã có.
+- **Mục tiêu:** chọn plan + thanh toán **ngay trên License menu**, sau đó tự `activate_key`/`sync`.
+- **Cần backend (hợp đồng API + tuân thủ PCI — KHÔNG nhận thẻ trực tiếp trên site):**
+  - `POST /api/v1/billing/checkout-session` `{package_id, store_uuid, return_url}` → trả
+    `{checkout_url}` (hosted checkout Storelly/Stripe) **hoặc** `{client_secret}` (nếu dùng
+    Stripe Elements nhúng — cân nhắc PCI SAQ-A).
+  - Webhook/endpoint xác nhận: `GET /api/v1/license/status` sau khi thanh toán xong (đã có) →
+    cập nhật `spbwc_license_data`.
+  - Khuyến nghị: **hosted checkout redirect** (đơn giản + PCI-safe) thay vì nhúng form thẻ.
+- **Client (khi có endpoint):** nút "Upgrade" → AJAX tạo checkout-session (nonce + cap) →
+  redirect tới `checkout_url`; `return_url` về License page với `?spbwc_paid=1` → gọi
+  `sync_from_api()` + hiện trạng thái mới. Dùng `payment-integration` agent khi build.
+- **Lưu ý compliance:** nếu nhúng form thẻ trên wp-admin phải khai báo external service + script
+  PCI; ưu tiên redirect hosted để tránh.
