@@ -4,8 +4,8 @@ Donate link: https://storelly.com/
 Tags: product builder, product customize, product customizer, woocommerce custom product
 Requires at least: 4.7
 Tested up to: 7.0
-Stable tag: 1.5.7
-Version: 1.5.7
+Stable tag: 1.6.0
+Version: 1.6.0
 Requires PHP: 7.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -133,6 +133,18 @@ This plugin connects to the following external services:
 3. Storelly settings page with API keys and sync options
 
 == Changelog ==
+= 1.6.0 =
+A major feature release turning Storelly into a full B2B-capable, quote-driven WooCommerce product platform. Everything below runs locally and stays free; only the optional Storelly Cloud features (print-ready PDF, order sync, dashboard analytics) require a paid plan.
+
+* **B2B / Wholesale (new).** Company accounts (with members and roles), a wholesale tier-pricing ladder, and an Account Credit system: prepaid wallet, net-terms credit line with an over-limit approval workflow, monthly volume rebates, partial-refund reversals and accounts-receivable aging — all on a single signed ledger. Each company gets a public, brand-safe storefront, and payment-term labels are fully customizable.
+* **Request a Quote (greatly expanded).** Add a file-upload field to quote forms (multi-file, drag-and-drop, shown in admin/email/PDF). New multi-product quote cart and a standalone quote page. Import existing quotes from WooCommerce orders, contact-form plugins (Contact Form 7, WPForms, Gravity Forms, Forminator) and quote plugins (ELEX, Addify, B2BKing). Buyers manage, accept and convert quotes to orders from their account.
+* **Custom Orders.** Reworked detail page: instant tabs, clearer CTAs, customer notes, one-click re-order and download-all.
+* **My Account portal.** New customer endpoints — quotes, saved designs, re-orders, brand store, team, approvals and store management.
+* **Email system.** All transactional mail unified on the WooCommerce email engine (designer messages, custom-order received and proof emails), plus an email log, a "send test" tool and an admin Emails dashboard.
+* **Designer canvas.** Buyers can now add their own free-form text and images on the canvas alongside admin-defined components, with pricing computed authoritatively on the server.
+* **Admin redesign.** Refreshed Emails / About / System / Orders / Quote screens on a shared component library, and a re-organized menu (placed under WooCommerce) grouped into Build / Sell / Configure bands with a crisp new icon.
+* **Reliability & compliance.** PHP 8 compatibility fixes, batched several N+1 query paths, hardened account-endpoint rewrite flushing, and a clean Plugin Check pass (prepared queries, WP_Filesystem-friendly file ops).
+
 = 1.5.7 =
 * Onboarding & activation polish — get merchants to a live, customizable product faster and keep them:
   - **One-click demo, bundled and offline-safe.** The Welcome screen's "Add demo product" now installs a ready-made customizable product (the bag) from data bundled inside the plugin — no network call, works on a fresh or offline install. Images are sideloaded locally; the product, its option set and images are tagged so "Remove demo" cleans everything up. The previous remote sample importer remains available on the Global Import screen.
@@ -320,6 +332,9 @@ This plugin connects to the following external services:
 * Initial release.
 
 == Upgrade Notice ==
+= 1.6.0 =
+Major update: B2B company accounts and wholesale pricing, Account Credit (wallet, net terms, rebates), expanded Request-a-Quote with imports, redesigned admin and emails, and free-form text/image on the designer canvas. All local features remain free.
+
 = 1.2.7 =
 Replaces hardcoded timezone with the site's configured timezone and declares additional external services in readme.
 
