@@ -101,14 +101,24 @@
                         var q = parseInt(scope._qty != null ? scope._qty : scope.quantity, 10);
                         return (isNaN(q) || q < 1) ? 1 : q;
                     }
+                    /* Per-item fee for buyer-added canvas text/image layers, pushed by the
+                     * customizer on save (see app-product-builder.js saveData). 0 until a design
+                     * with paid layers is saved this session. */
+                    var userLayersFee = 0;
                     function updateHeroCta() {
                         var rawTotal = parseAmount(scope.total_cart_price);
                         var qty = getQty();
                         /* Per-item base = qty-scaled total ÷ qty; safe-guard against /0. */
                         var perItemBase = (!isNaN(rawTotal) && qty > 0) ? (rawTotal / qty) : 0;
+                        /* Add the per-item fee for buyer-added canvas text/image layers so the
+                         * product-page total matches the canvas summary and the cart. The fee is
+                         * pushed here by the customizer via the 'spbwc:userlayersfee' event after a
+                         * design is saved. Added before the tier discount, mirroring the server
+                         * (option_processing adds the layer fee into total_price pre-discount). */
+                        perItemBase = perItemBase + (userLayersFee || 0);
                         var perItemDis  = computeTierDiscount(qty, perItemBase);
                         var totalDis    = perItemDis * qty;
-                        var total       = isNaN(rawTotal) ? NaN : Math.max(0, rawTotal - totalDis);
+                        var total       = isNaN(rawTotal) ? NaN : Math.max(0, (perItemBase * qty) - totalDis);
                         var perItemNet  = Math.max(0, perItemBase - perItemDis);
 
                         var totEl = root.querySelector('[data-spbwc-cloodo-total]');
@@ -166,6 +176,13 @@
                     scope.$watch('total_cart_price', function () { updateHeroCta(); });
                     scope.$watch(function () { return '' + scope._qty + '|' + scope.quantity; }, function () { updateHeroCta(); });
                     $timeout(updateHeroCta, 0);
+                    /* Customizer → product page: keep the displayed total in sync with the
+                     * canvas text/image layer fee after a design is saved. */
+                    document.addEventListener('spbwc:userlayersfee', function (e) {
+                        var f = (e && e.detail && !isNaN(parseFloat(e.detail.fee))) ? parseFloat(e.detail.fee) : 0;
+                        userLayersFee = f < 0 ? 0 : f;
+                        updateHeroCta();
+                    });
 
                     /* ── A11y: keyboard + aria-expanded for advanced-dropdown ──
                      * The custom dropdown UI (.nbo-ad-result + .nbo-ad-pseudo-list) needs

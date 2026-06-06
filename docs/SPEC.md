@@ -22,7 +22,7 @@ Storelly Product Builder is a WooCommerce extension that adds a **visual, step-b
 - Offers product import/export (native JSON + legacy PrintCart adapter).
 - Implements a "Request a Quote" workflow with custom WC order statuses.
 
-**Free tier limit**: up to 5 customizable products. Premium tiers unlock more via the Storelly Dashboard.
+**Monetization**: local-first freemium. The full builder, pricing options, quotes and custom orders are free with **no product limit**; paid **Storelly Cloud** plans gate only features that call `app.storelly.com` (print-ready PDF, order sync, dashboard analytics, hosted marketplace). See `docs/SPEC_FREEMIUM.md`.
 
 ---
 

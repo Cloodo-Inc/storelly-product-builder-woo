@@ -52,6 +52,73 @@ if (!class_exists('SPBWC_Storelly_PB_Util')) {
                 return abs(intval(ini_get('post_max_size')));
             }
         }
+        /**
+         * Resolve the "Customer design tools" (free-form text/image layers)
+         * configuration for an option set. Precedence: per-option-set override
+         * (if defined) → global default (wp_option `spbwc_free_design_tools`) →
+         * hard defaults. Shared by js_config.php (frontend) and the cart pricing
+         * engine so both agree on enabled state, limits and per-layer fees.
+         *
+         * @param int        $oid     Option-set id (reserved for future use).
+         * @param array|null $optblob Already-loaded option-set blob, if available.
+         * @return array Associative array with `text` and `image` sub-arrays.
+         */
+        public static function spbwc_get_free_design_tools($oid = 0, $optblob = null)
+        {
+            $defaults = array(
+                'text'  => array(
+                    'enabled'            => 'n',
+                    'max_layers'         => 3,
+                    'price_per_layer'    => 0,
+                    'allow_change_color' => 'y',
+                    'default_text'       => '',
+                ),
+                'image' => array(
+                    'enabled'         => 'n',
+                    'max_layers'      => 2,
+                    'price_per_layer' => 0,
+                    'allow_type'      => 'png,jpg,jpeg,svg',
+                    'min_size'        => 0,
+                    'max_size'        => self::spbwc_get_max_upload_default(),
+                ),
+            );
+            $resolved = $defaults;
+            // Global default (Settings).
+            $global = get_option('spbwc_free_design_tools', array());
+            if (is_array($global)) {
+                foreach (array('text', 'image') as $k) {
+                    if (isset($global[$k]) && is_array($global[$k])) {
+                        $resolved[$k] = array_merge($resolved[$k], $global[$k]);
+                    }
+                }
+            }
+            // Per-option-set override.
+            if (is_array($optblob) && isset($optblob['free_design_tools']) && is_array($optblob['free_design_tools'])) {
+                $ov = $optblob['free_design_tools'];
+                foreach (array('text', 'image') as $k) {
+                    if (isset($ov[$k]) && is_array($ov[$k])) {
+                        $resolved[$k] = array_merge($resolved[$k], $ov[$k]);
+                    }
+                }
+            }
+            // Normalise toggle values. The admin form submits checkboxes as the
+            // native "on" (or absent); map any truthy form value to 'y' so the
+            // strict 'y' checks downstream (JS getFreeTools, cart pricing) work.
+            $spbwc_is_yes = function ( $v ) {
+                return in_array( $v, array( 'y', 'on', '1', 1, true ), true ) || 'y' === (string) $v || 'on' === (string) $v || '1' === (string) $v;
+            };
+            $resolved['text']['enabled']             = $spbwc_is_yes( $resolved['text']['enabled'] ) ? 'y' : 'n';
+            $resolved['text']['allow_change_color']  = $spbwc_is_yes( $resolved['text']['allow_change_color'] ) ? 'y' : 'n';
+            $resolved['image']['enabled']            = $spbwc_is_yes( $resolved['image']['enabled'] ) ? 'y' : 'n';
+            // Normalise numeric types so JSON/JS reads them predictably.
+            $resolved['text']['max_layers']       = max(0, (int) $resolved['text']['max_layers']);
+            $resolved['text']['price_per_layer']  = max(0, (float) $resolved['text']['price_per_layer']);
+            $resolved['image']['max_layers']      = max(0, (int) $resolved['image']['max_layers']);
+            $resolved['image']['price_per_layer'] = max(0, (float) $resolved['image']['price_per_layer']);
+            $resolved['image']['min_size']        = max(0, (float) $resolved['image']['min_size']);
+            $resolved['image']['max_size']        = max(0, (float) $resolved['image']['max_size']);
+            return $resolved;
+        }
         public static function spbwc_get_image_thumbnail($id, $size = 'thumbnail')
         {
             if (absint($id) != 0) {

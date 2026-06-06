@@ -101,7 +101,7 @@ if ( ! defined( 'ABSPATH' ) ) {
                                 /* translators: 1: option title, 2: option id */
                                 esc_html__( '%1$s (#%2$d)', 'storelly-product-builder-for-woocommerce' ),
                                 esc_html( $ctitle ),
-                                $cid
+                                absint( $cid )
                             );
                             ?>
                         </option>

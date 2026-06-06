@@ -246,6 +246,11 @@ if (!class_exists('SPBWC_Storelly_Product_Builder_Frontend')) {
                 $result['flag'] = 'success';
                 $result['folder'] = $pcpb_item_pb_key;
 
+                // Free design tools — count billable buyer-added layers from the
+                // saved frames (authoritative: the actual canvas objects, never a
+                // client claim) and persist counts for the cart pricing engine.
+                $this->spbwc_store_user_layer_counts($path);
+
                 // Update Database if needed
                 if ('1' === $is_creating_task && 0 !== $oid) {
                     global $wpdb; // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Global variable $wpdb.
@@ -268,6 +273,51 @@ if (!class_exists('SPBWC_Storelly_Product_Builder_Frontend')) {
             wp_send_json($result);
         }
 
+        /**
+         * Count buyer-added free layers (text/image) from the saved design.json
+         * and persist them as user-layers.json in the design folder. The cart
+         * pricing engine reads this file and multiplies by the per-layer fee from
+         * the resolved option-set config — so the charge cannot be faked from the
+         * client (counts come from the actual saved canvas objects).
+         *
+         * @param string $path Absolute path of the design folder.
+         * @return array{text:int,image:int}
+         */
+        private function spbwc_store_user_layer_counts($path)
+        {
+            $counts = array('text' => 0, 'image' => 0);
+            $design_raw = SPBWC_Storelly_IO::spbwc_get_local_file_contents($path . '/design.json');
+            if (false !== $design_raw && '' !== $design_raw) {
+                $design = json_decode($design_raw, true);
+                if (is_array($design)) {
+                    $seen = array();
+                    foreach ($design as $stage) {
+                        if (!is_array($stage) || !isset($stage['objects']) || !is_array($stage['objects'])) {
+                            continue;
+                        }
+                        foreach ($stage['objects'] as $obj) {
+                            if (!is_array($obj) || empty($obj['isUserLayer'])) {
+                                continue;
+                            }
+                            $uid = isset($obj['userLayerUid']) ? (string) $obj['userLayerUid'] : '';
+                            if ('' !== $uid) {
+                                if (isset($seen[$uid])) { continue; }
+                                $seen[$uid] = 1;
+                            }
+                            $type = isset($obj['type']) ? $obj['type'] : '';
+                            $kind = isset($obj['userLayerKind']) ? $obj['userLayerKind'] : ('textbox' === $type ? 'text' : 'image');
+                            if ('text' === $kind) {
+                                $counts['text']++;
+                            } else {
+                                $counts['image']++;
+                            }
+                        }
+                    }
+                }
+            }
+            SPBWC_Storelly_IO::spbwc_put_local_file_contents($path . '/user-layers.json', wp_json_encode($counts));
+            return $counts;
+        }
         /**
          * Helper function to sanitize file array
          * Helps keep the main function clean
@@ -531,7 +581,8 @@ if (!class_exists('SPBWC_Storelly_Product_Builder_Frontend')) {
                     ),
                     'product-builder' => array(
                         'link' => SPBWC_PB_JS_URL . 'app-product-builder.js',
-                        'version' => SPBWC_PB_VERSION,
+                        // filemtime so edits bust the browser cache automatically (no hard-refresh).
+                        'version' => ( file_exists( SPBWC_PB_ASSETS_DIR . 'js/app-product-builder.js' ) ? filemtime( SPBWC_PB_ASSETS_DIR . 'js/app-product-builder.js' ) : SPBWC_PB_VERSION ),
                         'depends' => array('jquery', 'underscore', 'pc-builderjs', 'fabricjs', 'fontfaceobserver', 'spectrum')
                     )
                 );
@@ -550,7 +601,8 @@ if (!class_exists('SPBWC_Storelly_Product_Builder_Frontend')) {
                     ),
                     'product-builder' => array(
                         'link' => SPBWC_PB_ASSETS_URL . 'css/app-product-builder.css',
-                        'version' => SPBWC_PB_VERSION,
+                        // filemtime so edits bust the browser cache automatically (no hard-refresh).
+                        'version' => ( file_exists( SPBWC_PB_ASSETS_DIR . 'css/app-product-builder.css' ) ? filemtime( SPBWC_PB_ASSETS_DIR . 'css/app-product-builder.css' ) : SPBWC_PB_VERSION ),
                         'depends' => array('spectrum', 'spbwc-tokens')
                     ),
                 );
