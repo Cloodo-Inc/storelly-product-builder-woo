@@ -290,10 +290,37 @@ if ( ! class_exists( 'SPBWC_Saved_Designs' ) ) {
                 )
             );
 
+            $use_shell = class_exists( 'SPBWC_Account_Shell' );
+            if ( $use_shell ) {
+                SPBWC_Account_Shell::open(
+                    array(
+                        'title'    => __( 'Saved designs', 'storelly-product-builder-for-woocommerce' ),
+                        'subtitle' => __( 'Reload a saved design straight into your cart.', 'storelly-product-builder-for-woocommerce' ),
+                    )
+                );
+            } else {
+                echo '<h2>' . esc_html__( 'Saved designs', 'storelly-product-builder-for-woocommerce' ) . '</h2>';
+            }
             echo '<div class="spbwc-co spbwc-saved-designs">';
-            echo '<h2>' . esc_html__( 'Saved designs', 'storelly-product-builder-for-woocommerce' ) . '</h2>';
             if ( empty( $designs ) ) {
-                echo '<p>' . esc_html__( 'You have not saved any designs yet.', 'storelly-product-builder-for-woocommerce' ) . '</p></div>';
+                if ( $use_shell ) {
+                    $shop_url = function_exists( 'wc_get_page_permalink' ) ? wc_get_page_permalink( 'shop' ) : home_url( '/' );
+                    SPBWC_Account_Shell::empty_state(
+                        array(
+                            'icon'      => '🎨',
+                            'title'     => __( 'No saved designs yet', 'storelly-product-builder-for-woocommerce' ),
+                            'text'      => __( 'Customise a product, then hit Save to keep your design here and reuse it anytime.', 'storelly-product-builder-for-woocommerce' ),
+                            'cta_label' => __( 'Browse products', 'storelly-product-builder-for-woocommerce' ),
+                            'cta_url'   => $shop_url,
+                        )
+                    );
+                } else {
+                    echo '<p>' . esc_html__( 'You have not saved any designs yet.', 'storelly-product-builder-for-woocommerce' ) . '</p>';
+                }
+                echo '</div>';
+                if ( $use_shell ) {
+                    SPBWC_Account_Shell::close();
+                }
                 return;
             }
 

@@ -46,7 +46,7 @@
     border-radius: 50%;
     cursor: pointer;
     box-shadow: 0 3px 6px rgba(0, 0, 0, .16), 0 1px 2px rgba(0, 0, 0, .23);
-    color: #404762;
+    color: var(--nbd-mb-primary, #404762);
     text-align: center;
     line-height: 40px;
 }
@@ -58,7 +58,7 @@
 }
 .nbdl-title {
     font-size: 1.75rem;
-    color: #404762;
+    color: var(--nbd-mb-primary, #404762);
     font-weight: bold;
     padding-left: 24px;
     margin-top: 30px;
@@ -102,7 +102,7 @@
 .nbdl-start-this-btn{
     margin: 8px 0 0;
     color: #fff;
-    background: #404762;
+    background: var(--nbd-mb-primary, #404762);
     width: 100%;
     visibility: hidden;
 }
@@ -259,7 +259,7 @@
 .nbdl-uf-sidebar-header h3{
     font-size: 22px;
     margin: 15px 20px 20px;
-    color: #404762;
+    color: var(--nbd-mb-primary, #404762);
     font-weight: bold;
 }
 .nbdl-uf-progress {
@@ -267,7 +267,7 @@
     width: 100%;
 }
 .nbdl-uf-progress span{
-    background-color: #404762;
+    background-color: var(--nbd-mb-primary, #404762);
     display: block;
     height: 100%;
 }
@@ -281,7 +281,7 @@
     justify-content: space-between;
 }
 .nbdl-primary-btn {
-    background: #404762 !important;
+    background: var(--nbd-mb-primary, #404762) !important;
     color: #fff !important;
 }
 .nbdl-inactive {
@@ -379,12 +379,12 @@
     display: block;
     top: 0;
     right: 15px;
-    background: #404762;
+    background: var(--nbd-mb-primary, #404762);
     border-radius: 50%;
     z-index: 1;
 }
 .nbdl-uf-sidebar-section-upload.active input[type="file"]{
-    border: 2px dashed #404762;
+    border: 2px dashed var(--nbd-mb-primary, #404762);
 }
 .nbdl-uf-sidebar-section-upload input[type="file"]:focus{
     outline: none !important;
@@ -411,7 +411,7 @@
     display: inline-block;
     border-radius: 4px;
     margin-right: 10px;
-    border: 2px solid #404762;
+    border: 2px solid var(--nbd-mb-primary, #404762);
     background: #fff;
 }
 .nbdl-guideline div{
@@ -424,7 +424,7 @@
     width: 20px;
 }
 .nbdl-guideline svg path{
-    fill: #404762;
+    fill: var(--nbd-mb-primary, #404762);
 }
 .select2-container--open {
     z-index: 9999999;
@@ -452,8 +452,8 @@
     cursor: pointer;
 }
 .nbdl-stage-switcher-btn.active {
-    border-color: #404762;
-    color: #404762;
+    border-color: var(--nbd-mb-primary, #404762);
+    color: var(--nbd-mb-primary, #404762);
 }
 .nbdl-stage-preview-area {
     flex: 1 1 auto;
@@ -526,7 +526,7 @@
 }
 .nbdl-content-design-area {
     position: absolute;
-    border: 1px dashed #404762;
+    border: 1px dashed var(--nbd-mb-primary, #404762);
     box-sizing: content-box;
 }
 .nbdl-content-design-area img {
@@ -683,11 +683,11 @@
     transform: translate(3px, 4px) rotate(-45deg);
 }
 .nbdl-realated-product-checkbox > input:checked {
-    background-color: #404762;
+    background-color: var(--nbd-mb-primary, #404762);
 }
 .nbdl-realated-product-checkbox > input:checked + span::before {
-    border-color: #404762;
-    background-color: #404762;
+    border-color: var(--nbd-mb-primary, #404762);
+    background-color: var(--nbd-mb-primary, #404762);
 }
 .nbdl-realated-product-checkbox > input:checked + span::after {
     border-color: #fff;
@@ -705,7 +705,7 @@
 }
 .nbdl-realated-product-header h3 {
     font-weight: bold;
-    color: #404762;
+    color: var(--nbd-mb-primary, #404762);
 }
 .nbdl-realated-product-color-base,
 .nbdl-realated-product-base,
@@ -791,7 +791,7 @@
     background: #fff;
     border-radius: 50%;
     box-sizing: border-box;
-    border: 1px solid #404762;
+    border: 1px solid var(--nbd-mb-primary, #404762);
     z-index: 9;
     font-family: monospace;
     text-align: center;
@@ -800,7 +800,7 @@
     cursor: pointer;
 }
 .nbdl-design-area-info-tip {
-    background: #404762;
+    background: var(--nbd-mb-primary, #404762);
     color: #fff !important;
     border-radius: 4px;
     font-size: 14px;
@@ -828,7 +828,7 @@
     content: '';
     border-left: 5px solid transparent;
     border-right: 5px solid transparent;
-    border-top: 5px solid #404762;
+    border-top: 5px solid var(--nbd-mb-primary, #404762);
     position: absolute;
     bottom: -5px;
     margin-left: -3px;

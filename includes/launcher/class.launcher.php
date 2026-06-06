@@ -159,7 +159,22 @@ class SPBWC_Marketplace{
         nbdesigner_get_template("launcher/store/tabs.php", $data);
         nbdesigner_get_template("launcher/store/{$tab}.php", $data);
         $content = ob_get_clean();
+
+        // Consistent account chrome: a shared header above the store's own tab nav
+        // (User Menu G6/M4). Falls back to bare content if the shell is unavailable.
+        $use_shell = class_exists( 'SPBWC_Account_Shell' );
+        if ( $use_shell ) {
+            SPBWC_Account_Shell::open(
+                array(
+                    'title'    => __( 'Designer Store', 'storelly-product-builder-for-woocommerce' ),
+                    'subtitle' => __( 'Manage your designs, track sales and request payouts.', 'storelly-product-builder-for-woocommerce' ),
+                )
+            );
+        }
         echo wp_kses_post( $content );
+        if ( $use_shell ) {
+            SPBWC_Account_Shell::close();
+        }
     }
     public function get_store_dashboard_data( $data ){
         $designer_id        = $data['designer_id'];
@@ -433,12 +448,41 @@ class SPBWC_Marketplace{
         // (SPBWC_Marketplace_Admin) enqueues its own assets on its own
         // page-hook gate, so this method intentionally does nothing.
     }
+    /** True only on the My-Account › my-store endpoint (designer store). */
+    public static function is_my_store_endpoint() {
+        return function_exists( 'is_wc_endpoint_url' ) && is_wc_endpoint_url( 'my-store' );
+    }
     public function frontend_enqueue_scripts(){
-        wp_register_style( 'nbd_launcher', NBDESIGNER_CSS_URL . 'launcher.css', array(), NBDESIGNER_VERSION );
-        wp_register_script( 'nbd_launcher', NBDESIGNER_JS_URL . 'launcher.js', array('jquery', 'selectWoo'), NBDESIGNER_VERSION, false );
+        // Storefront design tokens — shared across every User Menu page so
+        // launcher.css var(--nbd-mb-*) references resolve and the Designer Store
+        // matches the rest of the account portal (User Menu M3). Registered with
+        // the same handle/URL other endpoints use, so WordPress de-dupes it.
+        if ( ! wp_style_is( 'spbwc-tokens-storefront', 'registered' ) ) {
+            wp_register_style( 'spbwc-tokens-storefront', SPBWC_PB_CSS_URL . '_tokens-storefront.css', array(), SPBWC_PB_VERSION );
+        }
+        // Prefer minified builds when available (User Menu M6); falls back to source.
+        $launcher_url = class_exists( 'SPBWC_Account_Shell' )
+            ? SPBWC_Account_Shell::css_url( 'launcher' )
+            : NBDESIGNER_CSS_URL . 'launcher.css';
+        wp_register_style( 'nbd_launcher', $launcher_url, array( 'spbwc-tokens-storefront' ), NBDESIGNER_VERSION );
+        $launcher_js = class_exists( 'SPBWC_Account_Shell' )
+            ? SPBWC_Account_Shell::js_url( 'launcher' )
+            : NBDESIGNER_JS_URL . 'launcher.js';
+        wp_register_script( 'nbd_launcher', $launcher_js, array('jquery', 'selectWoo'), NBDESIGNER_VERSION, false );
 
-        if ( is_account_page() ) {
+        // Only load the designer-store popup + dashboard assets on the my-store
+        // endpoint — they were loading on EVERY My-Account page (User Menu G5).
+        if ( is_account_page() && self::is_my_store_endpoint() ) {
+            wp_enqueue_style( 'spbwc-tokens-storefront' );
             wp_enqueue_style( 'nbd_launcher' );
+            // Designer Store dashboard chrome (tabs, stat cards, settings, withdraw)
+            // — previously unstyled; now a tokenised stylesheet on the design system.
+            $store_name = ( is_rtl() ? 'launcher-store-rtl' : 'launcher-store' );
+            $store_url  = class_exists( 'SPBWC_Account_Shell' )
+                ? SPBWC_Account_Shell::css_url( $store_name )
+                : NBDESIGNER_CSS_URL . $store_name . '.css';
+            wp_register_style( 'spbwc-launcher-store', $store_url, array( 'spbwc-tokens-storefront' ), SPBWC_PB_VERSION );
+            wp_enqueue_style( 'spbwc-launcher-store' );
             wp_enqueue_script( 'nbd_launcher' );
 
             wp_localize_script( 'nbd_launcher', 'nbdl', array(

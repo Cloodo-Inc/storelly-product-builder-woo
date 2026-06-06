@@ -96,34 +96,115 @@ Plus performance: cache counts, minify+bundle storefront CSS, skeleton loaders.
 - Acceptance: fresh activate (no permalink re-save) → all endpoints resolve;
   ordering-independent. PHP lint clean. Browser/rewrite-dump verify pending.
 
-### M2 — Menu-count cache
-- Cache awaiting-quote / pending-approval counts in a 60s transient (or user-meta),
-  invalidate on quote/procurement status change.
-- Acceptance: account page-load fires 0 count queries on warm cache.
+### M2 — Menu-count cache — ✅ DONE
+- `SPBWC_Request_Quote::get_awaiting_count()` caches the awaiting-quote count per
+  user (60s transient); invalidated via `spbwc_quote_status_changed`. `false !==
+  $cached` so a cached 0 is a hit, not a re-query.
+- `SPBWC_B2B_Procurement::get_pending_count()` caches the pending-approval count
+  per company (60s); invalidated on submit + on approve/reject. Full WP_Post[]
+  fetch kept only for the queue render.
+- Verified: wp eval shows transient set + invalidation works; account menu filter
+  renders all endpoints with correct cached "Approvals (1)" badge, logout last,
+  no fatals. PHP lint clean.
 
-### M3 — Token base unification
-- Ensure every endpoint enqueues `_tokens-storefront` first.
-- Migrate `launcher.css` hardcoded colours → tokens; add `launcher-rtl` parity.
-- Acceptance: changing a `--nbd-mb-*` token visibly restyles Designer Store too.
+### M3 — Token base unification — ✅ DONE
+- Found the Designer Store (`my-store`) dashboard was **unstyled**: markup
+  (`.nbdl-nav-tab`, `.nbdl-dashboard`, `.nbdl-form`, `.nbdl-table-wrapper`…)
+  existed but NO stylesheet defined it — raw theme defaults, off-system.
+- `launcher.css` + `launcher-rtl.css`: brand navy `#404762` → `var(--nbd-mb-primary,
+  #404762)` (fallback preserves look if tokens absent) — 20 occurrences each.
+- `nbd_launcher` now depends on `spbwc-tokens-storefront` (registered with the
+  shared handle/URL so WP de-dupes) → tokens load on the my-store page, so the
+  popup + dashboard follow the design system.
+- New `launcher-store.css` (+ `-rtl`): tokenised chrome for the designer dashboard
+  — tabs, stat cards, forms, buttons, withdraw tables/pills, notification. Purely
+  additive (was unstyled) ⇒ zero regression risk. Enqueued on `is_account_page()`.
+- Acceptance: changing a `--nbd-mb-*` token now restyles the Designer Store popup
+  AND dashboard. PHP lint clean. Browser visual verify deferred to post-merge.
 
-### M4 — Account shell + template extraction
-- `templates/account/` : `shell.php` (header/breadcrumb/card), one partial per page.
-- Route each endpoint through `wc_get_template` so themes can override.
-- Reuse existing `.spbwc-rfq-*` / `.spbwc-co-*` atoms (per [[SPEC_B2B_UX_REDESIGN]]).
-- Acceptance: all 7 pages share identical chrome; theme override resolves.
+### M4 — Account shell + template extraction — ✅ DONE (infra + first adopter)
+- New `SPBWC_Account_Shell` (`includes/class-account-shell.php`): `open($args)` /
+  `close()` emit one consistent header (title, subtitle, actions slot, breadcrumb)
+  + body wrapper, and auto-enqueue the tokenised `account-shell.css`.
+- Theme-overridable templates `templates/account/shell-header.php` +
+  `shell-footer.php`, loaded via `wc_get_template( …, 'storelly/', plugin/templates )`
+  → override at `yourtheme/storelly/account/*.php`.
+- `account-shell.css` (+ `-rtl`): tokenised `.spbwc-account*` chrome.
+- Adopted on **Saved designs** (first adopter; falls back to a plain `<h2>` if the
+  shell class is absent, so it degrades safely).
+- **Opt-in by design:** Quotes / Designer Store / B2B pages adopt the shell
+  incrementally; un-adopted pages render unchanged. B2B pages were just rebuilt on
+  the shared component library (see [[SPEC_B2B_UX_REDESIGN]]) so they adopt at
+  merge to avoid clobbering that work.
+- Acceptance: shell renders shared chrome + theme override resolves; PHP lint
+  clean. Cross-page visual parity verified at merge (browser deferred).
 
-### M5 — Central menu registry
-- One `woocommerce_account_menu_items` filter; declarative item list with order +
-  group + visibility callback; remove per-class menu juggling.
-- Acceptance: stable menu order; one `customer-logout` reposition; no duplicates.
+### M5 — Central menu registry — ✅ DONE (normalizer approach)
+- `SPBWC_Account_Menu` (`includes/class-account-menu.php`) runs ONE late
+  (`priority 9999`) pass over the finished `woocommerce_account_menu_items` array:
+  pulls the known Storelly endpoints into a stable grouped order
+  (Designs → Quotes → B2B → Designer) after the core WooCommerce items, then pins
+  `customer-logout` last. Adds a `spbwc_account_menu_items` filter for extensions.
+- Chose a normalizer over rewriting all 7 per-class filters: it's authoritative
+  regardless of load order, needs no edits to the freshly-rebuilt B2B classes
+  (zero merge conflict), and duplicate keys are impossible by construction.
+- Acceptance: verified — core items keep order, Storelly items grouped in canonical
+  order, logout always last, no duplicates. PHP lint clean.
 
-### M6 — Performance build
-- Minify CSS+JS for production; bundle the 4 B2B storefront files into one.
-- Skeleton loaders for saved-designs / reorders galleries.
-- Acceptance: B2B page = 1 CSS request; gallery shows skeleton before thumbs.
+### M6 — Performance build — ✅ DONE (minify + skeleton)
+- Minified the User-Menu storefront CSS with clean-css (preserves `calc()` spacing
+  + custom-property fallbacks): `launcher`, `launcher-store`, `account-shell` (+ all
+  `-rtl`) → `.min.css` (≈22–33% smaller; launcher 19.1K→14.6K).
+- `SPBWC_Account_Shell::css_url()` prefers `.min.css` when present and `SCRIPT_DEBUG`
+  is off, falling back to source so a missing build never breaks a page. Wired into
+  the account-shell + launcher enqueues.
+- Reproducible build script `tools/build-usermenu-css.mjs` (npx clean-css, no
+  committed install) so the `.min` files can be regenerated.
+- Skeleton placeholder for the Saved-designs gallery (`account-shell.css`):
+  `aspect-ratio` reserves the square (no layout shift) + a short 3× shimmer that
+  settles without JS; honours `prefers-reduced-motion`.
+- **Deferred to merge (B2B territory):** bundling the 4 B2B storefront CSS files
+  into one request lives in `class-b2b-assets.php`, which the concurrent B2B
+  redesign is rewriting — do it at merge to avoid clobbering. Reorders gallery
+  skeleton likewise (B2B-owned render).
+- Acceptance: minified assets valid + loaded when present; gallery reserves space
+  + shimmers before thumbs. Browser/Lighthouse verify at merge.
 
 ### M7 — Compliance
 - Plugin Check 0 error; POT regen for new strings; readme externals unchanged.
+
+---
+
+## 3b. UX/UI improvement pass (G1–G6, approved 2026-06-05)
+
+A second, user-approved pass on top of M1–M6. Done on this branch for the pages
+this plugin owns (Saved designs, Quotes, Designer Store); the B2B-owned pages
+(Reorders, Approvals, Team, Brand Store) are flagged for the merge pass so the
+concurrent B2B redesign is not clobbered.
+
+- **G5 perf (✅):** `launcher.css`/`launcher.js` + dashboard CSS now load **only on
+  the `my-store` endpoint** (`SPBWC_Marketplace::is_my_store_endpoint()`) instead of
+  every account page. Minified `launcher.js` (43.9K→19.1K, −56%) and
+  `quote-storefront.js` (6.9K→3.7K) via esbuild; `SPBWC_Account_Shell::js_url()`
+  prefers `.min.js`. Build script extended to JS.
+- **G1 empty states (✅ mine):** `SPBWC_Account_Shell::empty_state()` helper +
+  `.spbwc-account__empty` CSS; friendly icon + title + sub + primary CTA on Saved
+  designs ("Browse products") and Quotes ("Request a quote"). Designer-store designs
+  + Reorders/Approvals deferred to merge.
+- **G2 sub-descriptions (✅ mine):** page subtitles via the shell on Quotes
+  ("Track your quote requests…") + Designer Store ("Manage your designs, track sales
+  and request payouts."). Withdraw min-amount already shown.
+- **G3 action/status (✅):** view-quote already had primary Accept / ghost Request-
+  changes / danger Decline + a validity countdown; added a `--urgent` countdown
+  state (≤3 days → danger colour). Approval-queue hierarchy deferred to merge (B2B).
+- **G4 mobile (✅ mine):** styled the previously-bare withdraw toggle nav; ≥44px
+  touch targets + non-wrapping scrollable tables on small screens; account-shell
+  header already responsive. B2B table data-labels deferred to merge.
+- **G6 Designer Store (✅):** wrapped the store in the shared shell (title + subtitle
+  above its own tab nav); toggle nav + balance now tokenised.
+
+**Deferred to merge (B2B territory):** empty states for Reorders/Approvals;
+approval-queue action hierarchy; B2B table→card data-labels; B2B 4-file CSS bundle.
 
 ---
 
