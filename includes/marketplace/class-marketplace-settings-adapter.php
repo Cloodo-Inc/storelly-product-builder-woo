@@ -37,10 +37,17 @@ if ( ! class_exists( 'SPBWC_Marketplace_Settings_Adapter' ) ) {
             if ( ! defined( 'SPBWC_PB_OVERVIEW_SLUG' ) ) {
                 return;
             }
+            // Legacy designer-marketplace settings page. Only surface it when the
+            // marketplace module is actually enabled — otherwise it is dead clutter
+            // that also collides with the real "B2B Companies" hub. Hidden by
+            // default (marketplace ships off); re-appears if the marketplace is on.
+            if ( function_exists( 'spbwc_marketplace_is_enabled' ) && ! spbwc_marketplace_is_enabled() ) {
+                return;
+            }
             add_submenu_page(
                 SPBWC_PB_OVERVIEW_SLUG,
-                esc_html__( 'B2B Clients', 'storelly-product-builder-for-woocommerce' ),
-                esc_html__( 'B2B Clients', 'storelly-product-builder-for-woocommerce' ),
+                esc_html__( 'Marketplace Settings', 'storelly-product-builder-for-woocommerce' ),
+                esc_html__( 'Marketplace Settings', 'storelly-product-builder-for-woocommerce' ),
                 self::CAPABILITY,
                 self::MENU_SLUG,
                 array( __CLASS__, 'render_page' )
