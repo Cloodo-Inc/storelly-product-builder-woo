@@ -165,8 +165,12 @@ buyer card + re-order/download-all.
 
 | # | Milestone | Scope | Status |
 | --- | --- | --- | --- |
-| **R1** | **Tabs + CSS + CTA (A/B/C)** | Tab panels + `custom-order-admin.{css,js}` (token-driven, enqueue on detail only); sticky CTA header; remove inline styles. | todo |
-| **R2** | **Workflow notes + perf (D/E)** | Per-tab hints + PDF legend; transient-cached customer stats; query/file-list guards. | todo |
-| **R3** | **Buyer "Your design" card (F)** | Cohesive design card + note + CTA row on My Account order detail. | todo |
-| **R4** | **Re-order + Download-all (R7)** | Admin re-order (clone → new draft order) + download-all-zip. | todo |
-| **R5** | **Polish + compliance** | `wp plugin check` 0 errors; POT; browser-verify tabs/CTA/perf on real orders. | todo |
+| **R1** | **Tabs + CSS + CTA (A/B/C)** | 6 instant client-side tabs (ARIA + hash + no-JS fallback) in `custom-order-admin.{css,js}` (token-driven, enqueued on detail only); sticky header CTA hierarchy; inline `<style>`/`style=""` removed. | **done** |
+| **R2** | **Workflow notes + perf (D/E)** | Per-tab `.spbwc-co-note` hints + PDF status legend; customer stats cached in a 5-min transient. | **done** |
+| **R3** | **Buyer "Your design" label (F)** | "Your design" caption above the View/Download chips on My Account order detail (token-styled). | **done** |
+| **R4** | **Re-order + Download-all (R7)** | Admin Re-order = clone folders → new **draft** order for the customer (OD-R1); Download all = zip of **all** design files (OD-R2), streamed then deleted. | **done** |
+| **R5** | **Polish + compliance** | `wp plugin check` 0 real errors; 12/12 render asserts; tabs/CTA browser-verified on order #1428; POT (carried). | **done** |
+
+> Built: `includes/class-custom-order-detail.php` (rewritten), `static/css/custom-order-admin.css`,
+> `static/js/custom-order-admin.js`; buyer label in `class-buyer-downloads.php` + `custom-order.css`.
+> OD-R3 = no-JS shows all panels stacked (chosen). Commit verified 2026-06-05.
