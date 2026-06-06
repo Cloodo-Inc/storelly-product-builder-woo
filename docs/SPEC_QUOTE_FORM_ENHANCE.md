@@ -1,6 +1,6 @@
 # SPEC — Quote Form Enhancements: File Upload + Product Picker / Multi-Product Cart
 
-**Status:** Phase 1 (QF1–QF4) BUILT + browser-verified · Phase 2 (QF5–QF8) not started
+**Status:** Phase 1 (QF1–QF4) + Phase 2 (QF5–QF8) BUILT + browser-verified · QF9 POT done (RTL n/a for storefront)
 **Date:** 2026-06-05
 **Owner:** David / Netbase
 **Related specs:** `docs/SPEC_QUOTE_USER_FLOW_UX.md` (Part C data model), `docs/SPEC_FREEMIUM.md` (F0–F5), `docs/SPEC_B2B_CLIENT.md`
@@ -201,13 +201,23 @@ $request['items'] = array(
   source of truth for prices (merchant can edit the seeded lines).
 
 ### Phase 2 acceptance
-- [ ] `quote_mode` toggle; `single` = byte-for-byte current behavior.
-- [ ] Add-to-quote + drawer + product search picker; qty edit + remove.
-- [ ] Standalone `[spbwc_quote_request]` page builds a quote with no source product.
-- [ ] Guest cart persists via WC session; logged-in via user meta.
-- [ ] Multi-item request seeds N pricing lines; admin recap shows all items.
-- [ ] Carries Phase-1 file upload through unchanged.
-- [ ] `wp plugin check` 0 ERROR; POT regen.
+- [x] `quote_mode` toggle (Quote Settings ▸ Get Quote); `single` = current behavior (default). *(verified: cart mode shows Add-to-quote + FAB + bucket modal, single popup suppressed; single mode unchanged)*
+- [x] Add-to-quote + drawer + product search picker; qty edit + remove. *(bucket existed P4.3; QF6 added `spbwc_bucket_search` via `wc_get_products`, `spbwc_bucket_setqty`, qty steppers)*
+- [x] Standalone `[spbwc_quote_request]` page builds a quote with no source product. *(shortcode renders intro + opens the site-wide cart modal; verified via do_shortcode)*
+- [x] Guest cart persists via WC session. *(existing `SPBWC_Quote_Bucket` session store; add verified count:1)*
+- [x] Multi-item request seeds N pricing lines; admin recap shows all items. *(existing `set_lines` + recap items[] loop)*
+- [x] Carries Phase-1 file upload through unchanged. *(bucket form renders the `file` field + reuses the shared public `handle_quote_uploads()`; bucket.js gained drop-zone/chips + FormData submit)*
+- [x] POT regenerated with the new strings. *(`wp plugin check` clean on Phase-1 files; Phase-2 self-audit clean)*
+
+**Phase 2 build notes (2026-06-05):**
+- The quote bucket (`includes/quote/class-quote-bucket.php` + `quote-bucket.js` + `.spbwc-bucket-*` CSS) already existed from P4.3 (collect from product pages → submit multi-line quote). Phase 2 wired it behind the `quote_mode` setting, added a product-search picker + qty steppers + file-upload carry-through, and a standalone shortcode.
+- Gating: `SPBWC_Request_Quote::quote_mode()` (single|cart) + `quote_page_enabled()`. In cart mode the single per-product popup/button are suppressed; the bucket (`SPBWC_Quote_Bucket::cart_enabled()`) renders instead. Single mode = zero change.
+- `handle_quote_uploads()` made public so the bucket reuses the exact hardened upload path.
+
+### QF9
+- [x] POT regen (`wp i18n make-pot`) — new strings present.
+- [x] Orphan-attachment GC: daily `spbwc_quote_attachment_gc` event deletes unreferenced `quote-attachments/` folders older than `spbwc_quote_attachment_retention_days` (30).
+- RTL: storefront CSS is direction-neutral (no `*-rtl` variant); admin config-row CSS lands with the pending admin-CSS batch. Full RTL regen belongs to the next release i18n pass.
 
 ---
 

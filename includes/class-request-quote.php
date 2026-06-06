@@ -44,6 +44,12 @@ if ( ! class_exists( 'SPBWC_Request_Quote' ) ) {
 
             // Remove uploaded attachment files when a quote is permanently deleted.
             add_action( 'before_delete_post', array( $this, 'cleanup_quote_attachments' ) );
+
+            // Daily GC for orphaned guest attachment folders (QF9).
+            add_action( 'spbwc_quote_attachment_gc', array( $this, 'gc_orphan_attachments' ) );
+            if ( ! wp_next_scheduled( 'spbwc_quote_attachment_gc' ) ) {
+                wp_schedule_event( time() + HOUR_IN_SECONDS, 'daily', 'spbwc_quote_attachment_gc' );
+            }
         }
 
         /** Subdir (under the quote-attachments folder) used by the in-flight upload. */
@@ -103,6 +109,23 @@ if ( ! class_exists( 'SPBWC_Request_Quote' ) ) {
         }
 
         /**
+         * Request flow: 'single' (per-product popup, default) or 'cart'
+         * (multi-product quote bucket). QF5.
+         *
+         * @return string single|cart
+         */
+        public static function quote_mode() {
+            $s = get_option( 'spbwc_quote_settings', array() );
+            return ( isset( $s['quote_mode'] ) && 'cart' === $s['quote_mode'] ) ? 'cart' : 'single';
+        }
+
+        /** Whether the standalone [spbwc_quote_request] page is enabled. */
+        public static function quote_page_enabled() {
+            $s = get_option( 'spbwc_quote_settings', array() );
+            return isset( $s['enable_quote_page'] ) && 'yes' === $s['enable_quote_page'];
+        }
+
+        /**
          * Resolve the effective D3 display mode for a product.
          *
          * @param int $product_id Product ID.
@@ -129,7 +152,7 @@ if ( ! class_exists( 'SPBWC_Request_Quote' ) ) {
 
         /** "Both" mode — button rendered inside the add-to-cart form. */
         public function render_quote_button() {
-            if ( ! is_product() ) {
+            if ( ! is_product() || 'cart' === self::quote_mode() ) {
                 return;
             }
             global $product; // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- WooCommerce global variable.
@@ -144,7 +167,7 @@ if ( ! class_exists( 'SPBWC_Request_Quote' ) ) {
          * the button is rendered standalone in the product summary.
          */
         public function render_quote_button_standalone() {
-            if ( ! is_product() ) {
+            if ( ! is_product() || 'cart' === self::quote_mode() ) {
                 return;
             }
             global $product; // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- WooCommerce global variable.
@@ -355,7 +378,7 @@ if ( ! class_exists( 'SPBWC_Request_Quote' ) ) {
         }
 
         public function render_quote_popup() {
-            if ( ! is_product() ) {
+            if ( ! is_product() || 'cart' === self::quote_mode() ) {
                 return;
             }
             global $product; // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- WooCommerce global variable.
@@ -635,7 +658,7 @@ if ( ! class_exists( 'SPBWC_Request_Quote' ) ) {
          * @param array $schema Form-field schema (from get_form_fields()).
          * @return array{attachments:array,errors:array<string,string>}
          */
-        protected function handle_quote_uploads( $schema ) {
+        public function handle_quote_uploads( $schema ) {
             $attachments = array();
             $errors      = array();
 
@@ -966,6 +989,75 @@ if ( ! class_exists( 'SPBWC_Request_Quote' ) ) {
             }
             foreach ( array_keys( $dirs ) as $rel_dir ) {
                 $this->remove_attachment_dir( $rel_dir );
+            }
+        }
+
+        /**
+         * Daily GC: delete attachment folders not referenced by any quote and
+         * older than the retention window (QF9). Guards against orphans left by
+         * an interrupted upload; referenced folders are always kept.
+         */
+        public function gc_orphan_attachments() {
+            $base = SPBWC_PB_UPLOAD_DIR . '/quote-attachments';
+            if ( ! is_dir( $base ) ) {
+                return;
+            }
+            $retain = (int) apply_filters( 'spbwc_quote_attachment_retention_days', 30 );
+            $cutoff = time() - max( 1, $retain ) * DAY_IN_SECONDS;
+
+            // Collect folders still referenced by a quote's request payload.
+            $referenced = array();
+            $quotes     = get_posts(
+                array(
+                    'post_type'      => SPBWC_Quote::POST_TYPE,
+                    'post_status'    => array_keys( SPBWC_Quote::statuses() ),
+                    'posts_per_page' => -1,
+                    'fields'         => 'ids',
+                    'no_found_rows'  => true,
+                )
+            );
+            foreach ( (array) $quotes as $qid ) {
+                $req = get_post_meta( $qid, SPBWC_Quote::META_REQUEST, true );
+                if ( ! is_array( $req ) || empty( $req['attachments'] ) || ! is_array( $req['attachments'] ) ) {
+                    continue;
+                }
+                foreach ( $req['attachments'] as $a ) {
+                    if ( ! empty( $a['file'] ) ) {
+                        $referenced[ dirname( ltrim( (string) $a['file'], '/' ) ) ] = true;
+                    }
+                }
+            }
+
+            $entries = scandir( $base );
+            if ( ! is_array( $entries ) ) {
+                return;
+            }
+            foreach ( $entries as $entry ) {
+                if ( '.' === $entry || '..' === $entry ) {
+                    continue;
+                }
+                $dir = $base . '/' . $entry;
+                if ( ! is_dir( $dir ) ) {
+                    continue;
+                }
+                $rel = 'quote-attachments/' . $entry;
+                if ( isset( $referenced[ $rel ] ) ) {
+                    continue;
+                }
+                $mtime = @filemtime( $dir ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+                if ( $mtime && $mtime > $cutoff ) {
+                    continue; // Too new — may be an in-flight upload.
+                }
+                $files = scandir( $dir );
+                if ( is_array( $files ) ) {
+                    foreach ( $files as $f ) {
+                        if ( '.' === $f || '..' === $f ) {
+                            continue;
+                        }
+                        wp_delete_file( $dir . '/' . $f );
+                    }
+                }
+                @rmdir( $dir ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged, WordPress.WP.AlternativeFunctions.file_system_operations_rmdir -- Best-effort cleanup of our own empty folder.
             }
         }
 

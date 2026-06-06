@@ -1238,11 +1238,18 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
                 if ( ! in_array( $posted_pos, array( 'bottom-right', 'bottom-left', 'top-right', 'top-left' ), true ) ) {
                     $posted_pos = 'bottom-right';
                 }
+                $posted_quote_mode = isset( $_POST['quote_mode'] ) ? sanitize_key( wp_unslash( $_POST['quote_mode'] ) ) : 'single'; // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce checked above.
+                if ( ! in_array( $posted_quote_mode, array( 'single', 'cart' ), true ) ) {
+                    $posted_quote_mode = 'single';
+                }
                 $settings = array(
                     'enable_quote'      => isset( $_POST['enable_quote'] ) ? sanitize_text_field( wp_unslash( $_POST['enable_quote'] ) ) : 'no', // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce checked above.
                     'admin_email'       => isset( $_POST['admin_email'] ) ? sanitize_email( wp_unslash( $_POST['admin_email'] ) ) : '', // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce checked above.
                     'success_message'   => isset( $_POST['success_message'] ) ? sanitize_textarea_field( wp_unslash( $_POST['success_message'] ) ) : '', // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce checked above.
                     'display_mode'      => $posted_mode,
+                    // Quote request flow (QF5): single-product modal vs multi-product quote cart.
+                    'quote_mode'        => $posted_quote_mode,
+                    'enable_quote_page' => isset( $_POST['enable_quote_page'] ) ? 'yes' : 'no', // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce checked above.
                     'terms_url'         => isset( $_POST['terms_url'] ) ? esc_url_raw( wp_unslash( $_POST['terms_url'] ) ) : '', // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce checked above.
                     // Site-wide floating "Request a Quote" badge (M6).
                     'enable_quote_badge'   => isset( $_POST['enable_quote_badge'] ) ? 'yes' : 'no', // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce checked above.
@@ -1333,6 +1340,8 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
             $admin_email = isset( $settings['admin_email'] ) ? $settings['admin_email'] : get_option( 'admin_email' );
             $success_message = isset( $settings['success_message'] ) ? $settings['success_message'] : __( 'Your quote request has been sent successfully.', 'storelly-product-builder-for-woocommerce' );
             $display_mode = isset( $settings['display_mode'] ) ? $settings['display_mode'] : 'both';
+            $quote_mode   = ( isset( $settings['quote_mode'] ) && 'cart' === $settings['quote_mode'] ) ? 'cart' : 'single';
+            $enable_quote_page = isset( $settings['enable_quote_page'] ) ? $settings['enable_quote_page'] : 'no';
             $terms_url    = isset( $settings['terms_url'] ) ? $settings['terms_url'] : '';
             $enable_quote_badge   = isset( $settings['enable_quote_badge'] ) ? $settings['enable_quote_badge'] : 'yes';
             $quote_badge_position = isset( $settings['quote_badge_position'] ) ? $settings['quote_badge_position'] : 'bottom-right';
@@ -1460,6 +1469,34 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
                                         </select>
                                     </div>
                                     <p class="spbwc-setting-row__hint"><?php esc_html_e( 'How quote-enabled products appear by default. Each product can override this in its Storelly settings.', 'storelly-product-builder-for-woocommerce' ); ?></p>
+                                </div>
+                                <!-- Quote request flow (QF5): single product vs multi-product cart -->
+                                <div class="spbwc-setting-row">
+                                    <div class="spbwc-setting-row__label">
+                                        <label for="spbwc_quote_mode"><?php esc_html_e( 'Request flow', 'storelly-product-builder-for-woocommerce' ); ?></label>
+                                    </div>
+                                    <div class="spbwc-setting-row__control">
+                                        <select id="spbwc_quote_mode" name="quote_mode" class="spbwc-input" style="width:340px;">
+                                            <option value="single" <?php selected( $quote_mode, 'single' ); ?>><?php esc_html_e( 'Single product — one quote per product page', 'storelly-product-builder-for-woocommerce' ); ?></option>
+                                            <option value="cart" <?php selected( $quote_mode, 'cart' ); ?>><?php esc_html_e( 'Quote cart — collect several products into one request', 'storelly-product-builder-for-woocommerce' ); ?></option>
+                                        </select>
+                                    </div>
+                                    <p class="spbwc-setting-row__hint"><?php esc_html_e( 'Single keeps the per-product quote popup. Quote cart shows an "Add to quote" action and a floating list so buyers can request several products at once.', 'storelly-product-builder-for-woocommerce' ); ?></p>
+                                </div>
+                                <!-- Standalone Request-a-Quote page (shortcode) -->
+                                <div class="spbwc-setting-row">
+                                    <div class="spbwc-setting-row__label">
+                                        <?php esc_html_e( 'Standalone quote page', 'storelly-product-builder-for-woocommerce' ); ?>
+                                    </div>
+                                    <div class="spbwc-setting-row__control">
+                                        <label class="spbwc-radio-group__option">
+                                            <input type="checkbox" name="enable_quote_page" value="yes" <?php checked( $enable_quote_page, 'yes' ); ?> />
+                                            <span class="spbwc-radio-group__lbl"><?php esc_html_e( 'Enable the [spbwc_quote_request] shortcode for a build-from-scratch quote page', 'storelly-product-builder-for-woocommerce' ); ?></span>
+                                        </label>
+                                    </div>
+                                    <p class="spbwc-setting-row__hint">
+                                        <?php esc_html_e( 'Place the shortcode [spbwc_quote_request] on any page to let buyers search products and build a quote without starting from a product page. Works with Quote cart mode.', 'storelly-product-builder-for-woocommerce' ); ?>
+                                    </p>
                                 </div>
                                 <!-- Terms & Conditions URL (shown on the buyer Accept step) -->
                                 <div class="spbwc-setting-row">
