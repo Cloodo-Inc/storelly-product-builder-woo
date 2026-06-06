@@ -96,6 +96,10 @@ $plan_benefits = $is_free
             </div>
         </div>
     </header>
+    <?php // Mark the header end early so WP relocates admin notices BELOW the hero
+          // band instead of injecting them right after the hero's <h1> (which
+          // would stack them inside the blue gradient). ?>
+    <hr class="wp-header-end" />
 
     <?php
     // ============ Getting started (Welcome mode) ============
@@ -562,30 +566,8 @@ $plan_benefits = $is_free
         SPBWC_I18n_Notice::render_language_widget();
     } ?>
 
-    <?php if ( $is_free ) : ?>
-        <div class="spbwc-notice-banner spbwc-notice-banner--warn" role="status">
-            <span class="dashicons dashicons-star-filled" aria-hidden="true"></span>
-            <div class="spbwc-notice-banner__body">
-                <div class="spbwc-notice-banner__title">
-                    <?php esc_html_e( 'You\'re on the Free plan', 'storelly-product-builder-for-woocommerce' ); ?>
-                </div>
-                <div class="spbwc-notice-banner__text">
-                    <?php
-                    printf(
-                        /* translators: %s: URL to license page */
-                        wp_kses(
-                            /* translators: %s: URL to license page */
-                            __( 'Add a Storelly Cloud plan to enable print-ready PDF rendering, order sync and dashboard analytics. <a href="%s">See Cloud plans</a>. Your existing builder, quotes and custom orders stay free and unchanged.', 'storelly-product-builder-for-woocommerce' ),
-                            array( 'a' => array( 'href' => array() ) )
-                        ),
-                        esc_url( $license_url )
-                    );
-                    ?>
-                </div>
-            </div>
-        </div>
-    <?php endif; ?>
-
+    <!-- ============ License hero (already conveys Free plan + upgrade, so no
+         separate "You're on the Free plan" banner is needed above it) ======== -->
     <!-- ============ License hero ============ -->
     <!-- Free plan → brand-blue gradient (encourages upgrade).      -->
     <!-- Paid plan → royal-gold gradient (luxurious "premium" feel).-->
@@ -1044,10 +1026,6 @@ $plan_benefits = $is_free
                         <span class="dashicons dashicons-art" aria-hidden="true"></span>
                         <?php esc_html_e( 'Customer designs', 'storelly-product-builder-for-woocommerce' ); ?>
                     </h3>
-                    <span class="spbwc-block__pro-badge" title="<?php esc_attr_e( 'Premium feature', 'storelly-product-builder-for-woocommerce' ); ?>">
-                        <span class="dashicons dashicons-star-filled" aria-hidden="true"></span>
-                        <?php esc_html_e( 'Pro', 'storelly-product-builder-for-woocommerce' ); ?>
-                    </span>
                 </header>
                 <div class="spbwc-block__body">
                     <div class="spbwc-empty-state">
@@ -1056,14 +1034,12 @@ $plan_benefits = $is_free
                         </div>
                         <div class="spbwc-empty-state__title"><?php esc_html_e( 'No saved designs yet', 'storelly-product-builder-for-woocommerce' ); ?></div>
                         <p class="spbwc-empty-state__text">
-                            <?php esc_html_e( 'Print-ready design files customers create with the Storelly designer canvas will be listed here for download and review.', 'storelly-product-builder-for-woocommerce' ); ?>
+                            <?php esc_html_e( 'Print-ready design files customers create with the Storelly designer canvas appear here for download and review.', 'storelly-product-builder-for-woocommerce' ); ?>
                         </p>
-                        <?php if ( $is_free ) : ?>
-                            <a class="spbwc-cta-btn spbwc-cta-btn--solid" href="<?php echo esc_url( $license_url ); ?>">
-                                <span class="dashicons dashicons-superhero-alt" aria-hidden="true"></span>
-                                <?php esc_html_e( 'Upgrade to unlock', 'storelly-product-builder-for-woocommerce' ); ?>
-                            </a>
-                        <?php endif; ?>
+                        <a class="spbwc-cta-btn spbwc-cta-btn--solid" href="<?php echo esc_url( admin_url( 'admin.php?page=' . SPBWC_PB_ORDERS_SLUG ) ); ?>">
+                            <span class="dashicons dashicons-arrow-right-alt2" aria-hidden="true"></span>
+                            <?php esc_html_e( 'View order designs', 'storelly-product-builder-for-woocommerce' ); ?>
+                        </a>
                     </div>
                 </div>
                 <footer class="spbwc-block__foot">
@@ -1081,10 +1057,6 @@ $plan_benefits = $is_free
                         <span class="dashicons dashicons-layout" aria-hidden="true"></span>
                         <?php esc_html_e( 'Design templates', 'storelly-product-builder-for-woocommerce' ); ?>
                     </h3>
-                    <span class="spbwc-block__pro-badge" title="<?php esc_attr_e( 'Premium feature', 'storelly-product-builder-for-woocommerce' ); ?>">
-                        <span class="dashicons dashicons-star-filled" aria-hidden="true"></span>
-                        <?php esc_html_e( 'Pro', 'storelly-product-builder-for-woocommerce' ); ?>
-                    </span>
                 </header>
                 <div class="spbwc-block__body">
                     <div class="spbwc-empty-state">
@@ -1093,19 +1065,12 @@ $plan_benefits = $is_free
                         </div>
                         <div class="spbwc-empty-state__title"><?php esc_html_e( 'No templates yet', 'storelly-product-builder-for-woocommerce' ); ?></div>
                         <p class="spbwc-empty-state__text">
-                            <?php esc_html_e( 'Reusable design templates speed up customer customization. Import from the Storelly marketplace or create your own.', 'storelly-product-builder-for-woocommerce' ); ?>
+                            <?php esc_html_e( 'Reusable design templates speed up customer customization. Create your own or import from the Storelly marketplace.', 'storelly-product-builder-for-woocommerce' ); ?>
                         </p>
-                        <?php if ( $is_free ) : ?>
-                            <a class="spbwc-cta-btn spbwc-cta-btn--solid" href="<?php echo esc_url( $license_url ); ?>">
-                                <span class="dashicons dashicons-superhero-alt" aria-hidden="true"></span>
-                                <?php esc_html_e( 'Upgrade to unlock', 'storelly-product-builder-for-woocommerce' ); ?>
-                            </a>
-                        <?php else : ?>
-                            <a class="spbwc-cta-btn spbwc-cta-btn--solid" href="https://storelly.com/marketplace" target="_blank" rel="noopener">
-                                <span class="dashicons dashicons-download" aria-hidden="true"></span>
-                                <?php esc_html_e( 'Browse marketplace', 'storelly-product-builder-for-woocommerce' ); ?>
-                            </a>
-                        <?php endif; ?>
+                        <a class="spbwc-cta-btn spbwc-cta-btn--solid" href="<?php echo esc_url( admin_url( 'admin.php?page=' . SPBWC_PB_TEMPLATE_LIBRARY_SLUG ) ); ?>">
+                            <span class="dashicons dashicons-layout" aria-hidden="true"></span>
+                            <?php esc_html_e( 'Open templates', 'storelly-product-builder-for-woocommerce' ); ?>
+                        </a>
                     </div>
                 </div>
                 <footer class="spbwc-block__foot">
@@ -1247,6 +1212,26 @@ $plan_benefits = $is_free
                 <div class="spbwc-quick-card__footer">
                     <span class="spbwc-cta-btn">
                         <?php esc_html_e( 'Open settings', 'storelly-product-builder-for-woocommerce' ); ?>
+                        <span class="dashicons dashicons-arrow-right-alt2" aria-hidden="true"></span>
+                    </span>
+                </div>
+            </a>
+
+            <a class="spbwc-quick-card" href="<?php echo esc_url( admin_url( 'admin.php?page=' . ( defined( 'SPBWC_PB_EMAILS_SLUG' ) ? SPBWC_PB_EMAILS_SLUG : 'storelly-product-builder-for-woocommerce-emails' ) ) ); ?>">
+                <div class="spbwc-quick-card__head">
+                    <div class="spbwc-quick-card__icon">
+                        <span class="dashicons dashicons-email-alt" aria-hidden="true"></span>
+                    </div>
+                    <h3 class="spbwc-quick-card__title">
+                        <?php esc_html_e( 'Emails', 'storelly-product-builder-for-woocommerce' ); ?>
+                    </h3>
+                </div>
+                <p class="spbwc-quick-card__desc">
+                    <?php esc_html_e( 'Customize the emails sent for quotes, orders and design proofs — subjects, content, and your store sender details.', 'storelly-product-builder-for-woocommerce' ); ?>
+                </p>
+                <div class="spbwc-quick-card__footer">
+                    <span class="spbwc-cta-btn">
+                        <?php esc_html_e( 'Manage emails', 'storelly-product-builder-for-woocommerce' ); ?>
                         <span class="dashicons dashicons-arrow-right-alt2" aria-hidden="true"></span>
                     </span>
                 </div>

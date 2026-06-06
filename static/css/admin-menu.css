@@ -1,0 +1,60 @@
+/**
+ * Storelly admin menu polish (U0).
+ *
+ * Loads on every admin page (the Storelly menu is global chrome), so values
+ * are self-contained with token names documented as fallbacks — the design
+ * tokens stylesheet is not guaranteed to be enqueued outside Storelly screens.
+ */
+
+/* === Section headings (BUILD / SELL / CONFIGURE) ============== */
+/* The reorder injects fake submenu items whose slug starts with   */
+/* "spbwc-sep-"; turn them into non-clickable band labels.         */
+#adminmenu .wp-submenu a[href*="spbwc-sep-"] {
+	pointer-events: none;
+	cursor: default;
+	margin-top: 7px;
+	padding-top: 9px !important;
+	border-top: 1px solid rgba(255, 255, 255, 0.10);
+	color: #9ea3a8 !important;                 /* ~ --nbd-st-text-mute */
+	font-size: 10px;
+	font-weight: 700;                          /* --font-bold */
+	letter-spacing: 0.08em;                    /* --st-tracking-caps */
+	text-transform: uppercase;
+	opacity: 0.85;
+}
+
+/* First heading: no top divider (sits right under Overview). */
+#adminmenu .wp-submenu li:first-child a[href*="spbwc-sep-"] {
+	border-top: 0;
+	margin-top: 2px;
+}
+
+#adminmenu .wp-submenu a[href*="spbwc-sep-"]:hover,
+#adminmenu .wp-submenu a[href*="spbwc-sep-"]:focus {
+	color: #9ea3a8 !important;
+	background: transparent !important;
+	box-shadow: none !important;
+}
+
+.spbwc-nav-heading {
+	pointer-events: none;
+}
+
+/* === Count badge (standardized) ============================== */
+/* Reuse WP's bubble footprint but on the Storelly accent so order */
+/* / quote / approval counts read consistently across the menu.    */
+#adminmenu .wp-submenu .spbwc-menu-count {
+	display: inline-block;
+	min-width: 17px;
+	height: 17px;
+	margin: -1px 0 0 4px;
+	padding: 0 5px;
+	border-radius: 9999px;                     /* --nbd-radius-pill */
+	background: #f59e0b;                        /* --st-accent */
+	color: #2d1f00;                            /* --st-gold-text-on */
+	font-size: 10px;
+	font-weight: 700;
+	line-height: 17px;
+	text-align: center;
+	vertical-align: top;
+}
