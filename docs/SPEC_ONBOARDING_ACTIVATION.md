@@ -250,6 +250,33 @@ yc #9 (My Account endpoint) gài kèm M1 (đăng ký endpoint lúc activate).
 > idempotent → undo sạch product/option/attachments). Đã sửa bug nhỏ trong `fetch_demo_rows` không cần —
 > seeder là đường riêng, không đụng remote path.
 
+### M9.1b — Auto-install bag demo lúc activate (DRAFT)  ✅ DONE (2026-06-06)
+> **Vấn đề (user, 2026-06-06):** cài plugin xong KHÔNG thấy tự import Visual Builder của bag sample —
+> seeder chỉ chạy khi bấm tay card Welcome, trong khi B2B/Quote sample tự cài lúc activate. Data Visual
+> Builder (`nbpb_com` + `views` + ảnh vải) ĐÃ có sẵn trong bundle; thiếu mỗi trigger.
+>
+> **Chốt hướng (user):** auto-install nhưng để **draft** (không lên storefront công khai cho tới khi
+> merchant tự publish) — an toàn về mặt "tự tạo nội dung public".
+>
+> **Cơ chế** (mirror `SPBWC_B2B_Sample`):
+> - `SPBWC_Demo_Seeder::arm()` gọi trong activation hook → set `spbwc_demo_seed_pending`.
+> - `maybe_seed()` trên `admin_init`: chạy ĐÚNG MỘT LẦN ở admin load đầu tiên khi WooCommerce + actor
+>   `manage_woocommerce` sẵn sàng; `seed('draft')`. Guard `spbwc_demo_autoseeded` (one-shot) để merchant
+>   Undo không bị re-seed; nếu demo đã tồn tại (bấm card trước) thì chỉ retire pending, không tạo trùng.
+> - `seed( $status = 'publish' )`: thêm tham số status — card Welcome thủ công vẫn **publish** như cũ;
+>   auto-seed dùng **draft**.
+> - `publish()` + AJAX `spbwc_demo_publish` (nonce+cap): flip product draft→publish, trả `view_url`.
+> - `seeded_status()`: trả post_status để UI phân nhánh.
+> - **Notice** sau auto-seed (`autoseeded_notice`, dismissible): "demo imported as draft" + nút
+>   "Preview & publish demo" → Overview.
+> - **Welcome card** (`views/overview.php`) status-aware: seeded+draft → "Your demo is ready to go live"
+>   + "Publish & view" (`#spbwc-demo-publish`) + "Open in builder" (edit link) + "Remove demo"; seeded+publish
+>   → card "live" cũ ("View on store"); chưa seed → "Add demo product"; bundle vắng → fallback remote.
+>
+> Test: `tools/_test-demo-draft.php` PASS (10/10 — `seeded_status` draft/publish · `publish()` flip +
+> view_url · `arm()`/`maybe_seed()` one-shot guard, không tạo trùng). Full seed path không đổi (chỉ thêm
+> tham số status mặc định `publish`). Compliance: vẫn 0 mạng, nonce+cap đủ, draft = không public.
+
 ### (cũ) M9.1 — phân tích ban đầu
 - **Gap:** CTA "Fastest / See it live with demo products" (`views/overview.php:141`) dẫn tới sample
   import, nhưng `fetch_demo_rows()` chỉ `wp_remote_get( DEMO_DATA_URL )`

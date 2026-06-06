@@ -126,6 +126,10 @@ $plan_benefits = $is_free
         $spbwc_demo_seeded = $spbwc_demo_avail && SPBWC_Demo_Seeder::is_seeded();
         $spbwc_demo_state  = $spbwc_demo_seeded ? (array) get_option( 'spbwc_demo_seeded', array() ) : array();
         $spbwc_demo_view   = ! empty( $spbwc_demo_state['product_id'] ) ? get_permalink( (int) $spbwc_demo_state['product_id'] ) : '';
+        $spbwc_demo_edit   = ! empty( $spbwc_demo_state['product_id'] ) ? get_edit_post_link( (int) $spbwc_demo_state['product_id'], '' ) : '';
+        // Auto-seeded demos land as drafts; the card then offers Publish instead
+        // of a (dead) "View on store" link.
+        $spbwc_demo_draft  = $spbwc_demo_seeded && 'publish' !== SPBWC_Demo_Seeder::seeded_status();
         $spbwc_demo_nonce  = wp_create_nonce( 'spbwc_demo_seed' );
     ?>
     <section class="spbwc-welcome" aria-labelledby="spbwc-welcome-title">
@@ -150,8 +154,34 @@ $plan_benefits = $is_free
 
         <div class="spbwc-welcome__cards">
             <!-- Fastest path — leads on purpose. -->
-            <?php if ( $spbwc_demo_seeded ) : ?>
-            <!-- Demo already installed: offer a quick look + a clean remove. -->
+            <?php if ( $spbwc_demo_seeded && $spbwc_demo_draft ) : ?>
+            <!-- Auto-installed as a draft: preview the builder, then publish live. -->
+            <div class="spbwc-welcome-card spbwc-welcome-card--primary spbwc-welcome-card--done" id="spbwc-demo-card-done" data-nonce="<?php echo esc_attr( $spbwc_demo_nonce ); ?>">
+                <span class="spbwc-welcome-card__flag"><?php esc_html_e( 'Demo ready', 'storelly-product-builder-for-woocommerce' ); ?></span>
+                <div class="spbwc-welcome-card__icon">
+                    <span class="dashicons dashicons-archive" aria-hidden="true"></span>
+                </div>
+                <h3 class="spbwc-welcome-card__title">
+                    <?php esc_html_e( 'Your demo is ready to go live', 'storelly-product-builder-for-woocommerce' ); ?>
+                </h3>
+                <p class="spbwc-welcome-card__desc">
+                    <?php esc_html_e( 'We imported a ready-made customizable product with its Visual Builder as a draft. Publish it to show the builder on your storefront.', 'storelly-product-builder-for-woocommerce' ); ?>
+                </p>
+                <button type="button" class="spbwc-cta-btn spbwc-cta-btn--solid" id="spbwc-demo-publish">
+                    <span class="dashicons dashicons-yes" aria-hidden="true"></span>
+                    <?php esc_html_e( 'Publish & view', 'storelly-product-builder-for-woocommerce' ); ?>
+                </button>
+                <?php if ( $spbwc_demo_edit ) : ?>
+                <a class="spbwc-cta-btn spbwc-cta-btn--link" href="<?php echo esc_url( $spbwc_demo_edit ); ?>">
+                    <?php esc_html_e( 'Open in builder', 'storelly-product-builder-for-woocommerce' ); ?>
+                </a>
+                <?php endif; ?>
+                <button type="button" class="spbwc-cta-btn spbwc-cta-btn--link" id="spbwc-demo-remove">
+                    <?php esc_html_e( 'Remove demo', 'storelly-product-builder-for-woocommerce' ); ?>
+                </button>
+            </div>
+            <?php elseif ( $spbwc_demo_seeded ) : ?>
+            <!-- Demo already published: offer a quick look + a clean remove. -->
             <div class="spbwc-welcome-card spbwc-welcome-card--primary spbwc-welcome-card--done" id="spbwc-demo-card-done" data-nonce="<?php echo esc_attr( $spbwc_demo_nonce ); ?>">
                 <span class="spbwc-welcome-card__flag"><?php esc_html_e( 'Demo added', 'storelly-product-builder-for-woocommerce' ); ?></span>
                 <div class="spbwc-welcome-card__icon">
@@ -269,6 +299,26 @@ $plan_benefits = $is_free
                     });
                 });
             }
+            $('#spbwc-demo-publish').on('click', function(){
+                var $b = $(this);
+                if ( $b.hasClass('is-loading') ) { return; }
+                $b.addClass('is-loading').prop('disabled', true)
+                  .html('<span class="dashicons dashicons-update" aria-hidden="true"></span> <?php echo esc_js( __( 'Publishing…', 'storelly-product-builder-for-woocommerce' ) ); ?>');
+                $.post(ajaxurl, { action:'spbwc_demo_publish', nonce: $('#spbwc-demo-card-done').data('nonce') }, function(res){
+                    if ( res && res.success && res.data && res.data.view_url ) {
+                        window.open(res.data.view_url, '_blank', 'noopener');
+                        location.reload();
+                    } else {
+                        alert( (res && res.data && res.data.message) ? res.data.message : fail );
+                        $b.removeClass('is-loading').prop('disabled', false)
+                          .html('<span class="dashicons dashicons-yes" aria-hidden="true"></span> <?php echo esc_js( __( 'Publish & view', 'storelly-product-builder-for-woocommerce' ) ); ?>');
+                    }
+                }).fail(function(){
+                    alert(fail);
+                    $b.removeClass('is-loading').prop('disabled', false)
+                      .html('<span class="dashicons dashicons-yes" aria-hidden="true"></span> <?php echo esc_js( __( 'Publish & view', 'storelly-product-builder-for-woocommerce' ) ); ?>');
+                });
+            });
             $('#spbwc-demo-remove').on('click', function(){
                 if ( ! window.confirm('<?php echo esc_js( __( 'Remove the demo product and its images?', 'storelly-product-builder-for-woocommerce' ) ); ?>') ) { return; }
                 var $b = $(this).prop('disabled', true);

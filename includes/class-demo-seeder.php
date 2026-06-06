@@ -43,9 +43,90 @@ if ( ! class_exists( 'SPBWC_Demo_Seeder' ) ) {
 		/** AJAX nonce action. */
 		const NONCE = 'spbwc_demo_seed';
 
+		/** Set by the activation hook; consumed on the next admin load. */
+		const OPTION_PENDING = 'spbwc_demo_seed_pending';
+
+		/** One-shot guard so a merchant Undo never re-triggers the auto-seed. */
+		const OPTION_AUTODONE = 'spbwc_demo_autoseeded';
+
 		public static function init() {
 			add_action( 'wp_ajax_spbwc_demo_seed', array( __CLASS__, 'ajax_seed' ) );
 			add_action( 'wp_ajax_spbwc_demo_undo', array( __CLASS__, 'ajax_undo' ) );
+			add_action( 'wp_ajax_spbwc_demo_publish', array( __CLASS__, 'ajax_publish' ) );
+			add_action( 'admin_init', array( __CLASS__, 'maybe_seed' ) );
+		}
+
+		/**
+		 * Called from the plugin activation hook — just arms the auto-seeder. The
+		 * heavy lifting (CPT + media sideload) is deferred to the first admin load
+		 * where WooCommerce and a capable actor are guaranteed available.
+		 */
+		public static function arm() {
+			update_option( self::OPTION_PENDING, 1, false );
+		}
+
+		/**
+		 * Auto-install the bundled bag demo ONCE, on the first authenticated admin
+		 * load after activation. Unlike the explicit Welcome-card seed (which
+		 * publishes), this imports the product as a DRAFT so nothing goes live on
+		 * the storefront until the merchant publishes it. Mirrors SPBWC_B2B_Sample.
+		 */
+		public static function maybe_seed() {
+			if ( ! get_option( self::OPTION_PENDING ) ) {
+				return;
+			}
+			// Already auto-seeded once — survive a later merchant Undo.
+			if ( get_option( self::OPTION_AUTODONE ) ) {
+				delete_option( self::OPTION_PENDING );
+				return;
+			}
+			if ( ! class_exists( 'WooCommerce' ) || ! function_exists( 'wc_get_product' ) ) {
+				return; // WooCommerce not ready yet — retry next load.
+			}
+			if ( ! current_user_can( 'manage_woocommerce' ) ) {
+				return; // Wait for an admin context (not cron / ajax / front).
+			}
+			if ( ! self::bundle_available() ) {
+				delete_option( self::OPTION_PENDING );
+				return;
+			}
+			// A demo already exists (e.g. merchant clicked the Welcome card first):
+			// don't create a duplicate, just retire the pending flag.
+			if ( self::is_seeded() ) {
+				update_option( self::OPTION_AUTODONE, 1, false );
+				delete_option( self::OPTION_PENDING );
+				return;
+			}
+			$res = self::seed( 'draft' );
+			if ( ! is_wp_error( $res ) ) {
+				update_option( self::OPTION_AUTODONE, 1, false );
+				add_action( 'admin_notices', array( __CLASS__, 'autoseeded_notice' ) );
+			}
+			delete_option( self::OPTION_PENDING );
+		}
+
+		/**
+		 * One-time admin notice after the auto-seed: the demo is staged as a draft,
+		 * with a one-click path to preview the Visual Builder and publish it.
+		 */
+		public static function autoseeded_notice() {
+			if ( ! current_user_can( 'manage_woocommerce' ) ) {
+				return;
+			}
+			$overview = defined( 'SPBWC_PB_OVERVIEW_SLUG' )
+				? admin_url( 'admin.php?page=' . SPBWC_PB_OVERVIEW_SLUG )
+				: admin_url( 'admin.php' );
+			?>
+			<div class="notice notice-info is-dismissible">
+				<p>
+					<strong><?php esc_html_e( 'Storelly Product Builder', 'storelly-product-builder-for-woocommerce' ); ?></strong>
+					<?php esc_html_e( 'A demo product with a ready-made Visual Builder was imported as a draft so you can preview it. Publish it when you\'re ready to show it on your storefront.', 'storelly-product-builder-for-woocommerce' ); ?>
+				</p>
+				<p>
+					<a class="button button-primary" href="<?php echo esc_url( $overview ); ?>"><?php esc_html_e( 'Preview & publish demo', 'storelly-product-builder-for-woocommerce' ); ?></a>
+				</p>
+			</div>
+			<?php
 		}
 
 		protected static function bundle_dir() {
@@ -92,15 +173,27 @@ if ( ! class_exists( 'SPBWC_Demo_Seeder' ) ) {
 			wp_send_json_success( self::undo() );
 		}
 
+		public static function ajax_publish() {
+			self::guard();
+			$res = self::publish();
+			if ( is_wp_error( $res ) ) {
+				wp_send_json_error( array( 'message' => $res->get_error_message() ) );
+			}
+			wp_send_json_success( $res );
+		}
+
 		// ── Seed ────────────────────────────────────────────────────────────
 
 		/**
 		 * Install the bundled bag demo. Idempotent: if already seeded, returns
 		 * the existing ids without creating duplicates.
 		 *
+		 * @param string $status Product post status to create with: 'publish'
+		 *                       (explicit Welcome-card seed) or 'draft' (silent
+		 *                       auto-seed on activation — hidden until published).
 		 * @return array|WP_Error ['product_id'=>int,'option_id'=>int,'view_url'=>string,'created'=>bool]
 		 */
-		public static function seed() {
+		public static function seed( $status = 'publish' ) {
 			if ( self::is_seeded() ) {
 				$state = get_option( self::OPTION_STATE, array() );
 				return array(
@@ -141,7 +234,7 @@ if ( ! class_exists( 'SPBWC_Demo_Seeder' ) ) {
 			// 3) Create the WooCommerce product.
 			$p = new WC_Product_Simple();
 			$p->set_name( (string) $bundle['product']['name'] );
-			$p->set_status( 'publish' );
+			$p->set_status( 'draft' === $status ? 'draft' : 'publish' );
 			$p->set_catalog_visibility( 'visible' );
 			if ( '' !== (string) $bundle['product']['regular_price'] ) {
 				$p->set_regular_price( (string) $bundle['product']['regular_price'] );
@@ -224,6 +317,43 @@ if ( ! class_exists( 'SPBWC_Demo_Seeder' ) ) {
 			delete_option( self::OPTION_STATE );
 
 			return array( 'removed' => true );
+		}
+
+		/**
+		 * Flip the seeded demo product live. Used when the demo was auto-installed
+		 * as a draft and the merchant clicks "Publish" on the Welcome card.
+		 *
+		 * @return array|WP_Error ['product_id'=>int,'view_url'=>string]
+		 */
+		public static function publish() {
+			$state      = get_option( self::OPTION_STATE, false );
+			$product_id = is_array( $state ) && ! empty( $state['product_id'] ) ? (int) $state['product_id'] : 0;
+			if ( ! $product_id || 'product' !== get_post_type( $product_id ) ) {
+				return new WP_Error( 'no_demo', __( 'The demo product no longer exists.', 'storelly-product-builder-for-woocommerce' ) );
+			}
+			$product = function_exists( 'wc_get_product' ) ? wc_get_product( $product_id ) : null;
+			if ( $product ) {
+				$product->set_status( 'publish' );
+				$product->save();
+			} else {
+				wp_update_post( array( 'ID' => $product_id, 'post_status' => 'publish' ) );
+			}
+			delete_transient( 'spbwc_product_builder_' . $product_id );
+
+			return array(
+				'product_id' => $product_id,
+				'view_url'   => get_permalink( $product_id ),
+			);
+		}
+
+		/** Post status of the seeded demo product, or '' if none. */
+		public static function seeded_status() {
+			$state = get_option( self::OPTION_STATE, false );
+			if ( ! is_array( $state ) || empty( $state['product_id'] ) ) {
+				return '';
+			}
+			$status = get_post_status( (int) $state['product_id'] );
+			return $status ? (string) $status : '';
 		}
 
 		// ── Helpers ─────────────────────────────────────────────────────────
