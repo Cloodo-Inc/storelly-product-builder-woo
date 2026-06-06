@@ -3262,6 +3262,7 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
                 'nbpb_image'            => esc_html__('Image', 'storelly-product-builder-for-woocommerce'),
                 'attribute_name'        => esc_html__('Attribute name', 'storelly-product-builder-for-woocommerce'),
                 'sub_attribute_name'    => esc_html__('Sub attribute name', 'storelly-product-builder-for-woocommerce'),
+                'view_name'             => esc_html__('Front', 'storelly-product-builder-for-woocommerce'),
                 'choose_image'          => esc_html__('Choose image', 'storelly-product-builder-for-woocommerce'),
                 /* translators: %s = product name. Shown as the media picker title so the merchant knows the picker is showing that one product's images. */
                 'media_scope_title'     => esc_html__('Images for: %s', 'storelly-product-builder-for-woocommerce'),

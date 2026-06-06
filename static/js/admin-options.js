@@ -296,6 +296,12 @@ angular
     };
 
     $scope.addView = function () {
+      // In the Visual Builder empty state an option can have no nbpb field yet,
+      // so options.views is still undefined (it is only seeded when a designer
+      // component is added). Guard so "Add first view" works from scratch.
+      if (!angular.isArray($scope.options.views)) {
+        $scope.options.views = [];
+      }
       $scope.options.views.push({
         name: storelly_options.storelly_options_lang.view_name,
         base: 0,
