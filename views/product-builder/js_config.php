@@ -88,8 +88,17 @@ if ( $oid > 0 ) {
     }
 }
 
+// Resolve "Customer design tools" (free-form text/image layers) config for this
+// option set — per-option-set override else global default. The cart pricing
+// engine resolves the SAME way so the displayed and charged fees agree.
+// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Local template variable.
+$spbwc_optblob_for_fdt = ( isset( $spbwc_optblob ) && is_array( $spbwc_optblob ) ) ? $spbwc_optblob : null;
+// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Local template variable.
+$spbwc_free_design_tools = SPBWC_Storelly_PB_Util::spbwc_get_free_design_tools( $oid, $spbwc_optblob_for_fdt );
+
 wp_localize_script( 'product-builder', 'SPBWC_PB_CONFIG', array(
         'is_mobile' => wp_is_mobile(),
+        'free_design_tools' => $spbwc_free_design_tools,
         'is_creating_task' => $is_creating_task,
         'assets_url' => SPBWC_PB_ASSETS_URL,
         'plg_url' => SPBWC_PB_PLUGIN_URL,

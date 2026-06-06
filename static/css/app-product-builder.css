@@ -10602,3 +10602,195 @@ span.spbwc-cust-cta__price[data-spbwc-cta-price] {
 .spbwc-cust-v3 .spbwc-cust-free__item-body .spbwc-cust-color.is-active {
     box-shadow: 0 0 0 2px var(--spbwc-c-bg), 0 0 0 4px var(--spbwc-c-brand);
 }
+
+/* =====================================================================
+ * Tab-rail polish (v1.5.x) — crisper active state (filled brand icon),
+ * no layout shift, softer idle colour. Overrides the base tab rules
+ * above by virtue of source order + .spbwc-cust-v3 scope.
+ * ===================================================================== */
+.spbwc-cust-v3 .spbwc-cust-tabnav { padding: 10px 8px; gap: 6px; }
+.spbwc-cust-v3 .spbwc-cust-tabbtn {
+    min-height: 64px;
+    border: 1px solid transparent;          /* reserved → active never shifts layout */
+    border-radius: 10px;
+    color: var(--spbwc-c-muted);
+    transition: background 140ms ease, color 140ms ease, border-color 140ms ease;
+}
+.spbwc-cust-v3 .spbwc-cust-tabbtn:hover {
+    background: var(--spbwc-c-bg);
+    color: var(--spbwc-c-ink);
+    border-color: transparent;
+}
+.spbwc-cust-v3 .spbwc-cust-tabbtn.is-active,
+.spbwc-cust-v3 .spbwc-cust-tabbtn[aria-selected="true"] {
+    background: var(--spbwc-c-brand-tint);
+    border-color: var(--spbwc-c-brand-soft);
+    color: var(--spbwc-c-brand);
+}
+.spbwc-cust-v3 .spbwc-cust-tabbtn__icon {
+    width: 34px; height: 34px; border-radius: 9px;
+    background: transparent;
+    transition: background 140ms ease, color 140ms ease, box-shadow 140ms ease;
+}
+.spbwc-cust-v3 .spbwc-cust-tabbtn:hover .spbwc-cust-tabbtn__icon { background: var(--spbwc-c-bg-soft); }
+.spbwc-cust-v3 .spbwc-cust-tabbtn.is-active .spbwc-cust-tabbtn__icon {
+    background: var(--spbwc-c-brand);
+    color: #fff;
+    box-shadow: 0 2px 6px rgba(29, 78, 216, .28);
+}
+.spbwc-cust-v3 .spbwc-cust-tabbtn.is-active .spbwc-cust-tabbtn__icon svg { stroke: #fff; }
+.spbwc-cust-v3 .spbwc-cust-tabbtn__label { font-size: 11px; font-weight: 600; letter-spacing: .01em; }
+.spbwc-cust-v3 .spbwc-cust-tabbtn.is-active .spbwc-cust-tabbtn__label { font-weight: 700; }
+/* Count badge sits clear of the larger icon chip. */
+.spbwc-cust-v3 .spbwc-cust-tabbtn__badge { top: 5px; right: 6px; }
+
+/* Cohesive design language — carry the polished tab-rail tokens across the
+ * rest of the canvas UI: matching 10px chip radius, brand-tint active fills,
+ * brand-soft borders (lighter than the old solid brand outline). */
+.spbwc-cust-v3 .spbwc-cust-acc-item { border-radius: 10px; transition: border-color 140ms ease, box-shadow 140ms ease; }
+.spbwc-cust-v3 .spbwc-cust-acc-item.is-open {
+    border-color: var(--spbwc-c-brand-soft);
+    box-shadow: 0 0 0 1px var(--spbwc-c-brand-soft);
+}
+.spbwc-cust-v3 .spbwc-cust-acc-item.is-open .spbwc-cust-acc-head { background: var(--spbwc-c-brand-tint); }
+.spbwc-cust-v3 .spbwc-cust-val { border-radius: 10px; }
+.spbwc-cust-v3 .spbwc-cust-val.is-active { box-shadow: 0 0 0 3px var(--spbwc-c-brand-soft); }
+/* Per-layer rows (Text/Images tabs) share the same radius. */
+.spbwc-cust-v3 .spbwc-cust-free__item { border-radius: 10px; }
+
+/* Canvas stage backdrop — a soft radial "spotlight" (lighter centre, gently
+ * darker edges) so the product PNG pops off the background, especially light /
+ * cream artwork. Paired with a drop-shadow on the design zone so the artwork
+ * reads as floating above the surface. drop-shadow() follows the PNG alpha, so
+ * transparent areas around the product don't get a boxy shadow. */
+.spbwc-cust-v3 .spbwc-cust-canvas .design-main {
+    background: radial-gradient(125% 95% at 50% 38%, #eef1f6 0%, #dde1ea 55%, #cfd4e0 100%);
+}
+.spbwc-cust-v3 .spbwc-cust-canvas .design-zone {
+    filter: drop-shadow(0 10px 22px rgba(15, 23, 42, 0.20));
+}
+
+/* Remove the legacy floating layer-transform toolbar (.design-admin-tool).
+ * It rendered as broken icon-font glyphs floating over the artwork (the
+ * "layer covering the image" reported by the user) and its actions are
+ * redundant: per-layer Delete lives in each Text/Image row, and zoom is in
+ * the canvas toolbar. Layer z-ordering returns as a proper per-layer control
+ * in M2. Hidden, not deleted, so app-product-builder.js bindings stay intact. */
+.spbwc-cust-v3 .spbwc-cust-canvas .design-admin-tool { display: none !important; }
+
+/* Undo / Redo group (replaces the old "Live preview" pill, canvas toolbar). */
+.spbwc-cust-v3 .spbwc-cust-history {
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+    padding: 3px;
+    background: var(--spbwc-c-bg);
+    border: 1px solid var(--spbwc-c-line);
+    border-radius: var(--spbwc-c-radius-sm);
+    box-shadow: var(--spbwc-c-shadow-sm);
+}
+.spbwc-cust-v3 .spbwc-cust-histbtn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 10px;
+    font: inherit;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--spbwc-c-ink);
+    background: transparent;
+    border: 0;
+    border-radius: 7px;
+    cursor: pointer;
+    transition: background 120ms ease, color 120ms ease;
+}
+.spbwc-cust-v3 .spbwc-cust-histbtn:hover:not([disabled]) { background: var(--spbwc-c-brand-tint); color: var(--spbwc-c-brand); }
+.spbwc-cust-v3 .spbwc-cust-histbtn[disabled] { opacity: .4; cursor: default; }
+.spbwc-cust-v3 .spbwc-cust-histbtn svg { flex: 0 0 auto; }
+@media (max-width: 768px) {
+    /* Tight on mobile — icon only. */
+    .spbwc-cust-v3 .spbwc-cust-histbtn__label { display: none; }
+    .spbwc-cust-v3 .spbwc-cust-histbtn { padding: 6px; }
+}
+
+/* =====================================================================
+ * Floating canvas controls — no toolbar bar. The main spotlight
+ * background now extends the full height of the canvas column and the
+ * Undo/Redo (left) + Zoom (right) blocks FLOAT on top of it, transparent.
+ * The bar itself is click-through (pointer-events:none) so dragging
+ * layers near the bottom still works; only the control groups capture.
+ * ===================================================================== */
+.spbwc-cust-v3 .spbwc-cust-canvas__toolbar {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: auto;
+    padding: 14px 16px;
+    background: transparent;
+    border-top: 0;
+    pointer-events: none;
+    z-index: 6;
+}
+.spbwc-cust-v3 .spbwc-cust-canvas__toolbar-left,
+.spbwc-cust-v3 .spbwc-cust-canvas__toolbar-right { pointer-events: auto; }
+
+/* Transparent block backgrounds — controls sit directly on the canvas. */
+.spbwc-cust-v3 .spbwc-cust-history,
+.spbwc-cust-v3 .spbwc-cust-zoom {
+    background: transparent;
+    border-color: transparent;
+    box-shadow: none;
+    padding: 0;
+    gap: 4px;
+    overflow: visible;
+}
+.spbwc-cust-v3 .spbwc-cust-zoom__value {
+    background: transparent;
+    border-left: 0;
+    border-right: 0;
+    color: var(--spbwc-c-ink);
+}
+.spbwc-cust-v3 .spbwc-cust-zoom__btn,
+.spbwc-cust-v3 .spbwc-cust-histbtn { background: transparent; border-radius: 8px; }
+.spbwc-cust-v3 .spbwc-cust-zoom__btn--reset { border-left: 0; }
+/* Subtle hover chip keeps the floating controls discoverable. */
+.spbwc-cust-v3 .spbwc-cust-histbtn:hover:not([disabled]),
+.spbwc-cust-v3 .spbwc-cust-zoom__btn:hover {
+    background: rgba(255, 255, 255, 0.75);
+    color: var(--spbwc-c-brand);
+}
+
+/* =====================================================================
+ * Topbar removed — floating Close (×) + slim summary progress strip.
+ * Reclaims the 64px topbar height for the editor. Reset all + Cancel
+ * remain in the summary footer.
+ * ===================================================================== */
+.spbwc-cust-v3 .spbwc-cust-floatclose {
+    position: absolute;
+    top: 10px;
+    right: 12px;
+    left: auto; /* override legacy `.nbdpb-popup .close-popup { left:10px }` */
+    bottom: auto;
+    z-index: 60;
+    width: 34px;
+    height: 34px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--spbwc-c-ink);
+    background: rgba(255, 255, 255, 0.92);
+    border: 1px solid var(--spbwc-c-line);
+    border-radius: 9px;
+    box-shadow: var(--spbwc-c-shadow-sm);
+    cursor: pointer;
+    transition: background 120ms ease, color 120ms ease, box-shadow 120ms ease;
+}
+.spbwc-cust-v3 .spbwc-cust-floatclose:hover { background: #fff; color: var(--spbwc-c-danger); box-shadow: var(--spbwc-c-shadow); }
+/* Slim progress strip (product-name hero block removed → thumbnail rises to top). */
+.spbwc-cust-v3 .spbwc-cust-summary__sticky-top--slim { padding: 12px 52px 10px 16px; }
+.spbwc-cust-v3 .spbwc-cust-summary__sticky-top--slim .spbwc-cust-summary__head-row {
+    display: flex;
+    justify-content: flex-start;
+    margin-bottom: 8px;
+}

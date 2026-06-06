@@ -123,7 +123,19 @@ nbdpbApp.controller("nbpbCtrl", [
         "evented",
         "a_index",
         "sa_index",
+        /* Free design tools (buyer-added layers) — these custom props MUST be
+         * exported so the layer round-trips through toJSON()/design.json and the
+         * server can count billable layers from the saved frames. */
+        "userLayerUid",
+        "isUserLayer",
+        "userLayerKind",
       ];
+      /* Buyer-added free-form layers (Hybrid model). Distinct from admin
+       * nbpb_* placeholders: no component, bound to ONE view. See
+       * docs/SPEC_CANVAS_TEXT_IMAGE_TABS.md. */
+      $scope.resource.userLayers = $scope.resource.userLayers || [];
+      $scope.activeUserLayerUid = null;
+      $scope._userLayerSeq = 0;
       $scope.processProductSettings();
     };
     $scope.processProductSettings = function () {
@@ -419,7 +431,9 @@ nbdpbApp.controller("nbpbCtrl", [
       _.each(
         currentComponent.current_pb_configs[index],
         function (view, viewIndex) {
-          if ($scope.isDisplayOn(view.display)) {
+          var _ph = !view.image_url || /placeholder\.png(\?|#|$)/i.test(view.image_url);
+          var _pv = (typeof $scope.isViewPassiveForComponent === 'function') && $scope.isViewPassiveForComponent(currentComponent, viewIndex);
+          if ($scope.isDisplayOn(view.display) && !_ph && !_pv) {
             statusImages[viewIndex] = false;
           }
         }
@@ -437,7 +451,16 @@ nbdpbApp.controller("nbpbCtrl", [
           if (!_canvas) {
             return;
           }
-          if ($scope.isDisplayOn(view.display)) {
+          /* Skip views where this option has no real artwork: a shared
+           * placeholder image (placeholder.png) or a "passive" view where every
+           * option resolves to the same image. Rendering those painted a grey
+           * placeholder square full-canvas over the product (bug: pick an option
+           * on one view then another on a different view). The async
+           * fabric.Image.fromURL callback used to re-show it AFTER the passive
+           * hide ran — so we gate it here, at the source, for every code path. */
+          var _isPlaceholderUrl = !view.image_url || /placeholder\.png(\?|#|$)/i.test(view.image_url);
+          var _passiveView = (typeof $scope.isViewPassiveForComponent === 'function') && $scope.isViewPassiveForComponent(currentComponent, viewIndex);
+          if ($scope.isDisplayOn(view.display) && !_isPlaceholderUrl && !_passiveView) {
             if (currentStage == -1) {
               currentStage = viewIndex;
             }
@@ -875,6 +898,15 @@ nbdpbApp.controller("nbpbCtrl", [
             type: "application/json",
           }
         );
+        /* Free design tools — compact layer list for order-meta labels. The
+         * server prices authoritatively by counting isUserLayer objects in the
+         * saved frames, NOT from this list (which the client could tamper). */
+        dataObj.user_layers = new Blob(
+          [JSON.stringify(($scope.resource.userLayers || []).map(function (l) {
+            return { uid: l.uid, kind: l.kind, view: l.view, content: l.kind === 'text' ? (l.content || '') : '' };
+          }))],
+          { type: "application/json" }
+        );
         /* From here the server takes over (rasterize + composite + write files). */
         $scope.spbwcMarkSave('FormData built; about to POST');
         $scope.setBuilderProgress(i18n.generating_preview || 'Generating preview…', 80);
@@ -911,6 +943,12 @@ nbdpbApp.controller("nbpbCtrl", [
                   '" />'
               );
             }
+            /* Push the buyer-added layer fee to the product page so its option-form
+             * "YOUR TOTAL" matches the canvas summary + the cart (which prices the
+             * layers server-side from the saved design via option_processing). */
+            try {
+              document.dispatchEvent(new CustomEvent('spbwc:userlayersfee', { detail: { fee: $scope.userLayersFee() } }));
+            } catch (e) {}
             jQuery(document).triggerHandler(
               "update_product_image_from_builder",
               {
@@ -1082,6 +1120,22 @@ nbdpbApp.controller("nbpbCtrl", [
         _stage.states.scaleX = item.get("scaleX");
         _stage.states.scaleY = item.get("scaleY");
         _stage.states.angle = item.get("angle");
+        /* Buyer-added free layer selected on the canvas → sync the panel row,
+         * NOT the admin component (which would corrupt its stored value). */
+        if (item.get && item.get("isUserLayer")) {
+          var _uid = item.get("userLayerUid");
+          $scope.activeUserLayerUid = _uid;
+          var _ul = _.find($scope.resource.userLayers, function (l) { return l.uid === _uid; });
+          if (_ul && item.type == "textbox") {
+            _ul.content = item.text;
+            _ul.color = item.fill;
+            var _f = $scope.getFontByAlias(item.fontFamily);
+            if (_f) { _ul.fontId = (_f.type == "google" ? "g" : "c") + _f.id; }
+          }
+          _stage.states.showAdminTool = true;
+          $scope.updateApp();
+          return;
+        }
         if (item.type == "textbox") {
           var font = $scope.getFontByAlias(item.fontFamily);
           if (font) {
@@ -1195,10 +1249,16 @@ nbdpbApp.controller("nbpbCtrl", [
       _canvas.on("selection:cleared", function (options) {
         $scope.onSelectionCleared(id, options);
       });
+      /* Record an undo step after a layer is moved/scaled/rotated. */
+      _canvas.on("object:modified", function () {
+        if (typeof $scope.recordHistory === 'function') { $scope.recordHistory(); }
+      });
       /* Load template after render canvas */
       if (last == "1") {
         appConfig.ready = true;
         $scope.loadPreBuilder();
+        /* Capture the undo/redo baseline once the initial design has settled. */
+        $timeout(function () { $scope.initHistory(); }, 1600);
       }
     });
     $scope.$on("component:mouseover", function (event, id) {
@@ -1327,9 +1387,16 @@ nbdpbApp.controller("nbpbCtrl", [
                   addText(item);
                 }
               }
+            } else if (item.isUserLayer) {
+              /* Buyer-added free layer (no component). Re-hydrate the fabric
+               * object and rebuild the resource.userLayers panel entry so the
+               * design round-trips through cart-edit / reorder. */
+              $scope.rehydrateUserLayer(item, type, _canvas, stageIndex, continueLoadLayer);
             } else {
               continueLoadLayer();
             }
+          } else if (item && item.isUserLayer) {
+            $scope.rehydrateUserLayer(item, type, _canvas, stageIndex, continueLoadLayer);
           } else {
             continueLoadLayer();
           }
@@ -2126,6 +2193,387 @@ nbdpbApp.controller("nbpbCtrl", [
       if (amount > perItemBeforeDiscount) { amount = perItemBeforeDiscount; }
       return { amount: amount, tierVal: tierVal, dis: tierDis, type: type };
     };
+    /* ============================================================
+     * FREE DESIGN TOOLS — buyer-added TEXT & IMAGE layers (Hybrid).
+     * Admin enables per option-set (else global default); each added
+     * layer carries a fixed fee. Unlike nbpb_* placeholders these are
+     * NOT admin components — they live in $scope.resource.userLayers and
+     * are bound to ONE view (the stage the buyer was on when adding).
+     * Pricing here is DISPLAY-ONLY; the server re-computes the fee
+     * authoritatively at add-to-cart from the saved design + config.
+     * See docs/SPEC_CANVAS_TEXT_IMAGE_TABS.md.
+     * ============================================================ */
+    $scope.getFreeTools = function () {
+      if ($scope._freeToolsCache) return $scope._freeToolsCache;
+      var raw = (typeof SPBWC_PB_CONFIG !== 'undefined') ? SPBWC_PB_CONFIG.free_design_tools : null;
+      if (typeof raw === 'string') { try { raw = JSON.parse(raw); } catch (e) { raw = null; } }
+      raw = raw || {};
+      var t = raw.text || {}, i = raw.image || {};
+      $scope._freeToolsCache = {
+        text: {
+          enabled: t.enabled === 'y',
+          max_layers: parseInt(t.max_layers, 10) || 0,
+          price_per_layer: parseFloat(t.price_per_layer) || 0,
+          allow_change_color: t.allow_change_color !== 'n',
+          default_text: t.default_text || ''
+        },
+        image: {
+          enabled: i.enabled === 'y',
+          max_layers: parseInt(i.max_layers, 10) || 0,
+          price_per_layer: parseFloat(i.price_per_layer) || 0,
+          allow_type: i.allow_type || 'png,jpg,jpeg,svg',
+          min_size: parseFloat(i.min_size) || 0,
+          max_size: parseFloat(i.max_size) || 0
+        }
+      };
+      return $scope._freeToolsCache;
+    };
+    /* True when at least one free tool is enabled — gates the tab nav buttons. */
+    $scope.hasFreeTools = function () {
+      var ft = $scope.getFreeTools();
+      return ft.text.enabled || ft.image.enabled;
+    };
+    $scope.userLayersOfKind = function (kind) {
+      return _.filter($scope.resource.userLayers || [], function (l) { return l.kind === kind; });
+    };
+    /* Quick-pick colour palette for buyer text layers (on-brand defaults).
+     * The native colour picker remains available for anything custom. */
+    $scope.userTextPalette = ['#000000', '#ffffff', '#e11d48', '#2563eb', '#16a34a', '#f59e0b', '#7c3aed', '#0891b2'];
+    $scope.setUserTextColor = function (layer, c) {
+      if (!layer) return;
+      layer.color = c;
+      $scope.updateUserText(layer);
+    };
+    $scope.canAddUserLayer = function (kind) {
+      var ft = $scope.getFreeTools()[kind];
+      if (!ft || !ft.enabled) return false;
+      if (ft.max_layers > 0 && $scope.userLayersOfKind(kind).length >= ft.max_layers) return false;
+      return true;
+    };
+    $scope._nextUserLayerUid = function () {
+      $scope._userLayerSeq = ($scope._userLayerSeq || 0) + 1;
+      var pid = (typeof SPBWC_PB_CONFIG !== 'undefined' && SPBWC_PB_CONFIG.oid) ? SPBWC_PB_CONFIG.oid : '0';
+      return 'ul' + pid + '_' + $scope._userLayerSeq;
+    };
+    $scope.getUserLayerObject = function (uid, view) {
+      if (!$scope.stages[view] || !$scope.stages[view].canvas) return null;
+      var _canvas = $scope.stages[view].canvas, found = null;
+      _canvas.forEachObject(function (o) { if (o.get && o.get('userLayerUid') === uid) found = o; });
+      return found;
+    };
+    $scope._limitToast = function (kind) {
+      var ft = $scope.getFreeTools()[kind];
+      var msg = (kind === 'text')
+        ? 'Maximum ' + ft.max_layers + ' text layer(s) reached.'
+        : 'Maximum ' + ft.max_layers + ' image(s) reached.';
+      if (typeof $scope.showToast === 'function') { $scope.showToast(msg, 'warning', 2600); }
+    };
+    /* --- TEXT --------------------------------------------------- */
+    $scope.addUserText = function () {
+      if (!$scope.canAddUserLayer('text')) { $scope._limitToast('text'); return; }
+      var ft = $scope.getFreeTools().text;
+      var uid = $scope._nextUserLayerUid();
+      var view = $scope.currentStage || 0;
+      var layer = {
+        uid: uid, kind: 'text', view: view,
+        content: ft.default_text || '',
+        fontId: '', fontFamily: 'Arial',
+        color: '#000000',
+        price: ft.price_per_layer
+      };
+      var _canvas = $scope.stages[view].canvas;
+      var box = new FabricWindow['Textbox'](layer.content || 'Your text', {
+        userLayerUid: uid, isUserLayer: 1, userLayerKind: 'text',
+        fontFamily: layer.fontFamily, fontSize: 24, fill: layer.color, textAlign: 'center'
+      });
+      _canvas.add(box);
+      _canvas.viewportCenterObject(box);
+      box.setCoords();
+      _canvas.setActiveObject(box);
+      _canvas.renderAll();
+      $scope.resource.userLayers.push(layer);
+      $scope.activeUserLayerUid = uid;
+      $scope.refreshSummary();
+      $scope.persistDesign();
+      /* Flow: drop the cursor straight into the new layer's content field so
+       * the buyer can start typing immediately. */
+      setTimeout(function () {
+        try {
+          var inp = document.querySelector('[data-spbwc-tabpanel="text"] .spbwc-cust-free__item.is-active .spbwc-cust-field__input');
+          if (inp) { inp.focus(); inp.select(); }
+        } catch (e) {}
+      }, 60);
+    };
+    $scope.updateUserText = function (layer) {
+      if (!layer) return;
+      var obj = $scope.getUserLayerObject(layer.uid, layer.view);
+      if (!obj) return;
+      var _canvas = $scope.stages[layer.view].canvas;
+      var family = 'Arial';
+      if (layer.fontId) {
+        var type = layer.fontId.slice(0, 1), id = layer.fontId.slice(1);
+        var font = (type === 'c') ? $scope.getFontByIdAndType(id, 'ttf') : $scope.getFontByIdAndType(id, 'google');
+        if (font) { $scope.insertFontScript(font); family = font.alias; }
+      }
+      layer.fontFamily = family;
+      var apply = function () {
+        obj.set({ text: layer.content || '', fontFamily: family, fill: layer.color });
+        _canvas.renderAll();
+      };
+      try {
+        var fo = new FontFaceObserver(family);
+        fo.load(layer.content || ' ').then(function () { fabric.util.clearFabricFontCache(); apply(); }, apply);
+      } catch (e) { apply(); }
+      $scope.persistDesign();
+    };
+    /* --- IMAGE -------------------------------------------------- */
+    $scope.uploadUserImage = function (files) {
+      if (!$scope.canAddUserLayer('image')) { $scope._limitToast('image'); return; }
+      var ft = $scope.getFreeTools().image;
+      var file = files && files[0];
+      if (!file) return;
+      if (file.type.indexOf('image') === -1) { alert($scope.settings.i18n.only_support_image); return; }
+      if (ft.max_size > 0 && file.size > ft.max_size * 1024 * 1024) { alert($scope.settings.i18n.max_file_size + ' ' + ft.max_size + ' MB'); return; }
+      if (ft.min_size > 0 && file.size < ft.min_size * 1024 * 1024) { alert($scope.settings.i18n.min_file_size + ' ' + ft.min_size + ' MB'); return; }
+      jQuery('.nbpb-stage-loading').addClass('nbdpb-show');
+      if (file.type.indexOf('svg') > -1) {
+        var reader = new FileReader();
+        reader.onload = function (ev) { if (ev.target.readyState === 2) { $scope.addUserImageLayer(reader.result, true); } };
+        reader.readAsText(file);
+        return;
+      }
+      NBDDataFactory.get('spbwc_customer_upload', { file: file }, function (data) {
+        try { data = JSON.parse(data); } catch (e) { data = {}; }
+        if (data.flag == 1) {
+          $scope.addUserImageLayer(data.src, false);
+          $scope.resource.uploaded.push(data.src);
+          if ($scope.resource.uploaded.length > 10) { $scope.resource.uploaded.shift(); }
+          try { localStorage.setItem('nbpb_uploaded', JSON.stringify($scope.resource.uploaded)); } catch (e) {}
+          $scope.$applyAsync();
+        } else {
+          jQuery('.nbpb-stage-loading').removeClass('nbdpb-show');
+          alert(data.mes || $scope.settings.i18n.can_not_save_design);
+        }
+      });
+    };
+    $scope.addUserImageFromGallery = function (url) {
+      if (!$scope.canAddUserLayer('image')) { $scope._limitToast('image'); return; }
+      jQuery('.nbpb-stage-loading').addClass('nbdpb-show');
+      $scope.addUserImageLayer(url, false);
+    };
+    $scope.addUserImageLayer = function (url, isSvg) {
+      var ft = $scope.getFreeTools().image;
+      var uid = $scope._nextUserLayerUid();
+      var view = $scope.currentStage || 0;
+      var _canvas = $scope.stages[view].canvas;
+      var layer = { uid: uid, kind: 'image', view: view, src: (isSvg ? '' : url), isSvg: !!isSvg, price: ft.price_per_layer };
+      var place = function (obj) {
+        var maxW = _canvas.width / 2, maxH = _canvas.height / 2;
+        var nw = obj.width, nh = obj.height;
+        if (nw > maxW) { var r = maxW / nw; nw = maxW; nh = obj.height * r; }
+        if (nh > maxH) { var r2 = maxH / nh; nh = maxH; nw = nw * r2; }
+        obj.set({ userLayerUid: uid, isUserLayer: 1, userLayerKind: 'image', scaleX: nw / obj.width, scaleY: nh / obj.height });
+        _canvas.add(obj);
+        _canvas.viewportCenterObject(obj);
+        obj.setCoords();
+        _canvas.setActiveObject(obj);
+        _canvas.renderAll();
+        jQuery('.nbpb-stage-loading').removeClass('nbdpb-show');
+        $scope.resource.userLayers.push(layer);
+        $scope.activeUserLayerUid = uid;
+        $scope.refreshSummary();
+        $scope.persistDesign();
+        $scope.$applyAsync();
+      };
+      if (isSvg) {
+        fabric.loadSVGFromString(url, function (ob, op) {
+          var object = fabric.util.groupSVGElements(ob, op);
+          place(object);
+        });
+      } else {
+        fabric.Image.fromURL(url, function (op) { place(op); }, { crossOrigin: 'anonymous' });
+      }
+    };
+    /* Re-create a buyer-added layer when loading a saved design (cart-edit /
+     * reorder). Adds the fabric object back to the canvas and rebuilds the
+     * panel entry; price is read from current admin config, not the frame. */
+    $scope.rehydrateUserLayer = function (item, type, _canvas, stageIndex, done) {
+      var uid = item.userLayerUid || $scope._nextUserLayerUid();
+      /* Keep the uid counter ahead of any restored ids to avoid collisions. */
+      var m = /_(\d+)$/.exec(uid);
+      if (m && parseInt(m[1], 10) > ($scope._userLayerSeq || 0)) { $scope._userLayerSeq = parseInt(m[1], 10); }
+      var kind = item.userLayerKind || (type === 'textbox' ? 'text' : 'image');
+      var ft = $scope.getFreeTools();
+      var price = (kind === 'text') ? ft.text.price_per_layer : ft.image.price_per_layer;
+      var pushLayer = function () {
+        var base = { uid: uid, kind: kind, view: stageIndex, price: price };
+        if (kind === 'text') {
+          base.content = item.text || '';
+          base.color = item.fill || '#000000';
+          base.fontFamily = item.fontFamily || 'Arial';
+          base.fontId = '';
+        } else {
+          base.src = item.src || '';
+        }
+        $scope.resource.userLayers.push(base);
+      };
+      var finishImage = function (obj) { _canvas.add(obj); pushLayer(); if (done) done(); };
+      if (type === 'image') {
+        fabric.Image.fromObject(item, finishImage);
+      } else if (type === 'textbox') {
+        var klass = fabric.util.getKlass(type);
+        var addBox = function () { klass.fromObject(item, function (o) { _canvas.add(o); pushLayer(); if (done) done(); }); };
+        var font = $scope.getFontByAlias(item.fontFamily);
+        if (font) {
+          $scope.insertFontScript(font);
+          try {
+            var fo = new FontFaceObserver(item.fontFamily);
+            fo.load(item.text || ' ').then(function () { fabric.util.clearFabricFontCache(); addBox(); }, addBox);
+          } catch (e) { addBox(); }
+        } else {
+          item.fontFamily = 'Arial';
+          addBox();
+        }
+      } else {
+        /* SVG / group fallback. */
+        try {
+          fabric.util.enlivenObjects([item], function (objs) { if (objs[0]) { _canvas.add(objs[0]); pushLayer(); } if (done) done(); });
+        } catch (e) { if (done) done(); }
+      }
+    };
+    /* --- SELECT / DELETE --------------------------------------- */
+    $scope.selectUserLayer = function (layer) {
+      if (!layer) return;
+      $scope.activeUserLayerUid = layer.uid;
+      if ($scope.currentStage !== layer.view && typeof $scope.changeStage === 'function') {
+        $scope.changeStage(layer.view);
+      }
+      var obj = $scope.getUserLayerObject(layer.uid, layer.view);
+      if (obj) {
+        var _canvas = $scope.stages[layer.view].canvas;
+        _canvas.setActiveObject(obj);
+        _canvas.renderAll();
+      }
+    };
+    $scope.deleteUserLayer = function (layer) {
+      if (!layer) return;
+      var obj = $scope.getUserLayerObject(layer.uid, layer.view);
+      if (obj) {
+        var _canvas = $scope.stages[layer.view].canvas;
+        _canvas.remove(obj);
+        _canvas.discardActiveObject();
+        _canvas.renderAll();
+      }
+      $scope.resource.userLayers = _.filter($scope.resource.userLayers, function (l) { return l.uid !== layer.uid; });
+      if ($scope.activeUserLayerUid === layer.uid) { $scope.activeUserLayerUid = null; }
+      $scope.refreshSummary();
+      $scope.persistDesign();
+    };
+    /* --- PRICING (display only) -------------------------------- */
+    $scope.userLayersFee = function () {
+      var fee = 0;
+      _.each($scope.resource.userLayers || [], function (l) { fee += (parseFloat(l.price) || 0); });
+      return fee;
+    };
+    /* ============================================================
+     * UNDO / REDO history. Snapshots = component picks + text +
+     * userLayers + each stage's Fabric toJSON (exact geometry of
+     * every layer). Restore reloads each canvas via loadFromJSON and
+     * re-applies the panel model. A debounced recorder hooks the
+     * deep $watch (option/text/layer changes) and canvas
+     * 'object:modified' (drag/scale/rotate). See SPEC.
+     * ============================================================ */
+    $scope.history = { stack: [], idx: -1, limit: 30, busy: false, ready: false, suppress: false };
+    $scope.captureHistoryState = function () {
+      return {
+        comps: ($scope.resource.components || []).map(function (c) {
+          return { id: c.id, cfg: c.currentConfig, content: c.currentContent, color: c.currentColor, font: c.currentFontId };
+        }),
+        userLayers: angular.copy($scope.resource.userLayers || []),
+        frames: ($scope.stages || []).map(function (st) {
+          return (st && st.canvas && typeof st.canvas.toJSON === 'function') ? st.canvas.toJSON($scope.includeExport) : null;
+        })
+      };
+    };
+    $scope.initHistory = function () {
+      try {
+        $scope.history.stack = [$scope.captureHistoryState()];
+        $scope.history.idx = 0;
+        $scope.history.ready = true;
+        $scope.$applyAsync();
+      } catch (e) { /* canvas not ready — retry on first change */ }
+    };
+    $scope.recordHistory = function () {
+      var h = $scope.history;
+      if (!h.ready || h.busy || h.suppress) return;
+      clearTimeout($scope._histTimer);
+      $scope._histTimer = setTimeout(function () {
+        if (h.busy || h.suppress) return;
+        var snap;
+        try { snap = $scope.captureHistoryState(); } catch (e) { return; }
+        if (h.idx < h.stack.length - 1) { h.stack = h.stack.slice(0, h.idx + 1); }
+        h.stack.push(snap);
+        if (h.stack.length > h.limit) { h.stack.shift(); }
+        h.idx = h.stack.length - 1;
+        $scope.$applyAsync();
+      }, 280);
+    };
+    $scope.applyHistoryState = function (snap) {
+      if (!snap) return;
+      $scope.history.busy = true;
+      /* Suppress history recording triggered by the restore itself — the deep
+       * $watch fires when we re-apply the model and would otherwise push a
+       * spurious entry (corrupting undo/redo position). Cleared shortly after
+       * the canvases settle (> the recorder debounce). */
+      $scope.history.suppress = true;
+      _.each(snap.comps || [], function (sc) {
+        var c = _.find($scope.resource.components, function (cc) { return cc && cc.id === sc.id; });
+        if (!c) return;
+        if (typeof sc.cfg !== 'undefined') { c.currentConfig = sc.cfg; }
+        c.currentContent = sc.content;
+        c.currentColor = sc.color;
+        c.currentFontId = sc.font;
+      });
+      $scope.resource.userLayers = angular.copy(snap.userLayers || []);
+      var stages = $scope.stages || [];
+      var done = 0, total = 0;
+      _.each(stages, function (st, i) {
+        if (st && st.canvas && snap.frames[i]) { total++; }
+      });
+      var _settle = function () {
+        $scope.history.busy = false;
+        if (typeof $scope.refreshSummary === 'function') { $scope.refreshSummary(); }
+        $scope.$applyAsync();
+        /* Keep suppress on a touch longer than the recorder debounce (280ms) so
+         * the restore's own $watch tick cannot push a phantom entry. */
+        $timeout(function () { $scope.history.suppress = false; }, 450);
+      };
+      if (total === 0) { _settle(); return; }
+      _.each(stages, function (st, i) {
+        if (!st || !st.canvas || !snap.frames[i]) return;
+        st.canvas.loadFromJSON(snap.frames[i], function () {
+          try { st.canvas.renderAll(); } catch (e) {}
+          done++;
+          if (done >= total) { _settle(); }
+        });
+      });
+    };
+    $scope.canUndo = function () { return $scope.history.ready && $scope.history.idx > 0; };
+    $scope.canRedo = function () { return $scope.history.ready && $scope.history.idx < $scope.history.stack.length - 1; };
+    $scope.undo = function () {
+      var h = $scope.history;
+      if (h.busy || h.idx <= 0) return;
+      h.idx--;
+      $scope.applyHistoryState(h.stack[h.idx]);
+      if (typeof $scope.showToast === 'function') { $scope.showToast('Undo', 'info', 1200); }
+    };
+    $scope.redo = function () {
+      var h = $scope.history;
+      if (h.busy || h.idx >= h.stack.length - 1) return;
+      h.idx++;
+      $scope.applyHistoryState(h.stack[h.idx]);
+      if (typeof $scope.showToast === 'function') { $scope.showToast('Redo', 'info', 1200); }
+    };
     $scope.computeBuildTotal = function () {
       var cfg = (typeof SPBWC_PB_CONFIG !== 'undefined') ? SPBWC_PB_CONFIG : {};
       var base = parseFloat(cfg.base_price_raw) || 0;
@@ -2147,6 +2595,9 @@ nbdpbApp.controller("nbpbCtrl", [
           if ($scope.resource.uploaded && $scope.resource.uploaded.length) { configured++; }
         }
       });
+      /* Free design tools — fixed fee per buyer-added layer. Display-only;
+       * the server re-derives this from the saved design at add-to-cart. */
+      addons += $scope.userLayersFee();
       var preDiscount = base + addons;
       var qty = $scope.getBuyQty();
       var vol = $scope.getVolumeDiscount(preDiscount, qty);
@@ -2198,7 +2649,13 @@ nbdpbApp.controller("nbpbCtrl", [
               font: c.currentFontId || ''
             };
           }),
-          uploaded: $scope.resource.uploaded ? $scope.resource.uploaded.slice() : []
+          uploaded: $scope.resource.uploaded ? $scope.resource.uploaded.slice() : [],
+          /* Free-layer metadata (canvas geometry lives in design.json on the
+           * server). Full localStorage re-hydration of free layers is M2;
+           * stored here so the data is not silently dropped. */
+          userLayers: ($scope.resource.userLayers || []).map(function (l) {
+            return { uid: l.uid, kind: l.kind, view: l.view, content: l.content || '', color: l.color || '', fontId: l.fontId || '', src: l.src || '', price: l.price || 0 };
+          })
         };
         window.localStorage.setItem($scope._persistKey(), JSON.stringify(payload));
       } catch (e) { /* quota / private mode — silently no-op */ }
@@ -2252,6 +2709,18 @@ nbdpbApp.controller("nbpbCtrl", [
           $volRow.css('display', '');
         } else {
           $volRow.css('display', 'none');
+        }
+        /* Free design tools breakdown row — shown only when the buyer has
+         * added at least one custom text/image layer. */
+        var $ulRow = jQuery('[data-spbwc-userlayers-row]');
+        var ulCount = ($scope.resource.userLayers || []).length;
+        if (ulCount > 0) {
+          var ulFee = $scope.userLayersFee();
+          jQuery('[data-spbwc-userlayers-count]').text(ulCount);
+          jQuery('[data-spbwc-userlayers-val]').text(ulFee > 0 ? ('+' + $scope.formatMoney(ulFee)) : 'Included');
+          $ulRow.css('display', '');
+        } else {
+          $ulRow.css('display', 'none');
         }
         var lbl = info.configured + ' / ' + info.total + ' configured';
         jQuery('[data-spbwc-progress-label]').text(lbl);
@@ -2364,10 +2833,17 @@ nbdpbApp.controller("nbpbCtrl", [
         if (c.nbpb_type === 'nbpb_text') { return c.currentContent || ''; }
         return '';
       }).join('|') + '#' + (($scope.resource && $scope.resource.uploaded) ? $scope.resource.uploaded.length : 0);
+      /* Append free-layer signature so the summary + persist react to
+       * adding/removing/editing buyer-added text & image layers. */
+      var uls = ($scope.resource && $scope.resource.userLayers) || [];
+      sig += '#ul' + uls.map(function (l) { return l.uid + ':' + (l.content || '') + ':' + (l.color || ''); }).join(',');
       return sig;
     }, function (newSig, oldSig) {
       $scope.refreshSummary();
-      if (newSig !== oldSig) { $scope.persistDesign(); }
+      if (newSig !== oldSig) {
+        $scope.persistDesign();
+        if (typeof $scope.recordHistory === 'function') { $scope.recordHistory(); }
+      }
     });
     $scope.init();
   },
@@ -2840,6 +3316,21 @@ jQuery(function ($) {
     $btn.addClass('is-active').attr('aria-selected', 'true');
     $root.find('.spbwc-cust-tabpanel').attr('hidden', true);
     $root.find('.spbwc-cust-tabpanel[data-spbwc-tabpanel="' + tab + '"]').removeAttr('hidden');
+  });
+
+  /* Floating Close (×) — the topbar was removed, so bind close explicitly.
+   * nbShowPopup() only wires `.close-popup` elements present when the popup
+   * first opens; this delegated handler is robust regardless of timing and
+   * mirrors nbShowPopup's own close (drop nbdpb-show + body lock + digest). */
+  $(document).on('click', '.spbwc-cust-v3 .spbwc-cust-floatclose', function () {
+    var $pop = $(this).closest('.nbdpb-popup');
+    $pop.removeClass('nbdpb-show');
+    $('body, html').removeClass('nbdpb-no-overflow');
+    try {
+      var el = document.getElementById('nbpb-container');
+      var s = el && angular.element(el).scope();
+      if (s && typeof s.updateApp === 'function') { s.updateApp(); }
+    } catch (e) {}
   });
 
   /* Reset-all — wired to both the topbar ↻ icon and the Summary "Reset all" link. */

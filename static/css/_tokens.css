@@ -188,6 +188,30 @@
     --transition-card:        box-shadow 0.18s, border-color 0.18s, transform 0.18s;
     --transition-modal:       opacity 0.2s, transform 0.2s;
 
+    /* === Z-index scale ========================================= */
+    /* Single stacking ladder — replaces ad-hoc 99/999/9999/99999  */
+    /* /1051 values scattered across the admin CSS. Consumers MUST  */
+    /* use these instead of raw numbers so overlays never fight.    */
+    --st-z-base:              1;
+    --st-z-sticky:            100;    /* sticky toolbars / save bars */
+    --st-z-dropdown:          500;    /* menus, selects, popovers    */
+    --st-z-overlay:           1000;   /* modal backdrop              */
+    --st-z-modal:             1100;   /* modal dialog                */
+    --st-z-toast:             1200;   /* toasts / snackbars          */
+    --st-z-tooltip:           1300;   /* tooltips — always on top    */
+
+    /* === Line-height scale ===================================== */
+    --st-leading-tight:       1.25;   /* headings                    */
+    --st-leading-snug:        1.4;    /* sub-headings / labels       */
+    --st-leading-normal:      1.5;    /* body                        */
+    --st-leading-relaxed:     1.625;  /* long-form help text         */
+
+    /* === Letter-spacing scale ================================== */
+    --st-tracking-tight:      -0.01em; /* large headings             */
+    --st-tracking-normal:     0;
+    --st-tracking-wide:       0.04em;  /* eyebrows / small labels    */
+    --st-tracking-caps:       0.08em;  /* uppercase section headings */
+
     /* === Legacy --gi-* aliases ================================= */
     /* Backward-compat for global-import-app.css and any other     */
     /* file still referencing the original --gi-* variable names.  */

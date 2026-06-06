@@ -273,6 +273,16 @@ if ( defined( 'SPBWC_PB_VISUAL_BUILDER_SLUG' ) && class_exists( 'SPBWC_Visual_Bu
                 ?>
             </section>
 
+            <!-- Section 3b: Customer design tools (free-form text/image layers). -->
+            <section class="spbwc-po-v3__section">
+                <?php
+                $spbwc_fdt_section_path = SPBWC_PB_PLUGIN_DIR . 'views/options/v3/section-design-tools.php';
+                if ( file_exists( $spbwc_fdt_section_path ) ) {
+                    include $spbwc_fdt_section_path;
+                }
+                ?>
+            </section>
+
             <!-- Section 4 (v3.3): Apply to products / categories. -->
             <section class="spbwc-po-v3__section">
                 <?php

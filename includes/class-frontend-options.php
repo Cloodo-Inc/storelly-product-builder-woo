@@ -409,7 +409,10 @@ if (!class_exists('STORELLY_FRONTEND_OPTIONS')) {
                     wp_enqueue_script( 'spbwc-conditional-logic' );
 
                     // Storefront flow enhancements (progress bar + mobile sticky CTA).
-                    wp_register_script( 'spbwc-storefront-enhance', SPBWC_PB_JS_URL . 'storefront-enhance.js', array( 'spbwc-option-builder' ), SPBWC_PB_VERSION, true );
+                    // filemtime version so edits bust the browser cache automatically.
+                    $spbwc_sfe_path = SPBWC_PB_ASSETS_DIR . 'js/storefront-enhance.js';
+                    $spbwc_sfe_ver  = file_exists( $spbwc_sfe_path ) ? filemtime( $spbwc_sfe_path ) : SPBWC_PB_VERSION;
+                    wp_register_script( 'spbwc-storefront-enhance', SPBWC_PB_JS_URL . 'storefront-enhance.js', array( 'spbwc-option-builder' ), $spbwc_sfe_ver, true );
                     wp_enqueue_script( 'spbwc-storefront-enhance' );
 
                     // Token-based storefront styling for the options form. Loads
@@ -677,7 +680,7 @@ if (!class_exists('STORELLY_FRONTEND_OPTIONS')) {
                 }
                 $product        = $variation_id ? wc_get_product($variation_id) : wc_get_product($product_id);
                 $original_price = (float)$product->get_price('edit');
-                $option_price   = $this->option_processing($options, $original_price, $nbd_field, $quantity, null, $product);
+                $option_price   = $this->option_processing($options, $original_price, $nbd_field, $quantity, null, $product, $prcpb_folder);
                 if ( '' !== $prcpb_folder ) {
                     $cart_item_data['pcpb_meta']['pcpb'] = $prcpb_folder;
                     $path   = SPBWC_PB_CUSTOMER_DIR . '/' . $prcpb_folder . '/preview';
@@ -819,7 +822,7 @@ if (!class_exists('STORELLY_FRONTEND_OPTIONS')) {
                 if ($field['id'] == $field_id) return $field;
             }
         }
-        public function option_processing($options, $original_price, $fields, $quantity, $cart_item_key = null, $product = null) {
+        public function option_processing($options, $original_price, $fields, $quantity, $cart_item_key = null, $product = null, $design_folder = '') {
             if (SPBWC_Storelly_PB_Util::spbwc_is_base64_string($options['fields'])) {
                 $options['fields'] = base64_decode($options['fields']);
             }
@@ -961,6 +964,45 @@ if (!class_exists('STORELLY_FRONTEND_OPTIONS')) {
                 }
                 $cart_item_fee['value'] = $total_cart_price - $_total_cart_price;
             }
+            // Free design tools — fixed per-layer fee for buyer-added text/image
+            // layers. The COUNT is read from the saved design folder
+            // (user-layers.json, written server-side from the actual canvas at
+            // save time), the PRICE + caps from the resolved option-set config.
+            // Clamped to the configured max so a tampered canvas cannot bill
+            // beyond the merchant's cap. Added to $total_price before the volume
+            // discount so a percentage tier applies to it consistently.
+            $spbwc_layer_fee   = 0;
+            $spbwc_layer_text  = 0;
+            $spbwc_layer_image = 0;
+            if ( '' !== (string) $design_folder && $design_folder === basename( $design_folder ) ) {
+                $spbwc_ul_path = SPBWC_PB_CUSTOMER_DIR . '/' . $design_folder . '/user-layers.json';
+                $spbwc_ul_raw  = SPBWC_Storelly_IO::spbwc_get_local_file_contents( $spbwc_ul_path );
+                if ( false !== $spbwc_ul_raw && '' !== $spbwc_ul_raw ) {
+                    $spbwc_ul = json_decode( $spbwc_ul_raw, true );
+                    if ( is_array( $spbwc_ul ) ) {
+                        $spbwc_fdt   = SPBWC_Storelly_PB_Util::spbwc_get_free_design_tools( 0, is_array( $option_fields ) ? $option_fields : null );
+                        $spbwc_layer_text  = isset( $spbwc_ul['text'] ) ? max( 0, (int) $spbwc_ul['text'] ) : 0;
+                        $spbwc_layer_image = isset( $spbwc_ul['image'] ) ? max( 0, (int) $spbwc_ul['image'] ) : 0;
+                        if ( 'y' === $spbwc_fdt['text']['enabled'] ) {
+                            if ( $spbwc_fdt['text']['max_layers'] > 0 ) {
+                                $spbwc_layer_text = min( $spbwc_layer_text, $spbwc_fdt['text']['max_layers'] );
+                            }
+                            $spbwc_layer_fee += $spbwc_layer_text * (float) $spbwc_fdt['text']['price_per_layer'];
+                        } else {
+                            $spbwc_layer_text = 0;
+                        }
+                        if ( 'y' === $spbwc_fdt['image']['enabled'] ) {
+                            if ( $spbwc_fdt['image']['max_layers'] > 0 ) {
+                                $spbwc_layer_image = min( $spbwc_layer_image, $spbwc_fdt['image']['max_layers'] );
+                            }
+                            $spbwc_layer_fee += $spbwc_layer_image * (float) $spbwc_fdt['image']['price_per_layer'];
+                        } else {
+                            $spbwc_layer_image = 0;
+                        }
+                    }
+                }
+            }
+            $total_price += $spbwc_layer_fee;
             // Quantity volume-discount engine. `quantity_breaks` and `quantity_discount_type`
             // live INSIDE the serialized option blob (read via $option_fields above), not at
             // the outer $options wrapper (which only carries the DB columns). Each tier is
@@ -1001,7 +1043,10 @@ if (!class_exists('STORELLY_FRONTEND_OPTIONS')) {
                 'discount_price'    => $discount_price,
                 'fields'            => $_fields,
                 'cart_image'        => $cart_image,
-                'original_price'    => $original_price
+                'original_price'    => $original_price,
+                'user_layers_fee'   => $spbwc_layer_fee,
+                'user_layers_text'  => $spbwc_layer_text,
+                'user_layers_image' => $spbwc_layer_image
             );
         }
         public function add_to_cart_text($var) {
@@ -1088,7 +1133,8 @@ if (!class_exists('STORELLY_FRONTEND_OPTIONS')) {
                     $fields         = $cart_item['pcpb_meta']['field'];
                     $original_price = (float)$product->get_price('edit');
                     $quantity       = $cart_item['quantity'];
-                    $option_price   = $this->option_processing($options, $original_price, $fields, $quantity, $cart_item_key, $product);
+                    $spbwc_cart_folder = isset($cart_item['pcpb_meta']['pcpb']) ? $cart_item['pcpb_meta']['pcpb'] : '';
+                    $option_price   = $this->option_processing($options, $original_price, $fields, $quantity, $cart_item_key, $product, $spbwc_cart_folder);
                     if (isset($cart_item['pcpb_meta']['pcpb'])) {
                         $path   = SPBWC_PB_CUSTOMER_DIR . '/' . $cart_item['pcpb_meta']['pcpb'] . '/preview';
                         $images = SPBWC_Storelly_IO::spbwc_get_list_images($path, 1);
@@ -1134,6 +1180,25 @@ if (!class_exists('STORELLY_FRONTEND_OPTIONS')) {
                 }
                 if (floatval($values['pcpb_meta']['option_price']['discount_price']) > 0) {
                     $item->add_meta_data(esc_html__('Quantity Discount', 'storelly-product-builder-for-woocommerce'), '-' . wc_price($values['pcpb_meta']['option_price']['discount_price'], array('decimals' => $num_decimals)));
+                }
+                // Free design tools — surface the buyer-added layer fee as a line.
+                if (isset($values['pcpb_meta']['option_price']['user_layers_fee']) && floatval($values['pcpb_meta']['option_price']['user_layers_fee']) > 0) {
+                    $spbwc_ul_text  = isset($values['pcpb_meta']['option_price']['user_layers_text']) ? (int) $values['pcpb_meta']['option_price']['user_layers_text'] : 0;
+                    $spbwc_ul_image = isset($values['pcpb_meta']['option_price']['user_layers_image']) ? (int) $values['pcpb_meta']['option_price']['user_layers_image'] : 0;
+                    $spbwc_ul_bits  = array();
+                    if ($spbwc_ul_text > 0) {
+                        /* translators: %d: number of custom text layers */
+                        $spbwc_ul_bits[] = sprintf(_n('%d text', '%d text', $spbwc_ul_text, 'storelly-product-builder-for-woocommerce'), $spbwc_ul_text);
+                    }
+                    if ($spbwc_ul_image > 0) {
+                        /* translators: %d: number of custom image layers */
+                        $spbwc_ul_bits[] = sprintf(_n('%d image', '%d images', $spbwc_ul_image, 'storelly-product-builder-for-woocommerce'), $spbwc_ul_image);
+                    }
+                    $spbwc_ul_label = implode(', ', $spbwc_ul_bits);
+                    $item->add_meta_data(
+                        esc_html__('Custom text & images', 'storelly-product-builder-for-woocommerce'),
+                        ($spbwc_ul_label ? $spbwc_ul_label . '&nbsp;&nbsp;' : '') . '+' . wc_price($values['pcpb_meta']['option_price']['user_layers_fee'], array('decimals' => $num_decimals))
+                    );
                 }
                 $item->add_meta_data('_pcpb_option_price', $values['pcpb_meta']['option_price']);
                 $item->add_meta_data('_pcpb_field', $values['pcpb_meta']['field']);
@@ -1211,6 +1276,27 @@ if (!class_exists('STORELLY_FRONTEND_OPTIONS')) {
                             'hidden'    => false
                         );
                     }
+                }
+                // Free design tools — surface the buyer-added text/image fee so the
+                // cart/checkout breakdown matches the canvas summary and the order.
+                if (isset($cart_item['pcpb_meta']['option_price']['user_layers_fee']) && floatval($cart_item['pcpb_meta']['option_price']['user_layers_fee']) > 0) {
+                    $spbwc_ul_text  = isset($cart_item['pcpb_meta']['option_price']['user_layers_text']) ? (int) $cart_item['pcpb_meta']['option_price']['user_layers_text'] : 0;
+                    $spbwc_ul_image = isset($cart_item['pcpb_meta']['option_price']['user_layers_image']) ? (int) $cart_item['pcpb_meta']['option_price']['user_layers_image'] : 0;
+                    $spbwc_ul_bits  = array();
+                    if ($spbwc_ul_text > 0) {
+                        /* translators: %d: number of custom text layers */
+                        $spbwc_ul_bits[] = sprintf(_n('%d text', '%d text', $spbwc_ul_text, 'storelly-product-builder-for-woocommerce'), $spbwc_ul_text);
+                    }
+                    if ($spbwc_ul_image > 0) {
+                        /* translators: %d: number of custom image layers */
+                        $spbwc_ul_bits[] = sprintf(_n('%d image', '%d images', $spbwc_ul_image, 'storelly-product-builder-for-woocommerce'), $spbwc_ul_image);
+                    }
+                    $spbwc_ul_label = implode(', ', $spbwc_ul_bits);
+                    $item_data[] = array(
+                        'name'      => esc_html__('Custom text & images', 'storelly-product-builder-for-woocommerce'),
+                        'display'   => ($spbwc_ul_label ? $spbwc_ul_label . '&nbsp;&nbsp;' : '') . '+' . wc_price($cart_item['pcpb_meta']['option_price']['user_layers_fee'], array('decimals' => $num_decimals)),
+                        'hidden'    => false
+                    );
                 }
                 if (floatval($cart_item['pcpb_meta']['option_price']['discount_price']) > 0) {
                     $item_data[] = array(
