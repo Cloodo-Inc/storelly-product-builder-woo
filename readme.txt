@@ -4,8 +4,8 @@ Donate link: https://storelly.com/
 Tags: product builder, product customize, product customizer, woocommerce custom product
 Requires at least: 4.7
 Tested up to: 7.0
-Stable tag: 1.6.3
-Version: 1.6.3
+Stable tag: 1.6.4
+Version: 1.6.4
 Requires PHP: 7.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -150,6 +150,13 @@ This plugin connects to the following external services:
 3. Storelly settings page with API keys and sync options
 
 == Changelog ==
+= 1.6.4 =
+* **Custom Orders — "View in designer" fixed.** The button now opens the storefront builder pre-loaded with the buyer's actual saved design (it previously used a legacy link with no effect). Admin-only, nonce-protected.
+* **Print PDF generation fixed.** Saving a design now keeps the vector (SVG) frames the print-PDF engine rebuilds each page from, so "Regenerate PDFs" / Download (PDF) work instead of failing. (Designs saved before this update should be re-saved once from the builder to generate their print files.)
+* **Order sync no longer duplicates.** Each order was being sent to the Storelly Dashboard twice; now sent once. Order sync also moved to a background job so checkout is never slowed by PDF rendering or the dashboard call.
+* **Cloud connect hardening (wordpress.org compliance).** No WooCommerce REST keys are minted on activation; cloud PDF defaults to off until you opt in; uninstall now removes cloud secrets + opt-in flags (the stable store ID is kept so reinstalling re-links to the same store). After connecting, the site emails the admin their new Storelly account details.
+* **Clearer Storelly guidance.** Settings › Integration now explains what is local vs cloud and which fields are optional; the Custom Order screen shows a "Connect Storelly" prompt when cloud PDF is off; the Overview help section adds direct support contacts (email + WhatsApp).
+
 = 1.6.3 =
 * Removed the vestigial designer-marketplace / "launcher" module entirely. It was bundled-but-disabled scaffolding inherited from the NBDesigner / pc-designer codebase (no UI entry point) and was the only place Storelly still carried that lineage's legacy globals. Deleting it permanently eliminates any possibility of a symbol collision with another NBDesigner / PC Designer–derived web-to-print plugin — superseding the 1.6.1 / 1.6.2 mitigations, which are no longer needed. Core product builder, quotes, B2B, custom orders and saved designs are unchanged.
 
