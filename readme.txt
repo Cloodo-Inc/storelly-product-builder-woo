@@ -4,8 +4,8 @@ Donate link: https://storelly.com/
 Tags: product builder, product customize, product customizer, woocommerce custom product
 Requires at least: 4.7
 Tested up to: 7.0
-Stable tag: 1.6.1
-Version: 1.6.1
+Stable tag: 1.6.2
+Version: 1.6.2
 Requires PHP: 7.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -133,6 +133,9 @@ This plugin connects to the following external services:
 3. Storelly settings page with API keys and sync options
 
 == Changelog ==
+= 1.6.2 =
+* Comprehensive conflict handling for sites that also run an NBDesigner / PC Designer–derived web-to-print plugin. Storelly now reliably detects a sibling designer plugin (both by a class probe and by scanning the active-plugins list, so it works regardless of plugin load order) and cleanly disables only its own optional designer-marketplace module instead of loading code that would collide. A clear admin notice asks you to deactivate the other plugin. This fully resolves the activation fatal introduced when both were active. Storelly's core product builder, quotes and B2B features are unaffected, and the marketplace module is opt-in (off by default).
+
 = 1.6.1 =
 * Fixed a fatal error ("Cannot redeclare function") that could occur on activation when another NBDesigner / pc-designer–derived web-to-print plugin was already active. The optional designer-marketplace module now detects those legacy helpers and steps aside instead of crashing the site. (Note: Storelly is intended to replace such plugins, not run alongside them.)
 
@@ -335,6 +338,9 @@ A major feature release turning Storelly into a full B2B-capable, quote-driven W
 * Initial release.
 
 == Upgrade Notice ==
+= 1.6.2 =
+Definitive fix for activation fatals when another NBDesigner / PC Designer web-to-print plugin is active. Recommended for everyone.
+
 = 1.6.1 =
 Fixes a possible activation fatal error when another NBDesigner-derived web-to-print plugin is active. Recommended for everyone on 1.6.0.
 

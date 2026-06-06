@@ -8,7 +8,7 @@
 Plugin Name:            Storelly Product Builder for WooCommerce
 Plugin URI:             https://storelly.com/product-builder
 Description:            Create product builder for Woocommerce products
-Version:                1.6.1
+Version:                1.6.2
 Requires Plugins:       woocommerce
 WC requires at least:   6.0.0
 WC tested up to:        10.7.0
@@ -24,8 +24,8 @@ Domain Path:            /languages
 $spbwc_upload_dir = wp_upload_dir();
 $spbwc_basedir    = $spbwc_upload_dir['basedir'];
 $spbwc_baseurl    = $spbwc_upload_dir['baseurl'];
-define('SPBWC_PB_VERSION',                  '1.6.1');
-define('SPBWC_PB_NUMBER_VERSION',           131);
+define('SPBWC_PB_VERSION',                  '1.6.2');
+define('SPBWC_PB_NUMBER_VERSION',           132);
 define('SPBWC_PB_PLUGIN_URL',               plugin_dir_url(__FILE__));
 define('SPBWC_PB_PLUGIN_DIR',               plugin_dir_path(__FILE__));
 define('SPBWC_PB_DATA_DIR',                 $spbwc_basedir . '/storelly-product-builder');
@@ -371,35 +371,100 @@ require_once(SPBWC_PB_PLUGIN_DIR .  'includes/templates/class-template-ajax.php'
 require_once(SPBWC_PB_PLUGIN_DIR .  'includes/templates/class-template-preview-render.php');
 
 /* Designer marketplace module — adapted from pc-designer "launcher".
- * Bridge loads first so its constant aliases and helper stubs are
- * available when the launcher classes parse. Marketplace classes are
- * always parsed (cheap; coexistence-guarded), but the launcher only
- * attaches WP/WC hooks when get_option('spbwc_marketplace_enabled') === 'yes'. */
-require_once(SPBWC_PB_PLUGIN_DIR .  'includes/marketplace-bridge.php');
-require_once(SPBWC_PB_PLUGIN_DIR .  'includes/marketplace/class-marketplace-io.php');
-require_once(SPBWC_PB_PLUGIN_DIR .  'includes/marketplace/class-marketplace-design-store.php');
-require_once(SPBWC_PB_PLUGIN_DIR .  'includes/marketplace/class-marketplace-settings-adapter.php');
-require_once(SPBWC_PB_PLUGIN_DIR .  'includes/settings/launcher.php');
-require_once(SPBWC_PB_PLUGIN_DIR .  'includes/launcher/util.php');
-require_once(SPBWC_PB_PLUGIN_DIR .  'includes/launcher/class.designer.php');
-require_once(SPBWC_PB_PLUGIN_DIR .  'includes/launcher/class.withdraw.php');
-require_once(SPBWC_PB_PLUGIN_DIR .  'includes/launcher/class.design.php');
-require_once(SPBWC_PB_PLUGIN_DIR .  'includes/launcher/class.generate.preview.process.php');
-require_once(SPBWC_PB_PLUGIN_DIR .  'includes/launcher/class.launcher.php');
-if ( class_exists( 'SPBWC_Marketplace' ) ) {
-    SPBWC_Marketplace::get_instance()->init();
+ *
+ * Storelly descends from the NBDesigner / pc-designer web-to-print codebase, so
+ * this module still carries that lineage's NBDESIGNER_* constants and bare
+ * nbd_/nbdl_ global helpers. When another NBDesigner-derived plugin is active it
+ * collides with us: the legacy globals fatally redeclare (PHP hoists top-level
+ * functions, so a guard inside the file is not enough), and two designer stacks
+ * fight over the same data. The ENTIRE conflict surface is contained in this
+ * module — Storelly's core builder / quote / B2B never reference those legacy
+ * symbols — so the definitive fix is to skip the whole module when a sibling
+ * web-to-print plugin is detected, and tell the admin to deactivate it. Storelly
+ * is a full replacement and this marketplace is opt-in (off by default) anyway. */
+if ( ! function_exists( 'spbwc_detect_designer_conflict' ) ) {
+    /**
+     * Detect another active NBDesigner / pc-designer-derived web-to-print plugin.
+     *
+     * Two probes so detection is independent of plugin load order:
+     *  - symbol probe: classes the sibling plugin declares but Storelly never does;
+     *  - path probe: scan the active_plugins option for the NBDesigner family.
+     *
+     * @return string|false Identifying token of the conflicting plugin, or false.
+     */
+    function spbwc_detect_designer_conflict() {
+        // Symbol probe — classes the NBDesigner / pc-designer family declares but
+        // Storelly never defines or aliases (so they only exist when a sibling
+        // web-to-print plugin is loaded). Do NOT probe Nbdesigner_IO here:
+        // Storelly registers a class_alias for that name itself.
+        if ( class_exists( 'Nbdesigner_Helper', false ) || class_exists( 'Nbdesigner_Compatibility', false ) ) {
+            return 'nbdesigner';
+        }
+        $active = (array) get_option( 'active_plugins', array() );
+        if ( is_multisite() ) {
+            $active = array_merge( $active, array_keys( (array) get_site_option( 'active_sitewide_plugins', array() ) ) );
+        }
+        foreach ( $active as $plugin_path ) {
+            $plugin_path = strtolower( (string) $plugin_path );
+            if ( 'nbdesigner.php' === basename( $plugin_path ) ) {
+                return $plugin_path;
+            }
+            if ( preg_match( '#(nbdesigner|web-to-print|pc-?design|cmsmart|printcart)#', dirname( $plugin_path ) ) ) {
+                return $plugin_path;
+            }
+        }
+        return false;
+    }
 }
 
-/* Marketplace admin (PHP rewrite of the old React SPA — see PR B).
- * Loaded after the launcher so it can rely on its REST routes, helper
- * functions, and the spbwc_marketplace_is_enabled() gate. */
-require_once(SPBWC_PB_PLUGIN_DIR .  'includes/marketplace/admin/class-marketplace-admin.php');
-require_once(SPBWC_PB_PLUGIN_DIR .  'includes/marketplace/admin/class-marketplace-admin-ajax.php');
-require_once(SPBWC_PB_PLUGIN_DIR .  'includes/marketplace/admin/class-designers-list-table.php');
-require_once(SPBWC_PB_PLUGIN_DIR .  'includes/marketplace/admin/class-designs-list-table.php');
-require_once(SPBWC_PB_PLUGIN_DIR .  'includes/marketplace/admin/class-withdraws-list-table.php');
-if ( class_exists( 'SPBWC_Marketplace_Admin' ) ) {
-    SPBWC_Marketplace_Admin::get_instance()->init();
+if ( ! function_exists( 'spbwc_nbdesigner_conflict_notice' ) ) {
+    /**
+     * Admin notice shown when a conflicting web-to-print plugin is active.
+     */
+    function spbwc_nbdesigner_conflict_notice() {
+        if ( ! current_user_can( 'activate_plugins' ) ) {
+            return;
+        }
+        echo '<div class="notice notice-error"><p>';
+        echo wp_kses_post(
+            __( '<strong>Storelly Product Builder:</strong> another product-designer / web-to-print plugin (NBDesigner / PC Designer family) is active. Storelly is a complete replacement, so its optional designer-marketplace module has been disabled to keep your site stable. Please deactivate the other designer plugin to use Storelly fully.', 'storelly-product-builder-for-woocommerce' )
+        );
+        echo '</p></div>';
+    }
+}
+
+if ( spbwc_detect_designer_conflict() ) {
+    add_action( 'admin_notices', 'spbwc_nbdesigner_conflict_notice' );
+} else {
+    /* Bridge loads first so its constant aliases and helper stubs are available
+     * when the launcher classes parse. The launcher only attaches WP/WC hooks
+     * when get_option('spbwc_marketplace_enabled') === 'yes'. */
+    require_once(SPBWC_PB_PLUGIN_DIR .  'includes/marketplace-bridge.php');
+    require_once(SPBWC_PB_PLUGIN_DIR .  'includes/marketplace/class-marketplace-io.php');
+    require_once(SPBWC_PB_PLUGIN_DIR .  'includes/marketplace/class-marketplace-design-store.php');
+    require_once(SPBWC_PB_PLUGIN_DIR .  'includes/marketplace/class-marketplace-settings-adapter.php');
+    require_once(SPBWC_PB_PLUGIN_DIR .  'includes/settings/launcher.php');
+    require_once(SPBWC_PB_PLUGIN_DIR .  'includes/launcher/util.php');
+    require_once(SPBWC_PB_PLUGIN_DIR .  'includes/launcher/class.designer.php');
+    require_once(SPBWC_PB_PLUGIN_DIR .  'includes/launcher/class.withdraw.php');
+    require_once(SPBWC_PB_PLUGIN_DIR .  'includes/launcher/class.design.php');
+    require_once(SPBWC_PB_PLUGIN_DIR .  'includes/launcher/class.generate.preview.process.php');
+    require_once(SPBWC_PB_PLUGIN_DIR .  'includes/launcher/class.launcher.php');
+    if ( class_exists( 'SPBWC_Marketplace' ) ) {
+        SPBWC_Marketplace::get_instance()->init();
+    }
+
+    /* Marketplace admin (PHP rewrite of the old React SPA — see PR B).
+     * Loaded after the launcher so it can rely on its REST routes, helper
+     * functions, and the spbwc_marketplace_is_enabled() gate. */
+    require_once(SPBWC_PB_PLUGIN_DIR .  'includes/marketplace/admin/class-marketplace-admin.php');
+    require_once(SPBWC_PB_PLUGIN_DIR .  'includes/marketplace/admin/class-marketplace-admin-ajax.php');
+    require_once(SPBWC_PB_PLUGIN_DIR .  'includes/marketplace/admin/class-designers-list-table.php');
+    require_once(SPBWC_PB_PLUGIN_DIR .  'includes/marketplace/admin/class-designs-list-table.php');
+    require_once(SPBWC_PB_PLUGIN_DIR .  'includes/marketplace/admin/class-withdraws-list-table.php');
+    if ( class_exists( 'SPBWC_Marketplace_Admin' ) ) {
+        SPBWC_Marketplace_Admin::get_instance()->init();
+    }
 }
 
 /* Template Library module — admin submenu, idempotent column migration, AJAX. */
