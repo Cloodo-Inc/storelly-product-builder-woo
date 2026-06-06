@@ -208,6 +208,90 @@ body.spbwc-modal-open { overflow: hidden; }
 .spbwc-role-chip--requester{ background: var(--st-pill-pending-bg); color: var(--st-pill-pending-text); }
 .spbwc-role-chip--viewer   { background: var(--st-pill-draft-bg);   color: var(--st-pill-draft-text); }
 
+/* Neutral grey pill — for a bare .spbwc-block__badge on an unstyled block head. */
+.spbwc-badge--neutral { background: var(--st-pill-draft-bg); color: var(--st-pill-draft-text); }
+
+/* ── Members roster (company detail → Members tab) ───────── */
+.spbwc-member-list { width: 100%; }
+
+/* Column-header row — aligns labels with the body columns below. */
+.spbwc-member-list__head {
+    display: flex;
+    align-items: center;
+    gap: var(--nbd-space-3);
+    padding: var(--nbd-space-2) var(--nbd-space-5);
+    padding-inline-start: calc(var(--nbd-space-5) + 44px + var(--nbd-space-3));
+    font-size: var(--text-xs);
+    font-weight: var(--font-bold);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--nbd-st-text-mute);
+    background: var(--nbd-st-bg-soft);
+    border-bottom: 1px solid var(--nbd-st-border-subtle);
+}
+.spbwc-member-list__head .spbwc-member__role,
+.spbwc-member-list__head .spbwc-member__limit { display: block; }
+
+/* Roster row — give the flush list horizontal breathing room. */
+.spbwc-member.spbwc-list__item {
+    padding-inline-start: var(--nbd-space-5);
+    padding-inline-end: var(--nbd-space-5);
+}
+.spbwc-member.spbwc-list__item:hover {
+    color: var(--nbd-st-text);
+    background: var(--nbd-st-bg-soft);
+}
+
+/* Identity column — name (+ owner chip) over email. */
+.spbwc-member__id {
+    flex: 1 1 auto;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+}
+.spbwc-member__name {
+    display: flex;
+    align-items: center;
+    gap: var(--nbd-space-2);
+    min-width: 0;
+    font-weight: var(--font-semibold);
+    color: var(--nbd-st-text);
+}
+.spbwc-member__email {
+    font-size: var(--text-sm);
+    color: var(--nbd-st-text-soft);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* Fixed columns keep chips + amounts vertically aligned across rows. */
+.spbwc-member__role  { flex: 0 0 130px; }
+.spbwc-member__limit {
+    flex: 0 0 120px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    text-align: end;
+    line-height: 1.25;
+}
+.spbwc-member__limit-val  { font-weight: var(--font-semibold); color: var(--nbd-st-text); }
+.spbwc-member__limit-unit { font-size: var(--text-xs); color: var(--nbd-st-text-mute); text-transform: uppercase; letter-spacing: 0.04em; }
+.spbwc-member__limit-none { font-size: var(--text-sm); color: var(--nbd-st-text-mute); }
+
+@media (max-width: 600px) {
+    .spbwc-member-list__head { display: none; }
+    .spbwc-member.spbwc-list__item { flex-wrap: wrap; }
+    .spbwc-member__role,
+    .spbwc-member__limit {
+        flex: 0 0 auto;
+        align-items: flex-start;
+        text-align: start;
+        margin-inline-start: calc(44px + var(--nbd-space-3));
+    }
+}
+
 /* ── B2B-specific: per-company pricing bind form ─────────── */
 .spbwc-b2b-bind {
     display: flex;

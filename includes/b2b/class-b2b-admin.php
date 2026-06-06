@@ -853,14 +853,41 @@ if ( ! class_exists( 'SPBWC_B2B_Admin' ) ) {
         protected function render_members_tab( $company_id, $members, $seats ) {
             $roles    = SPBWC_Company::roles();
             $owner_id = (int) get_post_field( 'post_author', $company_id );
-            echo '<div class="spbwc-block"><div class="spbwc-block__head"><h3 class="spbwc-block__title">' . esc_html__( 'Members', 'storelly-product-builder-for-woocommerce' ) . ' (' . esc_html( count( $members ) . ' / ' . $seats ) . ')</h3></div><div class="spbwc-block__body spbwc-block__body--flush"><ul class="spbwc-list">';
+            $count    = count( $members );
+            $sym      = get_woocommerce_currency_symbol();
+
+            echo '<div class="spbwc-block">';
+            echo '<div class="spbwc-block__head"><h3 class="spbwc-block__title"><span class="dashicons dashicons-groups" aria-hidden="true"></span>' . esc_html__( 'Members', 'storelly-product-builder-for-woocommerce' ) . '</h3>';
+            /* translators: 1: used seats, 2: total seats. */
+            echo '<span class="spbwc-block__badge spbwc-badge--neutral">' . esc_html( sprintf( __( '%1$d / %2$d seats', 'storelly-product-builder-for-woocommerce' ), $count, $seats ) ) . '</span></div>';
+            echo '<div class="spbwc-block__body spbwc-block__body--flush"><ul class="spbwc-list spbwc-member-list">';
+
+            // Column header row for alignment cues.
+            echo '<li class="spbwc-member-list__head" aria-hidden="true">';
+            echo '<span class="spbwc-member__id">' . esc_html__( 'Member', 'storelly-product-builder-for-woocommerce' ) . '</span>';
+            echo '<span class="spbwc-member__role">' . esc_html__( 'Role', 'storelly-product-builder-for-woocommerce' ) . '</span>';
+            echo '<span class="spbwc-member__limit">' . esc_html__( 'Order limit', 'storelly-product-builder-for-woocommerce' ) . '</span>';
+            echo '</li>';
+
             foreach ( $members as $m ) {
-                $role = SPBWC_Company::get_user_role( $m->ID );
-                $lim  = SPBWC_Company::get_order_limit( $m->ID );
-                echo '<li class="spbwc-list__item">' . self::avatar( $m ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- avatar escapes.
-                echo '<div class="spbwc-list__item-grow"><strong>' . esc_html( $m->display_name ) . ( (int) $m->ID === $owner_id ? ' <span class="spbwc-role-chip spbwc-role-chip--owner">' . esc_html__( 'Owner', 'storelly-product-builder-for-woocommerce' ) . '</span>' : '' ) . '</strong><br /><span class="spbwc-muted-sm">' . esc_html( $m->user_email ) . '</span></div>';
-                echo '<span class="spbwc-role-chip spbwc-role-chip--' . esc_attr( $role ) . '">' . esc_html( isset( $roles[ $role ] ) ? $roles[ $role ] : $role ) . '</span>';
-                echo '<span class="spbwc-muted-sm">' . esc_html( $lim > 0 ? get_woocommerce_currency_symbol() . number_format( $lim, 0 ) . '/order' : __( 'No limit', 'storelly-product-builder-for-woocommerce' ) ) . '</span>';
+                $role     = SPBWC_Company::get_user_role( $m->ID );
+                $lim      = SPBWC_Company::get_order_limit( $m->ID );
+                $is_owner = ( (int) $m->ID === $owner_id );
+                echo '<li class="spbwc-list__item spbwc-member">' . self::avatar( $m, 'spbwc-avatar--lg' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- avatar escapes.
+                echo '<span class="spbwc-member__id">';
+                echo '<span class="spbwc-member__name">' . esc_html( $m->display_name );
+                if ( $is_owner ) {
+                    echo ' <span class="spbwc-role-chip spbwc-role-chip--owner">' . esc_html__( 'Owner', 'storelly-product-builder-for-woocommerce' ) . '</span>';
+                }
+                echo '</span><span class="spbwc-member__email">' . esc_html( $m->user_email ) . '</span></span>';
+                echo '<span class="spbwc-member__role"><span class="spbwc-role-chip spbwc-role-chip--' . esc_attr( $role ) . '">' . esc_html( isset( $roles[ $role ] ) ? $roles[ $role ] : $role ) . '</span></span>';
+                echo '<span class="spbwc-member__limit">';
+                if ( $lim > 0 ) {
+                    echo '<span class="spbwc-member__limit-val">' . wp_kses_post( $sym ) . esc_html( number_format( $lim, 0 ) ) . '</span><span class="spbwc-member__limit-unit">' . esc_html__( 'per order', 'storelly-product-builder-for-woocommerce' ) . '</span>';
+                } else {
+                    echo '<span class="spbwc-member__limit-none">' . esc_html__( 'No limit', 'storelly-product-builder-for-woocommerce' ) . '</span>';
+                }
+                echo '</span>';
                 echo '</li>';
             }
             echo '</ul></div></div>';
