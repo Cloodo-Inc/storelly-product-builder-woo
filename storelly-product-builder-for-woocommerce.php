@@ -401,7 +401,11 @@ if ( class_exists( 'SPBWC_Woo_Seed_Controller' ) ) {
 }
 
 
-register_activation_hook(__FILE__, array('SPBWC_Storelly_Product_Builder_API', 'spbwc_generate_key'));
+// NOTE: WooCommerce REST keys are NOT provisioned on activation. spbwc_generate_key()
+// throws when the activating user lacks `edit_user` (could fatal activation) and silently
+// minting credentials on activate contradicts the "nothing runs on activation" consent
+// model. The keys are generated on demand inside the explicit Cloud connect flow
+// (SPBWC_Cloud_Connect::connect() → spbwc_generate_key) instead.
 
 add_action( 'before_woocommerce_init', function() {
     if ( class_exists( \Automattic\WooCommerce\Utilities\FeaturesUtil::class ) ) {

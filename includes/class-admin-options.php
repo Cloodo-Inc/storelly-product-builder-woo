@@ -3999,7 +3999,7 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
                 if ( ! $settings_nonce || ! wp_verify_nonce( $settings_nonce, 'spbwc_settings_action' ) ) {
                     wp_die( esc_html__( 'Security error.', 'storelly-product-builder-for-woocommerce' ) );
                 }
-                $storelly_enable_cloud2print_api      = isset($_POST['storelly_enable_cloud2print_api']) ? sanitize_text_field( wp_unslash( $_POST['storelly_enable_cloud2print_api'] ) ) : 'yes';
+                $storelly_enable_cloud2print_api      = isset($_POST['storelly_enable_cloud2print_api']) ? sanitize_text_field( wp_unslash( $_POST['storelly_enable_cloud2print_api'] ) ) : 'no';
                 $storelly_enable_api_sync              = isset($_POST['storelly_enable_api_sync']) ? sanitize_text_field( wp_unslash( $_POST['storelly_enable_api_sync'] ) ) : 'no';
                 $consumer_key                         = isset( $_POST['storelly_consumer_key'] ) ? sanitize_text_field( wp_unslash( $_POST['storelly_consumer_key'] ) ) : '';
                 $consumer_secret                      = isset( $_POST['storelly_consumer_secret'] ) ? sanitize_text_field( wp_unslash( $_POST['storelly_consumer_secret'] ) ) : '';
