@@ -46,6 +46,20 @@
 			} );
 		} );
 
+		// Show the free-text "Custom label" input only when the Payment terms
+		// select is on "custom" (delegated — covers cloned rows too).
+		tbody.addEventListener( 'change', function ( e ) {
+			var sel = e.target.closest ? e.target.closest( '.js-spbwc-terms-select' ) : null;
+			if ( ! sel ) {
+				return;
+			}
+			var cell   = sel.closest( 'td' );
+			var custom = cell ? cell.querySelector( '.js-spbwc-terms-custom' ) : null;
+			if ( custom ) {
+				custom.style.display = ( 'custom' === sel.value ) ? '' : 'none';
+			}
+		} );
+
 		// Remove an unsaved row (delegated — covers cloned rows too).
 		tbody.addEventListener( 'click', function ( e ) {
 			var btn = e.target.closest ? e.target.closest( '.js-spbwc-remove-row' ) : null;

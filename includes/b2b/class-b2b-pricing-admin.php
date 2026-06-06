@@ -134,6 +134,7 @@ if ( ! class_exists( 'SPBWC_B2B_Pricing_Admin' ) ) {
             $pct    = isset( $tier['discount_pct'] ) ? $tier['discount_pct'] : '';
             $min    = isset( $tier['min_order'] ) ? $tier['min_order'] : '';
             $terms  = isset( $tier['terms'] ) ? $tier['terms'] : 'prepaid';
+            $custom = isset( $tier['terms_custom'] ) ? $tier['terms_custom'] : '';
             $ship   = isset( $tier['free_ship_over'] ) ? $tier['free_ship_over'] : '';
             $count  = ( '' !== $slug ) ? self::count_companies_on_tier( $slug ) : 0;
             $is_new = ( '' === $slug );
@@ -148,7 +149,8 @@ if ( ! class_exists( 'SPBWC_B2B_Pricing_Admin' ) ) {
             $html .= '<input class="spbwc-input" type="text" name="tier_label[' . esc_attr( $i ) . ']" value="' . esc_attr( $label ) . '" placeholder="' . ( $is_new ? esc_attr__( '+ Add tier…', 'storelly-product-builder-for-woocommerce' ) : esc_attr__( 'e.g. Tier A', 'storelly-product-builder-for-woocommerce' ) ) . '" style="min-width:140px" /></td>';
             $html .= '<td><input class="spbwc-input" type="number" min="0" max="100" step="0.1" name="tier_pct[' . esc_attr( $i ) . ']" value="' . esc_attr( $pct ) . '" style="width:80px" /></td>';
             $html .= '<td><input class="spbwc-input" type="number" min="0" step="0.01" name="tier_min[' . esc_attr( $i ) . ']" value="' . esc_attr( $min ) . '" style="width:90px" /></td>';
-            $html .= '<td><select class="spbwc-input" name="tier_terms[' . esc_attr( $i ) . ']" style="min-width:150px">' . $opts . '</select></td>';
+            $html .= '<td><select class="spbwc-input js-spbwc-terms-select" name="tier_terms[' . esc_attr( $i ) . ']" style="min-width:150px">' . $opts . '</select>';
+            $html .= '<input class="spbwc-input js-spbwc-terms-custom" type="text" name="tier_terms_custom[' . esc_attr( $i ) . ']" value="' . esc_attr( $custom ) . '" placeholder="' . esc_attr__( 'Custom label, e.g. Net 45', 'storelly-product-builder-for-woocommerce' ) . '" style="margin-top:6px;min-width:150px;' . ( 'custom' === $terms ? '' : 'display:none;' ) . '" /></td>';
             $html .= '<td><input class="spbwc-input" type="number" min="0" step="0.01" name="tier_ship[' . esc_attr( $i ) . ']" value="' . esc_attr( $ship ) . '" style="width:90px" /></td>';
             $html .= '<td>' . ( $is_new ? '<span style="color:var(--nbd-st-text-mute)">—</span>' : '<span class="spbwc-pill spbwc-pill--neutral">' . esc_html( number_format_i18n( $count ) ) . '</span>' ) . '</td>';
             $html .= '<td>';
@@ -181,6 +183,7 @@ if ( ! class_exists( 'SPBWC_B2B_Pricing_Admin' ) ) {
             $pcts   = isset( $_POST['tier_pct'] ) ? (array) wp_unslash( $_POST['tier_pct'] ) : array();
             $mins   = isset( $_POST['tier_min'] ) ? (array) wp_unslash( $_POST['tier_min'] ) : array();
             $terms  = isset( $_POST['tier_terms'] ) ? (array) wp_unslash( $_POST['tier_terms'] ) : array();
+            $tcusts = isset( $_POST['tier_terms_custom'] ) ? (array) wp_unslash( $_POST['tier_terms_custom'] ) : array();
             $ships  = isset( $_POST['tier_ship'] ) ? (array) wp_unslash( $_POST['tier_ship'] ) : array();
             $dels   = isset( $_POST['tier_delete'] ) ? (array) wp_unslash( $_POST['tier_delete'] ) : array();
             // phpcs:enable WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
@@ -211,13 +214,20 @@ if ( ! class_exists( 'SPBWC_B2B_Pricing_Admin' ) ) {
                 }
                 $used[ $slug ] = true;
 
+                $tier_terms = isset( $terms[ $i ] ) ? sanitize_key( $terms[ $i ] ) : 'prepaid';
+
                 $out[ $slug ] = array(
                     'label'          => $label,
                     'discount_pct'   => isset( $pcts[ $i ] ) ? max( 0, min( 100, (float) $pcts[ $i ] ) ) : 0,
                     'min_order'      => isset( $mins[ $i ] ) ? max( 0, (float) $mins[ $i ] ) : 0,
-                    'terms'          => isset( $terms[ $i ] ) ? sanitize_key( $terms[ $i ] ) : 'prepaid',
+                    'terms'          => $tier_terms,
                     'free_ship_over' => isset( $ships[ $i ] ) ? max( 0, (float) $ships[ $i ] ) : 0,
                 );
+
+                // Free-text label for the "Custom" payment term (only kept when relevant).
+                if ( 'custom' === $tier_terms && isset( $tcusts[ $i ] ) && '' !== trim( (string) $tcusts[ $i ] ) ) {
+                    $out[ $slug ]['terms_custom'] = sanitize_text_field( $tcusts[ $i ] );
+                }
             }
 
             SPBWC_B2B_Pricing::save_tiers( $out );

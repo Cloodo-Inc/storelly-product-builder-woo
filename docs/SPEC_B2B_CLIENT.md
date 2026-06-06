@@ -209,6 +209,19 @@ All colours/spacing/radius/shadow use the storefront design tokens (`--nbd-mb-*`
 
 **States:** not-a-company (no endpoint shown) → invited (accept banner) → pending approval ("We'll review shortly") → active (full brand store) → incomplete profile (nudge to finish). Mirrors the source's tier-pill upgrade handshake.
 
+### 4.3 Sample B2B client — "Netbase JSC" (auto-install)
+
+To solve the whole-suite empty-state, activation installs ONE fully-populated sample company so the merchant can explore brand store → tier price → quote → order → team approval without any setup. Implemented in `SPBWC_B2B_Sample` (`includes/b2b/class-b2b-sample.php`).
+
+- **Trigger.** `register_activation_hook` calls `SPBWC_B2B_Sample::arm()` which only sets a flag (`spbwc_b2b_seed_pending`). The real build runs on the **next authenticated admin load** (`admin_init → maybe_seed`), gated on WooCommerce + `manage_woocommerce`, so the CPTs, media stack and an actor are guaranteed ready. One-time guard `spbwc_b2b_sample_seeded` (= `VERSION`) prevents re-runs; a success admin notice links to the B2B hub. Manual `admin-post` Add/Remove handlers (nonce + cap) allow re-seed / teardown.
+- **What it seeds** (every artefact flagged `_spbwc_sample` for one-click removal):
+  - **Own demo users** (never the site admin): owner `netbase-owner@`, approver `netbase-approver@`, requester `netbase-buyer@` (`@example.com`, role `customer`, random pass).
+  - **Company** "Netbase JSC" (slug `netbase-jsc`, active, tier, seats 10, approval threshold 500, net30) with **bundled** branding — logo + banner side-loaded from `static/img/b2b-sample/` (**no external fetch**), brand `#f8921f`/`#d1651a`, tagline, description, profile (industry "Software & IT Consulting"), contact + Hanoi address.
+  - **Tier ladder** ensured (fresh installs have none): if `spbwc_b2b_tiers` is empty it seeds A/B/C and remembers it created them (`spbwc_b2b_sample_made_tiers`) so removal can undo.
+  - **Pricing**: first bound product gets a fixed 20%-off unit price, the rest 15% off (`SPBWC_B2B_Price_Rules::save_rule`); the bound products become the Brand Store allow-list.
+  - **One RFQ quote**, **one completed Woo order** (HPOS-safe `wc_create_order`), **one pending team-approval request** (`spbwc_procurement`).
+- **Compliance.** Fully local — bundled assets, no phone-home (CLAUDE.md rule 6); transactional emails are suppressed during the build (`pre_wp_mail`, best-effort on WP ≥ 5.7). `remove_all()` deletes the company, demo users, quote, flagged orders (wp_posts + HPOS), procurement, attachments, price-rule rows (`$wpdb->prepare`) and any tier ladder it created.
+
 ---
 
 ## 5. Feature 2 — Per-company products + per-company price
@@ -249,7 +262,7 @@ Converts Printcart `pricing` page + `modal-new-pricing-rule`.
 
 ### 6.1 Merchant flow — **Storelly → B2B Pricing**
 Three stacked cards, matching the source:
-1. **Tier discount ladder** — table `Tier | Discount % | Min order | Payment terms | Free shipping | Companies | Edit`. `+ Add tier`. Edits `spbwc_b2b_tiers`. "Companies" count = companies on that tier.
+1. **Tier discount ladder** — table `Tier | Discount % | Min order | Payment terms | Free shipping | Companies | Edit`. `+ Add tier`. Edits `spbwc_b2b_tiers`. "Companies" count = companies on that tier. The **Payment terms** select includes a `Custom` option; choosing it reveals a free-text input (`tier_terms_custom`) so the merchant can name the term shown to companies (e.g. "Net 45 EOM") instead of the literal word "Custom". The label is persisted in the tier under `terms_custom` and only kept while `terms === 'custom'`.
 2. **Quantity-based discounts** — surfaced read-only here, but they reuse the existing `quantity_breaks` engine; link to the option editor. (No new engine — memory: quantity_breaks already has cart engine.)
 3. **Special rules** — promo / product-specific overrides. v1: **defer** complex promo codes to a later release; show the section but ship only per-company overrides (Feature 2) + tier ladder.
 
