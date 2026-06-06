@@ -643,6 +643,16 @@ if ( ! in_array($spbwc_settings_tab, $spbwc_valid_tabs, true) ) {
             <!-- ━━━ INTEGRATION ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ -->
             <div class="spbwc-tab-panel" id="tab-integration"<?php echo ($spbwc_settings_tab !== 'integration') ? ' style="display:none;"' : ''; ?>>
 
+                <!-- ── What is Storelly? (plain-language intro) ───── -->
+                <div class="spbwc-block spbwc-block--info" style="border-left:3px solid var(--st-accent,#2563eb);">
+                    <div class="spbwc-setting-rows">
+                        <p class="spbwc-setting-row__hint" style="margin:0;">
+                            <strong><?php esc_html_e( 'About Storelly Cloud', 'storelly-product-builder-for-woocommerce' ); ?></strong>
+                            <?php esc_html_e( 'The product builder, pricing options, quotes and orders all run locally in your WordPress — free, with no account needed. Storelly is a separate cloud service (app.storelly.com) that adds print-ready PDF rendering and a central dashboard. The settings below ONLY take effect once you connect; nothing on this page sends any data to Storelly until you turn a feature on or save API keys. You can disconnect at any time.', 'storelly-product-builder-for-woocommerce' ); ?>
+                        </p>
+                    </div>
+                </div>
+
                 <!-- ── Block 1: Integration feature toggles ─────── -->
                 <div class="spbwc-block">
                     <div class="spbwc-block__head">
@@ -724,6 +734,10 @@ if ( ! in_array($spbwc_settings_tab, $spbwc_valid_tabs, true) ) {
                     </div>
 
                     <div class="spbwc-setting-rows">
+
+                        <p class="spbwc-setting-row__hint" style="margin-top:0;">
+                            <?php esc_html_e( 'Optional — only needed if you ALREADY have a Storelly account and want to link this store manually. New users do not need to fill this in: use “Enable Cloud” on the Overview page and an account is created and connected for you automatically (you will get an email with the login). These fields connect to the Storelly cloud at app.storelly.com.', 'storelly-product-builder-for-woocommerce' ); ?>
+                        </p>
 
                         <!-- SID (Consumer Key) -->
                         <div class="spbwc-setting-row">

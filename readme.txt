@@ -46,7 +46,24 @@ Storelly Product Builder ships with translations for **15 languages** out of the
 == Frequently Asked Questions ==
 
 = How can I contact support? =
-You can reach the Storelly team via email: support@storelly.com
+You can reach the Storelly team directly:
+- Email: support@storelly.com
+- WhatsApp: +84 937 869 689
+
+(A searchable knowledge base and a support ticket system are coming soon.)
+
+= What is "Storelly Cloud" and do I need an account? =
+
+No account is required to use the plugin. The product builder, pricing options, quotes and custom orders all run **locally on your own WordPress site, for free, with no product limit**.
+
+"Storelly Cloud" is a separate, optional online service (app.storelly.com). It adds print‑ready PDF rendering, order sync and a central dashboard. You only need it if you want those cloud features.
+
+How connecting works:
+- **New users:** click **"Enable Cloud"** on the plugin's Overview/Welcome screen. A Storelly account is created and connected for you automatically, right inside wp‑admin — you are not redirected to storelly.com. You then receive an email at your site admin address with your Storelly username, password and login link (please sign in and change the password).
+- **Existing Storelly users:** you can instead paste your API keys (SID + Secret) on **Settings → Integration**, or paste your Store ID via "Already have a Store ID? Link it" to attach this site to your existing store.
+- **Reinstalling:** the plugin keeps a stable store identifier derived from your site URL and admin email, so reconnecting re‑links to the same Storelly store instead of creating a duplicate.
+
+Nothing is sent to Storelly until you explicitly connect, and you can disconnect at any time (Overview → Disconnect). See the "External services" section for exactly what data is shared.
 
 = How do I use this plugin in my language? =
 

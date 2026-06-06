@@ -1297,21 +1297,21 @@ $plan_benefits = $is_free
                 <?php esc_html_e( 'Need a hand?', 'storelly-product-builder-for-woocommerce' ); ?>
             </h3>
             <p class="spbwc-help-section__text">
-                <?php esc_html_e( 'Read the documentation, check the latest changelog, or reach out to the Storelly team. We typically respond within one business day on weekdays.', 'storelly-product-builder-for-woocommerce' ); ?>
+                <?php esc_html_e( 'Storelly is the cloud service this plugin connects to for print-ready PDF rendering and your dashboard. Reach the Storelly team directly below — we typically respond within one business day on weekdays. (A searchable knowledge base and support ticketing are coming soon.)', 'storelly-product-builder-for-woocommerce' ); ?>
             </p>
         </div>
         <div class="spbwc-help-section__links">
+            <a class="spbwc-cta-btn" href="mailto:support@storelly.com">
+                <span class="dashicons dashicons-email-alt" aria-hidden="true"></span>
+                <?php esc_html_e( 'Email support@storelly.com', 'storelly-product-builder-for-woocommerce' ); ?>
+            </a>
+            <a class="spbwc-cta-btn spbwc-cta-btn--ghost" href="https://wa.me/84937869689" target="_blank" rel="noopener noreferrer">
+                <span class="dashicons dashicons-phone" aria-hidden="true"></span>
+                <?php esc_html_e( 'WhatsApp +84 937 869 689', 'storelly-product-builder-for-woocommerce' ); ?>
+            </a>
             <a class="spbwc-cta-btn spbwc-cta-btn--ghost" href="https://storelly.com/docs" target="_blank" rel="noopener">
                 <span class="dashicons dashicons-book" aria-hidden="true"></span>
                 <?php esc_html_e( 'Documentation', 'storelly-product-builder-for-woocommerce' ); ?>
-            </a>
-            <a class="spbwc-cta-btn spbwc-cta-btn--ghost" href="https://storelly.com/changelog" target="_blank" rel="noopener">
-                <span class="dashicons dashicons-megaphone" aria-hidden="true"></span>
-                <?php esc_html_e( 'Changelog', 'storelly-product-builder-for-woocommerce' ); ?>
-            </a>
-            <a class="spbwc-cta-btn" href="https://storelly.com/support" target="_blank" rel="noopener">
-                <span class="dashicons dashicons-email-alt" aria-hidden="true"></span>
-                <?php esc_html_e( 'Contact support', 'storelly-product-builder-for-woocommerce' ); ?>
             </a>
         </div>
     </section>
