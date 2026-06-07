@@ -525,13 +525,23 @@ if ( ! class_exists( 'SPBWC_Demo_Seeder' ) ) {
 			return (int) $id;
 		}
 
-		/** Recursively rewrite every `image` id in the fields blob via the map (missing -> 0). */
+		/**
+		 * Keys inside the fields blob whose scalar value is an attachment id and
+		 * must be remapped old->new on import. Besides the obvious `image` (swatch
+		 * / layer images), components store their thumbnail under `component_icon`
+		 * and each view stores its base canvas under `base`. Missing those two left
+		 * component swatch thumbnails and view bases pointing at stale ids on a
+		 * fresh site (blank / wrong images).
+		 */
+		const IMAGE_KEYS = array( 'image', 'component_icon', 'base' );
+
+		/** Recursively rewrite every attachment-id reference in the fields blob via the map (missing -> 0). */
 		protected static function remap_images( &$node, array $map ) {
 			if ( ! is_array( $node ) ) {
 				return;
 			}
 			foreach ( $node as $k => &$v ) {
-				if ( 'image' === $k && is_scalar( $v ) && (int) $v > 0 ) {
+				if ( in_array( (string) $k, self::IMAGE_KEYS, true ) && is_scalar( $v ) && (int) $v > 0 ) {
 					$v = isset( $map[ (int) $v ] ) ? (int) $map[ (int) $v ] : 0;
 				} elseif ( is_array( $v ) ) {
 					self::remap_images( $v, $map );

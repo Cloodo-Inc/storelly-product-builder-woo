@@ -303,6 +303,25 @@ yc #9 (My Account endpoint) gài kèm M1 (đăng ký endpoint lúc activate).
 > `is_seeded` true → xóa state → fallback vẫn true → đúng 1 sample product → undo về 0. Compliance: vẫn 0
 > mạng; direct DB query có `$wpdb->prepare` + phpcs:ignore; không string mới.
 
+### M9.1d — Fix bundle thiếu ảnh component_icon + view base  ✅ DONE (2026-06-07)
+> **Vấn đề (user, 2026-06-07):** trên bag demo đã import, thumbnail các component (SIDE PANELS / MIDDLE
+> BLOCK / INSIDE STORAGE…) bị **trống/đen**, và **base image của view "Inside"** hiện sai (một khối đen lạ).
+>
+> **Nguyên nhân:** cả generator (`tools/_gen-bag-bundle.php::spbwc_gen_ids`) lẫn importer
+> (`SPBWC_Demo_Seeder::remap_images`) chỉ thu thập / remap key **`image`**. Nhưng component lưu thumbnail
+> dưới key **`component_icon`** và mỗi view lưu base canvas dưới key **`base`** (171/222/253/289/316 +
+> 327/328). Những id này KHÔNG được bundle (thiếu webp) và KHÔNG remap khi import → trên site mới trỏ vào
+> attachment không tồn tại / sai → ảnh trống/lệch. (`pb_config` chỉ chứa `image` nên sub-swatch vẫn ổn.)
+>
+> **Fix:**
+> - Tập key ảnh dùng chung `SPBWC_Demo_Seeder::IMAGE_KEYS = ['image','component_icon','base']`; `remap_images`
+>   remap cả ba. Generator `spbwc_gen_ids` thu thập cùng tập key (giữ contract đồng bộ qua comment chéo).
+> - Regen bundle: `image_ids` 103 → 110, thêm 7 webp thật (handles/sid-panels/middle-block/inside-base/
+>   strap icon + Front/Top base). `bag.json` diff chỉ mở rộng `image_ids`, structure giữ nguyên.
+>
+> Test browser (localhost, option mới seed): Visual Builder → 3 view base (`demo-bag-327/328/289`) + cả 5
+> component icon render; storefront customizer → swatch tile + sub-swatch đều có ảnh; console 0 lỗi ảnh.
+
 ### (cũ) M9.1 — phân tích ban đầu
 - **Gap:** CTA "Fastest / See it live with demo products" (`views/overview.php:141`) dẫn tới sample
   import, nhưng `fetch_demo_rows()` chỉ `wp_remote_get( DEMO_DATA_URL )`
