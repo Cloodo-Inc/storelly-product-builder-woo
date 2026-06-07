@@ -48,6 +48,12 @@ if ( ! class_exists( 'SPBWC_B2B_Sample' ) ) {
         /** Remembers that WE created the tier ladder (so removal can undo it). */
         const OPTION_MADE_TIERS = 'spbwc_b2b_sample_made_tiers';
 
+        /** Atomic claim so concurrent admin loads can't each seed a duplicate company. */
+        const OPTION_LOCK = 'spbwc_b2b_seed_lock';
+
+        /** Seconds before a held lock is considered stale (a crashed run) and reclaimed. */
+        const LOCK_TTL = 600;
+
         /** Current sample schema version. */
         const VERSION = 1;
 
@@ -81,12 +87,67 @@ if ( ! class_exists( 'SPBWC_B2B_Sample' ) ) {
             if ( ! current_user_can( 'manage_woocommerce' ) ) {
                 return; // Wait for an admin context (not cron / ajax / front).
             }
-            $company_id = self::seed();
-            if ( $company_id ) {
-                update_option( self::OPTION_SEEDED, self::VERSION, false );
-                add_action( 'admin_notices', array( __CLASS__, 'seeded_notice' ) );
+            // The seed sideloads bundled branding and writes several CPT rows. The
+            // done-flag is only set AFTER seed() returns, so two concurrent admin
+            // loads (e.g. the merchant reloading a slow first page) would each pass
+            // the existence check and build a duplicate "Netbase JSC" company.
+            // Claim an atomic DB lock so exactly one request seeds; the rest bail.
+            if ( ! self::acquire_lock() ) {
+                return;
             }
-            delete_option( self::OPTION_PENDING );
+            try {
+                $company_id = self::seed();
+                if ( $company_id ) {
+                    update_option( self::OPTION_SEEDED, self::VERSION, false );
+                    add_action( 'admin_notices', array( __CLASS__, 'seeded_notice' ) );
+                }
+                delete_option( self::OPTION_PENDING );
+            } finally {
+                self::release_lock();
+            }
+        }
+
+        /**
+         * Atomically claim the one-shot seed via an INSERT IGNORE on the unique
+         * option_name index (the only cross-request-atomic WP primitive), so
+         * concurrent admin loads can't each build a duplicate sample. A stale lock
+         * left by a crashed run is reclaimed after LOCK_TTL.
+         *
+         * @return bool True only for the request that won the lock.
+         */
+        protected static function acquire_lock() {
+            global $wpdb; // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Core global.
+            $now   = time();
+            $added = $wpdb->query( // phpcs:ignore WordPress.DB.DirectDatabaseQuery
+                $wpdb->prepare(
+                    "INSERT IGNORE INTO {$wpdb->options} (option_name, option_value, autoload) VALUES (%s, %s, 'no')",
+                    self::OPTION_LOCK,
+                    (string) $now
+                )
+            );
+            if ( $added ) {
+                return true;
+            }
+            $held = (int) $wpdb->get_var( // phpcs:ignore WordPress.DB.DirectDatabaseQuery
+                $wpdb->prepare( "SELECT option_value FROM {$wpdb->options} WHERE option_name = %s", self::OPTION_LOCK )
+            );
+            if ( $held && ( $now - $held ) < self::LOCK_TTL ) {
+                return false;
+            }
+            $stolen = $wpdb->query( // phpcs:ignore WordPress.DB.DirectDatabaseQuery
+                $wpdb->prepare(
+                    "UPDATE {$wpdb->options} SET option_value = %s WHERE option_name = %s AND option_value = %s",
+                    (string) $now,
+                    self::OPTION_LOCK,
+                    (string) $held
+                )
+            );
+            return (bool) $stolen;
+        }
+
+        /** Release the seed lock (a leftover row self-heals after LOCK_TTL). */
+        protected static function release_lock() {
+            delete_option( self::OPTION_LOCK );
         }
 
         /* ── Existence helpers ────────────────────────────────────── */

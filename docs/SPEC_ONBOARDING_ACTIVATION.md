@@ -277,6 +277,32 @@ yc #9 (My Account endpoint) gài kèm M1 (đăng ký endpoint lúc activate).
 > view_url · `arm()`/`maybe_seed()` one-shot guard, không tạo trùng). Full seed path không đổi (chỉ thêm
 > tham số status mặc định `publish`). Compliance: vẫn 0 mạng, nonce+cap đủ, draft = không public.
 
+### M9.1c — Fix race auto-seed: nghẽn install + bag bị nhân bản  ✅ DONE (2026-06-07)
+> **Vấn đề (user, live, 2026-06-07):** cài plugin trên live → WordPress nghẽn/treo một lúc, sau đó
+> Storelly hiện **6 product bag** thay vì 1.
+>
+> **Nguyên nhân:** `maybe_seed()` chạy đồng bộ trên `admin_init`, sideload **~102 ảnh bundle** (sinh
+> nhiều thumbnail) → request đầu treo 30–90s ("nghẽn"). Cờ done (`spbwc_demo_autoseeded` + `OPTION_STATE`)
+> chỉ ghi **SAU** khi `seed()` xong. Trong lúc trang treo, merchant reload / mở thêm tab admin → mỗi
+> full page-load lại fire `admin_init`, đều thấy `pending` còn set và `is_seeded()` vẫn `false` (state chưa
+> kịp ghi) → **mỗi request khởi động một `seed()` riêng** → nhân bản bag + nhiều sideload song song làm
+> meltdown server. `SPBWC_B2B_Sample::maybe_seed()` dính đúng race này (có thể tạo trùng company).
+>
+> **Fix (mức gọn-an-toàn, user chốt):**
+> - **Atomic DB lock** (`acquire_lock()`/`release_lock()`) bằng `INSERT IGNORE` trên unique index
+>   `wp_options.option_name` — primitive WP duy nhất atomic xuyên request. Chỉ MỘT request thắng lock và
+>   chạy seed; các request còn lại bail ngay. Lock cũ do run crash để lại tự lành sau `LOCK_TTL` (600s)
+>   nhờ compare-and-swap. Áp dụng cho cả `SPBWC_Demo_Seeder` (`spbwc_demo_seed_lock`) và
+>   `SPBWC_B2B_Sample` (`spbwc_b2b_seed_lock`).
+> - **`is_seeded()` fallback:** nếu mất `OPTION_STATE` (run crash sau khi tạo product), quét product có
+>   meta `_spbwc_is_sample=1` → vẫn nhận ra đã seed, không tạo bag thứ 2.
+> - `delete_option(pending)` chỉ chạy sau khi request đã thực sự thắng lock + thử seed (không retry import
+>   nặng mỗi load nếu bundle hỏng; card Welcome là fallback thủ công).
+>
+> Test (wp eval trên DB thật): lock first=true / held=false / stale-steal=true / release sạch; seed →
+> `is_seeded` true → xóa state → fallback vẫn true → đúng 1 sample product → undo về 0. Compliance: vẫn 0
+> mạng; direct DB query có `$wpdb->prepare` + phpcs:ignore; không string mới.
+
 ### (cũ) M9.1 — phân tích ban đầu
 - **Gap:** CTA "Fastest / See it live with demo products" (`views/overview.php:141`) dẫn tới sample
   import, nhưng `fetch_demo_rows()` chỉ `wp_remote_get( DEMO_DATA_URL )`

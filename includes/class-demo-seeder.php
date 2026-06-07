@@ -49,6 +49,12 @@ if ( ! class_exists( 'SPBWC_Demo_Seeder' ) ) {
 		/** One-shot guard so a merchant Undo never re-triggers the auto-seed. */
 		const OPTION_AUTODONE = 'spbwc_demo_autoseeded';
 
+		/** Atomic claim so concurrent admin loads can't each run the heavy seed. */
+		const OPTION_LOCK = 'spbwc_demo_seed_lock';
+
+		/** Seconds before a held lock is considered stale (a crashed run) and reclaimed. */
+		const LOCK_TTL = 600;
+
 		public static function init() {
 			add_action( 'wp_ajax_spbwc_demo_seed', array( __CLASS__, 'ajax_seed' ) );
 			add_action( 'wp_ajax_spbwc_demo_undo', array( __CLASS__, 'ajax_undo' ) );
@@ -97,12 +103,78 @@ if ( ! class_exists( 'SPBWC_Demo_Seeder' ) ) {
 				delete_option( self::OPTION_PENDING );
 				return;
 			}
-			$res = self::seed( 'draft' );
-			if ( ! is_wp_error( $res ) ) {
-				update_option( self::OPTION_AUTODONE, 1, false );
-				add_action( 'admin_notices', array( __CLASS__, 'autoseeded_notice' ) );
+
+			// The seed sideloads ~100 bundled images synchronously, so a fresh
+			// activation can hang the first admin load for many seconds. If the
+			// merchant reloads or opens another admin tab during that wait, each
+			// full page-load fires admin_init again — and since the done-flag is
+			// only written AFTER seed() returns, every one of those requests used
+			// to start its own seed() and create a duplicate bag (the "6 bags"
+			// report) while the parallel sideloads melted the server. Claim an
+			// atomic DB lock so exactly ONE request does the work; the rest bail
+			// out immediately. A crashed run self-heals after LOCK_TTL.
+			if ( ! self::acquire_lock() ) {
+				return;
 			}
-			delete_option( self::OPTION_PENDING );
+			try {
+				$res = self::seed( 'draft' );
+				if ( ! is_wp_error( $res ) ) {
+					update_option( self::OPTION_AUTODONE, 1, false );
+					add_action( 'admin_notices', array( __CLASS__, 'autoseeded_notice' ) );
+				}
+				// Retire the pending flag once we've actually attempted the seed
+				// (we won the lock). On failure the Welcome card stays as a manual
+				// fallback — we never silently retry the heavy import every load.
+				delete_option( self::OPTION_PENDING );
+			} finally {
+				self::release_lock();
+			}
+		}
+
+		/**
+		 * Atomically claim the one-shot seed. Uses an INSERT IGNORE on the unique
+		 * option_name index — the only WordPress primitive guaranteed atomic across
+		 * concurrent requests — so a hanging, image-heavy seed that the merchant
+		 * reloads several times can never be run twice in parallel. A stale lock
+		 * (previous run fatal/timeout mid-sideload) is reclaimed after LOCK_TTL.
+		 *
+		 * @return bool True only for the request that won the lock.
+		 */
+		protected static function acquire_lock() {
+			global $wpdb; // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Core global.
+			$now   = time();
+			$added = $wpdb->query( // phpcs:ignore WordPress.DB.DirectDatabaseQuery
+				$wpdb->prepare(
+					"INSERT IGNORE INTO {$wpdb->options} (option_name, option_value, autoload) VALUES (%s, %s, 'no')",
+					self::OPTION_LOCK,
+					(string) $now
+				)
+			);
+			if ( $added ) {
+				return true;
+			}
+			// A lock row exists. If it is still fresh, another request owns it.
+			$held = (int) $wpdb->get_var( // phpcs:ignore WordPress.DB.DirectDatabaseQuery
+				$wpdb->prepare( "SELECT option_value FROM {$wpdb->options} WHERE option_name = %s", self::OPTION_LOCK )
+			);
+			if ( $held && ( $now - $held ) < self::LOCK_TTL ) {
+				return false;
+			}
+			// Stale lock: steal it only if no one else changed it first (compare-and-swap).
+			$stolen = $wpdb->query( // phpcs:ignore WordPress.DB.DirectDatabaseQuery
+				$wpdb->prepare(
+					"UPDATE {$wpdb->options} SET option_value = %s WHERE option_name = %s AND option_value = %s",
+					(string) $now,
+					self::OPTION_LOCK,
+					(string) $held
+				)
+			);
+			return (bool) $stolen;
+		}
+
+		/** Release the seed lock (also cleared implicitly if the row is left to go stale). */
+		protected static function release_lock() {
+			delete_option( self::OPTION_LOCK );
 		}
 
 		/**
@@ -141,10 +213,35 @@ if ( ! class_exists( 'SPBWC_Demo_Seeder' ) ) {
 		/** Already seeded and the product still exists? */
 		public static function is_seeded() {
 			$state = get_option( self::OPTION_STATE, false );
-			if ( ! is_array( $state ) || empty( $state['product_id'] ) ) {
-				return false;
+			if ( is_array( $state ) && ! empty( $state['product_id'] ) ) {
+				if ( 'product' === get_post_type( (int) $state['product_id'] ) ) {
+					return true;
+				}
 			}
-			return 'product' === get_post_type( (int) $state['product_id'] );
+			// Fallback: a prior run may have created the product but crashed before
+			// writing OPTION_STATE (timeout mid-import). Detect that orphan by its
+			// sample flag so we never seed a second bag on top of it.
+			return self::existing_sample_product_id() > 0;
+		}
+
+		/**
+		 * Find a demo bag product left behind by an earlier (possibly crashed) run.
+		 *
+		 * @return int Product id, or 0.
+		 */
+		protected static function existing_sample_product_id() {
+			$found = get_posts(
+				array(
+					'post_type'      => 'product',
+					'post_status'    => 'any',
+					'posts_per_page' => 1,
+					'fields'         => 'ids',
+					'no_found_rows'  => true,
+					'meta_key'       => self::META_SAMPLE,   // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key
+					'meta_value'     => '1',                 // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_value
+				)
+			);
+			return ! empty( $found ) ? (int) $found[0] : 0;
 		}
 
 		// ── AJAX ────────────────────────────────────────────────────────────
