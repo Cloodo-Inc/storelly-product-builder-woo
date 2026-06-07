@@ -322,6 +322,32 @@ yc #9 (My Account endpoint) gài kèm M1 (đăng ký endpoint lúc activate).
 > Test browser (localhost, option mới seed): Visual Builder → 3 view base (`demo-bag-327/328/289`) + cả 5
 > component icon render; storefront customizer → swatch tile + sub-swatch đều có ảnh; console 0 lỗi ảnh.
 
+### M9.1e — Setup Wizard: nút "Remove demo data" (user-friendly cleanup)  ✅ DONE (2026-06-07)
+> **Vấn đề (user, 2026-06-07):** việc dọn bag demo trùng/hỏng đang phải chạy script `wp-cli` —
+> không phải merchant nào cũng làm được. Cần đưa thành UI trong Setup Wizard.
+>
+> **Chốt hướng (user):** chỉ đặt trong **Setup Wizard**, chỉ **một nút "Remove demo data"** (không
+> re-install — demo đã auto-cài lúc activate), **không** auto-detect.
+>
+> **Cơ chế:**
+> - Engine `SPBWC_Demo_Seeder::cleanup_all()` quét MỌI demo bag (meta `_spbwc_is_sample` + product
+>   tham chiếu bởi option row `demo_sample_%`) → xoá product + option row + attachment, trả counts;
+>   giữ `OPTION_AUTODONE` để KHÔNG auto-reseed sau khi merchant cố ý xoá. `find_all_demo_products()` +
+>   `count_demo_products()` dùng chung. `undo()` (nút Remove ở Overview) nay delegate sang cleanup_all
+>   nên cũng dọn được bản trùng (trước chỉ xoá 1 bản trong OPTION_STATE).
+> - Handler `admin_post_spbwc_demo_cleanup` (cap `manage_woocommerce` + `check_admin_referer`) → cleanup
+>   → redirect `?demo_cleaned=N` về landing.
+> - UI: card "Demo data" trong `views/setup-wizard/landing.php`, **chỉ hiện khi count>0**, hiển thị số
+>   demo đang cài + nút submit (form POST `admin-post.php`, nonce, confirm() inline). Notice xanh sau khi
+>   xoá. Dùng component admin-ui sẵn (.spbwc-quick-card/.spbwc-cta-btn) — token-consistent, không inline style.
+>
+> Test browser (localhost): card render đúng số; bấm → confirm đúng chữ → cleanup_all xoá 1 product + 1
+> option + 213 attachment (DB về 0) → redirect + notice "Removed 1 demo product and its data." → card tự
+> ẩn. Compliance: cap+nonce đủ, escape đủ (esc_url/attr/js/html), `$_GET` đọc hiển thị có ph: ignore +
+> cast int, text domain literal + `_n()`, 0 mạng.
+>
+> Bonus: `tools/_clean-demo-bags.php` (wp-cli dry-run/apply/reseed) vẫn còn cho ops trên server không vào admin.
+
 ### (cũ) M9.1 — phân tích ban đầu
 - **Gap:** CTA "Fastest / See it live with demo products" (`views/overview.php:141`) dẫn tới sample
   import, nhưng `fetch_demo_rows()` chỉ `wp_remote_get( DEMO_DATA_URL )`

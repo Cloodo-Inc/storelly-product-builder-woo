@@ -80,6 +80,12 @@ if ( defined( 'SPBWC_PB_OPTIONS_SLUG' ) ) {
 		'solid' => false,
 	);
 }
+
+// Demo-data maintenance: how many bundled "bag" demo products are installed, and
+// the post-cleanup notice flag (set by SPBWC_Demo_Seeder::handle_cleanup redirect).
+$spbwc_demo_count = class_exists( 'SPBWC_Demo_Seeder' ) ? (int) SPBWC_Demo_Seeder::count_demo_products() : 0;
+// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only post-redirect display flag; the destructive action itself is nonce-gated.
+$spbwc_demo_cleaned = isset( $_GET['demo_cleaned'] ) ? max( 0, (int) $_GET['demo_cleaned'] ) : -1;
 ?>
 <div class="wrap spbwc-wizard-landing">
 
@@ -97,6 +103,24 @@ if ( defined( 'SPBWC_PB_OPTIONS_SLUG' ) ) {
 			</div>
 		</div>
 	</section>
+
+	<?php if ( $spbwc_demo_cleaned >= 0 ) : ?>
+		<div class="notice notice-success is-dismissible">
+			<p>
+				<?php
+				if ( $spbwc_demo_cleaned > 0 ) {
+					printf(
+						/* translators: %d: number of demo products removed. */
+						esc_html( _n( 'Removed %d demo product and its data.', 'Removed %d demo products and their data.', $spbwc_demo_cleaned, 'storelly-product-builder-for-woocommerce' ) ),
+						(int) $spbwc_demo_cleaned
+					);
+				} else {
+					esc_html_e( 'No demo data was found to remove.', 'storelly-product-builder-for-woocommerce' );
+				}
+				?>
+			</p>
+		</div>
+	<?php endif; ?>
 
 	<div class="spbwc-section">
 		<div class="spbwc-quick-grid">
@@ -184,6 +208,50 @@ if ( defined( 'SPBWC_PB_OPTIONS_SLUG' ) ) {
 					</div>
 				</a>
 			<?php endforeach; ?>
+		</div>
+	</div>
+	<?php endif; ?>
+
+	<?php if ( $spbwc_demo_count > 0 ) : ?>
+	<div class="spbwc-section">
+		<header class="spbwc-section__header">
+			<h2 class="spbwc-section__title">
+				<?php esc_html_e( 'Demo data', 'storelly-product-builder-for-woocommerce' ); ?>
+			</h2>
+			<p class="spbwc-section__subtitle">
+				<?php esc_html_e( 'Storelly installs a ready-made demo product so you can explore the builder. Remove it when you are done evaluating — this also clears any duplicates.', 'storelly-product-builder-for-woocommerce' ); ?>
+			</p>
+		</header>
+		<div class="spbwc-quick-grid">
+			<div class="spbwc-quick-card">
+				<div class="spbwc-quick-card__head">
+					<div class="spbwc-quick-card__icon">
+						<span class="dashicons dashicons-trash" aria-hidden="true"></span>
+					</div>
+					<h2 class="spbwc-quick-card__title">
+						<?php esc_html_e( 'Remove demo data', 'storelly-product-builder-for-woocommerce' ); ?>
+					</h2>
+				</div>
+				<p class="spbwc-quick-card__desc">
+					<?php
+					printf(
+						/* translators: %d: number of demo products currently installed. */
+						esc_html( _n( '%d demo product is installed. Removing it deletes the demo product, its option set and bundled images. Your own products are not affected.', '%d demo products are installed. Removing them deletes the demo products, their option sets and bundled images. Your own products are not affected.', $spbwc_demo_count, 'storelly-product-builder-for-woocommerce' ) ),
+						(int) $spbwc_demo_count
+					);
+					?>
+				</p>
+				<div class="spbwc-quick-card__footer">
+					<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" onsubmit="return confirm('<?php echo esc_js( __( 'Remove all Storelly demo data? This cannot be undone.', 'storelly-product-builder-for-woocommerce' ) ); ?>');">
+						<input type="hidden" name="action" value="<?php echo esc_attr( SPBWC_Demo_Seeder::ACTION_CLEANUP ); ?>" />
+						<?php wp_nonce_field( SPBWC_Demo_Seeder::ACTION_CLEANUP ); ?>
+						<button type="submit" class="spbwc-cta-btn spbwc-cta-btn--ghost spbwc-cta-btn--sm">
+							<span class="dashicons dashicons-trash" aria-hidden="true"></span>
+							<?php esc_html_e( 'Remove demo data', 'storelly-product-builder-for-woocommerce' ); ?>
+						</button>
+					</form>
+				</div>
+			</div>
 		</div>
 	</div>
 	<?php endif; ?>

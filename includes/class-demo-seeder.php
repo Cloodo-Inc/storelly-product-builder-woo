@@ -43,6 +43,9 @@ if ( ! class_exists( 'SPBWC_Demo_Seeder' ) ) {
 		/** AJAX nonce action. */
 		const NONCE = 'spbwc_demo_seed';
 
+		/** admin-post action + nonce for the Setup Wizard "Remove demo data" button. */
+		const ACTION_CLEANUP = 'spbwc_demo_cleanup';
+
 		/** Set by the activation hook; consumed on the next admin load. */
 		const OPTION_PENDING = 'spbwc_demo_seed_pending';
 
@@ -59,6 +62,7 @@ if ( ! class_exists( 'SPBWC_Demo_Seeder' ) ) {
 			add_action( 'wp_ajax_spbwc_demo_seed', array( __CLASS__, 'ajax_seed' ) );
 			add_action( 'wp_ajax_spbwc_demo_undo', array( __CLASS__, 'ajax_undo' ) );
 			add_action( 'wp_ajax_spbwc_demo_publish', array( __CLASS__, 'ajax_publish' ) );
+			add_action( 'admin_post_' . self::ACTION_CLEANUP, array( __CLASS__, 'handle_cleanup' ) );
 			add_action( 'admin_init', array( __CLASS__, 'maybe_seed' ) );
 		}
 
@@ -387,33 +391,136 @@ if ( ! class_exists( 'SPBWC_Demo_Seeder' ) ) {
 		}
 
 		/**
-		 * Remove everything the seed created: product, option row, attachments.
+		 * Remove everything the seed created. Delegates to cleanup_all() so it
+		 * sweeps EVERY demo product — including duplicates a pre-fix race left
+		 * behind — not just the single id tracked in OPTION_STATE.
 		 *
 		 * @return array ['removed'=>bool]
 		 */
 		public static function undo() {
-			$state = get_option( self::OPTION_STATE, false );
-			if ( ! is_array( $state ) ) {
-				return array( 'removed' => false );
-			}
-			$product_id = isset( $state['product_id'] ) ? (int) $state['product_id'] : 0;
-			$option_id  = isset( $state['option_id'] ) ? (int) $state['option_id'] : 0;
+			$res = self::cleanup_all();
+			return array( 'removed' => ( $res['products'] > 0 || $res['options'] > 0 ) );
+		}
 
-			if ( $option_id ) {
-				global $wpdb; // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Core global.
-				$table = $wpdb->prefix . 'storelly_product_builder_options';
-				$wpdb->delete( $table, array( 'id' => $option_id ), array( '%d' ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery
+		/**
+		 * Every demo bag product currently installed: the ones tagged with the
+		 * sample meta PLUS any product still referenced by a `demo_sample_` option
+		 * row (covers a crashed run that created the product before tagging it).
+		 *
+		 * @return int[] Product ids.
+		 */
+		public static function find_all_demo_products() {
+			$by_meta = get_posts(
+				array(
+					'post_type'      => 'product',
+					'post_status'    => 'any',
+					'posts_per_page' => -1,
+					'fields'         => 'ids',
+					'no_found_rows'  => true,
+					'meta_key'       => self::META_SAMPLE,   // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key
+					'meta_value'     => '1',                 // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_value
+				)
+			);
+			global $wpdb; // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Core global.
+			$table = $wpdb->prefix . 'storelly_product_builder_options';
+			$rows  = $wpdb->get_results( // phpcs:ignore WordPress.DB.DirectDatabaseQuery
+				$wpdb->prepare( "SELECT product_ids FROM {$table} WHERE template_slug LIKE %s", self::SLUG_PREFIX . '%' ),
+				ARRAY_A
+			);
+			$by_row = array();
+			foreach ( (array) $rows as $r ) {
+				$pids = maybe_unserialize( $r['product_ids'] );
+				if ( is_array( $pids ) ) {
+					foreach ( $pids as $pid ) {
+						if ( (int) $pid > 0 && 'product' === get_post_type( (int) $pid ) ) {
+							$by_row[] = (int) $pid;
+						}
+					}
+				}
 			}
-			if ( $product_id ) {
-				wp_delete_post( $product_id, true );
+			return array_values( array_unique( array_merge( array_map( 'intval', $by_meta ), $by_row ) ) );
+		}
+
+		/** How many demo bag products are installed (for the Setup Wizard card). */
+		public static function count_demo_products() {
+			return count( self::find_all_demo_products() );
+		}
+
+		/**
+		 * Remove ALL demo data the seeder owns: every demo product, its option-set
+		 * row(s) and every sample-tagged attachment. Idempotent and safe to re-run.
+		 * Keeps OPTION_AUTODONE set so the one-shot auto-seed never re-installs the
+		 * demo behind the merchant's back after they deliberately removed it.
+		 *
+		 * @return array{products:int,options:int,attachments:int} Counts removed.
+		 */
+		public static function cleanup_all() {
+			global $wpdb; // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Core global.
+			$table = $wpdb->prefix . 'storelly_product_builder_options';
+
+			$products = self::find_all_demo_products();
+			$opt_ids  = array();
+			foreach ( $products as $pid ) {
+				$oid = (int) get_post_meta( $pid, '_spbwc_option_id', true );
+				if ( $oid ) {
+					$opt_ids[ $oid ] = true;
+				}
+				wp_delete_post( $pid, true );
 			}
-			if ( ! empty( $state['attachments'] ) && is_array( $state['attachments'] ) ) {
-				self::cleanup_attachments( $state['attachments'] );
+
+			// Sweep every demo_sample_ option row (linked above + any orphaned one).
+			$slug_rows = $wpdb->get_col( // phpcs:ignore WordPress.DB.DirectDatabaseQuery
+				$wpdb->prepare( "SELECT id FROM {$table} WHERE template_slug LIKE %s", self::SLUG_PREFIX . '%' )
+			);
+			$all_opt = array_values( array_unique( array_merge( array_keys( $opt_ids ), array_map( 'intval', (array) $slug_rows ) ) ) );
+			foreach ( $all_opt as $oid ) {
+				$wpdb->delete( $table, array( 'id' => (int) $oid ), array( '%d' ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery
 			}
-			self::flush_caches( array( $option_id ), array( $product_id ) );
+
+			$atts = get_posts(
+				array(
+					'post_type'      => 'attachment',
+					'post_status'    => 'any',
+					'posts_per_page' => -1,
+					'fields'         => 'ids',
+					'no_found_rows'  => true,
+					'meta_key'       => self::META_SAMPLE,   // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key
+					'meta_value'     => '1',                 // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_value
+				)
+			);
+			self::cleanup_attachments( $atts );
+
 			delete_option( self::OPTION_STATE );
+			delete_option( self::OPTION_PENDING );
+			delete_option( self::OPTION_LOCK );
+			self::flush_caches( $all_opt, $products );
 
-			return array( 'removed' => true );
+			return array(
+				'products'    => count( $products ),
+				'options'     => count( $all_opt ),
+				'attachments' => count( $atts ),
+			);
+		}
+
+		/**
+		 * Setup Wizard "Remove demo data" button handler (admin-post). Caps + nonce
+		 * gated; removes every demo product and redirects back with a result notice.
+		 */
+		public static function handle_cleanup() {
+			if ( ! current_user_can( 'manage_woocommerce' ) ) {
+				wp_die( esc_html__( 'You do not have permission to do this.', 'storelly-product-builder-for-woocommerce' ) );
+			}
+			check_admin_referer( self::ACTION_CLEANUP );
+			$res = self::cleanup_all();
+			$url = add_query_arg(
+				array(
+					'page'         => SPBWC_PB_OPTIONS_SLUG . '/global-import',
+					'demo_cleaned' => (int) $res['products'],
+				),
+				admin_url( 'admin.php' )
+			);
+			wp_safe_redirect( $url );
+			exit;
 		}
 
 		/**
