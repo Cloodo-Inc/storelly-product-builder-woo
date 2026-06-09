@@ -47,11 +47,37 @@ $recent_orders = function_exists( 'wc_get_orders' ) ? wc_get_orders( array(
     'status'  => array( 'wc-processing', 'wc-completed', 'wc-on-hold', 'wc-pending' ),
 ) ) : array();
 
-// TODO: hook real data once schema is wired:
-//   $recent_options, $recent_designs, $recent_quotes, $recent_templates
-$recent_options   = array();
-$recent_designs   = array();
+// Recent pricing option groups (custom table, newest modified first).
+global $wpdb; // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- core global.
+$spbwc_opt_table = $wpdb->prefix . 'storelly_product_builder_options';
+// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter -- prefix-only custom table name, lightweight dashboard list.
+$recent_options = (array) $wpdb->get_results( "SELECT id, title, published, modified FROM {$spbwc_opt_table} ORDER BY modified DESC LIMIT 5" );
+
+// Recent quote requests (spbwc_quote CPT, any status, newest modified first).
+$recent_quotes = array();
+if ( class_exists( 'SPBWC_Quote' ) ) {
+    $recent_quotes = get_posts( array(
+        'post_type'   => SPBWC_Quote::POST_TYPE,
+        'post_status' => array_keys( SPBWC_Quote::statuses() ),
+        'numberposts' => 5,
+        'orderby'     => 'modified',
+        'order'       => 'DESC',
+    ) );
+}
+
+// Recent customer saved designs — already fetched by the controller (M14).
+$recent_designs = ( isset( $spbwc_design_activity['recent'] ) && is_array( $spbwc_design_activity['recent'] ) )
+    ? $spbwc_design_activity['recent']
+    : array();
+
+// Bundled design templates (static catalog — show the first few as a preview).
 $recent_templates = array();
+$spbwc_tpl_total  = 0;
+if ( class_exists( 'SPBWC_Template_Catalog' ) ) {
+    $spbwc_all_templates = (array) SPBWC_Template_Catalog::instance()->get_templates();
+    $spbwc_tpl_total     = count( $spbwc_all_templates );
+    $recent_templates    = array_slice( $spbwc_all_templates, 0, 5 );
+}
 
 // Helpful benefits text per plan tier.
 $plan_benefits = $is_free
@@ -991,34 +1017,64 @@ $plan_benefits = $is_free
                     </h3>
                     <span class="spbwc-block__badge"><?php echo esc_html( number_format_i18n( $disp_pricing ) ); ?> <?php esc_html_e( 'total', 'storelly-product-builder-for-woocommerce' ); ?></span>
                 </header>
-                <div class="spbwc-block__body">
-                    <div class="spbwc-empty-state">
-                        <div class="spbwc-empty-state__icon">
-                            <span class="dashicons dashicons-editor-table" aria-hidden="true"></span>
-                        </div>
-                        <div class="spbwc-empty-state__title">
-                            <?php
-                            if ( $disp_pricing > 0 ) {
-                                esc_html_e( 'Active option groups', 'storelly-product-builder-for-woocommerce' );
-                            } else {
-                                esc_html_e( 'No option groups yet', 'storelly-product-builder-for-woocommerce' );
-                            }
+                <div class="spbwc-block__body<?php echo empty( $recent_options ) ? '' : ' spbwc-block__body--flush'; ?>">
+                    <?php if ( ! empty( $recent_options ) ) : ?>
+                        <ul class="spbwc-list" style="padding: 0 var(--nbd-space-5);">
+                            <?php foreach ( $recent_options as $opt ) :
+                                $opt_url   = add_query_arg(
+                                    array( 'action' => 'edit', 'id' => (int) $opt->id ),
+                                    admin_url( 'admin.php?page=' . SPBWC_PB_BUILDER_SLUG )
+                                );
+                                $opt_status = ( (int) $opt->published === 1 ) ? 'active' : 'draft';
+                                $opt_label  = ( (int) $opt->published === 1 ) ? __( 'published', 'storelly-product-builder-for-woocommerce' ) : __( 'unpublished', 'storelly-product-builder-for-woocommerce' );
+                                $opt_time   = strtotime( $opt->modified );
+                                $opt_diff   = $opt_time ? human_time_diff( $opt_time, current_time( 'U' ) ) : '';
                             ?>
+                                <a class="spbwc-list__item" href="<?php echo esc_url( $opt_url ); ?>">
+                                    <div class="spbwc-list__item-thumb">
+                                        <span class="dashicons dashicons-editor-table" aria-hidden="true"></span>
+                                    </div>
+                                    <div class="spbwc-list__item-body">
+                                        <div class="spbwc-list__item-title"><?php echo esc_html( $opt->title ? $opt->title : __( '(untitled group)', 'storelly-product-builder-for-woocommerce' ) ); ?></div>
+                                        <div class="spbwc-list__item-meta">
+                                            <span class="spbwc-list__item-status spbwc-list__item-status--<?php echo esc_attr( $opt_status ); ?>"><?php echo esc_html( $opt_label ); ?></span>
+                                            <?php if ( $opt_diff ) : ?>
+                                                <span class="sep">·</span>
+                                                <span><?php
+                                                    /* translators: %s: human time diff like "2 hours" */
+                                                    printf( esc_html__( 'updated %s ago', 'storelly-product-builder-for-woocommerce' ), esc_html( $opt_diff ) );
+                                                ?></span>
+                                            <?php endif; ?>
+                                        </div>
+                                    </div>
+                                    <span class="spbwc-list__item-action">
+                                        <span class="dashicons dashicons-arrow-right-alt2" aria-hidden="true"></span>
+                                    </span>
+                                </a>
+                            <?php endforeach; ?>
+                        </ul>
+                    <?php else : ?>
+                        <div class="spbwc-empty-state">
+                            <div class="spbwc-empty-state__icon">
+                                <span class="dashicons dashicons-editor-table" aria-hidden="true"></span>
+                            </div>
+                            <div class="spbwc-empty-state__title"><?php esc_html_e( 'No option groups yet', 'storelly-product-builder-for-woocommerce' ); ?></div>
+                            <p class="spbwc-empty-state__text">
+                                <?php esc_html_e( 'Build dynamic pricing — material, size, quantity, conditional logic — for your products.', 'storelly-product-builder-for-woocommerce' ); ?>
+                            </p>
+                            <a class="spbwc-cta-btn spbwc-cta-btn--solid" href="<?php echo esc_url( admin_url( 'admin.php?page=' . SPBWC_PB_BUILDER_SLUG ) ); ?>">
+                                <span class="dashicons dashicons-plus-alt2" aria-hidden="true"></span>
+                                <?php esc_html_e( 'Create first group', 'storelly-product-builder-for-woocommerce' ); ?>
+                            </a>
                         </div>
-                        <p class="spbwc-empty-state__text">
-                            <?php esc_html_e( 'Build dynamic pricing — material, size, quantity, conditional logic — for your products.', 'storelly-product-builder-for-woocommerce' ); ?>
-                        </p>
-                        <a class="spbwc-cta-btn spbwc-cta-btn--solid" href="<?php echo esc_url( admin_url( 'admin.php?page=' . SPBWC_PB_BUILDER_SLUG ) ); ?>">
-                            <span class="dashicons dashicons-plus-alt2" aria-hidden="true"></span>
-                            <?php esc_html_e( 'Open builder', 'storelly-product-builder-for-woocommerce' ); ?>
-                        </a>
-                    </div>
+                    <?php endif; ?>
                 </div>
                 <footer class="spbwc-block__foot">
                     <a class="spbwc-block__foot-link" href="<?php echo esc_url( admin_url( 'admin.php?page=' . SPBWC_PB_BUILDER_SLUG ) ); ?>">
                         <?php esc_html_e( 'Manage options', 'storelly-product-builder-for-woocommerce' ); ?>
                         <span class="dashicons dashicons-arrow-right-alt2" aria-hidden="true"></span>
                     </a>
+                    <span class="spbwc-block__foot-meta"><?php esc_html_e( 'Last 5 updated', 'storelly-product-builder-for-woocommerce' ); ?></span>
                 </footer>
             </section>
 
@@ -1031,26 +1087,75 @@ $plan_benefits = $is_free
                     </h3>
                     <span class="spbwc-block__badge"><?php echo esc_html( number_format_i18n( $disp_quotes ) ); ?> <?php esc_html_e( 'total', 'storelly-product-builder-for-woocommerce' ); ?></span>
                 </header>
-                <div class="spbwc-block__body">
-                    <div class="spbwc-empty-state">
-                        <div class="spbwc-empty-state__icon">
-                            <span class="dashicons dashicons-email-alt" aria-hidden="true"></span>
+                <div class="spbwc-block__body<?php echo empty( $recent_quotes ) ? '' : ' spbwc-block__body--flush'; ?>">
+                    <?php if ( ! empty( $recent_quotes ) ) : ?>
+                        <ul class="spbwc-list" style="padding: 0 var(--nbd-space-5);">
+                            <?php foreach ( $recent_quotes as $quote ) :
+                                $q_request  = get_post_meta( $quote->ID, SPBWC_Quote::META_REQUEST, true );
+                                $q_request  = is_array( $q_request ) ? $q_request : array();
+                                $q_totals   = SPBWC_Quote::get_totals( $quote->ID );
+                                $q_number   = get_post_meta( $quote->ID, SPBWC_Quote::META_NUMBER, true );
+                                $q_number   = $q_number ? $q_number : '#' . $quote->ID;
+                                $q_customer = class_exists( 'SPBWC_Quotes_List_Table' )
+                                    ? SPBWC_Quotes_List_Table::derive_customer( $q_request, (int) $quote->post_author )
+                                    : '';
+                                $q_customer = $q_customer ? $q_customer : __( 'Guest', 'storelly-product-builder-for-woocommerce' );
+                                $q_total    = isset( $q_totals['total'] ) ? (float) $q_totals['total'] : 0;
+                                $q_currency = ( isset( $q_totals['currency'] ) && $q_totals['currency'] ) ? $q_totals['currency'] : get_woocommerce_currency();
+                                $q_statuses = SPBWC_Quote::statuses();
+                                $q_st_label = isset( $q_statuses[ $quote->post_status ] ) ? $q_statuses[ $quote->post_status ] : $quote->post_status;
+                                $q_st_cls   = in_array( $quote->post_status, array( SPBWC_Quote::STATUS_ACCEPTED, SPBWC_Quote::STATUS_CONVERTED ), true )
+                                    ? 'active'
+                                    : ( in_array( $quote->post_status, array( SPBWC_Quote::STATUS_DECLINED, SPBWC_Quote::STATUS_EXPIRED, SPBWC_Quote::STATUS_WITHDRAWN ), true ) ? 'draft' : 'pending' );
+                                $q_url      = class_exists( 'SPBWC_Quote_Admin' )
+                                    ? SPBWC_Quote_Admin::page_url( array( 'quote' => $quote->ID ) )
+                                    : admin_url( 'admin.php?page=' . SPBWC_PB_QUOTES_SLUG );
+                                $q_time     = human_time_diff( get_post_modified_time( 'U', false, $quote ), current_time( 'U' ) );
+                            ?>
+                                <a class="spbwc-list__item" href="<?php echo esc_url( $q_url ); ?>">
+                                    <div class="spbwc-list__item-thumb">
+                                        <span class="dashicons dashicons-email-alt" aria-hidden="true"></span>
+                                    </div>
+                                    <div class="spbwc-list__item-body">
+                                        <div class="spbwc-list__item-title"><?php echo esc_html( $q_number . ' · ' . $q_customer ); ?></div>
+                                        <div class="spbwc-list__item-meta">
+                                            <span class="spbwc-list__item-status spbwc-list__item-status--<?php echo esc_attr( $q_st_cls ); ?>"><?php echo esc_html( $q_st_label ); ?></span>
+                                            <?php if ( $q_total > 0 ) : ?>
+                                                <span class="sep">·</span>
+                                                <span><?php echo wp_kses_post( wc_price( $q_total, array( 'currency' => $q_currency ) ) ); ?></span>
+                                            <?php endif; ?>
+                                            <span class="sep">·</span>
+                                            <span><?php echo esc_html( $q_time ); ?> <?php esc_html_e( 'ago', 'storelly-product-builder-for-woocommerce' ); ?></span>
+                                        </div>
+                                    </div>
+                                    <span class="spbwc-list__item-action">
+                                        <span class="dashicons dashicons-arrow-right-alt2" aria-hidden="true"></span>
+                                    </span>
+                                </a>
+                            <?php endforeach; ?>
+                        </ul>
+                    <?php else : ?>
+                        <div class="spbwc-empty-state">
+                            <div class="spbwc-empty-state__icon">
+                                <span class="dashicons dashicons-email-alt" aria-hidden="true"></span>
+                            </div>
+                            <div class="spbwc-empty-state__title"><?php esc_html_e( 'No quote requests yet', 'storelly-product-builder-for-woocommerce' ); ?></div>
+                            <p class="spbwc-empty-state__text">
+                                <?php esc_html_e( 'B2B quote requests from your customers will appear here. Respond to convert them into orders.', 'storelly-product-builder-for-woocommerce' ); ?>
+                            </p>
+                            <a class="spbwc-cta-btn" href="<?php echo esc_url( admin_url( 'admin.php?page=' . SPBWC_PB_QUOTES_SLUG ) ); ?>">
+                                <?php esc_html_e( 'Open quotes', 'storelly-product-builder-for-woocommerce' ); ?>
+                                <span class="dashicons dashicons-arrow-right-alt2" aria-hidden="true"></span>
+                            </a>
                         </div>
-                        <div class="spbwc-empty-state__title"><?php esc_html_e( 'No pending quotes', 'storelly-product-builder-for-woocommerce' ); ?></div>
-                        <p class="spbwc-empty-state__text">
-                            <?php esc_html_e( 'B2B quote requests from your customers will appear here. Respond to convert them into orders.', 'storelly-product-builder-for-woocommerce' ); ?>
-                        </p>
-                        <a class="spbwc-cta-btn" href="<?php echo esc_url( admin_url( 'admin.php?page=' . SPBWC_PB_QUOTES_SLUG ) ); ?>">
-                            <?php esc_html_e( 'Open quotes', 'storelly-product-builder-for-woocommerce' ); ?>
-                            <span class="dashicons dashicons-arrow-right-alt2" aria-hidden="true"></span>
-                        </a>
-                    </div>
+                    <?php endif; ?>
                 </div>
                 <footer class="spbwc-block__foot">
                     <a class="spbwc-block__foot-link" href="<?php echo esc_url( admin_url( 'admin.php?page=' . SPBWC_PB_QUOTES_SLUG ) ); ?>">
                         <?php esc_html_e( 'View all quotes', 'storelly-product-builder-for-woocommerce' ); ?>
                         <span class="dashicons dashicons-arrow-right-alt2" aria-hidden="true"></span>
                     </a>
+                    <span class="spbwc-block__foot-meta"><?php esc_html_e( 'Last 5', 'storelly-product-builder-for-woocommerce' ); ?></span>
                 </footer>
             </section>
 
@@ -1061,55 +1166,150 @@ $plan_benefits = $is_free
                         <span class="dashicons dashicons-art" aria-hidden="true"></span>
                         <?php esc_html_e( 'Customer designs', 'storelly-product-builder-for-woocommerce' ); ?>
                     </h3>
+                    <?php if ( ! empty( $spbwc_design_activity['saved_total'] ) ) : ?>
+                        <span class="spbwc-block__badge"><?php echo esc_html( number_format_i18n( (int) $spbwc_design_activity['saved_total'] ) ); ?> <?php esc_html_e( 'total', 'storelly-product-builder-for-woocommerce' ); ?></span>
+                    <?php endif; ?>
                 </header>
-                <div class="spbwc-block__body">
-                    <div class="spbwc-empty-state">
-                        <div class="spbwc-empty-state__icon">
-                            <span class="dashicons dashicons-art" aria-hidden="true"></span>
+                <div class="spbwc-block__body<?php echo empty( $recent_designs ) ? '' : ' spbwc-block__body--flush'; ?>">
+                    <?php if ( ! empty( $recent_designs ) ) : ?>
+                        <ul class="spbwc-list" style="padding: 0 var(--nbd-space-5);">
+                            <?php foreach ( $recent_designs as $design ) :
+                                $d_preview  = class_exists( 'SPBWC_Saved_Designs' ) ? (string) get_post_meta( $design->ID, SPBWC_Saved_Designs::META_PREVIEW, true ) : '';
+                                $d_pid      = class_exists( 'SPBWC_Saved_Designs' ) ? (int) get_post_meta( $design->ID, SPBWC_Saved_Designs::META_PRODUCT, true ) : 0;
+                                $d_author   = $design->post_author ? get_userdata( (int) $design->post_author ) : null;
+                                $d_who      = $d_author ? $d_author->display_name : __( 'Guest', 'storelly-product-builder-for-woocommerce' );
+                                $d_time     = human_time_diff( get_post_time( 'U', false, $design ), current_time( 'U' ) );
+                                $d_url      = $d_pid ? get_edit_post_link( $d_pid ) : '';
+                            ?>
+                                <?php $d_tag = $d_url ? 'a' : 'div'; ?>
+                                <<?php echo esc_attr( $d_tag ); ?> class="spbwc-list__item"<?php echo $d_url ? ' href="' . esc_url( $d_url ) . '"' : ''; ?>>
+                                    <div class="spbwc-list__item-thumb">
+                                        <?php if ( $d_preview ) : ?>
+                                            <img src="<?php echo esc_url( $d_preview ); ?>" alt="">
+                                        <?php else : ?>
+                                            <span class="dashicons dashicons-art" aria-hidden="true"></span>
+                                        <?php endif; ?>
+                                    </div>
+                                    <div class="spbwc-list__item-body">
+                                        <div class="spbwc-list__item-title"><?php echo esc_html( $design->post_title ? $design->post_title : __( '(untitled design)', 'storelly-product-builder-for-woocommerce' ) ); ?></div>
+                                        <div class="spbwc-list__item-meta">
+                                            <span><?php echo esc_html( $d_who ); ?></span>
+                                            <span class="sep">·</span>
+                                            <span><?php
+                                                /* translators: %s: human time diff like "2 hours" */
+                                                printf( esc_html__( 'saved %s ago', 'storelly-product-builder-for-woocommerce' ), esc_html( $d_time ) );
+                                            ?></span>
+                                        </div>
+                                    </div>
+                                    <?php if ( $d_url ) : ?>
+                                        <span class="spbwc-list__item-action">
+                                            <span class="dashicons dashicons-arrow-right-alt2" aria-hidden="true"></span>
+                                        </span>
+                                    <?php endif; ?>
+                                </<?php echo esc_attr( $d_tag ); ?>>
+                            <?php endforeach; ?>
+                        </ul>
+                    <?php else : ?>
+                        <div class="spbwc-empty-state">
+                            <div class="spbwc-empty-state__icon">
+                                <span class="dashicons dashicons-art" aria-hidden="true"></span>
+                            </div>
+                            <div class="spbwc-empty-state__title"><?php esc_html_e( 'No saved designs yet', 'storelly-product-builder-for-woocommerce' ); ?></div>
+                            <p class="spbwc-empty-state__text">
+                                <?php esc_html_e( 'Print-ready design files customers create with the Storelly designer canvas appear here for download and review.', 'storelly-product-builder-for-woocommerce' ); ?>
+                            </p>
+                            <a class="spbwc-cta-btn spbwc-cta-btn--solid" href="<?php echo esc_url( admin_url( 'admin.php?page=' . SPBWC_PB_ORDERS_SLUG ) ); ?>">
+                                <span class="dashicons dashicons-arrow-right-alt2" aria-hidden="true"></span>
+                                <?php esc_html_e( 'View order designs', 'storelly-product-builder-for-woocommerce' ); ?>
+                            </a>
                         </div>
-                        <div class="spbwc-empty-state__title"><?php esc_html_e( 'No saved designs yet', 'storelly-product-builder-for-woocommerce' ); ?></div>
-                        <p class="spbwc-empty-state__text">
-                            <?php esc_html_e( 'Print-ready design files customers create with the Storelly designer canvas appear here for download and review.', 'storelly-product-builder-for-woocommerce' ); ?>
-                        </p>
-                        <a class="spbwc-cta-btn spbwc-cta-btn--solid" href="<?php echo esc_url( admin_url( 'admin.php?page=' . SPBWC_PB_ORDERS_SLUG ) ); ?>">
-                            <span class="dashicons dashicons-arrow-right-alt2" aria-hidden="true"></span>
-                            <?php esc_html_e( 'View order designs', 'storelly-product-builder-for-woocommerce' ); ?>
-                        </a>
-                    </div>
+                    <?php endif; ?>
                 </div>
                 <footer class="spbwc-block__foot">
                     <a class="spbwc-block__foot-link" href="<?php echo esc_url( admin_url( 'admin.php?page=' . SPBWC_PB_ORDERS_SLUG ) ); ?>">
                         <?php esc_html_e( 'View order designs', 'storelly-product-builder-for-woocommerce' ); ?>
                         <span class="dashicons dashicons-arrow-right-alt2" aria-hidden="true"></span>
                     </a>
+                    <?php if ( ! empty( $recent_designs ) ) : ?>
+                        <span class="spbwc-block__foot-meta"><?php esc_html_e( 'Last 5 saved', 'storelly-product-builder-for-woocommerce' ); ?></span>
+                    <?php endif; ?>
                 </footer>
             </section>
 
             <!-- Templates -->
+            <?php $spbwc_tpl_lib_url = admin_url( 'admin.php?page=' . SPBWC_PB_TEMPLATE_LIBRARY_SLUG ); ?>
             <section class="spbwc-block spbwc-block--gold">
                 <header class="spbwc-block__head">
                     <h3 class="spbwc-block__title">
                         <span class="dashicons dashicons-layout" aria-hidden="true"></span>
                         <?php esc_html_e( 'Design templates', 'storelly-product-builder-for-woocommerce' ); ?>
                     </h3>
+                    <?php if ( $spbwc_tpl_total > 0 ) : ?>
+                        <span class="spbwc-block__badge"><?php echo esc_html( number_format_i18n( $spbwc_tpl_total ) ); ?> <?php esc_html_e( 'available', 'storelly-product-builder-for-woocommerce' ); ?></span>
+                    <?php endif; ?>
                 </header>
-                <div class="spbwc-block__body">
-                    <div class="spbwc-empty-state">
-                        <div class="spbwc-empty-state__icon">
-                            <span class="dashicons dashicons-layout" aria-hidden="true"></span>
+                <div class="spbwc-block__body<?php echo empty( $recent_templates ) ? '' : ' spbwc-block__body--flush'; ?>">
+                    <?php if ( ! empty( $recent_templates ) ) :
+                        $spbwc_tpl_catalog = SPBWC_Template_Catalog::instance();
+                    ?>
+                        <ul class="spbwc-list" style="padding: 0 var(--nbd-space-5);">
+                            <?php foreach ( $recent_templates as $tpl ) :
+                                $t_name  = $spbwc_tpl_catalog->get_display_name( $tpl );
+                                $t_name  = $t_name ? $t_name : $tpl['slug'];
+                                $t_cat   = ! empty( $tpl['category'] ) ? $spbwc_tpl_catalog->get_category_label( $tpl['category'] ) : '';
+                                $t_thumb = ! empty( $tpl['thumbnail'] ) ? SPBWC_PB_PLUGIN_URL . 'storage/print-templates/' . $tpl['thumbnail'] : '';
+                                $t_fields = (int) $tpl['field_count'];
+                                $t_url   = add_query_arg( array( 'template' => $tpl['slug'] ), $spbwc_tpl_lib_url );
+                            ?>
+                                <a class="spbwc-list__item" href="<?php echo esc_url( $t_url ); ?>">
+                                    <div class="spbwc-list__item-thumb">
+                                        <?php if ( $t_thumb ) : ?>
+                                            <img src="<?php echo esc_url( $t_thumb ); ?>" alt="">
+                                        <?php else : ?>
+                                            <span class="dashicons dashicons-layout" aria-hidden="true"></span>
+                                        <?php endif; ?>
+                                    </div>
+                                    <div class="spbwc-list__item-body">
+                                        <div class="spbwc-list__item-title"><?php echo esc_html( $t_name ); ?></div>
+                                        <div class="spbwc-list__item-meta">
+                                            <?php if ( $t_cat ) : ?>
+                                                <span><?php echo esc_html( $t_cat ); ?></span>
+                                                <span class="sep">·</span>
+                                            <?php endif; ?>
+                                            <span><?php
+                                                /* translators: %d: number of customizable fields in the template. */
+                                                printf( esc_html( _n( '%d field', '%d fields', $t_fields, 'storelly-product-builder-for-woocommerce' ) ), (int) $t_fields );
+                                            ?></span>
+                                        </div>
+                                    </div>
+                                    <span class="spbwc-list__item-action">
+                                        <span class="dashicons dashicons-arrow-right-alt2" aria-hidden="true"></span>
+                                    </span>
+                                </a>
+                            <?php endforeach; ?>
+                        </ul>
+                    <?php else : ?>
+                        <div class="spbwc-empty-state">
+                            <div class="spbwc-empty-state__icon">
+                                <span class="dashicons dashicons-layout" aria-hidden="true"></span>
+                            </div>
+                            <div class="spbwc-empty-state__title"><?php esc_html_e( 'No templates yet', 'storelly-product-builder-for-woocommerce' ); ?></div>
+                            <p class="spbwc-empty-state__text">
+                                <?php esc_html_e( 'Reusable design templates speed up customer customization. Apply one from the library, or import from the Storelly marketplace.', 'storelly-product-builder-for-woocommerce' ); ?>
+                            </p>
+                            <a class="spbwc-cta-btn spbwc-cta-btn--solid" href="<?php echo esc_url( $spbwc_tpl_lib_url ); ?>">
+                                <span class="dashicons dashicons-layout" aria-hidden="true"></span>
+                                <?php esc_html_e( 'Open templates', 'storelly-product-builder-for-woocommerce' ); ?>
+                            </a>
                         </div>
-                        <div class="spbwc-empty-state__title"><?php esc_html_e( 'No templates yet', 'storelly-product-builder-for-woocommerce' ); ?></div>
-                        <p class="spbwc-empty-state__text">
-                            <?php esc_html_e( 'Reusable design templates speed up customer customization. Create your own or import from the Storelly marketplace.', 'storelly-product-builder-for-woocommerce' ); ?>
-                        </p>
-                        <a class="spbwc-cta-btn spbwc-cta-btn--solid" href="<?php echo esc_url( admin_url( 'admin.php?page=' . SPBWC_PB_TEMPLATE_LIBRARY_SLUG ) ); ?>">
-                            <span class="dashicons dashicons-layout" aria-hidden="true"></span>
-                            <?php esc_html_e( 'Open templates', 'storelly-product-builder-for-woocommerce' ); ?>
-                        </a>
-                    </div>
+                    <?php endif; ?>
                 </div>
                 <footer class="spbwc-block__foot">
-                    <a class="spbwc-block__foot-link" href="https://storelly.com/marketplace" target="_blank" rel="noopener">
+                    <a class="spbwc-block__foot-link" href="<?php echo esc_url( $spbwc_tpl_lib_url ); ?>">
+                        <?php esc_html_e( 'Open template library', 'storelly-product-builder-for-woocommerce' ); ?>
+                        <span class="dashicons dashicons-arrow-right-alt2" aria-hidden="true"></span>
+                    </a>
+                    <a class="spbwc-block__foot-meta" href="https://storelly.com/marketplace" target="_blank" rel="noopener">
                         <?php esc_html_e( 'Browse marketplace', 'storelly-product-builder-for-woocommerce' ); ?>
                         <span class="dashicons dashicons-external" aria-hidden="true"></span>
                     </a>

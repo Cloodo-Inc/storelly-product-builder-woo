@@ -82,6 +82,47 @@ polish cross-cutting** (A1, A2, A8, A10, A11, A12, A13). 6 mục còn lại nằ
 
 ---
 
+## A1.1 — Recent activity: wire dữ liệu thật + dọn placeholder chết
+
+> **Status: IMPLEMENTED (2026-06-09).** 4/6 widget trong khối "Recent activity" trước đây là
+> **placeholder chết** — `$recent_options / $recent_quotes / $recent_designs / $recent_templates`
+> hardcode `array()` (TODO "hook real data once schema is wired") nên LUÔN render empty-state dù có data
+> (DB lúc test: options=11, quotes=13 → vẫn hiện "No … yet"). Đã wire data thật cho cả 4, mỗi widget giờ
+> render list-row giống Recent products/orders, fallback empty-state khi rỗng.
+
+### Vấn đề
+- Chỉ **Recent products** (`get_posts product`) và **Recent orders** (`wc_get_orders`) có query thật.
+- **Printing options / Quote requests / Customer designs / Design templates**: không query, markup chỉ có
+  nhánh empty-state → không bao giờ ra row. Trớ trêu: controller đã fetch sẵn `$spbwc_design_activity['recent']`
+  (5 saved design) mà view bỏ không dùng.
+- Trùng nội bộ: trong block rỗng, nút body-CTA và link footer cùng đích, chữ gần/giống nhau (Customer designs:
+  "View order designs" lặp 100%); section "Customer design activity" (stat) + block "Customer designs" cùng chủ đề.
+
+### Yêu cầu (đã làm)
+1. **Wire nguồn data nội bộ (local, free)** cho 4 widget, mỗi nguồn guard `class_exists`:
+   - Printing options ← bảng `{$prefix}storelly_product_builder_options` (`SELECT … ORDER BY modified DESC LIMIT 5`),
+     row link `?page=BUILDER&action=edit&id=<id>`, status pill published/unpublished.
+   - Quote requests ← CPT `SPBWC_Quote::POST_TYPE` (mọi status, `orderby modified`), number/customer/total/status,
+     link `SPBWC_Quote_Admin::page_url(['quote'=>id])`.
+   - Customer designs ← tái dùng `$spbwc_design_activity['recent']` (CPT `spbwc_saved_design`, `show_ui=false`),
+     thumbnail META_PREVIEW, link product edit (row là `<div>` khi không có product).
+   - Design templates ← `SPBWC_Template_Catalog::instance()->get_templates()` (catalog tĩnh bundled, lấy 5 đầu),
+     thumbnail + category + field_count, link `?page=TEMPLATE_LIBRARY&template=<slug>`.
+2. **Dedupe**: badge tổng cho mỗi block; footer link duy nhất + `__foot-meta` mô tả ("Last 5 updated"…);
+   bỏ CTA body trùng (chỉ còn trong empty-state); Templates footer tách "Open template library" vs marketplace.
+   Section design-activity (stat) và block Customer designs (list) giờ **bổ trợ** (số liệu vs danh sách), không trùng.
+
+### Acceptance (verified — Chrome smoke test 2026-06-09, console sạch)
+- 6/6 widget: products=5, orders=5, **printing options=5 (was empty)**, **quotes=5 (was empty)**,
+  customer designs=empty-state (0 saved design thật — fallback đúng), **templates=5 (26 available)**.
+- 0 inline style mới (giữ đúng pattern `padding:0 var(--nbd-space-5)` y như row products/orders sẵn có).
+- Mọi output `esc_*`; `$wpdb` query chỉ tên bảng prefix, không input; read-only (không cần nonce).
+
+### Files
+`views/overview.php` (data block đầu file + 4 block trong `.spbwc-list-grid`).
+
+---
+
 ## A2 — Field cần AJAX load input sau save (không reload trang)
 
 > **Status: IMPLEMENTED — conservative (2026-06-09).** KIẾN TRÚC THỰC TẾ: field-body partials
