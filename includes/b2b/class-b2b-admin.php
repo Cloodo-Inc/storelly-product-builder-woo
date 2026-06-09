@@ -40,6 +40,7 @@ if ( ! class_exists( 'SPBWC_B2B_Admin' ) ) {
             add_filter( 'user_row_actions', array( $this, 'user_row_action' ), 10, 2 );
             add_action( 'wp_ajax_spbwc_b2b_search_customers', array( $this, 'ajax_search_customers' ) );
             add_action( 'wp_ajax_spbwc_b2b_credit_txn', array( $this, 'ajax_credit_txn' ) );
+            add_action( 'wp_ajax_spbwc_b2b_save_profile', array( $this, 'ajax_save_profile' ) );
         }
 
         /**
@@ -393,15 +394,17 @@ if ( ! class_exists( 'SPBWC_B2B_Admin' ) ) {
             if ( ! class_exists( 'SPBWC_B2B_Ledger' ) || $amount <= 0 ) {
                 return false;
             }
-            $sym = get_woocommerce_currency_symbol();
+            // Format amounts with wc_price (respects the store currency, decimals and
+            // symbol position) so timeline entries read correctly in any locale.
+            $money = wp_strip_all_tags( wc_price( $amount ) );
             if ( 'credit_topup' === $do ) {
                 SPBWC_B2B_Ledger::post_topup( $company_id, $amount, array( 'note' => $note, 'ref_type' => 'manual' ) );
-                /* translators: 1: currency symbol, 2: amount. */
-                $msg = sprintf( __( 'Wallet top-up of %1$s%2$s recorded.', 'storelly-product-builder-for-woocommerce' ), $sym, number_format( $amount, 2 ) );
+                /* translators: %s: formatted amount in the store currency. */
+                $msg = sprintf( __( 'Wallet top-up of %s recorded.', 'storelly-product-builder-for-woocommerce' ), $money );
             } elseif ( 'credit_payment' === $do ) {
                 SPBWC_B2B_Ledger::post_payment( $company_id, $amount, array( 'note' => $note, 'ref_type' => 'manual' ) );
-                /* translators: 1: currency symbol, 2: amount. */
-                $msg = sprintf( __( 'Payment of %1$s%2$s recorded against net terms.', 'storelly-product-builder-for-woocommerce' ), $sym, number_format( $amount, 2 ) );
+                /* translators: %s: formatted amount in the store currency. */
+                $msg = sprintf( __( 'Payment of %s recorded against net terms.', 'storelly-product-builder-for-woocommerce' ), $money );
             } elseif ( 'credit_adjust' === $do ) {
                 // Adjustment: signed. Positive = credit, negative = debit.
                 $entry = ( 'debit' === $dir ) ? array( 'debit' => $amount ) : array( 'credit' => $amount );
@@ -411,8 +414,8 @@ if ( ! class_exists( 'SPBWC_B2B_Admin' ) ) {
                     'note'     => $note,
                 ) ) );
                 $sign = ( 'debit' === $dir ) ? '−' : '+';
-                /* translators: 1: +/− sign, 2: currency symbol, 3: amount. */
-                $msg = sprintf( __( 'Manual adjustment %1$s%2$s%3$s posted.', 'storelly-product-builder-for-woocommerce' ), $sign, $sym, number_format( $amount, 2 ) );
+                /* translators: 1: +/− sign, 2: formatted amount in the store currency. */
+                $msg = sprintf( __( 'Manual adjustment %1$s%2$s posted.', 'storelly-product-builder-for-woocommerce' ), $sign, $money );
             } else {
                 return false;
             }
@@ -478,8 +481,8 @@ if ( ! class_exists( 'SPBWC_B2B_Admin' ) ) {
             $html .= '<td>' . esc_html( SPBWC_B2B_Ledger::txn_label( $r->txn_type ) ) . '</td>';
             $html .= '<td>' . esc_html( $ref ) . '</td>';
             $html .= '<td>' . esc_html( (string) $r->note ) . '</td>';
-            $html .= '<td style="text-align:right">' . ( (float) $r->debit > 0 ? wp_kses_post( wc_price( $r->debit ) ) : '' ) . '</td>';
-            $html .= '<td style="text-align:right">' . ( (float) $r->credit > 0 ? wp_kses_post( wc_price( $r->credit ) ) : '' ) . '</td>';
+            $html .= '<td class="spbwc-stmt-amt spbwc-stmt-amt--debit">' . ( (float) $r->debit > 0 ? wp_kses_post( wc_price( $r->debit ) ) : '' ) . '</td>';
+            $html .= '<td class="spbwc-stmt-amt spbwc-stmt-amt--credit">' . ( (float) $r->credit > 0 ? wp_kses_post( wc_price( $r->credit ) ) : '' ) . '</td>';
             $html .= '</tr>';
             return $html;
         }
@@ -604,6 +607,42 @@ if ( ! class_exists( 'SPBWC_B2B_Admin' ) ) {
             if ( ! is_wp_error( $attachment_id ) && $attachment_id ) {
                 update_post_meta( $company_id, $meta_key, (int) $attachment_id );
             }
+        }
+
+        /**
+         * AJAX: save the Brand Store profile (incl. logo/banner uploads via
+         * FormData) and return refreshed completion state + preview markup, so the
+         * Company-profile tab saves without a reload.
+         */
+        public function ajax_save_profile() {
+            $company_id = isset( $_POST['company'] ) ? absint( wp_unslash( $_POST['company'] ) ) : 0;
+            $nonce      = isset( $_POST['_spbwc_b2b_nonce'] ) ? sanitize_text_field( wp_unslash( $_POST['_spbwc_b2b_nonce'] ) ) : '';
+            if ( ! $company_id || ! wp_verify_nonce( $nonce, 'spbwc_b2b_' . $company_id ) ) {
+                wp_send_json_error( array( 'message' => esc_html__( 'Security check failed — please reload.', 'storelly-product-builder-for-woocommerce' ) ), 400 );
+            }
+            if ( ! current_user_can( self::CAPABILITY ) ) {
+                wp_send_json_error( array( 'message' => esc_html__( 'Permission denied.', 'storelly-product-builder-for-woocommerce' ) ), 403 );
+            }
+            if ( SPBWC_Company::POST_TYPE !== get_post_type( $company_id ) ) {
+                wp_send_json_error( array( 'message' => esc_html__( 'Company not found.', 'storelly-product-builder-for-woocommerce' ) ), 404 );
+            }
+
+            $this->handle_save_profile( $company_id );
+
+            $complete  = SPBWC_Company::profile_is_complete( $company_id );
+            $logo_id   = (int) get_post_meta( $company_id, SPBWC_Company::META_LOGO, true );
+            $banner_id = (int) get_post_meta( $company_id, SPBWC_Company::META_BANNER, true );
+            $icon      = '<span class="spbwc-b2b-upload__icon dashicons dashicons-format-image" aria-hidden="true"></span>';
+
+            wp_send_json_success( array(
+                'complete' => $complete,
+                'pill'     => '<span class="spbwc-pill js-spbwc-profile-pill spbwc-pill--' . ( $complete ? 'success' : 'warn' ) . '">'
+                    . ( $complete ? esc_html__( 'Profile complete', 'storelly-product-builder-for-woocommerce' ) : esc_html__( 'Profile incomplete', 'storelly-product-builder-for-woocommerce' ) ) . '</span>',
+                'logo'     => $logo_id ? wp_get_attachment_image( $logo_id, 'thumbnail', false, array( 'class' => 'spbwc-b2b-upload__preview' ) ) : $icon,
+                'banner'   => $banner_id ? wp_get_attachment_image( $banner_id, 'medium', false, array( 'class' => 'spbwc-b2b-upload__preview' ) ) : $icon,
+                'title'    => get_the_title( $company_id ),
+                'message'  => esc_html__( 'Brand Store saved.', 'storelly-product-builder-for-woocommerce' ),
+            ) );
         }
 
         /** Create a company from a regular customer (the upgrade). */
@@ -1092,7 +1131,7 @@ if ( ! class_exists( 'SPBWC_B2B_Admin' ) ) {
 
             /* ── Branding ─────────────────────────────────────────── */
             echo '<div class="spbwc-block"><div class="spbwc-block__head"><h3 class="spbwc-block__title"><span class="dashicons dashicons-art" aria-hidden="true"></span> ' . esc_html__( 'Branding', 'storelly-product-builder-for-woocommerce' ) . '</h3>';
-            echo '<span class="spbwc-pill spbwc-pill--' . ( $complete ? 'success">' . esc_html__( 'Profile complete', 'storelly-product-builder-for-woocommerce' ) : 'warn">' . esc_html__( 'Profile incomplete', 'storelly-product-builder-for-woocommerce' ) ) . '</span></div>';
+            echo '<span class="spbwc-pill js-spbwc-profile-pill spbwc-pill--' . ( $complete ? 'success">' . esc_html__( 'Profile complete', 'storelly-product-builder-for-woocommerce' ) : 'warn">' . esc_html__( 'Profile incomplete', 'storelly-product-builder-for-woocommerce' ) ) . '</span></div>';
             echo '<div class="spbwc-block__body"><div class="spbwc-setting-rows">';
             $text( 'company_name', __( 'Store name', 'storelly-product-builder-for-woocommerce' ), get_the_title( $company_id ), __( 'Public name shown on the Brand Store and in the team account.', 'storelly-product-builder-for-woocommerce' ), true );
             $text( 'tagline', __( 'Tagline', 'storelly-product-builder-for-woocommerce' ), $tagline, __( 'A short one-line strapline under the store name.', 'storelly-product-builder-for-woocommerce' ) );
@@ -1139,7 +1178,7 @@ if ( ! class_exists( 'SPBWC_B2B_Admin' ) ) {
             $text( 'contact_email', __( 'Business email', 'storelly-product-builder-for-woocommerce' ), $g( $contact, 'email' ), '', false, 'email' );
             $text( 'contact_phone', __( 'Business phone', 'storelly-product-builder-for-woocommerce' ), $g( $contact, 'phone' ) );
             $text( 'contact_website', __( 'Website', 'storelly-product-builder-for-woocommerce' ), $g( $contact, 'website' ), '', false, 'url' );
-            echo '</div><div class="spbwc-block__foot spbwc-block__foot--split"><span class="description">' . esc_html__( 'Edited as the merchant on the company\'s behalf. The owner can also edit these from My Account → Brand Store.', 'storelly-product-builder-for-woocommerce' ) . '</span><button type="submit" class="spbwc-cta-btn spbwc-cta-btn--solid"><span class="dashicons dashicons-saved" aria-hidden="true"></span> ' . esc_html__( 'Save Brand Store', 'storelly-product-builder-for-woocommerce' ) . '</button></div></div></div>';
+            echo '</div><div class="spbwc-block__foot spbwc-block__foot--split"><span class="description">' . esc_html__( 'Edited as the merchant on the company\'s behalf. The owner can also edit these from My Account → Brand Store.', 'storelly-product-builder-for-woocommerce' ) . '</span><span class="spbwc-row spbwc-row--tight"><span class="spbwc-profile-feedback" role="status" aria-live="polite"></span><button type="submit" class="spbwc-cta-btn spbwc-cta-btn--solid"><span class="dashicons dashicons-saved" aria-hidden="true"></span> ' . esc_html__( 'Save Brand Store', 'storelly-product-builder-for-woocommerce' ) . '</button></span></div></div></div>';
             echo '</form>';
         }
 
@@ -1222,7 +1261,6 @@ if ( ! class_exists( 'SPBWC_B2B_Admin' ) ) {
             $roles    = SPBWC_Company::roles();
             $owner_id = (int) get_post_field( 'post_author', $company_id );
             $count    = count( $members );
-            $sym      = get_woocommerce_currency_symbol();
 
             echo '<div class="spbwc-block">';
             echo '<div class="spbwc-block__head"><h3 class="spbwc-block__title"><span class="dashicons dashicons-groups" aria-hidden="true"></span>' . esc_html__( 'Members', 'storelly-product-builder-for-woocommerce' ) . '</h3>';
@@ -1251,7 +1289,7 @@ if ( ! class_exists( 'SPBWC_B2B_Admin' ) ) {
                 echo '<span class="spbwc-member__role"><span class="spbwc-role-chip spbwc-role-chip--' . esc_attr( $role ) . '">' . esc_html( isset( $roles[ $role ] ) ? $roles[ $role ] : $role ) . '</span></span>';
                 echo '<span class="spbwc-member__limit">';
                 if ( $lim > 0 ) {
-                    echo '<span class="spbwc-member__limit-val">' . wp_kses_post( $sym ) . esc_html( number_format( $lim, 0 ) ) . '</span><span class="spbwc-member__limit-unit">' . esc_html__( 'per order', 'storelly-product-builder-for-woocommerce' ) . '</span>';
+                    echo '<span class="spbwc-member__limit-val">' . wp_kses_post( wc_price( $lim ) ) . '</span><span class="spbwc-member__limit-unit">' . esc_html__( 'per order', 'storelly-product-builder-for-woocommerce' ) . '</span>';
                 } else {
                     echo '<span class="spbwc-member__limit-none">' . esc_html__( 'No limit', 'storelly-product-builder-for-woocommerce' ) . '</span>';
                 }
@@ -1287,14 +1325,16 @@ if ( ! class_exists( 'SPBWC_B2B_Admin' ) ) {
             }
             echo '</div>';
 
-            // Action forms: top-up, record payment, adjustment.
-            $sym = get_woocommerce_currency_symbol();
+            // Action forms: top-up, record payment, adjustment. Amounts are entered
+            // in the store currency (WooCommerce setting) — no hardcoded unit; the
+            // currency code is shown as a hint so it adapts to any locale.
+            $cur_code = get_woocommerce_currency();
             echo '<div class="spbwc-block"><div class="spbwc-block__head"><h3 class="spbwc-block__title">' . esc_html__( 'Record a transaction', 'storelly-product-builder-for-woocommerce' ) . '</h3></div><div class="spbwc-block__body">';
 
-            $form = function ( $do, $button, $hint ) use ( $company_id, $nonce, $sym ) {
+            $form = function ( $do, $button, $hint ) use ( $company_id, $nonce, $cur_code ) {
                 echo '<form method="post" class="spbwc-b2b-bind" action="' . esc_url( self::page_url( array( 'company' => $company_id, 'detail_tab' => 'credit' ) ) ) . '" style="margin-bottom:12px">';
                 echo '<input type="hidden" name="spbwc_b2b_do" value="' . esc_attr( $do ) . '" /><input type="hidden" name="company" value="' . esc_attr( $company_id ) . '" /><input type="hidden" name="_spbwc_b2b_nonce" value="' . esc_attr( $nonce ) . '" />';
-                echo '<label>' . esc_html__( 'Amount', 'storelly-product-builder-for-woocommerce' ) . ' (' . esc_html( $sym ) . ')<input class="spbwc-input" type="number" name="amount" min="0" step="0.01" required style="width:130px" /></label>';
+                echo '<label><span class="spbwc-bind-label">' . esc_html__( 'Amount', 'storelly-product-builder-for-woocommerce' ) . ' <span class="spbwc-cur-code">' . esc_html( $cur_code ) . '</span></span><input class="spbwc-input" type="number" name="amount" min="0" step="0.01" required style="width:130px" /></label>';
                 if ( 'credit_adjust' === $do ) {
                     echo '<label>' . esc_html__( 'Direction', 'storelly-product-builder-for-woocommerce' ) . '<select class="spbwc-input" name="direction" style="width:130px"><option value="credit">' . esc_html__( 'Credit (+)', 'storelly-product-builder-for-woocommerce' ) . '</option><option value="debit">' . esc_html__( 'Debit (−)', 'storelly-product-builder-for-woocommerce' ) . '</option></select></label>';
                 }
@@ -1322,8 +1362,8 @@ if ( ! class_exists( 'SPBWC_B2B_Admin' ) ) {
                 echo '<td>' . esc_html( SPBWC_B2B_Ledger::txn_label( $r->txn_type ) ) . '</td>';
                 echo '<td>' . esc_html( $ref ) . '</td>';
                 echo '<td>' . esc_html( (string) $r->note ) . '</td>';
-                echo '<td style="text-align:right">' . ( (float) $r->debit > 0 ? wp_kses_post( wc_price( $r->debit ) ) : '' ) . '</td>';
-                echo '<td style="text-align:right">' . ( (float) $r->credit > 0 ? wp_kses_post( wc_price( $r->credit ) ) : '' ) . '</td>';
+                echo '<td class="spbwc-stmt-amt spbwc-stmt-amt--debit">' . ( (float) $r->debit > 0 ? wp_kses_post( wc_price( $r->debit ) ) : '' ) . '</td>';
+                echo '<td class="spbwc-stmt-amt spbwc-stmt-amt--credit">' . ( (float) $r->credit > 0 ? wp_kses_post( wc_price( $r->credit ) ) : '' ) . '</td>';
                 echo '</tr>';
             }
             echo '</tbody></table></div></div>';
@@ -1358,7 +1398,6 @@ if ( ! class_exists( 'SPBWC_B2B_Admin' ) ) {
             }
             $rules    = SPBWC_B2B_Price_Rules::get_rules_for_company( $company_id );
             $tier_pct = class_exists( 'SPBWC_B2B_Pricing' ) ? SPBWC_B2B_Pricing::tier_pct_for_company( $company_id ) : 0;
-            $sym      = get_woocommerce_currency_symbol();
 
             echo '<div class="spbwc-block"><div class="spbwc-block__head"><h3 class="spbwc-block__title">' . esc_html__( 'Per-company product pricing', 'storelly-product-builder-for-woocommerce' ) . '</h3></div><div class="spbwc-block__body">';
             echo '<p class="description" style="margin-top:0">' . esc_html(
@@ -1385,17 +1424,17 @@ if ( ! class_exists( 'SPBWC_B2B_Admin' ) ) {
                 $product = wc_get_product( $rule->product_id );
                 $base    = $product ? (float) $product->get_price() : 0;
                 if ( SPBWC_B2B_Price_Rules::TYPE_FIXED === $rule->override_type ) {
-                    $override = $sym . number_format( (float) $rule->value, 2 ) . ' ' . esc_html__( 'fixed', 'storelly-product-builder-for-woocommerce' );
+                    $override = wp_kses_post( wc_price( (float) $rule->value ) ) . ' ' . esc_html__( 'fixed', 'storelly-product-builder-for-woocommerce' );
                     $eff      = (float) $rule->value;
                 } else {
-                    $override = rtrim( rtrim( number_format( (float) $rule->value, 1 ), '0' ), '.' ) . '% ' . esc_html__( 'off', 'storelly-product-builder-for-woocommerce' );
+                    $override = esc_html( rtrim( rtrim( number_format( (float) $rule->value, 1 ), '0' ), '.' ) . '% ' ) . esc_html__( 'off', 'storelly-product-builder-for-woocommerce' );
                     $eff      = $base * ( ( 100 - (float) $rule->value ) / 100 );
                 }
                 echo '<tr>';
                 echo '<td>' . esc_html( $product ? $product->get_name() : '#' . (int) $rule->product_id ) . '</td>';
-                echo '<td>' . esc_html( $sym . number_format( $base, 2 ) ) . '</td>';
-                echo '<td>' . esc_html( $override ) . '</td>';
-                echo '<td><strong>' . esc_html( $sym . number_format( $eff, 2 ) ) . '</strong></td>';
+                echo '<td>' . wp_kses_post( wc_price( $base ) ) . '</td>';
+                echo '<td>' . $override . '</td>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- built from wc_price (kses) + esc_html parts.
+                echo '<td><strong>' . wp_kses_post( wc_price( $eff ) ) . '</strong></td>';
                 echo '<td>' . esc_html( (int) $rule->min_qty > 0 ? (int) $rule->min_qty : '—' ) . '</td>';
                 echo '<td>' . esc_html( ! empty( $rule->valid_until ) ? mysql2date( get_option( 'date_format' ), $rule->valid_until ) : '—' ) . '</td>';
                 echo '<td><form method="post" action="' . esc_url( self::page_url( array( 'company' => $company_id, 'detail_tab' => 'pricing' ) ) ) . '">';

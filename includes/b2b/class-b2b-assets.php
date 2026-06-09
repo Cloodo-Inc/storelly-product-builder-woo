@@ -94,6 +94,8 @@ if ( ! class_exists( 'SPBWC_B2B_Assets' ) ) {
                         'working'    => __( 'Working…', 'storelly-product-builder-for-woocommerce' ),
                         'creditDone' => __( 'Transaction recorded.', 'storelly-product-builder-for-woocommerce' ),
                         'creditFail' => __( 'Could not record the transaction.', 'storelly-product-builder-for-woocommerce' ),
+                        'saveDone'   => __( 'Brand Store saved.', 'storelly-product-builder-for-woocommerce' ),
+                        'saveFail'   => __( 'Could not save — please try again.', 'storelly-product-builder-for-woocommerce' ),
                     ),
                 ) );
             }

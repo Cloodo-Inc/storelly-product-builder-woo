@@ -1545,19 +1545,32 @@
 
 .spbwc-search-bar__icon .dashicons { font-size: 16px; width: 16px; height: 16px; }
 
-.spbwc-search-bar__input {
+/* Higher specificity + !important defeat WordPress core's global
+   `input[type="search"]` (border, box-shadow, radius), which otherwise outranks
+   a single class and draws an ugly raised square inside the rounded bar. */
+.spbwc-search-bar input.spbwc-search-bar__input {
     flex: 1;
-    border: none;
+    -webkit-appearance: none;
+    appearance: none;
+    border: 0 !important;
     outline: none;
-    background: transparent;
+    background: transparent !important;
+    box-shadow: none !important;
+    border-radius: 0 !important;
     height: 100%;
+    margin: 0;
     padding: 0;
     padding-inline-end: 12px;
     font-size: var(--text-md);
+    line-height: normal;
     color: var(--nbd-st-text);
     min-width: 0;
-    box-shadow: none;
+    min-height: 0;
 }
+/* Drop the native search affordances (the inner cancel/results pill). */
+.spbwc-search-bar input.spbwc-search-bar__input::-webkit-search-decoration,
+.spbwc-search-bar input.spbwc-search-bar__input::-webkit-search-cancel-button,
+.spbwc-search-bar input.spbwc-search-bar__input::-webkit-search-results-button { -webkit-appearance: none; }
 
 .spbwc-search-bar__input::placeholder { color: var(--nbd-st-text-mute); }
 

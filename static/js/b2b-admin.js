@@ -309,3 +309,69 @@
 		} );
 	} );
 } )();
+
+/**
+ * Company-profile tab — AJAX Brand Store save (no reload).
+ *
+ * Submits the whole form (including logo/banner files) via FormData to
+ * admin-ajax, then live-updates the completion pill + image previews and shows
+ * inline feedback. Without JS the form POSTs normally (graceful fallback).
+ */
+( function () {
+	'use strict';
+	var cfg  = window.spbwcB2BAdmin || {};
+	var form = document.querySelector( 'form.spbwc-b2b-profile' );
+	if ( ! form || ! cfg.ajaxUrl ) { return; }
+	var i18n = cfg.i18n || {};
+
+	function fb( msg, isErr ) {
+		var el = form.querySelector( '.spbwc-profile-feedback' );
+		if ( ! el ) { return; }
+		el.textContent = msg;
+		el.classList.toggle( 'is-error', !! isErr );
+		el.classList.add( 'is-shown' );
+		window.clearTimeout( el._t );
+		if ( ! isErr ) { el._t = window.setTimeout( function () { el.classList.remove( 'is-shown' ); }, 4000 ); }
+	}
+
+	function swapPreview( name, html ) {
+		var input = form.querySelector( 'input[type="file"][name="' + name + '"]' );
+		if ( ! input ) { return; }
+		var box = input.closest( '.spbwc-b2b-upload__box' );
+		if ( ! box ) { return; }
+		var old = box.querySelector( '.spbwc-b2b-upload__preview, .spbwc-b2b-upload__icon' );
+		if ( old ) { old.parentNode.removeChild( old ); }
+		box.insertAdjacentHTML( 'afterbegin', html );
+		input.value = '';
+	}
+
+	form.addEventListener( 'submit', function ( e ) {
+		e.preventDefault();
+		var btn  = form.querySelector( 'button[type="submit"]' );
+		var data = new FormData( form );
+		data.set( 'action', 'spbwc_b2b_save_profile' );
+		if ( btn ) { btn.disabled = true; }
+		fb( i18n.working || 'Working…', false );
+
+		// No explicit Content-Type — the browser sets the multipart boundary.
+		fetch( cfg.ajaxUrl, { method: 'POST', credentials: 'same-origin', body: data } )
+			.then( function ( r ) { return r.json(); } )
+			.then( function ( json ) {
+				if ( btn ) { btn.disabled = false; }
+				if ( ! json || ! json.success ) {
+					fb( ( json && json.data && json.data.message ) || i18n.saveFail || 'Error', true );
+					return;
+				}
+				var d = json.data || {};
+				var pill = form.querySelector( '.js-spbwc-profile-pill' );
+				if ( pill && d.pill ) { pill.outerHTML = d.pill; }
+				if ( d.logo ) { swapPreview( 'logo', d.logo ); }
+				if ( d.banner ) { swapPreview( 'banner', d.banner ); }
+				fb( d.message || i18n.saveDone || 'Saved', false );
+			} )
+			.catch( function () {
+				if ( btn ) { btn.disabled = false; }
+				fb( i18n.saveFail || 'Error', true );
+			} );
+	} );
+} )();

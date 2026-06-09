@@ -120,6 +120,29 @@ Everything else = reuse. Net: `b2b-admin.css` shrinks to the brand-hero override
 > Atoms added to `b2b-admin.css`: panel card spacing, `.spbwc-block__subtitle`,
 > split `__foot`, the admin Brand Store upload/colour fields, credit AJAX feedback +
 > new-row flash, clickable-row hover.
+>
+> **Refinement pass (2026-06-09, same day):**
+> - **Profile fields** widened — the editor now uses a `200px / 1fr` grid so inputs
+>   fill the field column (Brand description is a tall, resizable textarea) with the
+>   hint dropped under the control instead of in a far-right column.
+> - **Profile save is now AJAX too** (`wp_ajax_spbwc_b2b_save_profile`, FormData so
+>   logo/banner uploads ride along): live-updates the completion pill + image
+>   previews + inline feedback, no reload. Non-JS POST fallback retained.
+> - **Currency is fully WooCommerce-driven** for all company finance — every manual
+>   `symbol . number_format()` (member spend limit, per-product base/override/
+>   effective price, credit timeline messages) now uses `wc_price()` so symbol
+>   position, decimals and separators follow the store locale. The credit "Amount"
+>   field shows the live `get_woocommerce_currency()` code as a chip (no hardcoded
+>   unit) — fit for a multi-country deployment.
+> - **Statement** debit/credit columns are bold, tabular-aligned and colour-coded
+>   (credit = success green).
+> - **Companies hub rows** upgraded to feel first-class: larger logo, bolder name,
+>   roomier rows, brand-accent stripe + tint on hover.
+> - **Search box** fixed at the token level — WordPress core's global
+>   `input[type="search"]` (a raised square border inside the rounded bar) is now
+>   overridden with a higher-specificity reset (appearance/border/shadow/radius +
+>   native search-affordance removal) in `storelly-admin-ui.css`, so every
+>   `.spbwc-search-bar` is clean.
 
 **Route:** `…-b2b-companies&company=<id>`
 **Now:** my new gradient hero + 3 stat tiles are OK, but below it's one long scroll of `.form-table` (settings) + `.widefat` (members) + an **ugly inline bind-row** (Product ID | %off | Value | Min qty | date | button jammed together). No structure.
