@@ -85,7 +85,7 @@ $is_free      = ( $current_slug === 'free' || empty( $current_slug ) );
                     <?php elseif ( ! $is_free ) : ?>
                         <?php esc_html_e( 'Lifetime license — no expiry', 'storelly-product-builder-for-woocommerce' ); ?>
                     <?php else : ?>
-                        <?php esc_html_e( 'Free plan — limited features', 'storelly-product-builder-for-woocommerce' ); ?>
+                        <?php esc_html_e( 'Free plan — all local features included, no limits', 'storelly-product-builder-for-woocommerce' ); ?>
                     <?php endif; ?>
                     <?php if ( $synced_at ) : ?>
                         &nbsp;·&nbsp;

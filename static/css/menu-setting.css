@@ -952,3 +952,34 @@ h2.spbwc-settings-tabs,
 .content-form .box-key {
     animation: fadeIn 0.3s ease-out;
 }
+
+/* ── Advanced disclosure (Integration tab → manual API keys / diagnostics) ── */
+.spbwc-advanced {
+    margin-top: var(--nbd-space-5);
+    border: 1px solid var(--nbd-st-border-light);
+    border-radius: var(--nbd-radius-md);
+    background: var(--nbd-st-bg-soft);
+}
+.spbwc-advanced__summary {
+    display: flex;
+    align-items: center;
+    gap: var(--nbd-space-2);
+    padding: var(--nbd-space-3) var(--nbd-space-4);
+    cursor: pointer;
+    font-size: var(--text-sm);
+    font-weight: var(--font-semibold);
+    color: var(--nbd-st-text-soft);
+    list-style: none;
+    user-select: none;
+}
+.spbwc-advanced__summary::-webkit-details-marker { display: none; }
+.spbwc-advanced__summary:hover { color: var(--nbd-st-text); }
+.spbwc-advanced[open] > .spbwc-advanced__summary {
+    border-bottom: 1px solid var(--nbd-st-border-light);
+}
+.spbwc-advanced > .spbwc-block {
+    margin: 0;
+    border: 0;
+    background: transparent;
+    box-shadow: none;
+}

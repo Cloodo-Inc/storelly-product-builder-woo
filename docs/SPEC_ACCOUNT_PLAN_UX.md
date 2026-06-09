@@ -265,13 +265,46 @@ freemium spec; surface each with a clear inline message, never a white screen.
 
 | MS | Scope | Depends on |
 |----|-------|-----------|
-| **U1** | IA fix: rename "User Account" tab → Storefront (or fold into Cart & Order); remove duplicate Integration radio card; demote API Keys to Advanced disclosure. Pure refactor, no new backend. | — |
+| **U1** | ✅ **DONE (2026-06-09)** — IA fix, pure refactor, no backend. See §9.1 for what shipped. | — |
 | **U2** | Unified **Account & Plan** page: merge License page + Account/connect card into one; status card with S0–S3 states; caps matrix (replaces quota grid). | F1.1 (caps/`can()` in `SPEC_FREEMIUM_V1_1` §10), U1 |
 | **U3** | Connect-back activation (closed loop, §5.1–5.2) as the primary path; manual key + Sync demoted to Advanced. | F6 (connect-back), O-6 backend |
 | **U4** | Upsell-by-intent inline prompts at blocked controls with `ctx` deep-link back (§5.3). | F2/F3, U3 |
 
 Suggested order: **U1 → U2 → U3 → U4** (U1 ships value immediately and is low-risk; U2+ need the
 entitlement layer from the freemium spec).
+
+### 9.1 U1 — what shipped (2026-06-09)
+
+Files: `views/menu-settings.php`, `views/license.php`, `static/css/menu-setting.css`.
+
+- **Renamed the mislabeled tab.** Settings → "User Account" tab → **"Storefront"** (label, icon,
+  key `user-account`→`storefront`, whitelist, panel id, nav + cart-mode form action). Contents
+  (Cart compatibility + Save-design entry points) unchanged — they were never about the account.
+  Fixes **P3**.
+- **Consolidated the connection surface (Integration tab).** Instead of three competing cards:
+  - The **"Storelly Account"** card stays the single connect/disconnect home. Removed its
+    read-only **"Active features"** row (it duplicated the toggles below — fixes the **P4**
+    "status shown in two places" half) and added two clear CTAs in the connected state:
+    **"Compare plans & upgrade"** (→ License page, bridges **P2**) and **"Open Storelly dashboard"**.
+  - The old **"Storelly Integration"** radio card → reframed as **"Cloud features"** with plain-language
+    labels ("Generate print-ready PDFs", "Sync orders to your Storelly dashboard") + a hint shown
+    when not connected ("Connect your account above first — these only take effect once connected").
+    (Kept the toggles rather than deleting, so no function is lost pre-caps; the read-only status
+    duplication is what was removed.)
+  - **"API Keys"** raw card → demoted into a collapsed **`<details class="spbwc-advanced">`** disclosure
+    ("Advanced — link manually with API keys, login & connection log"), token-styled in
+    `menu-setting.css`. Fixes **P4** (raw keys no longer compete with the primary connect button).
+- **Clearer CTAs/labels** throughout; connect button "Enable Cloud" → **"Connect to Storelly — free"**.
+- **Copy/compliance:** License page "Free plan — **limited features**" → "Free plan — **all local
+  features included, no limits**" (kills the crippleware framing; aligns C1). *(Full caps-matrix
+  rewrite of the plan grid + page merge is U2.)*
+- **Verified (Chrome, isolated session):** Integration + Storefront tabs render, console clean, no PHP
+  notices. `wp plugin check` full run deferred to the U2 batch / next release gate.
+
+> **Deviation from the original U1 wording:** the spec said "remove the duplicate Integration radio
+> card". In practice the *duplication* was the read-only status row on the Account card, not the
+> toggles themselves — so the toggles were kept (reframed as "Cloud features") and the duplicate
+> status row removed. Net effect (one connection home, no contradictory surfaces) is as intended.
 
 ---
 

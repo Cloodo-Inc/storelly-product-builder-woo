@@ -51,7 +51,7 @@ $stt_yes_cloud2print_api = isset($storelly_pb_settings['enable_cloud2print_api']
 // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Template variable.
 $stt_no_cloud2print_api = isset($storelly_pb_settings['enable_cloud2print_api']) && $storelly_pb_settings['enable_cloud2print_api'] == 'no' ? 'checked' : '';
 // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Template variable.
-$spbwc_valid_tabs = array('pricing-option', 'display', 'pricing', 'catalog', 'cart', 'integration', 'user-account');
+$spbwc_valid_tabs = array('pricing-option', 'display', 'pricing', 'catalog', 'cart', 'integration', 'storefront');
 // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only settings tab selector; validated against whitelist below, no state change.
 $spbwc_settings_tab = isset($_GET['tab']) ? sanitize_key(wp_unslash($_GET['tab'])) : 'pricing-option';
 if ( ! in_array($spbwc_settings_tab, $spbwc_valid_tabs, true) ) {
@@ -140,17 +140,17 @@ if ( ! in_array($spbwc_settings_tab, $spbwc_valid_tabs, true) ) {
                 <span class="dashicons dashicons-admin-network" aria-hidden="true"></span>
                 <?php esc_html_e('Integration', 'storelly-product-builder-for-woocommerce'); ?>
             </a>
-            <a href="<?php echo esc_url(admin_url('admin.php?page=' . SPBWC_PB_OPTIONS_SLUG . '&tab=user-account')); ?>"
-               data-tab="user-account" class="nav-tab <?php echo $spbwc_settings_tab === 'user-account' ? 'nav-tab-active' : ''; ?>">
-                <span class="dashicons dashicons-admin-users" aria-hidden="true"></span>
-                <?php esc_html_e('User Account', 'storelly-product-builder-for-woocommerce'); ?>
+            <a href="<?php echo esc_url(admin_url('admin.php?page=' . SPBWC_PB_OPTIONS_SLUG . '&tab=storefront')); ?>"
+               data-tab="storefront" class="nav-tab <?php echo $spbwc_settings_tab === 'storefront' ? 'nav-tab-active' : ''; ?>">
+                <span class="dashicons dashicons-admin-appearance" aria-hidden="true"></span>
+                <?php esc_html_e('Storefront', 'storelly-product-builder-for-woocommerce'); ?>
             </a>
         </h2>
 
         <!-- Standalone form for the reversible Cart-mode switch (kept OUTSIDE the main
              settings form; the buttons in the User Account panel target it via form="…"). -->
         <form method="post" id="spbwc-cart-mode-form"
-              action="<?php echo esc_url(admin_url('admin.php?page=' . SPBWC_PB_OPTIONS_SLUG . '&tab=user-account')); ?>">
+              action="<?php echo esc_url(admin_url('admin.php?page=' . SPBWC_PB_OPTIONS_SLUG . '&tab=storefront')); ?>">
             <?php wp_nonce_field( 'spbwc_cart_mode_action', 'spbwc_cart_mode_nonce' ); ?>
         </form>
 
@@ -701,7 +701,7 @@ if ( ! in_array($spbwc_settings_tab, $spbwc_valid_tabs, true) ) {
                         <?php if ( $spbwc_acct_connected ) : ?>
                             <!-- ── State: CONNECTED ────────────────────────── -->
                             <p class="spbwc-setting-row__hint" style="margin-top:0;">
-                                <?php esc_html_e( 'Your store is connected to Storelly Cloud. Print-ready PDF rendering and your saved store profile are active.', 'storelly-product-builder-for-woocommerce' ); ?>
+                                <?php esc_html_e( 'Your store is connected to Storelly Cloud. Turn Cloud features on or off in the “Cloud features” card below, and compare plans to unlock premium tools.', 'storelly-product-builder-for-woocommerce' ); ?>
                             </p>
                             <div class="spbwc-setting-row">
                                 <?php if ( $storelly_username ) : ?>
@@ -714,14 +714,18 @@ if ( ! in_array($spbwc_settings_tab, $spbwc_valid_tabs, true) ) {
                                 <div class="spbwc-setting-row__control"><?php echo esc_html( home_url() ); ?></div>
                             </div>
                             <div class="spbwc-setting-row">
-                                <div class="spbwc-setting-row__label"><?php esc_html_e( 'Active features', 'storelly-product-builder-for-woocommerce' ); ?></div>
-                                <div class="spbwc-setting-row__control">
-                                    <span class="dashicons <?php echo $spbwc_acct_pdf_on ? 'dashicons-yes-alt' : 'dashicons-minus'; ?>" aria-hidden="true"></span>
-                                    <?php esc_html_e( 'Cloud PDF rendering', 'storelly-product-builder-for-woocommerce' ); ?>
-                                    &nbsp; &middot; &nbsp;
-                                    <span class="dashicons <?php echo $spbwc_acct_sync_on ? 'dashicons-yes-alt' : 'dashicons-minus'; ?>" aria-hidden="true"></span>
-                                    <?php esc_html_e( 'Order sync', 'storelly-product-builder-for-woocommerce' ); ?>
+                                <div class="spbwc-setting-row__label"><?php esc_html_e( 'Quick links', 'storelly-product-builder-for-woocommerce' ); ?></div>
+                                <div class="spbwc-setting-row__control spbwc-action-btns">
+                                    <a href="<?php echo esc_url( admin_url( 'admin.php?page=' . SPBWC_PB_LICENSE_SLUG ) ); ?>" class="spbwc-cta-btn spbwc-cta-btn--solid">
+                                        <span class="dashicons dashicons-awards" aria-hidden="true"></span>
+                                        <?php esc_html_e( 'Compare plans &amp; upgrade', 'storelly-product-builder-for-woocommerce' ); ?>
+                                    </a>
+                                    <a href="https://app.storelly.com/login?redirect=woocomerce" target="_blank" rel="noopener noreferrer" class="spbwc-cta-btn spbwc-cta-btn--ghost">
+                                        <span class="dashicons dashicons-external" aria-hidden="true"></span>
+                                        <?php esc_html_e( 'Open Storelly dashboard', 'storelly-product-builder-for-woocommerce' ); ?>
+                                    </a>
                                 </div>
+                                <p class="spbwc-setting-row__hint"><?php esc_html_e( 'See which Cloud features each plan unlocks, manage billing, or open your dashboard at app.storelly.com.', 'storelly-product-builder-for-woocommerce' ); ?></p>
                             </div>
                             <div class="spbwc-setting-row">
                                 <div class="spbwc-setting-row__control">
@@ -754,7 +758,7 @@ if ( ! in_array($spbwc_settings_tab, $spbwc_valid_tabs, true) ) {
                                 <div class="spbwc-setting-row__control spbwc-action-btns">
                                     <button type="button" class="spbwc-cta-btn spbwc-cta-btn--solid" id="spbwc-account-connect">
                                         <span class="dashicons dashicons-cloud" aria-hidden="true"></span>
-                                        <?php esc_html_e( 'Enable Cloud', 'storelly-product-builder-for-woocommerce' ); ?>
+                                        <?php esc_html_e( 'Connect to Storelly — free', 'storelly-product-builder-for-woocommerce' ); ?>
                                     </button>
                                     <button type="button" class="spbwc-cta-btn spbwc-cta-btn--link" id="spbwc-account-manual-toggle">
                                         <?php esc_html_e( 'Already have an account? Link with Store ID', 'storelly-product-builder-for-woocommerce' ); ?>
@@ -778,20 +782,27 @@ if ( ! in_array($spbwc_settings_tab, $spbwc_valid_tabs, true) ) {
                     </div>
                 </div>
 
-                <!-- ── Block 1: Integration feature toggles ─────── -->
+                <!-- ── Block: Cloud features (what to share with Storelly) ─────── -->
                 <div class="spbwc-block">
                     <div class="spbwc-block__head">
                         <h3 class="spbwc-block__title">
-                            <span class="dashicons dashicons-admin-network" aria-hidden="true"></span>
-                            <?php esc_html_e('Storelly Integration', 'storelly-product-builder-for-woocommerce'); ?>
+                            <span class="dashicons dashicons-cloud" aria-hidden="true"></span>
+                            <?php esc_html_e('Cloud features', 'storelly-product-builder-for-woocommerce'); ?>
                         </h3>
                     </div>
                     <div class="spbwc-setting-rows">
 
-                        <!-- Enable cloud PDF rendering -->
+                        <?php if ( ! $spbwc_acct_connected ) : ?>
+                        <p class="spbwc-setting-row__hint">
+                            <span class="dashicons dashicons-info-outline" aria-hidden="true"></span>
+                            <?php esc_html_e( 'Connect your Storelly account above first — these switches only take effect once your store is connected.', 'storelly-product-builder-for-woocommerce' ); ?>
+                        </p>
+                        <?php endif; ?>
+
+                        <!-- Generate print-ready PDFs -->
                         <div class="spbwc-setting-row">
                             <div class="spbwc-setting-row__label">
-                                <?php esc_html_e('Enable cloud PDF rendering', 'storelly-product-builder-for-woocommerce'); ?>
+                                <?php esc_html_e('Generate print-ready PDFs', 'storelly-product-builder-for-woocommerce'); ?>
                             </div>
                             <div class="spbwc-setting-row__control">
                                 <div class="spbwc-radio-group">
@@ -818,7 +829,7 @@ if ( ! in_array($spbwc_settings_tab, $spbwc_valid_tabs, true) ) {
                         ?>
                         <div class="spbwc-setting-row">
                             <div class="spbwc-setting-row__label">
-                                <?php esc_html_e('Enable Dashboard API sync', 'storelly-product-builder-for-woocommerce'); ?>
+                                <?php esc_html_e('Sync orders to your Storelly dashboard', 'storelly-product-builder-for-woocommerce'); ?>
                             </div>
                             <div class="spbwc-setting-row__control">
                                 <div class="spbwc-radio-group">
@@ -838,9 +849,14 @@ if ( ! in_array($spbwc_settings_tab, $spbwc_valid_tabs, true) ) {
                     </div>
                 </div>
 
-                <!-- ── Block 2: API Keys (independent card) ──────── -->
+                <!-- ── Advanced: manual link with API keys & diagnostics (collapsed) ──────── -->
                 <?php // Badge follows the same "connected" signal as the Storelly Account
                       // card above (SPBWC_Cloud_Connect::is_connected) so the two never disagree. ?>
+                <details class="spbwc-advanced">
+                    <summary class="spbwc-advanced__summary">
+                        <span class="dashicons dashicons-admin-tools" aria-hidden="true"></span>
+                        <?php esc_html_e( 'Advanced — link manually with API keys, login &amp; connection log', 'storelly-product-builder-for-woocommerce' ); ?>
+                    </summary>
                 <div class="spbwc-block<?php echo $spbwc_acct_connected ? ' spbwc-block--success' : ''; ?>">
                     <div class="spbwc-block__head">
                         <h3 class="spbwc-block__title">
@@ -967,11 +983,12 @@ if ( ! in_array($spbwc_settings_tab, $spbwc_valid_tabs, true) ) {
 
                     </div>
                 </div>
+                </details>
 
             </div>
 
-            <!-- ━━━ USER ACCOUNT ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ -->
-            <div class="spbwc-tab-panel" id="tab-user-account"<?php echo ($spbwc_settings_tab !== 'user-account') ? ' style="display:none;"' : ''; ?>>
+            <!-- ━━━ STOREFRONT ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ -->
+            <div class="spbwc-tab-panel" id="tab-storefront"<?php echo ($spbwc_settings_tab !== 'storefront') ? ' style="display:none;"' : ''; ?>>
                 <?php
                 $spbwc_cart_pid     = function_exists('wc_get_page_id') ? (int) wc_get_page_id('cart') : 0;
                 $spbwc_cart_content = $spbwc_cart_pid > 0 ? (string) get_post_field('post_content', $spbwc_cart_pid) : '';
