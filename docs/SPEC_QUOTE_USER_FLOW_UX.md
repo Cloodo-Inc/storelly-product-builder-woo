@@ -381,7 +381,13 @@ tab becomes this list.
   WC private order note).
 - Buttons: **Save draft** · **Send pricing reply** (→ `spbwc-q-sent`) · **Send counter-offer**
   (when responding to a `negotiating` quote — bumps revision, supersedes prior) · **Save as template**
-  (v2). *(Preview customer view + Download PDF = v2.)*
+  (v2).
+- **Document-action toolbar** (shipped) — **Preview customer view** + **Download / Print** are
+  grouped as one right-aligned segmented toolbar in the detail top bar (`.spbwc-q-detailbar__tools`,
+  `role="group"`), with **Back to all quotes** kept on the leading edge. They are document/output
+  actions (review before sending, export the PDF), deliberately separated from the form's primary
+  submit cluster (**Save draft** / **Send pricing reply**) in the action bar below. Stacks
+  full-width under ~600px.
 
 **15.3 On "Send pricing reply":**
 - `_spbwc_quote_lines` written to quoted lines at quoted unit prices; `_spbwc_quote_totals` recomputed.

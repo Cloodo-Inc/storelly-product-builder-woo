@@ -354,16 +354,36 @@
 .spbwc-q-asks li .dashicons { font-size: 14px; width: 14px; height: 14px; color: var(--nbd-color-warning); }
 .spbwc-q-asks__details { margin: 6px 0 0; font-size: 13px; color: var(--nbd-st-text); }
 
-/* ── Detail top bar (back + preview) ──────────────────────────────────── */
+/* ── Detail top bar (back + document actions) ─────────────────────────── */
 .spbwc-q-detailbar {
     display: flex;
     align-items: center;
-    justify-content: space-between;
     flex-wrap: wrap;
     gap: var(--nbd-space-3);
     margin-bottom: var(--nbd-space-3);
 }
 .spbwc-q-detailbar .spbwc-q-back { margin-bottom: 0; }
+
+/* Group Preview + Download as one right-aligned segmented toolbar. */
+.spbwc-q-detailbar__tools {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--nbd-space-2);
+    margin-inline-start: auto; /* push the action cluster to the trailing edge */
+    padding: var(--nbd-space-1);
+    background: var(--nbd-st-bg-soft);
+    border: 1px solid var(--nbd-st-border-light);
+    border-radius: var(--nbd-radius-md);
+}
+.spbwc-q-detailbar__tools .spbwc-cta-btn { margin: 0; }
+@media (max-width: 600px) {
+    .spbwc-q-detailbar__tools {
+        width: 100%;
+        margin-inline-start: 0;
+        justify-content: stretch;
+    }
+    .spbwc-q-detailbar__tools .spbwc-cta-btn { flex: 1; justify-content: center; }
+}
 
 /* ── Back link ────────────────────────────────────────────────────────── */
 .spbwc-q-back {

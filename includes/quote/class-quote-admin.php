@@ -581,16 +581,18 @@ if ( ! class_exists( 'SPBWC_Quote_Admin' ) ) {
                         wc_get_endpoint_url( 'view-quote', $quote_id, wc_get_page_permalink( 'myaccount' ) )
                     );
                     ?>
-                    <a class="spbwc-cta-btn spbwc-cta-btn--ghost spbwc-cta-btn--sm" href="<?php echo esc_url( $preview_url ); ?>" target="_blank" rel="noopener">
-                        <span class="dashicons dashicons-visibility" aria-hidden="true"></span>
-                        <?php esc_html_e( 'Preview customer view', 'storelly-product-builder-for-woocommerce' ); ?>
-                    </a>
-                    <?php if ( class_exists( 'SPBWC_Quote_PDF' ) ) : ?>
-                        <a class="spbwc-cta-btn spbwc-cta-btn--ghost spbwc-cta-btn--sm" href="<?php echo esc_url( SPBWC_Quote_PDF::print_url( $quote_id ) ); ?>" target="_blank" rel="noopener">
-                            <span class="dashicons dashicons-pdf" aria-hidden="true"></span>
-                            <?php esc_html_e( 'Download / Print', 'storelly-product-builder-for-woocommerce' ); ?>
+                    <div class="spbwc-q-detailbar__tools" role="group" aria-label="<?php esc_attr_e( 'Quote document actions', 'storelly-product-builder-for-woocommerce' ); ?>">
+                        <a class="spbwc-cta-btn spbwc-cta-btn--ghost spbwc-cta-btn--sm" href="<?php echo esc_url( $preview_url ); ?>" target="_blank" rel="noopener">
+                            <span class="dashicons dashicons-visibility" aria-hidden="true"></span>
+                            <?php esc_html_e( 'Preview customer view', 'storelly-product-builder-for-woocommerce' ); ?>
                         </a>
-                    <?php endif; ?>
+                        <?php if ( class_exists( 'SPBWC_Quote_PDF' ) ) : ?>
+                            <a class="spbwc-cta-btn spbwc-cta-btn--ghost spbwc-cta-btn--sm" href="<?php echo esc_url( SPBWC_Quote_PDF::print_url( $quote_id ) ); ?>" target="_blank" rel="noopener">
+                                <span class="dashicons dashicons-pdf" aria-hidden="true"></span>
+                                <?php esc_html_e( 'Download / Print', 'storelly-product-builder-for-woocommerce' ); ?>
+                            </a>
+                        <?php endif; ?>
+                    </div>
                 </div>
 
                 <form method="post" id="spbwc-quote-reply-form">
