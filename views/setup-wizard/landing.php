@@ -98,6 +98,29 @@ $spbwc_co_sample_view = isset( $_GET['view'] ) ? absint( wp_unslash( $_GET['view
 
 // Server capability warnings (A12) — pure read, never phones home.
 $spbwc_sys_warnings = class_exists( 'SPBWC_System_Status' ) ? SPBWC_System_Status::get_warnings() : array();
+// Full live status list (server + WordPress) for the System status panel.
+$spbwc_sys_checks   = class_exists( 'SPBWC_System_Status' ) ? SPBWC_System_Status::get_checks() : array();
+
+// "How to fix" pointers per capability: the exact file to edit + the directive,
+// so the merchant knows precisely what to change. Doc link is a fallback guide.
+$spbwc_fix_map = array(
+	'imagick' => array( 'file' => 'php.ini',       'hint' => 'extension=imagick   (or at least extension=gd)' ),
+	'memory'  => array( 'file' => 'wp-config.php', 'hint' => "define( 'WP_MEMORY_LIMIT', '256M' );" ),
+	'upload'  => array( 'file' => 'php.ini',       'hint' => 'upload_max_filesize = 32M  ·  post_max_size = 64M' ),
+	'php'     => array( 'file' => '',              'hint' => __( 'Switch PHP version in your host control panel ("Select PHP Version").', 'storelly-product-builder-for-woocommerce' ) ),
+	'cron'    => array( 'file' => 'wp-config.php', 'hint' => "remove  define( 'DISABLE_WP_CRON', true );  — or add a real system cron" ),
+);
+$spbwc_docs_url = 'https://storelly.com/docs/server-requirements';
+
+// Help & account widgets (items 2/3/4).
+$spbwc_acct_connected = class_exists( 'SPBWC_Cloud_Connect' ) && SPBWC_Cloud_Connect::is_connected();
+$spbwc_acct_url       = admin_url( 'admin.php?page=' . SPBWC_PB_OPTIONS_SLUG . '&tab=integration' );
+$spbwc_support_email  = 'support@storelly.com';
+$spbwc_support_wa     = '+84 937 869 689';
+$spbwc_support_wa_url = 'https://wa.me/84937869689';
+$spbwc_locale         = function_exists( 'determine_locale' ) ? determine_locale() : get_locale();
+$spbwc_lang_url       = admin_url( 'options-general.php#WPLANG' );
+$spbwc_translate_url  = 'https://translate.wordpress.org/projects/wp-plugins/storelly-product-builder-for-woocommerce/';
 ?>
 <div class="wrap spbwc-wizard-landing">
 
@@ -162,7 +185,7 @@ $spbwc_sys_warnings = class_exists( 'SPBWC_System_Status' ) ? SPBWC_System_Statu
 						<div class="spbwc-notice-banner__title"><?php echo esc_html( $spbwc_warn['label'] ); ?></div>
 						<div class="spbwc-notice-banner__text"><?php echo esc_html( $spbwc_warn['detail'] ); ?></div>
 						<p class="spbwc-notice-banner__fix">
-							<a href="#<?php echo esc_attr( $spbwc_warn['faq_anchor'] ); ?>"><?php esc_html_e( 'How to fix →', 'storelly-product-builder-for-woocommerce' ); ?></a>
+							<a href="#spbwc-system-status"><?php esc_html_e( 'See system status &amp; how to fix →', 'storelly-product-builder-for-woocommerce' ); ?></a>
 						</p>
 					</div>
 				</div>
@@ -368,74 +391,137 @@ $spbwc_sys_warnings = class_exists( 'SPBWC_System_Status' ) ? SPBWC_System_Statu
 	</div>
 	<?php endif; ?>
 
-	<div class="spbwc-section spbwc-faq">
-		<header class="spbwc-section__header">
-			<h2 class="spbwc-section__title">
-				<?php esc_html_e( 'Server requirements & troubleshooting', 'storelly-product-builder-for-woocommerce' ); ?>
-			</h2>
-			<p class="spbwc-section__subtitle">
-				<?php esc_html_e( 'How to resolve the most common server capability warnings. Most are settings your host can change.', 'storelly-product-builder-for-woocommerce' ); ?>
-			</p>
-		</header>
-
-		<details class="spbwc-faq__item" id="faq-imagick">
-			<summary class="spbwc-faq__q"><?php esc_html_e( 'Image library (Imagick / GD) is missing or limited', 'storelly-product-builder-for-woocommerce' ); ?></summary>
-			<div class="spbwc-faq__a">
-				<p><?php esc_html_e( 'The builder renders designs with PHP’s image extensions. Imagick gives the best print quality; GD is a workable fallback.', 'storelly-product-builder-for-woocommerce' ); ?></p>
-				<p><?php esc_html_e( 'Ask your host to enable the “imagick” (or at least “gd”) PHP extension. On cPanel this is under “Select PHP Version → Extensions”. On a managed host, open a support ticket asking to enable Imagick for your PHP version.', 'storelly-product-builder-for-woocommerce' ); ?></p>
-			</div>
-		</details>
-
-		<details class="spbwc-faq__item" id="faq-memory">
-			<summary class="spbwc-faq__q"><?php esc_html_e( 'PHP memory limit is too low', 'storelly-product-builder-for-woocommerce' ); ?></summary>
-			<div class="spbwc-faq__a">
-				<p><?php esc_html_e( 'Rendering large, multi-view designs needs memory. We recommend at least 128 MB; 256 MB is comfortable.', 'storelly-product-builder-for-woocommerce' ); ?></p>
-				<p><?php esc_html_e( 'Add this to wp-config.php above the “stop editing” line: define( \'WP_MEMORY_LIMIT\', \'256M\' ); — or ask your host to raise PHP’s memory_limit if your plan caps it.', 'storelly-product-builder-for-woocommerce' ); ?></p>
-			</div>
-		</details>
-
-		<details class="spbwc-faq__item" id="faq-upload">
-			<summary class="spbwc-faq__q"><?php esc_html_e( 'Upload size limit is too small', 'storelly-product-builder-for-woocommerce' ); ?></summary>
-			<div class="spbwc-faq__a">
-				<p><?php esc_html_e( 'Customers uploading print-ready artwork can exceed a small upload limit. We recommend at least 8 MB.', 'storelly-product-builder-for-woocommerce' ); ?></p>
-				<p><?php esc_html_e( 'Ask your host to raise both upload_max_filesize and post_max_size in PHP (post_max_size must be the same or larger than upload_max_filesize). Many hosts expose these in their control panel.', 'storelly-product-builder-for-woocommerce' ); ?></p>
-			</div>
-		</details>
-
-		<details class="spbwc-faq__item" id="faq-php">
-			<summary class="spbwc-faq__q"><?php esc_html_e( 'PHP version is out of date', 'storelly-product-builder-for-woocommerce' ); ?></summary>
-			<div class="spbwc-faq__a">
-				<p><?php esc_html_e( 'Storelly and WooCommerce both run best on a current, supported PHP version. Older versions are slower and miss security fixes.', 'storelly-product-builder-for-woocommerce' ); ?></p>
-				<p><?php esc_html_e( 'Most hosts let you switch PHP version from their control panel (“Select PHP Version” / “PHP Settings”). Back up first, then pick the latest version your other plugins support.', 'storelly-product-builder-for-woocommerce' ); ?></p>
-			</div>
-		</details>
-
-		<details class="spbwc-faq__item" id="faq-cron">
-			<summary class="spbwc-faq__q"><?php esc_html_e( 'WP-Cron is disabled', 'storelly-product-builder-for-woocommerce' ); ?></summary>
-			<div class="spbwc-faq__a">
-				<p><?php esc_html_e( 'Background jobs — print-ready PDF rendering, quote expiry and other scheduled tasks — rely on WP-Cron. When DISABLE_WP_CRON is set, they will not run until a real cron triggers them.', 'storelly-product-builder-for-woocommerce' ); ?></p>
-				<p><?php esc_html_e( 'If you set DISABLE_WP_CRON on purpose, add a server cron job that requests wp-cron.php every few minutes. Otherwise, remove the DISABLE_WP_CRON line from wp-config.php to let WordPress run cron on page loads.', 'storelly-product-builder-for-woocommerce' ); ?></p>
-			</div>
-		</details>
-
-		<details class="spbwc-faq__item" id="faq-cloud">
-			<summary class="spbwc-faq__q"><?php esc_html_e( 'Storelly Cloud is not connected', 'storelly-product-builder-for-woocommerce' ); ?></summary>
-			<div class="spbwc-faq__a">
-				<p><?php esc_html_e( 'Cloud features (print-ready PDF generation, sync and analytics) are optional and opt-in. Everything else in Storelly works fully offline — your store is never contacted by Storelly until you connect.', 'storelly-product-builder-for-woocommerce' ); ?></p>
-				<p><?php esc_html_e( 'When you need cloud features, connect from the Storelly Overview screen. Setup runs inside wp-admin — no need to leave for storelly.com.', 'storelly-product-builder-for-woocommerce' ); ?></p>
-			</div>
-		</details>
-	</div>
-
-	<?php
-	// Plugin language / RTL reference (Wave 2 — moved here from Settings: it is
-	// not a configurable setting, so it sat oddly next to a Save button). The
-	// widget renders its own .spbwc-block card.
-	if ( class_exists( 'SPBWC_I18n_Notice' ) ) :
-	?>
+	<!-- ── Help & account (items 2/3/4) ─────────────────────────── -->
 	<div class="spbwc-section">
-		<?php SPBWC_I18n_Notice::render_language_widget(); ?>
+		<header class="spbwc-section__header">
+			<h2 class="spbwc-section__title"><?php esc_html_e( 'Help & account', 'storelly-product-builder-for-woocommerce' ); ?></h2>
+			<p class="spbwc-section__subtitle"><?php esc_html_e( 'Connect your store, switch language, or reach the Storelly team.', 'storelly-product-builder-for-woocommerce' ); ?></p>
+		</header>
+		<div class="spbwc-quick-grid">
+
+			<!-- Storelly Account (item 4) -->
+			<div class="spbwc-quick-card">
+				<div class="spbwc-quick-card__head">
+					<div class="spbwc-quick-card__icon"><span class="dashicons dashicons-cloud" aria-hidden="true"></span></div>
+					<h2 class="spbwc-quick-card__title"><?php esc_html_e( 'Storelly Account', 'storelly-product-builder-for-woocommerce' ); ?></h2>
+					<span class="spbwc-pill <?php echo $spbwc_acct_connected ? 'spbwc-pill--ok' : 'spbwc-pill--neutral'; ?>">
+						<?php echo $spbwc_acct_connected ? esc_html__( 'Connected', 'storelly-product-builder-for-woocommerce' ) : esc_html__( 'Not connected', 'storelly-product-builder-for-woocommerce' ); ?>
+					</span>
+				</div>
+				<p class="spbwc-quick-card__desc">
+					<?php echo $spbwc_acct_connected
+						? esc_html__( 'Your store is connected to Storelly Cloud. Manage the connection, cloud PDF and order sync from Settings.', 'storelly-product-builder-for-woocommerce' )
+						: esc_html__( 'Connect to Storelly Cloud for print-ready PDF rendering and a central dashboard. Free local features keep working either way.', 'storelly-product-builder-for-woocommerce' ); ?>
+				</p>
+				<div class="spbwc-quick-card__footer">
+					<a class="spbwc-cta-btn spbwc-cta-btn--<?php echo $spbwc_acct_connected ? 'ghost' : 'solid'; ?> spbwc-cta-btn--sm" href="<?php echo esc_url( $spbwc_acct_url ); ?>">
+						<span class="dashicons dashicons-<?php echo $spbwc_acct_connected ? 'admin-tools' : 'cloud'; ?>" aria-hidden="true"></span>
+						<?php echo $spbwc_acct_connected ? esc_html__( 'Manage account', 'storelly-product-builder-for-woocommerce' ) : esc_html__( 'Set up Storelly Account', 'storelly-product-builder-for-woocommerce' ); ?>
+					</a>
+				</div>
+			</div>
+
+			<!-- Support (item 3) -->
+			<div class="spbwc-quick-card">
+				<div class="spbwc-quick-card__head">
+					<div class="spbwc-quick-card__icon"><span class="dashicons dashicons-sos" aria-hidden="true"></span></div>
+					<h2 class="spbwc-quick-card__title"><?php esc_html_e( 'Need a hand?', 'storelly-product-builder-for-woocommerce' ); ?></h2>
+				</div>
+				<p class="spbwc-quick-card__desc"><?php esc_html_e( 'Reach the Storelly team — we usually reply within one business day on weekdays.', 'storelly-product-builder-for-woocommerce' ); ?></p>
+				<div class="spbwc-quick-card__footer spbwc-action-btns">
+					<a class="spbwc-cta-btn spbwc-cta-btn--ghost spbwc-cta-btn--sm" href="<?php echo esc_url( 'mailto:' . $spbwc_support_email ); ?>">
+						<span class="dashicons dashicons-email" aria-hidden="true"></span><?php echo esc_html( $spbwc_support_email ); ?>
+					</a>
+					<a class="spbwc-cta-btn spbwc-cta-btn--ghost spbwc-cta-btn--sm" href="<?php echo esc_url( $spbwc_support_wa_url ); ?>" target="_blank" rel="noopener noreferrer">
+						<span class="dashicons dashicons-whatsapp" aria-hidden="true"></span><?php echo esc_html( $spbwc_support_wa ); ?>
+					</a>
+				</div>
+			</div>
+
+			<!-- Plugin Language (item 2) -->
+			<div class="spbwc-quick-card">
+				<div class="spbwc-quick-card__head">
+					<div class="spbwc-quick-card__icon"><span class="dashicons dashicons-translation" aria-hidden="true"></span></div>
+					<h2 class="spbwc-quick-card__title"><?php esc_html_e( 'Plugin Language', 'storelly-product-builder-for-woocommerce' ); ?></h2>
+				</div>
+				<p class="spbwc-quick-card__desc">
+					<?php
+					printf(
+						/* translators: %s: current locale code, e.g. en_US. */
+						esc_html__( 'Ships in 15 languages. Current site locale: %s. Switch your WordPress language and the plugin admin follows automatically.', 'storelly-product-builder-for-woocommerce' ),
+						'<code>' . esc_html( $spbwc_locale ) . '</code>'
+					);
+					?>
+				</p>
+				<div class="spbwc-quick-card__footer spbwc-action-btns">
+					<a class="spbwc-cta-btn spbwc-cta-btn--ghost spbwc-cta-btn--sm" href="<?php echo esc_url( $spbwc_lang_url ); ?>">
+						<span class="dashicons dashicons-admin-site-alt3" aria-hidden="true"></span><?php esc_html_e( 'Change language', 'storelly-product-builder-for-woocommerce' ); ?>
+					</a>
+					<a class="spbwc-cta-btn spbwc-cta-btn--link spbwc-cta-btn--sm" href="<?php echo esc_url( $spbwc_translate_url ); ?>" target="_blank" rel="noopener noreferrer">
+						<?php esc_html_e( 'Help translate', 'storelly-product-builder-for-woocommerce' ); ?>
+						<span class="dashicons dashicons-external" aria-hidden="true"></span>
+					</a>
+				</div>
+			</div>
+
+		</div>
 	</div>
-	<?php endif; ?>
+
+	<!-- ── System status (item 1) — live, names the file to fix ──── -->
+	<div class="spbwc-section" id="spbwc-system-status">
+		<header class="spbwc-section__header">
+			<h2 class="spbwc-section__title"><?php esc_html_e( 'System status', 'storelly-product-builder-for-woocommerce' ); ?></h2>
+			<p class="spbwc-section__subtitle"><?php esc_html_e( 'Live snapshot of your server and WordPress. Fix anything marked "Action needed" so the builder renders and syncs reliably.', 'storelly-product-builder-for-woocommerce' ); ?></p>
+		</header>
+		<div class="spbwc-block">
+			<ul class="spbwc-status-list">
+				<?php
+				$spbwc_software = array(
+					array( 'label' => __( 'WordPress', 'storelly-product-builder-for-woocommerce' ),               'value' => get_bloginfo( 'version' ) ),
+					array( 'label' => __( 'WooCommerce', 'storelly-product-builder-for-woocommerce' ),             'value' => defined( 'WC_VERSION' ) ? WC_VERSION : __( 'not active', 'storelly-product-builder-for-woocommerce' ) ),
+					array( 'label' => __( 'Storelly Product Builder', 'storelly-product-builder-for-woocommerce' ), 'value' => defined( 'SPBWC_PB_VERSION' ) ? SPBWC_PB_VERSION : '' ),
+				);
+				foreach ( $spbwc_software as $spbwc_soft ) :
+				?>
+				<li class="spbwc-status-row spbwc-status-row--ok">
+					<span class="spbwc-status-row__dot" aria-hidden="true"></span>
+					<span class="spbwc-status-row__label"><?php echo esc_html( $spbwc_soft['label'] ); ?></span>
+					<span class="spbwc-status-row__value"><?php echo esc_html( $spbwc_soft['value'] ); ?></span>
+					<span class="spbwc-status-row__badge"><?php esc_html_e( 'OK', 'storelly-product-builder-for-woocommerce' ); ?></span>
+				</li>
+				<?php endforeach; ?>
+
+				<?php
+				foreach ( $spbwc_sys_checks as $spbwc_chk ) :
+					$spbwc_lvl   = isset( $spbwc_chk['level'] ) ? $spbwc_chk['level'] : 'ok';
+					$spbwc_fix   = isset( $spbwc_fix_map[ $spbwc_chk['key'] ] ) ? $spbwc_fix_map[ $spbwc_chk['key'] ] : null;
+					$spbwc_badge = ( 'ok' === $spbwc_lvl ) ? __( 'OK', 'storelly-product-builder-for-woocommerce' ) : ( ( 'warn' === $spbwc_lvl ) ? __( 'Recommended', 'storelly-product-builder-for-woocommerce' ) : __( 'Action needed', 'storelly-product-builder-for-woocommerce' ) );
+				?>
+				<li class="spbwc-status-row spbwc-status-row--<?php echo esc_attr( $spbwc_lvl ); ?>">
+					<span class="spbwc-status-row__dot" aria-hidden="true"></span>
+					<span class="spbwc-status-row__label"><?php echo esc_html( $spbwc_chk['label'] ); ?></span>
+					<span class="spbwc-status-row__value"><?php echo esc_html( $spbwc_chk['detail'] ); ?></span>
+					<span class="spbwc-status-row__badge"><?php echo esc_html( $spbwc_badge ); ?></span>
+					<?php if ( 'ok' !== $spbwc_lvl ) : ?>
+					<div class="spbwc-status-row__fix">
+						<span class="dashicons dashicons-edit" aria-hidden="true"></span>
+						<?php if ( 'cloud' === $spbwc_chk['key'] ) : ?>
+							<a href="<?php echo esc_url( $spbwc_acct_url ); ?>"><?php esc_html_e( 'Set up Storelly Account →', 'storelly-product-builder-for-woocommerce' ); ?></a>
+						<?php else : ?>
+							<?php if ( ! empty( $spbwc_fix['file'] ) ) : ?>
+								<span class="spbwc-status-row__fix-file"><?php esc_html_e( 'Edit', 'storelly-product-builder-for-woocommerce' ); ?> <code><?php echo esc_html( $spbwc_fix['file'] ); ?></code>:</span>
+							<?php endif; ?>
+							<?php if ( ! empty( $spbwc_fix['hint'] ) ) : ?>
+								<code class="spbwc-status-row__fix-hint"><?php echo esc_html( $spbwc_fix['hint'] ); ?></code>
+							<?php endif; ?>
+							<a href="<?php echo esc_url( $spbwc_docs_url . '#' . $spbwc_chk['key'] ); ?>" target="_blank" rel="noopener noreferrer"><?php esc_html_e( 'Guide →', 'storelly-product-builder-for-woocommerce' ); ?></a>
+						<?php endif; ?>
+					</div>
+					<?php endif; ?>
+				</li>
+				<?php endforeach; ?>
+			</ul>
+		</div>
+	</div>
 
 </div>
