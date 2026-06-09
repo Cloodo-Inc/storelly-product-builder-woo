@@ -14,6 +14,36 @@
     color: var(--nbd-st-text);
 }
 
+/* === "Local data" hero badge (A1) =========================
+ * Compact pill in the page-hero eyebrow that replaces the old
+ * full-width "Showing local data only" banner. Links to Sync.
+ * Logical properties keep it RTL-safe. */
+.spbwc-overview-wrap .spbwc-page-hero__badge {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--nbd-space-1, 4px);
+    margin-inline-start: var(--nbd-space-2, 8px);
+    padding: 2px var(--nbd-space-2, 8px);
+    border-radius: var(--nbd-radius-full, 999px);
+    background: var(--st-pill-pending-bg, #fef3c7);
+    color: var(--st-pill-pending-text, #92400e);
+    font-size: 11px;
+    font-weight: 700;
+    line-height: 1.6;
+    text-decoration: none;
+    vertical-align: middle;
+}
+.spbwc-overview-wrap .spbwc-page-hero__badge:hover,
+.spbwc-overview-wrap .spbwc-page-hero__badge:focus {
+    color: var(--st-pill-pending-text, #92400e);
+    box-shadow: 0 0 0 2px var(--st-pill-pending-bg, #fef3c7);
+}
+.spbwc-overview-wrap .spbwc-page-hero__badge .dashicons {
+    font-size: 13px;
+    width: 13px;
+    height: 13px;
+}
+
 /* === Scoped form-field inset-shadow (overview content area) = */
 /* These mirror .spbwc-input but apply to native WP inputs       */
 /* inside the overview wrap, without touching global WP UI.      */

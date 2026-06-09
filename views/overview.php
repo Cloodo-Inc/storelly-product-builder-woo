@@ -75,6 +75,13 @@ $plan_benefits = $is_free
                 <div class="spbwc-page-hero__eyebrow">
                     <span class="dashicons dashicons-store" aria-hidden="true"></span>
                     <?php esc_html_e( 'Storelly Product Builder', 'storelly-product-builder-for-woocommerce' ); ?>
+                    <?php if ( ! $is_remote_ok ) : ?>
+                        <a class="spbwc-page-hero__badge" href="<?php echo esc_url( $license_url ); ?>"
+                           title="<?php esc_attr_e( 'Couldn\'t reach Storelly — showing your local database counts. Connect to enable live metrics.', 'storelly-product-builder-for-woocommerce' ); ?>">
+                            <span class="dashicons dashicons-database" aria-hidden="true"></span>
+                            <?php esc_html_e( 'Local data', 'storelly-product-builder-for-woocommerce' ); ?>
+                        </a>
+                    <?php endif; ?>
                 </div>
                 <h1 class="spbwc-page-hero__title">
                     <span class="dashicons dashicons-dashboard" aria-hidden="true"></span>
@@ -400,12 +407,14 @@ $plan_benefits = $is_free
                             ?>
                         </p>
                         <p class="spbwc-welcome__cloud-manual">
-                            <a href="#" id="spbwc-cloud-manual-toggle"><?php esc_html_e( 'Already have a Store ID? Link it', 'storelly-product-builder-for-woocommerce' ); ?></a>
+                            <?php
+                            // Full account management (manual Store ID link, disconnect,
+                            // active features) lives in one place — Settings ▸ Integration
+                            // (M5.9). The Welcome card is just the fast 1-click entry.
+                            $spbwc_acct_url = admin_url( 'admin.php?page=' . SPBWC_PB_OPTIONS_SLUG . '&tab=integration' );
+                            ?>
+                            <a href="<?php echo esc_url( $spbwc_acct_url ); ?>"><?php esc_html_e( 'Already have an account, or want more options? Manage in Settings', 'storelly-product-builder-for-woocommerce' ); ?></a>
                         </p>
-                        <div class="spbwc-welcome__cloud-manual-box" id="spbwc-cloud-manual-box" hidden>
-                            <input type="text" id="spbwc-cloud-store-id" placeholder="<?php esc_attr_e( 'Store ID from your Storelly dashboard', 'storelly-product-builder-for-woocommerce' ); ?>">
-                            <button type="button" class="spbwc-cta-btn" id="spbwc-cloud-link"><?php esc_html_e( 'Link', 'storelly-product-builder-for-woocommerce' ); ?></button>
-                        </div>
                     </div>
                     <button type="button" class="spbwc-cta-btn spbwc-cta-btn--solid" id="spbwc-cloud-connect">
                         <span class="dashicons dashicons-cloud" aria-hidden="true"></span>
@@ -437,12 +446,8 @@ $plan_benefits = $is_free
             $('#spbwc-cloud-disconnect').on('click', function(){
                 if ( window.confirm('<?php echo esc_js( __( 'Disconnect from Storelly Cloud? PDF and sync will stop.', 'storelly-product-builder-for-woocommerce' ) ); ?>') ) { send('spbwc_cloud_disconnect', {}, this); }
             });
-            $('#spbwc-cloud-manual-toggle').on('click', function(e){ e.preventDefault(); $('#spbwc-cloud-manual-box').prop('hidden', false); });
-            $('#spbwc-cloud-link').on('click', function(){
-                var id = $.trim($('#spbwc-cloud-store-id').val() || '');
-                if ( ! id ) { return; }
-                send('spbwc_cloud_link_manual', { store_id: id }, this);
-            });
+            // Manual Store ID link + full account management now live in
+            // Settings ▸ Integration (M5.9). The Welcome card is the 1-click entry.
         })(jQuery);
         </script>
     </section>
@@ -587,34 +592,14 @@ $plan_benefits = $is_free
     <?php endif; ?>
 
     <!-- ============ Notices ============ -->
-    <?php if ( ! $is_remote_ok ) : ?>
-        <div class="spbwc-notice-banner spbwc-notice-banner--info" role="status">
-            <span class="dashicons dashicons-cloud-saved" aria-hidden="true"></span>
-            <div class="spbwc-notice-banner__body">
-                <div class="spbwc-notice-banner__title">
-                    <?php esc_html_e( 'Showing local data only', 'storelly-product-builder-for-woocommerce' ); ?>
-                </div>
-                <div class="spbwc-notice-banner__text">
-                    <?php
-                    printf(
-                        /* translators: %s: URL to license page */
-                        wp_kses(
-                            /* translators: %s: URL to license page */
-                            __( 'Couldn\'t reach the Storelly server. Stats below are pulled from your local database. <a href="%s">Check your connection</a> to enable real-time metrics.', 'storelly-product-builder-for-woocommerce' ),
-                            array( 'a' => array( 'href' => array() ) )
-                        ),
-                        esc_url( $license_url )
-                    );
-                    ?>
-                </div>
-            </div>
-        </div>
-    <?php endif; ?>
+    <?php // "Showing local data only" is now a compact "Local data" badge in the
+          // page-hero (Wave 2, A1) instead of a full-width banner — the message
+          // appears at most once and no longer competes with the welcome/prep
+          // banners for attention. ?>
 
-    <?php // Always-visible language widget — see includes/class-i18n-notice.php
-    if ( class_exists( 'SPBWC_I18n_Notice' ) ) {
-        SPBWC_I18n_Notice::render_language_widget();
-    } ?>
+    <?php // Language widget moved to Settings ▸ Languages (Wave 2, A8) — was
+          // rendered here AND in Settings, which the merchant flagged as noise.
+          // Single home is now the Settings ▸ Languages tab. ?>
 
     <!-- ============ License hero (already conveys Free plan + upgrade, so no
          separate "You're on the Free plan" banner is needed above it) ======== -->

@@ -51,7 +51,7 @@ $stt_yes_cloud2print_api = isset($storelly_pb_settings['enable_cloud2print_api']
 // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Template variable.
 $stt_no_cloud2print_api = isset($storelly_pb_settings['enable_cloud2print_api']) && $storelly_pb_settings['enable_cloud2print_api'] == 'no' ? 'checked' : '';
 // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Template variable.
-$spbwc_valid_tabs = array('pricing-option', 'display', 'pricing', 'catalog', 'cart', 'integration', 'user-account');
+$spbwc_valid_tabs = array('pricing-option', 'display', 'pricing', 'catalog', 'cart', 'integration', 'user-account', 'languages');
 // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only settings tab selector; validated against whitelist below, no state change.
 $spbwc_settings_tab = isset($_GET['tab']) ? sanitize_key(wp_unslash($_GET['tab'])) : 'pricing-option';
 if ( ! in_array($spbwc_settings_tab, $spbwc_valid_tabs, true) ) {
@@ -78,6 +78,23 @@ if ( ! in_array($spbwc_settings_tab, $spbwc_valid_tabs, true) ) {
                 </p>
             </div>
             <div class="spbwc-page-hero__actions">
+                <?php
+                // Preview Welcome guide (Wave 2, item 7 / M10). Cap-gated; opens the
+                // Overview in welcome-mode via the ?spbwc-welcome=1 query flag, which
+                // is read-only — it does NOT change dismissed/onboarding-complete
+                // state (see SPBWC_Onboarding::is_welcome_mode()).
+                if ( current_user_can( 'manage_options' ) && defined( 'SPBWC_PB_OVERVIEW_SLUG' ) ) :
+                    $spbwc_welcome_preview_url = add_query_arg(
+                        array( 'page' => SPBWC_PB_OVERVIEW_SLUG, 'spbwc-welcome' => 1 ),
+                        admin_url( 'admin.php' )
+                    );
+                ?>
+                <a href="<?php echo esc_url( $spbwc_welcome_preview_url ); ?>"
+                   class="spbwc-cta-btn spbwc-cta-btn--ghost">
+                    <span class="dashicons dashicons-visibility" aria-hidden="true"></span>
+                    <?php esc_html_e( 'Preview Welcome guide', 'storelly-product-builder-for-woocommerce' ); ?>
+                </a>
+                <?php endif; ?>
                 <a href="https://storelly.com/docs" target="_blank" rel="noopener noreferrer"
                    class="spbwc-cta-btn spbwc-cta-btn--ghost">
                     <span class="dashicons dashicons-book-alt" aria-hidden="true"></span>
@@ -127,6 +144,11 @@ if ( ! in_array($spbwc_settings_tab, $spbwc_valid_tabs, true) ) {
                data-tab="user-account" class="nav-tab <?php echo $spbwc_settings_tab === 'user-account' ? 'nav-tab-active' : ''; ?>">
                 <span class="dashicons dashicons-admin-users" aria-hidden="true"></span>
                 <?php esc_html_e('User Account', 'storelly-product-builder-for-woocommerce'); ?>
+            </a>
+            <a href="<?php echo esc_url(admin_url('admin.php?page=' . SPBWC_PB_OPTIONS_SLUG . '&tab=languages')); ?>"
+               data-tab="languages" class="nav-tab <?php echo $spbwc_settings_tab === 'languages' ? 'nav-tab-active' : ''; ?>">
+                <span class="dashicons dashicons-translation" aria-hidden="true"></span>
+                <?php esc_html_e('Languages', 'storelly-product-builder-for-woocommerce'); ?>
             </a>
         </h2>
 
@@ -643,13 +665,121 @@ if ( ! in_array($spbwc_settings_tab, $spbwc_valid_tabs, true) ) {
             <!-- ━━━ INTEGRATION ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ -->
             <div class="spbwc-tab-panel" id="tab-integration"<?php echo ($spbwc_settings_tab !== 'integration') ? ' style="display:none;"' : ''; ?>>
 
-                <!-- ── What is Storelly? (plain-language intro) ───── -->
-                <div class="spbwc-block spbwc-block--info" style="border-left:3px solid var(--st-accent,#2563eb);">
+                <?php
+                // ── Unified "Storelly Account" component (M5.9, Wave 2 item 4) ──
+                // Single home for connecting/disconnecting/linking the store to the
+                // Storelly cloud. Reuses SPBWC_Cloud_Connect (connect/disconnect/
+                // link_manual). No network call happens until the merchant clicks
+                // Enable Cloud — the AJAX path is the only one that phones home.
+                // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Template variable.
+                $spbwc_acct_connected = class_exists( 'SPBWC_Cloud_Connect' ) && SPBWC_Cloud_Connect::is_connected();
+                // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Template variable.
+                $spbwc_acct_nonce     = wp_create_nonce( 'spbwc_cloud_connect' );
+                // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Template variable.
+                $spbwc_acct_privacy   = 'https://storelly.com/privacy';
+                // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Template variable.
+                $spbwc_acct_pdf_on    = isset( $storelly_pb_settings['enable_cloud2print_api'] ) && 'yes' === $storelly_pb_settings['enable_cloud2print_api'];
+                // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Template variable.
+                $spbwc_acct_sync_on   = isset( $storelly_pb_settings['enable_api_sync'] ) && 'yes' === $storelly_pb_settings['enable_api_sync'];
+                ?>
+                <div class="spbwc-block<?php echo $spbwc_acct_connected ? ' spbwc-block--success' : ''; ?> spbwc-account-card"
+                     id="spbwc-account-card" data-nonce="<?php echo esc_attr( $spbwc_acct_nonce ); ?>">
+                    <div class="spbwc-block__head">
+                        <h3 class="spbwc-block__title">
+                            <span class="dashicons dashicons-cloud" aria-hidden="true"></span>
+                            <?php esc_html_e( 'Storelly Account', 'storelly-product-builder-for-woocommerce' ); ?>
+                        </h3>
+                        <?php if ( $spbwc_acct_connected ) : ?>
+                        <span class="spbwc-block__badge">
+                            <span class="dashicons dashicons-yes-alt" aria-hidden="true"></span>
+                            <?php esc_html_e( 'Connected', 'storelly-product-builder-for-woocommerce' ); ?>
+                        </span>
+                        <?php else : ?>
+                        <span class="spbwc-block__badge spbwc-block__badge--muted">
+                            <span class="dashicons dashicons-minus" aria-hidden="true"></span>
+                            <?php esc_html_e( 'Not connected', 'storelly-product-builder-for-woocommerce' ); ?>
+                        </span>
+                        <?php endif; ?>
+                    </div>
+
                     <div class="spbwc-setting-rows">
-                        <p class="spbwc-setting-row__hint" style="margin:0;">
-                            <strong><?php esc_html_e( 'About Storelly Cloud', 'storelly-product-builder-for-woocommerce' ); ?></strong>
-                            <?php esc_html_e( 'The product builder, pricing options, quotes and orders all run locally in your WordPress — free, with no account needed. Storelly is a separate cloud service (app.storelly.com) that adds print-ready PDF rendering and a central dashboard. The settings below ONLY take effect once you connect; nothing on this page sends any data to Storelly until you turn a feature on or save API keys. You can disconnect at any time.', 'storelly-product-builder-for-woocommerce' ); ?>
-                        </p>
+                        <?php if ( $spbwc_acct_connected ) : ?>
+                            <!-- ── State: CONNECTED ────────────────────────── -->
+                            <p class="spbwc-setting-row__hint" style="margin-top:0;">
+                                <?php esc_html_e( 'Your store is connected to Storelly Cloud. Print-ready PDF rendering and your saved store profile are active.', 'storelly-product-builder-for-woocommerce' ); ?>
+                            </p>
+                            <div class="spbwc-setting-row">
+                                <?php if ( $storelly_username ) : ?>
+                                <div class="spbwc-setting-row__label"><?php esc_html_e( 'Account', 'storelly-product-builder-for-woocommerce' ); ?></div>
+                                <div class="spbwc-setting-row__control"><?php echo esc_html( $storelly_username ); ?></div>
+                                <?php endif; ?>
+                            </div>
+                            <div class="spbwc-setting-row">
+                                <div class="spbwc-setting-row__label"><?php esc_html_e( 'Store URL', 'storelly-product-builder-for-woocommerce' ); ?></div>
+                                <div class="spbwc-setting-row__control"><?php echo esc_html( home_url() ); ?></div>
+                            </div>
+                            <div class="spbwc-setting-row">
+                                <div class="spbwc-setting-row__label"><?php esc_html_e( 'Active features', 'storelly-product-builder-for-woocommerce' ); ?></div>
+                                <div class="spbwc-setting-row__control">
+                                    <span class="dashicons <?php echo $spbwc_acct_pdf_on ? 'dashicons-yes-alt' : 'dashicons-minus'; ?>" aria-hidden="true"></span>
+                                    <?php esc_html_e( 'Cloud PDF rendering', 'storelly-product-builder-for-woocommerce' ); ?>
+                                    &nbsp; &middot; &nbsp;
+                                    <span class="dashicons <?php echo $spbwc_acct_sync_on ? 'dashicons-yes-alt' : 'dashicons-minus'; ?>" aria-hidden="true"></span>
+                                    <?php esc_html_e( 'Order sync', 'storelly-product-builder-for-woocommerce' ); ?>
+                                </div>
+                            </div>
+                            <div class="spbwc-setting-row">
+                                <div class="spbwc-setting-row__control">
+                                    <button type="button" class="spbwc-cta-btn spbwc-cta-btn--ghost" id="spbwc-account-disconnect">
+                                        <span class="dashicons dashicons-no-alt" aria-hidden="true"></span>
+                                        <?php esc_html_e( 'Disconnect', 'storelly-product-builder-for-woocommerce' ); ?>
+                                    </button>
+                                </div>
+                                <p class="spbwc-setting-row__hint"><?php esc_html_e( 'Disconnecting stops PDF rendering and order sync. No further data leaves your store. You can reconnect anytime.', 'storelly-product-builder-for-woocommerce' ); ?></p>
+                            </div>
+                        <?php else : ?>
+                            <!-- ── State: NOT CONNECTED ────────────────────── -->
+                            <p class="spbwc-setting-row__hint" style="margin-top:0;">
+                                <?php esc_html_e( 'The product builder, pricing options, quotes and orders all run locally in your WordPress — free, with no account needed. Connect to add print-ready PDF rendering and a central dashboard at app.storelly.com.', 'storelly-product-builder-for-woocommerce' ); ?>
+                            </p>
+                            <p class="spbwc-setting-row__hint">
+                                <?php
+                                printf(
+                                    /* translators: %s: link to the privacy policy. */
+                                    wp_kses(
+                                        /* translators: %s: link to the privacy policy. */
+                                        __( 'On connect we share your admin email, store URL and a store ID with Storelly to create your profile. Nothing is sent before you click. <a href="%s" target="_blank" rel="noopener noreferrer">Privacy</a>.', 'storelly-product-builder-for-woocommerce' ),
+                                        array( 'a' => array( 'href' => array(), 'target' => array(), 'rel' => array() ) )
+                                    ),
+                                    esc_url( $spbwc_acct_privacy )
+                                );
+                                ?>
+                            </p>
+                            <div class="spbwc-setting-row">
+                                <div class="spbwc-setting-row__control spbwc-action-btns">
+                                    <button type="button" class="spbwc-cta-btn spbwc-cta-btn--solid" id="spbwc-account-connect">
+                                        <span class="dashicons dashicons-cloud" aria-hidden="true"></span>
+                                        <?php esc_html_e( 'Enable Cloud', 'storelly-product-builder-for-woocommerce' ); ?>
+                                    </button>
+                                    <button type="button" class="spbwc-cta-btn spbwc-cta-btn--link" id="spbwc-account-manual-toggle">
+                                        <?php esc_html_e( 'Already have an account? Link with Store ID', 'storelly-product-builder-for-woocommerce' ); ?>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="spbwc-setting-row" id="spbwc-account-manual-box" hidden>
+                                <div class="spbwc-setting-row__label">
+                                    <label for="spbwc-account-store-id"><?php esc_html_e( 'Store ID', 'storelly-product-builder-for-woocommerce' ); ?></label>
+                                </div>
+                                <div class="spbwc-setting-row__control spbwc-action-btns">
+                                    <input type="text" id="spbwc-account-store-id" class="spbwc-input"
+                                           placeholder="<?php esc_attr_e( 'Store ID from your Storelly dashboard', 'storelly-product-builder-for-woocommerce' ); ?>" />
+                                    <button type="button" class="spbwc-cta-btn" id="spbwc-account-link">
+                                        <?php esc_html_e( 'Save', 'storelly-product-builder-for-woocommerce' ); ?>
+                                    </button>
+                                </div>
+                                <p class="spbwc-setting-row__hint"><?php esc_html_e( 'Find the Store ID in your Storelly dashboard, under Settings then API Keys. Use this only if you already created an account.', 'storelly-product-builder-for-woocommerce' ); ?></p>
+                            </div>
+                        <?php endif; ?>
                     </div>
                 </div>
 
@@ -736,7 +866,7 @@ if ( ! in_array($spbwc_settings_tab, $spbwc_valid_tabs, true) ) {
                     <div class="spbwc-setting-rows">
 
                         <p class="spbwc-setting-row__hint" style="margin-top:0;">
-                            <?php esc_html_e( 'Optional — only needed if you ALREADY have a Storelly account and want to link this store manually. New users do not need to fill this in: use “Enable Cloud” on the Overview page and an account is created and connected for you automatically (you will get an email with the login). These fields connect to the Storelly cloud at app.storelly.com.', 'storelly-product-builder-for-woocommerce' ); ?>
+                            <?php esc_html_e( 'Optional / advanced — these raw API fields are only needed if you ALREADY have a Storelly account and want to link this store manually. New users do not need to fill this in: use “Enable Cloud” in the Storelly Account card above and an account is created and connected for you automatically (you will get an email with the login). These fields connect to the Storelly cloud at app.storelly.com.', 'storelly-product-builder-for-woocommerce' ); ?>
                         </p>
 
                         <!-- SID (Consumer Key) -->
@@ -931,10 +1061,15 @@ if ( ! in_array($spbwc_settings_tab, $spbwc_valid_tabs, true) ) {
             </div>
         </form>
 
-        <?php // Help & Languages — always-visible section explaining i18n + RTL
-        if ( class_exists( 'SPBWC_I18n_Notice' ) ) {
-            SPBWC_I18n_Notice::render_language_widget();
-        } ?>
+        <!-- ━━━ LANGUAGES ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ -->
+        <?php // Languages panel — single home for the i18n / RTL widget (Wave 2, A8).
+              // Kept outside the settings <form> (informational, no form fields);
+              // the tab JS shows/hides it by its #tab-languages id like the others. ?>
+        <div class="spbwc-tab-panel" id="tab-languages"<?php echo ($spbwc_settings_tab !== 'languages') ? ' style="display:none;"' : ''; ?>>
+            <?php if ( class_exists( 'SPBWC_I18n_Notice' ) ) {
+                SPBWC_I18n_Notice::render_language_widget();
+            } ?>
+        </div>
 </div>
 <script>
 (function () {
@@ -1013,6 +1148,46 @@ if ( ! in_array($spbwc_settings_tab, $spbwc_valid_tabs, true) ) {
             e.preventDefault();
             spbwcAjaxSave( settingsForm, settingsForm.querySelector( 'button[type="submit"]' ) );
         } );
+    }
+
+    /* ── Storelly Account component (M5.9) ────────────────────── */
+    var acctCard = document.getElementById( 'spbwc-account-card' );
+    if ( acctCard && window.jQuery ) {
+        ( function ( $ ) {
+            var nonce = acctCard.getAttribute( 'data-nonce' );
+            function send( action, extra, btn ) {
+                var data = $.extend( { action: action, nonce: nonce }, extra || {} );
+                if ( btn ) { $( btn ).addClass( 'is-loading' ).prop( 'disabled', true ); }
+                $.post( window.ajaxurl, data, function ( res ) {
+                    if ( res && res.success ) {
+                        window.location.reload();
+                    } else {
+                        spbwcToast( 'error', ( res && res.data && res.data.message ) ? res.data.message : i18n.failed );
+                        if ( btn ) { $( btn ).removeClass( 'is-loading' ).prop( 'disabled', false ); }
+                    }
+                } ).fail( function () {
+                    spbwcToast( 'error', i18n.network );
+                    if ( btn ) { $( btn ).removeClass( 'is-loading' ).prop( 'disabled', false ); }
+                } );
+            }
+            $( '#spbwc-account-connect' ).on( 'click', function () {
+                send( 'spbwc_cloud_connect', {}, this );
+            } );
+            $( '#spbwc-account-disconnect' ).on( 'click', function () {
+                if ( window.confirm( <?php echo wp_json_encode( __( 'Disconnect from Storelly Cloud? PDF rendering and order sync will stop.', 'storelly-product-builder-for-woocommerce' ) ); ?> ) ) {
+                    send( 'spbwc_cloud_disconnect', {}, this );
+                }
+            } );
+            $( '#spbwc-account-manual-toggle' ).on( 'click', function () {
+                var box = document.getElementById( 'spbwc-account-manual-box' );
+                if ( box ) { box.hidden = ! box.hidden; }
+            } );
+            $( '#spbwc-account-link' ).on( 'click', function () {
+                var id = $.trim( $( '#spbwc-account-store-id' ).val() || '' );
+                if ( ! id ) { return; }
+                send( 'spbwc_cloud_link_manual', { store_id: id }, this );
+            } );
+        }( window.jQuery ) );
     }
 
     /* ── Tab switching ────────────────────────────────────────── */

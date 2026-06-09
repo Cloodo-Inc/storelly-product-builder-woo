@@ -1972,6 +1972,120 @@ angular
         jQuery('form[name="nboForm"]').submit();
       });
     };
+
+    /* ───────────────────────────────────────────────────────────
+     * V3 in-place save (Wave 2, A2). On the standalone v3 editor
+     * (#spbwc-po-v3-form, NOT the Visual Builder shell which owns its
+     * own #spbwc-vb-form interceptor), turn the manual Save's full-page
+     * form submit into an AJAX call to spbwc_save_option_ajax. The
+     * AngularJS model already holds every field value, so dependent
+     * field bodies (sub_attributes, conditional_depend, price_breaks,
+     * depend_quantity, placeholder) stay correctly rendered without a
+     * reload — that reload was the only reason they previously appeared
+     * to "need a save to show". Serialization is unchanged (jsonFields
+     * is still the source of truth), so no whitelist regression.
+     * ─────────────────────────────────────────────────────────── */
+    $timeout(function () {
+      // Visual Builder shell present? Leave its flow untouched.
+      if (document.getElementById("spbwc-vb-form")) {
+        return;
+      }
+      var v3form = document.getElementById("spbwc-po-v3-form");
+      if (!v3form || typeof window.fetch !== "function") {
+        return;
+      }
+
+      function setStatus(label, dirty) {
+        try {
+          $scope.$root.vbSavedLabel = label;
+          $scope.$root.vbDirty = !!dirty;
+          if ($scope.$root.$$phase !== "$apply" && $scope.$root.$$phase !== "$digest") {
+            $scope.$applyAsync();
+          }
+        } catch (e) { /* status line is optional */ }
+      }
+
+      v3form.addEventListener(
+        "submit",
+        function (e) {
+          // Avoid double-handling and let the browser do a normal submit
+          // only if something forced it (fallback flag).
+          if (v3form._spbwcAllowNativeSubmit) {
+            v3form._spbwcAllowNativeSubmit = false;
+            return;
+          }
+          e.preventDefault();
+          e.stopPropagation();
+          e.stopImmediatePropagation();
+
+          setStatus("Saving…", false);
+
+          var fd = new window.FormData(v3form);
+          // Route to the dedicated AJAX endpoint (reuses spbwc_save_option
+          // server-side; same nonce + capability checks).
+          fd.set("action", "spbwc_save_option_ajax");
+          var ajaxUrl =
+            (typeof storelly_option_variable !== "undefined" &&
+              storelly_option_variable.ajax_url) ||
+            window.ajaxurl;
+
+          window
+            .fetch(ajaxUrl, {
+              method: "POST",
+              body: fd,
+              credentials: "same-origin",
+            })
+            .then(function (r) {
+              return r.json().catch(function () {
+                return null;
+              });
+            })
+            .then(function (res) {
+              if (res && res.success && res.data) {
+                // New option just got its id — keep editing it in place.
+                if (res.data.id) {
+                  var idField = v3form.querySelector('input[name="option_id"]');
+                  if (idField && String(idField.value) !== String(res.data.id)) {
+                    idField.value = res.data.id;
+                    // Reflect the new id in the URL without reloading so a
+                    // manual refresh / further saves target the saved row.
+                    if (window.history && window.history.replaceState) {
+                      try {
+                        var u = new window.URL(window.location.href);
+                        u.searchParams.set("id", res.data.id);
+                        if (u.searchParams.get("action") === "create_v3") {
+                          u.searchParams.set("action", "v3");
+                        }
+                        window.history.replaceState(null, "", u.toString());
+                      } catch (e2) { /* URL update is best-effort */ }
+                    }
+                  }
+                }
+                setStatus(
+                  (res.data.msg ? res.data.msg : "Saved") +
+                    " · " +
+                    new Date().toLocaleTimeString(),
+                  false
+                );
+              } else {
+                var msg =
+                  (res && res.data && (res.data.msg || res.data.message)) ||
+                  "Save failed. Please try again.";
+                setStatus(msg, true);
+                window.alert(msg);
+              }
+            })
+            .catch(function () {
+              setStatus("Network error — your changes are still here.", true);
+              window.alert(
+                "Network error while saving. Your changes are still in the editor."
+              );
+            });
+        },
+        true /* capture */
+      );
+    });
+
     $scope.init();
   })
   .directive("stringToNumber", function () {
