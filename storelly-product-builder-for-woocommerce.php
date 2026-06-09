@@ -156,6 +156,10 @@ require_once(SPBWC_PB_PLUGIN_DIR .  'includes/class-onboarding.php');
 require_once(SPBWC_PB_PLUGIN_DIR .  'includes/class-upsell-notice.php');
 require_once(SPBWC_PB_PLUGIN_DIR .  'includes/class-review-notice.php');
 require_once(SPBWC_PB_PLUGIN_DIR .  'includes/class-demo-seeder.php');
+/* Server capability snapshot (Imagick/GD, memory, upload, PHP, WP-Cron, cloud) —
+ * pure read, never phones home. Powers the Setup Wizard FAQ + warning banners.
+ * See docs/SPEC_ADMIN_UX_POLISH_W2.md §A12. */
+require_once(SPBWC_PB_PLUGIN_DIR .  'includes/class-system-status.php');
 require_once(SPBWC_PB_PLUGIN_DIR .  'includes/class-frontend-options.php');
 require_once(SPBWC_PB_PLUGIN_DIR .  'includes/class-http.php');
 require_once(SPBWC_PB_PLUGIN_DIR .  'includes/class-productbuilder-api.php');
@@ -193,6 +197,13 @@ require_once(SPBWC_PB_PLUGIN_DIR .  'includes/class-custom-order-detail.php');
 if ( class_exists( 'SPBWC_Custom_Order_Detail' ) ) {
     SPBWC_Custom_Order_Detail::init();
 }
+
+/* Custom Order sample seeder — installs ONE labelled sample custom order + its
+ * own copy-on-write design folder (cloned from a bundled local template, no
+ * network) so a fresh store can explore the Custom Order workspace. Merchant-
+ * triggered only (Setup Wizard), nonce + capability gated; Undo removes it
+ * cleanly. See docs/SPEC_CUSTOM_ORDER.md "Milestone W2-SAMPLE". */
+require_once(SPBWC_PB_PLUGIN_DIR .  'includes/class-custom-order-sample.php');
 
 require_once(SPBWC_PB_PLUGIN_DIR .  'includes/class-request-quote.php');
 

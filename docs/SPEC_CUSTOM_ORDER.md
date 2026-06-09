@@ -369,7 +369,27 @@ Add a "Customer design activity" section to `views/overview.php`:
 
 ## Milestone W2-SAMPLE — Custom Order Sample seeder (Wave 2, item 9)
 
-**Status:** DRAFT (2026-06-09) · part of `SPEC_ADMIN_UX_POLISH_W2.md`
+**Status:** DONE (2026-06-09) · part of `SPEC_ADMIN_UX_POLISH_W2.md`
+
+### Implementation notes (as shipped)
+- Class `SPBWC_Custom_Order_Sample` (`includes/class-custom-order-sample.php`), registered in the
+  main loader right after `class-custom-order-detail.php`; `init()` runs on require.
+- Bundle: `storage/printcart/custom-order/design/` — a self-contained design folder (config.json,
+  design.json, design_output.json, used_font.json, 3 frame PNGs, 3 preview PNGs). Every external URL
+  in the JSON was replaced with a portable `{{PLUGIN_URL}}` token so it resolves on any site (no
+  hardcoded host/locale). On seed the token is rewritten to the live `SPBWC_PB_PLUGIN_URL`.
+- Seed flow: copy bundle → temp staging folder in `SPBWC_PB_CUSTOMER_DIR` → rewrite tokens →
+  `SPBWC_Storelly_IO::spbwc_clone_design_folder()` (COW, the sample owns its own folder) → drop the
+  staging copy → create a draft, hidden `WC_Product_Simple` ("Storelly Sample — Custom Tote") → a
+  `wc_create_order()` with that product (qty 2), line meta `_pcpb_folder` = the cloned folder +
+  `_pcpb_option_price` summary → order status `processing`. Order, product and attachments tagged
+  `_spbwc_is_sample`.
+- Removal scopes the product strictly to the recorded id (the demo "bag" shares the same sample flag)
+  and deletes the order, its design folder and the sample product.
+- UI: Setup Wizard (`views/setup-wizard/landing.php`) "Custom Order sample" section — "Add" /
+  "Remove sample" card (admin-post, nonce + `manage_woocommerce`). NOT touched: `views/overview.php`.
+- Compliance: no `wp_remote_*` (local read + filesystem clone), ABSPATH guard, nonce + cap on both
+  actions, single `spbwc_` prefix, literal text domain, mail suppressed during seed.
 
 ### Vấn đề
 Đã có sample seeder cho demo product (`SPBWC_Demo_Seeder`), B2B (`SPBWC_B2B_Sample`), Quote

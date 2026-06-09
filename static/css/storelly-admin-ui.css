@@ -1628,3 +1628,62 @@
     .spbwc-list-toolbar { flex-direction: column; align-items: stretch; }
     .spbwc-list-count { margin-left: 0; }
 }
+
+/* ========================================================== */
+/* Setup Wizard — server capability warnings + FAQ accordion   */
+/* (SPEC_ADMIN_UX_POLISH_W2.md §A12). Token-driven, RTL-safe.   */
+/* ========================================================== */
+.spbwc-sys-warnings {
+    display: flex;
+    flex-direction: column;
+    gap: var(--nbd-space-3);
+}
+
+.spbwc-notice-banner__fix {
+    margin: var(--nbd-space-2) 0 0;
+}
+
+.spbwc-faq__item {
+    border: 1px solid var(--nbd-st-border-light);
+    border-radius: var(--nbd-radius-md);
+    background: var(--nbd-st-bg);
+    margin-bottom: var(--nbd-space-3);
+    box-shadow: var(--shadow-sm);
+}
+
+.spbwc-faq__q {
+    cursor: pointer;
+    list-style: none;
+    padding: var(--nbd-space-3) var(--nbd-space-5);
+    font-weight: var(--font-semibold);
+    color: var(--nbd-st-text);
+    font-size: var(--text-md);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--nbd-space-3);
+}
+
+.spbwc-faq__q::-webkit-details-marker { display: none; }
+
+.spbwc-faq__q::after {
+    content: "\f140"; /* dashicons-arrow-down */
+    font-family: dashicons;
+    font-size: 18px;
+    color: var(--nbd-st-text-mute);
+    transition: transform var(--transition-fast);
+}
+
+.spbwc-faq__item[open] > .spbwc-faq__q::after {
+    transform: rotate(180deg);
+}
+
+.spbwc-faq__a {
+    padding: 0 var(--nbd-space-5) var(--nbd-space-4);
+    color: var(--nbd-st-text-soft);
+    font-size: var(--text-sm);
+    line-height: 1.6;
+    border-top: 1px solid var(--nbd-st-border-subtle);
+}
+
+.spbwc-faq__a p { margin: var(--nbd-space-3) 0 0; }
