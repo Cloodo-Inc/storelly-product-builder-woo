@@ -4406,6 +4406,10 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
             $connect_nonce = wp_create_nonce( 'spbwc_cloud_connect' );
             $connected     = class_exists( 'SPBWC_Cloud_Connect' ) && SPBWC_Cloud_Connect::is_connected();
 
+            // One-time welcome banner shown right after a successful connect:
+            // the connect AJAX redirects back with ?spbwc_welcome=1. Display-only flag.
+            $just_connected = $connected && isset( $_GET['spbwc_welcome'] ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only display flag, no state change.
+
             include_once( SPBWC_PB_PLUGIN_DIR . 'views/license.php' );
         }
 

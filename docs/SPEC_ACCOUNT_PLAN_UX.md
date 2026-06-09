@@ -347,6 +347,35 @@ URL. Console clean, no PHP notices. All changed PHP `php -l` clean.
 > server must issue `caps[]` on `/license/status` for `can()` to unlock anything. **F2** then wires the
 > inline upsell onto the actual cloud controls.
 
+### 9.3 U2 polish — S0 connect flow, Sync clarity, Advanced redesign (2026-06-09)
+
+Refinement of the shipped page from direct UX review. Files: `views/license.php`,
+`static/css/license.css`, `includes/class-admin-options.php` (one display flag).
+
+- **S0 = single-CTA connect gate.** The hero now leads with one prominent **"Connect to Storelly — free"**
+  CTA + a quiet "See plans" link; the meaningless top-level Sync button is removed from every state.
+- **Connect has real progress + a celebration moment** (fixes the "is it hung?" gap):
+  - The Connect button gets a spinner (`.spbwc-btn-upgrade.is-loading`, which was previously undefined —
+    only `.spbwc-btn-sync` had one) + label swap to "Connecting…" + an inline status line
+    ("Creating your free account & linking this store…").
+  - On success the card swaps to an in-card **celebration panel** (animated ✓ + "🎉 Connected!") for ~1.5s,
+    then redirects with `?spbwc_welcome=1` so a **one-time welcome banner** greets the merchant on the
+    connected (S1) view. Banner is dismissible and strips the flag from the URL (`history.replaceState`)
+    so a refresh won't re-show it. Replaces the bare `location.reload()`.
+- **"Sync" → "Refresh plan status"**, moved entirely into **Advanced** (it only means anything once
+  connected): a labelled item with a clear description + "Last synced" meta. Shown only when connected.
+- **Advanced redesigned.** The cramped reused `.spbwc-setting-row` 3-col grid is replaced by a clean
+  `.spbwc-adv-grid` of `.spbwc-adv-item` mini-blocks (icon-titled head + description + right-aligned
+  control), default **collapsed** in all states. Manual license key input now token-sized, not inline.
+- **Design-token cleanup:** removed the 3 inline `style=""` attributes (status-card margin, license-key
+  input width, help-section margin) into `license.css` utilities; all new rules use `_tokens.css` vars,
+  responsive < 782px, RTL-aware grid (`justify-self:end`).
+
+> **Not yet browser-verified:** the local Chrome instance was bound to the devtools-mcp profile at
+> review time (single-instance lock), so the visual smoke test (S0 progress → celebration → welcome
+> banner, Advanced layout) is pending. All changed PHP `php -l` clean; all referenced CSS tokens
+> confirmed present in `_tokens.css`.
+
 ---
 
 ## 10. Open items

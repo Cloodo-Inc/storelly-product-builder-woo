@@ -328,3 +328,195 @@
     color: var(--nbd-st-text-mute);
     font-size: var(--text-sm);
 }
+
+/* ========================================================== */
+/* Account & Plan — spacing utilities (was inline styles)      */
+/* ========================================================== */
+.spbwc-account-card { margin-bottom: var(--nbd-space-7, 28px); }
+.spbwc-license-wrap .spbwc-help-section { margin-top: var(--nbd-space-7, 28px); }
+
+/* ========================================================== */
+/* S0 connect — progress + celebration                         */
+/* ========================================================== */
+/* Spinner on the primary Connect button while the request runs. */
+.spbwc-btn-upgrade.is-loading {
+    cursor: wait;
+    opacity: 0.9;
+    pointer-events: none;
+}
+.spbwc-btn-upgrade.is-loading .dashicons {
+    animation: spbwc-admin-spin 0.8s linear infinite;
+}
+
+/* "See plans" secondary dims out while connecting. */
+.spbwc-do-connect__alt.is-disabled {
+    opacity: 0.5;
+    pointer-events: none;
+}
+
+/* Inline progress / error line under the Connect button (S0). */
+.spbwc-connect-status {
+    margin: var(--nbd-space-1, 4px) 0 0;
+    font-size: var(--text-sm);
+    line-height: 1.5;
+    color: var(--nbd-st-text-soft);
+    text-align: center;
+    min-height: 1.2em;
+}
+.spbwc-connect-status.is-error { color: var(--nbd-color-danger, #b91c1c); font-weight: var(--font-semibold); }
+
+/* In-card success panel shown for ~1.5s before landing on the connected view. */
+.spbwc-license-hero.is-celebrating { display: block; }
+.spbwc-connect-celebrate {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: var(--nbd-space-2);
+    padding: var(--nbd-space-6) var(--nbd-space-4);
+}
+.spbwc-connect-celebrate__check {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 64px;
+    height: 64px;
+    font-size: 40px;
+    line-height: 1;
+    border-radius: var(--nbd-radius-pill);
+    background: var(--nbd-color-success);
+    color: var(--nbd-st-text-inverse);
+    box-shadow: var(--shadow-md);
+    animation: spbwc-celebrate-pop 0.45s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+.spbwc-connect-celebrate__title {
+    margin: var(--nbd-space-2) 0 0;
+    font-size: var(--text-3xl);
+    font-weight: var(--font-extrabold);
+    color: var(--nbd-st-text);
+}
+.spbwc-connect-celebrate__text {
+    margin: 0;
+    max-width: 460px;
+    font-size: var(--text-md);
+    color: var(--nbd-st-text-soft);
+    line-height: 1.55;
+}
+@keyframes spbwc-celebrate-pop {
+    0%   { transform: scale(0.3); opacity: 0; }
+    60%  { transform: scale(1.08); opacity: 1; }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+/* ========================================================== */
+/* Post-connect welcome banner (one-time)                      */
+/* ========================================================== */
+.spbwc-welcome-banner {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--nbd-space-3);
+    padding: var(--nbd-space-4) var(--nbd-space-5);
+    margin-bottom: var(--nbd-space-5);
+    background: var(--st-pill-active-bg);
+    border: 1px solid var(--nbd-color-success);
+    border-left-width: 4px;
+    border-radius: var(--nbd-radius-md);
+    box-shadow: var(--shadow-sm);
+}
+.spbwc-welcome-banner__icon {
+    flex-shrink: 0;
+    font-size: 22px;
+    width: 22px;
+    height: 22px;
+    color: var(--nbd-color-success);
+    margin-top: 1px;
+}
+.spbwc-welcome-banner__body { flex: 1; min-width: 0; }
+.spbwc-welcome-banner__title {
+    display: block;
+    font-size: var(--text-lg);
+    font-weight: var(--font-bold);
+    color: var(--st-pill-active-text);
+    margin-bottom: 2px;
+}
+.spbwc-welcome-banner__text {
+    display: block;
+    font-size: var(--text-md);
+    color: var(--nbd-st-text-soft);
+    line-height: 1.55;
+}
+.spbwc-welcome-banner__close {
+    flex-shrink: 0;
+    background: transparent;
+    border: 0;
+    cursor: pointer;
+    color: var(--nbd-st-text-mute);
+    padding: 2px;
+    line-height: 1;
+    border-radius: var(--nbd-radius-sm);
+    transition: var(--transition-fast);
+}
+.spbwc-welcome-banner__close:hover { color: var(--nbd-st-text); background: rgba(0, 0, 0, 0.05); }
+
+/* ========================================================== */
+/* Advanced disclosure — clean mini-block layout               */
+/* ========================================================== */
+.spbwc-advanced--adv { background: var(--nbd-st-bg); }
+.spbwc-adv-grid {
+    display: flex;
+    flex-direction: column;
+}
+.spbwc-adv-item {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: center;
+    gap: var(--nbd-space-4) var(--nbd-space-6);
+    padding: var(--nbd-space-5);
+    border-bottom: 1px solid var(--nbd-st-border-subtle);
+}
+.spbwc-adv-item:last-child { border-bottom: 0; }
+.spbwc-adv-item__head { min-width: 0; }
+.spbwc-adv-item__title {
+    display: flex;
+    align-items: center;
+    gap: var(--nbd-space-2);
+    margin: 0 0 var(--nbd-space-1, 4px);
+    font-size: var(--text-md);
+    font-weight: var(--font-bold);
+    color: var(--nbd-st-text);
+}
+.spbwc-adv-item__title .dashicons { font-size: 18px; width: 18px; height: 18px; color: var(--st-brand); }
+.spbwc-adv-item__title label { cursor: pointer; }
+.spbwc-adv-item__desc {
+    margin: 0;
+    font-size: var(--text-sm);
+    color: var(--nbd-st-text-soft);
+    line-height: 1.6;
+}
+.spbwc-adv-item__meta {
+    display: block;
+    margin-top: var(--nbd-space-1, 4px);
+    font-size: var(--text-sm);
+    color: var(--nbd-st-text-mute);
+    font-weight: var(--font-medium);
+}
+.spbwc-adv-item__control { justify-self: end; }
+.spbwc-adv-item__control--inline {
+    display: flex;
+    gap: var(--nbd-space-2);
+    align-items: center;
+    flex-wrap: wrap;
+}
+.spbwc-adv-item__input { width: 240px; max-width: 100%; }
+#spbwc-sync-btn.is-loading .dashicons-update { animation: spbwc-admin-spin 0.8s linear infinite; }
+
+@media (max-width: 782px) {
+    .spbwc-adv-item {
+        grid-template-columns: 1fr;
+        align-items: flex-start;
+    }
+    .spbwc-adv-item__control { justify-self: stretch; }
+    .spbwc-adv-item__input { width: 100%; }
+}

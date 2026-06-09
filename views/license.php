@@ -12,6 +12,7 @@
  *   $nonce         (string) — license AJAX nonce (sync / activate)
  *   $connect_nonce (string) — cloud connect/disconnect AJAX nonce
  *   $connected     (bool)   — store linked to Storelly Cloud (consent on)
+ *   $just_connected(bool)   — true on the first load right after a successful connect (welcome banner)
  */
 if ( ! defined( 'ABSPATH' ) ) {
     exit;
@@ -19,6 +20,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 // phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- view-local vars.
 
+$just_connected = ! empty( $just_connected );
 $status       = isset( $license['status'] ) ? (string) $license['status'] : 'free';
 $active       = SPBWC_License_Manager::cloud_license_active();
 $expired      = ( 'expired' === $status );
@@ -83,10 +85,23 @@ $cell = function ( $cap_row, $col_family ) {
         </div>
     </header>
 
+    <?php if ( $just_connected ) : ?>
+    <!-- ── One-time welcome banner (post-connect) ── -->
+    <div class="spbwc-welcome-banner" role="status">
+        <span class="spbwc-welcome-banner__icon dashicons dashicons-yes-alt" aria-hidden="true"></span>
+        <div class="spbwc-welcome-banner__body">
+            <strong class="spbwc-welcome-banner__title"><?php esc_html_e( '🎉 You’re connected to Storelly Cloud!', 'storelly-product-builder-for-woocommerce' ); ?></strong>
+            <span class="spbwc-welcome-banner__text"><?php esc_html_e( 'Your free account is ready and this store is linked. Choose a plan below whenever you want to unlock print-ready PDF and B2B services.', 'storelly-product-builder-for-woocommerce' ); ?></span>
+        </div>
+        <button type="button" class="spbwc-welcome-banner__close" aria-label="<?php esc_attr_e( 'Dismiss', 'storelly-product-builder-for-woocommerce' ); ?>">
+            <span class="dashicons dashicons-no-alt" aria-hidden="true"></span>
+        </button>
+    </div>
+    <?php endif; ?>
+
     <!-- ── Status card (S0–S3) ── -->
-    <section class="spbwc-license-hero<?php echo ( 'S2' === $state ) ? ' spbwc-license-hero--premium' : ''; ?>"
-             id="spbwc-account-card" data-nonce="<?php echo esc_attr( $connect_nonce ); ?>"
-             style="margin-bottom:28px;">
+    <section class="spbwc-license-hero spbwc-account-card<?php echo ( 'S2' === $state ) ? ' spbwc-license-hero--premium' : ''; ?>"
+             id="spbwc-account-card" data-nonce="<?php echo esc_attr( $connect_nonce ); ?>">
         <div class="spbwc-license-hero__grid">
             <div class="spbwc-license-hero__info">
                 <div class="spbwc-license-hero__eyebrow">
@@ -145,11 +160,12 @@ $cell = function ( $cap_row, $col_family ) {
                 <?php if ( 'S0' === $state ) : ?>
                     <button type="button" class="spbwc-btn-upgrade spbwc-do-connect" data-nonce="<?php echo esc_attr( $connect_nonce ); ?>">
                         <span class="dashicons dashicons-cloud" aria-hidden="true"></span>
-                        <?php esc_html_e( 'Connect to Storelly — free', 'storelly-product-builder-for-woocommerce' ); ?>
+                        <span class="spbwc-do-connect__label"><?php esc_html_e( 'Connect to Storelly — free', 'storelly-product-builder-for-woocommerce' ); ?></span>
                     </button>
-                    <a href="#spbwc-plans" class="spbwc-cta-btn spbwc-cta-btn--ghost">
+                    <a href="#spbwc-plans" class="spbwc-cta-btn spbwc-cta-btn--ghost spbwc-do-connect__alt">
                         <?php esc_html_e( 'See plans', 'storelly-product-builder-for-woocommerce' ); ?>
                     </a>
+                    <p class="spbwc-connect-status" id="spbwc-connect-status" role="status" aria-live="polite"></p>
                 <?php elseif ( 'S1' === $state ) : ?>
                     <a href="#spbwc-plans" class="spbwc-btn-upgrade">
                         <span class="dashicons dashicons-awards" aria-hidden="true"></span>
@@ -166,22 +182,6 @@ $cell = function ( $cap_row, $col_family ) {
                         <?php esc_html_e( 'Renew plan', 'storelly-product-builder-for-woocommerce' ); ?>
                     </a>
                 <?php endif; ?>
-
-                <button id="spbwc-sync-btn" type="button" class="spbwc-btn-sync" data-nonce="<?php echo esc_attr( $nonce ); ?>">
-                    <span class="dashicons dashicons-update" aria-hidden="true"></span>
-                    <?php esc_html_e( 'Sync', 'storelly-product-builder-for-woocommerce' ); ?>
-                </button>
-                <p class="spbwc-license-hero__last-sync" id="spbwc-sync-status">
-                    <?php
-                    if ( $synced_at ) {
-                        printf(
-                            /* translators: %s: last sync datetime */
-                            esc_html__( 'Last synced: %s', 'storelly-product-builder-for-woocommerce' ),
-                            esc_html( $synced_at )
-                        );
-                    }
-                    ?>
-                </p>
             </div>
         </div>
     </section>
@@ -272,58 +272,96 @@ $cell = function ( $cap_row, $col_family ) {
     </section>
 
     <!-- ── Advanced: connection, license key, diagnostics ── -->
-    <details class="spbwc-advanced" <?php echo ( 'S0' === $state ) ? '' : 'open'; ?>>
+    <details class="spbwc-advanced spbwc-advanced--adv">
         <summary class="spbwc-advanced__summary">
             <span class="dashicons dashicons-admin-tools" aria-hidden="true"></span>
             <?php esc_html_e( 'Advanced — connection, manual license key &amp; diagnostics', 'storelly-product-builder-for-woocommerce' ); ?>
         </summary>
 
-        <div class="spbwc-block">
-            <div class="spbwc-setting-rows">
-                <!-- Connection -->
-                <div class="spbwc-setting-row">
-                    <div class="spbwc-setting-row__label"><?php esc_html_e( 'Cloud connection', 'storelly-product-builder-for-woocommerce' ); ?></div>
-                    <div class="spbwc-setting-row__control spbwc-action-btns">
-                        <?php if ( $connected ) : ?>
-                            <button type="button" class="spbwc-cta-btn spbwc-cta-btn--ghost spbwc-do-disconnect" data-nonce="<?php echo esc_attr( $connect_nonce ); ?>">
-                                <span class="dashicons dashicons-no-alt" aria-hidden="true"></span>
-                                <?php esc_html_e( 'Disconnect', 'storelly-product-builder-for-woocommerce' ); ?>
-                            </button>
-                            <a href="<?php echo esc_url( $dash_url ); ?>" target="_blank" rel="noopener noreferrer" class="spbwc-cta-btn spbwc-cta-btn--ghost">
-                                <span class="dashicons dashicons-external" aria-hidden="true"></span>
-                                <?php esc_html_e( 'Open Storelly dashboard', 'storelly-product-builder-for-woocommerce' ); ?>
-                            </a>
-                        <?php else : ?>
-                            <button type="button" class="spbwc-cta-btn spbwc-cta-btn--solid spbwc-do-connect" data-nonce="<?php echo esc_attr( $connect_nonce ); ?>">
-                                <span class="dashicons dashicons-cloud" aria-hidden="true"></span>
-                                <?php esc_html_e( 'Connect to Storelly — free', 'storelly-product-builder-for-woocommerce' ); ?>
-                            </button>
-                        <?php endif; ?>
-                    </div>
-                    <p class="spbwc-setting-row__hint"><?php esc_html_e( 'Connecting creates your free Storelly account and links this store. Nothing is sent until you click. Disconnecting stops all Cloud features; your local data is never touched.', 'storelly-product-builder-for-woocommerce' ); ?></p>
+        <div class="spbwc-adv-grid">
+            <!-- Connection -->
+            <div class="spbwc-adv-item">
+                <div class="spbwc-adv-item__head">
+                    <h4 class="spbwc-adv-item__title">
+                        <span class="dashicons dashicons-cloud" aria-hidden="true"></span>
+                        <?php esc_html_e( 'Cloud connection', 'storelly-product-builder-for-woocommerce' ); ?>
+                    </h4>
+                    <p class="spbwc-adv-item__desc"><?php esc_html_e( 'Connecting creates your free Storelly account and links this store. Nothing is sent until you click. Disconnecting stops all Cloud features; your local data is never touched.', 'storelly-product-builder-for-woocommerce' ); ?></p>
                 </div>
-
-                <!-- Manual license key -->
-                <div class="spbwc-setting-row">
-                    <div class="spbwc-setting-row__label">
-                        <label for="spbwc-license-key"><?php esc_html_e( 'Have a license key?', 'storelly-product-builder-for-woocommerce' ); ?></label>
-                    </div>
-                    <div class="spbwc-setting-row__control spbwc-action-btns">
-                        <input type="text" id="spbwc-license-key" class="spbwc-input" style="max-width:280px;"
-                               placeholder="<?php esc_attr_e( 'Paste your license key', 'storelly-product-builder-for-woocommerce' ); ?>" />
-                        <button type="button" class="spbwc-cta-btn" id="spbwc-license-activate" data-nonce="<?php echo esc_attr( $nonce ); ?>">
-                            <?php esc_html_e( 'Activate', 'storelly-product-builder-for-woocommerce' ); ?>
+                <div class="spbwc-adv-item__control spbwc-action-btns">
+                    <?php if ( $connected ) : ?>
+                        <a href="<?php echo esc_url( $dash_url ); ?>" target="_blank" rel="noopener noreferrer" class="spbwc-cta-btn spbwc-cta-btn--ghost">
+                            <span class="dashicons dashicons-external" aria-hidden="true"></span>
+                            <?php esc_html_e( 'Open Storelly dashboard', 'storelly-product-builder-for-woocommerce' ); ?>
+                        </a>
+                        <button type="button" class="spbwc-cta-btn spbwc-cta-btn--ghost spbwc-do-disconnect" data-nonce="<?php echo esc_attr( $connect_nonce ); ?>">
+                            <span class="dashicons dashicons-no-alt" aria-hidden="true"></span>
+                            <?php esc_html_e( 'Disconnect', 'storelly-product-builder-for-woocommerce' ); ?>
                         </button>
-                    </div>
-                    <p class="spbwc-setting-row__hint"><?php esc_html_e( 'Use this only if you bought on the web and were given a key. Normally, choosing a plan above activates automatically.', 'storelly-product-builder-for-woocommerce' ); ?></p>
-                    <p class="spbwc-setting-row__hint" id="spbwc-activate-status"></p>
+                    <?php else : ?>
+                        <button type="button" class="spbwc-cta-btn spbwc-cta-btn--solid spbwc-do-connect" data-nonce="<?php echo esc_attr( $connect_nonce ); ?>">
+                            <span class="dashicons dashicons-cloud" aria-hidden="true"></span>
+                            <span class="spbwc-do-connect__label"><?php esc_html_e( 'Connect to Storelly — free', 'storelly-product-builder-for-woocommerce' ); ?></span>
+                        </button>
+                    <?php endif; ?>
+                </div>
+            </div>
+
+            <?php if ( $connected ) : ?>
+            <!-- Refresh status (was the hero "Sync") -->
+            <div class="spbwc-adv-item">
+                <div class="spbwc-adv-item__head">
+                    <h4 class="spbwc-adv-item__title">
+                        <span class="dashicons dashicons-update" aria-hidden="true"></span>
+                        <?php esc_html_e( 'Refresh plan status', 'storelly-product-builder-for-woocommerce' ); ?>
+                    </h4>
+                    <p class="spbwc-adv-item__desc">
+                        <?php esc_html_e( 'Re-check your plan and expiry from Storelly. Normally this happens automatically after a purchase — use this only if your plan looks out of date.', 'storelly-product-builder-for-woocommerce' ); ?>
+                        <span class="spbwc-adv-item__meta" id="spbwc-sync-status">
+                        <?php
+                        if ( $synced_at ) {
+                            printf(
+                                /* translators: %s: last sync datetime */
+                                esc_html__( 'Last synced: %s', 'storelly-product-builder-for-woocommerce' ),
+                                esc_html( $synced_at )
+                            );
+                        }
+                        ?>
+                        </span>
+                    </p>
+                </div>
+                <div class="spbwc-adv-item__control spbwc-action-btns">
+                    <button id="spbwc-sync-btn" type="button" class="spbwc-cta-btn spbwc-cta-btn--ghost" data-nonce="<?php echo esc_attr( $nonce ); ?>">
+                        <span class="dashicons dashicons-update" aria-hidden="true"></span>
+                        <?php esc_html_e( 'Refresh now', 'storelly-product-builder-for-woocommerce' ); ?>
+                    </button>
+                </div>
+            </div>
+            <?php endif; ?>
+
+            <!-- Manual license key -->
+            <div class="spbwc-adv-item">
+                <div class="spbwc-adv-item__head">
+                    <h4 class="spbwc-adv-item__title">
+                        <span class="dashicons dashicons-admin-network" aria-hidden="true"></span>
+                        <label for="spbwc-license-key"><?php esc_html_e( 'Have a license key?', 'storelly-product-builder-for-woocommerce' ); ?></label>
+                    </h4>
+                    <p class="spbwc-adv-item__desc"><?php esc_html_e( 'Use this only if you bought on the web and were given a key. Normally, choosing a plan above activates automatically.', 'storelly-product-builder-for-woocommerce' ); ?></p>
+                    <p class="spbwc-adv-item__meta" id="spbwc-activate-status"></p>
+                </div>
+                <div class="spbwc-adv-item__control spbwc-adv-item__control--inline">
+                    <input type="text" id="spbwc-license-key" class="spbwc-input spbwc-adv-item__input"
+                           placeholder="<?php esc_attr_e( 'Paste your license key', 'storelly-product-builder-for-woocommerce' ); ?>" />
+                    <button type="button" class="spbwc-cta-btn spbwc-cta-btn--solid" id="spbwc-license-activate" data-nonce="<?php echo esc_attr( $nonce ); ?>">
+                        <?php esc_html_e( 'Activate', 'storelly-product-builder-for-woocommerce' ); ?>
+                    </button>
                 </div>
             </div>
         </div>
     </details>
 
     <!-- ── Help ── -->
-    <div class="spbwc-help-section" style="margin-top:28px;">
+    <div class="spbwc-help-section">
         <div class="spbwc-help-section__body">
             <h3 class="spbwc-help-section__title">
                 <span class="dashicons dashicons-sos" aria-hidden="true"></span>
@@ -367,23 +405,77 @@ $cell = function ( $cap_row, $col_family ) {
         });
     }
 
-    // Connect / disconnect (reuses SPBWC_Cloud_Connect AJAX; bound by class so it
-    // works for the button in the status card AND the one in Advanced).
+    // Build the post-connect welcome URL (keeps current page params, adds the flag, drops hash).
+    function welcomeUrl() {
+        var u = window.location.href.split('#')[0];
+        if (u.indexOf('spbwc_welcome=') !== -1) { return u; }
+        return u + (u.indexOf('?') === -1 ? '?' : '&') + 'spbwc_welcome=1';
+    }
+
+    // Swap the status card for a celebratory panel, then continue to the connected view.
+    function celebrate() {
+        if (!card) { window.location.href = welcomeUrl(); return; }
+        card.classList.add('is-celebrating');
+        card.innerHTML =
+            '<div class="spbwc-connect-celebrate">' +
+              '<span class="spbwc-connect-celebrate__check dashicons dashicons-yes" aria-hidden="true"></span>' +
+              '<h2 class="spbwc-connect-celebrate__title"><?php echo esc_js( __( '🎉 Connected!', 'storelly-product-builder-for-woocommerce' ) ); ?></h2>' +
+              '<p class="spbwc-connect-celebrate__text"><?php echo esc_js( __( 'Your free Storelly account is ready and this store is now linked. Taking you in…', 'storelly-product-builder-for-woocommerce' ) ); ?></p>' +
+            '</div>';
+        window.setTimeout(function () { window.location.href = welcomeUrl(); }, 1500);
+    }
+
+    // Connect (reuses SPBWC_Cloud_Connect AJAX; bound by class so it works for the
+    // status-card button AND the Advanced one). Shows progress, then celebrates.
     $('.spbwc-do-connect').on('click', function () {
-        post('spbwc_cloud_connect', { nonce: $(this).data('nonce') || cNonce }, this);
+        var $btn   = $(this);
+        var $label = $btn.find('.spbwc-do-connect__label');
+        var orig   = $label.length ? $label.text() : $btn.text();
+        var $status = $('#spbwc-connect-status');
+        $btn.addClass('is-loading').prop('disabled', true);
+        $('.spbwc-do-connect__alt').addClass('is-disabled');
+        if ($label.length) { $label.text('<?php echo esc_js( __( 'Connecting…', 'storelly-product-builder-for-woocommerce' ) ); ?>'); }
+        $status.removeClass('is-error').text('<?php echo esc_js( __( 'Creating your free account & linking this store…', 'storelly-product-builder-for-woocommerce' ) ); ?>');
+
+        $.post(ajaxurl, { action: 'spbwc_cloud_connect', nonce: $btn.data('nonce') || cNonce }, function (res) {
+            if (res && res.success) { celebrate(); return; }
+            var msg = (res && res.data && (res.data.message || res.data.msg)) ? (res.data.message || res.data.msg) : '<?php echo esc_js( __( 'Something went wrong. Please try again.', 'storelly-product-builder-for-woocommerce' ) ); ?>';
+            $status.addClass('is-error').text(msg);
+            $btn.removeClass('is-loading').prop('disabled', false);
+            $('.spbwc-do-connect__alt').removeClass('is-disabled');
+            if ($label.length) { $label.text(orig); }
+        }).fail(function () {
+            $status.addClass('is-error').text('<?php echo esc_js( __( 'Request failed. Check your connection and try again.', 'storelly-product-builder-for-woocommerce' ) ); ?>');
+            $btn.removeClass('is-loading').prop('disabled', false);
+            $('.spbwc-do-connect__alt').removeClass('is-disabled');
+            if ($label.length) { $label.text(orig); }
+        });
     });
+
     $('.spbwc-do-disconnect').on('click', function () {
         if (window.confirm('<?php echo esc_js( __( 'Disconnect from Storelly Cloud? Cloud features will stop.', 'storelly-product-builder-for-woocommerce' ) ); ?>')) {
             post('spbwc_cloud_disconnect', { nonce: $(this).data('nonce') || cNonce }, this);
         }
     });
 
-    // Sync license.
+    // Refresh plan status (moved into Advanced).
     var $sync = $('#spbwc-sync-btn');
     $sync.on('click', function () {
         post('spbwc_license_sync', { nonce: $sync.data('nonce') }, this, function (m) {
             $('#spbwc-sync-status').text(m);
         });
+    });
+
+    // Dismiss the one-time welcome banner + strip the flag so a refresh won't re-show it.
+    $('.spbwc-welcome-banner__close').on('click', function () {
+        $(this).closest('.spbwc-welcome-banner').slideUp(160, function () { $(this).remove(); });
+        if (window.history && window.history.replaceState) {
+            try {
+                var u = new URL(window.location.href);
+                u.searchParams.delete('spbwc_welcome');
+                window.history.replaceState({}, '', u.toString());
+            } catch (e) {}
+        }
     });
 
     // Manual license-key activate.
