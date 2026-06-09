@@ -4,8 +4,8 @@ Donate link: https://storelly.com/
 Tags: product builder, product customize, product customizer, woocommerce custom product
 Requires at least: 4.7
 Tested up to: 7.0
-Stable tag: 1.6.4
-Version: 1.6.4
+Stable tag: 1.6.5
+Version: 1.6.5
 Requires PHP: 7.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -150,6 +150,11 @@ This plugin connects to the following external services:
 3. Storelly settings page with API keys and sync options
 
 == Changelog ==
+= 1.6.5 =
+* **Fixed the demo product installing as duplicates.** On some servers activating the plugin could install the bundled demo product several times over (and briefly slow the site) if the first admin page was reloaded while it was still importing. The one-time install is now guarded so it runs exactly once.
+* **Fixed broken images in the demo product.** Component thumbnails and the per-view base images of the demo "bag" now import correctly instead of showing blank or wrong images.
+* **New: Remove demo data.** Storelly › Setup Wizard now has a one-click "Remove demo data" button that deletes the demo product, its option set and bundled images (including any duplicates from older versions). Your own products are never touched.
+
 = 1.6.4 =
 * **Custom Orders — "View in designer" fixed.** The button now opens the storefront builder pre-loaded with the buyer's actual saved design (it previously used a legacy link with no effect). Admin-only, nonce-protected.
 * **Print PDF generation fixed.** Saving a design now keeps the vector (SVG) frames the print-PDF engine rebuilds each page from, so "Regenerate PDFs" / Download (PDF) work instead of failing. (Designs saved before this update should be re-saved once from the builder to generate their print files.)
@@ -365,6 +370,9 @@ A major feature release turning Storelly into a full B2B-capable, quote-driven W
 * Initial release.
 
 == Upgrade Notice ==
+= 1.6.5 =
+Fixes the demo product installing as duplicates and with broken images, and adds a one-click "Remove demo data" tool in the Setup Wizard. Recommended for everyone.
+
 = 1.6.3 =
 Removes the unused designer-marketplace module, permanently ending any conflict with NBDesigner / PC Designer-derived plugins. Core features unchanged.
 
