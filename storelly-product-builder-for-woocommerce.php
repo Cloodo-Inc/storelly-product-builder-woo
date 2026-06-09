@@ -164,6 +164,7 @@ require_once(SPBWC_PB_PLUGIN_DIR .  'includes/class-frontend-options.php');
 require_once(SPBWC_PB_PLUGIN_DIR .  'includes/class-http.php');
 require_once(SPBWC_PB_PLUGIN_DIR .  'includes/class-productbuilder-api.php');
 require_once(SPBWC_PB_PLUGIN_DIR .  'includes/class-cloud-connect.php');
+require_once(SPBWC_PB_PLUGIN_DIR .  'includes/class-cloud-activation.php');
 
 /* Order print-PDF generation — decoupled from launcher "API sync" and queued via
  * Action Scheduler. Gated by the dedicated "Enable cloud PDF rendering" opt-in

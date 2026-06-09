@@ -262,3 +262,69 @@
 @media (max-width: 480px) {
     .spbwc-pricing-grid { grid-template-columns: 1fr; }
 }
+
+/* ── Account & Plan: status badge variants + small CTA ── */
+.spbwc-block__badge--warn {
+    background: var(--st-accent-soft);
+    color: var(--st-accent-pressed);
+}
+.spbwc-cta-btn--sm {
+    padding: var(--nbd-space-1, 4px) var(--nbd-space-3);
+    font-size: var(--text-sm);
+}
+
+/* ── Account & Plan: caps comparison matrix ── */
+.spbwc-cm-wrap { overflow-x: auto; }
+.spbwc-cm {
+    width: 100%;
+    border-collapse: collapse;
+    background: var(--nbd-st-bg);
+    border: 1px solid var(--nbd-st-border-light);
+    border-radius: var(--nbd-radius-lg);
+    overflow: hidden;
+}
+.spbwc-cm th,
+.spbwc-cm td {
+    padding: var(--nbd-space-3) var(--nbd-space-4);
+    text-align: center;
+    border-bottom: 1px solid var(--nbd-st-border-subtle);
+    vertical-align: middle;
+}
+.spbwc-cm tbody tr:last-child td { border-bottom: 0; }
+.spbwc-cm__feature {
+    text-align: left;
+    color: var(--nbd-st-text);
+    font-size: var(--text-sm);
+}
+.spbwc-cm__feature .spbwc-cm__hint {
+    display: block;
+    color: var(--nbd-st-text-mute);
+    font-size: var(--text-xs, 12px);
+    font-weight: var(--font-normal, 400);
+}
+.spbwc-cm thead th {
+    background: var(--nbd-st-bg-soft);
+    border-bottom: 2px solid var(--nbd-st-border-light);
+}
+.spbwc-cm__plan-name { display: block; font-weight: var(--font-bold); color: var(--nbd-st-text); }
+.spbwc-cm__plan-price { display: block; color: var(--nbd-st-text); font-size: var(--text-sm); margin: 2px 0; }
+.spbwc-cm__plan-tag { display: block; color: var(--nbd-st-text-mute); font-size: var(--text-xs, 12px); }
+.spbwc-cm__plan-cta { display: block; margin-top: var(--nbd-space-2); }
+.spbwc-cm__yes { color: var(--st-brand); }
+.spbwc-cm__no { color: var(--nbd-st-text-mute); }
+.spbwc-cm__current {
+    display: inline-block;
+    font-size: var(--text-xs, 12px);
+    font-weight: var(--font-semibold);
+    color: var(--st-brand-pressed);
+}
+.spbwc-cm__current--muted { color: var(--nbd-st-text-mute); }
+.spbwc-cm th.is-current,
+.spbwc-cm td.is-current {
+    background: var(--st-brand-tint);
+}
+.spbwc-cm-note {
+    margin-top: var(--nbd-space-3);
+    color: var(--nbd-st-text-mute);
+    font-size: var(--text-sm);
+}

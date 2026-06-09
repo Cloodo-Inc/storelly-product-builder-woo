@@ -101,10 +101,28 @@ if ( ! class_exists( 'SPBWC_License_Manager' ) ) {
             $package = isset( $resp['package'] ) ? $resp['package'] : array();
             $lic     = isset( $resp['license'] ) ? $resp['license'] : null;
 
+            // Entitlement caps — authoritative, server-issued (SPEC_FREEMIUM_V1_1 §1.2).
+            // The server may send them at the top level or inside the package; accept
+            // either, sanitize each, and fall back to an empty array (= Free). The
+            // plugin never derives caps from plan_slug locally.
+            $raw_caps = array();
+            if ( isset( $resp['caps'] ) && is_array( $resp['caps'] ) ) {
+                $raw_caps = $resp['caps'];
+            } elseif ( isset( $package['caps'] ) && is_array( $package['caps'] ) ) {
+                $raw_caps = $package['caps'];
+            }
+            $caps = array_values( array_unique( array_map( 'sanitize_key', $raw_caps ) ) );
+
+            $plan_slug = isset( $resp['plan_slug'] )
+                ? sanitize_key( $resp['plan_slug'] )
+                : ( isset( $package['slug'] ) ? sanitize_key( $package['slug'] ) : 'free' );
+
             $data = array(
                 'status'              => isset( $resp['status'] ) ? sanitize_key( $resp['status'] ) : 'free',
                 'package_name'        => isset( $package['name'] ) ? sanitize_text_field( $package['name'] ) : 'Free',
                 'package_slug'        => isset( $package['slug'] ) ? sanitize_key( $package['slug'] ) : 'free',
+                'plan_slug'           => $plan_slug,
+                'caps'                => $caps,
                 'expires_at'          => $lic && isset( $lic['expires_at'] ) ? sanitize_text_field( $lic['expires_at'] ) : null,
                 'max_products'        => isset( $package['max_products'] ) ? absint( $package['max_products'] ) : 5,
                 'max_orders'          => isset( $package['max_orders'] ) ? absint( $package['max_orders'] ) : 50,
@@ -251,15 +269,16 @@ if ( ! class_exists( 'SPBWC_License_Manager' ) ) {
                 'status'              => 'free',
                 'package_name'        => 'Free',
                 'package_slug'        => 'free',
+                'plan_slug'           => 'free',
+                'caps'                => array(),
                 'expires_at'          => null,
-                'max_products'        => 5,
-                'max_orders'          => 50,
-                'max_pricing_options' => 3,
+                'max_products'        => 0,
+                'max_orders'          => 0,
+                'max_pricing_options' => 0,
                 'features'            => array(
-                    'Up to 5 products',
-                    'Up to 3 pricing options',
-                    'Basic order management',
-                    'Community support',
+                    'Visual product builder & pricing options (unlimited)',
+                    'Quotes & B2B, custom orders, quantity breaks',
+                    'Runs entirely on your WordPress — no account needed',
                 ),
                 'synced_at'           => null,
             );
@@ -288,6 +307,142 @@ if ( ! class_exists( 'SPBWC_License_Manager' ) ) {
                     'max_pricing_options'  => absint( $defaults['max_pricing_options'] ),
                     'is_free'              => true,
                 ),
+            );
+        }
+
+        // ----------------------------------------------------------------
+        // Entitlement layer (SPEC_FREEMIUM_V1_1 §1 / F1.1)
+        // ----------------------------------------------------------------
+
+        /**
+         * Is there a paid, non-expired Cloud license on this site?
+         * Connection (consent) is orthogonal — see SPBWC_Cloud_Connect.
+         */
+        public static function cloud_license_active() {
+            $lic = self::get_current_license();
+            if ( 'active' !== ( $lic['status'] ?? 'free' ) ) {
+                return false;
+            }
+            if ( empty( $lic['expires_at'] ) ) {
+                return true; // no expiry on record
+            }
+            return strtotime( (string) $lic['expires_at'] ) > time();
+        }
+
+        /**
+         * Capability gate. Returns true only if the license is active AND the
+         * server granted this cap. Caps are authoritative/server-issued — never
+         * derived from plan_slug locally (forward-compat).
+         *
+         * @param string $cap e.g. 'cloud_pdf', 'invoice_pdf', 'email_trigger'
+         */
+        public static function can( $cap ) {
+            if ( ! self::cloud_license_active() ) {
+                return false;
+            }
+            $lic  = self::get_current_license();
+            $caps = isset( $lic['caps'] ) && is_array( $lic['caps'] ) ? $lic['caps'] : array();
+            return in_array( $cap, $caps, true );
+        }
+
+        /**
+         * Normalize a plan_slug (e.g. 'cloud-b2b-monthly') to its family:
+         * 'free' | 'standard' | 'b2b'. Used for plan-matrix highlighting only.
+         *
+         * @param string $slug
+         */
+        public static function plan_family( $slug ) {
+            $slug = (string) $slug;
+            if ( 0 === strpos( $slug, 'cloud-b2b' ) ) {
+                return 'b2b';
+            }
+            if ( 0 === strpos( $slug, 'cloud-standard' ) ) {
+                return 'standard';
+            }
+            return 'free';
+        }
+
+        /**
+         * Plan presentation matrix (display source of truth; SPEC_FREEMIUM_V1_1 §5.1).
+         * Pricing is shown from here as a baked-in fallback; live prices may come
+         * from get_packages() on the Account & Plan page.
+         *
+         * @return array<int, array<string, mixed>>
+         */
+        public static function plan_matrix() {
+            return array(
+                array(
+                    'family'        => 'free',
+                    'name'          => __( 'Free', 'storelly-product-builder-for-woocommerce' ),
+                    'price_monthly' => 0,
+                    'price_annual'  => 0,
+                    'tagline'       => __( 'Everything local, no limits', 'storelly-product-builder-for-woocommerce' ),
+                ),
+                array(
+                    'family'        => 'standard',
+                    'name'          => __( 'Cloud Standard', 'storelly-product-builder-for-woocommerce' ),
+                    'price_monthly' => 49,
+                    'price_annual'  => 490,
+                    'tagline'       => __( 'Print-ready PDFs, vault, analytics', 'storelly-product-builder-for-woocommerce' ),
+                ),
+                array(
+                    'family'        => 'b2b',
+                    'name'          => __( 'Cloud B2B', 'storelly-product-builder-for-woocommerce' ),
+                    'price_monthly' => 99,
+                    'price_annual'  => 990,
+                    'tagline'       => __( 'Everything in Standard + B2B services', 'storelly-product-builder-for-woocommerce' ),
+                ),
+            );
+        }
+
+        /**
+         * Cloud capability catalogue for the comparison matrix. Each row lists
+         * which plan families include the cap (SPEC_FREEMIUM_V1_1 §1.2). This is
+         * what each plan OFFERS — distinct from what THIS site has (see can()).
+         *
+         * @return array<int, array{cap:string,label:string,plans:array<int,string>}>
+         */
+        public static function caps_catalog() {
+            return array(
+                array( 'cap' => 'cloud_pdf',        'label' => __( 'Print-ready PDF rendering', 'storelly-product-builder-for-woocommerce' ),            'plans' => array( 'standard', 'b2b' ) ),
+                array( 'cap' => 'order_sync',       'label' => __( 'Order → Dashboard sync', 'storelly-product-builder-for-woocommerce' ),               'plans' => array( 'standard', 'b2b' ) ),
+                array( 'cap' => 'design_vault',     'label' => __( 'Customer Design Vault (cloud backup)', 'storelly-product-builder-for-woocommerce' ),  'plans' => array( 'standard', 'b2b' ) ),
+                array( 'cap' => 'asset_library',    'label' => __( 'Asset Library (cliparts & fonts)', 'storelly-product-builder-for-woocommerce' ),      'plans' => array( 'standard', 'b2b' ) ),
+                array( 'cap' => 'option_analytics', 'label' => __( 'Option performance analytics', 'storelly-product-builder-for-woocommerce' ),          'plans' => array( 'standard', 'b2b' ) ),
+                array( 'cap' => 'config_snapshots', 'label' => __( 'Pricing config version history', 'storelly-product-builder-for-woocommerce' ),        'plans' => array( 'standard', 'b2b' ) ),
+                array( 'cap' => 'invoice_pdf',      'label' => __( 'Branded invoice & statement PDFs', 'storelly-product-builder-for-woocommerce' ),      'plans' => array( 'b2b' ) ),
+                array( 'cap' => 'email_trigger',    'label' => __( 'Scheduled B2B emails (dunning, statements)', 'storelly-product-builder-for-woocommerce' ), 'plans' => array( 'b2b' ) ),
+                array( 'cap' => 'analytics_b2b',    'label' => __( 'B2B account analytics (aging, DSO)', 'storelly-product-builder-for-woocommerce' ),    'plans' => array( 'b2b' ) ),
+            );
+        }
+
+        /**
+         * Human label for a single cap (used by upsell prompts).
+         *
+         * @param string $cap
+         */
+        public static function cap_label( $cap ) {
+            foreach ( self::caps_catalog() as $row ) {
+                if ( $row['cap'] === $cap ) {
+                    return $row['label'];
+                }
+            }
+            return ucwords( str_replace( '_', ' ', (string) $cap ) );
+        }
+
+        /**
+         * Build the spbwc_cloud_locked WP_Error a blocked Cloud touch point
+         * returns (SPEC_FREEMIUM_V1_1 §1.3 / U4). UI maps this to an inline upsell.
+         *
+         * @param string $cap
+         * @return WP_Error
+         */
+        public static function cloud_locked_error( $cap ) {
+            return new WP_Error(
+                'spbwc_cloud_locked',
+                /* translators: %s: cloud feature name */
+                sprintf( __( '%s needs a Cloud plan.', 'storelly-product-builder-for-woocommerce' ), self::cap_label( $cap ) ),
+                array( 'cap' => $cap )
             );
         }
     }

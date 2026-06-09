@@ -4345,9 +4345,11 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
                 wp_die( esc_html__( 'You do not have permission to access this page.', 'storelly-product-builder-for-woocommerce' ) );
             }
 
-            $license   = SPBWC_License_Manager::get_current_license();
-            $packages  = SPBWC_License_Manager::get_packages();
-            $nonce     = wp_create_nonce( 'spbwc_license_action' );
+            $license       = SPBWC_License_Manager::get_current_license();
+            $packages      = SPBWC_License_Manager::get_packages();
+            $nonce         = wp_create_nonce( 'spbwc_license_action' );
+            $connect_nonce = wp_create_nonce( 'spbwc_cloud_connect' );
+            $connected     = class_exists( 'SPBWC_Cloud_Connect' ) && SPBWC_Cloud_Connect::is_connected();
 
             include_once( SPBWC_PB_PLUGIN_DIR . 'views/license.php' );
         }

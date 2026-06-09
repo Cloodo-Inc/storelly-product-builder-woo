@@ -266,9 +266,9 @@ freemium spec; surface each with a clear inline message, never a white screen.
 | MS | Scope | Depends on |
 |----|-------|-----------|
 | **U1** | ✅ **DONE (2026-06-09)** — IA fix, pure refactor, no backend. See §9.1 for what shipped. | — |
-| **U2** | Unified **Account & Plan** page: merge License page + Account/connect card into one; status card with S0–S3 states; caps matrix (replaces quota grid). | F1.1 (caps/`can()` in `SPEC_FREEMIUM_V1_1` §10), U1 |
-| **U3** | Connect-back activation (closed loop, §5.1–5.2) as the primary path; manual key + Sync demoted to Advanced. | F6 (connect-back), O-6 backend |
-| **U4** | Upsell-by-intent inline prompts at blocked controls with `ctx` deep-link back (§5.3). | F2/F3, U3 |
+| **U2** | ✅ **DONE (2026-06-09)** — unified **Account & Plan** page (status card S0–S3 + caps matrix replacing the quota grid). See §9.2. | F1.1, U1 |
+| **U3** | ✅ **DONE plugin-side (2026-06-09)** — connect-back flow built (`SPBWC_Cloud_Activation`); **dark until backend O-6** (`/connect` + token + `/license/exchange`), falls back to manual key / Sync. See §9.2. | backend O-6 |
+| **U4** | 🟡 **PARTIAL (2026-06-09)** — `can()` gate + `cloud_locked_error()` helper + caps-matrix lock/upsell display shipped. **Control-level inline prompts on PDF/sync need F2** (wrapping the real cloud calls). See §9.2. | F2, U3 |
 
 Suggested order: **U1 → U2 → U3 → U4** (U1 ships value immediately and is low-risk; U2+ need the
 entitlement layer from the freemium spec).
@@ -305,6 +305,47 @@ Files: `views/menu-settings.php`, `views/license.php`, `static/css/menu-setting.
 > card". In practice the *duplication* was the read-only status row on the Account card, not the
 > toggles themselves — so the toggles were kept (reframed as "Cloud features") and the duplicate
 > status row removed. Net effect (one connection home, no contradictory surfaces) is as intended.
+
+### 9.2 U2–U4 — what shipped (2026-06-09)
+
+Foundation first — **F1.1** (entitlement caps) landed in `includes/class-license-manager.php`:
+`get_current_license()`/`sync_from_api()` now carry `plan_slug` + server-issued `caps[]`; new
+`cloud_license_active()`, `can($cap)`, `plan_family()`, `plan_matrix()`, `caps_catalog()`,
+`cap_label()`, `cloud_locked_error()`. Free defaults no longer claim quotas ("Up to 5 products" →
+honest local-free framing; closes **C1** in the license data). Caps stay empty until the server
+grants them, so `can()` is safe-false today (no false "unlocked").
+
+- **U2 — unified Account & Plan page** (`views/license.php` rewritten; controller passes
+  `$connect_nonce`/`$connected`; matrix CSS in `license.css`):
+  - **Status card** drives the **S0–S3** model from `connected × cloud_license_active()` — one badge,
+    one headline, one primary CTA per state (Connect free / Choose a plan / Manage subscription / Renew).
+  - **Caps comparison matrix** (Free / Standard $49 / B2B $99) from `caps_catalog()` × `plan_matrix()`,
+    current plan column highlighted, ✓/— per cell. Replaces the misleading `max_products` quota grid.
+  - **Connection** (connect/disconnect, reusing `SPBWC_Cloud_Connect` AJAX) + manual license key + Sync
+    moved into a collapsed **Advanced** disclosure. One home; one connection control.
+- **U3 — connect-back activation** (`includes/class-cloud-activation.php`, registered in the loader):
+  `checkout_url()` builds a nonce'd admin-post link; `handle_checkout()` mints a single-use `state`
+  (15-min transient) and redirects to `app.storelly.com/connect`; `maybe_handle_return()` verifies
+  `state` (`hash_equals`, CSRF), exchanges the one-time token server-to-server at
+  `/api/v1/license/exchange`, persists the plan, and shows a clean admin notice. **Backend O-6 not
+  live yet**, so the exchange fails gracefully → manual key / Sync fallback (never a dead end). The
+  "Choose" CTAs in the matrix are the connect-back entry points. External endpoints declared in
+  readme (C6).
+- **U4 — upsell-by-intent (partial):** the `can()` gate + `cloud_locked_error()` (`spbwc_cloud_locked`
+  WP_Error with `cap`) are ready, and the Account-page matrix shows locked vs included. **Wiring the
+  inline prompt onto the real blocked controls (Export PDF, sync, etc.) is F2** — that means touching
+  the PDF/order flows, deliberately deferred until the entitlement server is live to avoid gating a
+  flow that would otherwise work.
+
+**Verified (Chrome, isolated session 9315):** Account & Plan renders in state **S1** (connected/free) —
+badge "CONNECTED", correct headline, caps matrix with Free=Current + Standard $49 + B2B $99 rows,
+"Choose" CTAs carrying the `admin-post.php?action=spbwc_cloud_checkout&plan=…` nonce'd connect-back
+URL. Console clean, no PHP notices. All changed PHP `php -l` clean.
+
+> **Backend to light up the full loop (hand-off):** **O-6** `/connect` intent screen + one-time token
+> + `/api/v1/license/exchange` returning `{ license_key, status, plan_slug, expires_at, caps[] }`;
+> server must issue `caps[]` on `/license/status` for `can()` to unlock anything. **F2** then wires the
+> inline upsell onto the actual cloud controls.
 
 ---
 
