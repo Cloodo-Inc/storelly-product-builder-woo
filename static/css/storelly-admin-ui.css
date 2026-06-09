@@ -830,6 +830,26 @@
     justify-content: flex-start;
 }
 
+/* Two-button footers (Support / Language cards) — wrap neatly. */
+.spbwc-action-btns { display: flex; flex-wrap: wrap; gap: var(--nbd-space-2); align-items: center; }
+
+/* Status pill sits to the right of the card title. */
+.spbwc-quick-card__head .spbwc-pill { margin-inline-start: auto; }
+
+/* Activated card state — subtle success accent + check-tinted icon. */
+.spbwc-quick-card.is-done { border-color: var(--nbd-color-success, #16a34a); }
+.spbwc-quick-card.is-done .spbwc-quick-card__icon {
+    background: var(--st-pill-active-bg);
+    color: var(--nbd-color-success, #16a34a);
+}
+.spbwc-quick-card.is-done:hover {
+    border-color: var(--nbd-color-success, #16a34a);
+}
+.spbwc-quick-card.is-done:hover .spbwc-quick-card__icon {
+    background: var(--nbd-color-success, #16a34a);
+    color: var(--nbd-st-text-inverse);
+}
+
 /* ========================================================== */
 /* List block — card with colored tinted header band          */
 /* ========================================================== */

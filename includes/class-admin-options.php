@@ -355,10 +355,27 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
                     SPBWC_PB_OPTIONS_SLUG . '/manager-fonts',
                     array($this, 'spbwc_manager_fonts')
                 );
+                // Setup Wizard — show a "steps remaining" bubble in the menu
+                // (same markup as the Quotes count) so an unfinished setup is
+                // visible at a glance. Clears to no bubble once the required
+                // steps (an option group + a linked product) are done.
+                $spbwc_setup_pending = 0;
+                if ( class_exists( 'SPBWC_Onboarding' ) ) {
+                    if ( SPBWC_Onboarding::count_option_sets() < 1 ) {
+                        $spbwc_setup_pending++;
+                    }
+                    if ( SPBWC_Onboarding::count_linked_products() < 1 ) {
+                        $spbwc_setup_pending++;
+                    }
+                }
+                $spbwc_setup_menu_title = esc_html__('Setup Wizard', 'storelly-product-builder-for-woocommerce');
+                if ( $spbwc_setup_pending > 0 ) {
+                    $spbwc_setup_menu_title .= ' <span class="awaiting-mod"><span class="pending-count">' . esc_html( number_format_i18n( $spbwc_setup_pending ) ) . '</span></span>';
+                }
                 add_submenu_page(
                     SPBWC_PB_OVERVIEW_SLUG,
                     esc_html__('Setup Wizard', 'storelly-product-builder-for-woocommerce'),
-                    esc_html__('Setup Wizard', 'storelly-product-builder-for-woocommerce'),
+                    $spbwc_setup_menu_title,
                     'manage_options',
                     SPBWC_PB_OPTIONS_SLUG . '/global-import',
                     array($this, 'spbwc_global_import')

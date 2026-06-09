@@ -121,6 +121,24 @@ $spbwc_support_wa_url = 'https://wa.me/84937869689';
 $spbwc_locale         = function_exists( 'determine_locale' ) ? determine_locale() : get_locale();
 $spbwc_lang_url       = admin_url( 'options-general.php#WPLANG' );
 $spbwc_translate_url  = 'https://translate.wordpress.org/projects/wp-plugins/storelly-product-builder-for-woocommerce/';
+
+// Per-card activation state (item 2) — each setup card shows whether it is done.
+$spbwc_has_options = class_exists( 'SPBWC_Onboarding' ) && SPBWC_Onboarding::count_option_sets() > 0;
+$spbwc_has_linked  = class_exists( 'SPBWC_Onboarding' ) && SPBWC_Onboarding::count_linked_products() > 0;
+$spbwc_done_sample = ( $spbwc_demo_count > 0 ) || $spbwc_has_options;
+$spbwc_done_woo    = ! empty( $last_seed ) || $spbwc_has_linked;
+
+/**
+ * Render a small Done / Not-yet status pill for a setup card head.
+ *
+ * @param bool $done Whether the step is complete.
+ * @return string Escaped pill HTML.
+ */
+$spbwc_status_pill = static function ( $done ) {
+	$cls   = $done ? 'spbwc-pill--ok' : 'spbwc-pill--neutral';
+	$label = $done ? __( 'Done', 'storelly-product-builder-for-woocommerce' ) : __( 'Not yet', 'storelly-product-builder-for-woocommerce' );
+	return '<span class="spbwc-pill ' . esc_attr( $cls ) . '">' . esc_html( $label ) . '</span>';
+};
 ?>
 <div class="wrap spbwc-wizard-landing">
 
@@ -196,7 +214,7 @@ $spbwc_translate_url  = 'https://translate.wordpress.org/projects/wp-plugins/sto
 	<div class="spbwc-section">
 		<div class="spbwc-quick-grid">
 
-			<a class="spbwc-quick-card" href="<?php echo esc_url( $sample_url ); ?>">
+			<a class="spbwc-quick-card<?php echo $spbwc_done_sample ? ' is-done' : ''; ?>" href="<?php echo esc_url( $sample_url ); ?>">
 				<div class="spbwc-quick-card__head">
 					<div class="spbwc-quick-card__icon">
 						<span class="dashicons dashicons-archive" aria-hidden="true"></span>
@@ -204,6 +222,7 @@ $spbwc_translate_url  = 'https://translate.wordpress.org/projects/wp-plugins/sto
 					<h2 class="spbwc-quick-card__title">
 						<?php esc_html_e( 'Import Sample Products', 'storelly-product-builder-for-woocommerce' ); ?>
 					</h2>
+					<?php echo $spbwc_status_pill( $spbwc_done_sample ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- helper returns esc_*-built HTML. ?>
 				</div>
 				<p class="spbwc-quick-card__desc">
 					<?php esc_html_e( 'Get started with ready-made product templates from the bundled library. Useful when you are evaluating Storelly on a fresh store.', 'storelly-product-builder-for-woocommerce' ); ?>
@@ -216,7 +235,7 @@ $spbwc_translate_url  = 'https://translate.wordpress.org/projects/wp-plugins/sto
 				</div>
 			</a>
 
-			<a class="spbwc-quick-card" href="<?php echo esc_url( $woo_url ); ?>">
+			<a class="spbwc-quick-card<?php echo $spbwc_done_woo ? ' is-done' : ''; ?>" href="<?php echo esc_url( $woo_url ); ?>">
 				<div class="spbwc-quick-card__head">
 					<div class="spbwc-quick-card__icon">
 						<span class="dashicons dashicons-update" aria-hidden="true"></span>
@@ -224,6 +243,7 @@ $spbwc_translate_url  = 'https://translate.wordpress.org/projects/wp-plugins/sto
 					<h2 class="spbwc-quick-card__title">
 						<?php esc_html_e( 'Import Woo Variations (one-time)', 'storelly-product-builder-for-woocommerce' ); ?>
 					</h2>
+					<?php echo $spbwc_status_pill( $spbwc_done_woo ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- helper returns esc_*-built HTML. ?>
 				</div>
 				<p class="spbwc-quick-card__desc">
 					<?php esc_html_e( 'Convert existing WooCommerce variable products into Storelly pricing options in a single pass. This is a one-time migration, not a live sync — re-running is safe but skips products already linked to a Storelly option.', 'storelly-product-builder-for-woocommerce' ); ?>
@@ -319,14 +339,15 @@ $spbwc_translate_url  = 'https://translate.wordpress.org/projects/wp-plugins/sto
 					</div>
 				</div>
 			<?php else : ?>
-				<div class="spbwc-quick-card">
+				<div class="spbwc-quick-card is-done">
 					<div class="spbwc-quick-card__head">
 						<div class="spbwc-quick-card__icon">
-							<span class="dashicons dashicons-trash" aria-hidden="true"></span>
+							<span class="dashicons dashicons-yes-alt" aria-hidden="true"></span>
 						</div>
 						<h2 class="spbwc-quick-card__title">
-							<?php esc_html_e( 'Remove Custom Order sample', 'storelly-product-builder-for-woocommerce' ); ?>
+							<?php esc_html_e( 'Custom Order sample', 'storelly-product-builder-for-woocommerce' ); ?>
 						</h2>
+						<span class="spbwc-pill spbwc-pill--ok"><?php esc_html_e( 'Installed', 'storelly-product-builder-for-woocommerce' ); ?></span>
 					</div>
 					<p class="spbwc-quick-card__desc">
 						<?php esc_html_e( 'A sample custom order is installed. Removing it deletes the sample order, its design folder and the sample product. Your real orders are not affected.', 'storelly-product-builder-for-woocommerce' ); ?>
