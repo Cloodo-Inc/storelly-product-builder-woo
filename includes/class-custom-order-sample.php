@@ -387,6 +387,33 @@ if ( ! class_exists( 'SPBWC_Custom_Order_Sample' ) ) {
 			return (string) ob_get_clean();
 		}
 
+		/**
+		 * "Remove sample" CTA form (Custom Orders hero + the detail-page sample
+		 * banner), so the install↔remove loop lives where the sample is, not only
+		 * in the Setup Wizard. Returns '' when no sample is installed.
+		 *
+		 * @param string $context 'hero' | 'banner'.
+		 * @return string Escaped HTML, or ''.
+		 */
+		public static function remove_cta_html( $context = 'hero' ) {
+			if ( ! self::exists() ) {
+				return '';
+			}
+			ob_start();
+			?>
+			<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" class="spbwc-co-sample-cta spbwc-co-sample-cta--<?php echo esc_attr( $context ); ?>" onsubmit="return confirm('<?php echo esc_js( __( 'Remove the sample custom order? This cannot be undone.', 'storelly-product-builder-for-woocommerce' ) ); ?>');">
+				<input type="hidden" name="action" value="<?php echo esc_attr( self::ACTION_REMOVE ); ?>" />
+				<input type="hidden" name="spbwc_co_after" value="orders" />
+				<?php wp_nonce_field( self::ACTION_REMOVE ); ?>
+				<button type="submit" class="spbwc-cta-btn spbwc-cta-btn--ghost spbwc-cta-btn--sm">
+					<span class="dashicons dashicons-trash" aria-hidden="true"></span>
+					<?php esc_html_e( 'Remove sample', 'storelly-product-builder-for-woocommerce' ); ?>
+				</button>
+			</form>
+			<?php
+			return (string) ob_get_clean();
+		}
+
 		/* ── admin-post handlers + back URL ───────────────────────── */
 
 		protected static function guard() {
@@ -424,6 +451,18 @@ if ( ! class_exists( 'SPBWC_Custom_Order_Sample' ) ) {
 			self::guard();
 			check_admin_referer( self::ACTION_REMOVE );
 			$res = self::remove_all();
+			// Removed from the Custom Orders screen → return there, not the wizard.
+			$after = isset( $_POST['spbwc_co_after'] ) ? sanitize_key( wp_unslash( $_POST['spbwc_co_after'] ) ) : '';
+			if ( 'orders' === $after ) {
+				wp_safe_redirect(
+					add_query_arg(
+						'spbwc_co_removed',
+						(int) $res['orders'],
+						admin_url( 'admin.php?page=' . SPBWC_PB_ORDERS_SLUG )
+					)
+				);
+				exit;
+			}
 			wp_safe_redirect( self::back_url( 'removed', array( 'co_removed' => (int) $res['orders'] ) ) );
 			exit;
 		}

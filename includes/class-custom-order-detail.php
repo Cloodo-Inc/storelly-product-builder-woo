@@ -257,6 +257,17 @@ if ( ! class_exists( 'SPBWC_Custom_Order_Detail' ) ) {
                     <div class="notice notice-success"><p><?php esc_html_e( 'Re-order created — you are viewing the new draft order.', 'storelly-product-builder-for-woocommerce' ); ?></p></div>
                 <?php endif; ?>
 
+                <?php if ( class_exists( 'SPBWC_Custom_Order_Sample' ) && '1' === (string) $order->get_meta( '_spbwc_is_sample' ) ) : ?>
+                    <div class="spbwc-co-sample-note">
+                        <span class="dashicons dashicons-info-outline" aria-hidden="true"></span>
+                        <div class="spbwc-co-sample-note__body">
+                            <strong><?php esc_html_e( 'Sample custom order', 'storelly-product-builder-for-woocommerce' ); ?></strong>
+                            <?php esc_html_e( 'Storelly created this so you can explore the workspace. Your real orders are untouched — remove it when you are done.', 'storelly-product-builder-for-woocommerce' ); ?>
+                        </div>
+                        <?php echo SPBWC_Custom_Order_Sample::remove_cta_html( 'banner' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- helper output is fully escaped. ?>
+                    </div>
+                <?php endif; ?>
+
                 <!-- Sticky header + CTA -->
                 <div class="spbwc-co-head">
                     <div class="spbwc-co-head__row">

@@ -2087,10 +2087,13 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
                             </p>
                         </div>
                         <?php
-                        // Self-serve CTA: when there are already orders but no sample yet,
-                        // offer to install one so the workspace is easy to explore.
-                        if ( $total_orders > 0 && class_exists( 'SPBWC_Custom_Order_Sample' ) ) {
-                            $spbwc_co_cta = SPBWC_Custom_Order_Sample::install_cta_html( 'hero' );
+                        // Self-serve sample CTA: install when none yet (and real orders
+                        // exist), or remove when the sample is installed — the whole
+                        // loop lives on this screen, not only the Setup Wizard.
+                        if ( class_exists( 'SPBWC_Custom_Order_Sample' ) ) {
+                            $spbwc_co_cta = SPBWC_Custom_Order_Sample::exists()
+                                ? SPBWC_Custom_Order_Sample::remove_cta_html( 'hero' )
+                                : ( $total_orders > 0 ? SPBWC_Custom_Order_Sample::install_cta_html( 'hero' ) : '' );
                             if ( '' !== $spbwc_co_cta ) {
                                 echo '<div class="spbwc-page-hero__actions">' . $spbwc_co_cta . '</div>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- CTA built with esc_*/wp_nonce_field inside the helper.
                             }
@@ -2100,6 +2103,11 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
                 </header>
                 <?php // Anchor so WP admin notices land below the hero, not on it. ?>
                 <hr class="wp-header-end" />
+
+                <?php // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- display-only flash flag after a nonce-gated admin-post action. ?>
+                <?php if ( isset( $_GET['spbwc_co_removed'] ) ) : ?>
+                    <div class="notice notice-success is-dismissible"><p><?php esc_html_e( 'Sample custom order removed.', 'storelly-product-builder-for-woocommerce' ); ?></p></div>
+                <?php endif; ?>
 
                 <div class="spbwc-block">
                     <!-- Toolbar: search + count -->
@@ -2184,13 +2192,16 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
                                         <tr>
                                             <td>
                                                 <?php if ( '' !== $spbwc_thumb ) : ?>
-                                                    <img src="<?php echo esc_url( $spbwc_thumb ); ?>" alt="" loading="lazy" style="width:48px;height:48px;object-fit:contain;border:1px solid var(--nbd-st-border-light,#dcdcde);border-radius:var(--nbd-radius,6px);background:var(--nbd-st-bg-soft,#f6f7f7);" />
+                                                    <img class="spbwc-co-thumb" src="<?php echo esc_url( $spbwc_thumb ); ?>" alt="" loading="lazy" />
                                                 <?php else : ?>
-                                                    <span class="dashicons dashicons-format-image" style="color:var(--nbd-st-text-mute,#8c8f94);" aria-hidden="true"></span>
+                                                    <span class="spbwc-co-thumb spbwc-co-thumb--empty"><span class="dashicons dashicons-format-image" aria-hidden="true"></span></span>
                                                 <?php endif; ?>
                                             </td>
                                             <td class="spbwc-admin-table__id">
                                                 <strong>#<?php echo esc_html( (string) $order->get_id() ); ?></strong>
+                                                <?php if ( '1' === (string) $order->get_meta( '_spbwc_is_sample' ) ) : ?>
+                                                    <span class="spbwc-pill spbwc-pill--neutral spbwc-co-sample-tag"><?php esc_html_e( 'Sample', 'storelly-product-builder-for-woocommerce' ); ?></span>
+                                                <?php endif; ?>
                                             </td>
                                             <td class="spbwc-admin-table__muted">
                                                 <?php echo esc_html( wc_format_datetime( $order->get_date_created() ) ); ?>

@@ -863,7 +863,48 @@
     color: var(--nbd-st-text-soft);
     max-inline-size: 420px;
 }
-.spbwc-co-sample-cta--hero { margin: 0; }
+.spbwc-co-sample-cta--hero,
+.spbwc-co-sample-cta--banner { margin: 0; }
+
+/* Custom Order list thumbnail (tokenised — replaces inline styles). */
+.spbwc-co-thumb {
+    inline-size: 48px;
+    block-size: 48px;
+    object-fit: contain;
+    border: 1px solid var(--nbd-st-border-light);
+    border-radius: var(--nbd-radius);
+    background: var(--nbd-st-bg-soft);
+}
+.spbwc-co-thumb--empty {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--nbd-st-text-mute);
+}
+.spbwc-co-thumb--empty .dashicons { font-size: 22px; width: 22px; height: 22px; }
+.spbwc-co-sample-tag { margin-inline-start: var(--nbd-space-2); }
+
+/* Sample-order banner (Custom Order detail) — closes the install↔remove loop. */
+.spbwc-co-sample-note {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: var(--nbd-space-3);
+    padding: var(--nbd-space-3) var(--nbd-space-4);
+    margin-block-end: var(--nbd-space-4);
+    border: 1px solid var(--st-brand-soft);
+    border-inline-start: 3px solid var(--st-brand);
+    border-radius: var(--nbd-radius-md);
+    background: var(--st-brand-soft);
+}
+.spbwc-co-sample-note > .dashicons { color: var(--st-brand); flex: none; }
+.spbwc-co-sample-note__body {
+    flex: 1;
+    min-inline-size: 220px;
+    font-size: var(--text-md);
+    color: var(--nbd-st-text-soft);
+}
+.spbwc-co-sample-note__body strong { color: var(--nbd-st-text); margin-inline-end: 4px; }
 
 /* ========================================================== */
 /* List block — card with colored tinted header band          */
