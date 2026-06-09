@@ -1310,6 +1310,29 @@
     color: var(--nbd-st-text-soft);
     border: 1px solid var(--nbd-st-border-light);
 }
+.spbwc-pill--info    { background: var(--st-brand-soft); color: var(--st-brand-pressed); }
+
+/* Cart-mode switch row (Settings › User Account › Cart compatibility) */
+.spbwc-cart-mode {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: var(--nbd-space-3);
+}
+.spbwc-cart-mode__label {
+    font-size: 12px;
+    font-weight: var(--font-bold);
+    color: var(--nbd-st-text-soft);
+}
+
+/* Consistent vertical rhythm between stacked cards inside a settings tab —
+   replaces the per-block inline margin-top hacks (cards used to touch). */
+.spbwc-tab-panel > .spbwc-block + .spbwc-block {
+    margin-block-start: var(--nbd-space-4);
+}
+.spbwc-settings-save-bar {
+    margin-block-start: var(--nbd-space-4);
+}
 
 /* ========================================================== */
 /* Admin data table — replaces .widefat.striped               */

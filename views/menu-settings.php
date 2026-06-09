@@ -51,7 +51,7 @@ $stt_yes_cloud2print_api = isset($storelly_pb_settings['enable_cloud2print_api']
 // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Template variable.
 $stt_no_cloud2print_api = isset($storelly_pb_settings['enable_cloud2print_api']) && $storelly_pb_settings['enable_cloud2print_api'] == 'no' ? 'checked' : '';
 // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Template variable.
-$spbwc_valid_tabs = array('pricing-option', 'display', 'pricing', 'catalog', 'cart', 'integration', 'user-account', 'languages');
+$spbwc_valid_tabs = array('pricing-option', 'display', 'pricing', 'catalog', 'cart', 'integration', 'user-account');
 // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only settings tab selector; validated against whitelist below, no state change.
 $spbwc_settings_tab = isset($_GET['tab']) ? sanitize_key(wp_unslash($_GET['tab'])) : 'pricing-option';
 if ( ! in_array($spbwc_settings_tab, $spbwc_valid_tabs, true) ) {
@@ -144,11 +144,6 @@ if ( ! in_array($spbwc_settings_tab, $spbwc_valid_tabs, true) ) {
                data-tab="user-account" class="nav-tab <?php echo $spbwc_settings_tab === 'user-account' ? 'nav-tab-active' : ''; ?>">
                 <span class="dashicons dashicons-admin-users" aria-hidden="true"></span>
                 <?php esc_html_e('User Account', 'storelly-product-builder-for-woocommerce'); ?>
-            </a>
-            <a href="<?php echo esc_url(admin_url('admin.php?page=' . SPBWC_PB_OPTIONS_SLUG . '&tab=languages')); ?>"
-               data-tab="languages" class="nav-tab <?php echo $spbwc_settings_tab === 'languages' ? 'nav-tab-active' : ''; ?>">
-                <span class="dashicons dashicons-translation" aria-hidden="true"></span>
-                <?php esc_html_e('Languages', 'storelly-product-builder-for-woocommerce'); ?>
             </a>
         </h2>
 
@@ -844,13 +839,15 @@ if ( ! in_array($spbwc_settings_tab, $spbwc_valid_tabs, true) ) {
                 </div>
 
                 <!-- ── Block 2: API Keys (independent card) ──────── -->
-                <div class="spbwc-block<?php echo $storelly_username ? ' spbwc-block--success' : ''; ?>" style="margin-top:var(--nbd-space-4);">
+                <?php // Badge follows the same "connected" signal as the Storelly Account
+                      // card above (SPBWC_Cloud_Connect::is_connected) so the two never disagree. ?>
+                <div class="spbwc-block<?php echo $spbwc_acct_connected ? ' spbwc-block--success' : ''; ?>">
                     <div class="spbwc-block__head">
                         <h3 class="spbwc-block__title">
                             <span class="dashicons dashicons-admin-network" aria-hidden="true"></span>
                             <?php esc_html_e('API Keys', 'storelly-product-builder-for-woocommerce'); ?>
                         </h3>
-                        <?php if ( $storelly_username ) : ?>
+                        <?php if ( $spbwc_acct_connected ) : ?>
                         <span class="spbwc-block__badge">
                             <span class="dashicons dashicons-yes-alt" aria-hidden="true"></span>
                             <?php esc_html_e('Connected', 'storelly-product-builder-for-woocommerce'); ?>
@@ -995,17 +992,22 @@ if ( ! in_array($spbwc_settings_tab, $spbwc_valid_tabs, true) ) {
                         <div class="spbwc-setting-row">
                             <div class="spbwc-setting-row__label"><?php esc_html_e('Current Cart page', 'storelly-product-builder-for-woocommerce'); ?></div>
                             <div class="spbwc-setting-row__control">
-                                <?php if ($spbwc_is_classic) : ?>
-                                    <span style="display:inline-block;padding:3px 10px;border-radius:var(--nbd-radius-full,999px);font-size:12px;font-weight:700;background:var(--st-pill-active-bg,#dcfce7);color:var(--st-pill-active-text,#14532d);vertical-align:middle;"><?php esc_html_e('Classic shortcode', 'storelly-product-builder-for-woocommerce'); ?></span>
-                                    <button type="submit" form="spbwc-cart-mode-form" name="spbwc_cart_action" value="to_block" class="spbwc-cta-btn spbwc-cta-btn--ghost" style="margin-left:8px;">
-                                        <?php esc_html_e('Switch back to Cart block', 'storelly-product-builder-for-woocommerce'); ?>
-                                    </button>
-                                <?php else : ?>
-                                    <span style="display:inline-block;padding:3px 10px;border-radius:var(--nbd-radius-full,999px);font-size:12px;font-weight:700;background:var(--st-pill-featured-bg,#dbeafe);color:var(--st-pill-featured-text,#1e40af);vertical-align:middle;"><?php esc_html_e('Cart block', 'storelly-product-builder-for-woocommerce'); ?></span>
-                                    <button type="submit" form="spbwc-cart-mode-form" name="spbwc_cart_action" value="to_classic" class="spbwc-cta-btn spbwc-cta-btn--ghost" style="margin-left:8px;">
-                                        <?php esc_html_e('Switch to Classic cart', 'storelly-product-builder-for-woocommerce'); ?>
-                                    </button>
-                                <?php endif; ?>
+                                <div class="spbwc-cart-mode">
+                                    <span class="spbwc-cart-mode__label"><?php esc_html_e('Active:', 'storelly-product-builder-for-woocommerce'); ?></span>
+                                    <?php if ($spbwc_is_classic) : ?>
+                                        <span class="spbwc-pill spbwc-pill--ok"><?php esc_html_e('Classic shortcode', 'storelly-product-builder-for-woocommerce'); ?></span>
+                                        <button type="submit" form="spbwc-cart-mode-form" name="spbwc_cart_action" value="to_block" class="spbwc-cta-btn spbwc-cta-btn--ghost spbwc-cta-btn--sm">
+                                            <span class="dashicons dashicons-block-default" aria-hidden="true"></span>
+                                            <?php esc_html_e('Switch back to Cart block', 'storelly-product-builder-for-woocommerce'); ?>
+                                        </button>
+                                    <?php else : ?>
+                                        <span class="spbwc-pill spbwc-pill--info"><?php esc_html_e('Cart block', 'storelly-product-builder-for-woocommerce'); ?></span>
+                                        <button type="submit" form="spbwc-cart-mode-form" name="spbwc_cart_action" value="to_classic" class="spbwc-cta-btn spbwc-cta-btn--ghost spbwc-cta-btn--sm">
+                                            <span class="dashicons dashicons-editor-code" aria-hidden="true"></span>
+                                            <?php esc_html_e('Switch to Classic cart', 'storelly-product-builder-for-woocommerce'); ?>
+                                        </button>
+                                    <?php endif; ?>
+                                </div>
                             </div>
                             <p class="spbwc-setting-row__hint"><?php esc_html_e('The “Save design” link shows on both modes: classic cart via PHP, the Cart block via the built-in Store API integration. Switching is reversible — the previous Cart page content is backed up and restored on switch-back. Only switch to classic if another plugin needs it.', 'storelly-product-builder-for-woocommerce'); ?></p>
                         </div>
@@ -1049,9 +1051,9 @@ if ( ! in_array($spbwc_settings_tab, $spbwc_valid_tabs, true) ) {
                 </div>
             </div>
 
-            <div class="spbwc-block" style="margin-top:var(--nbd-space-4);">
+            <div class="spbwc-block spbwc-settings-save-bar">
                 <div class="spbwc-block__foot">
-                    <button name="save" class="spbwc-cta-btn spbwc-cta-btn--solid" type="submit" value="Save changes">
+                    <button id="spbwc-settings-save" name="save" class="spbwc-cta-btn spbwc-cta-btn--solid" type="submit" value="Save changes">
                         <span class="dashicons dashicons-saved" aria-hidden="true"></span>
                         <?php esc_html_e('Save changes', 'storelly-product-builder-for-woocommerce'); ?>
                     </button>
@@ -1060,16 +1062,6 @@ if ( ! in_array($spbwc_settings_tab, $spbwc_valid_tabs, true) ) {
                 </div>
             </div>
         </form>
-
-        <!-- ━━━ LANGUAGES ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ -->
-        <?php // Languages panel — single home for the i18n / RTL widget (Wave 2, A8).
-              // Kept outside the settings <form> (informational, no form fields);
-              // the tab JS shows/hides it by its #tab-languages id like the others. ?>
-        <div class="spbwc-tab-panel" id="tab-languages"<?php echo ($spbwc_settings_tab !== 'languages') ? ' style="display:none;"' : ''; ?>>
-            <?php if ( class_exists( 'SPBWC_I18n_Notice' ) ) {
-                SPBWC_I18n_Notice::render_language_widget();
-            } ?>
-        </div>
 </div>
 <script>
 (function () {
@@ -1146,7 +1138,13 @@ if ( ! in_array($spbwc_settings_tab, $spbwc_valid_tabs, true) ) {
     if ( settingsForm ) {
         settingsForm.addEventListener( 'submit', function ( e ) {
             e.preventDefault();
-            spbwcAjaxSave( settingsForm, settingsForm.querySelector( 'button[type="submit"]' ) );
+            // Target the button the user actually clicked. Fall back to the
+            // dedicated Save button — never the cart-mode submit buttons that
+            // also live inside this form (they post to #spbwc-cart-mode-form),
+            // which would otherwise swallow the spinner/feedback (the Save
+            // button looked "dead").
+            var btn = e.submitter || document.getElementById( 'spbwc-settings-save' );
+            spbwcAjaxSave( settingsForm, btn );
         } );
     }
 

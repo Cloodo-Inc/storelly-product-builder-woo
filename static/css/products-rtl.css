@@ -89,44 +89,6 @@
     gap: var(--nbd-space-2);
     align-items: center;
 }
-.spbwc-search-field {
-    position: relative;
-    display: flex;
-    align-items: center;
-}
-.spbwc-search-field__icon {
-    position: absolute;
-    right: 10px;
-    color: var(--nbd-st-text-mute);
-    font-size: 16px;
-    width: 16px;
-    height: 16px;
-    pointer-events: none;
-}
-/* Reset browser's native search-field appearance (Chrome/Safari add pill radius) */
-input.spbwc-search-input {
-    -webkit-appearance: none;
-    appearance: none;
-    box-sizing: border-box;
-    height: 34px;
-    padding: 0 34px 0 10px;
-    border: 1px solid var(--nbd-st-border);
-    border-radius: var(--nbd-radius);
-    font-size: var(--text-md);
-    font-family: inherit;
-    color: var(--nbd-st-text);
-    background: var(--nbd-st-bg);
-    width: 200px;
-    box-shadow: var(--shadow-input-inset);
-    transition: var(--transition-fast);
-    outline: none;
-    line-height: 34px;
-}
-input.spbwc-search-input:focus {
-    border-color: var(--st-brand);
-    box-shadow: var(--shadow-input-focus);
-}
-input.spbwc-search-input::placeholder { color: var(--nbd-st-text-mute); }
 .spbwc-search-btn {
     display: inline-flex;
     align-items: center;

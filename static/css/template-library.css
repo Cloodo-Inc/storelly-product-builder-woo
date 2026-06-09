@@ -88,30 +88,6 @@
 	border-radius: var(--nbd-radius);
 	box-shadow: var(--shadow-sm);
 }
-.spbwc-tl-toolbar__search {
-	flex: 1 1 280px;
-	position: relative;
-	min-width: 240px;
-}
-.spbwc-tl-toolbar__search .dashicons {
-	position: absolute;
-	left: 10px; top: 50%;
-	transform: translateY(-50%);
-	color: var(--nbd-st-text-mute);
-}
-.spbwc-tl-toolbar__search input {
-	width: 100%;
-	padding: 6px 10px 6px 32px !important;
-	border: 1px solid var(--nbd-st-border-light);
-	border-radius: var(--nbd-radius);
-	background: var(--nbd-st-bg);
-	box-shadow: var(--shadow-input-inset);
-}
-.spbwc-tl-toolbar__search input:focus {
-	outline: 0;
-	border-color: var(--st-brand);
-	box-shadow: var(--shadow-input-focus);
-}
 .spbwc-tl-toolbar__filter {
 	min-width: 180px;
 	border-radius: var(--nbd-radius);

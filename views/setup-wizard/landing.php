@@ -427,4 +427,15 @@ $spbwc_sys_warnings = class_exists( 'SPBWC_System_Status' ) ? SPBWC_System_Statu
 		</details>
 	</div>
 
+	<?php
+	// Plugin language / RTL reference (Wave 2 — moved here from Settings: it is
+	// not a configurable setting, so it sat oddly next to a Save button). The
+	// widget renders its own .spbwc-block card.
+	if ( class_exists( 'SPBWC_I18n_Notice' ) ) :
+	?>
+	<div class="spbwc-section">
+		<?php SPBWC_I18n_Notice::render_language_widget(); ?>
+	</div>
+	<?php endif; ?>
+
 </div>
