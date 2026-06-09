@@ -349,6 +349,7 @@ if ( ! class_exists( 'SPBWC_B2B_Procurement' ) ) {
             if ( $use_shell ) {
                 SPBWC_Account_Shell::open(
                     array(
+                        'eyebrow'  => __( 'Company workspace', 'storelly-product-builder-for-woocommerce' ),
                         'title'    => __( 'Approval Queue', 'storelly-product-builder-for-woocommerce' ),
                         'subtitle' => __( 'Review and approve or reject team orders that exceed a spending limit.', 'storelly-product-builder-for-woocommerce' ),
                     )

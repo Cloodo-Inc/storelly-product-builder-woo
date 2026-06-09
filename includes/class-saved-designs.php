@@ -294,6 +294,7 @@ if ( ! class_exists( 'SPBWC_Saved_Designs' ) ) {
             if ( $use_shell ) {
                 SPBWC_Account_Shell::open(
                     array(
+                        'eyebrow'  => __( 'Design library', 'storelly-product-builder-for-woocommerce' ),
                         'title'    => __( 'Saved designs', 'storelly-product-builder-for-woocommerce' ),
                         'subtitle' => __( 'Reload a saved design straight into your cart.', 'storelly-product-builder-for-woocommerce' ),
                     )

@@ -124,6 +124,7 @@ if ( ! class_exists( 'SPBWC_B2B_Reorders' ) ) {
             if ( $use_shell ) {
                 SPBWC_Account_Shell::open(
                     array(
+                        'eyebrow'  => __( 'Quick reorder', 'storelly-product-builder-for-woocommerce' ),
                         'title'    => __( 'Reorders', 'storelly-product-builder-for-woocommerce' ),
                         'subtitle' => __( 'Reorder a past design with the same artwork and specs. Your company pricing is applied automatically at checkout — no setup fees on reorders.', 'storelly-product-builder-for-woocommerce' ),
                     )

@@ -6,6 +6,7 @@
  * a theme by copying to: yourtheme/storelly/account/shell-header.php
  *
  * @var string $title       Page title (required).
+ * @var string $eyebrow     Optional small-caps context label above the title.
  * @var string $subtitle    Optional sub-heading.
  * @var string $actions     Optional pre-escaped HTML for the top-right actions slot.
  * @var array  $breadcrumb  Optional list of array{ label:string, url?:string }.
@@ -18,6 +19,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 $title      = isset( $title ) ? (string) $title : '';
+$eyebrow    = isset( $eyebrow ) ? (string) $eyebrow : '';
 $subtitle   = isset( $subtitle ) ? (string) $subtitle : '';
 $actions    = isset( $actions ) ? (string) $actions : '';
 $breadcrumb = isset( $breadcrumb ) && is_array( $breadcrumb ) ? $breadcrumb : array();
@@ -48,6 +50,9 @@ $breadcrumb = isset( $breadcrumb ) && is_array( $breadcrumb ) ? $breadcrumb : ar
 
 	<header class="spbwc-account__head">
 		<div class="spbwc-account__titles">
+			<?php if ( '' !== $eyebrow ) : ?>
+				<span class="spbwc-account__eyebrow"><?php echo esc_html( $eyebrow ); ?></span>
+			<?php endif; ?>
 			<?php if ( '' !== $title ) : ?>
 				<h2 class="spbwc-account__title"><?php echo esc_html( $title ); ?></h2>
 			<?php endif; ?>

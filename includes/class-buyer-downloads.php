@@ -42,8 +42,13 @@ if ( ! class_exists( 'SPBWC_Buyer_Downloads' ) ) {
                 return;
             }
             // Shared storefront design tokens load first; custom-order.css consumes them.
+            // Version by filemtime (same pattern as the admin custom-order enqueue) so
+            // CSS edits cache-bust immediately for returning users, not only on a
+            // plugin version bump.
+            $co_css = SPBWC_PB_ASSETS_DIR . 'css/custom-order.css';
+            $co_ver = file_exists( $co_css ) ? filemtime( $co_css ) : SPBWC_PB_VERSION;
             wp_enqueue_style( 'spbwc-tokens-storefront', SPBWC_PB_CSS_URL . '_tokens-storefront.css', array(), SPBWC_PB_VERSION );
-            wp_enqueue_style( 'spbwc-custom-order', SPBWC_PB_CSS_URL . 'custom-order.css', array( 'spbwc-tokens-storefront' ), SPBWC_PB_VERSION );
+            wp_enqueue_style( 'spbwc-custom-order', SPBWC_PB_CSS_URL . 'custom-order.css', array( 'spbwc-tokens-storefront' ), $co_ver );
             // Progressive-enhancement confirm() for the saved-designs delete button (D4).
             if ( $is_account ) {
                 wp_enqueue_script( 'spbwc-custom-order', SPBWC_PB_JS_URL . 'custom-order.js', array(), SPBWC_PB_VERSION, true );

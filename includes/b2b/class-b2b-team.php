@@ -103,6 +103,7 @@ if ( ! class_exists( 'SPBWC_B2B_Team' ) ) {
             if ( $use_shell ) {
                 SPBWC_Account_Shell::open(
                     array(
+                        'eyebrow'  => __( 'Company workspace', 'storelly-product-builder-for-woocommerce' ),
                         'title'    => __( 'Team', 'storelly-product-builder-for-woocommerce' ),
                         'subtitle' => __( 'Manage who can order for your company, their roles and per-order spending limits.', 'storelly-product-builder-for-woocommerce' ),
                     )

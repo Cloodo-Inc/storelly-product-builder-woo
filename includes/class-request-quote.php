@@ -1235,6 +1235,7 @@ if ( ! class_exists( 'SPBWC_Request_Quote' ) ) {
             if ( $use_shell ) {
                 SPBWC_Account_Shell::open(
                     array(
+                        'eyebrow'  => __( 'Custom quotes', 'storelly-product-builder-for-woocommerce' ),
                         'title'    => __( 'My Quotes', 'storelly-product-builder-for-woocommerce' ),
                         'subtitle' => __( 'Track your quote requests and respond to merchant offers.', 'storelly-product-builder-for-woocommerce' ),
                     )

@@ -44,6 +44,7 @@ if ( ! class_exists( 'SPBWC_Account_Shell' ) ) {
 				$args,
 				array(
 					'title'      => '',
+					'eyebrow'    => '',
 					'subtitle'   => '',
 					'actions'    => '',
 					'breadcrumb' => array(),

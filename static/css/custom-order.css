@@ -237,6 +237,37 @@ body.woocommerce-account .woocommerce-MyAccount-navigation-link.is-active a {
     color: var(--nbd-mb-primary-pressed, #1d4ed8);
     font-weight: 600;
 }
+/* Reset the block-theme's default 1em list-item padding so items sit tight in
+   the card. Higher specificity (`…navigation ul li`) than
+   woocommerce-blocktheme.css's `.woocommerce-account …navigation li`. */
+body.woocommerce-account .woocommerce-MyAccount-navigation ul li {
+    margin: 0;
+    padding: 0;
+    border: 0;
+    list-style: none;
+}
+/* Active item: a left accent bar on the soft-fill pill (logical → RTL-safe). */
+body.woocommerce-account .woocommerce-MyAccount-navigation-link a { position: relative; }
+body.woocommerce-account .woocommerce-MyAccount-navigation-link.is-active a::before {
+    content: "";
+    position: absolute;
+    inset-block: 8px;
+    inset-inline-start: 4px;
+    width: 3px;
+    border-radius: var(--nbd-radius-full, 9999px);
+    background: var(--nbd-mb-primary, #2563eb);
+}
+/* Log out reads as a quiet, separated action at the foot of the list. */
+body.woocommerce-account .woocommerce-MyAccount-navigation-link--customer-logout {
+    margin-block-start: var(--nbd-space-2, 8px);
+    padding-block-start: var(--nbd-space-2, 8px);
+    border-block-start: 1px solid var(--nbd-mb-border-subtle, #f3f4f6);
+}
+/* Keyboard focus ring on nav links. */
+body.woocommerce-account .woocommerce-MyAccount-navigation-link a:focus-visible {
+    outline: none;
+    box-shadow: var(--nbd-shadow-focus, 0 0 0 3px rgba(37, 99, 235, 0.25));
+}
 
 /* Content panel as a card */
 body.woocommerce-account .woocommerce-MyAccount-content {

@@ -252,6 +252,28 @@ approval-queue action hierarchy; B2B table→card data-labels; B2B 4-file CSS bu
   `left`→`inset-inline-start`, `padding-left`→`padding-inline-start`); the new
   polish block uses logical properties throughout, mirrored into `b2b-rtl.css`
   (also back-filled the missing Account-Credit + W2-MA blocks there).
+- **🎨 Visual polish pass (2026-06-09) — menu bar, header, footer.** Referencing the
+  Printcart token system. Browser-verified in an isolated Chrome session:
+  - **Account nav (the "menu bar")** — the sidebar `.woocommerce-MyAccount-navigation`
+    is now a compact tokenised card (pill items, hover, soft-primary active fill +
+    a left accent bar, Log out separated, focus ring). The styling lives in the
+    EXISTING account-frame block in `custom-order.css` (already enqueued on every
+    account page via `SPBWC_Buyer_Downloads`), which provides the 2-card grid layout.
+    The real bug fixed: the block never reset the block theme's
+    `.woocommerce-account …navigation li { padding:1em 0 }`, leaving huge gaps —
+    added `…navigation ul li { padding:0 }` (specificity 0,2,3 beats the theme's
+    0,2,1). **A from-scratch `account-nav.css` was prototyped then dropped as
+    redundant** once `custom-order.css` was found to already own the nav frame.
+  - **Header** — the shell gains an optional `eyebrow` (small-caps context label,
+    e.g. "Custom quotes" / "Design library" / "Company workspace"), a left primary
+    accent bar on the title, and tighter type. Eyebrows added on all five shell
+    adopters (Quotes, Saved designs, Reorders, Team, Approvals).
+  - **Footer** — `shell-footer.php` now renders a quiet portal footer on every shell
+    page: "Need a hand?…" + a "Continue shopping →" link (animated arrow), tokenised
+    in `account-shell.css`.
+  - **Cache** — `custom-order.css` storefront enqueue switched to `filemtime()`
+    versioning (matching the admin custom-order pattern) so CSS edits reach returning
+    users immediately, not only on a plugin version bump.
 - **Brand Store** intentionally keeps its branded `render_header` (logo + completion
   meter) rather than the generic shell — that immersive header is the page's point.
 - **Quotes** endpoint (`class-request-quote.php`) is out of this task's allowed file
