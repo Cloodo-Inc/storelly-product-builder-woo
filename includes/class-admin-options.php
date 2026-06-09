@@ -2086,6 +2086,16 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
                                 <?php esc_html_e( 'Manage custom orders that contain pricing options.', 'storelly-product-builder-for-woocommerce' ); ?>
                             </p>
                         </div>
+                        <?php
+                        // Self-serve CTA: when there are already orders but no sample yet,
+                        // offer to install one so the workspace is easy to explore.
+                        if ( $total_orders > 0 && class_exists( 'SPBWC_Custom_Order_Sample' ) ) {
+                            $spbwc_co_cta = SPBWC_Custom_Order_Sample::install_cta_html( 'hero' );
+                            if ( '' !== $spbwc_co_cta ) {
+                                echo '<div class="spbwc-page-hero__actions">' . $spbwc_co_cta . '</div>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- CTA built with esc_*/wp_nonce_field inside the helper.
+                            }
+                        }
+                        ?>
                     </div>
                 </header>
                 <?php // Anchor so WP admin notices land below the hero, not on it. ?>
@@ -2229,10 +2239,15 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
                                                     if ( $search ) {
                                                         esc_html_e( 'No orders match your search. Try a different order ID.', 'storelly-product-builder-for-woocommerce' );
                                                     } else {
-                                                        esc_html_e( 'Orders with custom pricing options will appear here.', 'storelly-product-builder-for-woocommerce' );
+                                                        esc_html_e( 'Orders with custom pricing options will appear here. New here? Install a sample to explore the workspace.', 'storelly-product-builder-for-woocommerce' );
                                                     }
                                                     ?>
                                                 </p>
+                                                <?php
+                                                if ( ! $search && class_exists( 'SPBWC_Custom_Order_Sample' ) ) {
+                                                    echo SPBWC_Custom_Order_Sample::install_cta_html( 'empty' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- helper output is fully escaped.
+                                                }
+                                                ?>
                                             </div>
                                         </td>
                                     </tr>

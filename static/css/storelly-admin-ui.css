@@ -850,6 +850,21 @@
     color: var(--nbd-st-text-inverse);
 }
 
+/* Custom Order "install sample" CTA (Custom Orders screen) */
+.spbwc-co-sample-cta--empty {
+    margin-block-start: var(--nbd-space-4);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--nbd-space-2);
+}
+.spbwc-co-sample-cta__hint {
+    font-size: var(--text-sm);
+    color: var(--nbd-st-text-soft);
+    max-inline-size: 420px;
+}
+.spbwc-co-sample-cta--hero { margin: 0; }
+
 /* ========================================================== */
 /* List block — card with colored tinted header band          */
 /* ========================================================== */

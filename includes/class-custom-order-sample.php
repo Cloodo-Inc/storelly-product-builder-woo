@@ -354,6 +354,39 @@ if ( ! class_exists( 'SPBWC_Custom_Order_Sample' ) ) {
 			}
 		}
 
+		/* ── Install CTA (Custom Orders screen) ───────────────────── */
+
+		/**
+		 * "Install a sample order" CTA form, surfaced on the Custom Orders screen so
+		 * a merchant can self-serve the sample. Posts to ACTION_ADD with
+		 * spbwc_co_after=view so it lands on the new order's detail workspace.
+		 * Returns '' when the bundle is missing or the sample is already installed.
+		 *
+		 * @param string $context 'hero' (compact) | 'empty' (with hint).
+		 * @return string Escaped HTML, or ''.
+		 */
+		public static function install_cta_html( $context = 'empty' ) {
+			if ( ! self::bundle_available() || self::exists() ) {
+				return '';
+			}
+			ob_start();
+			?>
+			<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" class="spbwc-co-sample-cta spbwc-co-sample-cta--<?php echo esc_attr( $context ); ?>">
+				<input type="hidden" name="action" value="<?php echo esc_attr( self::ACTION_ADD ); ?>" />
+				<input type="hidden" name="spbwc_co_after" value="view" />
+				<?php wp_nonce_field( self::ACTION_ADD ); ?>
+				<button type="submit" class="spbwc-cta-btn spbwc-cta-btn--solid spbwc-cta-btn--sm">
+					<span class="dashicons dashicons-plus-alt" aria-hidden="true"></span>
+					<?php esc_html_e( 'Install a sample order', 'storelly-product-builder-for-woocommerce' ); ?>
+				</button>
+				<?php if ( 'empty' === $context ) : ?>
+					<span class="spbwc-co-sample-cta__hint"><?php esc_html_e( 'Adds one labelled sample order with its own design folder so you can explore this workspace. Remove it anytime from the Setup Wizard.', 'storelly-product-builder-for-woocommerce' ); ?></span>
+				<?php endif; ?>
+			</form>
+			<?php
+			return (string) ob_get_clean();
+		}
+
 		/* ── admin-post handlers + back URL ───────────────────────── */
 
 		protected static function guard() {
@@ -374,6 +407,13 @@ if ( ! class_exists( 'SPBWC_Custom_Order_Sample' ) ) {
 			$res = self::seed();
 			if ( is_wp_error( $res ) ) {
 				wp_safe_redirect( self::back_url( 'error' ) );
+				exit;
+			}
+			// When launched from the Custom Orders screen, land straight on the new
+			// order's detail workspace instead of the Setup Wizard.
+			$after = isset( $_POST['spbwc_co_after'] ) ? sanitize_key( wp_unslash( $_POST['spbwc_co_after'] ) ) : '';
+			if ( 'view' === $after && ! empty( $res['order_id'] ) && class_exists( 'SPBWC_Custom_Order_Detail' ) ) {
+				wp_safe_redirect( SPBWC_Custom_Order_Detail::url( (int) $res['order_id'] ) );
 				exit;
 			}
 			wp_safe_redirect( self::back_url( $res['created'] ? 'added' : 'exists', array( 'view' => (int) $res['order_id'] ) ) );
