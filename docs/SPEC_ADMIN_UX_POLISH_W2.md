@@ -46,6 +46,11 @@ polish cross-cutting** (A1, A2, A8, A10, A11, A12, A13). 6 mục còn lại nằ
 
 ## A1 — Overview: dọn khối dư thừa / duplicate
 
+> **Status: IMPLEMENTED (2026-06-09).** Language widget gỡ khỏi `overview.php` (về Settings ▸ Languages,
+> A8). "Showing local data only" banner → 1 badge nhỏ `.spbwc-page-hero__badge` trong page-hero (link Sync),
+> CSS token-first trong `overview.css`. Welcome cloud-card rút gọn (xem A4/M5.9). Welcome-mode còn nguyên.
+> CẦN verify browser: badge hiện đúng khi remote down, không vỡ layout hero.
+
 ### Vấn đề
 `views/overview.php` (1347 dòng) chồng nhiều khối nói cùng một ý:
 - `page-hero` (eyebrow "Storelly Product Builder" + title Overview) **trùng** branding với
@@ -79,6 +84,21 @@ polish cross-cutting** (A1, A2, A8, A10, A11, A12, A13). 6 mục còn lại nằ
 
 ## A2 — Field cần AJAX load input sau save (không reload trang)
 
+> **Status: IMPLEMENTED — conservative (2026-06-09).** KIẾN TRÚC THỰC TẾ: field-body partials
+> (`views/options/templates/field-body/*`) là **AngularJS `<script type="text/ng-template">`**, render
+> client-side từ model `$scope.options.fields` — KHÔNG phải HTML fragment server-render. Field "đụng save
+> mới hiện đúng" thực chất chỉ vì Save cũ làm **full page reload** (rehydrate model từ PHP). Giải pháp an
+> toàn (không động `getJsonFields()` chung của classic/VB): thêm **capture-phase submit interceptor** cho
+> riêng form V3 `#spbwc-po-v3-form` trong `admin-options.js` → POST cùng FormData tới handler **đã có sẵn**
+> `spbwc_save_option_ajax` (nonce `spbwc_save_option_action` + cap `spbwc_manage_product_builder`/`manage_options`),
+> KHÔNG reload. Model Angular giữ nguyên nên sub_attributes / conditional_depend / price_breaks /
+> depend_quantity / placeholder vẫn render đúng tức thì. Serialization `jsonFields` KHÔNG đổi → **0 nguy cơ
+> whitelist nuốt field** (bài học `save_drops_subattributes` an toàn). Interceptor tự skip khi có VB shell
+> (`#spbwc-vb-form`) hoặc classic. Option mới: cập nhật `option_id` + URL (`action=v3&id=…`) in-place, không
+> redirect. **CẦN verify browser**: (1) Save option có sub_attr/conditional/price_breaks → hiện đúng ngay
+> không reload + reload tay vẫn persist; (2) tạo option MỚI rồi Save → ở lại trang, id cập nhật, save lần 2
+> update đúng row; (3) classic editor + VB auto-save KHÔNG đổi hành vi; (4) lỗi mạng không mất model.
+
 ### Vấn đề
 Trong options builder, một số field chỉ render đúng input/state **sau khi Save + full page reload**
 (Save hiện là form submit truyền thống). Liên quan whitelist `getJsonFields`/`jsonFields` trong
@@ -108,6 +128,13 @@ partials `views/options/templates/field-body/*`.
 ---
 
 ## A8 — Plugin Languages gọn vào Settings
+
+> **Status: IMPLEMENTED (2026-06-09).** Thêm tab `languages` (icon `dashicons-translation`) vào
+> `menu-settings.php`: `'languages'` trong `$spbwc_valid_tabs`, nav link, panel `#tab-languages` gọi
+> `SPBWC_I18n_Notice::render_language_widget()` (đặt ngoài form chính, tab JS show/hide như tab khác). BỎ
+> lệnh gọi widget always-on ở cuối Settings + đã gỡ khỏi `overview.php` (A1). Logic `class-i18n-notice.php`
+> không đổi; controller không validate tab (whitelist chỉ ở view) nên không cần sửa. CẦN verify browser:
+> tab Languages hiện widget, đổi Site Language phản ánh đúng locale.
 
 ### Vấn đề
 Khối ngôn ngữ (`SPBWC_I18n_Notice::render_language_widget()`) nhúng ở **cả** Overview lẫn Settings.
@@ -162,6 +189,23 @@ Nên gom về một chỗ trong Settings.
 `views/partials/search-box.php` (mới), `static/css/_components.css` (mới) + enqueue,
 4 view: options-list-table, products, manager-fonts, templates/library.
 
+### Status — DONE (2026-06-09)
+- Partial `views/partials/search-box.php`: args `id`, `name`, `placeholder`, `value`, `clear_id`,
+  `aria_label`, `type`, `input_attrs` (raw, caller-escaped — dùng cho AngularJS ng-* ở fonts),
+  `wrapper_id`, `wrapper_class`. Markup `.spbwc-search > .spbwc-search__icon + .spbwc-search__input +
+  .spbwc-search__clear` (clear ẩn khi value rỗng). ABSPATH guard + escape mọi arg.
+- CSS `static/css/_components.css` (`.spbwc-search*`) token hóa height/radius/border/focus-ring/icon,
+  RTL bằng logical properties (`margin-inline-start/end`, `padding-inline`). Modifier `--block` /
+  `--grow` (toolbar Template Library). Đăng ký + enqueue handle `spbwc-components` (dep `spbwc-tokens`
+  + `dashicons`) trong `includes/class-script-hook.php` qua hook `admin_enqueue_scripts` priority 20,
+  chỉ chạy khi `spbwc-admin-ui` đã enqueue (mọi trang admin Storelly).
+- 4 view refactor dùng partial. Selector mới: input giữ nguyên id cũ (`spbwc-unified-search`,
+  `spbwc-search-input`, `spbwc-tl-search`) + id mới `spbwc-font-search-input`; clear id
+  `spbwc-search-clear` (options/products), `spbwc-font-search-clear`, `spbwc-tl-search-clear`.
+  JS filter mỗi trang GIỮ NGUYÊN (target theo id). products.js: `syncClearBtn` đổi `style.display`
+  → thuộc tính `hidden`. fonts + library thêm inline script wire nút clear (clear value + dispatch
+  `input` event cho jQuery/Angular). Không đụng select2 `wc-product-search`.
+
 ---
 
 ## A11 — Fix flicker header + upsell lúc mở Overview
@@ -196,6 +240,24 @@ enqueue `includes/class-script-hook.php`.
 ---
 
 ## A12 — Server Capability warning → FAQ trong Setup Wizard
+
+**Status:** DONE (2026-06-09)
+
+### Implementation notes (as shipped)
+- `SPBWC_System_Status` (`includes/class-system-status.php`) — pure read, transient-cached (10 min).
+  Checks: image library (Imagick/GD), `memory_limit` (≥128 MB), effective upload limit (min of
+  `upload_max_filesize`/`post_max_size`, ≥8 MB), PHP version (≥7.4), WP-Cron (`DISABLE_WP_CRON`),
+  cloud. Each returns `{key, level: ok|warn|error, label, detail, faq_anchor}`. Helpers
+  `get_warnings()`, `has_error()`, `flush()`.
+- **No phone-home:** the `cloud` check reads `SPBWC_Cloud_Connect::is_connected()` (local flag) only —
+  it never pings app.storelly.com, and is always `level=ok` (cloud is optional/opt-in), so an
+  unconnected store is never contacted.
+- Setup Wizard renders warn/error checks as `.spbwc-notice-banner--warn` banners (errors mapped to the
+  warn style) each with a "How to fix →" link to `#faq-<key>`.
+- FAQ accordion in `views/setup-wizard/landing.php` using native `<details>/<summary>`
+  (`#faq-imagick`, `#faq-memory`, `#faq-upload`, `#faq-php`, `#faq-cron`, `#faq-cloud`) — all i18n.
+- CSS appended to `static/css/storelly-admin-ui.css` (`.spbwc-faq*`, `.spbwc-sys-warnings`,
+  `.spbwc-notice-banner__fix`) — token-driven, no inline style, RTL-safe (flex + logical).
 
 ### Vấn đề
 Chưa có khối cảnh báo năng lực server chuyên dụng; khi có cảnh báo (vd "Server Capability Warning")

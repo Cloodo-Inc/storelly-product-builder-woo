@@ -417,7 +417,18 @@ yc #9 (My Account endpoint) gài kèm M1 (đăng ký endpoint lúc activate).
 
 ## M10 — Welcome wizard: preview/test mode + verify (Wave 2, item 7)
 
-**Status:** DRAFT (2026-06-09) · part of `SPEC_ADMIN_UX_POLISH_W2.md`
+**Status:** IMPLEMENTED — preview link (2026-06-09) · part of `SPEC_ADMIN_UX_POLISH_W2.md`
+
+> **Đã code:** Nút **"Preview Welcome guide"** (cap-gated `manage_options`, icon `dashicons-visibility`)
+> trong page-hero của `views/menu-settings.php`, mở `admin.php?page=<overview>&spbwc-welcome=1` —
+> read-only query flag (đã hỗ trợ ở `class-onboarding.php:204`), KHÔNG đổi `dismissed`/`onboarding_complete`.
+> `maybe_redirect_after_activation()` giữ NGUYÊN (không sửa `class-onboarding.php`). KHÔNG đụng
+> `views/setup-wizard/landing.php` (do agent khác sở hữu).
+>
+> **3 cách thấy lại welcome:** (a) query `?spbwc-welcome=1` (nút Preview); (b) `get_restore_url()` (clear
+> `dismissed`, có nonce); (c) reset state thủ công (chỉ dev). **CẦN verify browser:** bấm Preview thấy lại
+> welcome mà state không đổi; deactivate→activate vẫn auto-redirect vào welcome (transient
+> `spbwc_activation_redirect`).
 
 ### Nguyên nhân "lâu nay chưa thấy welcome wizard"
 `SPBWC_Onboarding::is_welcome_mode()` trả FALSE khi `is_onboarding_complete()` = TRUE (đã có ≥1 option-set

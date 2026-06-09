@@ -211,7 +211,18 @@ M5.6  POT regen + plugin check 0 error.
 
 ## M5.9 — Storelly Account: component đăng ký/kết nối thống nhất (Wave 2, item 4)
 
-**Status:** DRAFT (2026-06-09) · part of `SPEC_ADMIN_UX_POLISH_W2.md`
+**Status:** IMPLEMENTED (2026-06-09) · part of `SPEC_ADMIN_UX_POLISH_W2.md`
+
+> **Đã code:** Component "Storelly Account" hợp nhất đặt đầu tab Settings ▸ Integration
+> (`views/menu-settings.php`), 3 trạng thái: (chưa kết nối) nút **Enable Cloud** 1-click + dòng "Already
+> have an account? Link with Store ID" mở ô Store ID + Save; (đã kết nối) hiện username
+> (`spbwc_connect_api_keys['username']`) + store URL + scope cloud-PDF/order-sync + nút **Disconnect**.
+> Tái dùng `SPBWC_Cloud_Connect` AJAX (`spbwc_cloud_connect` / `_disconnect` / `_link_manual`) qua nonce
+> `spbwc_cloud_connect` (nút `type="button"` + JS trong IIFE settings, không nested form). Welcome cloud-card
+> (`overview.php`) rút gọn: giữ 1-click Enable, BỎ ô link tay (về Settings) + link "Manage in Settings". Nêu
+> privacy + link, KHÔNG phone-home trước khi bấm. API Keys card cũ giữ làm fallback nâng cao (hint trỏ lên
+> component). CẦN verify browser: connect/disconnect/link chạy, hiện username sau connect, tab Integration
+> không vỡ.
 
 ### Vấn đề
 Thông tin "tài khoản Storelly" rải 3 chỗ rời rạc, UX mơ hồ:
