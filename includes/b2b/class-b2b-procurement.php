@@ -344,9 +344,20 @@ if ( ! class_exists( 'SPBWC_B2B_Procurement' ) ) {
 
             $company_id = SPBWC_Company::get_user_company_id();
             $pending    = self::get_pending_for_company( $company_id );
+            $use_shell  = class_exists( 'SPBWC_Account_Shell' );
 
+            if ( $use_shell ) {
+                SPBWC_Account_Shell::open(
+                    array(
+                        'title'    => __( 'Approval Queue', 'storelly-product-builder-for-woocommerce' ),
+                        'subtitle' => __( 'Review and approve or reject team orders that exceed a spending limit.', 'storelly-product-builder-for-woocommerce' ),
+                    )
+                );
+            }
             echo '<div class="spbwc-proc">';
-            echo '<h2>' . esc_html__( 'Approval Queue', 'storelly-product-builder-for-woocommerce' ) . '</h2>';
+            if ( ! $use_shell ) {
+                echo '<h2>' . esc_html__( 'Approval Queue', 'storelly-product-builder-for-woocommerce' ) . '</h2>';
+            }
 
             // Stats.
             $pending_total = 0.0;
@@ -359,7 +370,21 @@ if ( ! class_exists( 'SPBWC_B2B_Procurement' ) ) {
             echo '</div>';
 
             if ( empty( $pending ) ) {
-                echo '<div class="spbwc-store__empty"><span class="dashicons dashicons-yes-alt spbwc-icon-xl" aria-hidden="true"></span><p>' . esc_html__( 'No requests awaiting approval.', 'storelly-product-builder-for-woocommerce' ) . '</p></div></div>';
+                if ( $use_shell ) {
+                    SPBWC_Account_Shell::empty_state(
+                        array(
+                            'icon'  => '<span class="dashicons dashicons-yes-alt" aria-hidden="true"></span>',
+                            'title' => __( 'You are all caught up', 'storelly-product-builder-for-woocommerce' ),
+                            'text'  => __( 'There are no team orders awaiting your approval right now.', 'storelly-product-builder-for-woocommerce' ),
+                        )
+                    );
+                } else {
+                    echo '<div class="spbwc-store__empty"><span class="dashicons dashicons-yes-alt spbwc-icon-xl" aria-hidden="true"></span><p>' . esc_html__( 'No requests awaiting approval.', 'storelly-product-builder-for-woocommerce' ) . '</p></div>';
+                }
+                echo '</div>';
+                if ( $use_shell ) {
+                    SPBWC_Account_Shell::close();
+                }
                 return;
             }
             foreach ( $pending as $req ) {
@@ -422,6 +447,9 @@ if ( ! class_exists( 'SPBWC_B2B_Procurement' ) ) {
                 echo '</div>';
             }
             echo '</div>';
+            if ( $use_shell ) {
+                SPBWC_Account_Shell::close();
+            }
         }
 
         /* ── Helpers ──────────────────────────────────────────────── */

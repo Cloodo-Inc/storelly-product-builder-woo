@@ -216,7 +216,39 @@ approval-queue action hierarchy; B2B table→card data-labels; B2B 4-file CSS bu
 
 ## 5. Milestone W2-MA — My Account UX/UI polish (Wave 2, item 3)
 
-**Status:** DRAFT (2026-06-09) · part of `SPEC_ADMIN_UX_POLISH_W2.md`
+**Status:** IN PROGRESS (2026-06-09) · part of `SPEC_ADMIN_UX_POLISH_W2.md`
+
+### Done (2026-06-09)
+- **Shell adoption** — `Reorders`, `Approval Queue`, and `Team` now render inside
+  `SPBWC_Account_Shell` (title + subtitle), matching Saved-designs. Each degrades
+  to its old `<h2>` if the shell class is ever absent (`$use_shell` guard).
+- **Empty states** — Reorders and Approvals now use `SPBWC_Account_Shell::empty_state()`
+  (dashicon + headline + supporting line; Reorders adds a "Browse products" CTA).
+  Saved-designs already used it (G1).
+- **Mobile table→card** — the Team roster table collapses to stacked cards below
+  600px via `data-label` attributes on each `<td>` (visually-hidden `<thead>`); the
+  approval decision buttons stack full-width.
+- **Touch targets** — `@media (pointer: coarse)` gives ≥44px height to the team
+  row/invite controls, reorder qty/button, and approval buttons.
+- **RTL** — converted the remaining physical properties in `b2b.css`
+  (`margin-left`→`margin-inline-start`, `text-align:left`→`start`, absolute
+  `left`→`inset-inline-start`, `padding-left`→`padding-inline-start`); the new
+  polish block uses logical properties throughout, mirrored into `b2b-rtl.css`
+  (also back-filled the missing Account-Credit + W2-MA blocks there).
+- **Brand Store** intentionally keeps its branded `render_header` (logo + completion
+  meter) rather than the generic shell — that immersive header is the page's point.
+- **Quotes** endpoint (`class-request-quote.php`) is out of this task's allowed file
+  set, so it still renders its own `<h2>` + bare empty `<p>` — flag for a follow-up.
+- **`my-store`/Designer Store** (`SPBWC_Marketplace`/launcher) is no longer present
+  in the codebase (only a `.claude/_backups` copy), so it was not in scope.
+
+### Remaining
+- Adopt the shell on the **Quotes** endpoint + a real empty-state (needs editing
+  `class-request-quote.php`, outside this task's allowed file set).
+- Browser verify: shell parity across endpoints, mobile stacked Team table, RTL.
+- The B2B storefront sheets (`quote-storefront`/`custom-order`/`b2b`) are already on
+  one token system; the optional single-request bundle (perf, M6 "deferred") is still
+  open but no longer blocks visual consistency.
 
 ### Vấn đề
 7 endpoint My-Account (quotes / saved-designs / reorders / brand-store / team / approval / my-store)

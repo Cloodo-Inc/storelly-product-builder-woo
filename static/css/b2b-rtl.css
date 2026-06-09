@@ -882,3 +882,111 @@
         min-width: 100%;
     }
 }
+
+/* ── Account Credit (My-Account › Company Credit) — RTL parity ──────────── */
+.spbwc-credit-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: var(--nbd-space-4);
+    margin: var(--nbd-space-6) 0;
+}
+.spbwc-credit-card {
+    display: flex;
+    flex-direction: column;
+    gap: var(--nbd-space-1);
+    padding: var(--nbd-space-5);
+    border: 1px solid var(--nbd-mb-border);
+    border-inline-start: 4px solid var(--nbd-mb-border);
+    border-radius: var(--nbd-radius-lg);
+    background: var(--nbd-mb-bg);
+}
+.spbwc-credit-card--primary { border-inline-start-color: var(--spbwc-brand-primary, var(--nbd-mb-primary)); }
+.spbwc-credit-card--warn    { border-inline-start-color: var(--nbd-color-warning, #d97706); }
+.spbwc-credit-card__label {
+    font-size: var(--nbd-text-sm, 13px);
+    color: var(--nbd-mb-text-soft);
+    text-transform: uppercase;
+    letter-spacing: .02em;
+}
+.spbwc-credit-card__value {
+    font-size: var(--nbd-text-2xl, 24px);
+    font-weight: 700;
+    color: var(--nbd-mb-text);
+}
+.spbwc-credit-statement th,
+.spbwc-credit-statement td { padding: var(--nbd-space-2) var(--nbd-space-3); }
+
+/* ============================================================ *
+ *  W2-MA — My-Account polish: empty-state icon, touch targets,
+ *  scrollable + stacked tables on mobile (logical props → RTL-safe).
+ * ============================================================ */
+
+.spbwc-account__empty-icon .dashicons {
+    font-size: 44px;
+    width: 44px;
+    height: 44px;
+    line-height: 1;
+}
+
+@media (pointer: coarse) {
+    .spbwc-team__row .button,
+    .spbwc-team__row select,
+    .spbwc-team__row input,
+    .spbwc-team__invite .spbwc-rfq-btn,
+    .spbwc-team__invite input,
+    .spbwc-team__invite select,
+    .spbwc-reorders__form .spbwc-rfq-btn,
+    .spbwc-reorders__qty input,
+    .spbwc-proc__btns .spbwc-rfq-btn {
+        min-height: 44px;
+    }
+}
+
+.spbwc-rfq-card .spbwc-team__table {
+    display: table;
+}
+
+@media (max-width: 600px) {
+    .spbwc-team__table,
+    .spbwc-team__table tbody,
+    .spbwc-team__table tr,
+    .spbwc-team__table td {
+        display: block;
+        width: 100%;
+    }
+    .spbwc-team__table thead {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        overflow: hidden;
+        clip: rect(0 0 0 0);
+        clip-path: inset(50%);
+        white-space: nowrap;
+    }
+    .spbwc-team__table tr {
+        margin: 0 0 var(--nbd-space-3);
+        border: 1px solid var(--nbd-mb-border);
+        border-radius: var(--nbd-radius-lg);
+        padding: var(--nbd-space-2) var(--nbd-space-3);
+        background: var(--nbd-mb-bg);
+    }
+    .spbwc-team__table td {
+        border-bottom: 0;
+        padding: var(--nbd-space-2) 0;
+    }
+    .spbwc-team__table td[data-label]::before {
+        content: attr(data-label);
+        display: block;
+        font-size: 11px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        color: var(--nbd-mb-text-soft);
+        margin-bottom: var(--nbd-space-1);
+    }
+    .spbwc-team__row { gap: var(--nbd-space-2); }
+    .spbwc-team__limit { width: auto; flex: 1; min-width: 90px; }
+
+    .spbwc-proc__btns { flex-direction: column; }
+    .spbwc-proc__btns .spbwc-rfq-btn { width: 100%; }
+}

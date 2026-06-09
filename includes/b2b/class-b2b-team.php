@@ -86,12 +86,28 @@ if ( ! class_exists( 'SPBWC_B2B_Team' ) ) {
                 return;
             }
             $company_id = SPBWC_Company::get_user_company_id();
+            $use_shell  = class_exists( 'SPBWC_Account_Shell' );
             if ( ! $company_id ) {
-                echo '<p>' . esc_html__( 'You are not part of a B2B company.', 'storelly-product-builder-for-woocommerce' ) . '</p>';
+                if ( $use_shell ) {
+                    SPBWC_Account_Shell::open( array( 'title' => __( 'Team', 'storelly-product-builder-for-woocommerce' ) ) );
+                    echo '<p>' . esc_html__( 'You are not part of a B2B company.', 'storelly-product-builder-for-woocommerce' ) . '</p>';
+                    SPBWC_Account_Shell::close();
+                } else {
+                    echo '<p>' . esc_html__( 'You are not part of a B2B company.', 'storelly-product-builder-for-woocommerce' ) . '</p>';
+                }
                 return;
             }
             SPBWC_B2B_Assets::storefront();
             self::print_notice();
+
+            if ( $use_shell ) {
+                SPBWC_Account_Shell::open(
+                    array(
+                        'title'    => __( 'Team', 'storelly-product-builder-for-woocommerce' ),
+                        'subtitle' => __( 'Manage who can order for your company, their roles and per-order spending limits.', 'storelly-product-builder-for-woocommerce' ),
+                    )
+                );
+            }
 
             $can_manage = SPBWC_Company::user_can_manage();
             $members    = SPBWC_Company::get_members( $company_id );
@@ -138,12 +154,12 @@ if ( ! class_exists( 'SPBWC_B2B_Team' ) ) {
                 $is_owner = ( (int) $m->ID === $owner_id );
 
                 echo '<tr>';
-                echo '<td><span class="spbwc-row spbwc-row--sm">' . self::avatar( $m ) // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- avatar escapes.
+                echo '<td data-label="' . esc_attr__( 'Member', 'storelly-product-builder-for-woocommerce' ) . '"><span class="spbwc-row spbwc-row--sm">' . self::avatar( $m ) // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- avatar escapes.
                     . '<span><strong>' . esc_html( $m->display_name ) . '</strong>' . ( $is_owner ? ' <span class="spbwc-role-chip spbwc-role-chip--owner">' . esc_html__( 'You', 'storelly-product-builder-for-woocommerce' ) . '</span>' : '' )
                     . '<br /><small>' . esc_html( $m->user_email ) . '</small></span></span></td>';
 
                 if ( $can_manage && ! $is_owner ) {
-                    echo '<td colspan="' . ( $can_manage ? 2 : 1 ) . '">';
+                    echo '<td data-label="' . esc_attr__( 'Manage', 'storelly-product-builder-for-woocommerce' ) . '" colspan="' . ( $can_manage ? 2 : 1 ) . '">';
                     echo '<form method="post" class="spbwc-team__row" action="' . esc_url( self::url() ) . '">';
                     wp_nonce_field( 'spbwc_team_member_' . $m->ID, '_spbwc_team_nonce' );
                     echo '<input type="hidden" name="spbwc_team_do" value="update_member" />';
@@ -156,15 +172,15 @@ if ( ! class_exists( 'SPBWC_B2B_Team' ) ) {
                     echo $sym . '<input type="number" name="order_limit" min="0" step="0.01" value="' . esc_attr( $limit ?: '' ) . '" class="spbwc-team__limit" /> '; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- $sym is a currency symbol string.
                     echo '<button type="submit" class="button">' . esc_html__( 'Save', 'storelly-product-builder-for-woocommerce' ) . '</button>';
                     echo '</form></td>';
-                    echo '<td><form method="post" action="' . esc_url( self::url() ) . '" onsubmit="return confirm(\'' . esc_js( __( 'Remove this member?', 'storelly-product-builder-for-woocommerce' ) ) . '\');">';
+                    echo '<td data-label="' . esc_attr__( 'Actions', 'storelly-product-builder-for-woocommerce' ) . '"><form method="post" action="' . esc_url( self::url() ) . '" onsubmit="return confirm(\'' . esc_js( __( 'Remove this member?', 'storelly-product-builder-for-woocommerce' ) ) . '\');">';
                     wp_nonce_field( 'spbwc_team_member_' . $m->ID, '_spbwc_team_nonce' );
                     echo '<input type="hidden" name="spbwc_team_do" value="remove_member" />';
                     echo '<input type="hidden" name="member_id" value="' . esc_attr( $m->ID ) . '" />';
                     echo '<button type="submit" class="button-link delete">' . esc_html__( 'Remove', 'storelly-product-builder-for-woocommerce' ) . '</button>';
                     echo '</form></td>';
                 } else {
-                    echo '<td><span class="spbwc-role-chip spbwc-role-chip--' . esc_attr( $role ) . '">' . esc_html( isset( $roles[ $role ] ) ? $roles[ $role ] : $role ) . '</span></td>';
-                    echo '<td>' . esc_html( $limit > 0 ? $sym . number_format( $limit, 2 ) : __( 'No limit', 'storelly-product-builder-for-woocommerce' ) ) . '</td>';
+                    echo '<td data-label="' . esc_attr__( 'Role', 'storelly-product-builder-for-woocommerce' ) . '"><span class="spbwc-role-chip spbwc-role-chip--' . esc_attr( $role ) . '">' . esc_html( isset( $roles[ $role ] ) ? $roles[ $role ] : $role ) . '</span></td>';
+                    echo '<td data-label="' . esc_attr__( 'Per-order limit', 'storelly-product-builder-for-woocommerce' ) . '">' . esc_html( $limit > 0 ? $sym . number_format( $limit, 2 ) : __( 'No limit', 'storelly-product-builder-for-woocommerce' ) ) . '</td>';
                     if ( $can_manage ) {
                         echo '<td></td>';
                     }
@@ -177,6 +193,9 @@ if ( ! class_exists( 'SPBWC_B2B_Team' ) ) {
                 self::render_invites( $company_id );
             }
             echo '</div>';
+            if ( $use_shell ) {
+                SPBWC_Account_Shell::close();
+            }
         }
 
         /** Pending invites + invite form (managers only). */

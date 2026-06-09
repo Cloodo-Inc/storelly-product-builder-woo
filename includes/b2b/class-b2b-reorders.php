@@ -118,14 +118,42 @@ if ( ! class_exists( 'SPBWC_B2B_Reorders' ) ) {
             SPBWC_B2B_Assets::storefront();
             self::print_notice();
 
-            $items = self::collect( get_current_user_id() );
+            $items     = self::collect( get_current_user_id() );
+            $use_shell = class_exists( 'SPBWC_Account_Shell' );
 
+            if ( $use_shell ) {
+                SPBWC_Account_Shell::open(
+                    array(
+                        'title'    => __( 'Reorders', 'storelly-product-builder-for-woocommerce' ),
+                        'subtitle' => __( 'Reorder a past design with the same artwork and specs. Your company pricing is applied automatically at checkout — no setup fees on reorders.', 'storelly-product-builder-for-woocommerce' ),
+                    )
+                );
+            }
             echo '<div class="spbwc-reorders">';
-            echo '<h2>' . esc_html__( 'Reorders', 'storelly-product-builder-for-woocommerce' ) . '</h2>';
-            echo '<p class="description">' . esc_html__( 'Reorder a past design with the same artwork and specs. Your company pricing is applied automatically at checkout — no setup fees on reorders.', 'storelly-product-builder-for-woocommerce' ) . '</p>';
+            if ( ! $use_shell ) {
+                echo '<h2>' . esc_html__( 'Reorders', 'storelly-product-builder-for-woocommerce' ) . '</h2>';
+                echo '<p class="description">' . esc_html__( 'Reorder a past design with the same artwork and specs. Your company pricing is applied automatically at checkout — no setup fees on reorders.', 'storelly-product-builder-for-woocommerce' ) . '</p>';
+            }
 
             if ( empty( $items ) ) {
-                echo '<div class="spbwc-store__empty"><span class="dashicons dashicons-update" aria-hidden="true" style="font-size:32px"></span><p>' . esc_html__( 'You have no past designs to reorder yet.', 'storelly-product-builder-for-woocommerce' ) . '</p></div></div>';
+                if ( $use_shell ) {
+                    $shop_url = function_exists( 'wc_get_page_permalink' ) ? wc_get_page_permalink( 'shop' ) : home_url( '/' );
+                    SPBWC_Account_Shell::empty_state(
+                        array(
+                            'icon'      => '<span class="dashicons dashicons-update" aria-hidden="true"></span>',
+                            'title'     => __( 'No designs to reorder yet', 'storelly-product-builder-for-woocommerce' ),
+                            'text'      => __( 'Once you have ordered a customised product, it will appear here so you can reorder it in one click.', 'storelly-product-builder-for-woocommerce' ),
+                            'cta_label' => __( 'Browse products', 'storelly-product-builder-for-woocommerce' ),
+                            'cta_url'   => $shop_url,
+                        )
+                    );
+                } else {
+                    echo '<div class="spbwc-store__empty"><span class="dashicons dashicons-update" aria-hidden="true" style="font-size:32px"></span><p>' . esc_html__( 'You have no past designs to reorder yet.', 'storelly-product-builder-for-woocommerce' ) . '</p></div>';
+                }
+                echo '</div>';
+                if ( $use_shell ) {
+                    SPBWC_Account_Shell::close();
+                }
                 return;
             }
 
@@ -184,6 +212,9 @@ if ( ! class_exists( 'SPBWC_B2B_Reorders' ) ) {
                 echo '</div></li>';
             }
             echo '</ul></div>';
+            if ( $use_shell ) {
+                SPBWC_Account_Shell::close();
+            }
         }
 
         /* ── Reorder action ───────────────────────────────────────── */
