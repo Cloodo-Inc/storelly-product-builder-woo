@@ -126,32 +126,20 @@ $spbwc_base_search_url = add_query_arg( 'page', SPBWC_PB_PRODUCTS_SLUG, admin_ur
                 </select>
             </div>
 
-            <!-- Search (AJAX) -->
+            <!-- Search (AJAX) — shared partial: views/partials/search-box.php -->
             <form method="get" class="spbwc-products-search" id="spbwc-search-form" role="search">
                 <input type="hidden" name="page" value="<?php echo esc_attr( SPBWC_PB_PRODUCTS_SLUG ); ?>" />
-                <div class="spbwc-search-field">
-                    <span class="dashicons dashicons-search spbwc-search-field__icon" aria-hidden="true"></span>
-                    <input
-                        type="search"
-                        name="s"
-                        id="spbwc-search-input"
-                        class="spbwc-search-input"
-                        value="<?php echo esc_attr( $search ); ?>"
-                        placeholder="<?php esc_attr_e( 'Search products…', 'storelly-product-builder-for-woocommerce' ); ?>"
-                        aria-label="<?php esc_attr_e( 'Search products', 'storelly-product-builder-for-woocommerce' ); ?>"
-                        autocomplete="off"
-                    />
-                </div>
-                <button
-                    type="button"
-                    id="spbwc-search-clear"
-                    class="spbwc-cta-btn"
-                    style="min-height:34px;padding:5px 10px;font-size:var(--text-sm);<?php echo $search ? '' : 'display:none'; ?>"
-                    title="<?php esc_attr_e( 'Clear search', 'storelly-product-builder-for-woocommerce' ); ?>"
-                >
-                    <span class="dashicons dashicons-no-alt" aria-hidden="true"></span>
-                    <?php esc_html_e( 'Clear', 'storelly-product-builder-for-woocommerce' ); ?>
-                </button>
+                <?php
+                $spbwc_search = array(
+                    'id'          => 'spbwc-search-input',
+                    'name'        => 's',
+                    'clear_id'    => 'spbwc-search-clear',
+                    'value'       => $search,
+                    'placeholder' => esc_html__( 'Search products…', 'storelly-product-builder-for-woocommerce' ),
+                    'aria_label'  => esc_html__( 'Search products', 'storelly-product-builder-for-woocommerce' ),
+                );
+                include SPBWC_PB_PLUGIN_DIR . 'views/partials/search-box.php';
+                ?>
             </form>
 
             <!-- View toggle -->
@@ -346,7 +334,7 @@ $spbwc_base_search_url = add_query_arg( 'page', SPBWC_PB_PRODUCTS_SLUG, admin_ur
     /* ---------- search clear button ---------- */
     function syncClearBtn() {
         if (!searchClear || !searchInput) { return; }
-        searchClear.style.display = searchInput.value.trim() ? '' : 'none';
+        searchClear.hidden = !searchInput.value.trim();
     }
 
     /* ---------- build AJAX payload ---------- */

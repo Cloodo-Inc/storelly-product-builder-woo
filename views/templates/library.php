@@ -102,12 +102,17 @@ $catalog = SPBWC_Template_Catalog::instance();
 		</div>
 
 		<div class="spbwc-tl-toolbar">
-			<div class="spbwc-tl-toolbar__search">
-				<span class="dashicons dashicons-search" aria-hidden="true"></span>
-				<input type="search"
-					id="spbwc-tl-search"
-					placeholder="<?php esc_attr_e( 'Search templates…', 'storelly-product-builder-for-woocommerce' ); ?>" />
-			</div>
+<?php
+			// Shared search partial: views/partials/search-box.php
+			$spbwc_search = array(
+				'id'            => 'spbwc-tl-search',
+				'clear_id'      => 'spbwc-tl-search-clear',
+				'placeholder'   => esc_html__( 'Search templates…', 'storelly-product-builder-for-woocommerce' ),
+				'aria_label'    => esc_html__( 'Search templates', 'storelly-product-builder-for-woocommerce' ),
+				'wrapper_class' => 'spbwc-search--grow',
+			);
+			include SPBWC_PB_PLUGIN_DIR . 'views/partials/search-box.php';
+			?>
 
 			<select id="spbwc-tl-category-filter" class="spbwc-tl-toolbar__filter">
 				<option value=""><?php esc_html_e( 'All categories', 'storelly-product-builder-for-woocommerce' ); ?></option>
@@ -421,5 +426,33 @@ $catalog = SPBWC_Template_Catalog::instance();
 				</footer>
 			</form>
 		</dialog>
+
+		<script>
+		/* Unified search box — wire the clear button. The existing
+		 * template-library.js binds 'input' on #spbwc-tl-search for filtering,
+		 * so we just clear the value and re-dispatch 'input'. */
+		(function () {
+			'use strict';
+			function init() {
+				var input = document.getElementById( 'spbwc-tl-search' );
+				var clear = document.getElementById( 'spbwc-tl-search-clear' );
+				if ( ! input || ! clear ) { return; }
+				function sync() { clear.hidden = ! input.value.trim(); }
+				input.addEventListener( 'input', sync );
+				clear.addEventListener( 'click', function () {
+					input.value = '';
+					input.dispatchEvent( new Event( 'input', { bubbles: true } ) );
+					input.focus();
+					sync();
+				} );
+				sync();
+			}
+			if ( 'loading' === document.readyState ) {
+				document.addEventListener( 'DOMContentLoaded', init );
+			} else {
+				init();
+			}
+		}());
+		</script>
 	<?php endif; ?>
 </div>

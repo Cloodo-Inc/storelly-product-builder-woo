@@ -196,14 +196,20 @@ $custom_fonts = isset( $custom_fonts ) && is_array( $custom_fonts ) ? $custom_fo
 
         <!-- ── Filter toolbar ── -->
         <div class="spbwc-font-toolbar">
-            <div class="spbwc-font-search">
-                <span class="dashicons dashicons-search spbwc-font-search__icon" aria-hidden="true"></span>
-                <input type="text"
-                       class="spbwc-font-search__input"
-                       ng-model="filterFont.name"
-                       placeholder="<?php esc_attr_e( 'Search font name…', 'storelly-product-builder-for-woocommerce' ); ?>"
-                       ng-change="resetCurentPage()">
-            </div>
+<?php
+            // Shared search partial: views/partials/search-box.php
+            // AngularJS bindings are passed as pre-escaped extra attributes; the
+            // input is type=text because the Google-fonts list filters live via ng-model.
+            $spbwc_search = array(
+                'id'          => 'spbwc-font-search-input',
+                'clear_id'    => 'spbwc-font-search-clear',
+                'type'        => 'text',
+                'placeholder' => esc_html__( 'Search font name…', 'storelly-product-builder-for-woocommerce' ),
+                'aria_label'  => esc_html__( 'Search font name', 'storelly-product-builder-for-woocommerce' ),
+                'input_attrs' => 'ng-model="filterFont.name" ng-change="resetCurentPage()"',
+            );
+            include SPBWC_PB_PLUGIN_DIR . 'views/partials/search-box.php';
+            ?>
 
             <div class="spbwc-font-toolbar__filters">
                 <select class="spbwc-font-select" ng-model="filterFont.category" ng-change="resetCurentPage()">
@@ -302,3 +308,32 @@ $custom_fonts = isset( $custom_fonts ) && is_array( $custom_fonts ) ? $custom_fo
 
     </div><!-- .spbwc-font-manager -->
 </div><!-- .spbwc-fonts-wrap -->
+
+<script>
+/* Unified search box — wire the clear button for the Google Fonts search.
+ * The input is AngularJS-bound (ng-model="filterFont.name"); dispatching a
+ * native 'input' event lets ng-model pick up the cleared value without
+ * touching the Angular controller. */
+(function () {
+	'use strict';
+	function init() {
+		var input = document.getElementById( 'spbwc-font-search-input' );
+		var clear = document.getElementById( 'spbwc-font-search-clear' );
+		if ( ! input || ! clear ) { return; }
+		function sync() { clear.hidden = ! input.value.trim(); }
+		input.addEventListener( 'input', sync );
+		clear.addEventListener( 'click', function () {
+			input.value = '';
+			input.dispatchEvent( new Event( 'input', { bubbles: true } ) );
+			input.focus();
+			sync();
+		} );
+		sync();
+	}
+	if ( 'loading' === document.readyState ) {
+		document.addEventListener( 'DOMContentLoaded', init );
+	} else {
+		init();
+	}
+}());
+</script>

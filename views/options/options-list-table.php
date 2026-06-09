@@ -154,22 +154,17 @@ $_current_page_n = isset( $_GET['paged'] ) ? max( 1, absint( $_GET['paged'] ) ) 
 
 		<div class="spbwc-list-toolbar__right">
 			<!-- Unified search -->
-			<div class="spbwc-block-search" id="spbwc-unified-search-wrap">
-				<span class="dashicons dashicons-search spbwc-block-search__icon" aria-hidden="true"></span>
-				<input type="search"
-				       id="spbwc-unified-search"
-				       class="spbwc-block-search__input"
-				       value="<?php echo esc_attr( $_search_term ); ?>"
-				       placeholder="<?php esc_attr_e( 'Search options…', 'storelly-product-builder-for-woocommerce' ); ?>"
-				       aria-label="<?php esc_attr_e( 'Search options', 'storelly-product-builder-for-woocommerce' ); ?>">
-				<button type="button"
-				        class="spbwc-search-clear"
-				        id="spbwc-search-clear"
-				        aria-label="<?php esc_attr_e( 'Clear search', 'storelly-product-builder-for-woocommerce' ); ?>"
-				        hidden>
-					<span class="dashicons dashicons-no-alt" aria-hidden="true"></span>
-				</button>
-			</div>
+<?php
+				$spbwc_search = array(
+					'id'          => 'spbwc-unified-search',
+					'wrapper_id'  => 'spbwc-unified-search-wrap',
+					'clear_id'    => 'spbwc-search-clear',
+					'value'       => $_search_term,
+					'placeholder' => esc_html__( 'Search options…', 'storelly-product-builder-for-woocommerce' ),
+					'aria_label'  => esc_html__( 'Search options', 'storelly-product-builder-for-woocommerce' ),
+				);
+				include SPBWC_PB_PLUGIN_DIR . 'views/partials/search-box.php';
+				?>
 
 			<!-- Sort by -->
 			<select id="spbwc-sort-select" class="spbwc-sort-select"

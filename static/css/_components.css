@@ -1,0 +1,142 @@
+/**
+ * Storelly Product Builder — Shared Admin Components
+ *
+ * Cross-page UI primitives that must look identical everywhere. Token-driven
+ * (see static/css/_tokens.css) and RTL-safe via CSS logical properties.
+ *
+ * Load order: enqueue AFTER _tokens.css so var() references resolve.
+ *
+ * Currently contains:
+ *   .spbwc-search  — the unified admin search box (views/partials/search-box.php)
+ */
+
+/* ============================================================
+ * Unified search box
+ * Markup: views/partials/search-box.php
+ *   .spbwc-search > .spbwc-search__icon + .spbwc-search__input + .spbwc-search__clear
+ * ============================================================ */
+.spbwc-search {
+	display: inline-flex;
+	align-items: center;
+	gap: var(--nbd-space-1);
+	box-sizing: border-box;
+	min-height: 34px;
+	padding-block: 0;
+	padding-inline: var(--nbd-space-2);
+	background: var(--nbd-st-bg-input);
+	border: 1px solid var(--nbd-st-border-light);
+	border-radius: var(--nbd-radius);
+	transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.spbwc-search:focus-within {
+	border-color: var(--st-brand);
+	box-shadow: var(--shadow-input-focus);
+}
+
+.spbwc-search__icon {
+	flex-shrink: 0;
+	color: var(--nbd-st-text-mute);
+	font-size: 16px;
+	width: 16px;
+	height: 16px;
+	line-height: 16px;
+	/* logical: sits at the leading edge (left in LTR, right in RTL) */
+	margin-inline-end: var(--nbd-space-1);
+}
+
+.spbwc-search__input,
+.spbwc-search input.spbwc-search__input {
+	flex: 1 1 auto;
+	min-width: 0;
+	width: 180px;
+	height: 30px;
+	margin: 0 !important;
+	padding: 0 !important;
+	border: none !important;
+	outline: none !important;
+	box-shadow: none !important;
+	background: transparent !important;
+	color: var(--nbd-st-text);
+	font-size: var(--text-md);
+	line-height: var(--st-leading-snug);
+	min-height: unset;
+}
+
+.spbwc-search__input::placeholder {
+	color: var(--nbd-st-text-mute);
+	opacity: 1;
+}
+
+/* Hide the native clear/cancel widget of type=search so our button is the only one. */
+.spbwc-search__input::-webkit-search-cancel-button {
+	-webkit-appearance: none;
+	appearance: none;
+}
+
+.spbwc-search__clear {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	flex-shrink: 0;
+	width: 18px;
+	height: 18px;
+	padding: 0;
+	border: none;
+	border-radius: var(--nbd-radius-pill);
+	background: transparent;
+	color: var(--nbd-st-text-mute);
+	cursor: pointer;
+	/* logical: sits at the trailing edge (right in LTR, left in RTL) */
+	margin-inline-start: var(--nbd-space-1);
+	transition: var(--transition-fast);
+}
+
+.spbwc-search__clear[hidden] {
+	display: none;
+}
+
+.spbwc-search__clear:hover {
+	background: var(--nbd-st-bg-soft);
+	color: var(--nbd-st-text);
+}
+
+.spbwc-search__clear:focus-visible {
+	outline: 2px solid var(--st-brand);
+	outline-offset: 1px;
+}
+
+.spbwc-search__clear .dashicons {
+	font-size: 14px;
+	width: 14px;
+	height: 14px;
+	line-height: 1;
+	margin: 0;
+}
+
+/* Let the search box stretch when a layout wants it full-width. */
+.spbwc-search--block {
+	display: flex;
+	width: 100%;
+}
+
+.spbwc-search--block .spbwc-search__input {
+	width: auto;
+}
+
+/* Flex-grow variant for toolbars (e.g. Template Library toolbar). */
+.spbwc-search--grow {
+	display: flex;
+	flex: 1 1 280px;
+	min-width: 240px;
+}
+
+.spbwc-search--grow .spbwc-search__input {
+	width: auto;
+}
+
+@media (max-width: 782px) {
+	.spbwc-search__input {
+		width: 140px;
+	}
+}

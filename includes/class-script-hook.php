@@ -19,6 +19,41 @@ if (!class_exists('SPBWC_SPBWC_Storelly_PB_Script_Hook')) {
         {
             add_action('spbwc_head', array($this, 'spbwc_enqueue_script_head'), 1, 1);
             add_action('spbwc_footer', array($this, 'spbwc_enqueue_script_footer'), 1, 1);
+            // Shared admin component styles (unified search box, etc.). Runs late
+            // (priority 20) so the per-page enqueue in class-admin-options.php
+            // (default priority 10) has already enqueued 'spbwc-admin-ui'; we
+            // piggy-back on that signal to load on every Storelly admin page.
+            add_action('admin_enqueue_scripts', array($this, 'spbwc_enqueue_admin_components'), 20);
+        }
+
+        /**
+         * Register + enqueue the shared admin component stylesheet.
+         *
+         * Loads on any Storelly admin page (detected via the always-enqueued
+         * 'spbwc-admin-ui' handle). Depends on 'spbwc-tokens' so the design
+         * tokens resolve; both are registered defensively in case the load
+         * order ever changes.
+         */
+        public function spbwc_enqueue_admin_components()
+        {
+            // Only on Storelly admin pages — those enqueue 'spbwc-admin-ui'.
+            if (!wp_style_is('spbwc-admin-ui', 'enqueued')) {
+                return;
+            }
+
+            // Defensive token registration (mirrors the pattern used elsewhere).
+            if (!wp_style_is('spbwc-tokens', 'registered')) {
+                wp_register_style('spbwc-tokens', SPBWC_PB_CSS_URL . '_tokens.css', array(), SPBWC_PB_VERSION);
+            }
+
+            $spbwc_components_file = SPBWC_PB_PLUGIN_DIR . 'static/css/_components.css';
+            wp_register_style(
+                'spbwc-components',
+                SPBWC_PB_CSS_URL . '_components.css',
+                array('spbwc-tokens', 'dashicons'),
+                file_exists($spbwc_components_file) ? filemtime($spbwc_components_file) : SPBWC_PB_VERSION
+            );
+            wp_enqueue_style('spbwc-components');
         }
 
         public function spbwc_print_styles($handles = false)
