@@ -297,6 +297,7 @@
 /* ── My Account: quotes list + detail ──────────────────────────────────── */
 .spbwc-rfq-account { --spbwc-rfq-accent: var(--nbd-mb-primary, #2563eb); max-width: 880px; }
 .spbwc-rfq-account h2 { font-size: 22px; line-height: 1.25; }
+.spbwc-rfq-empty { margin: 24px 0 8px; padding: 18px 20px; border-radius: 12px; background: var(--nbd-mb-bg-soft, #f9fafb); color: var(--nbd-mb-text-soft, #6b7280); text-align: center; }
 
 /* Header: title + status pill */
 .spbwc-rfq-acc-head {

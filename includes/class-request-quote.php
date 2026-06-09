@@ -1231,10 +1231,37 @@ if ( ! class_exists( 'SPBWC_Request_Quote' ) ) {
                 )
             );
 
+            $use_shell = class_exists( 'SPBWC_Account_Shell' );
+            if ( $use_shell ) {
+                SPBWC_Account_Shell::open(
+                    array(
+                        'title'    => __( 'My Quotes', 'storelly-product-builder-for-woocommerce' ),
+                        'subtitle' => __( 'Track your quote requests and respond to merchant offers.', 'storelly-product-builder-for-woocommerce' ),
+                    )
+                );
+            } else {
+                echo '<h2>' . esc_html__( 'My Quotes', 'storelly-product-builder-for-woocommerce' ) . '</h2>';
+            }
             echo '<div class="spbwc-rfq spbwc-rfq-account">';
-            echo '<h2>' . esc_html__( 'My Quotes', 'storelly-product-builder-for-woocommerce' ) . '</h2>';
             if ( empty( $all ) ) {
-                echo '<p>' . esc_html__( 'You have not requested any quotes yet.', 'storelly-product-builder-for-woocommerce' ) . '</p></div>';
+                if ( $use_shell ) {
+                    $shop_url = function_exists( 'wc_get_page_permalink' ) ? wc_get_page_permalink( 'shop' ) : home_url( '/' );
+                    SPBWC_Account_Shell::empty_state(
+                        array(
+                            'icon'      => '📝',
+                            'title'     => __( 'No quotes yet', 'storelly-product-builder-for-woocommerce' ),
+                            'text'      => __( 'Open a product and choose "Request a quote" to ask for custom pricing. Your requests will appear here.', 'storelly-product-builder-for-woocommerce' ),
+                            'cta_label' => __( 'Browse products', 'storelly-product-builder-for-woocommerce' ),
+                            'cta_url'   => $shop_url,
+                        )
+                    );
+                } else {
+                    echo '<p>' . esc_html__( 'You have not requested any quotes yet.', 'storelly-product-builder-for-woocommerce' ) . '</p>';
+                }
+                echo '</div>';
+                if ( $use_shell ) {
+                    SPBWC_Account_Shell::close();
+                }
                 return;
             }
 
@@ -1312,7 +1339,10 @@ if ( ! class_exists( 'SPBWC_Request_Quote' ) ) {
                 );
             }
             if ( empty( $quotes ) ) {
-                echo '<p>' . esc_html__( 'No quotes in this view.', 'storelly-product-builder-for-woocommerce' ) . '</p></div>';
+                echo '<p class="spbwc-rfq-empty">' . esc_html__( 'No quotes in this view.', 'storelly-product-builder-for-woocommerce' ) . '</p></div>';
+                if ( $use_shell ) {
+                    SPBWC_Account_Shell::close();
+                }
                 return;
             }
 
@@ -1337,6 +1367,9 @@ if ( ! class_exists( 'SPBWC_Request_Quote' ) ) {
                 echo '</tr>';
             }
             echo '</tbody></table></div>';
+            if ( $use_shell ) {
+                SPBWC_Account_Shell::close();
+            }
         }
 
         public function render_view_quote_endpoint() {

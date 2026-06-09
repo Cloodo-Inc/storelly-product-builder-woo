@@ -181,6 +181,15 @@ if ( class_exists( 'SPBWC_Buyer_Downloads' ) ) {
     SPBWC_Buyer_Downloads::init();
 }
 
+/* My-Account portal infra (User Menu M4/M5): the shared account shell (consistent
+ * header/subtitle/empty-state chrome, tokenised + theme-overridable) and the menu
+ * normalizer (one late pass that groups the Storelly endpoints and pins logout
+ * last). Must load before the endpoint classes below so their
+ * class_exists('SPBWC_Account_Shell') adoption guards resolve true.
+ * See docs/SPEC_USER_MENU_PORTAL.md. */
+require_once(SPBWC_PB_PLUGIN_DIR .  'includes/class-account-shell.php');
+require_once(SPBWC_PB_PLUGIN_DIR .  'includes/class-account-menu.php');
+
 /* Saved designs — buyer can persist a configured design to their account and
  * reload it into the cart. CPT spbwc_saved_design + My Account tab; every reuse
  * clones the design folder (copy-on-write). See docs/SPEC_CUSTOM_ORDER.md (M4). */

@@ -219,6 +219,23 @@ approval-queue action hierarchy; B2B table→card data-labels; B2B 4-file CSS bu
 **Status:** IN PROGRESS (2026-06-09) · part of `SPEC_ADMIN_UX_POLISH_W2.md`
 
 ### Done (2026-06-09)
+- **🔴 Root-cause fix — shell + menu infra were never loaded.**
+  `includes/class-account-shell.php` and `includes/class-account-menu.php` were
+  built (M4/M5) but **never `require`d** by the main plugin file, so every adopter's
+  `class_exists( 'SPBWC_Account_Shell' )` guard returned `false` and ALL account
+  pages silently fell back to their bare `<h2>` — the unified portal, empty states,
+  and menu normalizer were dead code. Added both `require_once`s before the endpoint
+  classes (`storelly-product-builder-for-woocommerce.php`). This single fix activates
+  the shell across Saved-designs, Reorders, Team, Approvals, Quotes **and** makes the
+  M5 menu normalizer run (verified: core items keep order → Storelly group →
+  logout last). Confirmed via server-side render: shell chrome present, empty-state
+  helper outputs CTA, no double-`<h2>`, no fatals.
+- **Quotes shell adoption** — `SPBWC_Request_Quote::render_quotes_endpoint()` now
+  renders inside `SPBWC_Account_Shell` (title "My Quotes" + subtitle "Track your
+  quote requests…"), with a real `empty_state()` (📝 + "No quotes yet" + "Browse
+  products" CTA) replacing the bare `<p>`, and a tokenised `.spbwc-rfq-empty`
+  surface for the per-filter "no quotes in this view" message. Closes the §5
+  follow-up. Degrades to `<h2>` via the `$use_shell` guard.
 - **Shell adoption** — `Reorders`, `Approval Queue`, and `Team` now render inside
   `SPBWC_Account_Shell` (title + subtitle), matching Saved-designs. Each degrades
   to its old `<h2>` if the shell class is ever absent (`$use_shell` guard).
@@ -243,9 +260,11 @@ approval-queue action hierarchy; B2B table→card data-labels; B2B 4-file CSS bu
   in the codebase (only a `.claude/_backups` copy), so it was not in scope.
 
 ### Remaining
-- Adopt the shell on the **Quotes** endpoint + a real empty-state (needs editing
-  `class-request-quote.php`, outside this task's allowed file set).
+- ✅ ~~Adopt the shell on the **Quotes** endpoint + a real empty-state~~ — DONE
+  (see root-cause fix + Quotes shell adoption above, 2026-06-09).
 - Browser verify: shell parity across endpoints, mobile stacked Team table, RTL.
+  (Server-side render verified; live browser pass pending — shared Chrome was
+  locked by another session at the time of this change.)
 - The B2B storefront sheets (`quote-storefront`/`custom-order`/`b2b`) are already on
   one token system; the optional single-request bundle (perf, M6 "deferred") is still
   open but no longer blocks visual consistency.
