@@ -116,6 +116,58 @@ $check(
 	'status=' . $r['status'] . ', fields=' . ( $has_fields ? count( $r['options']['fields'] ) : 0 )
 );
 
+// ── Case 5: cap + valid nonce + live draft (POST) → 200, catalog bypassed ─
+// The edit-option preview posts the in-progress option JSON instead of a
+// catalog slug. The draft is descriptor-shaped, so build_runtime_options()
+// must collapse { title, type, value } → value, and the (deliberately fake)
+// slug must be ignored when a draft is present.
+$nonce = wp_create_nonce( $action );
+$draft = array(
+	'title'  => 'Live draft option',
+	'fields' => array(
+		array(
+			'id'      => 'f1',
+			'general' => array(
+				'title'      => array(
+					'title' => 'Title',
+					'type'  => 'text',
+					'value' => 'Paper',
+				),
+				'data_type'  => array(
+					'title' => 'Type',
+					'type'  => 'text',
+					'value' => 'm',
+				),
+				'attributes' => array(
+					'options' => array(
+						array(
+							'name'  => 'Matte',
+							'price' => array( '0' ),
+						),
+					),
+				),
+			),
+		),
+	),
+);
+$r        = $render->resolve_preview_request(
+	array(
+		'_spbwcnonce' => $nonce,
+		'draft'       => wp_json_encode( $draft ),
+		'slug'        => 'this-slug-must-be-ignored-when-draft-present',
+	)
+);
+$draft_ok = ( 200 === $r['status'] )
+	&& is_array( $r['options'] )
+	&& ! empty( $r['options']['fields'] )
+	&& isset( $r['options']['fields'][0]['general']['title'] )
+	&& 'Paper' === $r['options']['fields'][0]['general']['title'];
+$check(
+	'5) good nonce + live draft → 200 + descriptor flattened, catalog bypassed',
+	$draft_ok,
+	'status=' . $r['status'] . ', title=' . ( isset( $r['options']['fields'][0]['general']['title'] ) && is_string( $r['options']['fields'][0]['general']['title'] ) ? $r['options']['fields'][0]['general']['title'] : 'n/a' )
+);
+
 // ── Case 4b: HTTP body contains the Cloodo wrapper ──────────────────
 // Skipped when running via wp-cli inside the same PHP process pool that
 // serves the front end — wp_remote_get back to the same site self-

@@ -272,6 +272,100 @@ angular
       return sign + '$' + n.toFixed(2);
     };
 
+    /* ──────────────── Storefront-fidelity preview ────────────────
+     * The quick sketch above is a fast approximation that re-implements a
+     * subset of the pricing/layout. This opens the EXACT storefront render:
+     * we serialize the live (unsaved) option draft and POST it into an
+     * <iframe> handled by SPBWC_Template_Preview_Render, which renders it
+     * through the same option-builder template + storefront-options.css +
+     * option-builder.js a real product page uses. Single source of truth —
+     * display mode, conditional logic and pricing are all 1:1 with the
+     * frontend, so there's nothing to drift. */
+    function _sfPreviewCfg() {
+      return (
+        (typeof storelly_option_variable !== "undefined" &&
+          storelly_option_variable.preview_iframe) ||
+        null
+      );
+    }
+    $scope.currency = (function () {
+      var c = _sfPreviewCfg();
+      return (c && c.currency) || "$";
+    })();
+    $scope.storefront_preview_available = function () {
+      var c = _sfPreviewCfg();
+      return !!(c && c.url);
+    };
+    $scope.open_storefront_preview = function () {
+      var cfg = _sfPreviewCfg();
+      if (!cfg || !cfg.url) return;
+      var modal = document.getElementById("spbwc-sf-preview");
+      var form = document.getElementById("spbwc-sf-preview-form");
+      if (!modal || !form) return;
+      // angular.toJson drops $$hashKey noise; the descriptor-shaped model is
+      // exactly what build_runtime_options() flattens on the server.
+      form.action = cfg.url;
+      form.elements.draft.value = angular.toJson($scope.options);
+      form.elements.base.value = _toNum($scope.preview.base_price);
+      modal.classList.add("is-open", "is-loading");
+      modal.classList.remove("is-error");
+      modal.setAttribute("aria-hidden", "false");
+      document.body.classList.add("spbwc-sf-preview-lock");
+      form.submit();
+      // Fallback veil-clear in case the bridge never posts a height (e.g. an
+      // error document rendered inside the iframe).
+      $timeout(function () {
+        modal.classList.remove("is-loading");
+      }, 2500);
+    };
+    $scope.storefront_preview_base_changed = function () {
+      var modal = document.getElementById("spbwc-sf-preview");
+      if (!modal || !modal.classList.contains("is-open")) return;
+      if ($scope._sfBaseDebounce) $timeout.cancel($scope._sfBaseDebounce);
+      $scope._sfBaseDebounce = $timeout($scope.open_storefront_preview, 450);
+    };
+    $scope.close_storefront_preview = function () {
+      var modal = document.getElementById("spbwc-sf-preview");
+      if (modal) {
+        modal.classList.remove("is-open", "is-loading", "is-error");
+        modal.setAttribute("aria-hidden", "true");
+      }
+      document.body.classList.remove("spbwc-sf-preview-lock");
+    };
+    // One-time global listeners: the iframe (template-preview-bridge.js) posts
+    // body height + running total; trust only our own origin. Escape closes.
+    if (!window.__spbwcSfPreviewBound) {
+      window.__spbwcSfPreviewBound = true;
+      window.addEventListener("message", function (ev) {
+        var cfg = _sfPreviewCfg();
+        if (!cfg || !cfg.origin || ev.origin !== cfg.origin) return;
+        var d = ev.data;
+        if (!d || d.source !== "spbwc-tpl-preview") return;
+        var modal = document.getElementById("spbwc-sf-preview");
+        if (!modal) return;
+        if (d.type === "height") {
+          var fr = document.getElementById("spbwc-sf-preview-iframe");
+          if (fr && d.value) {
+            var cap = Math.round(window.innerHeight * 0.74);
+            fr.style.height = Math.min(parseInt(d.value, 10) || 0, cap) + "px";
+          }
+          modal.classList.remove("is-loading");
+        } else if (d.type === "total") {
+          var sub = modal.querySelector("[data-sf-total]");
+          if (sub) sub.textContent = d.value ? "— " + d.value : "";
+        }
+      });
+      window.addEventListener("keydown", function (ev) {
+        if (ev.key !== "Escape" && ev.keyCode !== 27) return;
+        var modal = document.getElementById("spbwc-sf-preview");
+        if (modal && modal.classList.contains("is-open")) {
+          modal.classList.remove("is-open", "is-loading", "is-error");
+          modal.setAttribute("aria-hidden", "true");
+          document.body.classList.remove("spbwc-sf-preview-lock");
+        }
+      });
+    }
+
     $scope.add_quantity_break = function () {
       if (!angular.isArray($scope.options.quantity_breaks)) {
         $scope.options.quantity_breaks = [];

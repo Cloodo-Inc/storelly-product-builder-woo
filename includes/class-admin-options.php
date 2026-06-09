@@ -704,6 +704,7 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
                         'ajax_url'              => esc_url( admin_url( 'admin-ajax.php' ) ),
                         'nbnonce'               => esc_attr( wp_create_nonce( 'spbwc_save_design_action' ) ),
                         'max_input_vars'        => (int) SPBWC_Storelly_PB_Util::spbwc_get_max_input_var(),
+                        'preview_iframe'        => $this->spbwc_preview_iframe_data(),
                     ) );
                     wp_enqueue_script( 'spbwc_option_field_script' );
                     if ( wp_style_is( 'spbwc-options-style', 'registered' ) ) {
@@ -855,7 +856,8 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
                         'STORELLY_OPTION_FIELD' => $default_field,
                         'ajax_url' => esc_url(admin_url('admin-ajax.php')),
                         'nbnonce' => esc_attr(wp_create_nonce('spbwc_save_design_action')),
-                        'max_input_vars' => (int) SPBWC_Storelly_PB_Util::spbwc_get_max_input_var()
+                        'max_input_vars' => (int) SPBWC_Storelly_PB_Util::spbwc_get_max_input_var(),
+                        'preview_iframe' => $this->spbwc_preview_iframe_data(),
                     ));
                     wp_enqueue_script("spbwc_option_field_script");
                     // Defensive enqueue — guarantees admin-options + v2 shell
@@ -902,6 +904,33 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
                 include_once(SPBWC_PB_PLUGIN_DIR . 'views/options/options-list-table.php');
             }
         }
+        /**
+         * Context the edit-option "Preview as storefront" iframe needs: the
+         * gated preview endpoint URL (nonce baked in), the expected postMessage
+         * origin, and the shop currency symbol. Returns an empty array when the
+         * shared renderer isn't loaded so the JS can hide the affordance.
+         *
+         * @return array
+         */
+        private function spbwc_preview_iframe_data() {
+            if ( ! class_exists( 'SPBWC_Template_Preview_Render' ) ) {
+                return array();
+            }
+            $home   = home_url( '/' );
+            $origin = wp_parse_url( $home, PHP_URL_SCHEME ) . '://' . wp_parse_url( $home, PHP_URL_HOST );
+            $port   = wp_parse_url( $home, PHP_URL_PORT );
+            if ( $port ) {
+                $origin .= ':' . $port;
+            }
+            return array(
+                'url'      => SPBWC_Template_Preview_Render::preview_url(),
+                'origin'   => $origin,
+                'currency' => function_exists( 'get_woocommerce_currency_symbol' )
+                    ? html_entity_decode( (string) get_woocommerce_currency_symbol(), ENT_QUOTES, 'UTF-8' )
+                    : '$',
+            );
+        }
+
         public function spbwc_products_manager() {
             if ( ! current_user_can( 'spbwc_manage_product_builder' ) ) {
                 wp_die( esc_html__( 'You do not have permission to access this page.', 'storelly-product-builder-for-woocommerce' ) );

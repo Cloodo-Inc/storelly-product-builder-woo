@@ -80,7 +80,11 @@ Auth   : cookie session WP + cap spbwc_manage_product_builder
 Nonce  : action 'spbwc_tpl_preview_iframe'
 
 Params:
-  slug         (required)   template slug trong storage/print-templates/
+  slug         (required*)  template slug trong storage/print-templates/ (*trừ khi có `draft`)
+  draft        (optional)   JSON option ĐANG SỬA (chưa lưu), POST từ edit-option preview.
+                            Có `draft` → bỏ qua catalog/slug, render thẳng draft qua
+                            build_runtime_options() (cùng đường flatten như bundled template).
+                            Gửi qua POST (form target=iframe) vì payload lớn; nonce vẫn ở GET.
   base         (optional)   sample base price, float ≥ 0
   product_id   (optional)   nếu set + sản phẩm tồn tại → dùng wc_get_product()->get_price() làm base
 
@@ -148,24 +152,46 @@ ec3a69c  chore(release): 1.3.0 — preview-on-product, smoke tests, version bump
 
 ## 10. Milestone W2-PREVIEW — Chuẩn hóa Option Template Preview (Wave 2, item 6)
 
-**Status:** DRAFT (2026-06-09) · part of `SPEC_ADMIN_UX_POLISH_W2.md`
+**Status:** M1 SHIPPED (2026-06-09) — edit-option hội tụ về shared renderer (hướng **Hybrid**).
+Part of `SPEC_ADMIN_UX_POLISH_W2.md`.
 
-### Vấn đề
-Preview render chưa nhất quán giữa các điểm gọi: Template Library (`views/templates/library.php`),
-edit-option (`views/options/preview.php`), và buyer storefront. Khung/aspect/skeleton/fallback khác nhau.
+### Vấn đề (đã chẩn đoán)
+Mục **Live preview** trong edit-option (`views/options/edit-option.php`, `<aside class="v2-preview">`)
+là **mockup AngularJS tự dựng song song** (`v2-prv-*` + `preview_total()` trong `admin-options.js`) —
+KHÔNG dùng storefront renderer. Drift thật:
+- engine `preview_total()` chỉ cộng `attr.price[0]` của field multi-choice → text/number/upload = $0,
+  bỏ qua price_breaks / option price[1..3] / depend_quantity / giá-theo-ký-tự;
+- bỏ qua `display_mode` (sections/matrix/stepper) → luôn list dọc;
+- không chạy conditional logic; designer component không render.
 
-### Yêu cầu
-1. **Một đường render duy nhất** qua `SPBWC_Template_Preview_Render` (iframe storefront WYSIWYG — đã có từ
-   các commit §8). Mọi điểm gọi đi qua API/helper chung, không tự dựng markup preview riêng.
-2. **Chuẩn khung**: aspect ratio + max-width token hóa; cùng border/radius/background; loading **skeleton**
-   thống nhất; fallback khi thiếu base image (placeholder + message, không vỡ layout).
-3. **Debounce + auto-grow + live total** (đã làm ở library) áp dụng nhất quán nơi có preview tương tác.
-4. RTL + token-first; không inline style mới.
+### Hướng đã chốt: **Hybrid** (user, 2026-06-09)
+Giữ mockup inline cho phản hồi tức thì khi build, NHƯNG bản **authoritative** đi qua shared renderer.
 
-### Acceptance
-- Preview ở Library / edit-option / (nếu có) product giống nhau về khung + skeleton + fallback.
-- Sửa style storefront → mọi preview đổi theo (vẫn WYSIWYG, không drift).
+### M1 — đã ship (commit kèm milestone này)
+1. **Một đường render authoritative** qua `SPBWC_Template_Preview_Render`: endpoint nhận thêm tham số
+   `draft` (POST) = JSON option đang sửa (chưa lưu) → bỏ qua catalog, flatten qua `build_runtime_options()`
+   (cùng descriptor-shape như bundled template) → render bằng CHÍNH `single-product/option-builder.php` +
+   `storefront-options.css` + `option-builder.js`/`conditional-logic.js`/`storefront-enhance.js`. Single
+   source of truth, zero drift (display_mode/conditional/pricing đều 1:1 với frontend).
+2. **Nút "Preview as storefront"** trong header preview mở **modal iframe** (`#spbwc-sf-preview`), POST
+   `angular.toJson($scope.options)` + base price vào iframe; tái dùng `template-preview-bridge.js`
+   (height + live total qua postMessage, origin-checked).
+3. **Reframe mockup inline** thành "Quick sketch" + note dẫn người dùng sang storefront preview cho bản
+   chính xác. Mockup giữ token sẵn có.
+4. **Token-first + RTL-safe**: modal dùng `--shadow-xl`, `--nbd-radius-lg`, `--nbd-st-*`, `--text-*`;
+   layout flex đối xứng (không cần rule RTL riêng).
+5. **Smoke**: thêm case 5 (`draft` → 200 + descriptor flattened + catalog bypassed) vào
+   `tools/smoke-template-preview-render.php` (5/5 pass).
 
-### Files
-`includes/templates/class-template-preview-render.php`, `views/templates/library.php`,
-`views/options/preview.php`, CSS preview (token).
+### Còn lại (M2+, chưa làm)
+- Template Library (`views/templates/library.php`) đã WYSIWYG sẵn; chuẩn hóa khung/skeleton/fallback
+  CHUNG giữa Library và edit-option modal (aspect/max-width/skeleton token hóa thống nhất).
+- Debounce reload mockup→iframe khi đang mở modal: hiện có (base-price `ng-change` debounce 450ms);
+  có thể mở rộng auto-refresh khi field thay đổi.
+- Gỡ dần `views/options/preview.php` (legacy, chỉ còn nút "Create Pre builder").
+
+### Files (M1)
+`includes/templates/class-template-preview-render.php` (draft mode), `includes/class-admin-options.php`
+(`spbwc_preview_iframe_data()` + localize), `views/options/edit-option.php` (button + modal),
+`static/js/admin-options.js` (open/close/listener), `static/css/admin-options-v2.css` (modal + affordance),
+`tools/smoke-template-preview-render.php` (case 5).

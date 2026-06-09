@@ -74,8 +74,12 @@ if ( ! class_exists( 'SPBWC_Template_Preview_Render' ) ) {
 			if ( ! isset( $_GET[ self::QUERY_VAR ] ) ) {
 				return;
 			}
-			// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Sanitization + nonce check handled inside.
-			$resolved = $this->resolve_preview_request( $_GET );
+			// Merge GET (nonce + base/product/slug) with POST (the live option
+			// draft, posted into the iframe from the edit-option preview). The
+			// nonce + cap are still verified inside resolve_preview_request().
+			// phpcs:ignore WordPress.Security.NonceVerification.Recommended, WordPress.Security.NonceVerification.Missing -- Sanitization + nonce check handled inside resolve_preview_request().
+			$request = array_merge( (array) $_GET, (array) $_POST );
+			$resolved = $this->resolve_preview_request( $request );
 			if ( 200 !== $resolved['status'] ) {
 				wp_die(
 					esc_html( $resolved['error'] ),
@@ -146,6 +150,32 @@ if ( ! class_exists( 'SPBWC_Template_Preview_Render' ) ) {
 					// Bad ID → fall back to sample base price; don't error out.
 					$product_id = 0;
 				}
+			}
+
+			// Live-draft mode: the edit-option preview posts the in-progress
+			// (unsaved) option JSON so the merchant sees the EXACT storefront
+			// render of what they're building — no catalog slug involved. The
+			// draft is the same descriptor-shaped blob bundled templates use,
+			// so build_runtime_options() flattens it identically. Trust level
+			// matches a saved option: cap-gated + nonce-verified above, and the
+			// storefront template escapes its own output.
+			$draft_raw = isset( $input['draft'] ) ? wp_unslash( $input['draft'] ) : '';
+			if ( is_string( $draft_raw ) && '' !== $draft_raw ) {
+				$decoded = json_decode( $draft_raw, true );
+				if ( ! is_array( $decoded ) ) {
+					return array(
+						'status' => 400,
+						'error'  => __( 'The preview draft could not be read.', 'storelly-product-builder-for-woocommerce' ),
+					);
+				}
+				return array(
+					'status'       => 200,
+					'error'        => '',
+					'options'      => $this->build_runtime_options( $decoded ),
+					'base_price'   => $base_price,
+					'product_id'   => $product_id,
+					'product_name' => $product_name,
+				);
 			}
 
 			if ( ! class_exists( 'SPBWC_Template_Catalog' ) ) {

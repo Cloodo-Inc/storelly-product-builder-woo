@@ -533,7 +533,7 @@ $field_count   = isset($options['fields']) && is_array($options['fields']) ? cou
                                 <span class="v2-card__title-icon" aria-hidden="true">
                                     <span class="dashicons dashicons-visibility" style="font-size:14px;line-height:24px;"></span>
                                 </span>
-                                <?php esc_html_e('Live preview', 'storelly-product-builder-for-woocommerce'); ?>
+                                <?php esc_html_e('Quick sketch', 'storelly-product-builder-for-woocommerce'); ?>
                             </h2>
                             <div class="v2-device" role="tablist">
                                 <button type="button" class="v2-device__btn is-active" data-v2-device="mobile" role="tab" aria-selected="true">
@@ -546,6 +546,22 @@ $field_count   = isset($options['fields']) && is_array($options['fields']) ? cou
                                 </button>
                             </div>
                         </header>
+
+                        <!-- Accurate preview affordance: the sketch above is a fast
+                             approximation; this opens the EXACT storefront render
+                             (same template/CSS/JS as a real product page) for the
+                             option as it stands right now. Hidden if the shared
+                             renderer isn't available (preview_iframe empty). -->
+                        <div class="v2-preview__accurate" ng-if="storefront_preview_available()">
+                            <p class="v2-preview__accurate-note">
+                                <span class="dashicons dashicons-info-outline" aria-hidden="true"></span>
+                                <?php esc_html_e('This sketch is an approximation. Open the storefront preview to see exactly what customers get — real layout, conditional logic and pricing.', 'storelly-product-builder-for-woocommerce'); ?>
+                            </p>
+                            <button type="button" class="v2-btn v2-btn--primary v2-preview__sf-btn" ng-click="open_storefront_preview()">
+                                <span class="dashicons dashicons-external" aria-hidden="true"></span>
+                                <?php esc_html_e('Preview as storefront', 'storelly-product-builder-for-woocommerce'); ?>
+                            </button>
+                        </div>
                         <div class="v2-preview__body">
 
                             <!-- ═══════════════ MOBILE viewport ═══════════════ -->
@@ -783,6 +799,67 @@ $field_count   = isset($options['fields']) && is_array($options['fields']) ? cou
                             </div>
                         </div>
                     </aside>
+                </div>
+
+                <!-- ════════════ Storefront-fidelity preview modal ════════════
+                     Hosts an <iframe> the storefront renderer
+                     (SPBWC_Template_Preview_Render) fills from a POSTed draft of
+                     the live option. Single source of truth — the same
+                     option-builder template + storefront-options.css +
+                     option-builder.js a real product page uses, so layout,
+                     conditional logic and pricing are 1:1 with the frontend. -->
+                <div class="v2-sfprev" id="spbwc-sf-preview" aria-hidden="true">
+                    <div class="v2-sfprev__backdrop" ng-click="close_storefront_preview()"></div>
+                    <div class="v2-sfprev__dialog" role="dialog" aria-modal="true" aria-label="<?php esc_attr_e('Storefront preview', 'storelly-product-builder-for-woocommerce'); ?>">
+                        <header class="v2-sfprev__head">
+                            <div class="v2-sfprev__titles">
+                                <h2 class="v2-sfprev__title">
+                                    <span class="dashicons dashicons-store" aria-hidden="true"></span>
+                                    <?php esc_html_e('Storefront preview', 'storelly-product-builder-for-woocommerce'); ?>
+                                </h2>
+                                <p class="v2-sfprev__sub">
+                                    <?php esc_html_e('Exactly what customers see on the product page.', 'storelly-product-builder-for-woocommerce'); ?>
+                                    <span class="v2-sfprev__total" data-sf-total></span>
+                                </p>
+                            </div>
+                            <div class="v2-sfprev__tools">
+                                <label class="v2-sfprev__price">
+                                    <span class="v2-sfprev__price-label"><?php esc_html_e('Sample base price', 'storelly-product-builder-for-woocommerce'); ?></span>
+                                    <span class="v2-sfprev__price-field">
+                                        <span class="v2-sfprev__cur">{{ currency }}</span>
+                                        <input type="number" min="0" step="0.01" class="v2-input"
+                                               ng-model="preview.base_price" ng-change="storefront_preview_base_changed()" />
+                                    </span>
+                                </label>
+                                <button type="button" class="v2-sfprev__icon-btn" ng-click="open_storefront_preview()" title="<?php esc_attr_e('Refresh preview', 'storelly-product-builder-for-woocommerce'); ?>">
+                                    <span class="dashicons dashicons-update" aria-hidden="true"></span>
+                                </button>
+                                <button type="button" class="v2-sfprev__icon-btn v2-sfprev__close" ng-click="close_storefront_preview()" aria-label="<?php esc_attr_e('Close preview', 'storelly-product-builder-for-woocommerce'); ?>">
+                                    <span class="dashicons dashicons-no-alt" aria-hidden="true"></span>
+                                </button>
+                            </div>
+                        </header>
+                        <div class="v2-sfprev__body">
+                            <div class="v2-sfprev__state v2-sfprev__state--loading">
+                                <span class="spinner is-active" aria-hidden="true"></span>
+                                <?php esc_html_e('Rendering storefront…', 'storelly-product-builder-for-woocommerce'); ?>
+                            </div>
+                            <div class="v2-sfprev__state v2-sfprev__state--error">
+                                <span class="dashicons dashicons-warning" aria-hidden="true"></span>
+                                <?php esc_html_e('Couldn’t load the storefront preview.', 'storelly-product-builder-for-woocommerce'); ?>
+                            </div>
+                            <!-- Posts the live option JSON into the iframe below. The
+                                 endpoint URL (with nonce) is set by JS from the
+                                 localized preview_iframe.url. -->
+                            <form id="spbwc-sf-preview-form" method="post" target="spbwc-sf-preview-iframe" action="">
+                                <input type="hidden" name="draft" value="" />
+                                <input type="hidden" name="base" value="" />
+                            </form>
+                            <iframe id="spbwc-sf-preview-iframe" name="spbwc-sf-preview-iframe"
+                                    title="<?php esc_attr_e('Storefront preview', 'storelly-product-builder-for-woocommerce'); ?>"
+                                    referrerpolicy="no-referrer"></iframe>
+                        </div>
+                    </div>
                 </div>
             </div>
 
