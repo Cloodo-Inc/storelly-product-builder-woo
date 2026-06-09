@@ -519,3 +519,36 @@ Suggested order: **F0 → F1(+F1.1) → F2 → F3 → F6 → F8 → F9 → F7 �
 | A4 | Content team can produce ≥150 launch assets for Tier-1 industries before F11 | OPEN — @david |
 | A5 | ~~order_sync payload already includes per-line selected options~~ | **RESOLVED — NEGATIVE (2026-06-07).** Payload lacks options; F8 must extend it (§4.3, §10) |
 | A6 | Existing `SPBWC_Cloud_Connect` consent screen can be invoked inline post-activation without refactor | LOW-RISK — connect AJAX flow + `is_connected()` exist; render entry point confirmed in F6 |
+
+---
+
+## 13. Milestone W2-PRICE — Pricing/Plans page chuẩn hóa (Wave 2, item 5)
+
+**Status:** DRAFT (2026-06-09) · part of `SPEC_ADMIN_UX_POLISH_W2.md`
+
+### Vấn đề
+License/Upgrade page (`views/license.php`) hiện chỉ mở `app.storelly.com/subscription` ở tab mới
+(M5.8). Chưa có bảng plan chuẩn trong dashboard; chưa map entitlement `caps[]`/`can()` (mục này CHƯA code
+theo audit §0). Cần "làm chuẩn" cách hiển thị gói giá ngay trong wp-admin.
+
+### Yêu cầu
+1. **Pricing table component** trong License page: hiển thị các plan (Free / Standard $49 / B2B $99 —
+   theo D5/D6) dạng cột, token-first (radius/spacing/badge), highlight plan hiện tại, ribbon "Recommended".
+2. **Nguồn dữ liệu plan**: fetch danh sách plan từ API (`GET /api/v1/billing/packages` hoặc endpoint
+   hiện có) qua **transient cache** (TTL ~12h) + **fallback hardcoded** khi offline/timeout. KHÔNG block
+   render (đọc cache trước, refresh nền).
+3. **Feature matrix** theo `caps[]`: mỗi plan liệt kê cap bật/tắt (cloud PDF, order sync, analytics,
+   marketplace, design_vault, B2B service…) lấy từ định nghĩa entitlement (§ caps/can — cần code
+   `includes/class-entitlement.php` hoặc tương đương nếu chưa có).
+4. **CTA**: plan cao hơn → "Upgrade" (nối M5.8 checkout-session khi backend sẵn; tạm redirect hosted);
+   plan hiện tại → "Current"; thấp hơn → ẩn/disable.
+5. Map đúng plan hiện tại từ `SPBWC_License_Manager::get_current_license()['status']`.
+
+### Acceptance
+- License page hiển thị bảng plan chuẩn token; offline vẫn render bằng fallback (không trắng/treo).
+- Plan hiện tại được highlight đúng; feature matrix khớp `caps[]`.
+- Không block render (fetch async/cache); Plugin Check 0 error; external service khai báo nếu fetch packages.
+
+### Files
+`views/license.php`, `includes/class-license-manager.php` (fetch packages + cache),
+`includes/class-entitlement.php` (caps/can — nếu chưa có), CSS pricing (token), readme (external service).

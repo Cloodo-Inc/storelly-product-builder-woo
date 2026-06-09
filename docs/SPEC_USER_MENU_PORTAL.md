@@ -211,3 +211,31 @@ approval-queue action hierarchy; B2B table→card data-labels; B2B 4-file CSS bu
 ## 4. Out of scope
 - Buyer designer canvas (`app-product-builder.css`) — separate editor.
 - `spbwc_option_builder_variable` blob on product pages — tracked elsewhere.
+
+---
+
+## 5. Milestone W2-MA — My Account UX/UI polish (Wave 2, item 3)
+
+**Status:** DRAFT (2026-06-09) · part of `SPEC_ADMIN_UX_POLISH_W2.md`
+
+### Vấn đề
+7 endpoint My-Account (quotes / saved-designs / reorders / brand-store / team / approval / my-store)
+chưa nhất quán shell / card / empty-state / mobile / RTL. Một phần đã polish (G-series §3), một phần
+"deferred to merge (B2B territory)".
+
+### Yêu cầu
+1. **Shell thống nhất**: mọi endpoint render trong `SPBWC_Account_Shell` (title + subtitle + tab nav),
+   không endpoint nào "bare". Token hóa qua launcher.css (build `tools/build-usermenu-css.mjs`).
+2. **Empty states** chuẩn cho Reorders / Approvals / Saved-designs (icon + message + CTA về store).
+3. **Card/list nhất quán**: cùng radius/spacing/badge token; bảng → card với `data-label` trên mobile.
+4. **Mobile**: touch target ≥44px, bảng scroll ngang không vỡ, toggle nav styled.
+5. **RTL**: logical properties toàn bộ.
+6. Gom **B2B 4-file CSS bundle** về cùng hệ token (đóng "deferred to merge").
+
+### Acceptance
+- 7 endpoint cùng ngôn ngữ thị giác; không bare; empty-state đủ; mobile + RTL pass.
+- Không vỡ flow Accept-quote→order, withdraw, reorder hiện có.
+
+### Files
+`includes/class-account-shell.php`, `class-account-menu.php`, `class-saved-designs.php`,
+`includes/b2b/class-b2b-storefront.php`, view My-Account, launcher.css (+ `tools/build-usermenu-css.mjs`).

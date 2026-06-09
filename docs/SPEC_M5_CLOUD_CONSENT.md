@@ -206,3 +206,48 @@ M5.6  POT regen + plugin check 0 error.
   `sync_from_api()` + hiện trạng thái mới. Dùng `payment-integration` agent khi build.
 - **Lưu ý compliance:** nếu nhúng form thẻ trên wp-admin phải khai báo external service + script
   PCI; ưu tiên redirect hosted để tránh.
+
+---
+
+## M5.9 — Storelly Account: component đăng ký/kết nối thống nhất (Wave 2, item 4)
+
+**Status:** DRAFT (2026-06-09) · part of `SPEC_ADMIN_UX_POLISH_W2.md`
+
+### Vấn đề
+Thông tin "tài khoản Storelly" rải 3 chỗ rời rạc, UX mơ hồ:
+- Welcome cloud-card (`views/overview.php:362+`) — 1-click "Enable Cloud" + link "Already have a Store ID".
+- Settings›Integration "API Keys" card (`views/menu-settings.php:716+`) — nhập SID/Secret thủ công.
+- License page — trạng thái plan.
+Merchant không rõ "tạo tài khoản mới" vs "link tài khoản có sẵn", email đăng nhập từ đâu.
+
+### Yêu cầu
+1. **Một component "Storelly Account"** (đặt làm nguồn chính trong Settings — tab riêng hoặc đầu tab
+   Integration), 3 trạng thái rõ:
+   - **Chưa kết nối**: nút "Enable Cloud" (1-click tạo tài khoản + connect qua `SPBWC_Cloud_Connect::connect()`),
+     dòng phụ "Already have an account? Link with Store ID" mở ô nhập (`link_manual`).
+   - **Đã kết nối**: hiển thị email/username (`spbwc_connect_api_keys['username']`), store URL, scope đang
+     bật (cloud PDF / order sync), nút **Disconnect** (`ajax_disconnect`).
+   - **Link thủ công**: ô Store ID + Save (`ajax_link_manual`).
+2. **Welcome cloud-card** rút gọn còn entry 1-click trỏ tới component này (không lặp toàn bộ UI).
+3. Nêu rõ privacy (dữ liệu gửi khi connect: admin email + store URL + store UUID) + link Privacy.
+   **Không phone-home** trước khi bấm.
+4. Tái dùng `SPBWC_Cloud_Connect` (đã có connect/disconnect/link_manual). Không refactor lớn (khớp A6
+   của `SPEC_FREEMIUM_V1_1`).
+
+### Acceptance
+- Một nơi duy nhất quản lý account; Welcome chỉ là entry. Connect/Disconnect/Link đều chạy; hiện email
+  login sau connect. Token-first, RTL ok, không phone-home khi chưa consent.
+
+### Files
+`includes/class-cloud-connect.php`, `views/menu-settings.php` (Integration/Account tab), `views/overview.php`.
+
+---
+
+## M5.10 — Save to Cloud / Reuse option-set (Wave 2, item 13)
+
+**Status:** DRAFT (2026-06-09) · đặc tả đầy đủ tại `SPEC_ADMIN_UX_POLISH_W2.md` §A13
+
+Tóm tắt: gỡ JSON Import/Export option-set của user, thay bằng **Save to Cloud** + **Reuse from Cloud**
+gate `SPBWC_Cloud_Connect::is_connected()`. Thêm AJAX `spbwc_cloud_option_save/list/pull` (nonce + cap),
+mapping cloud-id ↔ local option-id, khai báo external service trong readme. Tôn trọng entitlement `caps[]`
+(`SPEC_FREEMIUM_V1_1`). Xem §A13 cho chi tiết file + acceptance.

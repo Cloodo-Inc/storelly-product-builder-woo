@@ -364,3 +364,35 @@ Add a "Customer design activity" section to `views/overview.php`:
 - [ ] Cloud2Print declared under readme "External services"; gated by explicit opt-in.
 - [ ] Any advertised limit (e.g. saved-design cap) actually enforced in code.
 - [ ] `wp plugin check` → 0 errors; POT regen for new strings.
+
+---
+
+## Milestone W2-SAMPLE — Custom Order Sample seeder (Wave 2, item 9)
+
+**Status:** DRAFT (2026-06-09) · part of `SPEC_ADMIN_UX_POLISH_W2.md`
+
+### Vấn đề
+Đã có sample seeder cho demo product (`SPBWC_Demo_Seeder`), B2B (`SPBWC_B2B_Sample`), Quote
+(`SPBWC_Quote_Sample`) — nhưng **chưa có** cho Custom Order. Merchant mới không có dữ liệu Custom Order mẫu
+để xem flow COW folder / proof / detail.
+
+### Yêu cầu
+1. Tạo `includes/class-custom-order-sample.php` (`SPBWC_Custom_Order_Sample`) mirror pattern
+   `SPBWC_Demo_Seeder` / `SPBWC_B2B_Sample`:
+   - Seed 1 custom order mẫu + **COW design folder** qua `SPBWC_Storelly_IO::spbwc_clone_design_folder`
+     (mỗi instance là bản clone, không share — đúng nguyên tắc COW).
+   - Tag mọi entity tạo ra bằng `_spbwc_is_sample` để Undo/Remove sạch.
+   - Bundle asset trong `storage/` (local file read + media sideload, **không** `wp_remote_*`).
+2. **Local-only, nonce + cap**: chạy chỉ khi merchant bấm (Welcome card / Setup Wizard "Add Custom Order
+   sample"); admin-post/AJAX có nonce + `current_user_can`.
+3. **Undo/cleanup**: nút "Remove sample" gỡ order + folder + attachments theo tag.
+4. Thêm card vào Welcome / Setup Wizard (mirror demo card UX).
+
+### Acceptance
+- Bấm "Add Custom Order sample" → có 1 custom order mẫu + COW folder hiển thị đúng ở Custom Order detail.
+- Remove sample → sạch, không rác data, không ảnh hưởng order thật.
+- Không phone-home; Plugin Check 0 error.
+
+### Files
+`includes/class-custom-order-sample.php` (mới), `includes/class-custom-order-detail.php`,
+`includes/class-io.php`, asset bundle `storage/…`, view Welcome / `views/setup-wizard/landing.php`.

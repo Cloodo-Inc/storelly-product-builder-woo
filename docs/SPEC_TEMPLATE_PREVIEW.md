@@ -143,3 +143,29 @@ ec3a69c  chore(release): 1.3.0 — preview-on-product, smoke tests, version bump
 - `[[template_preview_fidelity_gap]]` — bối cảnh "trước" và lý do làm WYSIWYG.
 - `[[core_hardcodes_base_price]]` — vì sao phải seed `scope.price` qua storefront-enhance.
 - `[[quantity_breaks_no_engine]]` — vì sao "Save %" bị gỡ khỏi preview cũ.
+
+---
+
+## 10. Milestone W2-PREVIEW — Chuẩn hóa Option Template Preview (Wave 2, item 6)
+
+**Status:** DRAFT (2026-06-09) · part of `SPEC_ADMIN_UX_POLISH_W2.md`
+
+### Vấn đề
+Preview render chưa nhất quán giữa các điểm gọi: Template Library (`views/templates/library.php`),
+edit-option (`views/options/preview.php`), và buyer storefront. Khung/aspect/skeleton/fallback khác nhau.
+
+### Yêu cầu
+1. **Một đường render duy nhất** qua `SPBWC_Template_Preview_Render` (iframe storefront WYSIWYG — đã có từ
+   các commit §8). Mọi điểm gọi đi qua API/helper chung, không tự dựng markup preview riêng.
+2. **Chuẩn khung**: aspect ratio + max-width token hóa; cùng border/radius/background; loading **skeleton**
+   thống nhất; fallback khi thiếu base image (placeholder + message, không vỡ layout).
+3. **Debounce + auto-grow + live total** (đã làm ở library) áp dụng nhất quán nơi có preview tương tác.
+4. RTL + token-first; không inline style mới.
+
+### Acceptance
+- Preview ở Library / edit-option / (nếu có) product giống nhau về khung + skeleton + fallback.
+- Sửa style storefront → mọi preview đổi theo (vẫn WYSIWYG, không drift).
+
+### Files
+`includes/templates/class-template-preview-render.php`, `views/templates/library.php`,
+`views/options/preview.php`, CSS preview (token).

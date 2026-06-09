@@ -412,3 +412,34 @@ yc #9 (My Account endpoint) gài kèm M1 (đăng ký endpoint lúc activate).
 ### Ngoài phạm vi đợt này (ghi nhận, chưa làm)
 - store_uuid không bền khi đổi domain/admin email (`md5(host+path+email)`, `:196`) — Q3 §6 còn mở,
   phụ thuộc backend Storelly re-link theo store URL. Để sau.
+
+---
+
+## M10 — Welcome wizard: preview/test mode + verify (Wave 2, item 7)
+
+**Status:** DRAFT (2026-06-09) · part of `SPEC_ADMIN_UX_POLISH_W2.md`
+
+### Nguyên nhân "lâu nay chưa thấy welcome wizard"
+`SPBWC_Onboarding::is_welcome_mode()` trả FALSE khi `is_onboarding_complete()` = TRUE (đã có ≥1 option-set
+**và** ≥1 linked product) HOẶC đã `dismissed`. Môi trường dev đã hoàn tất onboarding → welcome tự ẩn vĩnh
+viễn; cách bật lại duy nhất là `get_restore_url()` (ẩn) hoặc query `?spbwc-welcome=1`. **Đây là hành vi
+đúng cho user thật**, chỉ thiếu lối "xem lại để test".
+
+### Yêu cầu
+1. **Preview/Test link** (cap-gated `manage_options`): thêm nút "Preview Welcome guide" ở Setup Wizard
+   (`views/setup-wizard/landing.php`) và/hoặc Settings, mở Overview với `?spbwc-welcome=1` — **không** đổi
+   state (`dismissed`/`onboarding_complete`), chỉ ép `is_welcome_mode()` qua query flag (đã hỗ trợ ở
+   `class-onboarding.php:204`).
+2. **Tài liệu** (trong spec này): liệt kê 3 cách thấy lại welcome — (a) `?spbwc-welcome=1`, (b)
+   `get_restore_url()` (clear dismissed), (c) reset state thủ công (chỉ dev).
+3. **Verify redirect sau activate**: kiểm tra `maybe_redirect_after_activation()` còn bắn (transient
+   `spbwc_activation_redirect`). Test: deactivate → activate plugin trên Chrome session → phải bounce vào
+   Overview welcome-mode. Ghi kết quả vào spec.
+4. **Không** đổi điều kiện gate cho user thật (không spam welcome khi đã complete).
+
+### Acceptance
+- Admin bấm "Preview Welcome guide" thấy lại welcome bất cứ lúc nào mà state không đổi.
+- Deactivate→activate vẫn auto-redirect vào welcome lần đầu.
+
+### Files
+`includes/class-onboarding.php`, `views/setup-wizard/landing.php`, `views/menu-settings.php`.
