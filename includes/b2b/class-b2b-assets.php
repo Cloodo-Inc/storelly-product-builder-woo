@@ -89,8 +89,11 @@ if ( ! class_exists( 'SPBWC_B2B_Assets' ) ) {
                     'ajaxUrl' => admin_url( 'admin-ajax.php' ),
                     'nonce'   => wp_create_nonce( 'spbwc_b2b_picker' ),
                     'i18n'    => array(
-                        'empty'    => __( 'No matching customers.', 'storelly-product-builder-for-woocommerce' ),
-                        'searching' => __( 'Searching…', 'storelly-product-builder-for-woocommerce' ),
+                        'empty'      => __( 'No matching customers.', 'storelly-product-builder-for-woocommerce' ),
+                        'searching'  => __( 'Searching…', 'storelly-product-builder-for-woocommerce' ),
+                        'working'    => __( 'Working…', 'storelly-product-builder-for-woocommerce' ),
+                        'creditDone' => __( 'Transaction recorded.', 'storelly-product-builder-for-woocommerce' ),
+                        'creditFail' => __( 'Could not record the transaction.', 'storelly-product-builder-for-woocommerce' ),
                     ),
                 ) );
             }

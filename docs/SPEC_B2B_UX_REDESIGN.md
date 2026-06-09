@@ -93,6 +93,34 @@ Everything else = reuse. Net: `b2b-admin.css` shrinks to the brand-hero override
 
 ## 3. ADMIN — Company detail
 
+> **Implemented (2026-06-09).** Tabs reordered to **Company profile · Overview ·
+> Members · Pricing & products · Account credit · Activity**, with **Company
+> profile** now the first/default tab.
+> - **Company profile tab (NEW):** the *full* Brand Store editor, admin-side —
+>   a WordPress admin can edit every field the owner sees in My-Account → Brand
+>   Store (store name, tagline, logo + banner uploads, brand colours, description,
+>   corporate profile, address, official contact). Same meta keys + sanitisation
+>   contract as `SPBWC_B2B_Account`; uploads via `media_handle_upload`
+>   (`SPBWC_B2B_Admin::handle_save_profile` / `handle_profile_upload`). Replaces the
+>   old read-only "Profile snapshot" that lived in Overview.
+> - **Overview tab:** split the one flat "Account settings" card into two
+>   logically-grouped, properly-spaced cards — **Pricing & team** (tier, seats,
+>   approval threshold) and **Credit & payment terms** (terms, credit limit, volume
+>   rebate) — each field now carries a plain-language hint.
+> - **Account credit tab:** the three transaction forms (top-up / payment /
+>   adjustment) now post via **AJAX** (`wp_ajax_spbwc_b2b_credit_txn`) and live-update
+>   the KPI strip + prepend the new statement row with no page reload (graceful
+>   non-JS POST fallback retained). Shared `process_credit_txn()` backs both paths.
+> - **Activity tab:** timeline coverage closed — credit transactions, per-field
+>   account-setting changes, price-rule bind/unbind and profile edits now all write
+>   timeline events (previously only created/status/tier/team did, so the history
+>   looked stale).
+> - **Companies hub:** rows are now whole-row clickable to the detail; "no tier"
+>   renders as a muted chip instead of a bare dash.
+> Atoms added to `b2b-admin.css`: panel card spacing, `.spbwc-block__subtitle`,
+> split `__foot`, the admin Brand Store upload/colour fields, credit AJAX feedback +
+> new-row flash, clickable-row hover.
+
 **Route:** `…-b2b-companies&company=<id>`
 **Now:** my new gradient hero + 3 stat tiles are OK, but below it's one long scroll of `.form-table` (settings) + `.widefat` (members) + an **ugly inline bind-row** (Product ID | %off | Value | Min qty | date | button jammed together). No structure.
 

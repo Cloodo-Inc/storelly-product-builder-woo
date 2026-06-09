@@ -340,3 +340,111 @@ body.spbwc-modal-open { overflow: hidden; }
     background: var(--st-pill-danger-bg);
 }
 .spbwc-icon-btn .dashicons { font-size: 18px; width: 18px; height: 18px; line-height: 1; }
+
+/* ── Detail panels: vertical rhythm between stacked cards ──────
+   Cards inside a tab panel (and a panel's leading <form>) were flush; give
+   consecutive blocks consistent breathing room so they never look glued. */
+.spbwc-b2b-panel > .spbwc-block + .spbwc-block,
+.spbwc-b2b-panel > form + .spbwc-block,
+.spbwc-b2b-panel > .spbwc-block + form,
+.spbwc-b2b-panel > form > .spbwc-block + .spbwc-block,
+.spbwc-b2b-profile > .spbwc-block + .spbwc-block {
+    margin-top: var(--nbd-space-5);
+}
+.spbwc-b2b-panel > .spbwc-q-kpis { margin-bottom: var(--nbd-space-5); }
+
+/* Block head subtitle (used on the split Overview + Profile cards). */
+.spbwc-block__subtitle {
+    margin: 4px 0 0;
+    font-size: var(--text-sm);
+    color: var(--nbd-st-text-soft);
+    font-weight: var(--font-regular, 400);
+}
+/* Split foot: helper text on the left, primary action on the right. */
+.spbwc-block__foot--split {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--nbd-space-4);
+    flex-wrap: wrap;
+}
+.spbwc-block__foot--split .description { margin: 0; }
+.spbwc-req { color: var(--nbd-color-danger); }
+
+/* ── Company-profile tab: admin Brand Store editor ───────────── */
+.spbwc-b2b-uploads {
+    display: flex;
+    gap: var(--nbd-space-4);
+    flex-wrap: wrap;
+}
+.spbwc-b2b-upload { display: flex; flex-direction: column; gap: var(--nbd-space-1); }
+.spbwc-b2b-upload__label {
+    font-size: var(--text-sm);
+    font-weight: var(--font-semibold);
+    color: var(--nbd-st-text-soft);
+}
+.spbwc-b2b-upload__box {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    width: 180px;
+    min-height: 120px;
+    padding: var(--nbd-space-3);
+    text-align: center;
+    background: var(--nbd-st-bg-soft);
+    border: 1px dashed var(--nbd-st-border-light);
+    border-radius: var(--nbd-radius-md);
+    transition: border-color .12s ease, background .12s ease;
+}
+.spbwc-b2b-upload__box:hover { border-color: var(--st-brand); background: var(--st-brand-soft); }
+.spbwc-b2b-upload__preview { max-width: 100%; max-height: 72px; border-radius: var(--nbd-radius-sm); object-fit: contain; }
+.spbwc-b2b-upload__icon { font-size: 32px; width: 32px; height: 32px; color: var(--nbd-st-text-mute); }
+.spbwc-b2b-upload__hint { font-size: var(--text-xs); color: var(--nbd-st-text-mute); }
+.spbwc-b2b-upload input[type="file"] { font-size: var(--text-sm); max-width: 180px; }
+
+.spbwc-b2b-colours { display: flex; gap: var(--nbd-space-4); flex-wrap: wrap; }
+.spbwc-b2b-colour { display: flex; flex-direction: column; gap: var(--nbd-space-1); }
+.spbwc-b2b-colour__label { font-size: var(--text-sm); font-weight: var(--font-semibold); color: var(--nbd-st-text-soft); }
+.spbwc-b2b-colour__field {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--nbd-space-2);
+    padding: 4px 8px;
+    background: var(--nbd-st-bg-soft);
+    border: 1px solid var(--nbd-st-border-light);
+    border-radius: var(--nbd-radius-md);
+}
+.spbwc-b2b-colour__field input[type="color"] {
+    width: 34px;
+    height: 28px;
+    padding: 0;
+    border: 0;
+    background: none;
+    cursor: pointer;
+}
+.spbwc-b2b-colour__field code { font-size: var(--text-sm); color: var(--nbd-st-text); }
+
+/* ── Account-credit tab: AJAX feedback + new-row flash ───────── */
+.spbwc-credit-feedback {
+    flex-basis: 100%;
+    margin-top: 4px;
+    font-size: var(--text-sm);
+    font-weight: var(--font-semibold);
+    color: var(--nbd-color-success);
+    opacity: 0;
+    transform: translateY(-2px);
+    transition: opacity .15s ease, transform .15s ease;
+}
+.spbwc-credit-feedback.is-shown { opacity: 1; transform: none; }
+.spbwc-credit-feedback.is-error { color: var(--nbd-color-danger); }
+@keyframes spbwc-row-flash {
+    from { background: var(--st-brand-soft); }
+    to   { background: transparent; }
+}
+.spbwc-row-flash > td { animation: spbwc-row-flash 1.4s ease-out; }
+
+/* ── Companies hub: clickable rows ───────────────────────────── */
+.spbwc-admin-table tr.spbwc-row-link { cursor: pointer; transition: background .12s ease; }
+.spbwc-admin-table tr.spbwc-row-link:hover { background: var(--nbd-st-bg-soft); }

@@ -39,6 +39,7 @@ if ( ! class_exists( 'SPBWC_B2B_Admin' ) ) {
             add_action( 'admin_menu', array( $this, 'register_menu' ), 21 );
             add_filter( 'user_row_actions', array( $this, 'user_row_action' ), 10, 2 );
             add_action( 'wp_ajax_spbwc_b2b_search_customers', array( $this, 'ajax_search_customers' ) );
+            add_action( 'wp_ajax_spbwc_b2b_credit_txn', array( $this, 'ajax_credit_txn' ) );
         }
 
         /**
@@ -258,6 +259,15 @@ if ( ! class_exists( 'SPBWC_B2B_Admin' ) ) {
                     $climit    = isset( $_POST['credit_limit'] ) ? max( 0, (float) wp_unslash( $_POST['credit_limit'] ) ) : 0;
                     $rebate    = isset( $_POST['rebate_pct'] ) ? min( 100, max( 0, (float) wp_unslash( $_POST['rebate_pct'] ) ) ) : 0;
                     $tier      = isset( $_POST['tier'] ) ? sanitize_key( wp_unslash( $_POST['tier'] ) ) : '';
+
+                    // Snapshot old values so we can record exactly what changed.
+                    $old_seats  = (int) get_post_meta( $company_id, SPBWC_Company::META_SEATS, true );
+                    $old_thresh = (float) get_post_meta( $company_id, SPBWC_Company::META_APPROVAL_THRESHOLD, true );
+                    $old_terms  = (string) get_post_meta( $company_id, SPBWC_Company::META_PAYMENT_TERMS, true );
+                    $old_climit = (float) get_post_meta( $company_id, SPBWC_Company::META_CREDIT_LIMIT, true );
+                    $old_rebate = (float) get_post_meta( $company_id, SPBWC_Company::META_REBATE_PCT, true );
+                    $old_tier   = (string) get_post_meta( $company_id, SPBWC_Company::META_TIER, true );
+
                     update_post_meta( $company_id, SPBWC_Company::META_SEATS, $seats );
                     update_post_meta( $company_id, SPBWC_Company::META_APPROVAL_THRESHOLD, $threshold );
                     update_post_meta( $company_id, SPBWC_Company::META_PAYMENT_TERMS, $terms );
@@ -269,7 +279,9 @@ if ( ! class_exists( 'SPBWC_B2B_Admin' ) ) {
                     }
                     update_post_meta( $company_id, SPBWC_Company::META_CREDIT_LIMIT, $climit );
                     update_post_meta( $company_id, SPBWC_Company::META_REBATE_PCT, $rebate );
-                    $old_tier = (string) get_post_meta( $company_id, SPBWC_Company::META_TIER, true );
+
+                    // Timeline: tier change gets its own line; other settings roll up
+                    // into one "settings updated" entry listing the changed fields.
                     if ( $tier !== $old_tier ) {
                         update_post_meta( $company_id, SPBWC_Company::META_TIER, $tier );
                         $tier_label = '' !== $tier && class_exists( 'SPBWC_B2B_Pricing' ) ? SPBWC_B2B_Pricing::tier_label( $tier ) : __( 'none', 'storelly-product-builder-for-woocommerce' );
@@ -282,6 +294,36 @@ if ( ! class_exists( 'SPBWC_B2B_Admin' ) ) {
                             )
                         );
                     }
+                    $changed = array();
+                    if ( $seats !== $old_seats ) {
+                        $changed[] = __( 'team seats', 'storelly-product-builder-for-woocommerce' );
+                    }
+                    if ( abs( $threshold - $old_thresh ) > 0.001 ) {
+                        $changed[] = __( 'approval threshold', 'storelly-product-builder-for-woocommerce' );
+                    }
+                    if ( $terms !== $old_terms ) {
+                        $changed[] = __( 'payment terms', 'storelly-product-builder-for-woocommerce' );
+                    }
+                    if ( abs( $climit - $old_climit ) > 0.001 ) {
+                        $changed[] = __( 'credit limit', 'storelly-product-builder-for-woocommerce' );
+                    }
+                    if ( abs( $rebate - $old_rebate ) > 0.001 ) {
+                        $changed[] = __( 'volume rebate', 'storelly-product-builder-for-woocommerce' );
+                    }
+                    if ( ! empty( $changed ) ) {
+                        SPBWC_Company::add_timeline_event(
+                            $company_id,
+                            sprintf(
+                                /* translators: %s: comma-separated list of changed setting names. */
+                                __( 'Account settings updated: %s.', 'storelly-product-builder-for-woocommerce' ),
+                                implode( ', ', $changed )
+                            )
+                        );
+                    }
+                    $this->notice = 'saved';
+                    break;
+                case 'save_profile':
+                    $this->handle_save_profile( $company_id );
                     $this->notice = 'saved';
                     break;
                 case 'bind_price':
@@ -293,6 +335,15 @@ if ( ! class_exists( 'SPBWC_B2B_Admin' ) ) {
                     if ( $pid && wc_get_product( $pid ) && class_exists( 'SPBWC_B2B_Price_Rules' ) ) {
                         SPBWC_B2B_Price_Rules::save_rule( $company_id, $pid, $ptype, $pval, $pmin, $puntil );
                         self::add_to_allow_list( $company_id, $pid );
+                        $prod = wc_get_product( $pid );
+                        SPBWC_Company::add_timeline_event(
+                            $company_id,
+                            sprintf(
+                                /* translators: %s: product name. */
+                                __( 'Custom price bound for %s.', 'storelly-product-builder-for-woocommerce' ),
+                                $prod ? $prod->get_name() : ( '#' . $pid )
+                            )
+                        );
                         $this->notice = 'saved';
                     } else {
                         $this->notice = 'error';
@@ -303,37 +354,134 @@ if ( ! class_exists( 'SPBWC_B2B_Admin' ) ) {
                     if ( $pid && class_exists( 'SPBWC_B2B_Price_Rules' ) ) {
                         SPBWC_B2B_Price_Rules::delete_rule( $company_id, $pid );
                         self::remove_from_allow_list( $company_id, $pid );
+                        $prod = wc_get_product( $pid );
+                        SPBWC_Company::add_timeline_event(
+                            $company_id,
+                            sprintf(
+                                /* translators: %s: product name. */
+                                __( 'Custom price removed for %s.', 'storelly-product-builder-for-woocommerce' ),
+                                $prod ? $prod->get_name() : ( '#' . $pid )
+                            )
+                        );
                         $this->notice = 'saved';
                     }
                     break;
                 case 'credit_topup':
                 case 'credit_payment':
                 case 'credit_adjust':
-                    if ( class_exists( 'SPBWC_B2B_Ledger' ) ) {
-                        $amount = isset( $_POST['amount'] ) ? (float) wp_unslash( $_POST['amount'] ) : 0;
-                        $note   = isset( $_POST['note'] ) ? sanitize_text_field( wp_unslash( $_POST['note'] ) ) : '';
-                        if ( $amount > 0 ) {
-                            if ( 'credit_topup' === $do ) {
-                                SPBWC_B2B_Ledger::post_topup( $company_id, $amount, array( 'note' => $note, 'ref_type' => 'manual' ) );
-                            } elseif ( 'credit_payment' === $do ) {
-                                SPBWC_B2B_Ledger::post_payment( $company_id, $amount, array( 'note' => $note, 'ref_type' => 'manual' ) );
-                            } else {
-                                // Adjustment: signed. Positive = credit, negative = debit.
-                                $dir   = isset( $_POST['direction'] ) ? sanitize_key( wp_unslash( $_POST['direction'] ) ) : 'credit';
-                                $entry = ( 'debit' === $dir ) ? array( 'debit' => $amount ) : array( 'credit' => $amount );
-                                SPBWC_B2B_Ledger::record( $company_id, array_merge( $entry, array(
-                                    'txn_type' => SPBWC_B2B_Ledger::TXN_ADJUSTMENT,
-                                    'ref_type' => 'manual',
-                                    'note'     => $note,
-                                ) ) );
-                            }
-                            $this->notice = 'saved';
-                        } else {
-                            $this->notice = 'error';
-                        }
-                    }
+                    $amount = isset( $_POST['amount'] ) ? (float) wp_unslash( $_POST['amount'] ) : 0;
+                    $note   = isset( $_POST['note'] ) ? sanitize_text_field( wp_unslash( $_POST['note'] ) ) : '';
+                    $dir    = isset( $_POST['direction'] ) ? sanitize_key( wp_unslash( $_POST['direction'] ) ) : 'credit';
+                    $this->notice = self::process_credit_txn( $company_id, $do, $amount, $note, $dir ) ? 'saved' : 'error';
                     break;
             }
+        }
+
+        /**
+         * Apply a manual credit transaction (top-up / payment / adjustment) to the
+         * company ledger and record a timeline entry. Shared by the POST handler and
+         * the AJAX endpoint so both paths behave identically.
+         *
+         * @param int    $company_id Company.
+         * @param string $do         credit_topup | credit_payment | credit_adjust.
+         * @param float  $amount     Positive amount.
+         * @param string $note       Optional note.
+         * @param string $dir        Adjustment direction: credit | debit.
+         * @return bool Whether the transaction was applied.
+         */
+        protected static function process_credit_txn( $company_id, $do, $amount, $note, $dir = 'credit' ) {
+            if ( ! class_exists( 'SPBWC_B2B_Ledger' ) || $amount <= 0 ) {
+                return false;
+            }
+            $sym = get_woocommerce_currency_symbol();
+            if ( 'credit_topup' === $do ) {
+                SPBWC_B2B_Ledger::post_topup( $company_id, $amount, array( 'note' => $note, 'ref_type' => 'manual' ) );
+                /* translators: 1: currency symbol, 2: amount. */
+                $msg = sprintf( __( 'Wallet top-up of %1$s%2$s recorded.', 'storelly-product-builder-for-woocommerce' ), $sym, number_format( $amount, 2 ) );
+            } elseif ( 'credit_payment' === $do ) {
+                SPBWC_B2B_Ledger::post_payment( $company_id, $amount, array( 'note' => $note, 'ref_type' => 'manual' ) );
+                /* translators: 1: currency symbol, 2: amount. */
+                $msg = sprintf( __( 'Payment of %1$s%2$s recorded against net terms.', 'storelly-product-builder-for-woocommerce' ), $sym, number_format( $amount, 2 ) );
+            } elseif ( 'credit_adjust' === $do ) {
+                // Adjustment: signed. Positive = credit, negative = debit.
+                $entry = ( 'debit' === $dir ) ? array( 'debit' => $amount ) : array( 'credit' => $amount );
+                SPBWC_B2B_Ledger::record( $company_id, array_merge( $entry, array(
+                    'txn_type' => SPBWC_B2B_Ledger::TXN_ADJUSTMENT,
+                    'ref_type' => 'manual',
+                    'note'     => $note,
+                ) ) );
+                $sign = ( 'debit' === $dir ) ? '−' : '+';
+                /* translators: 1: +/− sign, 2: currency symbol, 3: amount. */
+                $msg = sprintf( __( 'Manual adjustment %1$s%2$s%3$s posted.', 'storelly-product-builder-for-woocommerce' ), $sign, $sym, number_format( $amount, 2 ) );
+            } else {
+                return false;
+            }
+            if ( '' !== $note ) {
+                $msg .= ' — ' . $note;
+            }
+            SPBWC_Company::add_timeline_event( $company_id, $msg );
+            return true;
+        }
+
+        /**
+         * AJAX: apply a credit transaction and return refreshed balances + a freshly
+         * rendered statement row, so the Account-credit tab updates without a reload.
+         */
+        public function ajax_credit_txn() {
+            $company_id = isset( $_POST['company'] ) ? absint( wp_unslash( $_POST['company'] ) ) : 0;
+            $nonce      = isset( $_POST['_spbwc_b2b_nonce'] ) ? sanitize_text_field( wp_unslash( $_POST['_spbwc_b2b_nonce'] ) ) : '';
+            if ( ! $company_id || ! wp_verify_nonce( $nonce, 'spbwc_b2b_' . $company_id ) ) {
+                wp_send_json_error( array( 'message' => esc_html__( 'Security check failed — please reload.', 'storelly-product-builder-for-woocommerce' ) ), 400 );
+            }
+            if ( ! current_user_can( self::CAPABILITY ) ) {
+                wp_send_json_error( array( 'message' => esc_html__( 'Permission denied.', 'storelly-product-builder-for-woocommerce' ) ), 403 );
+            }
+            $do     = isset( $_POST['spbwc_b2b_do'] ) ? sanitize_key( wp_unslash( $_POST['spbwc_b2b_do'] ) ) : '';
+            $amount = isset( $_POST['amount'] ) ? (float) wp_unslash( $_POST['amount'] ) : 0;
+            $note   = isset( $_POST['note'] ) ? sanitize_text_field( wp_unslash( $_POST['note'] ) ) : '';
+            $dir    = isset( $_POST['direction'] ) ? sanitize_key( wp_unslash( $_POST['direction'] ) ) : 'credit';
+
+            if ( ! in_array( $do, array( 'credit_topup', 'credit_payment', 'credit_adjust' ), true ) || $amount <= 0 ) {
+                wp_send_json_error( array( 'message' => esc_html__( 'Enter an amount greater than zero.', 'storelly-product-builder-for-woocommerce' ) ), 400 );
+            }
+            if ( ! self::process_credit_txn( $company_id, $do, $amount, $note, $dir ) ) {
+                wp_send_json_error( array( 'message' => esc_html__( 'The transaction could not be recorded.', 'storelly-product-builder-for-woocommerce' ) ), 500 );
+            }
+
+            $limit       = class_exists( 'SPBWC_B2B_Credit' ) ? SPBWC_B2B_Credit::credit_limit( $company_id ) : (float) get_post_meta( $company_id, SPBWC_Company::META_CREDIT_LIMIT, true );
+            $available   = SPBWC_B2B_Ledger::get_available_credit( $company_id, $limit );
+            $wallet      = SPBWC_B2B_Ledger::get_wallet( $company_id );
+            $outstanding = SPBWC_B2B_Ledger::get_outstanding( $company_id );
+
+            wp_send_json_success( array(
+                'kpis'    => array(
+                    'available'   => wc_price( $available ),
+                    'wallet'      => wc_price( $wallet ),
+                    'outstanding' => wc_price( $outstanding ),
+                    'limit'       => wc_price( $limit ),
+                ),
+                'row'     => self::statement_row_html( $company_id ),
+                'message' => esc_html__( 'Transaction recorded.', 'storelly-product-builder-for-woocommerce' ),
+            ) );
+        }
+
+        /** Render the latest statement row as a <tr> (used to prepend after AJAX). */
+        protected static function statement_row_html( $company_id ) {
+            $rows = SPBWC_B2B_Ledger::get_statement( $company_id, 1 );
+            if ( empty( $rows ) ) {
+                return '';
+            }
+            $r   = $rows[0];
+            $ref = ( 'order' === $r->ref_type && $r->ref_id ) ? '#' . (int) $r->ref_id : '—';
+            $html  = '<tr>';
+            $html .= '<td>' . esc_html( mysql2date( get_option( 'date_format' ), $r->effective_date ) ) . '</td>';
+            $html .= '<td>' . esc_html( SPBWC_B2B_Ledger::txn_label( $r->txn_type ) ) . '</td>';
+            $html .= '<td>' . esc_html( $ref ) . '</td>';
+            $html .= '<td>' . esc_html( (string) $r->note ) . '</td>';
+            $html .= '<td style="text-align:right">' . ( (float) $r->debit > 0 ? wp_kses_post( wc_price( $r->debit ) ) : '' ) . '</td>';
+            $html .= '<td style="text-align:right">' . ( (float) $r->credit > 0 ? wp_kses_post( wc_price( $r->credit ) ) : '' ) . '</td>';
+            $html .= '</tr>';
+            return $html;
         }
 
         /**
@@ -364,6 +512,98 @@ if ( ! class_exists( 'SPBWC_B2B_Admin' ) ) {
             }
             $list = array_values( array_diff( array_map( 'absint', $list ), array( (int) $product_id ) ) );
             update_post_meta( $company_id, SPBWC_Company::META_ALLOWED_PRODUCTS, $list );
+        }
+
+        /**
+         * Persist the full Brand Store profile from the admin Company-profile tab.
+         * Same meta keys (and sanitisation contract) as the owner's My-Account form,
+         * so either side can edit. Nonce + capability are already verified by the
+         * caller in maybe_handle_actions().
+         *
+         * @param int $company_id Company.
+         */
+        protected function handle_save_profile( $company_id ) {
+            $get = function ( $key ) {
+                return isset( $_POST[ $key ] ) ? sanitize_text_field( wp_unslash( $_POST[ $key ] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Missing -- nonce verified by caller.
+            };
+
+            // Title + branding.
+            $title = $get( 'company_name' );
+            if ( '' !== $title ) {
+                wp_update_post( array( 'ID' => $company_id, 'post_title' => $title ) );
+            }
+            update_post_meta( $company_id, SPBWC_Company::META_TAGLINE, $get( 'tagline' ) );
+            // phpcs:ignore WordPress.Security.NonceVerification.Missing -- nonce verified by caller.
+            $desc = isset( $_POST['description'] ) ? sanitize_textarea_field( wp_unslash( $_POST['description'] ) ) : '';
+            update_post_meta( $company_id, SPBWC_Company::META_DESCRIPTION, $desc );
+            update_post_meta( $company_id, SPBWC_Company::META_BRAND_PRIMARY, SPBWC_Company::sanitize_hex( $get( 'brand_primary' ) ) );
+            update_post_meta( $company_id, SPBWC_Company::META_BRAND_SECONDARY, SPBWC_Company::sanitize_hex( $get( 'brand_secondary' ) ) );
+
+            // Corporate profile.
+            update_post_meta( $company_id, SPBWC_Company::META_PROFILE, array(
+                'legal_name' => $get( 'legal_name' ),
+                'dba'        => $get( 'dba' ),
+                'industry'   => $get( 'industry' ),
+                'employees'  => $get( 'employees' ),
+                'tax_id'     => $get( 'tax_id' ),
+            ) );
+
+            // Address.
+            update_post_meta( $company_id, SPBWC_Company::META_ADDRESSES, array(
+                'street'   => $get( 'addr_street' ),
+                'city'     => $get( 'addr_city' ),
+                'state'    => $get( 'addr_state' ),
+                'postcode' => $get( 'addr_postcode' ),
+                'country'  => $get( 'addr_country' ),
+            ) );
+
+            // Contact.
+            update_post_meta( $company_id, SPBWC_Company::META_CONTACT, array(
+                'name'    => $get( 'contact_name' ),
+                'title'   => $get( 'contact_title' ),
+                'email'   => sanitize_email( $get( 'contact_email' ) ),
+                'phone'   => $get( 'contact_phone' ),
+                'website' => esc_url_raw( $get( 'contact_website' ) ),
+            ) );
+
+            // Uploads (logo / banner).
+            self::handle_profile_upload( $company_id, 'logo', SPBWC_Company::META_LOGO );
+            self::handle_profile_upload( $company_id, 'banner', SPBWC_Company::META_BANNER );
+
+            // Auto-promote incomplete → active once the profile is complete.
+            if ( SPBWC_Company::STATUS_INCOMPLETE === SPBWC_Company::get_status( $company_id )
+                && SPBWC_Company::profile_is_complete( $company_id ) ) {
+                SPBWC_Company::set_status( $company_id, SPBWC_Company::STATUS_ACTIVE, __( 'Profile completed — company activated.', 'storelly-product-builder-for-woocommerce' ) );
+            }
+
+            SPBWC_Company::add_timeline_event( $company_id, __( 'Company profile / Brand Store updated by merchant.', 'storelly-product-builder-for-woocommerce' ) );
+        }
+
+        /**
+         * Handle a single image upload into the media library and store its ID.
+         *
+         * @param int    $company_id Company.
+         * @param string $field      $_FILES key.
+         * @param string $meta_key   Where to store the attachment ID.
+         */
+        protected static function handle_profile_upload( $company_id, $field, $meta_key ) {
+            if ( empty( $_FILES[ $field ]['name'] ) ) {
+                return;
+            }
+            require_once ABSPATH . 'wp-admin/includes/file.php';
+            require_once ABSPATH . 'wp-admin/includes/media.php';
+            require_once ABSPATH . 'wp-admin/includes/image.php';
+
+            $allowed = array( 'image/png', 'image/jpeg', 'image/svg+xml' );
+            // phpcs:ignore WordPress.Security.ValidatedSanitizedInput -- WP core validates the upload; type checked below.
+            $type = isset( $_FILES[ $field ]['type'] ) ? sanitize_text_field( wp_unslash( $_FILES[ $field ]['type'] ) ) : '';
+            if ( ! in_array( $type, $allowed, true ) ) {
+                return;
+            }
+            $attachment_id = media_handle_upload( $field, 0 );
+            if ( ! is_wp_error( $attachment_id ) && $attachment_id ) {
+                update_post_meta( $company_id, $meta_key, (int) $attachment_id );
+            }
         }
 
         /** Create a company from a regular customer (the upgrade). */
@@ -562,7 +802,7 @@ if ( ! class_exists( 'SPBWC_B2B_Admin' ) ) {
                 $tier    = (string) get_post_meta( $company->ID, SPBWC_Company::META_TIER, true );
                 $detail  = self::page_url( array( 'company' => $company->ID ) );
 
-                echo '<tr>';
+                echo '<tr class="spbwc-row-link" data-href="' . esc_url( $detail ) . '">';
                 // Company (logo + name + slug).
                 echo '<td><span class="spbwc-row spbwc-row--sm">';
                 if ( $logo_id ) {
@@ -575,7 +815,7 @@ if ( ! class_exists( 'SPBWC_B2B_Admin' ) ) {
                 echo '<td><span class="spbwc-row spbwc-row--sm">' . self::avatar( $owner, 'spbwc-avatar--sm' ) // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- avatar escapes.
                     . '<span>' . esc_html( $owner ? $owner->user_email : '—' ) . '</span></span></td>';
                 // Tier.
-                echo '<td>' . ( '' !== $tier && class_exists( 'SPBWC_B2B_Pricing' ) ? '<span class="spbwc-role-chip spbwc-role-chip--admin">' . esc_html( SPBWC_B2B_Pricing::tier_label( $tier ) ) . '</span>' : '<span class="spbwc-muted">—</span>' ) . '</td>';
+                echo '<td>' . ( '' !== $tier && class_exists( 'SPBWC_B2B_Pricing' ) ? '<span class="spbwc-role-chip spbwc-role-chip--admin">' . esc_html( SPBWC_B2B_Pricing::tier_label( $tier ) ) . '</span>' : '<span class="spbwc-role-chip spbwc-role-chip--viewer">' . esc_html__( 'No tier', 'storelly-product-builder-for-woocommerce' ) . '</span>' ) . '</td>';
                 // Team meter.
                 echo '<td><span class="spbwc-stack"><span>' . esc_html( $members . ' / ' . $seats ) . '</span>' . self::meter( $members, $seats ) . '</span></td>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- meter escapes.
                 // Status.
@@ -709,7 +949,7 @@ if ( ! class_exists( 'SPBWC_B2B_Admin' ) ) {
             $rules    = class_exists( 'SPBWC_B2B_Price_Rules' ) ? SPBWC_B2B_Price_Rules::get_rules_for_company( $company_id ) : array();
 
             // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only tab routing.
-            $active = isset( $_GET['detail_tab'] ) ? sanitize_key( wp_unslash( $_GET['detail_tab'] ) ) : 'overview';
+            $active = isset( $_GET['detail_tab'] ) ? sanitize_key( wp_unslash( $_GET['detail_tab'] ) ) : 'profile';
 
             // Hero actions: back + view store + status action.
             $actions = '<a class="spbwc-cta-btn spbwc-cta-btn--ghost spbwc-cta-btn--sm" href="' . esc_url( self::page_url() ) . '"><span class="dashicons dashicons-arrow-left-alt2" aria-hidden="true"></span> ' . esc_html__( 'Companies', 'storelly-product-builder-for-woocommerce' ) . '</a>';
@@ -752,6 +992,7 @@ if ( ! class_exists( 'SPBWC_B2B_Admin' ) ) {
             // Without JS the CSS leaves all panels visible (graceful fallback).
             // `detail_tab` seeds the initial panel (used by post-save redirects).
             $tabs = array(
+                'profile'  => __( 'Company profile', 'storelly-product-builder-for-woocommerce' ),
                 'overview' => __( 'Overview', 'storelly-product-builder-for-woocommerce' ),
                 'members'  => __( 'Members', 'storelly-product-builder-for-woocommerce' ),
                 'pricing'  => __( 'Pricing & products', 'storelly-product-builder-for-woocommerce' ),
@@ -759,7 +1000,7 @@ if ( ! class_exists( 'SPBWC_B2B_Admin' ) ) {
                 'activity' => __( 'Activity', 'storelly-product-builder-for-woocommerce' ),
             );
             if ( ! isset( $tabs[ $active ] ) ) {
-                $active = 'overview';
+                $active = 'profile';
             }
 
             echo '<div class="spbwc-b2b-detail">';
@@ -781,6 +1022,9 @@ if ( ! class_exists( 'SPBWC_B2B_Admin' ) ) {
             echo '</nav>';
 
             $panels = array(
+                'profile'  => function () use ( $company_id, $nonce ) {
+                    $this->render_profile_tab( $company_id, $nonce );
+                },
                 'overview' => function () use ( $company_id, $nonce, $seats ) {
                     $this->render_overview_tab( $company_id, $nonce, $seats );
                 },
@@ -807,7 +1051,120 @@ if ( ! class_exists( 'SPBWC_B2B_Admin' ) ) {
             echo '</div>';
         }
 
-        /** Overview tab: settings + profile snapshot. */
+        /**
+         * Company-profile tab: the full Brand Store editor, admin-side.
+         *
+         * Mirrors the owner's My-Account → Brand Store form (same meta keys), so a
+         * WordPress administrator can edit every branding, corporate, address and
+         * contact field — including logo / banner uploads — on the company's behalf.
+         *
+         * @param int    $company_id Company.
+         * @param string $nonce      Action nonce (spbwc_b2b_<id>).
+         */
+        protected function render_profile_tab( $company_id, $nonce ) {
+            $tagline   = (string) get_post_meta( $company_id, SPBWC_Company::META_TAGLINE, true );
+            $desc      = (string) get_post_meta( $company_id, SPBWC_Company::META_DESCRIPTION, true );
+            $primary   = (string) get_post_meta( $company_id, SPBWC_Company::META_BRAND_PRIMARY, true );
+            $secondary = (string) get_post_meta( $company_id, SPBWC_Company::META_BRAND_SECONDARY, true );
+            $logo_id   = (int) get_post_meta( $company_id, SPBWC_Company::META_LOGO, true );
+            $banner_id = (int) get_post_meta( $company_id, SPBWC_Company::META_BANNER, true );
+            $profile   = (array) get_post_meta( $company_id, SPBWC_Company::META_PROFILE, true );
+            $address   = (array) get_post_meta( $company_id, SPBWC_Company::META_ADDRESSES, true );
+            $contact   = (array) get_post_meta( $company_id, SPBWC_Company::META_CONTACT, true );
+            $complete  = SPBWC_Company::profile_is_complete( $company_id );
+
+            $g = function ( $arr, $key ) {
+                return isset( $arr[ $key ] ) ? (string) $arr[ $key ] : '';
+            };
+
+            // Local field renderers (admin design tokens — reuse .spbwc-setting-row).
+            $text = function ( $name, $label, $value, $hint = '', $required = false, $type = 'text' ) {
+                echo '<div class="spbwc-setting-row"><label class="spbwc-setting-row__label" for="spbwc-pf-' . esc_attr( $name ) . '">' . esc_html( $label ) . ( $required ? ' <span class="spbwc-req">*</span>' : '' ) . '</label>';
+                echo '<input class="spbwc-input" type="' . esc_attr( $type ) . '" id="spbwc-pf-' . esc_attr( $name ) . '" name="' . esc_attr( $name ) . '" value="' . esc_attr( $value ) . '"' . ( $required ? ' required' : '' ) . ' />';
+                if ( '' !== $hint ) {
+                    echo '<span class="spbwc-setting-row__hint">' . esc_html( $hint ) . '</span>';
+                }
+                echo '</div>';
+            };
+
+            echo '<form method="post" enctype="multipart/form-data" class="spbwc-b2b-profile" action="' . esc_url( self::page_url( array( 'company' => $company_id, 'detail_tab' => 'profile' ) ) ) . '">';
+            echo '<input type="hidden" name="spbwc_b2b_do" value="save_profile" /><input type="hidden" name="company" value="' . esc_attr( $company_id ) . '" /><input type="hidden" name="_spbwc_b2b_nonce" value="' . esc_attr( $nonce ) . '" />';
+
+            /* ── Branding ─────────────────────────────────────────── */
+            echo '<div class="spbwc-block"><div class="spbwc-block__head"><h3 class="spbwc-block__title"><span class="dashicons dashicons-art" aria-hidden="true"></span> ' . esc_html__( 'Branding', 'storelly-product-builder-for-woocommerce' ) . '</h3>';
+            echo '<span class="spbwc-pill spbwc-pill--' . ( $complete ? 'success">' . esc_html__( 'Profile complete', 'storelly-product-builder-for-woocommerce' ) : 'warn">' . esc_html__( 'Profile incomplete', 'storelly-product-builder-for-woocommerce' ) ) . '</span></div>';
+            echo '<div class="spbwc-block__body"><div class="spbwc-setting-rows">';
+            $text( 'company_name', __( 'Store name', 'storelly-product-builder-for-woocommerce' ), get_the_title( $company_id ), __( 'Public name shown on the Brand Store and in the team account.', 'storelly-product-builder-for-woocommerce' ), true );
+            $text( 'tagline', __( 'Tagline', 'storelly-product-builder-for-woocommerce' ), $tagline, __( 'A short one-line strapline under the store name.', 'storelly-product-builder-for-woocommerce' ) );
+            // Uploads.
+            echo '<div class="spbwc-setting-row"><label class="spbwc-setting-row__label">' . esc_html__( 'Logo & banner', 'storelly-product-builder-for-woocommerce' ) . '</label><div class="spbwc-b2b-uploads">';
+            $this->profile_upload_field( 'logo', __( 'Logo', 'storelly-product-builder-for-woocommerce' ), __( 'Square · min 400×400 · PNG/SVG', 'storelly-product-builder-for-woocommerce' ), $logo_id, 'image/png,image/jpeg,image/svg+xml', 'thumbnail' );
+            $this->profile_upload_field( 'banner', __( 'Banner', 'storelly-product-builder-for-woocommerce' ), __( '≈1920×400 · PNG/JPG', 'storelly-product-builder-for-woocommerce' ), $banner_id, 'image/png,image/jpeg', 'medium' );
+            echo '</div></div>';
+            // Colours.
+            echo '<div class="spbwc-setting-row"><label class="spbwc-setting-row__label">' . esc_html__( 'Brand colours', 'storelly-product-builder-for-woocommerce' ) . '</label><div class="spbwc-b2b-colours">';
+            $this->profile_color_field( 'brand_primary', __( 'Primary', 'storelly-product-builder-for-woocommerce' ), $primary );
+            $this->profile_color_field( 'brand_secondary', __( 'Secondary', 'storelly-product-builder-for-woocommerce' ), $secondary );
+            echo '</div><span class="spbwc-setting-row__hint">' . esc_html__( 'Used for the public store header gradient and accents.', 'storelly-product-builder-for-woocommerce' ) . '</span></div>';
+            // Description.
+            echo '<div class="spbwc-setting-row"><label class="spbwc-setting-row__label" for="spbwc-pf-description">' . esc_html__( 'Brand description', 'storelly-product-builder-for-woocommerce' ) . '</label><textarea class="spbwc-input" id="spbwc-pf-description" name="description" rows="3">' . esc_textarea( $desc ) . '</textarea><span class="spbwc-setting-row__hint">' . esc_html__( 'Short "about" paragraph shown on the public Brand Store.', 'storelly-product-builder-for-woocommerce' ) . '</span></div>';
+            echo '</div></div></div>';
+
+            /* ── Corporate profile ────────────────────────────────── */
+            echo '<div class="spbwc-block"><div class="spbwc-block__head"><h3 class="spbwc-block__title"><span class="dashicons dashicons-building" aria-hidden="true"></span> ' . esc_html__( 'Corporate profile', 'storelly-product-builder-for-woocommerce' ) . '</h3>';
+            echo '<p class="spbwc-block__subtitle">' . esc_html__( 'Legal identity used on quotes, invoices and approvals.', 'storelly-product-builder-for-woocommerce' ) . '</p></div>';
+            echo '<div class="spbwc-block__body"><div class="spbwc-setting-rows">';
+            $text( 'legal_name', __( 'Legal company name', 'storelly-product-builder-for-woocommerce' ), $g( $profile, 'legal_name' ), __( 'Registered company name — required to complete the profile.', 'storelly-product-builder-for-woocommerce' ), true );
+            $text( 'dba', __( 'Trade / DBA name', 'storelly-product-builder-for-woocommerce' ), $g( $profile, 'dba' ) );
+            $text( 'industry', __( 'Industry', 'storelly-product-builder-for-woocommerce' ), $g( $profile, 'industry' ) );
+            $text( 'employees', __( 'Number of employees', 'storelly-product-builder-for-woocommerce' ), $g( $profile, 'employees' ) );
+            $text( 'tax_id', __( 'VAT / Tax ID', 'storelly-product-builder-for-woocommerce' ), $g( $profile, 'tax_id' ), __( 'Shown on invoices where applicable.', 'storelly-product-builder-for-woocommerce' ) );
+            echo '</div></div></div>';
+
+            /* ── Address ──────────────────────────────────────────── */
+            echo '<div class="spbwc-block"><div class="spbwc-block__head"><h3 class="spbwc-block__title"><span class="dashicons dashicons-location" aria-hidden="true"></span> ' . esc_html__( 'Address', 'storelly-product-builder-for-woocommerce' ) . '</h3></div>';
+            echo '<div class="spbwc-block__body"><div class="spbwc-setting-rows">';
+            $text( 'addr_street', __( 'Street address', 'storelly-product-builder-for-woocommerce' ), $g( $address, 'street' ) );
+            $text( 'addr_city', __( 'City', 'storelly-product-builder-for-woocommerce' ), $g( $address, 'city' ) );
+            $text( 'addr_state', __( 'State / Province', 'storelly-product-builder-for-woocommerce' ), $g( $address, 'state' ) );
+            $text( 'addr_postcode', __( 'Postcode', 'storelly-product-builder-for-woocommerce' ), $g( $address, 'postcode' ) );
+            $text( 'addr_country', __( 'Country', 'storelly-product-builder-for-woocommerce' ), $g( $address, 'country' ) );
+            echo '</div></div></div>';
+
+            /* ── Official contact ─────────────────────────────────── */
+            echo '<div class="spbwc-block"><div class="spbwc-block__head"><h3 class="spbwc-block__title"><span class="dashicons dashicons-id" aria-hidden="true"></span> ' . esc_html__( 'Official contact', 'storelly-product-builder-for-woocommerce' ) . '</h3></div>';
+            echo '<div class="spbwc-block__body"><div class="spbwc-setting-rows">';
+            $text( 'contact_name', __( 'Primary contact name', 'storelly-product-builder-for-woocommerce' ), $g( $contact, 'name' ) );
+            $text( 'contact_title', __( 'Title / Role', 'storelly-product-builder-for-woocommerce' ), $g( $contact, 'title' ) );
+            $text( 'contact_email', __( 'Business email', 'storelly-product-builder-for-woocommerce' ), $g( $contact, 'email' ), '', false, 'email' );
+            $text( 'contact_phone', __( 'Business phone', 'storelly-product-builder-for-woocommerce' ), $g( $contact, 'phone' ) );
+            $text( 'contact_website', __( 'Website', 'storelly-product-builder-for-woocommerce' ), $g( $contact, 'website' ), '', false, 'url' );
+            echo '</div><div class="spbwc-block__foot spbwc-block__foot--split"><span class="description">' . esc_html__( 'Edited as the merchant on the company\'s behalf. The owner can also edit these from My Account → Brand Store.', 'storelly-product-builder-for-woocommerce' ) . '</span><button type="submit" class="spbwc-cta-btn spbwc-cta-btn--solid"><span class="dashicons dashicons-saved" aria-hidden="true"></span> ' . esc_html__( 'Save Brand Store', 'storelly-product-builder-for-woocommerce' ) . '</button></div></div></div>';
+            echo '</form>';
+        }
+
+        /** Admin upload field with current-image preview (profile tab). */
+        protected function profile_upload_field( $name, $label, $hint, $attachment_id, $accept, $size ) {
+            echo '<label class="spbwc-b2b-upload"><span class="spbwc-b2b-upload__label">' . esc_html( $label ) . '</span>';
+            echo '<span class="spbwc-b2b-upload__box">';
+            if ( $attachment_id ) {
+                echo wp_get_attachment_image( (int) $attachment_id, $size, false, array( 'class' => 'spbwc-b2b-upload__preview' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- core markup.
+            } else {
+                echo '<span class="spbwc-b2b-upload__icon dashicons dashicons-format-image" aria-hidden="true"></span>';
+            }
+            echo '<span class="spbwc-b2b-upload__hint">' . esc_html( $hint ) . '</span>';
+            echo '<input type="file" name="' . esc_attr( $name ) . '" accept="' . esc_attr( $accept ) . '" />';
+            echo '</span></label>';
+        }
+
+        /** Admin colour swatch + hex field (profile tab). */
+        protected function profile_color_field( $name, $label, $value ) {
+            $value = '' !== $value ? $value : ( 'brand_secondary' === $name ? '#1e40af' : '#2563eb' );
+            echo '<span class="spbwc-b2b-colour"><span class="spbwc-b2b-colour__label">' . esc_html( $label ) . '</span>';
+            echo '<span class="spbwc-b2b-colour__field"><input type="color" name="' . esc_attr( $name ) . '" value="' . esc_attr( $value ) . '" aria-label="' . esc_attr( $label ) . '" /><code>' . esc_html( $value ) . '</code></span></span>';
+        }
+
+        /** Overview tab: account settings, split into two logically grouped cards. */
         protected function render_overview_tab( $company_id, $nonce, $seats ) {
             $terms        = (string) get_post_meta( $company_id, SPBWC_Company::META_PAYMENT_TERMS, true );
             $terms_custom = (string) get_post_meta( $company_id, SPBWC_Company::META_PAYMENT_TERMS_CUSTOM, true );
@@ -816,11 +1173,15 @@ if ( ! class_exists( 'SPBWC_B2B_Admin' ) ) {
             $rebate_pct   = (float) get_post_meta( $company_id, SPBWC_Company::META_REBATE_PCT, true );
             $current_tier = (string) get_post_meta( $company_id, SPBWC_Company::META_TIER, true );
             $tiers        = class_exists( 'SPBWC_B2B_Pricing' ) ? SPBWC_B2B_Pricing::get_tiers() : array();
-            $profile      = (array) get_post_meta( $company_id, SPBWC_Company::META_PROFILE, true );
+            $sym          = get_woocommerce_currency_symbol();
 
-            echo '<form method="post" action="' . esc_url( self::page_url( array( 'company' => $company_id ) ) ) . '">';
+            echo '<form method="post" action="' . esc_url( self::page_url( array( 'company' => $company_id, 'detail_tab' => 'overview' ) ) ) . '">';
             echo '<input type="hidden" name="spbwc_b2b_do" value="save" /><input type="hidden" name="company" value="' . esc_attr( $company_id ) . '" /><input type="hidden" name="_spbwc_b2b_nonce" value="' . esc_attr( $nonce ) . '" />';
-            echo '<div class="spbwc-block"><div class="spbwc-block__head"><h3 class="spbwc-block__title">' . esc_html__( 'Account settings', 'storelly-product-builder-for-woocommerce' ) . '</h3></div><div class="spbwc-block__body"><div class="spbwc-setting-rows">';
+
+            /* ── Card 1: Pricing & team ───────────────────────────── */
+            echo '<div class="spbwc-block"><div class="spbwc-block__head"><h3 class="spbwc-block__title"><span class="dashicons dashicons-groups" aria-hidden="true"></span> ' . esc_html__( 'Pricing & team', 'storelly-product-builder-for-woocommerce' ) . '</h3>';
+            echo '<p class="spbwc-block__subtitle">' . esc_html__( 'How this company is priced and how large its buying team can be.', 'storelly-product-builder-for-woocommerce' ) . '</p></div>';
+            echo '<div class="spbwc-block__body"><div class="spbwc-setting-rows">';
 
             echo '<div class="spbwc-setting-row"><label class="spbwc-setting-row__label">' . esc_html__( 'Pricing tier', 'storelly-product-builder-for-woocommerce' ) . '</label><select class="spbwc-input" name="tier" style="max-width:260px"><option value="">' . esc_html__( '— No tier —', 'storelly-product-builder-for-woocommerce' ) . '</option>';
             foreach ( $tiers as $tslug => $t ) {
@@ -831,35 +1192,29 @@ if ( ! class_exists( 'SPBWC_B2B_Admin' ) ) {
             echo '</select>';
             $hint = empty( $tiers ) && class_exists( 'SPBWC_B2B_Pricing_Admin' )
                 ? '<span class="spbwc-setting-row__hint"><a href="' . esc_url( SPBWC_B2B_Pricing_Admin::page_url() ) . '">' . esc_html__( 'Create a tier first', 'storelly-product-builder-for-woocommerce' ) . '</a></span>'
-                : '<span class="spbwc-setting-row__hint">' . esc_html__( 'Discount applied to this company.', 'storelly-product-builder-for-woocommerce' ) . '</span>';
+                : '<span class="spbwc-setting-row__hint">' . esc_html__( 'Sets the baseline % discount on every product for this company. Per-product overrides live in the Pricing & products tab.', 'storelly-product-builder-for-woocommerce' ) . '</span>';
             echo $hint . '</div>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- built from escaped parts.
 
-            echo '<div class="spbwc-setting-row"><label class="spbwc-setting-row__label">' . esc_html__( 'Team seats', 'storelly-product-builder-for-woocommerce' ) . '</label><input class="spbwc-input" type="number" name="seats" min="1" value="' . esc_attr( $seats ) . '" style="max-width:120px" /></div>';
-            echo '<div class="spbwc-setting-row"><label class="spbwc-setting-row__label">' . esc_html__( 'Approval threshold', 'storelly-product-builder-for-woocommerce' ) . '</label><input class="spbwc-input" type="number" name="approval_threshold" min="0" step="0.01" value="' . esc_attr( $thresh ) . '" style="max-width:160px" /><span class="spbwc-setting-row__hint">' . esc_html( get_woocommerce_currency_symbol() ) . ' · ' . esc_html__( 'orders above this need approval.', 'storelly-product-builder-for-woocommerce' ) . '</span></div>';
+            echo '<div class="spbwc-setting-row"><label class="spbwc-setting-row__label">' . esc_html__( 'Team seats', 'storelly-product-builder-for-woocommerce' ) . '</label><input class="spbwc-input" type="number" name="seats" min="1" value="' . esc_attr( $seats ) . '" style="max-width:120px" /><span class="spbwc-setting-row__hint">' . esc_html__( 'Maximum members the owner can invite to this company (buyers + approvers).', 'storelly-product-builder-for-woocommerce' ) . '</span></div>';
+            echo '<div class="spbwc-setting-row"><label class="spbwc-setting-row__label">' . esc_html__( 'Approval threshold', 'storelly-product-builder-for-woocommerce' ) . '</label><input class="spbwc-input" type="number" name="approval_threshold" min="0" step="0.01" value="' . esc_attr( $thresh ) . '" style="max-width:160px" /><span class="spbwc-setting-row__hint">' . esc_html( $sym ) . ' · ' . esc_html__( 'Orders above this amount are held for an approver. 0 = no approval needed.', 'storelly-product-builder-for-woocommerce' ) . '</span></div>';
+            echo '</div></div></div>';
+
+            /* ── Card 2: Credit & payment terms ───────────────────── */
+            echo '<div class="spbwc-block"><div class="spbwc-block__head"><h3 class="spbwc-block__title"><span class="dashicons dashicons-money-alt" aria-hidden="true"></span> ' . esc_html__( 'Credit & payment terms', 'storelly-product-builder-for-woocommerce' ) . '</h3>';
+            echo '<p class="spbwc-block__subtitle">' . esc_html__( 'How this company pays — prepaid wallet, net terms ceiling and loyalty rebate.', 'storelly-product-builder-for-woocommerce' ) . '</p></div>';
+            echo '<div class="spbwc-block__body"><div class="spbwc-setting-rows">';
+
             echo '<div class="spbwc-setting-row"><label class="spbwc-setting-row__label">' . esc_html__( 'Payment terms', 'storelly-product-builder-for-woocommerce' ) . '</label><select class="spbwc-input js-spbwc-terms-select" name="payment_terms" style="max-width:220px">';
             foreach ( self::payment_terms() as $slug => $label ) {
                 echo '<option value="' . esc_attr( $slug ) . '"' . selected( $terms, $slug, false ) . '>' . esc_html( $label ) . '</option>';
             }
             echo '</select>';
-            echo '<input class="spbwc-input js-spbwc-terms-custom" type="text" name="payment_terms_custom" value="' . esc_attr( $terms_custom ) . '" placeholder="' . esc_attr__( 'Custom label, e.g. Net 45', 'storelly-product-builder-for-woocommerce' ) . '" style="max-width:220px;margin-top:6px;' . ( 'custom' === $terms ? '' : 'display:none' ) . '" /></div>';
-            echo '<div class="spbwc-setting-row"><label class="spbwc-setting-row__label">' . esc_html__( 'Credit limit', 'storelly-product-builder-for-woocommerce' ) . '</label><input class="spbwc-input" type="number" name="credit_limit" min="0" step="0.01" value="' . esc_attr( $climit ) . '" style="max-width:160px" /><span class="spbwc-setting-row__hint">' . esc_html( get_woocommerce_currency_symbol() ) . ' · ' . esc_html__( 'net-terms ceiling. 0 = prepaid wallet only.', 'storelly-product-builder-for-woocommerce' ) . '</span></div>';
-            echo '<div class="spbwc-setting-row"><label class="spbwc-setting-row__label">' . esc_html__( 'Volume rebate', 'storelly-product-builder-for-woocommerce' ) . '</label><input class="spbwc-input" type="number" name="rebate_pct" min="0" max="100" step="0.1" value="' . esc_attr( $rebate_pct ) . '" style="max-width:120px" /><span class="spbwc-setting-row__hint">% · ' . esc_html__( 'monthly cashback on completed orders, credited to the wallet. 0 = off.', 'storelly-product-builder-for-woocommerce' ) . '</span></div>';
+            echo '<input class="spbwc-input js-spbwc-terms-custom" type="text" name="payment_terms_custom" value="' . esc_attr( $terms_custom ) . '" placeholder="' . esc_attr__( 'Custom label, e.g. Net 45', 'storelly-product-builder-for-woocommerce' ) . '" style="max-width:220px;margin-top:6px;' . ( 'custom' === $terms ? '' : 'display:none' ) . '" />';
+            echo '<span class="spbwc-setting-row__hint">' . esc_html__( 'When the company may settle invoices. Net terms draw on the credit limit below.', 'storelly-product-builder-for-woocommerce' ) . '</span></div>';
+            echo '<div class="spbwc-setting-row"><label class="spbwc-setting-row__label">' . esc_html__( 'Credit limit', 'storelly-product-builder-for-woocommerce' ) . '</label><input class="spbwc-input" type="number" name="credit_limit" min="0" step="0.01" value="' . esc_attr( $climit ) . '" style="max-width:160px" /><span class="spbwc-setting-row__hint">' . esc_html( $sym ) . ' · ' . esc_html__( 'Net-terms ceiling — how much the company may owe at once. 0 = prepaid wallet only. Manage balances in the Account credit tab.', 'storelly-product-builder-for-woocommerce' ) . '</span></div>';
+            echo '<div class="spbwc-setting-row"><label class="spbwc-setting-row__label">' . esc_html__( 'Volume rebate', 'storelly-product-builder-for-woocommerce' ) . '</label><input class="spbwc-input" type="number" name="rebate_pct" min="0" max="100" step="0.1" value="' . esc_attr( $rebate_pct ) . '" style="max-width:120px" /><span class="spbwc-setting-row__hint">% · ' . esc_html__( 'Monthly cashback on completed orders, credited back to the wallet. 0 = off.', 'storelly-product-builder-for-woocommerce' ) . '</span></div>';
             echo '</div></div><div class="spbwc-block__foot"><button type="submit" class="spbwc-cta-btn spbwc-cta-btn--solid">' . esc_html__( 'Save changes', 'storelly-product-builder-for-woocommerce' ) . '</button></div></div>';
             echo '</form>';
-
-            // Profile snapshot.
-            echo '<div class="spbwc-block"><div class="spbwc-block__head"><h3 class="spbwc-block__title">' . esc_html__( 'Company profile', 'storelly-product-builder-for-woocommerce' ) . '</h3>';
-            echo '<span class="spbwc-pill spbwc-pill--' . ( SPBWC_Company::profile_is_complete( $company_id ) ? 'success">' . esc_html__( 'Complete', 'storelly-product-builder-for-woocommerce' ) : 'warn">' . esc_html__( 'Incomplete', 'storelly-product-builder-for-woocommerce' ) ) . '</span>';
-            echo '</div><div class="spbwc-block__body"><div class="spbwc-q-recap">';
-            $rows = array(
-                __( 'Legal name', 'storelly-product-builder-for-woocommerce' )  => isset( $profile['legal_name'] ) ? $profile['legal_name'] : '',
-                __( 'Industry', 'storelly-product-builder-for-woocommerce' )    => isset( $profile['industry'] ) ? $profile['industry'] : '',
-                __( 'Tax / VAT ID', 'storelly-product-builder-for-woocommerce' ) => isset( $profile['tax_id'] ) ? $profile['tax_id'] : '',
-            );
-            foreach ( $rows as $label => $val ) {
-                echo '<span class="spbwc-q-recap__label">' . esc_html( $label ) . '</span><span class="spbwc-q-recap__value">' . esc_html( '' !== $val ? $val : '—' ) . '</span>';
-            }
-            echo '</div><p class="description">' . esc_html__( 'The company owner edits the full Brand Store profile from My Account.', 'storelly-product-builder-for-woocommerce' ) . '</p></div></div>';
         }
 
         /** Members tab: rich roster list. */

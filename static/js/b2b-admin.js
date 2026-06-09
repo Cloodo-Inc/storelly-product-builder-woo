@@ -198,3 +198,114 @@
 		}
 	} );
 } )();
+
+/**
+ * Account-credit tab — AJAX transactions (no reload).
+ *
+ * Intercepts the three credit forms (top-up / payment / adjustment), posts them
+ * to admin-ajax, then live-updates the KPI strip and prepends the new statement
+ * row in place. The nonce travels with the form, so no extra config is needed
+ * beyond ajaxUrl. Without JS the forms POST normally (graceful fallback).
+ */
+( function () {
+	'use strict';
+	var cfg   = window.spbwcB2BAdmin || {};
+	var panel = document.getElementById( 'spbwc-b2b-panel-credit' );
+	if ( ! panel || ! cfg.ajaxUrl ) { return; }
+
+	var kpiVals = panel.querySelectorAll( '.spbwc-q-kpis .spbwc-q-kpi__value' );
+	var tbody   = panel.querySelector( 'table.spbwc-admin-table tbody' );
+	var i18n    = cfg.i18n || {};
+
+	function feedback( form, msg, isErr ) {
+		var el = form.querySelector( '.spbwc-credit-feedback' );
+		if ( ! el ) {
+			el = document.createElement( 'span' );
+			el.className = 'spbwc-credit-feedback';
+			form.appendChild( el );
+		}
+		el.textContent = msg;
+		el.classList.toggle( 'is-error', !! isErr );
+		el.classList.add( 'is-shown' );
+		window.clearTimeout( el._t );
+		if ( ! isErr ) {
+			el._t = window.setTimeout( function () { el.classList.remove( 'is-shown' ); }, 4000 );
+		}
+	}
+
+	panel.addEventListener( 'submit', function ( e ) {
+		var form = e.target.closest ? e.target.closest( 'form.spbwc-b2b-bind' ) : null;
+		if ( ! form ) { return; }
+		var doField = form.querySelector( 'input[name="spbwc_b2b_do"]' );
+		var doVal   = doField ? doField.value : '';
+		if ( doVal.indexOf( 'credit_' ) !== 0 ) { return; }
+		e.preventDefault();
+
+		var amount = form.querySelector( 'input[name="amount"]' );
+		if ( amount && ! ( parseFloat( amount.value ) > 0 ) ) {
+			feedback( form, i18n.creditFail || 'Enter an amount.', true );
+			return;
+		}
+
+		var btn  = form.querySelector( 'button[type="submit"]' );
+		var body = new URLSearchParams( new FormData( form ) );
+		body.set( 'action', 'spbwc_b2b_credit_txn' );
+
+		if ( btn ) { btn.disabled = true; }
+		feedback( form, i18n.working || 'Working…', false );
+
+		fetch( cfg.ajaxUrl, {
+			method: 'POST',
+			credentials: 'same-origin',
+			headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+			body: body.toString()
+		} ).then( function ( r ) {
+			return r.json();
+		} ).then( function ( json ) {
+			if ( btn ) { btn.disabled = false; }
+			if ( ! json || ! json.success ) {
+				feedback( form, ( json && json.data && json.data.message ) || i18n.creditFail || 'Error', true );
+				return;
+			}
+			var d = json.data || {};
+			if ( d.kpis && kpiVals.length >= 4 ) {
+				kpiVals[0].innerHTML = d.kpis.available;
+				kpiVals[1].innerHTML = d.kpis.wallet;
+				kpiVals[2].innerHTML = d.kpis.outstanding;
+				kpiVals[3].innerHTML = d.kpis.limit;
+			}
+			if ( d.row && tbody ) {
+				var empty = tbody.querySelector( 'td[colspan]' );
+				if ( empty && empty.parentNode ) { empty.parentNode.remove(); }
+				tbody.insertAdjacentHTML( 'afterbegin', d.row );
+				if ( tbody.firstElementChild ) {
+					tbody.firstElementChild.classList.add( 'spbwc-row-flash' );
+				}
+			}
+			if ( amount ) { amount.value = ''; }
+			var note = form.querySelector( 'input[name="note"]' );
+			if ( note ) { note.value = ''; }
+			feedback( form, d.message || i18n.creditDone || 'Done', false );
+		} ).catch( function () {
+			if ( btn ) { btn.disabled = false; }
+			feedback( form, i18n.creditFail || 'Error', true );
+		} );
+	} );
+} )();
+
+/**
+ * Companies hub — whole-row click navigates to the company detail. Ignores
+ * clicks on real controls (links, buttons, the meter) so actions still work.
+ */
+( function () {
+	'use strict';
+	var rows = document.querySelectorAll( '.spbwc-admin-table tr.spbwc-row-link[data-href]' );
+	if ( ! rows.length ) { return; }
+	Array.prototype.forEach.call( rows, function ( tr ) {
+		tr.addEventListener( 'click', function ( e ) {
+			if ( e.target.closest( 'a, button, input, label, .spbwc-meter' ) ) { return; }
+			var href = tr.getAttribute( 'data-href' );
+			if ( href ) { window.location.href = href; }
+		} );
+	} );
+} )();
