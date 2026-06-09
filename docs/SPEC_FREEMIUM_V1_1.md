@@ -20,7 +20,7 @@ v1.1 turns that boundary into a sellable product line:
 |---|----------|--------|
 | A | **Two-plan model**: Cloud Standard **$49/mo** · Cloud B2B **$99/mo** (+annual) via `caps[]` | **O-5** |
 | B | **B2B service layer** (invoice PDF, **email triggers / scheduled sends**, statements, B2B analytics) — the reason B2B costs $99 | new |
-| C | **High-frequency cloud services** on Builder/Options: Design Vault, Asset Library, Option Analytics, Config Snapshots | new |
+| C | **Cloud data backbone + high-frequency services**: Order→Dashboard sync, Design Vault, Asset Library, Option Analytics, Config Snapshots | new |
 | D | **In-plugin Plans page** + **connect-back activation flow** (purchase → token → auto-license) | new, adds O-6 |
 | E | **Template marketplace stays fully free** (browse / preview / download / updates) — confirmed, no premium split | tidies v1.0 §2.2 |
 
@@ -45,7 +45,7 @@ The v1.0/v1.1 entitlement layer is **not yet implemented in code**. Audited 2026
 
 | Item | Finding | Consequence for this spec |
 |------|---------|---------------------------|
-| **A5** — does the legacy order-sync payload carry per-line selected options? | **NO.** `SPBWC_Productbuilder_Api::spbwc_run_order_sync()` (`includes/class-productbuilder-api.php:303-335`) sends per-item only `product_id, variation_id, unit_price, quantity, product_type` + design PDF URLs in `shipping_documents`. No structured pricing-option selections. | Since **order-sync is dropped as a sold cap (§0.3)**, Option Analytics (§4.3) sends its **own purpose-built `options[]` payload** behind the `option_analytics` cap — it never depended on a generic sync. The audit still matters: there is no existing option data on the wire to reuse. |
+| **A5** — does the legacy order-sync payload carry per-line selected options? | **NO.** `SPBWC_Productbuilder_Api::spbwc_run_order_sync()` (`includes/class-productbuilder-api.php:303-335`) sends per-item only `product_id, variation_id, unit_price, quantity, product_type` + design PDF URLs in `shipping_documents`. No structured pricing-option selections. | `order_sync` is the **re-added backbone (§4.0)**: its `update-orders` payload is **extended once** with per-line `options[]`, and Option Analytics (§4.3) computes from that feed. So the audit's takeaway is "extend the one payload", not "build N bespoke payloads". |
 | **Entitlement shape** — current `get_current_license()` | Returns `status, package_name, package_slug, expires_at, max_products, max_orders, max_pricing_options, features, synced_at` (`includes/class-license-manager.php:104-114`). **No `caps[]`, no `plan_slug`, no `cloud_license_active()`, no `can()`.** `sync_from_api()` reads `package.slug` / `package.features`, not `caps`. | **F1.1 must add** `caps[]` + `plan_slug` to the data shape and map them from the server response in `sync_from_api()`. `cloud_license_active()` (v1.0 §4.1) and `can($cap)` (§1.3) are **net-new**, not edits. |
 | **A6** — can `SPBWC_Cloud_Connect` consent be invoked inline post-activation without refactor? | **Plausible.** `SPBWC_Cloud_Connect` exposes `init / ajax_connect / connect() / is_connected()` (`includes/class-cloud-connect.php`) — a self-contained AJAX connect flow with `is_connected()`. The consent *render* entry point for §6.1 step 7 must be confirmed against the M5 consent screen, but no structural blocker found. | Keep A6 **low-risk**; §6.1 step 7 wiring confirmed during F6. |
 
@@ -60,11 +60,18 @@ Five product calls were made after the first draft. They are now binding:
 3. **No trial.** The 14-day trial is **removed entirely** (amends v1.0 D3). `status` has no
    `trial` value, there is no `trial_ends_at`. Funnel = generous free local value + upsell-by-intent
    at the cloud touch points (no taste-the-paid-tier on-ramp). Open item O-1 is **moot/closed**.
-4. **No order-sync product.** The legacy "Order → Dashboard sync" (`/api/v1/update-orders`,
-   POS-style payload) is **not** part of the freemium product and gets **no cap**. Cloud features
-   that need order/ledger data on the server each send their **own minimal derived payload**, gated
-   by their own cap + consent (§3, §4.3). The legacy `spbwc_run_order_sync` path is a candidate for
-   removal under the O-3 fork-scaffolding audit; it is no longer monetized.
+4. **Order-sync RE-ADDED as the cloud data backbone (`order_sync` cap, Standard + B2B).**
+   *(Reverses the 2026-06-08 "drop order_sync" call after a benefit analysis — see §4.0.)* Re-adding
+   it is not just acceptable, it is **architecturally cheaper**: instead of each analytics/B2B
+   service shipping its own bespoke payload + consent + External-services entry (the fragmentation
+   the trim created), there is **one canonical order feed**, extended **once** (A5: add `options[]`;
+   B2B: add ledger events). `option_analytics`, `analytics_b2b`, and `email_trigger` go back to
+   *computing on already-synced data*. Merchant benefit: production handoff (print-ready PDF +
+   design files travel to the Dashboard for fulfillment staff with no WP login), central/multi-device
+   order management, and analytics WooCommerce can't give natively. **Condition:** benefit exists
+   only if the Dashboard order surface is a live product — gate the build on the O-3 liveness audit
+   (if dormant fork scaffolding, do not sell it). PII posture: derived/normalized payload, strict
+   consent, single External-services declaration (C6).
 5. **Email triggers become a paid B2B service (new cap `email_trigger`).** Storelly's B2B emails
    and emails carrying **file attachments** fire locally & immediately for free; the **"trigger time"
    layer** (server-driven scheduling/timing of sends, fetched/controlled from the Storelly API) must
@@ -97,6 +104,7 @@ quota         : { design_vault_mb: int, used_mb: int }   // soft display only, s
 | Cap | Free | Standard $49 | B2B $99 | Service it gates |
 |---|:---:|:---:|:---:|---|
 | `cloud_pdf` | ❌ | ✅ | ✅ | Cloud2Print print-ready PDF (v1.0 §2.2) |
+| `order_sync` | ❌ | ✅ | ✅ | **Order → Dashboard sync — the data backbone** (§4.0): production handoff + feeds all analytics |
 | `design_vault` | ❌ | ✅ 5 GB | ✅ 20 GB | Customer design backup/cross-device (§4.1) |
 | `asset_library` | ❌ | ✅ | ✅ | In-canvas hosted cliparts/fonts (§4.2) |
 | `option_analytics` | ❌ | ✅ | ✅ | Per-option revenue analytics (§4.3) |
@@ -105,8 +113,9 @@ quota         : { design_vault_mb: int, used_mb: int }   // soft display only, s
 | `invoice_pdf` | ❌ | ❌ | ✅ | Branded invoice/quote/statement doc render (§3.1) |
 | `email_trigger` | ❌ | ❌ | ✅ | **Trigger-time / scheduled sends** for B2B & attachment emails (§3.2) |
 
-> Removed vs the 2026-06-07 draft: `order_sync`, `marketplace_premium` (both deleted per §0.3),
+> Removed vs the 2026-06-07 draft: `marketplace_premium` (deleted per §0.3 — templates all free),
 > the **Trial** column, and the separate `dunning`/`statements` caps (folded into `email_trigger`).
+> `order_sync` was briefly dropped then **re-added** as the backbone (§0.3 item 4, §4.0).
 
 ### 1.3 Gate predicate (replaces v1.0 §4.1 stub `can()`)
 
@@ -195,9 +204,9 @@ Context: per D2/D10, the entire local B2B suite (company CPT, tier pricing, wall
 rebate ledger `spbwc_b2b_ledger` M1–M5, approval flow) is **free**. The B2B plan sells server-side
 services consuming that local data. No local B2B feature is removed or gated.
 
-> **Data feed (replaces the dropped order_sync):** each B2B service POSTs its **own minimal,
-> derived, B2B-scoped payload** (company id/name/address, order totals, ledger events, due dates) —
-> never raw DB, never the legacy `/update-orders` payload. Gated by the service's own cap + consent.
+> **Data feed:** B2B services compute on the **`order_sync` backbone (§4.0)**, which is extended for
+> B2B with **ledger events** (charge/payment/due_date per company). One canonical feed — no bespoke
+> per-service payloads. Derived/normalized, never raw DB; gated by `order_sync` + each service's cap.
 
 ### 3.1 Branded document render — `invoice_pdf`
 
@@ -253,7 +262,7 @@ POST /api/v1/email-triggers/events          { license_key, site_url, company_id,
 
 ### 3.3 B2B analytics — `analytics_b2b`
 
-- Dashboard views computed server-side from the B2B-scoped derived payload: top accounts by revenue,
+- Dashboard views computed server-side from the `order_sync` feed + B2B ledger events (§4.0): top accounts by revenue,
   outstanding & aging buckets (0/30/60/90 — mirrors local `get_aging()`), DSO trend, churn-risk (no
   orders in N days vs account average), per-company LTV.
 - Plugin side: a read-only summary card on the Overview page via the existing `get_overview_stats()`
@@ -264,10 +273,42 @@ POST /api/v1/email-triggers/events          { license_key, site_url, company_id,
 
 ---
 
-## 4. (C) High-frequency cloud services — Builder & Pricing Options
+## 4. (C) Cloud data backbone + high-frequency services
 
 Design rule: engines/preview stay local (D2; real-time perf). Cloud bites only where there is
 **storage, hosted content, or computation on synced data** — real marginal cost.
+
+### 4.0 Order → Dashboard sync — the data backbone — `order_sync`
+
+**Why it exists (benefit, per §0.3 item 4):** one canonical order feed that (a) carries the
+print-ready PDF + design files to the Storelly Dashboard for **production handoff** (fulfillment
+staff work there, no WP login), (b) gives **central/multi-device order management**, and (c) is the
+**single data source** that `option_analytics`, `analytics_b2b`, and `email_trigger` all compute on —
+so those features stay cheap ("ride existing sync") instead of each shipping a bespoke payload.
+
+**Built on existing code:** `SPBWC_Productbuilder_Api::spbwc_run_order_sync()` already POSTs orders
+to `/api/v1/update-orders` (Action Scheduler, gated by `enable_api_sync` consent). v1.1 work =
+(1) add the `cloud_license_active()` + `can('order_sync')` gate on top of the consent flag (v1.0 §4.2
+two-condition rule); (2) **extend the payload once** with the data the audit found missing:
+
+```
+POST /api/v1/update-orders   { ...existing fields...,
+    "products": [{ product_id, variation_id, unit_price, quantity, product_type,
+                   "options": [{ group_key, value, surcharge, qty_break_tier }],   // NEW (A5)
+                   "design_files": [ signed_url, ... ] }],
+    "b2b": { company_id, ledger_events: [{ type, amount, due_date }] }             // NEW, B2B only
+}
+```
+
+Rules:
+- **Two-condition gate**: fires only if `enable_api_sync` consent **AND** `can('order_sync')`.
+  A free/expired store that consented but has no license → no upload + upsell-by-intent (never silent).
+- **Derived payload, declared PII**: amounts, line items, selected options, company name/address,
+  due dates. No WP credentials/password hashes. Frozen field list in External-services (C6).
+- **Async + non-blocking**: stays on Action Scheduler; a failed sync never blocks checkout.
+- **⚠️ Liveness condition (O-3):** this only delivers merchant value if the Dashboard order surface
+  is a **live product**, not dormant cmsmart fork scaffolding. Confirm O-3 before building F8/F10.
+  If dormant → do not sell `order_sync`; fall back to bespoke analytics payloads.
 
 ### 4.1 Design Vault — `design_vault`
 
@@ -332,22 +373,15 @@ GET /api/v1/assets?type=clipart|shape|font&industry=&q=&page=1   // requires lic
 
 ### 4.3 Option Performance Analytics — `option_analytics`
 
-> **A5 note (code audit 2026-06-07):** there is **no existing order payload** carrying selected
-> options (`spbwc_run_order_sync()` sends only ids/price/qty + PDF URLs, and that legacy sync is
-> dropped anyway — §0.3 item 4). So this feature ships its **own** minimal payload, gated by the
-> `option_analytics` cap + consent — it never piggybacks on a generic sync.
+> **A5 note (code audit 2026-06-07):** the existing `order_sync` payload sends only ids/price/qty +
+> PDF URLs — **no selected options**. This feature does **not** get its own payload; instead it
+> **rides the `order_sync` backbone (§4.0)**, which is extended once with the per-line `options[]`
+> array. `option_analytics` is therefore a server-side *view* over already-synced data and
+> **requires `order_sync` to be active** (consent + cap).
 
-```
-POST /api/v1/analytics/options   { license_key, site_url, order_ref,
-                                   lines: [{ product_id, qty, unit_price,
-                                             options: [{ group_key, value, surcharge, qty_break_tier }] }] }
-→ 200 { "ok": true } · → 402/403 (cloud locked → option_analytics upsell)
-```
-
-- Derived from the order-item meta written by the builder; fires on order completion (Action
-  Scheduler), behind cap + consent. No PII beyond what a line item needs.
-- Dashboard views: revenue per option group/value, attach rate, surcharge contribution,
-  quantity-break tier distribution. (Cart-abandonment proxy = **out of scope v1**, orders only.)
+- Computed server-side from the `order_sync` feed (§4.0 `options[]`): revenue per option
+  group/value, attach rate, surcharge contribution, quantity-break tier distribution.
+  (Cart-abandonment proxy = **out of scope v1**, orders only.)
 - Plugin surfaces one card on Overview ("Top earning option: Rush delivery — $840 this month") via
   `get_overview_stats()` — consistent with §3.3 framing.
 
@@ -473,7 +507,7 @@ use (CSRF); all of this under `manage_options` only (§1.4).
 
 | ID | Item |
 |----|------|
-| C6 | External-services readme: add §2/§3/§4/§6 endpoints with exact data sent & when (templates, render/document, email-triggers, analytics/options, vault, assets, snapshots, exchange). One subsection per service. |
+| C6 | External-services readme: add §2/§3/§4/§6 endpoints with exact data sent & when (templates, order sync `update-orders` incl. options[]+design files+B2B ledger, render/document, email-triggers, vault, assets, snapshots, exchange). One subsection per service. |
 | C7 | Reconfirm: **no remote JS/CSS** in admin or frontend from any new feature (assets are data files only; demo links open externally). |
 | C8 | Plans page & all new prompts: dismissible, in-plugin-pages only; re-run `wp plugin check` after F3/F6. |
 | C9 | Privacy: personal-data exporter/eraser coverage for Vault (`customer_ref` mapping); privacy-policy suggestion text updated. |
@@ -502,9 +536,10 @@ use (CSRF); all of this under `manage_options` only (§1.4).
 8. **Downgrade/expiry**: B2B → expired: scheduled email triggers stop server-side, emails revert to
    immediate local send; invoices fall back to local FPDI (watermark per O-4); ledger/local B2B fully
    functional (D2 proof).
-9. **Option analytics own payload**: order on a builder product with ≥2 priced options → the
-   `option_analytics` POST (§4.3) carries per-line `options[]` with surcharge + qty-break tier
-   (regression guard — no reliance on any legacy order sync).
+9. **Order sync payload + analytics view**: with `order_sync` active, an order on a builder product
+   with ≥2 priced options → the `update-orders` payload (§4.0) carries per-line `options[]` (surcharge
+   + qty-break tier) and design-file URLs; Option Analytics (§4.3) renders the per-option view from it.
+   With `order_sync` inactive (free) → no upload, upsell shown.
 
 ---
 
@@ -512,7 +547,6 @@ use (CSRF); all of this under `manage_options` only (§1.4).
 
 - Per-feature à-la-carte purchasing; usage-metered billing (credits)
 - Plugin-side payment / gateway integration (Storelly API owns it entirely — D7)
-- Legacy "Order → Dashboard" sync (`/api/v1/update-orders`) — dropped, not monetized (§0.3 item 4)
 - Premium template tier (all templates free — D9)
 - Trial / free-tier on-ramp (removed — §0.3 item 3)
 - Cart-abandonment sync for option analytics (§4.3 — orders only)
@@ -531,12 +565,17 @@ use (CSRF); all of this under `manage_options` only (§1.4).
 | **F1.1** | Caps + `plan_slug` + `quota` in entitlement model; `sync_from_api()` maps server `caps[]`; `can($cap)` per §1.3 (lands inside F1) | F1 |
 | **F6** | Plans page + connect-back activation (§5.2, §6) | F1.1, O-6 |
 | **F7** | Free marketplace + versioned updates (§2) — confirm/clean existing marketplace code is unlicensed | F1.1, O-3 |
-| **F8** | Option Analytics (§4.3) — ships its **own** `options[]` payload (A5; no order_sync dependency) | F1.1 |
+| **F8** | Order sync backbone (§4.0): gate `spbwc_run_order_sync` with `can('order_sync')` + extend payload with per-line `options[]` (A5) → then Option Analytics (§4.3) as a view over it | F1.1, F2, **O-3 liveness** |
 | **F9** | Design Vault (§4.1) | F1.1, A3 |
-| **F10** | B2B service layer (§3): `invoice_pdf`, `email_trigger`, `analytics_b2b` + derived B2B payloads | F1.1, backend cron/email infra (O-8) |
+| **F10** | B2B service layer (§3): `invoice_pdf`, `email_trigger`, `analytics_b2b`; B2B ledger events extend the §4.0 feed | F1.1, F8, backend cron/email infra (O-8) |
 | **F11** | Asset Library (§4.2) | content production A4 |
 
 Suggested order: **F0 → F1(+F1.1) → F2 → F3 → F6 → F8 → F9 → F7 → F10 → F11.**
+
+> **Note:** F8 now bundles the `order_sync` gate + the one-time payload extension (the audit found no
+> option data on the wire). Option Analytics and the whole B2B layer (F10) are *views* over this one
+> feed — that consolidation is the benefit of re-adding order_sync (§0.3 item 4). Gate F8/F10 on the
+> O-3 Dashboard-liveness check.
 
 ---
 
@@ -559,7 +598,7 @@ Suggested order: **F0 → F1(+F1.1) → F2 → F3 → F6 → F8 → F9 → F7 �
 | A2 | ~~Stripe Checkout is the processor~~ | **MOOT — payment is entirely Storelly API's concern; plugin payment-agnostic (D7)** |
 | A3 | Vault privacy model (salted `customer_ref`, eraser hook, 90-day grace) passes GDPR review | OPEN — @legal |
 | A4 | Content team can produce ≥150 launch assets for Tier-1 industries before F11 | OPEN — @david |
-| A5 | ~~order_sync payload already includes per-line selected options~~ | **RESOLVED — NEGATIVE (2026-06-07).** No option data on the wire; `option_analytics` ships its own payload (§4.3). Legacy order_sync dropped (§0.3). |
+| A5 | ~~order_sync payload already includes per-line selected options~~ | **RESOLVED — NEGATIVE (2026-06-07).** No option data on the wire → the re-added `order_sync` payload is **extended once** with `options[]` (§4.0); analytics ride that feed (§4.3). |
 | A6 | Existing `SPBWC_Cloud_Connect` consent screen can be invoked inline post-activation without refactor | LOW-RISK — connect AJAX flow + `is_connected()` exist; render entry point confirmed in F6 |
 | A7 | Storelly API can expose a **trigger-time schedule** config + send scheduled emails server-side (gates `email_trigger`, §3.2) | OPEN — @backend (= O-8) |
 
@@ -580,10 +619,11 @@ theo audit §0). Cần "làm chuẩn" cách hiển thị gói giá ngay trong wp
 2. **Nguồn dữ liệu plan**: fetch danh sách plan từ API (`GET /api/v1/license/packages` hoặc endpoint
    hiện có) qua **transient cache** (TTL ~12h) + **fallback hardcoded** khi offline/timeout. KHÔNG block
    render (đọc cache trước, refresh nền).
-3. **Feature matrix** theo `caps[]`: mỗi plan liệt kê cap bật/tắt (cloud PDF, design_vault, option
-   analytics, config snapshots, B2B service: invoice_pdf/email_trigger/analytics_b2b) lấy từ định nghĩa
-   entitlement (§1.2 caps/can — cần code `includes/class-entitlement.php` hoặc tương đương nếu chưa có).
-   Lưu ý: KHÔNG còn `order_sync`/`marketplace_premium` (đã bỏ §0.3); marketplace là free.
+3. **Feature matrix** theo `caps[]`: mỗi plan liệt kê cap bật/tắt (cloud PDF, order_sync, design_vault,
+   option analytics, config snapshots, B2B service: invoice_pdf/email_trigger/analytics_b2b) lấy từ định
+   nghĩa entitlement (§1.2 caps/can — cần code `includes/class-entitlement.php` hoặc tương đương nếu chưa
+   có). Lưu ý: KHÔNG còn `marketplace_premium` (đã bỏ §0.3 — marketplace free); `order_sync` đã thêm lại
+   làm backbone (§4.0).
 4. **CTA**: plan cao hơn → "Upgrade" (nối connect-back §6 khi backend sẵn; tạm redirect hosted);
    plan hiện tại → "Current"; thấp hơn → ẩn/disable.
 5. Map đúng plan hiện tại từ `SPBWC_License_Manager::get_current_license()['status']`.
