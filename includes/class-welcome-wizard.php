@@ -49,6 +49,16 @@ if ( ! class_exists( 'SPBWC_Welcome_Wizard' ) ) {
 		/** Nonce action for the step-1 install submit. */
 		const NONCE_INSTALL = 'spbwc_wizard_install';
 
+		/** Nonce action for the "skip / dismiss" link (marks the wizard done). */
+		const NONCE_SKIP = 'spbwc_wizard_skip';
+
+		/** GET flag that triggers the skip handler. */
+		const ARG_SKIP = 'spbwc_wizard_skip';
+
+		/** Nonce action + GET flag for "show different templates" (re-roll the offer). */
+		const NONCE_REROLL = 'spbwc_wizard_reroll';
+		const ARG_REROLL   = 'spbwc_wizard_reroll';
+
 		/** How many templates to offer on step 1. */
 		const OFFER_COUNT = 10;
 
@@ -64,6 +74,8 @@ if ( ! class_exists( 'SPBWC_Welcome_Wizard' ) ) {
 			add_filter( 'admin_body_class', array( __CLASS__, 'body_class' ) );
 			add_action( 'admin_enqueue_scripts', array( __CLASS__, 'enqueue' ) );
 			add_action( 'admin_head', array( __CLASS__, 'hide_menu_item' ) );
+			add_action( 'admin_init', array( __CLASS__, 'maybe_handle_skip' ) );
+			add_action( 'admin_notices', array( __CLASS__, 'maybe_resume_notice' ) );
 		}
 
 		/**
@@ -148,6 +160,7 @@ if ( ! class_exists( 'SPBWC_Welcome_Wizard' ) ) {
 						__( 'You can pick up to %d. Deselect one to choose another.', 'storelly-product-builder-for-woocommerce' ),
 						self::MAX_PICK
 					),
+					'installing' => __( 'Installing…', 'storelly-product-builder-for-woocommerce' ),
 				)
 			);
 		}
@@ -168,6 +181,13 @@ if ( ! class_exists( 'SPBWC_Welcome_Wizard' ) ) {
 			if ( 'install' === $wizard_action ) {
 				self::handle_install_submit();
 				return; // handler exits.
+			}
+
+			// "Show different templates" — re-roll the offered slice and reload step 1.
+			if ( isset( $_GET[ self::ARG_REROLL ] ) && check_admin_referer( self::NONCE_REROLL ) ) {
+				delete_option( self::OPT_PICK );
+				wp_safe_redirect( self::step_url( 1 ) );
+				exit;
 			}
 
 			// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only step router; no state change.
@@ -249,6 +269,12 @@ if ( ! class_exists( 'SPBWC_Welcome_Wizard' ) ) {
 				<p class="spbwc-wiz__lede">
 					<?php esc_html_e( 'Pick 1–3 ready-made templates to install as samples so you have something to play with. They’re installed as “(Sample)” options you can freely edit, assign to a product, delete, or add more to later.', 'storelly-product-builder-for-woocommerce' ); ?>
 				</p>
+				<?php if ( ! empty( $slugs ) ) : ?>
+					<a class="spbwc-wiz__reroll" href="<?php echo esc_url( self::reroll_url() ); ?>">
+						<span class="dashicons dashicons-update" aria-hidden="true"></span>
+						<?php esc_html_e( 'Show me different templates', 'storelly-product-builder-for-woocommerce' ); ?>
+					</a>
+				<?php endif; ?>
 			</div>
 
 			<?php if ( empty( $slugs ) ) : ?>
@@ -274,6 +300,8 @@ if ( ! class_exists( 'SPBWC_Welcome_Wizard' ) ) {
 							$name  = $catalog->get_display_name( $meta );
 							$cat   = $catalog->get_category_label( isset( $meta['category'] ) ? $meta['category'] : '' );
 							$fields = isset( $meta['field_count'] ) ? (int) $meta['field_count'] : 0;
+							$pmeth  = isset( $meta['pricing_method'] ) ? (string) $meta['pricing_method'] : '';
+							$titles = self::template_field_titles( $slug );
 							$thumb  = '';
 							if ( ! empty( $meta['thumbnail'] ) ) {
 								$thumb = SPBWC_PB_PLUGIN_URL . 'storage/print-templates/' . ltrim( (string) $meta['thumbnail'], '/' );
@@ -305,6 +333,29 @@ if ( ! class_exists( 'SPBWC_Welcome_Wizard' ) ) {
 											</span>
 										<?php endif; ?>
 									</span>
+									<?php if ( ! empty( $titles ) ) : ?>
+										<button type="button" class="spbwc-wiz-card__preview-btn" aria-expanded="false">
+											<?php esc_html_e( 'Preview', 'storelly-product-builder-for-woocommerce' ); ?>
+										</button>
+										<span class="spbwc-wiz-card__details" hidden>
+											<?php if ( '' !== $pmeth ) : ?>
+												<span class="spbwc-wiz-card__pmeth">
+													<?php
+													printf(
+														/* translators: %s: pricing method, e.g. "fixed". */
+														esc_html__( 'Pricing: %s', 'storelly-product-builder-for-woocommerce' ),
+														esc_html( ucfirst( str_replace( '_', ' ', $pmeth ) ) )
+													);
+													?>
+												</span>
+											<?php endif; ?>
+											<ul class="spbwc-wiz-card__fieldlist">
+												<?php foreach ( $titles as $ft ) : ?>
+													<li><?php echo esc_html( $ft ); ?></li>
+												<?php endforeach; ?>
+											</ul>
+										</span>
+									<?php endif; ?>
 								</span>
 							</label>
 						<?php endforeach; ?>
@@ -411,7 +462,11 @@ if ( ! class_exists( 'SPBWC_Welcome_Wizard' ) ) {
 				</li>
 			</ul>
 
-			<div class="spbwc-wiz__actions spbwc-wiz__actions--end">
+			<div class="spbwc-wiz__actions spbwc-wiz__actions--split">
+				<a class="spbwc-wiz-btn spbwc-wiz-btn--ghost" href="<?php echo esc_url( self::step_url( 1 ) ); ?>">
+					<span class="dashicons dashicons-arrow-left-alt2" aria-hidden="true"></span>
+					<?php esc_html_e( 'Back', 'storelly-product-builder-for-woocommerce' ); ?>
+				</a>
 				<a class="spbwc-wiz-btn spbwc-wiz-btn--primary" href="<?php echo esc_url( self::step_url( 3 ) ); ?>">
 					<?php esc_html_e( 'Continue', 'storelly-product-builder-for-woocommerce' ); ?>
 				</a>
@@ -524,13 +579,134 @@ if ( ! class_exists( 'SPBWC_Welcome_Wizard' ) ) {
 			);
 		}
 
-		/** "Skip setup" target: mark the wizard done and land on the Overview. */
+		/** Nonce-protected URL that re-rolls the offered template slice. */
+		private static function reroll_url() {
+			return wp_nonce_url(
+				add_query_arg(
+					array(
+						'page'           => self::SLUG,
+						self::ARG_REROLL => 1,
+					),
+					admin_url( 'admin.php' )
+				),
+				self::NONCE_REROLL
+			);
+		}
+
+		/**
+		 * First few field titles of a bundled template, for the step-1 preview panel.
+		 * Titles may be stored flat or as a { value, … } descriptor — collapse both.
+		 *
+		 * @param string $slug  Template slug.
+		 * @param int    $limit Max titles to return.
+		 * @return string[]
+		 */
+		protected static function template_field_titles( $slug, $limit = 8 ) {
+			if ( ! class_exists( 'SPBWC_Template_Catalog' ) ) {
+				return array();
+			}
+			$data = SPBWC_Template_Catalog::instance()->get_template_data( $slug );
+			$out  = array();
+			if ( is_array( $data ) && ! empty( $data['fields'] ) && is_array( $data['fields'] ) ) {
+				foreach ( $data['fields'] as $f ) {
+					if ( ! is_array( $f ) ) {
+						continue;
+					}
+					$t = isset( $f['general']['title'] ) ? $f['general']['title'] : '';
+					if ( is_array( $t ) && isset( $t['value'] ) ) {
+						$t = $t['value'];
+					}
+					$t = trim( (string) $t );
+					if ( '' !== $t ) {
+						$out[] = $t;
+					}
+					if ( count( $out ) >= $limit ) {
+						break;
+					}
+				}
+			}
+			return $out;
+		}
+
+		/**
+		 * "Skip setup" target — a nonce-protected link to the skip handler. It must
+		 * NOT mark the wizard done here (this runs just to render the href): doing so
+		 * would flag the wizard finished the moment a step is viewed, defeating the
+		 * resume nudge. The actual mark happens in maybe_handle_skip() on click.
+		 */
 		private static function skip_url() {
+			return wp_nonce_url(
+				add_query_arg(
+					array( self::ARG_SKIP => 1 ),
+					admin_url( 'admin.php?page=' . SPBWC_PB_OVERVIEW_SLUG )
+				),
+				self::NONCE_SKIP
+			);
+		}
+
+		/**
+		 * Handle a skip/dismiss click from anywhere (the wizard chrome or the resume
+		 * notice): mark the wizard done and bounce to a clean Overview URL. Nonce +
+		 * capability gated. Runs on admin_init so it works on any admin screen.
+		 */
+		public static function maybe_handle_skip() {
+			if ( empty( $_GET[ self::ARG_SKIP ] ) ) {
+				return;
+			}
+			if ( ! current_user_can( 'manage_options' ) ) {
+				return;
+			}
+			if ( ! check_admin_referer( self::NONCE_SKIP ) ) {
+				return;
+			}
 			if ( class_exists( 'SPBWC_Onboarding' ) ) {
-				// Mark done immediately so the redirect never bounces back here.
 				SPBWC_Onboarding::mark_wizard_done();
 			}
-			return admin_url( 'admin.php?page=' . SPBWC_PB_OVERVIEW_SLUG );
+			wp_safe_redirect( admin_url( 'admin.php?page=' . SPBWC_PB_OVERVIEW_SLUG ) );
+			exit;
+		}
+
+		/**
+		 * Gentle "finish your setup" nudge on Storelly admin screens while the wizard
+		 * is still unfinished — so a merchant who closed the tab mid-flow (the
+		 * one-shot post-activation redirect already spent) can get back in. Shown
+		 * only to managers, only with WooCommerce active, never on the wizard screen
+		 * itself, and suppressed once the wizard is done or onboarding is complete.
+		 */
+		public static function maybe_resume_notice() {
+			if ( ! current_user_can( 'manage_options' ) ) {
+				return;
+			}
+			if ( ! class_exists( 'WooCommerce' ) ) {
+				return;
+			}
+			if ( ! class_exists( 'SPBWC_Onboarding' ) ) {
+				return;
+			}
+			if ( SPBWC_Onboarding::is_wizard_done() || SPBWC_Onboarding::is_onboarding_complete() ) {
+				return;
+			}
+			// Storelly admin screens only, and not the wizard page itself.
+			// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only screen detection.
+			$page = isset( $_GET['page'] ) ? sanitize_text_field( wp_unslash( $_GET['page'] ) ) : '';
+			if ( self::SLUG === $page || 0 !== strpos( $page, 'storelly-product-builder-for-woocommerce' ) ) {
+				return;
+			}
+
+			$resume  = add_query_arg( array( 'page' => self::SLUG ), admin_url( 'admin.php' ) );
+			$dismiss = self::skip_url();
+			?>
+			<div class="notice notice-info is-dismissible spbwc-wiz-resume">
+				<p>
+					<strong><?php esc_html_e( 'Storelly setup isn’t finished', 'storelly-product-builder-for-woocommerce' ); ?></strong>
+					<?php esc_html_e( 'Pick up the Welcome setup where you left off — it only takes a minute.', 'storelly-product-builder-for-woocommerce' ); ?>
+				</p>
+				<p>
+					<a class="button button-primary" href="<?php echo esc_url( $resume ); ?>"><?php esc_html_e( 'Resume setup', 'storelly-product-builder-for-woocommerce' ); ?></a>
+					<a class="button button-link" href="<?php echo esc_url( $dismiss ); ?>"><?php esc_html_e( 'Don’t show again', 'storelly-product-builder-for-woocommerce' ); ?></a>
+				</p>
+			</div>
+			<?php
 		}
 
 		/**

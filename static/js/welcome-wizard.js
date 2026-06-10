@@ -56,13 +56,29 @@
 
 		$boxes.on( 'change', sync );
 
-		// Guard the submit too (in case the button is somehow enabled).
+		// Preview toggle: the button lives inside the <label>, so we must stop the
+		// click from toggling the card's checkbox, then expand the details panel.
+		$form.on( 'click', '.spbwc-wiz-card__preview-btn', function ( e ) {
+			e.preventDefault();
+			e.stopPropagation();
+			var $btn     = $( this );
+			var $details = $btn.siblings( '.spbwc-wiz-card__details' );
+			var open     = $details.prop( 'hidden' );
+			$details.prop( 'hidden', ! open );
+			$btn.attr( 'aria-expanded', open ? 'true' : 'false' );
+		} );
+
+		// Submit feedback: disable + swap label so the full-page POST doesn't feel
+		// frozen while the samples install.
 		$form.on( 'submit', function ( e ) {
 			var n = checked().length;
 			if ( n < min ) {
 				e.preventDefault();
 				sync();
+				return;
 			}
+			$next.prop( 'disabled', true ).addClass( 'is-loading' );
+			$next.text( cfg.installing || 'Installing…' );
 		} );
 
 		sync();

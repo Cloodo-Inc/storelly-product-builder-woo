@@ -188,6 +188,27 @@ body.spbwc-wizard-screen #wpbody-content > .wrap {
 	color: var(--nbd-st-text-soft, #50575e);
 }
 
+/* ── Step 1: re-roll link ─────────────────────────────────────────────── */
+.spbwc-wiz__reroll {
+	display: inline-flex;
+	align-items: center;
+	gap: var(--nbd-space-1, 4px);
+	margin-top: var(--nbd-space-3, 12px);
+	font-size: var(--text-md, 13px);
+	color: var(--nbd-st-text-brand, #1e40af);
+	text-decoration: none;
+}
+
+.spbwc-wiz__reroll:hover {
+	text-decoration: underline;
+}
+
+.spbwc-wiz__reroll .dashicons {
+	font-size: 16px;
+	width: 16px;
+	height: 16px;
+}
+
 /* ── Step 1: template grid ────────────────────────────────────────────── */
 .spbwc-wiz-grid {
 	display: grid;
@@ -322,6 +343,54 @@ body.spbwc-wizard-screen #wpbody-content > .wrap {
 	font-weight: var(--font-medium, 500);
 }
 
+/* ── Step 1: per-card preview ─────────────────────────────────────────── */
+.spbwc-wiz-card__preview-btn {
+	align-self: flex-start;
+	margin-top: var(--nbd-space-2, 8px);
+	padding: 2px 0;
+	background: none;
+	border: 0;
+	color: var(--nbd-st-text-brand, #1e40af);
+	font-size: var(--text-sm, 11px);
+	font-weight: var(--font-semibold, 600);
+	cursor: pointer;
+	text-decoration: underline;
+}
+
+.spbwc-wiz-card__preview-btn:hover {
+	color: var(--st-brand-pressed, #1e40af);
+}
+
+.spbwc-wiz-card__details {
+	display: block;
+	margin-top: var(--nbd-space-2, 8px);
+	padding-top: var(--nbd-space-2, 8px);
+	border-top: 1px dashed var(--nbd-st-border-light, #dcdcde);
+}
+
+.spbwc-wiz-card__details[hidden] {
+	display: none;
+}
+
+.spbwc-wiz-card__pmeth {
+	display: block;
+	font-size: var(--text-sm, 11px);
+	color: var(--nbd-st-text-mute, #8c8f94);
+	margin-bottom: var(--nbd-space-1, 4px);
+}
+
+.spbwc-wiz-card__fieldlist {
+	margin: 0;
+	padding-inline-start: var(--nbd-space-4, 16px);
+	list-style: disc;
+}
+
+.spbwc-wiz-card__fieldlist li {
+	font-size: var(--text-sm, 11px);
+	color: var(--nbd-st-text-soft, #50575e);
+	margin: 0;
+}
+
 /* ── Actions row ──────────────────────────────────────────────────────── */
 .spbwc-wiz__actions {
 	display: flex;
@@ -335,6 +404,10 @@ body.spbwc-wizard-screen #wpbody-content > .wrap {
 
 .spbwc-wiz__actions--center {
 	justify-content: center;
+}
+
+.spbwc-wiz__actions--split {
+	justify-content: space-between;
 }
 
 .spbwc-wiz__counter {
@@ -374,6 +447,20 @@ body.spbwc-wizard-screen #wpbody-content > .wrap {
 	background: var(--nbd-st-border, #c3c4c7);
 	cursor: not-allowed;
 	box-shadow: none;
+}
+
+.spbwc-wiz-btn.is-loading::before {
+	content: "";
+	width: 14px;
+	height: 14px;
+	border: 2px solid rgba(255, 255, 255, 0.5);
+	border-top-color: var(--nbd-st-text-inverse, #fff);
+	border-radius: var(--nbd-radius-pill, 9999px);
+	animation: spbwc-wiz-spin 0.8s linear infinite;
+}
+
+.spbwc-wiz-btn.is-loading {
+	background: var(--st-brand, #1d4ed8);
 }
 
 .spbwc-wiz-btn--ghost {
@@ -555,6 +642,37 @@ body.spbwc-wizard-screen #wpbody-content > .wrap {
 	font-size: var(--text-md, 13px);
 	line-height: 1.6;
 	color: var(--nbd-st-text-soft, #50575e);
+}
+
+.spbwc-vb-seed__progress {
+	margin: 0 0 var(--nbd-space-5, 20px);
+}
+
+.spbwc-vb-seed__progress[hidden] {
+	display: none;
+}
+
+.spbwc-vb-seed__bar {
+	height: 8px;
+	background: var(--st-brand-soft, #dbeafe);
+	border-radius: var(--nbd-radius-pill, 9999px);
+	overflow: hidden;
+}
+
+.spbwc-vb-seed__fill {
+	display: block;
+	height: 100%;
+	width: 0;
+	background: var(--st-brand, #1d4ed8);
+	border-radius: var(--nbd-radius-pill, 9999px);
+	transition: width 0.4s ease;
+}
+
+.spbwc-vb-seed__count {
+	display: block;
+	margin-top: var(--nbd-space-2, 8px);
+	font-size: var(--text-sm, 11px);
+	color: var(--nbd-st-text-mute, #8c8f94);
 }
 
 .spbwc-vb-seed__skip {

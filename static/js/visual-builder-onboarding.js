@@ -30,6 +30,10 @@
 					'<div class="spbwc-vb-seed__spinner" aria-hidden="true"></div>' +
 					'<h2 class="spbwc-vb-seed__title"></h2>' +
 					'<p class="spbwc-vb-seed__body"></p>' +
+					'<div class="spbwc-vb-seed__progress" hidden>' +
+						'<div class="spbwc-vb-seed__bar"><span class="spbwc-vb-seed__fill"></span></div>' +
+						'<span class="spbwc-vb-seed__count"></span>' +
+					'</div>' +
 					'<button type="button" class="spbwc-vb-seed__skip"></button>' +
 					'<p class="spbwc-vb-seed__hint"></p>' +
 				'</div>' +
@@ -42,6 +46,17 @@
 
 		$ov.find( '.spbwc-vb-seed__skip' ).on( 'click', onSkip );
 		return $ov;
+	}
+
+	function updateProgress( done, total ) {
+		if ( ! total || total < 1 ) {
+			return;
+		}
+		var pct = Math.min( 100, Math.round( ( done / total ) * 100 ) );
+		var $p  = $( '.spbwc-vb-seed__progress' );
+		$p.prop( 'hidden', false );
+		$p.find( '.spbwc-vb-seed__fill' ).css( 'width', pct + '%' );
+		$p.find( '.spbwc-vb-seed__count' ).text( done + ' / ' + total );
 	}
 
 	function onSkip() {
@@ -93,9 +108,12 @@
 			action: cfg.statusAction,
 			nonce: cfg.nonce
 		} ).done( function ( res ) {
-			if ( res && res.success && res.data && res.data.seeded ) {
-				finish();
-				return;
+			if ( res && res.success && res.data ) {
+				updateProgress( res.data.done, res.data.total );
+				if ( res.data.seeded ) {
+					finish();
+					return;
+				}
 			}
 			pollTimer = setTimeout( poll, 3000 );
 		} ).fail( function () {
@@ -104,7 +122,10 @@
 	}
 
 	$( function () {
-		$( 'body' ).append( buildOverlay() );
+		var $overlay = buildOverlay();
+		$( 'body' ).append( $overlay );
+		// Move focus into the overlay so keyboard users land on the escape hatch.
+		$overlay.find( '.spbwc-vb-seed__skip' ).trigger( 'focus' );
 
 		// Kick the seed (draft). This request may run for many seconds while
 		// ~100 images sideload; that's fine — the poller drives the UI, and a

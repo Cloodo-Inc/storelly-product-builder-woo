@@ -319,12 +319,39 @@ if ( ! class_exists( 'SPBWC_Demo_Seeder' ) ) {
 		 */
 		public static function ajax_status() {
 			self::guard();
+			// Coarse progress for the loading bar: the seed runs in a separate
+			// request holding the lock; this parallel poll counts how many bundled
+			// images have been sideloaded+tagged so far against the bundle total.
+			$bundle = self::read_bundle();
+			$total  = ( ! is_wp_error( $bundle ) && ! empty( $bundle['image_ids'] ) ) ? count( $bundle['image_ids'] ) : 0;
+			$done   = self::count_sample_attachments();
+			if ( $total > 0 && $done > $total ) {
+				$done = $total;
+			}
 			wp_send_json_success(
 				array(
 					'seeded' => self::is_seeded(),
 					'status' => self::seeded_status(),
+					'total'  => $total,
+					'done'   => $done,
 				)
 			);
+		}
+
+		/** Count of attachments already tagged as demo samples (in-flight progress). */
+		protected static function count_sample_attachments() {
+			$ids = get_posts(
+				array(
+					'post_type'      => 'attachment',
+					'post_status'    => 'any',
+					'posts_per_page' => -1,
+					'fields'         => 'ids',
+					'no_found_rows'  => true,
+					'meta_key'       => self::META_SAMPLE,   // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key
+					'meta_value'     => '1',                 // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_value
+				)
+			);
+			return is_array( $ids ) ? count( $ids ) : 0;
 		}
 
 		/**
