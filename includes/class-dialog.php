@@ -41,6 +41,14 @@ if ( ! class_exists( 'SPBWC_Dialog' ) ) {
 		 * Register the script + stylesheet (idempotent).
 		 */
 		public static function register() {
+			// Register the design-token stylesheets with filemtime cache-busting
+			// FIRST (this hook runs at priority 1, before the defensive
+			// `if ( ! registered )` blocks scattered across the other classes),
+			// so edits to _tokens.css / _tokens-storefront.css always reach the
+			// browser instead of being pinned to the static plugin version.
+			self::register_token_style( 'spbwc-tokens', '_tokens.css' );
+			self::register_token_style( 'spbwc-tokens-storefront', '_tokens-storefront.css' );
+
 			if ( ! wp_script_is( 'spbwc-dialog', 'registered' ) ) {
 				$js = SPBWC_PB_PLUGIN_DIR . 'static/js/spbwc-dialog.js';
 				wp_register_script(
@@ -62,6 +70,26 @@ if ( ! class_exists( 'SPBWC_Dialog' ) ) {
 					file_exists( $css ) ? filemtime( $css ) : SPBWC_PB_VERSION
 				);
 			}
+		}
+
+		/**
+		 * Register a design-token stylesheet with filemtime cache-busting,
+		 * unless something already registered the handle.
+		 *
+		 * @param string $handle Style handle.
+		 * @param string $file   File name under static/css/.
+		 */
+		protected static function register_token_style( $handle, $file ) {
+			if ( wp_style_is( $handle, 'registered' ) ) {
+				return;
+			}
+			$path = SPBWC_PB_PLUGIN_DIR . 'static/css/' . $file;
+			wp_register_style(
+				$handle,
+				SPBWC_PB_CSS_URL . $file,
+				array(),
+				file_exists( $path ) ? filemtime( $path ) : SPBWC_PB_VERSION
+			);
 		}
 
 		/**
