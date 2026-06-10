@@ -389,6 +389,24 @@ tab becomes this list.
   submit cluster (**Save draft** / **Send pricing reply**) in the action bar below. Stacks
   full-width under ~600px.
 
+**15.2.1 Action submission — AJAX + UX (shipped):**
+The action bar (Save draft / Send pricing reply / Send counter-offer / Withdraw) submits via
+**AJAX** (`wp_ajax_spbwc_quote_action`, nonce `spbwc_quote_action` + `manage_woocommerce`) with **no
+page reload**; the plain POST form is kept as the no-JS fallback. The shared core
+`do_quote_action()` runs identically for both paths. On success the JSON response patches the **status
+pill**, **activity timeline** and **editable** state in place; after Send/Withdraw the form is locked
+client-side (inputs disabled, action bar → locked hint). Notifications use the tokenized
+**`spbwcDialog.toast()`** (success/error, RTL-safe, auto-dismiss) — no WP core `.notice` on the JS path.
+- **Sticky action bar** (`.spbwc-q-actionblock` `position:sticky; bottom`) keeps Save/Send reachable
+  on a long form; falls back to static under 782px.
+- **Dirty-state badge** (`.spbwc-q-savestate`): *Unsaved changes* (amber) → *Saving…/Sending…* (pulse)
+  → *Saved* (green), plus a `beforeunload` guard while edits are unsaved & quote editable.
+- **Confirm before Send / Withdraw** via `spbwcDialog.confirm()` — Send shows **Quote total +
+  recipient email**; Withdraw is a `danger`-toned confirm. Send/counter are **guarded**: blocked with
+  a warning toast when the total is **0** or a priced line is **missing a name**.
+- **Default 14-day validity** auto-applied to a brand-new quote with no date set; **Ctrl/⌘+S** =
+  Save draft.
+
 **15.3 On "Send pricing reply":**
 - `_spbwc_quote_lines` written to quoted lines at quoted unit prices; `_spbwc_quote_totals` recomputed.
 - Meta: `_spbwc_quote_valid_until`, `_spbwc_quote_payment_terms`, `_spbwc_quote_revision`.

@@ -43,6 +43,7 @@ if ( ! class_exists( 'SPBWC_Quote_Admin' ) ) {
             add_action( 'admin_menu', array( $this, 'register_menu' ), 20 );
             add_action( 'wp_ajax_spbwc_save_quote_template', array( $this, 'ajax_save_template' ) );
             add_action( 'wp_ajax_spbwc_delete_quote_template', array( $this, 'ajax_delete_template' ) );
+            add_action( 'wp_ajax_spbwc_quote_action', array( $this, 'ajax_quote_action' ) );
             // Sample-quote seeding for the empty state (M6).
             require_once __DIR__ . '/class-quote-sample.php';
             if ( class_exists( 'SPBWC_Quote_Sample' ) ) {
@@ -195,10 +196,29 @@ if ( ! class_exists( 'SPBWC_Quote_Admin' ) ) {
             }
             $do = sanitize_key( wp_unslash( $_POST['spbwc_quote_do'] ) );
 
+            $res = $this->do_quote_action( $quote_id, $do, $post );
+            $this->redirect_detail( $quote_id, is_wp_error( $res ) ? 'error' : $res );
+        }
+
+        /**
+         * Run a quote action (save / send / counter / withdraw) and persist it.
+         *
+         * Shared core used by both the no-JS POST fallback (maybe_handle_actions)
+         * and the AJAX handler (ajax_quote_action) so behaviour stays identical.
+         *
+         * @param int     $quote_id Quote post ID.
+         * @param string  $do       One of save|send|counter|withdraw.
+         * @param WP_Post $post     Quote post captured before the mutation.
+         * @return string|WP_Error  Result code ('saved'|'sent'|'withdrawn') or error.
+         */
+        protected function do_quote_action( $quote_id, $do, $post ) {
+            if ( ! in_array( $do, array( 'save', 'send', 'counter', 'withdraw' ), true ) ) {
+                return new WP_Error( 'spbwc_quote_bad_action', __( 'Unknown action.', 'storelly-product-builder-for-woocommerce' ) );
+            }
+
             if ( 'withdraw' === $do ) {
                 $res = SPBWC_Quote::set_status( $quote_id, SPBWC_Quote::STATUS_WITHDRAWN, __( 'Quote withdrawn by merchant.', 'storelly-product-builder-for-woocommerce' ) );
-                $this->redirect_detail( $quote_id, is_wp_error( $res ) ? 'error' : 'withdrawn' );
-                return;
+                return is_wp_error( $res ) ? $res : 'withdrawn';
             }
 
             // Persist the pricing reply (lines + terms) for save / send / counter.
@@ -215,11 +235,69 @@ if ( ! class_exists( 'SPBWC_Quote_Admin' ) ) {
                 if ( ! is_wp_error( $res ) ) {
                     do_action( 'spbwc_quote_sent_notification', $quote_id );
                 }
-                $this->redirect_detail( $quote_id, is_wp_error( $res ) ? 'error' : 'sent' );
-                return;
+                return is_wp_error( $res ) ? $res : 'sent';
             }
 
-            $this->redirect_detail( $quote_id, 'saved' );
+            return 'saved';
+        }
+
+        /**
+         * AJAX: run a quote action without a full page reload.
+         *
+         * Mirrors maybe_handle_actions() but returns JSON fragments so the JS
+         * can update the status pill, activity timeline and editable state in
+         * place. The plain POST form remains the no-JS fallback.
+         */
+        public function ajax_quote_action() {
+            check_ajax_referer( 'spbwc_quote_action', 'nonce' );
+            if ( ! current_user_can( self::CAPABILITY ) ) {
+                wp_send_json_error( array( 'message' => esc_html__( 'Permission denied.', 'storelly-product-builder-for-woocommerce' ) ) );
+            }
+            $quote_id = isset( $_POST['quote_id'] ) ? absint( wp_unslash( $_POST['quote_id'] ) ) : 0;
+            $post     = $quote_id ? get_post( $quote_id ) : null;
+            if ( ! $post || SPBWC_Quote::POST_TYPE !== $post->post_type ) {
+                wp_send_json_error( array( 'message' => esc_html__( 'Quote not found.', 'storelly-product-builder-for-woocommerce' ) ) );
+            }
+            $do = isset( $_POST['spbwc_quote_do'] ) ? sanitize_key( wp_unslash( $_POST['spbwc_quote_do'] ) ) : '';
+
+            $res = $this->do_quote_action( $quote_id, $do, $post );
+            if ( is_wp_error( $res ) ) {
+                wp_send_json_error( array( 'message' => $res->get_error_message() ) );
+            }
+
+            $fresh    = get_post( $quote_id );
+            $status   = $fresh ? $fresh->post_status : $post->post_status;
+            $editable = in_array( $status, array( SPBWC_Quote::STATUS_NEW, SPBWC_Quote::STATUS_REVIEW, SPBWC_Quote::STATUS_NEGOTIATING ), true );
+
+            ob_start();
+            $this->render_timeline( $quote_id );
+            $activity_html = ob_get_clean();
+
+            wp_send_json_success(
+                array(
+                    'msg'              => $res,
+                    'message'          => $this->action_message( $res ),
+                    'status'           => $status,
+                    'status_pill_html' => self::status_pill( $status ),
+                    'activity_html'    => $activity_html,
+                    'editable'         => $editable,
+                )
+            );
+        }
+
+        /**
+         * Human-readable confirmation for an action result code.
+         *
+         * @param string $code Result code from do_quote_action().
+         * @return string
+         */
+        protected function action_message( $code ) {
+            $map = array(
+                'saved'     => __( 'Quote saved.', 'storelly-product-builder-for-woocommerce' ),
+                'sent'      => __( 'Quote sent to the customer.', 'storelly-product-builder-for-woocommerce' ),
+                'withdrawn' => __( 'Quote withdrawn.', 'storelly-product-builder-for-woocommerce' ),
+            );
+            return isset( $map[ $code ] ) ? $map[ $code ] : '';
         }
 
         /**
@@ -725,9 +803,9 @@ if ( ! class_exists( 'SPBWC_Quote_Admin' ) ) {
                             </div>
 
                             <!-- Action bar -->
-                            <div class="spbwc-block">
+                            <div class="spbwc-block spbwc-q-actionblock">
                                 <div class="spbwc-block__body">
-                                    <div class="spbwc-q-actionbar">
+                                    <div class="spbwc-q-actionbar" id="spbwc-q-actionbar">
                                         <?php if ( $editable ) : ?>
                                             <button type="submit" name="spbwc_quote_do" value="save" class="spbwc-cta-btn spbwc-cta-btn--ghost">
                                                 <span class="dashicons dashicons-saved" aria-hidden="true"></span>
@@ -744,8 +822,9 @@ if ( ! class_exists( 'SPBWC_Quote_Admin' ) ) {
                                                     <?php esc_html_e( 'Send pricing reply', 'storelly-product-builder-for-woocommerce' ); ?>
                                                 </button>
                                             <?php endif; ?>
+                                            <span class="spbwc-q-savestate" id="spbwc-q-savestate" role="status" aria-live="polite"></span>
                                             <span class="spbwc-q-spacer"></span>
-                                            <button type="submit" name="spbwc_quote_do" value="withdraw" class="spbwc-cta-btn spbwc-cta-btn--ghost">
+                                            <button type="submit" name="spbwc_quote_do" value="withdraw" class="spbwc-cta-btn spbwc-cta-btn--ghost spbwc-cta-btn--danger">
                                                 <?php esc_html_e( 'Withdraw', 'storelly-product-builder-for-woocommerce' ); ?>
                                             </button>
                                         <?php else : ?>
@@ -771,7 +850,7 @@ if ( ! class_exists( 'SPBWC_Quote_Admin' ) ) {
                                     <div class="spbwc-q-meta">
                                         <div class="spbwc-q-meta__row">
                                             <span class="spbwc-q-meta__label"><?php esc_html_e( 'Status', 'storelly-product-builder-for-woocommerce' ); ?></span>
-                                            <span class="spbwc-q-meta__value"><?php echo self::status_pill( $status ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- status_pill returns escaped markup. ?></span>
+                                            <span class="spbwc-q-meta__value" id="spbwc-q-status-pill"><?php echo self::status_pill( $status ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- status_pill returns escaped markup. ?></span>
                                         </div>
                                         <div class="spbwc-q-meta__row">
                                             <span class="spbwc-q-meta__label"><?php esc_html_e( 'Customer', 'storelly-product-builder-for-woocommerce' ); ?></span>
@@ -798,7 +877,7 @@ if ( ! class_exists( 'SPBWC_Quote_Admin' ) ) {
                                         <?php esc_html_e( 'Activity', 'storelly-product-builder-for-woocommerce' ); ?>
                                     </h3>
                                 </div>
-                                <div class="spbwc-block__body">
+                                <div class="spbwc-block__body" id="spbwc-q-activity">
                                     <?php $this->render_timeline( $quote_id ); ?>
                                 </div>
                             </div>
@@ -807,7 +886,17 @@ if ( ! class_exists( 'SPBWC_Quote_Admin' ) ) {
                 </form>
             </div>
             <?php
-            $this->render_detail_script( $currency, $templates );
+            $this->render_detail_script(
+                $currency,
+                $templates,
+                array(
+                    'quote_id' => $quote_id,
+                    'status'   => $status,
+                    'editable' => $editable,
+                    'email'    => isset( $request['email'] ) ? (string) $request['email'] : '',
+                    'is_new'   => ( SPBWC_Quote::STATUS_NEW === $status ),
+                )
+            );
         }
 
         /**
@@ -992,8 +1081,12 @@ if ( ! class_exists( 'SPBWC_Quote_Admin' ) ) {
          *
          * @param string $currency Currency code for display.
          */
-        protected function render_detail_script( $currency, $templates = array() ) {
+        protected function render_detail_script( $currency, $templates = array(), $ctx = array() ) {
             $symbol = function_exists( 'get_woocommerce_currency_symbol' ) ? html_entity_decode( get_woocommerce_currency_symbol( $currency ) ) : '';
+            $ctx    = wp_parse_args(
+                $ctx,
+                array( 'quote_id' => 0, 'status' => '', 'editable' => false, 'email' => '', 'is_new' => false )
+            );
             ?>
             <script>
             (function () {
@@ -1002,6 +1095,35 @@ if ( ! class_exists( 'SPBWC_Quote_Admin' ) ) {
                 var TPL = <?php echo wp_json_encode( array_values( $templates ) ); ?>;
                 var TPL_NONCE = <?php echo wp_json_encode( wp_create_nonce( 'spbwc_quote_template' ) ); ?>;
                 var TPL_AJAX = <?php echo wp_json_encode( admin_url( 'admin-ajax.php' ) ); ?>;
+                var QQ = {
+                    ajax:     TPL_AJAX,
+                    nonce:    <?php echo wp_json_encode( wp_create_nonce( 'spbwc_quote_action' ) ); ?>,
+                    quoteId:  <?php echo (int) $ctx['quote_id']; ?>,
+                    editable: <?php echo $ctx['editable'] ? 'true' : 'false'; ?>,
+                    isNew:    <?php echo $ctx['is_new'] ? 'true' : 'false'; ?>,
+                    email:    <?php echo wp_json_encode( $ctx['email'] ); ?>,
+                    i18n: {
+                        saved:        <?php echo wp_json_encode( __( 'Saved', 'storelly-product-builder-for-woocommerce' ) ); ?>,
+                        unsaved:      <?php echo wp_json_encode( __( 'Unsaved changes', 'storelly-product-builder-for-woocommerce' ) ); ?>,
+                        saving:       <?php echo wp_json_encode( __( 'Saving…', 'storelly-product-builder-for-woocommerce' ) ); ?>,
+                        sending:      <?php echo wp_json_encode( __( 'Sending…', 'storelly-product-builder-for-woocommerce' ) ); ?>,
+                        reqFailed:    <?php echo wp_json_encode( __( 'Request failed. Please try again.', 'storelly-product-builder-for-woocommerce' ) ); ?>,
+                        leaveWarn:    <?php echo wp_json_encode( __( 'You have unsaved changes. Leave without saving?', 'storelly-product-builder-for-woocommerce' ) ); ?>,
+                        lockedHint:   <?php echo wp_json_encode( __( 'This quote is locked — its current status does not allow further edits.', 'storelly-product-builder-for-woocommerce' ) ); ?>,
+                        cancel:       <?php echo wp_json_encode( __( 'Cancel', 'storelly-product-builder-for-woocommerce' ) ); ?>,
+                        confirmSendTitle:   <?php echo wp_json_encode( __( 'Send this pricing reply?', 'storelly-product-builder-for-woocommerce' ) ); ?>,
+                        confirmSendBody:    <?php echo wp_json_encode( __( 'The customer will be emailed this quote and it will be locked for further edits.', 'storelly-product-builder-for-woocommerce' ) ); ?>,
+                        confirmSendCta:     <?php echo wp_json_encode( __( 'Send pricing reply', 'storelly-product-builder-for-woocommerce' ) ); ?>,
+                        confirmCounterCta:  <?php echo wp_json_encode( __( 'Send counter-offer', 'storelly-product-builder-for-woocommerce' ) ); ?>,
+                        confirmWithdrawTitle: <?php echo wp_json_encode( __( 'Withdraw this quote?', 'storelly-product-builder-for-woocommerce' ) ); ?>,
+                        confirmWithdrawBody:  <?php echo wp_json_encode( __( 'The quote will be closed and can no longer be edited or sent.', 'storelly-product-builder-for-woocommerce' ) ); ?>,
+                        confirmWithdrawCta:   <?php echo wp_json_encode( __( 'Withdraw', 'storelly-product-builder-for-woocommerce' ) ); ?>,
+                        recipientLabel:       <?php echo wp_json_encode( __( 'Recipient', 'storelly-product-builder-for-woocommerce' ) ); ?>,
+                        totalLabel:           <?php echo wp_json_encode( __( 'Quote total', 'storelly-product-builder-for-woocommerce' ) ); ?>,
+                        guardZero:    <?php echo wp_json_encode( __( 'The quote total is 0. Add priced line items before sending.', 'storelly-product-builder-for-woocommerce' ) ); ?>,
+                        guardEmpty:   <?php echo wp_json_encode( __( 'Every line needs a name before you can send the quote.', 'storelly-product-builder-for-woocommerce' ) ); ?>
+                    }
+                };
                 var TPL_I18N = {
                     saveTitle:       <?php echo wp_json_encode( __( 'Save as template', 'storelly-product-builder-for-woocommerce' ) ); ?>,
                     nameLabel:       <?php echo wp_json_encode( __( 'Template name', 'storelly-product-builder-for-woocommerce' ) ); ?>,
@@ -1175,6 +1297,155 @@ if ( ! class_exists( 'SPBWC_Quote_Admin' ) ) {
                             tplPost('spbwc_delete_quote_template', { template_id: sel.value }, function (data) { refreshTemplates(data.templates); tplToast(TPL_I18N.deleted, 'success'); });
                         });
                     });
+                }
+
+                /* ── AJAX actions + UX (dirty-state, confirm, guards, Ctrl+S) ── */
+                var qForm     = document.getElementById('spbwc-quote-reply-form');
+                var qBar      = document.getElementById('spbwc-q-actionbar');
+                var saveState = document.getElementById('spbwc-q-savestate');
+                var dirty = false, busy = false;
+
+                function qToast(msg, tone) {
+                    if (window.spbwcDialog) { window.spbwcDialog.toast({ message: msg, tone: tone || 'info' }); }
+                    else { window.alert(msg); }
+                }
+                function setSaveState(kind, text) {
+                    if (!saveState) { return; }
+                    saveState.className = 'spbwc-q-savestate' + (kind ? ' spbwc-q-savestate--' + kind : '');
+                    saveState.textContent = text != null ? text
+                        : (kind === 'saved' ? QQ.i18n.saved : (kind === 'unsaved' ? QQ.i18n.unsaved : ''));
+                }
+                function markDirty() {
+                    if (busy || !QQ.editable) { return; }
+                    dirty = true;
+                    setSaveState('unsaved');
+                }
+                if (qForm) {
+                    qForm.addEventListener('input', markDirty);
+                    qForm.addEventListener('change', markDirty);
+                }
+                window.addEventListener('beforeunload', function (e) {
+                    if (dirty && QQ.editable) { e.preventDefault(); e.returnValue = ''; return ''; }
+                });
+
+                function grandTotalValue() {
+                    var subtotal = 0;
+                    tbody.querySelectorAll('tr.spbwc-q-line').forEach(function (tr) {
+                        var qty = parseFloat(tr.querySelector('.spbwc-q-qty').value) || 0;
+                        var price = parseFloat(tr.querySelector('.spbwc-q-price').value) || 0;
+                        subtotal += qty * price;
+                    });
+                    var discount = parseFloat(document.getElementById('spbwc-q-discount').value) || 0;
+                    var tax = parseFloat(document.getElementById('spbwc-q-tax').value) || 0;
+                    return Math.round((subtotal - discount + tax) * 100) / 100;
+                }
+                function guardSend() {
+                    var missingLabel = false;
+                    tbody.querySelectorAll('tr.spbwc-q-line').forEach(function (tr) {
+                        var label = tr.querySelector('input[name="line_label[]"]');
+                        var qty = parseFloat(tr.querySelector('.spbwc-q-qty').value) || 0;
+                        var price = parseFloat(tr.querySelector('.spbwc-q-price').value) || 0;
+                        if ((qty || price) && label && !label.value.trim()) { missingLabel = true; }
+                    });
+                    if (missingLabel) { return QQ.i18n.guardEmpty; }
+                    if (grandTotalValue() <= 0) { return QQ.i18n.guardZero; }
+                    return '';
+                }
+
+                function lockForm() {
+                    QQ.editable = false;
+                    dirty = false;
+                    if (qForm) {
+                        qForm.querySelectorAll('input, select, textarea, button').forEach(function (node) { node.disabled = true; });
+                    }
+                    if (qBar) {
+                        var p = document.createElement('p');
+                        p.className = 'spbwc-setting-row__hint spbwc-q-hint--flush';
+                        p.textContent = QQ.i18n.lockedHint;
+                        qBar.innerHTML = '';
+                        qBar.appendChild(p);
+                    }
+                }
+
+                function submitAction(action, btn) {
+                    if (busy || !qForm) { return; }
+                    busy = true;
+                    if (btn) { btn.classList.add('is-busy'); btn.disabled = true; }
+                    setSaveState('busy', action === 'save' ? QQ.i18n.saving : QQ.i18n.sending);
+
+                    var fd = new FormData(qForm);
+                    fd.append('action', 'spbwc_quote_action');
+                    fd.append('nonce', QQ.nonce);
+                    fd.append('spbwc_quote_do', action);
+
+                    fetch(QQ.ajax, { method: 'POST', credentials: 'same-origin', body: fd })
+                        .then(function (r) { return r.json(); })
+                        .then(function (res) {
+                            busy = false;
+                            if (btn) { btn.classList.remove('is-busy'); btn.disabled = false; }
+                            if (!res || !res.success) {
+                                qToast((res && res.data && res.data.message) || QQ.i18n.reqFailed, 'error');
+                                setSaveState(dirty ? 'unsaved' : '');
+                                return;
+                            }
+                            var d = res.data || {};
+                            if (d.message) { qToast(d.message, 'success'); }
+                            var pill = document.getElementById('spbwc-q-status-pill');
+                            if (pill && d.status_pill_html) { pill.innerHTML = d.status_pill_html; }
+                            var act = document.getElementById('spbwc-q-activity');
+                            if (act && d.activity_html) { act.innerHTML = d.activity_html; }
+                            if (d.editable) { dirty = false; setSaveState('saved'); }
+                            else { lockForm(); }
+                        })
+                        .catch(function () {
+                            busy = false;
+                            if (btn) { btn.classList.remove('is-busy'); btn.disabled = false; }
+                            qToast(QQ.i18n.reqFailed, 'error');
+                            setSaveState(dirty ? 'unsaved' : '');
+                        });
+                }
+
+                function confirmThen(title, body, okText, tone, cb) {
+                    var ask = window.spbwcDialog
+                        ? window.spbwcDialog.confirm({ title: title, message: body, okText: okText, tone: tone === 'danger' ? 'danger' : undefined })
+                        : Promise.resolve(window.confirm(title));
+                    ask.then(function (ok) { if (ok) { cb(); } });
+                }
+
+                if (qForm) {
+                    qForm.addEventListener('submit', function (e) {
+                        e.preventDefault();
+                        if (!QQ.editable) { return; }
+                        var btn = e.submitter || document.activeElement;
+                        var action = (btn && btn.name === 'spbwc_quote_do') ? btn.value : 'save';
+
+                        if (action === 'send' || action === 'counter') {
+                            var problem = guardSend();
+                            if (problem) { qToast(problem, 'warning'); return; }
+                            var body = QQ.i18n.confirmSendBody + '\n\n' + QQ.i18n.totalLabel + ': ' + money(grandTotalValue())
+                                + (QQ.email ? '\n' + QQ.i18n.recipientLabel + ': ' + QQ.email : '');
+                            var okText = (action === 'counter') ? QQ.i18n.confirmCounterCta : QQ.i18n.confirmSendCta;
+                            confirmThen(QQ.i18n.confirmSendTitle, body, okText, 'primary', function () { submitAction(action, btn); });
+                        } else if (action === 'withdraw') {
+                            confirmThen(QQ.i18n.confirmWithdrawTitle, QQ.i18n.confirmWithdrawBody, QQ.i18n.confirmWithdrawCta, 'danger', function () { submitAction('withdraw', btn); });
+                        } else {
+                            submitAction('save', btn);
+                        }
+                    });
+                }
+
+                document.addEventListener('keydown', function (e) {
+                    if ((e.ctrlKey || e.metaKey) && (e.key === 's' || e.key === 'S')) {
+                        if (!QQ.editable) { return; }
+                        e.preventDefault();
+                        submitAction('save', qBar ? qBar.querySelector('button[value="save"]') : null);
+                    }
+                });
+
+                // Default 14-day validity for a brand-new quote with no date yet.
+                if (QQ.isNew && QQ.editable) {
+                    var vEl = document.getElementById('spbwc-q-validity');
+                    if (vEl && !vEl.value) { setValidityDays(14); }
                 }
 
                 recalc();
