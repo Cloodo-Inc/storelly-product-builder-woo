@@ -528,6 +528,14 @@
 
 .spbwc-license-hero__meta .dashicons { font-size: 14px; width: 14px; height: 14px; }
 
+.spbwc-license-hero__note {
+    margin: var(--nbd-space-2) 0 0;
+    font-size: var(--text-sm);
+    color: var(--nbd-st-text-soft);
+    max-width: 260px;
+    text-align: end;
+}
+
 .spbwc-license-hero__benefits {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));

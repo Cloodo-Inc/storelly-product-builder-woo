@@ -376,6 +376,49 @@ Refinement of the shipped page from direct UX review. Files: `views/license.php`
 > banner, Advanced layout) is pending. All changed PHP `php -l` clean; all referenced CSS tokens
 > confirmed present in `_tokens.css`.
 
+### 9.4 IA consolidation — Settings = status board, single-action S0 (2026-06-10)
+
+Direct-from-merchant-review refinement of the split between the two surfaces (closes the
+remaining half of **P2/P4** and aligns the §4.2 "fix the Settings tabs" intent). Files:
+`views/menu-settings.php`, `views/license.php`, `includes/class-admin-options.php`,
+`static/css/storelly-admin-ui.css` + `…-rtl.css`.
+
+- **Settings › Integration → read-only Premium status board.** The old three competing cards
+  (Storelly Account connect/disconnect, the Cloud-features Yes/No radios, and — at the primary
+  level — the connection surface) are **removed**. In their place: one **"Premium & Cloud
+  features"** block that lists every cap from `caps_catalog()` with a per-row **Active / Locked**
+  badge driven by `SPBWC_License_Manager::can()` (never the raw consent flags, so it cannot lie),
+  a state-aware header badge (Not connected / Connected · Free / {Plan}), and **one CTA** —
+  *"Go Premium — Account & Plan"* / *"Manage in Account & Plan"* — linking to the unified page.
+  The **Advanced "link manually with API keys"** `<details>` is kept as the deep fallback (the
+  merchant's "manual entry = secondary screen"). Net: Settings no longer *controls* connection;
+  it only *mirrors* status and routes to the one home (fixes the last of **P4**).
+- **Save-handler hardened (`spbwc_settings()`).** Because the consent radios left the form, the
+  handler no longer defaults `enable_cloud2print_api` / `enable_api_sync` to `'no'` when absent —
+  it now only writes them when the POST actually carries them (back-compat). Prevents an
+  unrelated settings save (e.g. from the Printing Options tab) from **silently disconnecting**
+  the store. These flags are now owned solely by Connect/Disconnect + the connect-back flow.
+- **Account & Plan S0 → single action.** The separate *"Connect to Storelly — free"* button + Sync
+  affordance is dropped from the S0 hero; the one primary CTA is **"Choose a plan"** (→ matrix),
+  whose *Choose* buttons run the connect-back round-trip that creates the account **and** licenses
+  in one hop (§5.2). Connection is now purely an implementation detail of activation (decision:
+  *connect only via choosing a plan*). A quiet note points web-buyers to Advanced for manual key.
+  The AJAX connect handler remains, bound to the **Advanced** connect button as today's working
+  fallback until backend O-6 lights the full loop. New `.spbwc-license-hero__note` token-styled
+  utility (both LTR + RTL sheets).
+
+**Verified (Chrome, isolated instance port 9301, 2026-06-10):** Integration tab renders the status
+board — badge "Connected · Free", all 9 caps "Locked" (correct: connected-free, `can()` safe-false),
+CTA → license page. Account & Plan renders S1 — "Choose a plan" hero + caps matrix (Standard $49 /
+B2B $99) whose *Choose* links carry the `spbwc_cloud_checkout&plan=…` nonce'd connect-back URL.
+Console clean (only a benign W3C "form field needs id/name" hint on the unrelated WP settings form,
+no JS error / PHP notice). All changed PHP `php -l` clean.
+
+> Open: the §4.2 idea of also renaming/removing the now-thin Integration tab label is deferred —
+> "Integration" still reads sensibly for a status-board + manual-link surface; revisit with the
+> `SPEC_ADMIN_UI_REDESIGN` menu IA. S0-state visual (disconnected) not browser-verified this pass
+> (the test store is connected); S0 markup is a lint-clean anchor + note, low risk.
+
 ---
 
 ## 10. Open items

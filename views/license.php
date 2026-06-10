@@ -136,7 +136,7 @@ $cell = function ( $cap_row, $col_family ) {
                 <p class="spbwc-license-hero__meta">
                     <?php
                     if ( 'S0' === $state ) {
-                        esc_html_e( 'Your store is not linked to Storelly Cloud yet. All local tools already work — connect to add Cloud features.', 'storelly-product-builder-for-woocommerce' );
+                        esc_html_e( 'All local tools already work, free. Choose a plan below to unlock Cloud features — we create your Storelly account and link this store automatically, then open secure checkout.', 'storelly-product-builder-for-woocommerce' );
                     } elseif ( 'S1' === $state ) {
                         esc_html_e( 'Connected. Cloud features are locked — choose a plan below to unlock print-ready PDF and B2B services.', 'storelly-product-builder-for-woocommerce' );
                     } elseif ( 'S2' === $state ) {
@@ -158,14 +158,13 @@ $cell = function ( $cap_row, $col_family ) {
 
             <div class="spbwc-license-hero__actions">
                 <?php if ( 'S0' === $state ) : ?>
-                    <button type="button" class="spbwc-btn-upgrade spbwc-do-connect" data-nonce="<?php echo esc_attr( $connect_nonce ); ?>">
-                        <span class="dashicons dashicons-cloud" aria-hidden="true"></span>
-                        <span class="spbwc-do-connect__label"><?php esc_html_e( 'Connect to Storelly — free', 'storelly-product-builder-for-woocommerce' ); ?></span>
-                    </button>
-                    <a href="#spbwc-plans" class="spbwc-cta-btn spbwc-cta-btn--ghost spbwc-do-connect__alt">
-                        <?php esc_html_e( 'See plans', 'storelly-product-builder-for-woocommerce' ); ?>
+                    <a href="#spbwc-plans" class="spbwc-btn-upgrade">
+                        <span class="dashicons dashicons-awards" aria-hidden="true"></span>
+                        <?php esc_html_e( 'Choose a plan', 'storelly-product-builder-for-woocommerce' ); ?>
                     </a>
-                    <p class="spbwc-connect-status" id="spbwc-connect-status" role="status" aria-live="polite"></p>
+                    <p class="spbwc-license-hero__note">
+                        <?php esc_html_e( 'Free account &amp; checkout happen in one step. Already bought on the web? Use “Advanced” below.', 'storelly-product-builder-for-woocommerce' ); ?>
+                    </p>
                 <?php elseif ( 'S1' === $state ) : ?>
                     <a href="#spbwc-plans" class="spbwc-btn-upgrade">
                         <span class="dashicons dashicons-awards" aria-hidden="true"></span>

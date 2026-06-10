@@ -4096,15 +4096,21 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
                 if ( ! $settings_nonce || ! wp_verify_nonce( $settings_nonce, 'spbwc_settings_action' ) ) {
                     wp_die( esc_html__( 'Security error.', 'storelly-product-builder-for-woocommerce' ) );
                 }
-                $storelly_enable_cloud2print_api      = isset($_POST['storelly_enable_cloud2print_api']) ? sanitize_text_field( wp_unslash( $_POST['storelly_enable_cloud2print_api'] ) ) : 'no';
-                $storelly_enable_api_sync              = isset($_POST['storelly_enable_api_sync']) ? sanitize_text_field( wp_unslash( $_POST['storelly_enable_api_sync'] ) ) : 'no';
                 $consumer_key                         = isset( $_POST['storelly_consumer_key'] ) ? sanitize_text_field( wp_unslash( $_POST['storelly_consumer_key'] ) ) : '';
                 $consumer_secret                      = isset( $_POST['storelly_consumer_secret'] ) ? sanitize_text_field( wp_unslash( $_POST['storelly_consumer_secret'] ) ) : '';
 
                 $message        = esc_html__('Your settings have been saved.', 'storelly-product-builder-for-woocommerce');
                 $status         = 'updated';
-                $storelly_pb_settings['enable_cloud2print_api'] = $storelly_enable_cloud2print_api;
-                $storelly_pb_settings['enable_api_sync'] = $storelly_enable_api_sync;
+                // Cloud consent flags are owned by Connect/Disconnect & the connect-back activation
+                // flow — NOT by this form (the Integration tab is now a read-only status board).
+                // Only honor them here if a form actually submits them (back-compat); never default
+                // to 'no' on an unrelated settings save, which would silently disconnect the store.
+                if ( isset( $_POST['storelly_enable_cloud2print_api'] ) ) {
+                    $storelly_pb_settings['enable_cloud2print_api'] = ( 'yes' === sanitize_text_field( wp_unslash( $_POST['storelly_enable_cloud2print_api'] ) ) ) ? 'yes' : 'no';
+                }
+                if ( isset( $_POST['storelly_enable_api_sync'] ) ) {
+                    $storelly_pb_settings['enable_api_sync'] = ( 'yes' === sanitize_text_field( wp_unslash( $_POST['storelly_enable_api_sync'] ) ) ) ? 'yes' : 'no';
+                }
                 // Save-design entry points (User Account tab). Radios always submit yes/no.
                 foreach ( array( 'save_on_cart', 'save_on_order', 'save_on_builder' ) as $spbwc_ep ) {
                     if ( isset( $_POST[ 'storelly_' . $spbwc_ep ] ) ) {
