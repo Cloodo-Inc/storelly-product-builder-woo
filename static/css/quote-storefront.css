@@ -179,6 +179,7 @@
     border: 1px solid var(--spbwc-rfq-border);
     border-radius: var(--st-field-radius);
     background: var(--spbwc-rfq-surface);
+    box-shadow: var(--st-field-shadow);
     box-sizing: border-box;
 }
 .spbwc-rfq-field input:focus,
@@ -418,6 +419,7 @@
     font-size: var(--st-field-font);
     box-sizing: border-box;
     background: var(--spbwc-rfq-surface);
+    box-shadow: var(--st-field-shadow);
 }
 .spbwc-rfq-accept-total {
     display: flex;
@@ -709,6 +711,7 @@
     font-size: var(--st-field-font);
     background: var(--spbwc-rfq-surface);
     color: var(--spbwc-rfq-text);
+    box-shadow: var(--st-field-shadow);
 }
 .spbwc-bucket-search__input:focus { outline: none; border-color: var(--spbwc-rfq-accent); box-shadow: var(--spbwc-rfq-focus); }
 .spbwc-bucket-search__results { list-style: none; margin: 6px 0 0; padding: 0; max-height: 220px; overflow-y: auto; }

@@ -241,7 +241,9 @@
     --st-field-border:        var(--nbd-st-border);
     --st-field-min-h:         36px;
     --st-field-leading:       1.4;
-    --st-field-shadow:        var(--shadow-input-inset);
+    /* Prominent "sunken" inner shadow (Printcart pattern) — the recognizable */
+    /* form-field depth. Uses the -md inset so fields read as inset, not flat. */
+    --st-field-shadow:        var(--shadow-input-inset-md);
     --st-field-focus-shadow:  var(--shadow-input-focus);
 
     /* === Controls: icon sizing ================================= */

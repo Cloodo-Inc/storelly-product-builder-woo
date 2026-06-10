@@ -99,8 +99,8 @@
     --st-field-font: var(--text-md, 13px);
     --st-field-bg: var(--nbd-mb-bg, #fff);
     --st-field-border: var(--nbd-mb-border-strong, #c3c4c7);
-    --st-field-shadow: var(--shadow-input-inset, inset 0 1px 2px rgba(16,24,40,.07));
-    --st-field-focus-shadow: 0 0 0 3px var(--nbd-mb-primary-soft, #dbeafe);
+    --st-field-shadow: var(--shadow-input-inset-md, inset 0 2px 4px rgba(16,24,40,.08));
+    --st-field-focus-shadow: inset 0 1px 2px rgba(16,24,40,.04), 0 0 0 3px var(--nbd-mb-primary-soft, #dbeafe);
     --st-field-leading: 1.4;
 
     /* === Controls — icons ===================================== */
