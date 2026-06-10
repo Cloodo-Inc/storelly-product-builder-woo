@@ -2346,7 +2346,32 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
                 $this->spbwc_flush_option_caches($option_id, $product_ids);
             }
         }
-        public function spbwc_get_option($id) { 
+        /**
+         * Permanently delete a pricing option (hard delete).
+         *
+         * Removes the row from the options table and flushes the option +
+         * product caches so any product/category that referenced it stops
+         * rendering the builder immediately. Returns true on a real delete.
+         */
+        public function spbwc_delete_option($id) {
+            global $wpdb; // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Global variable $wpdb.
+            $option_id = absint($id);
+            if (0 === $option_id) {
+                return false;
+            }
+            // Resolve referenced products BEFORE deleting so we can flush their caches.
+            $option      = $this->spbwc_get_option($option_id);
+            $product_ids = $this->spbwc_extract_product_ids_from_option($option);
+            // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Custom table delete; caches/transients are flushed below.
+            $result = $wpdb->delete(
+                $wpdb->prefix . 'storelly_product_builder_options',
+                array('id' => $option_id),
+                array('%d')
+            );
+            $this->spbwc_flush_option_caches($option_id, $product_ids);
+            return ( false !== $result && $result > 0 );
+        }
+        public function spbwc_get_option($id) {
             $option_id = absint($id);
             if (0 === $option_id) {
                 return false;
@@ -4854,7 +4879,7 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
         }
 
         /**
-         * AJAX — move a pricing option to trash (sets published=0 + flag).
+         * AJAX — permanently delete a pricing option (hard delete).
          */
         public function spbwc_trash_option() {
             check_ajax_referer( 'spbwc_options_list_nonce', 'nonce' );
@@ -4865,10 +4890,11 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
             if ( ! $id ) {
                 wp_send_json_error( array( 'msg' => esc_html__( 'Missing ID.', 'storelly-product-builder-for-woocommerce' ) ) );
             }
-            $this->spbwc_unpublish_option( $id );
-            $this->spbwc_flush_option_caches( $id );
+            if ( ! $this->spbwc_delete_option( $id ) ) {
+                wp_send_json_error( array( 'msg' => esc_html__( 'Could not delete this option. It may have already been removed.', 'storelly-product-builder-for-woocommerce' ) ) );
+            }
             wp_send_json_success( array(
-                'msg'    => esc_html__( 'Option moved to trash.', 'storelly-product-builder-for-woocommerce' ),
+                'msg'    => esc_html__( 'Option deleted.', 'storelly-product-builder-for-woocommerce' ),
                 'counts' => SPBWC_Storelly_Options_List_Table::spbwc_count_all_statuses(),
             ) );
         }
@@ -4983,8 +5009,7 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
 
             if ( 'trash' === $bulk_action ) {
                 foreach ( $ids as $id ) {
-                    $this->spbwc_unpublish_option( $id );
-                    $this->spbwc_flush_option_caches( $id );
+                    $this->spbwc_delete_option( $id );
                 }
             } else {
                 $pub = ( 'publish' === $bulk_action ) ? 1 : 0;

@@ -745,16 +745,10 @@ $_current_page_n = isset( $_GET['paged'] ) ? max( 1, absint( $_GET['paged'] ) ) 
 					}
 					setLoading( true );
 					doPost( 'spbwc_trash_option', { id: id }, function ( data ) {
-						// Undo restores the item to its previous published state.
-						var undoFn = function () {
-							doPost( 'spbwc_publish_option_ajax', { id: id, published: prevPub }, function () {
-								fetchList( false );
-							} );
-						};
+						// Hard delete — permanent, so no Undo is offered.
 						showToast(
 							data.msg || '<?php echo esc_js( __( 'Option deleted.', 'storelly-product-builder-for-woocommerce' ) ); ?>',
-							'success',
-							undoFn
+							'success'
 						);
 						updateTabCounts( data.counts );
 						fetchList( false );
