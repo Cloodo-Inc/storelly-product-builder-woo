@@ -42,8 +42,8 @@
     appearance: none;
     border: 0;
     background: transparent;
-    padding: 10px 16px;
-    font-size: var(--text-md, 13px);
+    padding: var(--st-btn-pad-lg);
+    font-size: var(--st-btn-font-md);
     font-weight: var(--font-medium, 500);
     color: var(--nbd-st-text-soft, #50575e);
     cursor: pointer;
@@ -51,7 +51,7 @@
     margin-bottom: -1px;
     display: inline-flex;
     align-items: center;
-    gap: 6px;
+    gap: var(--st-btn-gap);
 }
 .spbwc-co-tab-btn:hover { color: var(--nbd-st-text, #1d2327); }
 .spbwc-co-tab-btn.is-active {

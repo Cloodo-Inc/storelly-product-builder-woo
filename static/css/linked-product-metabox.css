@@ -70,10 +70,10 @@
 }
 
 .spbwc-lp-meta .dashicons {
-    font-size: var(--text-xl, 16px);
-    width: var(--text-xl, 16px);
-    height: var(--text-xl, 16px);
-    line-height: var(--text-xl, 16px);
+    font-size: var(--st-icon-md);
+    width: var(--st-icon-md);
+    height: var(--st-icon-md);
+    line-height: var(--st-icon-md);
 }
 
 .spbwc-lp-meta--designer {
@@ -134,9 +134,9 @@
 }
 
 .spbwc-lp-shared__badge .dashicons {
-    font-size: 15px;
-    width: 15px;
-    height: 15px;
+    font-size: var(--st-icon-sm);
+    width: var(--st-icon-sm);
+    height: var(--st-icon-sm);
     line-height: 15px;
 }
 
@@ -173,10 +173,10 @@
 }
 
 .spbwc-lp-action .dashicons {
-    font-size: var(--text-xl, 16px);
-    width: var(--text-xl, 16px);
-    height: var(--text-xl, 16px);
-    line-height: var(--text-xl, 16px);
+    font-size: var(--st-icon-md);
+    width: var(--st-icon-md);
+    height: var(--st-icon-md);
+    line-height: var(--st-icon-md);
 }
 
 .spbwc-lp-action--unlink {
@@ -228,9 +228,9 @@
     display: flex;
 }
 .spbwc-lp-card__off-hint .dashicons {
-    font-size: 15px;
-    width: 15px;
-    height: 15px;
+    font-size: var(--st-icon-sm);
+    width: var(--st-icon-sm);
+    height: var(--st-icon-sm);
     line-height: 15px;
 }
 

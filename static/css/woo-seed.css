@@ -330,9 +330,9 @@
 
 .spbwc-ws-done h2 .dashicons-yes-alt {
     color: var(--nbd-color-success);
-    font-size: 28px;
-    width: 28px;
-    height: 28px;
+    font-size: var(--st-icon-2xl);
+    width: var(--st-icon-2xl);
+    height: var(--st-icon-2xl);
     vertical-align: middle;
 }
 

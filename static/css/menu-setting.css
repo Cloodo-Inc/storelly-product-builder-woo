@@ -160,9 +160,9 @@ h2.spbwc-settings-tabs,
 }
 
 .spbwc-settings-tabs .nav-tab .dashicons {
-    font-size: 14px;
-    width: 14px;
-    height: 14px;
+    font-size: var(--st-icon-sm);
+    width: var(--st-icon-sm);
+    height: var(--st-icon-sm);
     line-height: 1;
     opacity: 0.65;
 }
@@ -273,9 +273,9 @@ h2.spbwc-settings-tabs,
 }
 
 .spbwc-section-title .dashicons {
-    font-size: 20px;
-    width: 20px;
-    height: 20px;
+    font-size: var(--st-icon-lg);
+    width: var(--st-icon-lg);
+    height: var(--st-icon-lg);
     color: var(--nbd-st-primary);
 }
 
@@ -368,20 +368,21 @@ h2.spbwc-settings-tabs,
 .spbwc-btn {
     display: inline-flex;
     align-items: center;
-    gap: 5px;
-    padding: 8px 16px;
-    font-size: 12.5px;
-    font-weight: 500;
+    gap: var(--st-btn-gap);
+    padding: var(--st-btn-pad-md);
+    min-height: var(--st-btn-min-h-md);
+    font-size: var(--st-btn-font-md);
+    font-weight: var(--font-medium);
     text-decoration: none;
-    border-radius: 6px;
+    border-radius: var(--st-btn-radius);
     transition: background 0.15s, border-color 0.15s, color 0.15s;
     white-space: nowrap;
     cursor: pointer;
 }
 .spbwc-btn .dashicons {
-    font-size: 14px;
-    width: 14px;
-    height: 14px;
+    font-size: var(--st-icon-sm);
+    width: var(--st-icon-sm);
+    height: var(--st-icon-sm);
     line-height: 1;
     flex-shrink: 0;
 }
@@ -523,10 +524,10 @@ h2.spbwc-settings-tabs,
 .spbwc-settings-wrap input[type="tel"],
 .spbwc-settings-wrap textarea,
 .spbwc-settings-wrap select {
-    border: 1px solid var(--nbd-st-border);
-    border-radius: 6px;
-    background: #fff;
-    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.09);
+    border: 1px solid var(--st-field-border);
+    border-radius: var(--st-field-radius);
+    background: var(--st-field-bg);
+    box-shadow: var(--st-field-shadow);
     transition: border-color 0.2s, box-shadow 0.2s;
 }
 .spbwc-settings-wrap input[type="text"]:focus,
@@ -535,8 +536,8 @@ h2.spbwc-settings-tabs,
 .spbwc-settings-wrap input[type="tel"]:focus,
 .spbwc-settings-wrap textarea:focus,
 .spbwc-settings-wrap select:focus {
-    border-color: var(--nbd-st-primary);
-    box-shadow: 0 0 0 2px rgba(34, 113, 177, 0.15), inset 0 1px 3px rgba(0, 0, 0, 0.06);
+    border-color: var(--st-brand);
+    box-shadow: var(--st-field-focus-shadow);
     outline: none;
 }
 
@@ -545,37 +546,37 @@ h2.spbwc-settings-tabs,
     width: 100%;
     min-width: 80px;
     padding: 6px 10px;
-    font-size: 12.5px;
-    line-height: 1.4;
-    border: 1px solid var(--nbd-st-border);
-    border-radius: 5px;
-    background: #fff;
-    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.08);
+    font-size: var(--text-base);
+    line-height: var(--st-field-leading);
+    border: 1px solid var(--st-field-border);
+    border-radius: var(--st-field-radius);
+    background: var(--st-field-bg);
+    box-shadow: var(--st-field-shadow);
     transition: border-color 0.15s, box-shadow 0.15s;
     color: var(--nbd-st-text);
 }
 .spbwc-qf-input:focus {
-    border-color: var(--nbd-st-primary);
-    box-shadow: 0 0 0 2px rgba(34, 113, 177, 0.12), inset 0 1px 2px rgba(0, 0, 0, 0.05);
+    border-color: var(--st-brand);
+    box-shadow: var(--st-field-focus-shadow);
     outline: none;
 }
 
 .spbwc-qf-select {
     padding: 6px 28px 6px 10px;
-    font-size: 12.5px;
-    line-height: 1.4;
-    border: 1px solid var(--nbd-st-border);
-    border-radius: 5px;
-    background: #fff;
-    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.08);
+    font-size: var(--text-base);
+    line-height: var(--st-field-leading);
+    border: 1px solid var(--st-field-border);
+    border-radius: var(--st-field-radius);
+    background: var(--st-field-bg);
+    box-shadow: var(--st-field-shadow);
     transition: border-color 0.15s, box-shadow 0.15s;
     color: var(--nbd-st-text);
     appearance: auto;
     cursor: pointer;
 }
 .spbwc-qf-select:focus {
-    border-color: var(--nbd-st-primary);
-    box-shadow: 0 0 0 2px rgba(34, 113, 177, 0.12), inset 0 1px 2px rgba(0, 0, 0, 0.05);
+    border-color: var(--st-brand);
+    box-shadow: var(--st-field-focus-shadow);
     outline: none;
 }
 
@@ -756,18 +757,19 @@ h2.spbwc-settings-tabs,
     max-width: 500px;
     height: 42px;
     padding: 10px 15px;
-    font-size: 14px;
-    border: 2px solid var(--nbd-st-border-light);
-    border-radius: 6px;
-    background: #fff;
-    transition: all 0.3s ease;
+    font-size: var(--st-field-font);
+    border: 1px solid var(--st-field-border);
+    border-radius: var(--st-field-radius);
+    background: var(--st-field-bg);
+    box-shadow: var(--st-field-shadow);
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
     box-sizing: border-box;
 }
 
 .content-form .box-key .code-key input:focus {
     outline: none;
-    border-color: #667eea;
-    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    border-color: var(--st-brand);
+    box-shadow: var(--st-field-focus-shadow);
 }
 
 .content-form .box-key .code-key input:disabled {

@@ -136,7 +136,7 @@
 
 .spbwc-pkg-features li .dashicons {
     color: var(--st-brand);
-    font-size: 16px;
+    font-size: var(--st-icon-md);
     flex-shrink: 0;
     margin-top: 1px;
 }
@@ -169,18 +169,18 @@
     display: block;
     text-align: center;
     border-radius: var(--nbd-radius-md);
-    padding: 11px 16px;
+    padding: var(--st-btn-pad-lg);
     font-weight: var(--font-bold);
-    font-size: var(--text-lg);
+    font-size: var(--st-btn-font-lg);
     border: none;
     cursor: pointer;
     text-decoration: none;
     transition: var(--transition-fast);
-    min-height: 42px;
+    min-height: var(--st-btn-min-h-lg);
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 6px;
+    gap: var(--st-btn-gap);
 }
 
 .spbwc-pkg-cta--upgrade {
@@ -232,9 +232,9 @@
 }
 
 .spbwc-activate-card__title .dashicons {
-    font-size: 22px;
-    width: 22px;
-    height: 22px;
+    font-size: var(--st-icon-xl);
+    width: var(--st-icon-xl);
+    height: var(--st-icon-xl);
     color: var(--st-brand);
 }
 
@@ -268,10 +268,7 @@
     background: var(--st-accent-soft);
     color: var(--st-accent-pressed);
 }
-.spbwc-cta-btn--sm {
-    padding: var(--nbd-space-1, 4px) var(--nbd-space-3);
-    font-size: var(--text-sm);
-}
+/* .spbwc-cta-btn--sm geometry is canonical (storelly-admin-ui.css → --st-btn-*). */
 
 /* ── Account & Plan: caps comparison matrix ── */
 .spbwc-cm-wrap { overflow-x: auto; }
@@ -487,7 +484,7 @@
     font-weight: var(--font-bold);
     color: var(--nbd-st-text);
 }
-.spbwc-adv-item__title .dashicons { font-size: 18px; width: 18px; height: 18px; color: var(--st-brand); }
+.spbwc-adv-item__title .dashicons { font-size: var(--st-icon-lg); width: var(--st-icon-lg); height: var(--st-icon-lg); color: var(--st-brand); }
 .spbwc-adv-item__title label { cursor: pointer; }
 .spbwc-adv-item__desc {
     margin: 0;

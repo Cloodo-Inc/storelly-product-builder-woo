@@ -75,10 +75,10 @@
 .spbwc-font-select {
   height: 36px;
   padding: 0 28px 0 10px;
-  border: 1px solid #dcdcde;
-  border-radius: 5px;
-  background: #fff;
-  font-size: 13px;
+  border: 1px solid var(--st-field-border);
+  border-radius: var(--st-field-radius);
+  background: var(--st-field-bg);
+  font-size: var(--st-field-font);
   color: #1d2327;
   cursor: pointer;
   appearance: auto;
@@ -88,7 +88,7 @@
 .spbwc-font-select:focus {
   border-color: #2271b1;
   outline: none;
-  box-shadow: 0 0 0 1px #2271b1;
+  box-shadow: var(--st-field-focus-shadow);
 }
 
 .spbwc-font-select--sm {
@@ -129,12 +129,12 @@
 .spbwc-font-action-btn {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
+  gap: var(--st-btn-gap);
   padding: 0 10px;
   height: 30px;
-  font-size: 12px;
+  font-size: var(--st-btn-font-sm);
   font-weight: 500;
-  border-radius: 4px;
+  border-radius: var(--st-btn-radius);
   border: 1px solid #dcdcde;
   background: #fff;
   color: #50575e;
@@ -150,9 +150,9 @@
 }
 
 .spbwc-font-action-btn .dashicons {
-  font-size: 14px;
-  width: 14px;
-  height: 14px;
+  font-size: var(--st-icon-sm);
+  width: var(--st-icon-sm);
+  height: var(--st-icon-sm);
   margin: 0;
   flex-shrink: 0;
 }
@@ -260,9 +260,9 @@
 }
 
 .spbwc-font-card__check .dashicons {
-  font-size: 14px;
-  width: 14px;
-  height: 14px;
+  font-size: var(--st-icon-sm);
+  width: var(--st-icon-sm);
+  height: var(--st-icon-sm);
   margin: 0;
 }
 
@@ -401,9 +401,9 @@
 }
 
 .spbwc-custom-fonts__title .dashicons {
-  font-size: 18px;
-  width: 18px;
-  height: 18px;
+  font-size: var(--st-icon-lg);
+  width: var(--st-icon-lg);
+  height: var(--st-icon-lg);
   color: #2271b1;
 }
 
@@ -557,11 +557,11 @@
 .spbwc-upload-input {
   height: 36px;
   padding: 0 10px;
-  border: 1px solid #dcdcde;
-  border-radius: 5px;
-  font-size: 13px;
+  border: 1px solid var(--st-field-border);
+  border-radius: var(--st-field-radius);
+  font-size: var(--st-field-font);
   color: #1d2327;
-  background: #fff;
+  background: var(--st-field-bg);
   width: 100%;
   box-sizing: border-box;
   transition: border-color 0.15s;
@@ -570,7 +570,7 @@
 .spbwc-upload-input:focus {
   border-color: #2271b1;
   outline: none;
-  box-shadow: 0 0 0 1px #2271b1;
+  box-shadow: var(--st-field-focus-shadow);
 }
 
 .spbwc-upload-actions {
@@ -716,7 +716,7 @@
   border: none;
   background: transparent;
   color: #a7aaad;
-  border-radius: 4px;
+  border-radius: var(--st-btn-radius);
   cursor: pointer;
   padding: 0;
   transition: background 0.15s, color 0.15s;
@@ -728,9 +728,9 @@
 }
 
 .spbwc-custom-card__delete .dashicons {
-  font-size: 16px;
-  width: 16px;
-  height: 16px;
+  font-size: var(--st-icon-md);
+  width: var(--st-icon-md);
+  height: var(--st-icon-md);
 }
 
 /* ── Section divider ── */
@@ -763,9 +763,9 @@
 }
 
 .spbwc-section-divider__label .dashicons {
-  font-size: 14px;
-  width: 14px;
-  height: 14px;
+  font-size: var(--st-icon-sm);
+  width: var(--st-icon-sm);
+  height: var(--st-icon-sm);
 }
 
 /* ── Responsive: custom fonts ── */

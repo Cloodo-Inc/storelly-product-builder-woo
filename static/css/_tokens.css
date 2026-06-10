@@ -212,6 +212,47 @@
     --st-tracking-wide:       0.04em;  /* eyebrows / small labels    */
     --st-tracking-caps:       0.08em;  /* uppercase section headings */
 
+    /* === Controls: buttons ===================================== */
+    /* Canonical button geometry — every .spbwc-*btn* class should   */
+    /* consume these so sizes/effects stay identical across pages.   */
+    /* Reference component: .spbwc-cta-btn in storelly-admin-ui.css. */
+    --st-btn-gap:             6px;
+    --st-btn-radius:          var(--nbd-radius);
+    --st-btn-pad-sm:          5px 10px;
+    --st-btn-pad-md:          7px 14px;
+    --st-btn-pad-lg:          10px 18px;
+    --st-btn-font-sm:         var(--text-base);
+    --st-btn-font-md:         var(--text-md);
+    --st-btn-font-lg:         var(--text-lg);
+    --st-btn-min-h-sm:        28px;
+    --st-btn-min-h-md:        34px;
+    --st-btn-min-h-lg:        42px;
+    --st-btn-shadow:          var(--shadow-sm);
+    --st-btn-shadow-hover:    var(--shadow-md);
+
+    /* === Controls: form fields ================================= */
+    /* Canonical input/select/textarea geometry. Reference: .spbwc-input. */
+    --st-field-pad-y:         9px;
+    --st-field-pad-x:         12px;
+    --st-field-pad:           var(--st-field-pad-y) var(--st-field-pad-x);
+    --st-field-radius:        var(--nbd-radius);
+    --st-field-font:          var(--text-md);
+    --st-field-bg:            var(--nbd-st-bg-input);
+    --st-field-border:        var(--nbd-st-border);
+    --st-field-min-h:         36px;
+    --st-field-leading:       1.4;
+    --st-field-shadow:        var(--shadow-input-inset);
+    --st-field-focus-shadow:  var(--shadow-input-focus);
+
+    /* === Controls: icon sizing ================================= */
+    /* Use for dashicons / inline SVG so glyphs stop varying 10–40px. */
+    --st-icon-xs:             12px;
+    --st-icon-sm:             14px;   /* default inside buttons / inline */
+    --st-icon-md:             16px;
+    --st-icon-lg:             20px;
+    --st-icon-xl:             24px;
+    --st-icon-2xl:            32px;
+
     /* === Legacy --gi-* aliases ================================= */
     /* Backward-compat for global-import-app.css and any other     */
     /* file still referencing the original --gi-* variable names.  */

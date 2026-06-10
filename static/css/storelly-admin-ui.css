@@ -229,26 +229,27 @@
 .spbwc-cta-btn {
     display: inline-flex;
     align-items: center;
-    gap: 6px;
-    padding: 7px 14px;
+    gap: var(--st-btn-gap);
+    padding: var(--st-btn-pad-md);
+    min-height: var(--st-btn-min-h-md);
     background: var(--nbd-st-bg);
     color: var(--st-brand);
     border: 1px solid var(--st-brand-soft);
-    border-radius: var(--nbd-radius);
-    font-size: var(--text-md);
+    border-radius: var(--st-btn-radius);
+    font-size: var(--st-btn-font-md);
     font-weight: var(--font-semibold);
     text-decoration: none;
     transition: var(--transition-fast);
-    box-shadow: var(--shadow-sm);
+    box-shadow: var(--st-btn-shadow);
     cursor: pointer;
     line-height: 1.4;
     min-height: 34px;
 }
 
 .spbwc-cta-btn .dashicons {
-    font-size: 14px;
-    width: 14px;
-    height: 14px;
+    font-size: var(--st-icon-sm);
+    width: var(--st-icon-sm);
+    height: var(--st-icon-sm);
     transition: transform 0.15s ease;
 }
 
@@ -256,7 +257,7 @@
     background: var(--st-brand);
     border-color: var(--st-brand);
     color: var(--nbd-st-text-inverse);
-    box-shadow: var(--shadow-md);
+    box-shadow: var(--st-btn-shadow-hover);
     transform: translateY(-1px);
 }
 
@@ -296,9 +297,28 @@
 
 /* Small size modifier */
 .spbwc-cta-btn--sm {
-    padding: 5px 10px;
-    font-size: var(--text-base);
-    min-height: 28px;
+    padding: var(--st-btn-pad-sm);
+    font-size: var(--st-btn-font-sm);
+    min-height: var(--st-btn-min-h-sm);
+}
+
+/* Large size modifier */
+.spbwc-cta-btn--lg {
+    padding: var(--st-btn-pad-lg);
+    font-size: var(--st-btn-font-lg);
+    min-height: var(--st-btn-min-h-lg);
+}
+
+/* Danger variant — destructive primary actions */
+.spbwc-cta-btn--danger {
+    background: var(--nbd-color-danger);
+    border-color: var(--nbd-color-danger);
+    color: var(--nbd-st-text-inverse);
+}
+.spbwc-cta-btn--danger:hover {
+    background: #b91c1c;
+    border-color: #b91c1c;
+    color: var(--nbd-st-text-inverse);
 }
 
 /* ========================================================== */
@@ -307,14 +327,14 @@
 /* ========================================================== */
 .spbwc-input {
     width: 100%;
-    padding: 9px 12px;
-    background: var(--nbd-st-bg-input);
-    border: 1px solid var(--nbd-st-border);
-    border-radius: var(--nbd-radius);
-    font-size: var(--text-md);
+    padding: var(--st-field-pad);
+    background: var(--st-field-bg);
+    border: 1px solid var(--st-field-border);
+    border-radius: var(--st-field-radius);
+    font-size: var(--st-field-font);
     color: var(--nbd-st-text);
-    line-height: 1.4;
-    box-shadow: var(--shadow-input-inset);
+    line-height: var(--st-field-leading);
+    box-shadow: var(--st-field-shadow);
     transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }
 
@@ -323,7 +343,7 @@
 .spbwc-input:focus {
     outline: none;
     border-color: var(--st-brand);
-    box-shadow: var(--shadow-input-focus);
+    box-shadow: var(--st-field-focus-shadow);
 }
 
 .spbwc-input::placeholder { color: var(--nbd-st-text-mute); }

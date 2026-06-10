@@ -32,8 +32,8 @@
 	box-shadow: var(--shadow-sm);
 }
 .spbwc-tl-stat-card__icon {
-	font-size: 20px;
-	width: 20px; height: 20px;
+	font-size: var(--st-icon-lg);
+	width: var(--st-icon-lg); height: var(--st-icon-lg);
 	color: var(--st-brand);
 	margin-bottom: 6px;
 }
@@ -90,7 +90,7 @@
 }
 .spbwc-tl-toolbar__filter {
 	min-width: 180px;
-	border-radius: var(--nbd-radius);
+	border-radius: var(--st-field-radius);
 }
 .spbwc-tl-count {
 	margin-left: auto;
@@ -273,15 +273,15 @@ button.spbwc-tl-apply {
 	display: flex !important;
 	align-items: center !important;
 	justify-content: center !important;
-	gap: 5px !important;
+	gap: var(--st-btn-gap) !important;
 	flex: 1 !important;
 	height: 34px !important;
 	min-height: 0 !important;
 	padding: 0 12px !important;
-	font-size: 12px !important;
+	font-size: var(--st-btn-font-sm) !important;
 	font-weight: 600 !important;
 	line-height: 1 !important;
-	border-radius: 4px !important;
+	border-radius: var(--st-btn-radius) !important;
 	box-sizing: border-box !important;
 	cursor: pointer !important;
 	white-space: nowrap !important;
@@ -290,9 +290,9 @@ button.spbwc-tl-apply {
 }
 button.spbwc-tl-preview .dashicons,
 button.spbwc-tl-apply .dashicons {
-	font-size: 14px !important;
-	width: 14px !important;
-	height: 14px !important;
+	font-size: var(--st-icon-sm) !important;
+	width: var(--st-icon-sm) !important;
+	height: var(--st-icon-sm) !important;
 	line-height: 1 !important;
 	flex-shrink: 0 !important;
 }
@@ -304,20 +304,20 @@ button.spbwc-tl-preview {
 	box-shadow: none !important;
 }
 button.spbwc-tl-preview:hover {
-	border-color: #1d4ed8 !important;
-	color: #1d4ed8 !important;
+	border-color: var(--st-brand) !important;
+	color: var(--st-brand) !important;
 	background: #eff6ff !important;
 }
 /* Apply — solid brand blue */
 button.spbwc-tl-apply {
-	background: #1d4ed8 !important;
-	border: 1px solid #1d4ed8 !important;
+	background: var(--st-brand) !important;
+	border: 1px solid var(--st-brand) !important;
 	color: #fff !important;
 	box-shadow: none !important;
 }
 button.spbwc-tl-apply:hover {
-	background: #1e40af !important;
-	border-color: #1e40af !important;
+	background: var(--st-brand-pressed) !important;
+	border-color: var(--st-brand-pressed) !important;
 }
 
 /* ── Empty search state ───────────────────────────────────────────── */
@@ -327,7 +327,7 @@ button.spbwc-tl-apply:hover {
 	color: var(--nbd-st-text-soft);
 }
 .spbwc-tl-empty-search .dashicons {
-	font-size: 40px; width: 40px; height: 40px;
+	font-size: var(--st-icon-2xl); width: var(--st-icon-2xl); height: var(--st-icon-2xl);
 	color: var(--nbd-st-text-mute);
 	margin-bottom: 10px;
 	display: block;
@@ -426,11 +426,11 @@ button.spbwc-tl-apply:hover {
 .spbwc-tl-tab {
 	background: none;
 	border: 0;
-	padding: 4px 12px;
-	font-size: 12px;
+	padding: var(--st-btn-pad-sm);
+	font-size: var(--st-btn-font-sm);
 	font-weight: 500;
 	color: var(--nbd-st-text-soft);
-	border-radius: var(--nbd-radius-sm);
+	border-radius: var(--st-btn-radius);
 	cursor: pointer;
 	transition: var(--transition-fast);
 }
@@ -450,12 +450,12 @@ button.spbwc-tl-apply:hover {
 .spbwc-tl-dialog-close {
 	background: none;
 	border: 0;
-	font-size: 24px;
+	font-size: var(--st-icon-xl);
 	line-height: 1;
 	cursor: pointer;
 	color: var(--nbd-st-text-soft);
-	padding: 4px 10px;
-	border-radius: var(--nbd-radius-sm);
+	padding: var(--st-btn-pad-sm);
+	border-radius: var(--st-btn-radius);
 	flex-shrink: 0;
 }
 .spbwc-tl-dialog-close:hover {
@@ -481,14 +481,14 @@ button.spbwc-tl-apply:hover {
 .spbwc-tl-dialog-footer .button {
 	display: inline-flex !important;
 	align-items: center !important;
-	gap: 5px !important;
+	gap: var(--st-btn-gap) !important;
 	line-height: 1 !important;   /* WP .button has line-height:2.15 — reset so icon doesn't push layout */
 	vertical-align: middle;
 }
 .spbwc-tl-dialog-footer .button .dashicons {
-	font-size: 15px !important;
-	width: 15px !important;
-	height: 15px !important;
+	font-size: var(--st-icon-sm) !important;
+	width: var(--st-icon-sm) !important;
+	height: var(--st-icon-sm) !important;
 	line-height: 1 !important;
 	flex-shrink: 0;
 }
@@ -578,9 +578,9 @@ button.spbwc-tl-apply:hover {
 	text-align: center;
 }
 .spbwc-tl-apply-success-state__icon {
-	font-size: 56px;
-	width: 56px;
-	height: 56px;
+	font-size: var(--st-icon-2xl);
+	width: var(--st-icon-2xl);
+	height: var(--st-icon-2xl);
 	color: #10b981;
 	line-height: 1;
 	display: block;
@@ -608,17 +608,17 @@ button.spbwc-tl-apply:hover {
 }
 .spbwc-tl-field__input {
 	width: 100%;
-	padding: 8px 12px;
-	border: 1px solid var(--nbd-st-border-light);
-	border-radius: var(--nbd-radius);
-	background: var(--nbd-st-bg);
-	font-size: 13px;
-	box-shadow: var(--shadow-input-inset);
+	padding: var(--st-field-pad);
+	border: 1px solid var(--st-field-border);
+	border-radius: var(--st-field-radius);
+	background: var(--st-field-bg);
+	font-size: var(--st-field-font);
+	box-shadow: var(--st-field-shadow);
 }
 .spbwc-tl-field__input:focus {
 	outline: 0;
 	border-color: var(--st-brand);
-	box-shadow: var(--shadow-input-focus);
+	box-shadow: var(--st-field-focus-shadow);
 }
 
 .spbwc-tl-radio-cards {
@@ -644,8 +644,8 @@ button.spbwc-tl-apply:hover {
 	background: var(--st-brand-tint);
 }
 .spbwc-tl-radio-card__icon {
-	font-size: 20px;
-	width: 20px; height: 20px;
+	font-size: var(--st-icon-lg);
+	width: var(--st-icon-lg); height: var(--st-icon-lg);
 	color: var(--st-brand);
 	display: inline-block;
 	margin-bottom: 6px;
@@ -725,10 +725,10 @@ button.spbwc-tl-apply:hover {
 	border: 0;
 	background: transparent;
 	cursor: pointer;
-	font-size: 12px;
+	font-size: var(--st-btn-font-sm);
 	font-weight: 600;
 	color: var(--nbd-st-text-soft);
-	padding: 6px 14px;
+	padding: var(--st-btn-pad-md);
 	border-radius: calc(var(--nbd-radius) - 2px);
 	line-height: 1.4;
 }
@@ -915,9 +915,9 @@ button.spbwc-tl-apply:hover {
 }
 .spbwc-tl-preview-frame-error[hidden] { display: none; }
 .spbwc-tl-preview-frame-error .dashicons {
-	font-size: 28px;
-	width: 28px;
-	height: 28px;
+	font-size: var(--st-icon-xl);
+	width: var(--st-icon-xl);
+	height: var(--st-icon-xl);
 	color: #d97706;
 }
 .spbwc-tl-preview-frame-error p { margin: 0; }
@@ -1134,9 +1134,9 @@ button.spbwc-tl-apply:hover {
 	color: #78350f;
 }
 .spbwc-tl-about__callout-icon {
-	font-size: 18px !important;
-	width: 18px;
-	height: 18px;
+	font-size: var(--st-icon-lg) !important;
+	width: var(--st-icon-lg);
+	height: var(--st-icon-lg);
 	color: #b45309;
 	flex: 0 0 auto;
 	margin-top: 1px;

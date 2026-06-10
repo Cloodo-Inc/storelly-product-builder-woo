@@ -59,7 +59,7 @@
 }
 
 .spbwc-po-v3 .v2-section-head__icon {
-    font-size: 16px;
+    font-size: var(--st-icon-md);
     line-height: 1;
 }
 
@@ -152,16 +152,16 @@
     max-width: 320px;
     padding: 6px 10px;
     border: 1px solid var(--vb-card-border, #dcdcde);
-    background: #fff;
-    box-shadow: var(--shadow-input-inset, inset 0 1px 2px rgba(16, 24, 40, 0.07));
-    font-size: var(--text-base, 14px);
+    background: var(--st-field-bg);
+    box-shadow: var(--st-field-shadow);
+    font-size: var(--st-field-font);
     font-weight: 600;
     color: var(--vb-text-strong, #1d2327);
-    border-radius: var(--nbd-radius, 6px);
+    border-radius: var(--st-field-radius);
     height: 32px;
     box-sizing: border-box;
     min-height: 0;
-    line-height: 1.4;
+    line-height: var(--st-field-leading);
 }
 
 .spbwc-po-v3 .pcpb-field-name__title--editable:focus {
@@ -226,7 +226,7 @@
     padding: 0;
     background: transparent;
     border: 1px solid transparent;
-    border-radius: var(--nbd-radius, 6px);
+    border-radius: var(--st-btn-radius);
     cursor: pointer;
     color: var(--vb-text-mute, #8c8f94);
     transition: background 0.12s ease, color 0.12s ease, border-color 0.12s ease;
@@ -243,9 +243,9 @@
 .spbwc-po-v3 .pcpb-field-btn .dashicons,
 .spbwc-po-v3 .nbo-sort.dashicons,
 .spbwc-po-v3 .nbo-sort .dashicons {
-    font-size: 16px;
-    width: 16px;
-    height: 16px;
+    font-size: var(--st-icon-md);
+    width: var(--st-icon-md);
+    height: var(--st-icon-md);
     line-height: 16px;
 }
 
@@ -279,12 +279,12 @@
 .spbwc-po-v3 .pcpb-field-tab {
     flex: 1;
     text-align: center;
-    padding: 6px 10px;
-    font-size: var(--text-sm, 12px);
+    padding: var(--st-btn-pad-md);
+    font-size: var(--st-btn-font-sm);
     font-weight: 600;
     color: var(--vb-text-mute, #8c8f94);
     cursor: pointer;
-    border-radius: var(--nbd-radius, 6px);
+    border-radius: var(--st-btn-radius);
     transition: background 0.12s ease, color 0.12s ease;
 }
 
@@ -320,9 +320,9 @@
 }
 
 .spbwc-po-v3 .v2-field-actionbar__hint .dashicons {
-    font-size: 14px;
-    width: 14px;
-    height: 14px;
+    font-size: var(--st-icon-sm);
+    width: var(--st-icon-sm);
+    height: var(--st-icon-sm);
     line-height: 14px;
     color: var(--vb-link, #2271b1);
 }
@@ -396,7 +396,7 @@
 }
 
 .spbwc-po-v3 .v2-card__title-icon {
-    font-size: 16px;
+    font-size: var(--st-icon-md);
     line-height: 1;
 }
 
@@ -478,7 +478,7 @@
     padding: 0;
     background: transparent;
     border: 1px solid transparent;
-    border-radius: var(--nbd-radius, 6px);
+    border-radius: var(--st-btn-radius);
     cursor: pointer;
     color: var(--vb-text-mute, #8c8f94);
     display: inline-flex;
@@ -511,7 +511,7 @@
 
 .spbwc-po-v3 .v2-qty-break-empty__icon {
     display: block;
-    font-size: 28px;
+    font-size: var(--st-icon-xl);
     line-height: 1;
     margin-bottom: 6px;
     color: var(--vb-text-mute, #8c8f94);
@@ -586,12 +586,12 @@
 .spbwc-po-v3 .v2-segmented__btn {
     display: inline-flex;
     align-items: center;
-    gap: 6px;
-    padding: 6px 14px;
+    gap: var(--st-btn-gap);
+    padding: var(--st-btn-pad-md);
     background: transparent;
     border: 0;
-    border-radius: var(--nbd-radius, 6px);
-    font-size: var(--text-sm, 12px);
+    border-radius: var(--st-btn-radius);
+    font-size: var(--st-btn-font-sm);
     font-weight: 600;
     color: var(--vb-text-mute, #8c8f94);
     cursor: pointer;
@@ -609,9 +609,9 @@
 }
 
 .spbwc-po-v3 .v2-segmented__btn .dashicons {
-    font-size: 14px;
-    width: 14px;
-    height: 14px;
+    font-size: var(--st-icon-sm);
+    width: var(--st-icon-sm);
+    height: var(--st-icon-sm);
     line-height: 14px;
 }
 
@@ -637,7 +637,7 @@
 }
 
 .spbwc-po-v3__apply-stat-icon {
-    font-size: 22px;
+    font-size: var(--st-icon-xl);
     line-height: 1;
 }
 
@@ -715,9 +715,9 @@
 
 .spbwc-po-v3__iox-summary .dashicons {
     color: var(--vb-link, #2271b1);
-    font-size: 16px;
-    width: 16px;
-    height: 16px;
+    font-size: var(--st-icon-md);
+    width: var(--st-icon-md);
+    height: var(--st-icon-md);
     line-height: 16px;
 }
 

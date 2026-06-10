@@ -275,23 +275,23 @@
 	function toast( opts ) {
 		opts = normalize( opts );
 		var tone = opts.tone || 'info';
-		var region = document.querySelector( '.spbwc-toast-region' );
+		var region = document.querySelector( '.spbwc-dlg-toast-region' );
 		if ( ! region ) {
-			region = el( 'div', 'spbwc-toast-region' );
+			region = el( 'div', 'spbwc-dlg-toast-region' );
 			region.setAttribute( 'role', 'status' );
 			region.setAttribute( 'aria-live', 'polite' );
 			document.body.appendChild( region );
 		}
-		var node = el( 'div', 'spbwc-toast spbwc-toast--' + tone );
+		var node = el( 'div', 'spbwc-dlg-toast spbwc-dlg-toast--' + tone );
 		var iconName = TOAST_ICONS[ tone ];
 		if ( iconName && opts.icon !== false ) {
-			var ico = el( 'span', 'spbwc-toast__icon dashicons ' + iconName );
+			var ico = el( 'span', 'spbwc-dlg-toast__icon dashicons ' + iconName );
 			ico.setAttribute( 'aria-hidden', 'true' );
 			node.appendChild( ico );
 		}
-		node.appendChild( el( 'span', 'spbwc-toast__msg', opts.message != null ? opts.message : opts.body ) );
+		node.appendChild( el( 'span', 'spbwc-dlg-toast__msg', opts.message != null ? opts.message : opts.body ) );
 
-		var close = el( 'button', 'spbwc-toast__close dashicons dashicons-no-alt' );
+		var close = el( 'button', 'spbwc-dlg-toast__close dashicons dashicons-no-alt' );
 		close.type = 'button';
 		close.setAttribute( 'aria-label', t( 'cancel', 'Dismiss' ) );
 		node.appendChild( close );

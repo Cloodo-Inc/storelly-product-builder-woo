@@ -442,7 +442,7 @@
     justify-content: center;
     color: var(--nbd-mb-text-soft);
 }
-.spbwc-reorders__thumb--ph .dashicons { font-size: 36px; width: 36px; height: 36px; }
+.spbwc-reorders__thumb--ph .dashicons { font-size: var(--st-icon-2xl); width: var(--st-icon-2xl); height: var(--st-icon-2xl); }
 .spbwc-reorders__badge {
     position: absolute;
     top: var(--nbd-space-2);
@@ -454,7 +454,7 @@
     border-radius: var(--nbd-radius-full);
     padding: 2px 9px;
 }
-.spbwc-reorders__meta .dashicons { font-size: 14px; width: 14px; height: 14px; vertical-align: text-bottom; }
+.spbwc-reorders__meta .dashicons { font-size: var(--st-icon-sm); width: var(--st-icon-sm); height: var(--st-icon-sm); vertical-align: text-bottom; }
 
 .spbwc-store__card-name,
 .spbwc-reorders__name {
@@ -590,7 +590,7 @@
 .spbwc-proc .button,
 .spbwc-reorders .button,
 .spbwc-proc-gate .button {
-    border-radius: var(--nbd-radius-md);
+    border-radius: var(--st-btn-radius);
 }
 
 .spbwc-proc__btns .button.alt,

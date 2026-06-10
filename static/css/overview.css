@@ -39,9 +39,9 @@
     box-shadow: 0 0 0 2px var(--st-pill-pending-bg, #fef3c7);
 }
 .spbwc-overview-wrap .spbwc-page-hero__badge .dashicons {
-    font-size: 13px;
-    width: 13px;
-    height: 13px;
+    font-size: var(--st-icon-sm);
+    width: var(--st-icon-sm);
+    height: var(--st-icon-sm);
 }
 
 /* === Scoped form-field inset-shadow (overview content area) = */
@@ -56,14 +56,14 @@
 .spbwc-overview-wrap select,
 .spbwc-overview-wrap textarea {
     width: 100%;
-    padding: 9px 12px;
-    background: var(--nbd-st-bg-input);
-    border: 1px solid var(--nbd-st-border);
-    border-radius: var(--nbd-radius);
-    font-size: var(--text-md);
+    padding: var(--st-field-pad);
+    background: var(--st-field-bg);
+    border: 1px solid var(--st-field-border);
+    border-radius: var(--st-field-radius);
+    font-size: var(--st-field-font);
     color: var(--nbd-st-text);
-    line-height: 1.4;
-    box-shadow: var(--shadow-input-inset);
+    line-height: var(--st-field-leading);
+    box-shadow: var(--st-field-shadow);
     transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }
 
@@ -88,7 +88,7 @@
 .spbwc-overview-wrap textarea:focus {
     outline: none;
     border-color: var(--st-brand);
-    box-shadow: var(--shadow-input-focus);
+    box-shadow: var(--st-field-focus-shadow);
 }
 
 /* Legacy keyframe alias — kept so any existing JS/CSS that      */
@@ -147,7 +147,7 @@
     white-space: nowrap;
 }
 .spbwc-welcome__dismiss:hover { color: var(--nbd-st-text, #1d2327); }
-.spbwc-welcome__dismiss .dashicons { font-size: 16px; width: 16px; height: 16px; }
+.spbwc-welcome__dismiss .dashicons { font-size: var(--st-icon-md); width: var(--st-icon-md); height: var(--st-icon-md); }
 
 .spbwc-welcome__cards {
     display: grid;
@@ -205,7 +205,7 @@
     border: 1px solid var(--nbd-st-border, #e2e8f0);
     color: var(--st-brand, #1d4ed8);
 }
-.spbwc-welcome-card__icon .dashicons { font-size: 22px; width: 22px; height: 22px; }
+.spbwc-welcome-card__icon .dashicons { font-size: var(--st-icon-xl); width: var(--st-icon-xl); height: var(--st-icon-xl); }
 .spbwc-welcome-card__title {
     margin: 4px 0 0;
     font-size: var(--text-lg, 16px);
@@ -344,9 +344,9 @@
 }
 .spbwc-welcome__cloud-row > .dashicons {
     flex: none;
-    font-size: 24px;
-    width: 24px;
-    height: 24px;
+    font-size: var(--st-icon-xl);
+    width: var(--st-icon-xl);
+    height: var(--st-icon-xl);
     color: var(--st-brand, #1d4ed8);
 }
 .spbwc-welcome__cloud.is-connected .dashicons-cloud-saved { color: var(--nbd-color-success, #16a34a); }

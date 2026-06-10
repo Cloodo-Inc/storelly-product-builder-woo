@@ -18,7 +18,7 @@
 .spbwc-row--push { margin-left: auto; }
 .spbwc-stack { display: flex; flex-direction: column; gap: var(--nbd-space-1); }
 .spbwc-stack--end { align-items: flex-end; text-align: right; }
-.spbwc-icon-xl { font-size: 32px; width: 32px; height: 32px; }
+.spbwc-icon-xl { font-size: var(--st-icon-2xl); width: var(--st-icon-2xl); height: var(--st-icon-2xl); }
 .spbwc-muted { color: var(--nbd-st-text-mute); }
 .spbwc-muted-sm { color: var(--nbd-st-text-soft); font-size: var(--text-sm); }
 .spbwc-amount { font-size: var(--text-3xl); font-weight: var(--font-bold); color: var(--st-brand-pressed); }
@@ -328,7 +328,7 @@ body.spbwc-modal-open { overflow: hidden; }
     height: 30px;
     padding: 0;
     border: 1px solid var(--nbd-st-border-light);
-    border-radius: var(--nbd-radius-md);
+    border-radius: var(--st-btn-radius);
     background: var(--nbd-st-bg);
     color: var(--nbd-st-text-mute);
     cursor: pointer;
@@ -339,7 +339,7 @@ body.spbwc-modal-open { overflow: hidden; }
     border-color: var(--nbd-color-danger);
     background: var(--st-pill-danger-bg);
 }
-.spbwc-icon-btn .dashicons { font-size: 18px; width: 18px; height: 18px; line-height: 1; }
+.spbwc-icon-btn .dashicons { font-size: var(--st-icon-lg); width: var(--st-icon-lg); height: var(--st-icon-lg); line-height: 1; }
 
 /* ── Detail panels: vertical rhythm between stacked cards ──────
    Cards inside a tab panel (and a panel's leading <form>) were flush; give
@@ -400,7 +400,7 @@ body.spbwc-modal-open { overflow: hidden; }
 }
 .spbwc-b2b-upload__box:hover { border-color: var(--st-brand); background: var(--st-brand-soft); }
 .spbwc-b2b-upload__preview { max-width: 100%; max-height: 72px; border-radius: var(--nbd-radius-sm); object-fit: contain; }
-.spbwc-b2b-upload__icon { font-size: 32px; width: 32px; height: 32px; color: var(--nbd-st-text-mute); }
+.spbwc-b2b-upload__icon { font-size: var(--st-icon-2xl); width: var(--st-icon-2xl); height: var(--st-icon-2xl); color: var(--nbd-st-text-mute); }
 .spbwc-b2b-upload__hint { font-size: var(--text-xs); color: var(--nbd-st-text-mute); }
 .spbwc-b2b-upload input[type="file"] { font-size: var(--text-sm); max-width: 180px; }
 

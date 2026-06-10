@@ -38,16 +38,16 @@
 .spbwc-gi-input,
 .spbwc-gi-select {
     border: 1px solid var(--gi-border);
-    border-radius: 8px;
-    padding: 8px 10px;
+    border-radius: var(--st-field-radius);
+    padding: var(--st-field-pad);
     min-height: 36px;
 }
 .spbwc-gi-btn {
     background: var(--gi-primary);
     border: none;
     color: #fff;
-    padding: 9px 14px;
-    border-radius: 8px;
+    padding: var(--st-btn-pad-lg);
+    border-radius: var(--st-btn-radius);
     cursor: pointer;
     font-weight: 600;
 }
@@ -226,7 +226,7 @@
 }
 .spbwc-gi-toast-item.success { background: var(--nbd-color-success); }
 .spbwc-gi-toast-item.error   { background: var(--nbd-color-danger); }
-.spbwc-gi-toast-item .dashicons { width: 20px; height: 20px; font-size: 20px; }
+.spbwc-gi-toast-item .dashicons { width: var(--st-icon-lg); height: var(--st-icon-lg); font-size: var(--st-icon-lg); }
 @keyframes spbwc-gi-toast-in {
     from { opacity: 0; transform: translateY(-8px); }
     to   { opacity: 1; transform: translateY(0); }
@@ -281,7 +281,7 @@
     text-decoration: none;
 }
 .spbwc-gi-editlink:hover { color: var(--st-brand); text-decoration: underline; }
-.spbwc-gi-editlink .dashicons { width: 14px; height: 14px; font-size: 14px; }
+.spbwc-gi-editlink .dashicons { width: var(--st-icon-sm); height: var(--st-icon-sm); font-size: var(--st-icon-sm); }
 
 .spbwc-gi-meta { font-size: var(--text-sm); color: var(--gi-muted); margin-top: 3px; }
 

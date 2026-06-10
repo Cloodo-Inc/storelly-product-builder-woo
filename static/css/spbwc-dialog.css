@@ -219,7 +219,7 @@
 
 /* ============================================================== Toasts */
 
-.spbwc-toast-region {
+.spbwc-dlg-toast-region {
 	position: fixed;
 	inset-block-end: var(--nbd-space-5, 20px);
 	inset-inline-end: var(--nbd-space-5, 20px);
@@ -231,7 +231,7 @@
 	pointer-events: none;
 }
 
-.spbwc-toast {
+.spbwc-dlg-toast {
 	display: flex;
 	align-items: flex-start;
 	gap: var(--nbd-space-2, 8px);
@@ -251,35 +251,35 @@
 	transition: opacity 0.2s ease, transform 0.2s ease;
 }
 
-.spbwc-toast.is-visible {
+.spbwc-dlg-toast.is-visible {
 	opacity: 1;
 	transform: none;
 }
 
-.spbwc-toast--success { border-inline-start-color: var(--nbd-color-success, #16a34a); }
-.spbwc-toast--error,
-.spbwc-toast--danger  { border-inline-start-color: var(--nbd-color-danger, #dc2626); }
-.spbwc-toast--warning { border-inline-start-color: var(--nbd-color-warning, #f59e0b); }
+.spbwc-dlg-toast--success { border-inline-start-color: var(--nbd-color-success, #16a34a); }
+.spbwc-dlg-toast--error,
+.spbwc-dlg-toast--danger  { border-inline-start-color: var(--nbd-color-danger, #dc2626); }
+.spbwc-dlg-toast--warning { border-inline-start-color: var(--nbd-color-warning, #f59e0b); }
 
-.spbwc-toast__icon {
+.spbwc-dlg-toast__icon {
 	flex: 0 0 auto;
 	font-size: 18px;
 	line-height: 1.2;
 	color: var(--nbd-color-info, #2271b1);
 }
 
-.spbwc-toast--success .spbwc-toast__icon { color: var(--nbd-color-success, #16a34a); }
-.spbwc-toast--error .spbwc-toast__icon,
-.spbwc-toast--danger .spbwc-toast__icon  { color: var(--nbd-color-danger, #dc2626); }
-.spbwc-toast--warning .spbwc-toast__icon { color: var(--st-accent-pressed, #d97706); }
+.spbwc-dlg-toast--success .spbwc-dlg-toast__icon { color: var(--nbd-color-success, #16a34a); }
+.spbwc-dlg-toast--error .spbwc-dlg-toast__icon,
+.spbwc-dlg-toast--danger .spbwc-dlg-toast__icon  { color: var(--nbd-color-danger, #dc2626); }
+.spbwc-dlg-toast--warning .spbwc-dlg-toast__icon { color: var(--st-accent-pressed, #d97706); }
 
-.spbwc-toast__msg {
+.spbwc-dlg-toast__msg {
 	flex: 1 1 auto;
 	min-width: 0;
 	word-wrap: break-word;
 }
 
-.spbwc-toast__close {
+.spbwc-dlg-toast__close {
 	flex: 0 0 auto;
 	cursor: pointer;
 	padding: 0;
@@ -294,7 +294,7 @@
 	border-radius: var(--nbd-radius-sm, 4px);
 }
 
-.spbwc-toast__close:hover {
+.spbwc-dlg-toast__close:hover {
 	color: var(--nbd-st-text, #1d2327);
 }
 
@@ -302,7 +302,7 @@
 
 @media ( prefers-reduced-motion: reduce ) {
 	.spbwc-dlg__box,
-	.spbwc-toast {
+	.spbwc-dlg-toast {
 		transition: none;
 	}
 }

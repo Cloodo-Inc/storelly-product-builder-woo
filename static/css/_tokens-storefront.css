@@ -77,4 +77,32 @@
     --nbd-ease-out:        ease-out;
     --nbd-font-family:     -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
                            "Helvetica Neue", Arial, sans-serif;
+
+    /* === Controls — buttons =================================== */
+    --st-btn-gap: 6px;
+    --st-btn-radius: var(--nbd-radius-md, 6px);
+    --st-btn-shadow: var(--nbd-shadow-sm, 0 1px 2px rgba(0,0,0,.04));
+    --st-btn-shadow-hover: var(--nbd-shadow-lg, 0 4px 12px rgba(0,0,0,.08));
+    --st-btn-pad-sm: 5px 10px;
+    --st-btn-pad-md: 7px 14px;
+    --st-btn-pad-lg: 10px 18px;
+    --st-btn-font-sm: var(--text-base, 12px);
+    --st-btn-font-md: var(--text-md, 13px);
+    --st-btn-font-lg: var(--text-lg, 14px);
+    --st-btn-min-h-sm: 28px;
+    --st-btn-min-h-md: 34px;
+    --st-btn-min-h-lg: 42px;
+
+    /* === Controls — fields ==================================== */
+    --st-field-pad: 9px 12px;
+    --st-field-radius: var(--nbd-radius-md, 6px);
+    --st-field-font: var(--text-md, 13px);
+    --st-field-bg: var(--nbd-mb-bg, #fff);
+    --st-field-border: var(--nbd-mb-border-strong, #c3c4c7);
+    --st-field-shadow: var(--shadow-input-inset, inset 0 1px 2px rgba(16,24,40,.07));
+    --st-field-focus-shadow: 0 0 0 3px var(--nbd-mb-primary-soft, #dbeafe);
+    --st-field-leading: 1.4;
+
+    /* === Controls — icons ===================================== */
+    --st-icon-xs: 12px; --st-icon-sm: 14px; --st-icon-md: 16px; --st-icon-lg: 20px; --st-icon-xl: 24px; --st-icon-2xl: 32px;
 }

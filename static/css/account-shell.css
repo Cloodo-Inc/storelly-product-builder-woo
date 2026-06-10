@@ -139,13 +139,13 @@
     margin-top: var(--nbd-space-2, 8px);
     display: inline-flex;
     align-items: center;
-    padding: var(--nbd-space-2, 8px) var(--nbd-space-6, 24px);
-    font-size: 14px;
+    padding: var(--st-btn-pad-md);
+    font-size: var(--st-btn-font-lg);
     font-weight: 600;
     text-decoration: none;
     color: #fff;
     background: var(--nbd-mb-primary, #2563eb);
-    border-radius: var(--nbd-radius-md, 6px);
+    border-radius: var(--st-btn-radius);
     transition: background var(--nbd-duration-fast, 120ms) var(--nbd-ease-out, ease-out);
 }
 .spbwc-account__empty-cta:hover {
