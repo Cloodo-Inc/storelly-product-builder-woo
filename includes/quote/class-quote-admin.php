@@ -852,6 +852,10 @@ if ( ! class_exists( 'SPBWC_Quote_Admin' ) ) {
                                             <span class="spbwc-q-meta__label"><?php esc_html_e( 'Status', 'storelly-product-builder-for-woocommerce' ); ?></span>
                                             <span class="spbwc-q-meta__value" id="spbwc-q-status-pill"><?php echo self::status_pill( $status ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- status_pill returns escaped markup. ?></span>
                                         </div>
+                                        <div class="spbwc-q-meta__row spbwc-q-meta__row--total">
+                                            <span class="spbwc-q-meta__label"><?php esc_html_e( 'Quote value', 'storelly-product-builder-for-woocommerce' ); ?></span>
+                                            <span class="spbwc-q-meta__value spbwc-q-meta__total" id="spbwc-q-overview-total"><?php echo wp_kses_post( wc_price( isset( $totals['total'] ) ? (float) $totals['total'] : 0, array( 'currency' => $currency ) ) ); ?></span>
+                                        </div>
                                         <div class="spbwc-q-meta__row">
                                             <span class="spbwc-q-meta__label"><?php esc_html_e( 'Customer', 'storelly-product-builder-for-woocommerce' ); ?></span>
                                             <span class="spbwc-q-meta__value"><?php echo esc_html( SPBWC_Quotes_List_Table::derive_customer( $request, (int) $post->post_author ) ); ?></span>
@@ -1121,7 +1125,11 @@ if ( ! class_exists( 'SPBWC_Quote_Admin' ) ) {
                         recipientLabel:       <?php echo wp_json_encode( __( 'Recipient', 'storelly-product-builder-for-woocommerce' ) ); ?>,
                         totalLabel:           <?php echo wp_json_encode( __( 'Quote total', 'storelly-product-builder-for-woocommerce' ) ); ?>,
                         guardZero:    <?php echo wp_json_encode( __( 'The quote total is 0. Add priced line items before sending.', 'storelly-product-builder-for-woocommerce' ) ); ?>,
-                        guardEmpty:   <?php echo wp_json_encode( __( 'Every line needs a name before you can send the quote.', 'storelly-product-builder-for-woocommerce' ) ); ?>
+                        guardEmpty:   <?php echo wp_json_encode( __( 'Every line needs a name before you can send the quote.', 'storelly-product-builder-for-woocommerce' ) ); ?>,
+                        optSaving:      <?php echo wp_json_encode( __( 'Saving changes…', 'storelly-product-builder-for-woocommerce' ) ); ?>,
+                        optSending:     <?php echo wp_json_encode( __( 'Sending quote to the customer…', 'storelly-product-builder-for-woocommerce' ) ); ?>,
+                        optWithdrawing: <?php echo wp_json_encode( __( 'Withdrawing quote…', 'storelly-product-builder-for-woocommerce' ) ); ?>,
+                        justNow:        <?php echo wp_json_encode( __( 'just now', 'storelly-product-builder-for-woocommerce' ) ); ?>
                     }
                 };
                 var TPL_I18N = {
@@ -1154,8 +1162,12 @@ if ( ! class_exists( 'SPBWC_Quote_Admin' ) ) {
                     });
                     var discount = parseFloat(document.getElementById('spbwc-q-discount').value) || 0;
                     var tax = parseFloat(document.getElementById('spbwc-q-tax').value) || 0;
+                    var grand = money(Math.round((subtotal - discount + tax) * 100) / 100);
                     document.getElementById('spbwc-q-subtotal').textContent = money(subtotal);
-                    document.getElementById('spbwc-q-grand').textContent = money(Math.round((subtotal - discount + tax) * 100) / 100);
+                    document.getElementById('spbwc-q-grand').textContent = grand;
+                    // Mirror the grand total into the sidebar Overview so it stays in view.
+                    var ov = document.getElementById('spbwc-q-overview-total');
+                    if (ov) { ov.textContent = grand; }
                 }
 
                 function rowTemplate() {
@@ -1339,15 +1351,29 @@ if ( ! class_exists( 'SPBWC_Quote_Admin' ) ) {
                     var tax = parseFloat(document.getElementById('spbwc-q-tax').value) || 0;
                     return Math.round((subtotal - discount + tax) * 100) / 100;
                 }
+                function clearLineErrors() {
+                    tbody.querySelectorAll('.spbwc-q-line-input--error').forEach(function (i) { i.classList.remove('spbwc-q-line-input--error'); });
+                }
+                // Clear a field's error as soon as the merchant starts fixing it.
+                tbody.addEventListener('input', function (e) {
+                    if (e.target.classList.contains('spbwc-q-line-input--error')) { e.target.classList.remove('spbwc-q-line-input--error'); }
+                });
                 function guardSend() {
-                    var missingLabel = false;
+                    clearLineErrors();
+                    var bad = [];
                     tbody.querySelectorAll('tr.spbwc-q-line').forEach(function (tr) {
                         var label = tr.querySelector('input[name="line_label[]"]');
                         var qty = parseFloat(tr.querySelector('.spbwc-q-qty').value) || 0;
                         var price = parseFloat(tr.querySelector('.spbwc-q-price').value) || 0;
-                        if ((qty || price) && label && !label.value.trim()) { missingLabel = true; }
+                        if ((qty || price) && label && !label.value.trim()) { bad.push(label); }
                     });
-                    if (missingLabel) { return QQ.i18n.guardEmpty; }
+                    if (bad.length) {
+                        // Highlight every offending line and focus the first one.
+                        bad.forEach(function (i) { i.classList.add('spbwc-q-line-input--error'); });
+                        bad[0].scrollIntoView({ block: 'center', behavior: 'smooth' });
+                        bad[0].focus({ preventScroll: true });
+                        return QQ.i18n.guardEmpty;
+                    }
                     if (grandTotalValue() <= 0) { return QQ.i18n.guardZero; }
                     return '';
                 }
@@ -1367,11 +1393,44 @@ if ( ! class_exists( 'SPBWC_Quote_Admin' ) ) {
                     }
                 }
 
+                // Optimistically show a pending entry at the top of the timeline so
+                // the action feels instant; the server response replaces it.
+                function prependActivity(text) {
+                    var act = document.getElementById('spbwc-q-activity');
+                    if (!act) { return null; }
+                    var list = act.querySelector('.spbwc-q-timeline');
+                    if (!list) {
+                        // Empty state ("No activity yet.") — replace with a fresh list.
+                        act.innerHTML = '';
+                        list = document.createElement('div');
+                        list.className = 'spbwc-q-timeline';
+                        act.appendChild(list);
+                    }
+                    var item = document.createElement('div');
+                    item.className = 'spbwc-q-timeline__item spbwc-q-timeline__item--pending';
+                    var dot = document.createElement('span');
+                    dot.className = 'spbwc-q-timeline__dot';
+                    dot.setAttribute('aria-hidden', 'true');
+                    var body = document.createElement('div');
+                    body.className = 'spbwc-q-timeline__body';
+                    body.textContent = text;
+                    var time = document.createElement('div');
+                    time.className = 'spbwc-q-timeline__time';
+                    time.textContent = QQ.i18n.justNow;
+                    item.appendChild(dot);
+                    item.appendChild(body);
+                    item.appendChild(time);
+                    list.insertBefore(item, list.firstChild);
+                    return item;
+                }
+
                 function submitAction(action, btn) {
                     if (busy || !qForm) { return; }
                     busy = true;
                     if (btn) { btn.classList.add('is-busy'); btn.disabled = true; }
                     setSaveState('busy', action === 'save' ? QQ.i18n.saving : QQ.i18n.sending);
+                    var optLabel = action === 'save' ? QQ.i18n.optSaving : (action === 'withdraw' ? QQ.i18n.optWithdrawing : QQ.i18n.optSending);
+                    var optItem = prependActivity(optLabel);
 
                     var fd = new FormData(qForm);
                     fd.append('action', 'spbwc_quote_action');
@@ -1384,6 +1443,7 @@ if ( ! class_exists( 'SPBWC_Quote_Admin' ) ) {
                             busy = false;
                             if (btn) { btn.classList.remove('is-busy'); btn.disabled = false; }
                             if (!res || !res.success) {
+                                if (optItem && optItem.parentNode) { optItem.parentNode.removeChild(optItem); }
                                 qToast((res && res.data && res.data.message) || QQ.i18n.reqFailed, 'error');
                                 setSaveState(dirty ? 'unsaved' : '');
                                 return;
@@ -1392,6 +1452,7 @@ if ( ! class_exists( 'SPBWC_Quote_Admin' ) ) {
                             if (d.message) { qToast(d.message, 'success'); }
                             var pill = document.getElementById('spbwc-q-status-pill');
                             if (pill && d.status_pill_html) { pill.innerHTML = d.status_pill_html; }
+                            // Server activity supersedes the optimistic entry.
                             var act = document.getElementById('spbwc-q-activity');
                             if (act && d.activity_html) { act.innerHTML = d.activity_html; }
                             if (d.editable) { dirty = false; setSaveState('saved'); }
@@ -1400,6 +1461,7 @@ if ( ! class_exists( 'SPBWC_Quote_Admin' ) ) {
                         .catch(function () {
                             busy = false;
                             if (btn) { btn.classList.remove('is-busy'); btn.disabled = false; }
+                            if (optItem && optItem.parentNode) { optItem.parentNode.removeChild(optItem); }
                             qToast(QQ.i18n.reqFailed, 'error');
                             setSaveState(dirty ? 'unsaved' : '');
                         });

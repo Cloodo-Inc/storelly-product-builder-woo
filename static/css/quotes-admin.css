@@ -160,6 +160,15 @@
     outline: none;
 }
 .spbwc-q-line-input--num { text-align: right; }
+/* Inline validation: highlight a line that needs a name before sending. */
+.spbwc-q-line-input--error {
+    border-color: var(--nbd-color-danger);
+    background: var(--nbd-color-danger-soft);
+}
+.spbwc-q-line-input--error:focus {
+    border-color: var(--nbd-color-danger);
+    box-shadow: 0 0 0 1px var(--nbd-color-danger);
+}
 .spbwc-q-line-total {
     font-variant-numeric: tabular-nums;
     font-weight: var(--font-semibold);
@@ -238,12 +247,32 @@
 }
 .spbwc-q-timeline__body { font-size: 13px; color: var(--nbd-st-text); }
 .spbwc-q-timeline__time { font-size: var(--text-xs); color: var(--nbd-st-text-mute); margin-top: 2px; }
+/* Optimistic (in-flight) entry: muted text + pulsing dot until the server confirms. */
+.spbwc-q-timeline__item--pending .spbwc-q-timeline__body { color: var(--nbd-st-text-soft); font-style: italic; }
+.spbwc-q-timeline__item--pending .spbwc-q-timeline__dot {
+    background: var(--nbd-st-text-mute);
+    box-shadow: 0 0 0 3px var(--nbd-st-bg-soft);
+    animation: spbwc-q-pulse 1s ease-in-out infinite;
+}
 
 /* ── Sidebar meta card ────────────────────────────────────────────────── */
 .spbwc-q-meta { display: flex; flex-direction: column; gap: var(--nbd-space-2); }
 .spbwc-q-meta__row { display: flex; justify-content: space-between; gap: var(--nbd-space-3); font-size: 13px; }
 .spbwc-q-meta__label { color: var(--nbd-st-text-mute); }
 .spbwc-q-meta__value { color: var(--nbd-st-text); font-weight: var(--font-medium); text-align: right; word-break: break-word; }
+/* Quote value: emphasised so the live total stays scannable in the sidebar. */
+.spbwc-q-meta__row--total {
+    padding-top: var(--nbd-space-2);
+    margin-top: var(--nbd-space-1);
+    border-top: 1px solid var(--nbd-st-border-subtle);
+    align-items: baseline;
+}
+.spbwc-q-meta__total {
+    font-size: var(--text-lg);
+    font-weight: var(--font-bold);
+    color: var(--nbd-st-text-brand);
+    font-variant-numeric: tabular-nums;
+}
 
 /* ── Action bar (detail footer) ───────────────────────────────────────── */
 .spbwc-q-actionbar {

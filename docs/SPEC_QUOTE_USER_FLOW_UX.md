@@ -406,6 +406,14 @@ client-side (inputs disabled, action bar → locked hint). Notifications use the
   a warning toast when the total is **0** or a priced line is **missing a name**.
 - **Default 14-day validity** auto-applied to a brand-new quote with no date set; **Ctrl/⌘+S** =
   Save draft.
+- **Live Quote value** mirrored into the sidebar Overview card (`#spbwc-q-overview-total`,
+  `wc_price` initial + `recalc()` live) so the total stays in view while scrolling the form.
+- **Optimistic timeline**: each action prepends a muted, pulsing *“…”* entry to the Activity
+  feed immediately (`--pending`), superseded by the server `activity_html` on success (removed on
+  error) — the log feels instant.
+- **Inline line validation**: the Send guard highlights the exact line(s) missing a name
+  (`.spbwc-q-line-input--error`), scrolls to and focuses the first, and clears the mark as soon as
+  the merchant edits it — not just a generic toast.
 
 **15.3 On "Send pricing reply":**
 - `_spbwc_quote_lines` written to quoted lines at quoted unit prices; `_spbwc_quote_totals` recomputed.
