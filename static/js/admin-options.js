@@ -296,6 +296,15 @@ angular
       var c = _sfPreviewCfg();
       return !!(c && c.url);
     };
+    // Viewport switcher: constrains the preview stage width so the merchant can
+    // check how options stack at each breakpoint (the storefront's own
+    // responsive CSS does the reflow). Parity with the Template Library preview.
+    $scope.sf_viewport = "desktop";
+    $scope.sf_set_viewport = function (vp) {
+      $scope.sf_viewport = vp;
+      var stage = document.getElementById("spbwc-sf-preview-stage");
+      if (stage) stage.setAttribute("data-viewport", vp);
+    };
     // Push the live model into the iframe. isInitial=true shows the full
     // skeleton (first open); a refresh keeps the prior render visible and just
     // dims it (mirrors the Template Library "Updating…" pattern) so following
@@ -308,6 +317,19 @@ angular
       var modal = document.getElementById("spbwc-sf-preview");
       var form = document.getElementById("spbwc-sf-preview-form");
       if (!modal || !form) return;
+      // Nothing to render until there's at least one field — show the empty
+      // hint instead of a bare storefront frame. Adding a field while the modal
+      // is open clears this via the live watch.
+      var isEmpty = !(
+        $scope.options &&
+        angular.isArray($scope.options.fields) &&
+        $scope.options.fields.length
+      );
+      modal.classList.toggle("is-empty", isEmpty);
+      if (isEmpty) {
+        modal.classList.remove("is-loading", "is-updating", "is-error");
+        return;
+      }
       form.action = cfg.url;
       form.elements.draft.value = angular.toJson($scope.options);
       form.elements.base.value = _toNum($scope.preview.base_price);
@@ -326,10 +348,16 @@ angular
       if (!cfg || !cfg.url) return;
       var modal = document.getElementById("spbwc-sf-preview");
       if (!modal) return;
+      $scope._sfPrevFocus = document.activeElement; // restore on close (a11y)
       modal.classList.add("is-open");
       modal.setAttribute("aria-hidden", "false");
       document.body.classList.add("spbwc-sf-preview-lock");
       _sfReload(true);
+      // Move focus into the dialog so keyboard users land inside it.
+      $timeout(function () {
+        var c = modal.querySelector(".v2-sfprev__close");
+        if (c) c.focus();
+      });
       // Live-follow edits while the modal stays open: re-render (debounced) on
       // any change to the option model — not just the base price — so the
       // storefront preview tracks what the merchant is building in real time.
@@ -358,7 +386,7 @@ angular
     $scope.close_storefront_preview = function () {
       var modal = document.getElementById("spbwc-sf-preview");
       if (modal) {
-        modal.classList.remove("is-open", "is-loading", "is-updating", "is-error");
+        modal.classList.remove("is-open", "is-loading", "is-updating", "is-error", "is-empty");
         modal.setAttribute("aria-hidden", "true");
       }
       document.body.classList.remove("spbwc-sf-preview-lock");
@@ -368,6 +396,13 @@ angular
         $scope._sfWatch = null;
       }
       if ($scope._sfRefreshDebounce) $timeout.cancel($scope._sfRefreshDebounce);
+      // Return focus to whatever opened the modal (a11y).
+      if ($scope._sfPrevFocus && typeof $scope._sfPrevFocus.focus === "function") {
+        try {
+          $scope._sfPrevFocus.focus();
+        } catch (e) {}
+      }
+      $scope._sfPrevFocus = null;
     };
     // One-time global listeners: the iframe (template-preview-bridge.js) posts
     // body height + running total; trust only our own origin. Escape closes.
@@ -393,12 +428,30 @@ angular
         }
       });
       window.addEventListener("keydown", function (ev) {
-        if (ev.key !== "Escape" && ev.keyCode !== 27) return;
         var modal = document.getElementById("spbwc-sf-preview");
-        if (modal && modal.classList.contains("is-open")) {
-          modal.classList.remove("is-open", "is-loading", "is-updating", "is-error");
-          modal.setAttribute("aria-hidden", "true");
-          document.body.classList.remove("spbwc-sf-preview-lock");
+        if (!modal || !modal.classList.contains("is-open")) return;
+        if (ev.key === "Escape" || ev.keyCode === 27) {
+          $scope.close_storefront_preview();
+          return;
+        }
+        // Focus trap — keep Tab cycling inside the dialog.
+        if (ev.key === "Tab" || ev.keyCode === 9) {
+          var f = modal.querySelectorAll(
+            'button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), iframe, [tabindex]:not([tabindex="-1"])'
+          );
+          f = [].filter.call(f, function (el) {
+            return el.offsetParent !== null;
+          });
+          if (!f.length) return;
+          var first = f[0];
+          var last = f[f.length - 1];
+          if (ev.shiftKey && document.activeElement === first) {
+            last.focus();
+            ev.preventDefault();
+          } else if (!ev.shiftKey && document.activeElement === last) {
+            first.focus();
+            ev.preventDefault();
+          }
         }
       });
     }

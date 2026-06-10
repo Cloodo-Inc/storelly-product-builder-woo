@@ -819,10 +819,24 @@ $field_count   = isset($options['fields']) && is_array($options['fields']) ? cou
                                 </h2>
                                 <p class="v2-sfprev__sub">
                                     <?php esc_html_e('Exactly what customers see on the product page.', 'storelly-product-builder-for-woocommerce'); ?>
-                                    <span class="v2-sfprev__total" data-sf-total></span>
+                                    <span class="v2-sfprev__total" data-sf-total aria-live="polite"></span>
                                 </p>
                             </div>
                             <div class="v2-sfprev__tools">
+                                <!-- Viewport switcher — constrains the preview stage width so the
+                                     merchant can check how options stack at each breakpoint
+                                     (parity with the Template Library preview). -->
+                                <div class="v2-sfprev__viewport" role="group" aria-label="<?php esc_attr_e('Preview width', 'storelly-product-builder-for-woocommerce'); ?>">
+                                    <button type="button" class="v2-sfprev__vp" ng-class="{'is-active': sf_viewport === 'desktop'}" ng-click="sf_set_viewport('desktop')" aria-pressed="{{ sf_viewport === 'desktop' }}" title="<?php esc_attr_e('Desktop', 'storelly-product-builder-for-woocommerce'); ?>">
+                                        <span class="dashicons dashicons-desktop" aria-hidden="true"></span>
+                                    </button>
+                                    <button type="button" class="v2-sfprev__vp" ng-class="{'is-active': sf_viewport === 'tablet'}" ng-click="sf_set_viewport('tablet')" aria-pressed="{{ sf_viewport === 'tablet' }}" title="<?php esc_attr_e('Tablet', 'storelly-product-builder-for-woocommerce'); ?>">
+                                        <span class="dashicons dashicons-tablet" aria-hidden="true"></span>
+                                    </button>
+                                    <button type="button" class="v2-sfprev__vp" ng-class="{'is-active': sf_viewport === 'mobile'}" ng-click="sf_set_viewport('mobile')" aria-pressed="{{ sf_viewport === 'mobile' }}" title="<?php esc_attr_e('Mobile', 'storelly-product-builder-for-woocommerce'); ?>">
+                                        <span class="dashicons dashicons-smartphone" aria-hidden="true"></span>
+                                    </button>
+                                </div>
                                 <label class="v2-sfprev__price">
                                     <span class="v2-sfprev__price-label"><?php esc_html_e('Sample base price', 'storelly-product-builder-for-woocommerce'); ?></span>
                                     <span class="v2-sfprev__price-field">
@@ -858,6 +872,12 @@ $field_count   = isset($options['fields']) && is_array($options['fields']) ? cou
                                 <span class="dashicons dashicons-warning" aria-hidden="true"></span>
                                 <?php esc_html_e('Couldn’t load the storefront preview.', 'storelly-product-builder-for-woocommerce'); ?>
                             </div>
+                            <!-- Empty state — no buyer-facing fields yet, so there's nothing to
+                                 render. Shown on .is-empty instead of an empty storefront frame. -->
+                            <div class="v2-sfprev__state v2-sfprev__state--empty">
+                                <span class="dashicons dashicons-screenoptions" aria-hidden="true"></span>
+                                <p><?php esc_html_e('Add at least one field to preview the storefront.', 'storelly-product-builder-for-woocommerce'); ?></p>
+                            </div>
                             <!-- Non-blocking "Updating…" pill: shown on .is-updating while a
                                  live edit re-renders, keeping the prior frame visible. -->
                             <div class="v2-sfprev__updating" aria-hidden="true">
@@ -871,9 +891,13 @@ $field_count   = isset($options['fields']) && is_array($options['fields']) ? cou
                                 <input type="hidden" name="draft" value="" />
                                 <input type="hidden" name="base" value="" />
                             </form>
-                            <iframe id="spbwc-sf-preview-iframe" name="spbwc-sf-preview-iframe"
-                                    title="<?php esc_attr_e('Storefront preview', 'storelly-product-builder-for-woocommerce'); ?>"
-                                    referrerpolicy="no-referrer"></iframe>
+                            <!-- Stage constrains width per the viewport switcher; the iframe
+                                 fills it and the storefront's own responsive CSS reflows. -->
+                            <div class="v2-sfprev__stage" id="spbwc-sf-preview-stage" data-viewport="desktop">
+                                <iframe id="spbwc-sf-preview-iframe" name="spbwc-sf-preview-iframe"
+                                        title="<?php esc_attr_e('Storefront preview', 'storelly-product-builder-for-woocommerce'); ?>"
+                                        referrerpolicy="no-referrer"></iframe>
+                            </div>
                         </div>
                     </div>
                 </div>

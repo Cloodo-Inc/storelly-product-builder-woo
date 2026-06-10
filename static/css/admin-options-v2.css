@@ -5262,6 +5262,45 @@ body.spbwc-sf-preview-lock { overflow: hidden; }
 .v2-sfprev.is-updating .v2-sfprev__updating { display: inline-flex; }
 .v2-sfprev__updating .spinner { float: none; margin: 0; }
 
+/* Viewport switcher (segmented) — Desktop / Tablet / Mobile. */
+.v2-sfprev__viewport {
+    display: inline-flex;
+    border: 1px solid var(--nbd-st-border-light);
+    border-radius: var(--nbd-radius-md);
+    overflow: hidden;
+    background: var(--nbd-st-bg);
+}
+.v2-sfprev__vp {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border: 0;
+    background: transparent;
+    color: var(--nbd-st-text-mute);
+    cursor: pointer;
+    transition: var(--transition-fast);
+}
+.v2-sfprev__vp + .v2-sfprev__vp { border-inline-start: 1px solid var(--nbd-st-border-light); }
+.v2-sfprev__vp:hover { background: var(--nbd-st-bg-soft); color: var(--nbd-st-text); }
+.v2-sfprev__vp.is-active { background: var(--st-brand-tint); color: var(--st-brand-pressed); }
+
+/* Preview stage — width constrained per viewport; the storefront's own
+   responsive CSS reflows inside. */
+.v2-sfprev__stage {
+    width: 100%;
+    margin-inline: auto;
+    transition: max-width 0.2s ease;
+}
+.v2-sfprev__stage[data-viewport="tablet"] { max-width: 600px; }
+.v2-sfprev__stage[data-viewport="mobile"] { max-width: 390px; }
+
+/* Empty state — no buyer-facing fields yet. */
+.v2-sfprev.is-empty .v2-sfprev__state--empty { display: flex; }
+.v2-sfprev__state--empty .dashicons { color: var(--nbd-st-text-mute); }
+.v2-sfprev__state--empty p { margin: 0; max-width: 280px; text-align: center; }
+
 @media (max-width: 600px) {
     .v2-sfprev__head { flex-direction: column; }
     .v2-sfprev__tools { width: 100%; justify-content: space-between; }

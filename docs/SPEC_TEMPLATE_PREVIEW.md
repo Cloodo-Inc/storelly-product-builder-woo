@@ -203,10 +203,20 @@ nên trang sản phẩm pricing-only + preview đều bị. Fix: thêm
 `.nbo-style-cloodo .pcpb-field-ad-dropdown-wrap select.nbo-dropdown { display:none }` vào
 `storefront-options.css` (+ mirror RTL). → minh chứng giá trị WYSIWYG: preview bắt được lỗi frontend thật.
 
+### M2.1 — UX polish modal (2026-06-10)
+1. **Viewport switcher** Desktop/Tablet/Mobile trong modal storefront (parity Library): `sf_set_viewport()`
+   set `data-viewport` trên `.v2-sfprev__stage` (max-width 600/390px) → storefront tự reflow responsive.
+2. **A11y**: focus-trap (Tab cycle trong dialog) + lưu/khôi phục focus về nút trigger khi đóng + Escape
+   reuse `close_storefront_preview()` + `aria-live="polite"` cho tổng giá.
+3. **Empty-state**: chưa có field → `is-empty` hiện hint "Add at least one field…" thay vì frame trống;
+   thêm field khi đang mở → watch tự render.
+
 ### Còn lại (M3+)
-- POT regen: string "Updating…" mới + gỡ "Create Pre builder" (chạy ở release gate).
+- POT regen: string "Updating…"/"Add at least one field…" mới + gỡ "Create Pre builder" (release gate).
 - Dọn CSS `.frontend-prview` chết trong admin-options(.css/-rtl/-v2/-v2-rtl).
-- (tùy chọn) viewport switcher desktop/tablet/mobile trong modal như Library.
+- **Preview against product** picker trong edit-option modal (reuse endpoint `product_id` + wc-product-search) — chưa làm.
+- **Structural P0** (cần user chốt + browser verify): dock/in-column preview để vừa sửa field vừa xem
+  bản thật (hiện modal full-screen che builder → auto-refresh chỉ hữu ích phần nào).
 - `storefront-options-rtl.css` STALE (thiếu cả section advanced-dropdown card) → cần rtlcss regen.
 
 ### Files
