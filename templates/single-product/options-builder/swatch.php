@@ -53,6 +53,21 @@ if (!defined('ABSPATH')) exit;
                     if ( '' === $grad ) { $grad = $spbwc_sw_palette[ $idx % count( $spbwc_sw_palette ) ]; }
                     return array( 'style' => 'background-image: ' . $grad, 'is_photo' => false );
                 };
+                // Detect a shared "placeholder" parent image: when two or more parent
+                // options in this field point to the SAME attachment id, that image is a
+                // generic category placeholder (genuinely distinct categories don't reuse
+                // one photo) — e.g. the bundled design-component placeholder reused across
+                // Leather/Cotton/Suede. Such an image is named like any real upload (no
+                // "placeholder" in the URL), so the strpos check below can't catch it;
+                // counting reuse does. Treat it as non-representative so the tile borrows
+                // the real fabric photo from its sub-attributes.
+                $spbwc_parent_img_freq = array();
+                foreach ( $field['general']['attributes']['options'] as $spbwc_o ) {
+                    $spbwc_oi = ( isset( $spbwc_o['image'] ) && $spbwc_o['image'] ) ? (string) $spbwc_o['image'] : '';
+                    if ( '' !== $spbwc_oi ) {
+                        $spbwc_parent_img_freq[ $spbwc_oi ] = isset( $spbwc_parent_img_freq[ $spbwc_oi ] ) ? $spbwc_parent_img_freq[ $spbwc_oi ] + 1 : 1;
+                    }
+                }
                 foreach ($field['general']['attributes']["options"] as $key => $attr):
                     $image_url = SPBWC_Storelly_PB_Util::spbwc_get_image_thumbnail( $attr['image'] );
                     $enable_subattr = isset($attr['enable_subattr']) ? $attr['enable_subattr'] : 0;
@@ -72,7 +87,8 @@ if (!defined('ABSPATH')) exit;
                     $spbwc_vis_url   = $image_url;
                     $spbwc_vis_color = isset( $attr['color'] ) ? $attr['color'] : '';
                     $spbwc_vis_col2  = isset( $attr['color2'] ) ? $attr['color2'] : '';
-                    $parent_img_ok   = ( $spbwc_vis_pt == 'i' && ! empty( $spbwc_vis_img ) && $spbwc_vis_img != 0 && $image_url && false === strpos( $image_url, 'placeholder' ) );
+                    $spbwc_img_shared = ( ! empty( $spbwc_vis_img ) && isset( $spbwc_parent_img_freq[ (string) $spbwc_vis_img ] ) && $spbwc_parent_img_freq[ (string) $spbwc_vis_img ] > 1 );
+                    $parent_img_ok   = ( $spbwc_vis_pt == 'i' && ! empty( $spbwc_vis_img ) && $spbwc_vis_img != 0 && $image_url && false === strpos( $image_url, 'placeholder' ) && ! $spbwc_img_shared );
                     if ( ! $parent_img_ok && $show_subattr ) {
                         $spbwc_rep = null;
                         foreach ( $attr['sub_attributes'] as $spbwc_s ) {
