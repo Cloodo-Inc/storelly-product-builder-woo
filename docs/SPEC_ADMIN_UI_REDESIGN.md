@@ -250,3 +250,37 @@ errors), regen POT if strings changed.
 | U-O3 | Legacy v2 editor — retire to "classic" affordance, or keep dual? affects Wave 4 effort | product |
 | U-O4 | Emails: which types are WC_Email vs raw wp_mail (link-out vs manage-in-place) | dev (SPEC_EMAIL_SYSTEM) |
 ```
+
+---
+
+## 9. Control-token harmonization (shipped — wave 1)
+
+Root cause of the "chỗ to chỗ nhỏ" inconsistency: ~15 parallel button systems
+(`spbwc-cta-btn`, `spbwc-btn`, `spbwc-customize-btn`, `spbwc-card-btn`,
+`spbwc-modal-btn`, `spbwc-rfq-btn`, `spbwc-gi-btn`, `spbwc-wiz-btn`,
+`spbwc-cust-btn`, `spbwc-co-tab-btn`, …) plus field/icon rules with hardcoded
+px (button padding ranged 2px → 20px; dashicons 10–40px).
+
+Fix = a canonical **control-token scale** in `_tokens.css` (+ mirrored in
+`_tokens-storefront.css` with `--nbd-*` fallbacks):
+
+- `--st-btn-gap/-radius/-shadow/-shadow-hover`, `--st-btn-pad-{sm,md,lg}`,
+  `--st-btn-font-{sm,md,lg}`, `--st-btn-min-h-{sm,md,lg}`
+- `--st-field-{pad,radius,font,bg,border,shadow,focus-shadow,leading}`
+- `--st-icon-{xs,sm,md,lg,xl,2xl}` (12/14/16/20/24/32)
+
+Canonical reference components: `.spbwc-cta-btn` (+ new `--lg`/`--danger`
+variants) and `.spbwc-input` in `storelly-admin-ui.css`. Every other
+button/field/icon rule was rewritten to consume the tokens — **class names and
+HTML unchanged** (token-harmonization, not markup migration). The shared dialog
+toast was renamed `.spbwc-toast` → `.spbwc-dlg-toast` to stop colliding with the
+options/settings save-toast.
+
+Covered wave 1: overview, license, menu-setting (settings), b2b-admin,
+quotes-admin, products, manager-fonts, global-import, woo-seed,
+template-library, edit-option-v3, linked-product-metabox, custom-order-admin,
+b2b store + quote-storefront + custom-order + account-shell (storefront buyer).
+
+Wave 2 (pending): `admin-options.css` + `admin-options-v2.css` (options
+builder) and `visual-builder.css`. Excluded by design: `app-product-builder.css`
+(designer canvas — its own system).
