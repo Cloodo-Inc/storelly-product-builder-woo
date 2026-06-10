@@ -837,6 +837,17 @@ $field_count   = isset($options['fields']) && is_array($options['fields']) ? cou
                                         <span class="dashicons dashicons-smartphone" aria-hidden="true"></span>
                                     </button>
                                 </div>
+                                <!-- Preview against a real product: when chosen, the endpoint
+                                     uses that product's real price (as base) + name, so the
+                                     merchant sees the option on an actual product. Falls back to
+                                     the sample base price when cleared. -->
+                                <label class="v2-sfprev__product">
+                                    <span class="v2-sfprev__product-label"><?php esc_html_e('Against product', 'storelly-product-builder-for-woocommerce'); ?></span>
+                                    <select id="spbwc-sf-preview-product" class="wc-product-search" style="width:190px;"
+                                            data-placeholder="<?php esc_attr_e('Use sample base price', 'storelly-product-builder-for-woocommerce'); ?>"
+                                            data-allow_clear="true"
+                                            data-action="woocommerce_json_search_products_and_variations"></select>
+                                </label>
                                 <label class="v2-sfprev__price">
                                     <span class="v2-sfprev__price-label"><?php esc_html_e('Sample base price', 'storelly-product-builder-for-woocommerce'); ?></span>
                                     <span class="v2-sfprev__price-field">
@@ -890,6 +901,7 @@ $field_count   = isset($options['fields']) && is_array($options['fields']) ? cou
                             <form id="spbwc-sf-preview-form" method="post" target="spbwc-sf-preview-iframe" action="">
                                 <input type="hidden" name="draft" value="" />
                                 <input type="hidden" name="base" value="" />
+                                <input type="hidden" name="product_id" value="" />
                             </form>
                             <!-- Stage constrains width per the viewport switcher; the iframe
                                  fills it and the storefront's own responsive CSS reflows. -->

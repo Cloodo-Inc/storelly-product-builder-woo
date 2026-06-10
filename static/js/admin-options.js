@@ -305,6 +305,75 @@ angular
       var stage = document.getElementById("spbwc-sf-preview-stage");
       if (stage) stage.setAttribute("data-viewport", vp);
     };
+    // "Preview against product": when set, the endpoint uses that product's real
+    // price as the base + forwards its name, so the merchant previews the option
+    // on an actual product instead of a sample price.
+    $scope.sf_product_id = 0;
+    function _sfInitProductSearch() {
+      if (typeof jQuery === "undefined") return;
+      var $ = jQuery;
+      var $el = $("#spbwc-sf-preview-product");
+      if (!$el.length) return;
+      var fn = $.fn.selectWoo ? "selectWoo" : $.fn.select2 ? "select2" : null;
+      var ajaxUrl =
+        (typeof storelly_option_variable !== "undefined" &&
+          storelly_option_variable.ajax_url) ||
+        window.ajaxurl ||
+        "";
+      var nonce =
+        (typeof storelly_options !== "undefined" &&
+          storelly_options.search_products_nonce) ||
+        "";
+      if (fn) {
+        // WC may have auto-init'd .wc-product-search on DOM ready while the modal
+        // was hidden (width:0) — destroy that first, then re-init body-anchored.
+        try {
+          if ($el.data(fn) || $el.hasClass("select2-hidden-accessible")) {
+            $el[fn]("destroy");
+          }
+        } catch (e) {}
+        $el[fn]({
+          placeholder: $el.data("placeholder") || "",
+          allowClear: true,
+          minimumInputLength: 1,
+          width: "100%",
+          dropdownParent: $("body"),
+          ajax: {
+            url: ajaxUrl,
+            dataType: "json",
+            delay: 250,
+            cache: true,
+            data: function (params) {
+              return {
+                term: params.term,
+                action:
+                  $el.data("action") ||
+                  "woocommerce_json_search_products_and_variations",
+                security: nonce,
+              };
+            },
+            processResults: function (data) {
+              var results = [];
+              if (data && typeof data === "object") {
+                $.each(data, function (id, txt) {
+                  results.push({ id: id, text: txt });
+                });
+              }
+              return { results: results };
+            },
+          },
+          escapeMarkup: function (m) {
+            return m;
+          },
+        });
+      }
+      $el.on("change", function () {
+        $scope.sf_product_id = parseInt($(this).val(), 10) || 0;
+        var modal = document.getElementById("spbwc-sf-preview");
+        if (modal) modal.classList.toggle("is-product", !!$scope.sf_product_id);
+        _sfReload(false);
+      });
+    }
     // Push the live model into the iframe. isInitial=true shows the full
     // skeleton (first open); a refresh keeps the prior render visible and just
     // dims it (mirrors the Template Library "Updating…" pattern) so following
@@ -333,6 +402,9 @@ angular
       form.action = cfg.url;
       form.elements.draft.value = angular.toJson($scope.options);
       form.elements.base.value = _toNum($scope.preview.base_price);
+      if (form.elements.product_id) {
+        form.elements.product_id.value = $scope.sf_product_id || "";
+      }
       modal.classList.remove("is-error");
       modal.classList.add(isInitial ? "is-loading" : "is-updating");
       form.submit();
@@ -358,6 +430,14 @@ angular
         var c = modal.querySelector(".v2-sfprev__close");
         if (c) c.focus();
       });
+      // Lazy-init the product search Select2 once the modal is visible (it needs
+      // a non-zero width to size correctly).
+      if (!$scope._sfProductInited) {
+        $scope._sfProductInited = true;
+        $timeout(function () {
+          _sfInitProductSearch();
+        });
+      }
       // Live-follow edits while the modal stays open: re-render (debounced) on
       // any change to the option model — not just the base price — so the
       // storefront preview tracks what the merchant is building in real time.

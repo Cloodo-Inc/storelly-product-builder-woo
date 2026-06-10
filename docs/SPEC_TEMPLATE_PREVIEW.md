@@ -210,11 +210,14 @@ nên trang sản phẩm pricing-only + preview đều bị. Fix: thêm
    reuse `close_storefront_preview()` + `aria-live="polite"` cho tổng giá.
 3. **Empty-state**: chưa có field → `is-empty` hiện hint "Add at least one field…" thay vì frame trống;
    thêm field khi đang mở → watch tự render.
+4. **Preview against product** (M2.2): picker `wc-product-search` (Select2, dropdownParent=body, nonce
+   `search-products`) trong header modal; chọn product → endpoint dùng GIÁ+TÊN product thật làm base
+   (resolve product TRƯỚC nhánh draft), set hidden `product_id` trên form + reload; `is-product` làm mờ
+   ô sample base (bị override). Select2 dropdown nâng z-index khi modal mở (scoped `body.spbwc-sf-preview-lock`).
 
 ### Còn lại (M3+)
-- POT regen: string "Updating…"/"Add at least one field…" mới + gỡ "Create Pre builder" (release gate).
+- POT regen: string "Updating…"/"Add at least one field…"/"Against product"… mới + gỡ "Create Pre builder" (release gate).
 - Dọn CSS `.frontend-prview` chết trong admin-options(.css/-rtl/-v2/-v2-rtl).
-- **Preview against product** picker trong edit-option modal (reuse endpoint `product_id` + wc-product-search) — chưa làm.
 - **Structural P0** (cần user chốt + browser verify): dock/in-column preview để vừa sửa field vừa xem
   bản thật (hiện modal full-screen che builder → auto-refresh chỉ hữu ích phần nào).
 - `storefront-options-rtl.css` STALE (thiếu cả section advanced-dropdown card) → cần rtlcss regen.

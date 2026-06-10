@@ -5301,6 +5301,21 @@ body.spbwc-sf-preview-lock { overflow: hidden; }
 .v2-sfprev__state--empty .dashicons { color: var(--nbd-st-text-mute); }
 .v2-sfprev__state--empty p { margin: 0; max-width: 280px; text-align: center; }
 
+/* Preview-against-product picker. */
+.v2-sfprev__product {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    font-size: var(--text-xs);
+    color: var(--nbd-st-text-mute);
+}
+/* When a real product drives the price, the sample-base field is ignored. */
+.v2-sfprev.is-product .v2-sfprev__price { opacity: 0.5; }
+/* The product-search Select2 dropdown is appended to <body>; while the modal is
+   open it must clear the modal's stacking context. Scoped to the open-modal
+   body class so normal Select2 z-index is untouched elsewhere. */
+body.spbwc-sf-preview-lock .select2-container--open { z-index: 100001; }
+
 @media (max-width: 600px) {
     .v2-sfprev__head { flex-direction: column; }
     .v2-sfprev__tools { width: 100%; justify-content: space-between; }
