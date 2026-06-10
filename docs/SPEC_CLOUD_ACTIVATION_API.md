@@ -4,6 +4,13 @@
 > This document is the contract `app.storelly.com` must fulfil to light up the closed-loop
 > purchase→unlock flow. It closes **O-6** and the `caps[]`-issuance requirement.
 > **Audience**: Storelly Dashboard / API backend team.
+>
+> **Backend implementation status (2026-06-10)**: backend is **not yet conforming**. Working:
+> `register`, `license/packages`, `plugin/overview`. Broken/missing: `license/status` returns no
+> `caps[]` and `status` is never `"active"` (so `can()` stays false), `license/activate` is a 403
+> stub, `license/exchange` + `/connect` + the one-time token are unimplemented, and order sync hits a
+> singular `update-order` empty stub. Full gap analysis & fix list:
+> [`CLOUD-ACTIVATION-API-GAP.md`](./CLOUD-ACTIVATION-API-GAP.md).
 > **Plugin code of record**: `includes/class-cloud-activation.php`, `includes/class-license-manager.php`
 > (methods `sync_from_api`, `can`, `cloud_license_active`, `caps_catalog`, `plan_family`).
 > **Related**: `SPEC_FREEMIUM_V1_1.md` (§1 caps, §6 connect-back), `SPEC_ACCOUNT_PLAN_UX.md` (§5, §9.2).
