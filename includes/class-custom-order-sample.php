@@ -401,7 +401,7 @@ if ( ! class_exists( 'SPBWC_Custom_Order_Sample' ) ) {
 			}
 			ob_start();
 			?>
-			<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" class="spbwc-co-sample-cta spbwc-co-sample-cta--<?php echo esc_attr( $context ); ?>" onsubmit="return confirm('<?php echo esc_js( __( 'Remove the sample custom order? This cannot be undone.', 'storelly-product-builder-for-woocommerce' ) ); ?>');">
+			<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" class="spbwc-co-sample-cta spbwc-co-sample-cta--<?php echo esc_attr( $context ); ?>" onsubmit="return confirm('<?php echo esc_js( __( 'Remove the sample custom order? This cannot be undone.', 'storelly-product-builder-for-woocommerce' ) ); ?>');" data-spbwc-confirm="<?php echo esc_attr( __( 'Remove the sample custom order? This cannot be undone.', 'storelly-product-builder-for-woocommerce' ) ); ?>" data-spbwc-confirm-title="<?php echo esc_attr( __( 'Remove sample order', 'storelly-product-builder-for-woocommerce' ) ); ?>" data-spbwc-confirm-ok="<?php echo esc_attr( __( 'Remove', 'storelly-product-builder-for-woocommerce' ) ); ?>">
 				<input type="hidden" name="action" value="<?php echo esc_attr( self::ACTION_REMOVE ); ?>" />
 				<input type="hidden" name="spbwc_co_after" value="orders" />
 				<?php wp_nonce_field( self::ACTION_REMOVE ); ?>

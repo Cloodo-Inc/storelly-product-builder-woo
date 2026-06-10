@@ -359,7 +359,13 @@ if (!class_exists('STORELLY_FRONTEND_OPTIONS')) {
                         'currency_format_symbol'                        =>  html_entity_decode((string) get_woocommerce_currency_symbol(), ENT_QUOTES, 'UTF-8'),
                         'currency_format_decimal_sep'                   =>  stripslashes(wc_get_price_decimal_separator()),
                         'currency_format_thousand_sep'                  =>  stripslashes(wc_get_price_thousand_separator()),
-                        'currency_format'                               =>  esc_attr(str_replace(array('%1$s', '%2$s'), array('%s', '%v'), get_woocommerce_price_format())),
+                        // Decode HTML entities (notably the &nbsp; WooCommerce puts between
+                        // symbol and value for "with space" currency positions). This string is
+                        // consumed by formatMoney() in storefront-enhance.js and written via
+                        // element.textContent, which does NOT decode entities — so a raw &nbsp;
+                        // would render literally (e.g. "101&nbsp;d"). It is localized via
+                        // wp_localize_script (JSON, not an HTML attribute), so esc_attr is wrong here.
+                        'currency_format'                               =>  html_entity_decode(str_replace(array('%1$s', '%2$s'), array('%s', '%v'), get_woocommerce_price_format()), ENT_QUOTES, 'UTF-8'),
                         'nbstorelly_hide_add_cart_until_form_filled'    =>  get_option('spbwc_hide_add_cart_until_form_filled', 'no') === 'yes' ? 'yes' : 'no'
                     );
                     if ( function_exists( 'WC' ) && ! wp_script_is( 'wc-accounting', 'registered' ) ) {
