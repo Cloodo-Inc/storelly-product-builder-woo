@@ -591,7 +591,7 @@ if (!class_exists('SPBWC_Storelly_Product_Builder_Frontend')) {
                         'link' => SPBWC_PB_JS_URL . 'app-product-builder.js',
                         // filemtime so edits bust the browser cache automatically (no hard-refresh).
                         'version' => ( file_exists( SPBWC_PB_ASSETS_DIR . 'js/app-product-builder.js' ) ? filemtime( SPBWC_PB_ASSETS_DIR . 'js/app-product-builder.js' ) : SPBWC_PB_VERSION ),
-                        'depends' => array('jquery', 'underscore', 'pc-builderjs', 'fabricjs', 'fontfaceobserver', 'spectrum')
+                        'depends' => array('jquery', 'underscore', 'pc-builderjs', 'fabricjs', 'fontfaceobserver', 'spectrum', 'spbwc-dialog')
                     )
                 );
                 // Register design tokens style first — app-product-builder.css
@@ -611,7 +611,7 @@ if (!class_exists('SPBWC_Storelly_Product_Builder_Frontend')) {
                         'link' => SPBWC_PB_ASSETS_URL . 'css/app-product-builder.css',
                         // filemtime so edits bust the browser cache automatically (no hard-refresh).
                         'version' => ( file_exists( SPBWC_PB_ASSETS_DIR . 'css/app-product-builder.css' ) ? filemtime( SPBWC_PB_ASSETS_DIR . 'css/app-product-builder.css' ) : SPBWC_PB_VERSION ),
-                        'depends' => array('spectrum', 'spbwc-tokens')
+                        'depends' => array('spectrum', 'spbwc-tokens', 'spbwc-dialog')
                     ),
                 );
                 foreach ($css_libs as $key => $css) {

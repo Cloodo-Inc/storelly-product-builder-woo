@@ -330,7 +330,9 @@ fontApp.directive("fontOnLoad", [
   }
 
   function showError(msg) {
-    if (typeof swal === "function") {
+    if (window.spbwcDialog) {
+      window.spbwcDialog.toast({ message: msg, tone: "error" });
+    } else if (typeof swal === "function") {
       swal("Error", msg, "error");
     } else {
       alert(msg);
@@ -338,7 +340,9 @@ fontApp.directive("fontOnLoad", [
   }
 
   function showSuccess(msg) {
-    if (typeof swal === "function") {
+    if (window.spbwcDialog) {
+      window.spbwcDialog.toast({ message: msg, tone: "success" });
+    } else if (typeof swal === "function") {
       swal("", msg, "success");
     } else {
       alert(msg);
@@ -472,9 +476,17 @@ fontApp.directive("fontOnLoad", [
   /* ── Delete ── */
 
   function doDelete(fontId, $card) {
-    var confirmed = window.confirm(i18n.delete_confirm || "Delete this font? This cannot be undone.");
-    if (!confirmed) return;
+    var msg = i18n.delete_confirm || "Delete this font? This cannot be undone.";
+    var ask = window.spbwcDialog
+      ? window.spbwcDialog.confirm({ message: msg, tone: "danger", okText: i18n.delete_ok || "Delete" })
+      : Promise.resolve(window.confirm(msg));
+    ask.then(function (confirmed) {
+      if (!confirmed) return;
+      doDeleteRequest(fontId, $card);
+    });
+  }
 
+  function doDeleteRequest(fontId, $card) {
     $.ajax({
       url:      ajaxUrl,
       method:   "POST",

@@ -10,9 +10,8 @@
 ( function () {
 	'use strict';
 
-	var msg =
-		( window.spbwcCustomOrder && window.spbwcCustomOrder.confirmDelete ) ||
-		'Delete this saved design? This cannot be undone.';
+	var cfg = window.spbwcCustomOrder || {};
+	var msg = cfg.confirmDelete || 'Delete this saved design? This cannot be undone.';
 
 	document.addEventListener( 'submit', function ( e ) {
 		var form = e.target;
@@ -22,8 +21,33 @@
 		if ( ! form.querySelector( '.spbwc-saved-designs__delete' ) ) {
 			return;
 		}
-		if ( ! window.confirm( msg ) ) {
-			e.preventDefault();
+		// Let the confirmed re-submit pass straight through.
+		if ( form._spbwcConfirmed ) {
+			return;
 		}
+		// Native fallback when the styled dialog isn't available.
+		if ( ! window.spbwcDialog ) {
+			if ( ! window.confirm( msg ) ) {
+				e.preventDefault();
+			}
+			return;
+		}
+		e.preventDefault();
+		window.spbwcDialog.confirm( {
+			title: cfg.confirmTitle || '',
+			message: msg,
+			tone: 'danger',
+			okText: cfg.confirmOk || ''
+		} ).then( function ( ok ) {
+			if ( ! ok ) {
+				return;
+			}
+			form._spbwcConfirmed = true;
+			if ( typeof form.requestSubmit === 'function' ) {
+				form.requestSubmit();
+			} else {
+				form.submit();
+			}
+		} );
 	} );
 } )();

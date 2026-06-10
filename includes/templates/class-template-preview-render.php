@@ -424,7 +424,7 @@ if ( ! class_exists( 'SPBWC_Template_Preview_Render' ) ) {
 				'nbstorelly_hide_add_cart_until_form_filled' => 'no',
 			);
 
-			wp_register_script( 'spbwc-option-builder', SPBWC_PB_JS_URL . 'option-builder.js', array( 'pc-builderjs', 'wc-accounting' ), '1.0.0', true );
+			wp_register_script( 'spbwc-option-builder', SPBWC_PB_JS_URL . 'option-builder.js', array( 'pc-builderjs', 'wc-accounting', 'spbwc-dialog' ), '1.0.0', true );
 			wp_localize_script(
 				'spbwc-option-builder',
 				'spbwc_option_builder_variable',

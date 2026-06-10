@@ -353,7 +353,7 @@ $spbwc_status_pill = static function ( $done ) {
 						<?php esc_html_e( 'A sample custom order is installed. Removing it deletes the sample order, its design folder and the sample product. Your real orders are not affected.', 'storelly-product-builder-for-woocommerce' ); ?>
 					</p>
 					<div class="spbwc-quick-card__footer">
-						<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" onsubmit="return confirm('<?php echo esc_js( __( 'Remove the sample custom order? This cannot be undone.', 'storelly-product-builder-for-woocommerce' ) ); ?>');">
+						<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" onsubmit="return confirm('<?php echo esc_js( __( 'Remove the sample custom order? This cannot be undone.', 'storelly-product-builder-for-woocommerce' ) ); ?>');" data-spbwc-confirm="<?php echo esc_attr( __( 'Remove the sample custom order? This cannot be undone.', 'storelly-product-builder-for-woocommerce' ) ); ?>" data-spbwc-confirm-title="<?php echo esc_attr( __( 'Remove sample order', 'storelly-product-builder-for-woocommerce' ) ); ?>" data-spbwc-confirm-ok="<?php echo esc_attr( __( 'Remove', 'storelly-product-builder-for-woocommerce' ) ); ?>">
 							<input type="hidden" name="action" value="<?php echo esc_attr( SPBWC_Custom_Order_Sample::ACTION_REMOVE ); ?>" />
 							<?php wp_nonce_field( SPBWC_Custom_Order_Sample::ACTION_REMOVE ); ?>
 							<button type="submit" class="spbwc-cta-btn spbwc-cta-btn--ghost spbwc-cta-btn--sm">
@@ -398,7 +398,7 @@ $spbwc_status_pill = static function ( $done ) {
 					?>
 				</p>
 				<div class="spbwc-quick-card__footer">
-					<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" onsubmit="return confirm('<?php echo esc_js( __( 'Remove all Storelly demo data? This cannot be undone.', 'storelly-product-builder-for-woocommerce' ) ); ?>');">
+					<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" onsubmit="return confirm('<?php echo esc_js( __( 'Remove all Storelly demo data? This cannot be undone.', 'storelly-product-builder-for-woocommerce' ) ); ?>');" data-spbwc-confirm="<?php echo esc_attr( __( 'Remove all Storelly demo data? This cannot be undone.', 'storelly-product-builder-for-woocommerce' ) ); ?>" data-spbwc-confirm-title="<?php echo esc_attr( __( 'Remove demo data', 'storelly-product-builder-for-woocommerce' ) ); ?>" data-spbwc-confirm-ok="<?php echo esc_attr( __( 'Remove', 'storelly-product-builder-for-woocommerce' ) ); ?>">
 						<input type="hidden" name="action" value="<?php echo esc_attr( SPBWC_Demo_Seeder::ACTION_CLEANUP ); ?>" />
 						<?php wp_nonce_field( SPBWC_Demo_Seeder::ACTION_CLEANUP ); ?>
 						<button type="submit" class="spbwc-cta-btn spbwc-cta-btn--ghost spbwc-cta-btn--sm">

@@ -198,7 +198,14 @@ if ( ! defined( 'ABSPATH' ) ) {
                                 /* translators: %s: option title */
                                 __( 'Unlink "%s" from Visual Builder? The pricing option itself will be preserved.', 'storelly-product-builder-for-woocommerce' ),
                                 $title_text
-                              ) ); ?>');">
+                              ) ); ?>');"
+                              data-spbwc-confirm="<?php echo esc_attr( sprintf(
+                                /* translators: %s: option title */
+                                __( 'Unlink "%s" from Visual Builder? The pricing option itself will be preserved.', 'storelly-product-builder-for-woocommerce' ),
+                                $title_text
+                              ) ); ?>"
+                              data-spbwc-confirm-title="<?php echo esc_attr( __( 'Unlink option', 'storelly-product-builder-for-woocommerce' ) ); ?>"
+                              data-spbwc-confirm-ok="<?php echo esc_attr( __( 'Unlink', 'storelly-product-builder-for-woocommerce' ) ); ?>">
                             <?php
                             wp_nonce_field(
                                 SPBWC_Visual_Builder_Admin::NONCE_UNLINK,

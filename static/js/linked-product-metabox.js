@@ -19,6 +19,13 @@
     // Promise<boolean> confirm. SweetAlert v2 (has dangerMode/buttons) when
     // present, else native confirm so the action never silently no-ops.
     function confirmDialog(opts) {
+        if (window.spbwcDialog) {
+            return window.spbwcDialog.confirm({
+                title: opts.title || '',
+                message: opts.text || '',
+                tone: opts.danger ? 'danger' : 'default'
+            });
+        }
         return new Promise(function (resolve) {
             if (typeof window.swal === 'function') {
                 window.swal({
@@ -34,6 +41,15 @@
                 resolve(window.confirm(opts.text || opts.title || ''));
             }
         });
+    }
+
+    // Non-blocking error notice — styled toast when available, else native.
+    function notifyError(msg) {
+        if (window.spbwcDialog) {
+            window.spbwcDialog.toast({ message: msg, tone: 'error' });
+        } else {
+            window.alert(msg);
+        }
     }
 
     $(function () {
@@ -107,11 +123,11 @@
                 } else {
                     $wrap.removeClass('is-busy');
                     var m = (res && res.data && res.data.msg) ? res.data.msg : t('failed', 'Action failed. Please try again.');
-                    window.alert(m);
+                    notifyError(m);
                 }
             }).fail(function () {
                 $wrap.removeClass('is-busy');
-                window.alert(t('failed', 'Action failed. Please try again.'));
+                notifyError(t('failed', 'Action failed. Please try again.'));
             });
         }
 

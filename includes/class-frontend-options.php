@@ -371,7 +371,7 @@ if (!class_exists('STORELLY_FRONTEND_OPTIONS')) {
                             true
                         );
                     }
-                    wp_register_script( 'spbwc-option-builder', SPBWC_PB_JS_URL . 'option-builder.js', array( 'pc-builderjs', 'wc-accounting' ), '1.0.0', true );
+                    wp_register_script( 'spbwc-option-builder', SPBWC_PB_JS_URL . 'option-builder.js', array( 'pc-builderjs', 'wc-accounting', 'spbwc-dialog' ), '1.0.0', true );
                     wp_localize_script( 'spbwc-option-builder', 'spbwc_option_builder_variable', array(
                         'ajaxUrl'               => admin_url( 'admin-ajax.php' ),
                         'appid'                 => $this->appid,

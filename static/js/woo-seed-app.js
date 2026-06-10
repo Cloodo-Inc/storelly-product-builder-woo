@@ -300,16 +300,26 @@
 	function confirmUndo() {
 		if ( ! state.job ) { return; }
 		var msg = sprintf( cfg.i18n.undoConfirm, state.job.processed );
-		if ( ! window.confirm( msg ) ) { return; }
-		ajax( 'spbwc_woo_seed_undo', { job_id: state.job.job_id } ).then( function ( res ) {
-			if ( ! res || ! res.success ) {
-				renderError( ( res && res.data && res.data.message ) || cfg.i18n.undoFailed );
-				return;
-			}
-			window.alert( sprintf( cfg.i18n.undoOk, res.data.deleted, res.data.unlinked ) );
-			window.location.href = cfg.landingUrl;
-		} ).catch( function ( err ) {
-			renderError( err && err.message ? err.message : cfg.i18n.undoFailed );
+		var ask = window.spbwcDialog
+			? window.spbwcDialog.confirm( { message: msg, tone: 'danger', okText: cfg.i18n.undoOkBtn || '' } )
+			: Promise.resolve( window.confirm( msg ) );
+		ask.then( function ( ok ) {
+			if ( ! ok ) { return; }
+			ajax( 'spbwc_woo_seed_undo', { job_id: state.job.job_id } ).then( function ( res ) {
+				if ( ! res || ! res.success ) {
+					renderError( ( res && res.data && res.data.message ) || cfg.i18n.undoFailed );
+					return;
+				}
+				var doneMsg = sprintf( cfg.i18n.undoOk, res.data.deleted, res.data.unlinked );
+				if ( window.spbwcDialog ) {
+					window.spbwcDialog.alert( { message: doneMsg, tone: 'success' } ).then( function () { window.location.href = cfg.landingUrl; } );
+				} else {
+					window.alert( doneMsg );
+					window.location.href = cfg.landingUrl;
+				}
+			} ).catch( function ( err ) {
+				renderError( err && err.message ? err.message : cfg.i18n.undoFailed );
+			} );
 		} );
 	}
 

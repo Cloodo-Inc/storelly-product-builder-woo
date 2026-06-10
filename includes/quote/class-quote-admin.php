@@ -1002,6 +1002,19 @@ if ( ! class_exists( 'SPBWC_Quote_Admin' ) ) {
                 var TPL = <?php echo wp_json_encode( array_values( $templates ) ); ?>;
                 var TPL_NONCE = <?php echo wp_json_encode( wp_create_nonce( 'spbwc_quote_template' ) ); ?>;
                 var TPL_AJAX = <?php echo wp_json_encode( admin_url( 'admin-ajax.php' ) ); ?>;
+                var TPL_I18N = {
+                    saveTitle:       <?php echo wp_json_encode( __( 'Save as template', 'storelly-product-builder-for-woocommerce' ) ); ?>,
+                    nameLabel:       <?php echo wp_json_encode( __( 'Template name', 'storelly-product-builder-for-woocommerce' ) ); ?>,
+                    namePlaceholder: <?php echo wp_json_encode( __( 'e.g. Banner — standard + rush', 'storelly-product-builder-for-woocommerce' ) ); ?>,
+                    saveOk:          <?php echo wp_json_encode( __( 'Save template', 'storelly-product-builder-for-woocommerce' ) ); ?>,
+                    saved:           <?php echo wp_json_encode( __( 'Template saved.', 'storelly-product-builder-for-woocommerce' ) ); ?>,
+                    deleteTitle:     <?php echo wp_json_encode( __( 'Delete template', 'storelly-product-builder-for-woocommerce' ) ); ?>,
+                    deleteBody:      <?php echo wp_json_encode( __( 'Delete this template? This cannot be undone.', 'storelly-product-builder-for-woocommerce' ) ); ?>,
+                    deleteOk:        <?php echo wp_json_encode( __( 'Delete', 'storelly-product-builder-for-woocommerce' ) ); ?>,
+                    deleted:         <?php echo wp_json_encode( __( 'Template deleted.', 'storelly-product-builder-for-woocommerce' ) ); ?>,
+                    failed:          <?php echo wp_json_encode( __( 'Something went wrong. Please try again.', 'storelly-product-builder-for-woocommerce' ) ); ?>,
+                    requestFailed:   <?php echo wp_json_encode( __( 'Request failed. Check your connection.', 'storelly-product-builder-for-woocommerce' ) ); ?>
+                };
                 var table = document.getElementById('spbwc-q-lines');
                 if (!table) { return; }
                 var tbody = table.querySelector('tbody');
@@ -1116,38 +1129,51 @@ if ( ! class_exists( 'SPBWC_Quote_Admin' ) ) {
                     Object.keys(extra || {}).forEach(function (k) { fd.append(k, extra[k]); });
                     fetch(TPL_AJAX, { method: 'POST', credentials: 'same-origin', body: fd })
                         .then(function (r) { return r.json(); })
-                        .then(function (res) { if (res && res.success) { cb(res.data); } else { window.alert((res && res.data && res.data.message) || 'Failed'); } })
-                        .catch(function () { window.alert('Request failed.'); });
+                        .then(function (res) { if (res && res.success) { cb(res.data); } else { tplToast((res && res.data && res.data.message) || TPL_I18N.failed, 'error'); } })
+                        .catch(function () { tplToast(TPL_I18N.requestFailed, 'error'); });
+                }
+                function tplToast(message, tone) {
+                    if (window.spbwcDialog) { window.spbwcDialog.toast({ message: message, tone: tone || 'info' }); }
+                    else { window.alert(message); }
                 }
                 if (saveBtn) {
                     saveBtn.addEventListener('click', function () {
-                        var name = window.prompt(<?php echo wp_json_encode( __( 'Template name:', 'storelly-product-builder-for-woocommerce' ) ); ?>);
-                        if (!name) { return; }
-                        var fd = new FormData();
-                        fd.append('action', 'spbwc_save_quote_template');
-                        fd.append('nonce', TPL_NONCE);
-                        fd.append('name', name);
-                        tbody.querySelectorAll('tr.spbwc-q-line').forEach(function (tr) {
-                            fd.append('line_label[]', tr.querySelector('input[name="line_label[]"]').value);
-                            fd.append('line_qty[]', tr.querySelector('.spbwc-q-qty').value);
-                            fd.append('line_price[]', tr.querySelector('.spbwc-q-price').value);
+                        var ask = window.spbwcDialog
+                            ? window.spbwcDialog.prompt({ title: TPL_I18N.saveTitle, message: TPL_I18N.nameLabel, okText: TPL_I18N.saveOk, placeholder: TPL_I18N.namePlaceholder, required: true })
+                            : Promise.resolve(window.prompt(TPL_I18N.nameLabel));
+                        ask.then(function (name) {
+                            if (!name) { return; }
+                            var fd = new FormData();
+                            fd.append('action', 'spbwc_save_quote_template');
+                            fd.append('nonce', TPL_NONCE);
+                            fd.append('name', name);
+                            tbody.querySelectorAll('tr.spbwc-q-line').forEach(function (tr) {
+                                fd.append('line_label[]', tr.querySelector('input[name="line_label[]"]').value);
+                                fd.append('line_qty[]', tr.querySelector('.spbwc-q-qty').value);
+                                fd.append('line_price[]', tr.querySelector('.spbwc-q-price').value);
+                            });
+                            fd.append('valid_days', (preset && preset.value) ? preset.value : 0);
+                            var pt = document.getElementById('spbwc-q-terms');
+                            fd.append('payment_terms', pt ? pt.value : 'prepay');
+                            var nt = document.getElementById('spbwc-q-note');
+                            fd.append('note', nt ? nt.value : '');
+                            fetch(TPL_AJAX, { method: 'POST', credentials: 'same-origin', body: fd })
+                                .then(function (r) { return r.json(); })
+                                .then(function (res) { if (res && res.success) { refreshTemplates(res.data.templates); tplToast(TPL_I18N.saved, 'success'); } else { tplToast((res && res.data && res.data.message) || TPL_I18N.failed, 'error'); } })
+                                .catch(function () { tplToast(TPL_I18N.requestFailed, 'error'); });
                         });
-                        fd.append('valid_days', (preset && preset.value) ? preset.value : 0);
-                        var pt = document.getElementById('spbwc-q-terms');
-                        fd.append('payment_terms', pt ? pt.value : 'prepay');
-                        var nt = document.getElementById('spbwc-q-note');
-                        fd.append('note', nt ? nt.value : '');
-                        fetch(TPL_AJAX, { method: 'POST', credentials: 'same-origin', body: fd })
-                            .then(function (r) { return r.json(); })
-                            .then(function (res) { if (res && res.success) { refreshTemplates(res.data.templates); } else { window.alert((res && res.data && res.data.message) || 'Failed'); } })
-                            .catch(function () { window.alert('Request failed.'); });
                     });
                 }
                 if (delBtn) {
                     delBtn.addEventListener('click', function () {
                         if (!sel || !sel.value) { return; }
-                        if (!window.confirm(<?php echo wp_json_encode( __( 'Delete this template?', 'storelly-product-builder-for-woocommerce' ) ); ?>)) { return; }
-                        tplPost('spbwc_delete_quote_template', { template_id: sel.value }, function (data) { refreshTemplates(data.templates); });
+                        var ask = window.spbwcDialog
+                            ? window.spbwcDialog.confirm({ title: TPL_I18N.deleteTitle, message: TPL_I18N.deleteBody, tone: 'danger', okText: TPL_I18N.deleteOk })
+                            : Promise.resolve(window.confirm(TPL_I18N.deleteBody));
+                        ask.then(function (ok) {
+                            if (!ok) { return; }
+                            tplPost('spbwc_delete_quote_template', { template_id: sel.value }, function (data) { refreshTemplates(data.templates); tplToast(TPL_I18N.deleted, 'success'); });
+                        });
                     });
                 }
 

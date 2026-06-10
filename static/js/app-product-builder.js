@@ -971,7 +971,7 @@ nbdpbApp.controller("nbpbCtrl", [
           }
         } else {
           $scope.toggleAppLoading();
-          alert(SPBWC_PB_CONFIG.i18n.can_not_save_design);
+          if (window.spbwcDialog) { window.spbwcDialog.toast({ message: SPBWC_PB_CONFIG.i18n.can_not_save_design, tone: "error" }); } else { alert(SPBWC_PB_CONFIG.i18n.can_not_save_design); }
         }
         });   // close NBDDataFactory.get callback
       });     // close Promise.resolve(saveDesign).then(...)
@@ -1455,14 +1455,14 @@ nbdpbApp.controller("nbpbCtrl", [
         min_size = parseInt(field.general.upload_option.min_size),
         max_size = parseInt(field.general.upload_option.max_size);
       if (file.type.indexOf("image") === -1) {
-        alert($scope.settings.i18n.only_support_image);
+        $scope.spbwcNotify($scope.settings.i18n.only_support_image, "warning");
         return;
       }
       if (file.size > max_size * 1024 * 1024) {
-        alert($scope.settings.i18n.max_file_size + max_size + " MB");
+        $scope.spbwcNotify($scope.settings.i18n.max_file_size + max_size + " MB", "warning");
         return;
       } else if (file.size < min_size * 1024 * 1024) {
-        alert($scope.settings.i18n.min_file_size + min_size + " MB");
+        $scope.spbwcNotify($scope.settings.i18n.min_file_size + min_size + " MB", "warning");
         return;
       }
       if (file.type.indexOf("svg") > -1) {
@@ -1491,7 +1491,7 @@ nbdpbApp.controller("nbpbCtrl", [
                 JSON.stringify($scope.resource.uploaded)
               );
             } else {
-              alert(data.mes);
+              $scope.spbwcNotify(data.mes, "error");
             }
           }
         );
@@ -1751,35 +1751,42 @@ nbdpbApp.controller("nbpbCtrl", [
     };
     $scope.deleteLayer = function (type) {
       var type_confirm = "confirm_delete_" + type;
-      var con = confirm($scope.settings.i18n[type_confirm]);
-      var currentComponent =
-            $scope.resource.components[$scope.resource.currentComponent],
-          views = currentComponent.general["nbpb_" + type + "_configs"].views;
-      if (con) {
-        _.each(views, function (view, viewIndex) {
-          var layerIndex = $scope.getLayerIndex(currentComponent.id, viewIndex),
-            item = $scope.getLayerById(currentComponent.id, viewIndex),
-            _canvas = $scope.stages[viewIndex].canvas;
-          if (SPBWC_PB_CONFIG.is_creating_task == 1) {
-            _canvas.remove(item);
-          } else {
-            item.set({ visible: false });
-            if (item.type == "textbox") item.set({ text: "" });
-          }
-          _canvas.renderAll();
+      var msg = $scope.settings.i18n[type_confirm];
+      var ask = window.spbwcDialog
+        ? window.spbwcDialog.confirm({ message: msg, tone: "danger" })
+        : Promise.resolve(window.confirm(msg));
+      ask.then(function (con) {
+        var currentComponent =
+              $scope.resource.components[$scope.resource.currentComponent],
+            views = currentComponent.general["nbpb_" + type + "_configs"].views;
+        if (con) {
+          _.each(views, function (view, viewIndex) {
+            var layerIndex = $scope.getLayerIndex(currentComponent.id, viewIndex),
+              item = $scope.getLayerById(currentComponent.id, viewIndex),
+              _canvas = $scope.stages[viewIndex].canvas;
+            if (SPBWC_PB_CONFIG.is_creating_task == 1) {
+              _canvas.remove(item);
+            } else {
+              item.set({ visible: false });
+              if (item.type == "textbox") item.set({ text: "" });
+            }
+            _canvas.renderAll();
+          });
+        }
+        if (type == "image") {
+          jQuery(".nbo-fields-wrapper")
+            .find("#nbd-upload-hidden-" + currentComponent.id)
+            .remove();
+        } else {
+          currentComponent.currentContent = "";
+        }
+        $scope.resource.values[currentComponent.id].value = "";
+        jQuery(document).triggerHandler("update_pcpb_options_from_builder", {
+          nbd_fields: $scope.resource.values,
+          pro: true,
         });
-      }
-      if (type == "image") {
-        jQuery(".nbo-fields-wrapper")
-          .find("#nbd-upload-hidden-" + currentComponent.id)
-          .remove();
-      } else {
-        currentComponent.currentContent = "";
-      }
-      $scope.resource.values[currentComponent.id].value = "";
-      jQuery(document).triggerHandler("update_pcpb_options_from_builder", {
-        nbd_fields: $scope.resource.values,
-        pro: true,
+        // Confirm resolves outside Angular's digest — schedule one.
+        $scope.$applyAsync();
       });
     };
     $scope.getComponentById = function (id) {
@@ -2268,6 +2275,15 @@ nbdpbApp.controller("nbpbCtrl", [
         : 'Maximum ' + ft.max_layers + ' image(s) reached.';
       if (typeof $scope.showToast === 'function') { $scope.showToast(msg, 'warning', 2600); }
     };
+    /* Unified non-blocking notice — prefers the shared token-styled dialog
+     * (spbwcDialog), falls back to the in-app toast, then native alert.
+     * Replaces the legacy window.alert() popups in the designer. */
+    $scope.spbwcNotify = function (msg, tone) {
+      tone = tone || 'error';
+      if (window.spbwcDialog) { window.spbwcDialog.toast({ message: msg, tone: tone }); }
+      else if (typeof $scope.showToast === 'function') { $scope.showToast(msg, tone, 3500); }
+      else { window.alert(msg); }
+    };
     /* --- TEXT --------------------------------------------------- */
     $scope.addUserText = function () {
       if (!$scope.canAddUserLayer('text')) { $scope._limitToast('text'); return; }
@@ -2332,9 +2348,9 @@ nbdpbApp.controller("nbpbCtrl", [
       var ft = $scope.getFreeTools().image;
       var file = files && files[0];
       if (!file) return;
-      if (file.type.indexOf('image') === -1) { alert($scope.settings.i18n.only_support_image); return; }
-      if (ft.max_size > 0 && file.size > ft.max_size * 1024 * 1024) { alert($scope.settings.i18n.max_file_size + ' ' + ft.max_size + ' MB'); return; }
-      if (ft.min_size > 0 && file.size < ft.min_size * 1024 * 1024) { alert($scope.settings.i18n.min_file_size + ' ' + ft.min_size + ' MB'); return; }
+      if (file.type.indexOf('image') === -1) { $scope.spbwcNotify($scope.settings.i18n.only_support_image, 'warning'); return; }
+      if (ft.max_size > 0 && file.size > ft.max_size * 1024 * 1024) { $scope.spbwcNotify($scope.settings.i18n.max_file_size + ' ' + ft.max_size + ' MB', 'warning'); return; }
+      if (ft.min_size > 0 && file.size < ft.min_size * 1024 * 1024) { $scope.spbwcNotify($scope.settings.i18n.min_file_size + ' ' + ft.min_size + ' MB', 'warning'); return; }
       jQuery('.nbpb-stage-loading').addClass('nbdpb-show');
       if (file.type.indexOf('svg') > -1) {
         var reader = new FileReader();
@@ -2352,7 +2368,7 @@ nbdpbApp.controller("nbpbCtrl", [
           $scope.$applyAsync();
         } else {
           jQuery('.nbpb-stage-loading').removeClass('nbdpb-show');
-          alert(data.mes || $scope.settings.i18n.can_not_save_design);
+          $scope.spbwcNotify(data.mes || $scope.settings.i18n.can_not_save_design, 'error');
         }
       });
     };

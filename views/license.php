@@ -453,9 +453,15 @@ $cell = function ( $cap_row, $col_family ) {
     });
 
     $('.spbwc-do-disconnect').on('click', function () {
-        if (window.confirm('<?php echo esc_js( __( 'Disconnect from Storelly Cloud? Cloud features will stop.', 'storelly-product-builder-for-woocommerce' ) ); ?>')) {
-            post('spbwc_cloud_disconnect', { nonce: $(this).data('nonce') || cNonce }, this);
-        }
+        var self = this;
+        var msg = '<?php echo esc_js( __( 'Disconnect from Storelly Cloud? Cloud features will stop.', 'storelly-product-builder-for-woocommerce' ) ); ?>';
+        var ask = window.spbwcDialog
+            ? window.spbwcDialog.confirm({ message: msg, tone: 'danger', okText: '<?php echo esc_js( __( 'Disconnect', 'storelly-product-builder-for-woocommerce' ) ); ?>' })
+            : Promise.resolve(window.confirm(msg));
+        ask.then(function (ok) {
+            if (!ok) { return; }
+            post('spbwc_cloud_disconnect', { nonce: $(self).data('nonce') || cNonce }, self);
+        });
     });
 
     // Refresh plan status (moved into Advanced).

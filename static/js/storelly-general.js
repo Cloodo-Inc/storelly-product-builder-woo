@@ -1,6 +1,10 @@
 "use strict";
 
 jQuery(document).ready(function ($) {
+  function notify(msg, tone) {
+    if (window.spbwcDialog) { window.spbwcDialog.toast({ message: msg, tone: tone || "error" }); }
+    else { window.alert(msg); }
+  }
   $("#storelly_order_design_check_all").on("click", function () {
     if ($(this).is(":checked")) {
       $(".storelly_order_item_id").prop("checked", true);
@@ -17,11 +21,11 @@ jQuery(document).ready(function ($) {
       item_ids.push($(this).val());
     });
     if (!order_id) {
-      alert("Something went wrong");
+      notify("Something went wrong", "error");
       return;
     }
     if (item_ids.length === 0) {
-      alert("No design selected.");
+      notify("No design selected.", "warning");
       return;
     }
     var designType = $('[name="storelly_design_type_download"]').val();
@@ -57,15 +61,16 @@ jQuery(document).ready(function ($) {
         } else {
           // No files came back. For PDF/SVG this usually means the print-ready
           // files have not been generated yet for this design.
-          alert(
-            "No files are available for the selected format yet. Try \"Regenerate PDFs\", or pick PNG / PNG preview."
+          notify(
+            "No files are available for the selected format yet. Try \"Regenerate PDFs\", or pick PNG / PNG preview.",
+            "warning"
           );
         }
       })
       .fail(function () {
         $("#storelly_order_submit_loading").addClass("storelly_loaded");
         $("#storelly_download_design_by_type").attr("disabled", false);
-        alert("Download failed. Please try again.");
+        notify("Download failed. Please try again.", "error");
       });
   });
   

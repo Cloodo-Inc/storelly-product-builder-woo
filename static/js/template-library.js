@@ -708,11 +708,13 @@
 			// product-level option. Ask the merchant whether to move them, and
 			// resubmit with force=1 on confirm.
 			if (resp && resp.success && resp.data && resp.data.conflict) {
-				if (confirmConflict(resp.data.conflicts || [])) {
-					postApply(mode, scope, true);
-				} else {
-					$submit.prop('disabled', false).html(applySubmitHtml);
-				}
+				confirmConflict(resp.data.conflicts || []).then(function (ok) {
+					if (ok) {
+						postApply(mode, scope, true);
+					} else {
+						$submit.prop('disabled', false).html(applySubmitHtml);
+					}
+				});
 				return;
 			}
 			if (!resp || !resp.success) {
@@ -754,10 +756,9 @@
 		});
 	}
 
-	// Show a blocking confirm listing each product → its current pricing option.
-	// We deliberately use window.confirm() rather than building another <dialog>
-	// — the message is short, keyboard-accessible, and avoids stacking on top
-	// of the Apply dialog. Returns true if the merchant accepts the replacement.
+	// Confirm listing each product → its current pricing option. Returns a
+	// Promise<boolean> (true = merchant accepts the replacement). Prefers the
+	// shared token-styled dialog; falls back to native confirm.
 	function confirmConflict(conflicts) {
 		var title    = L.i18n.applyConflictTitle || 'Replace existing pricing option?';
 		var intro    = L.i18n.applyConflictIntro || '';
@@ -774,11 +775,18 @@
 				.replace('%2$s', optionName);
 		});
 
-		var body = title + '\n\n' + intro + (intro ? '\n\n' : '') + lines.join('\n');
-		// `confirm` returns true on OK and false on Cancel — matches the
-		// caller's truthy/falsy branch.
+		if (window.spbwcDialog) {
+			var body = (intro ? intro + '\n\n' : '') + lines.join('\n');
+			return window.spbwcDialog.confirm({
+				title: title,
+				message: body,
+				tone: 'warning',
+				okText: L.i18n.applyConflictOk || ''
+			});
+		}
+		var nativeBody = title + '\n\n' + intro + (intro ? '\n\n' : '') + lines.join('\n');
 		// eslint-disable-next-line no-alert
-		return window.confirm(body);
+		return Promise.resolve(window.confirm(nativeBody));
 	}
 
 	// ─── Dialog helpers ──────────────────────────────────────────────

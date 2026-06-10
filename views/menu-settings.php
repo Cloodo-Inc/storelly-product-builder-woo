@@ -1189,9 +1189,15 @@ if ( ! in_array($spbwc_settings_tab, $spbwc_valid_tabs, true) ) {
                 send( 'spbwc_cloud_connect', {}, this );
             } );
             $( '#spbwc-account-disconnect' ).on( 'click', function () {
-                if ( window.confirm( <?php echo wp_json_encode( __( 'Disconnect from Storelly Cloud? PDF rendering and order sync will stop.', 'storelly-product-builder-for-woocommerce' ) ); ?> ) ) {
-                    send( 'spbwc_cloud_disconnect', {}, this );
-                }
+                var self = this;
+                var msg = <?php echo wp_json_encode( __( 'Disconnect from Storelly Cloud? PDF rendering and order sync will stop.', 'storelly-product-builder-for-woocommerce' ) ); ?>;
+                var ask = window.spbwcDialog
+                    ? window.spbwcDialog.confirm( { message: msg, tone: 'danger', okText: <?php echo wp_json_encode( __( 'Disconnect', 'storelly-product-builder-for-woocommerce' ) ); ?> } )
+                    : Promise.resolve( window.confirm( msg ) );
+                ask.then( function ( ok ) {
+                    if ( ! ok ) { return; }
+                    send( 'spbwc_cloud_disconnect', {}, self );
+                } );
             } );
             $( '#spbwc-account-manual-toggle' ).on( 'click', function () {
                 var box = document.getElementById( 'spbwc-account-manual-box' );

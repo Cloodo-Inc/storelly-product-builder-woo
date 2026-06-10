@@ -643,26 +643,33 @@ angular
       $scope.initfieldValue();
     };
     $scope.delete_field = function (index) {
-      var con = confirm(
-        storelly_options.storelly_options_lang.want_to_delete
-      );
-      if (con) {
+      var ask = window.spbwcDialog
+        ? window.spbwcDialog.confirm({ message: storelly_options.storelly_options_lang.want_to_delete, tone: "danger" })
+        : Promise.resolve(window.confirm(storelly_options.storelly_options_lang.want_to_delete));
+      ask.then(function (ok) {
+        if (!ok) { return; }
         var field = $scope.options.fields[index];
         $scope.options.fields.splice(index, 1);
         $scope.initfieldValue();
-      }
+        // The confirm resolves outside Angular's digest — schedule one so
+        // the field-list removal re-renders.
+        $scope.$applyAsync();
+      });
     };
     $scope.clear_all_fields = function (index) {
-      var con = confirm(
-        storelly_options.storelly_options_lang.want_to_delete_all
-      );
-      if (con) {
+      var ask = window.spbwcDialog
+        ? window.spbwcDialog.confirm({ message: storelly_options.storelly_options_lang.want_to_delete_all, tone: "danger" })
+        : Promise.resolve(window.confirm(storelly_options.storelly_options_lang.want_to_delete_all));
+      ask.then(function (ok) {
+        if (!ok) { return; }
         $scope.options.fields = [];
         angular.forEach($scope.storelly_options, function (option, key) {
           option = 0;
         });
         $scope.initfieldValue();
-      }
+        // Confirm resolves outside Angular's digest — schedule one.
+        $scope.$applyAsync();
+      });
     };
     $scope.sort_field = function (field_index, direction) {
       var dest_index = field_index - 1;
@@ -837,13 +844,15 @@ angular
             },
             "slow"
           );
-          alert(
+          var maxInputMsg =
             storelly_options.storelly_options_lang.max_input_var +
-              " " +
-              $scope.max_input_vars +
-              ". " +
-              storelly_options.storelly_options_lang.max_input_notice
-          );
+            " " +
+            $scope.max_input_vars +
+            ". " +
+            storelly_options.storelly_options_lang.max_input_notice;
+          window.spbwcDialog
+            ? window.spbwcDialog.toast({ message: maxInputMsg, tone: "warning" })
+            : window.alert(maxInputMsg);
         }
       }, 2000);
 
@@ -1029,7 +1038,8 @@ angular
             callback(res.images);
           } else {
             jQuery(".nbp-loading-wrap").removeClass("nbp-show");
-            alert((typeof storelly_options !== "undefined" && storelly_options.storelly_options_lang && storelly_options.storelly_options_lang.error_try_again) || "Error. Please try again later.");
+            var errTryAgainMsg = (typeof storelly_options !== "undefined" && storelly_options.storelly_options_lang && storelly_options.storelly_options_lang.error_try_again) || "Error. Please try again later.";
+            window.spbwcDialog ? window.spbwcDialog.toast({ message: errTryAgainMsg, tone: "error" }) : window.alert(errTryAgainMsg);
           }
         });
     };
@@ -1244,7 +1254,8 @@ angular
       function update_media_false() {
         jQuery(".nbp-loading-wrap").removeClass("nbp-show");
         jQuery("#nbp-processing").hide();
-        alert((typeof storelly_options !== "undefined" && storelly_options.storelly_options_lang && storelly_options.storelly_options_lang.error_try_again) || "Error. Please try again later.");
+        var errTryAgainMsg = (typeof storelly_options !== "undefined" && storelly_options.storelly_options_lang && storelly_options.storelly_options_lang.error_try_again) || "Error. Please try again later.";
+        window.spbwcDialog ? window.spbwcDialog.toast({ message: errTryAgainMsg, tone: "error" }) : window.alert(errTryAgainMsg);
       }
       function merge_new_media() {
         var new_options = $scope.merge_new_media(options, newMediaObject, "id");
@@ -1354,7 +1365,7 @@ angular
           $scope.options["fields"][fieldIndex]["general"][key].remove_att
         )
       ) {
-        alert(storelly_options.storelly_options_lang.can_not_remove_att);
+        if (window.spbwcDialog) { window.spbwcDialog.toast({ message: storelly_options.storelly_options_lang.can_not_remove_att, tone: "warning" }); } else { window.alert(storelly_options.storelly_options_lang.can_not_remove_att); }
         return;
       }
       $scope.options["fields"][fieldIndex]["general"][key]["options"].splice(
@@ -1484,7 +1495,7 @@ angular
           $scope.options["fields"][fieldIndex]["general"][key].add_att
         )
       ) {
-        alert(storelly_options.storelly_options_lang.can_not_add_att);
+        if (window.spbwcDialog) { window.spbwcDialog.toast({ message: storelly_options.storelly_options_lang.can_not_add_att, tone: "warning" }); } else { window.alert(storelly_options.storelly_options_lang.can_not_add_att); }
         return;
       }
 
@@ -2166,14 +2177,13 @@ angular
                   (res && res.data && (res.data.msg || res.data.message)) ||
                   "Save failed. Please try again.";
                 setStatus(msg, true);
-                window.alert(msg);
+                if (window.spbwcDialog) { window.spbwcDialog.toast({ message: msg, tone: "error" }); } else { window.alert(msg); }
               }
             })
             .catch(function () {
               setStatus("Network error — your changes are still here.", true);
-              window.alert(
-                "Network error while saving. Your changes are still in the editor."
-              );
+              var netMsg = "Network error while saving. Your changes are still in the editor.";
+              if (window.spbwcDialog) { window.spbwcDialog.toast({ message: netMsg, tone: "error" }); } else { window.alert(netMsg); }
             });
         },
         true /* capture */

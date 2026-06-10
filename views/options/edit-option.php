@@ -1190,7 +1190,10 @@ $field_count   = isset($options['fields']) && is_array($options['fields']) ? cou
                 <div class="v2-savebar__right">
                     <?php if (!$is_new_option && $options['published'] == 1) : ?>
                         <a class="v2-btn v2-btn--danger-link" href="<?php echo esc_url($link_unpublish); ?>"
-                           onclick="return confirm('<?php echo esc_js(__('Move this option to trash?', 'storelly-product-builder-for-woocommerce')); ?>');">
+                           onclick="return confirm('<?php echo esc_js(__('Move this option to trash?', 'storelly-product-builder-for-woocommerce')); ?>');"
+                           data-spbwc-confirm="<?php echo esc_attr(__('Move this option to trash?', 'storelly-product-builder-for-woocommerce')); ?>"
+                           data-spbwc-confirm-title="<?php echo esc_attr(__('Move to trash', 'storelly-product-builder-for-woocommerce')); ?>"
+                           data-spbwc-confirm-ok="<?php echo esc_attr(__('Move to trash', 'storelly-product-builder-for-woocommerce')); ?>">
                             <span class="dashicons dashicons-trash" aria-hidden="true"></span>
                             <?php esc_html_e('Trash', 'storelly-product-builder-for-woocommerce'); ?>
                         </a>

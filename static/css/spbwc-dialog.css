@@ -1,0 +1,308 @@
+/**
+ * Storelly — shared dialog & toast (spbwcDialog) styles.
+ *
+ * Token-driven, but self-sufficient: every design token is referenced
+ * with a hardcoded fallback (the value declared in _tokens.css) so the
+ * dialog renders correctly on storefront pages that do not load
+ * _tokens.css. When _tokens.css IS present (admin), site owners can
+ * re-theme via the --st-* / --nbd-st-* variables and the dialog follows.
+ *
+ * RTL-safe via CSS logical properties (margin-inline / inset-inline);
+ * no separate -rtl stylesheet required.
+ */
+
+/* ============================================================ Overlay */
+
+.spbwc-dlg-open {
+	overflow: hidden; /* lock scroll behind the modal */
+}
+
+/* Native <dialog> backdrop. */
+.spbwc-dlg::backdrop {
+	background: rgba(16, 24, 40, 0.55);
+}
+
+/* Fallback backdrop (browsers without <dialog>). */
+.spbwc-dlg-backdrop {
+	position: fixed;
+	inset: 0;
+	z-index: var(--st-z-overlay, 1000);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	padding: var(--nbd-space-4, 16px);
+	background: rgba(16, 24, 40, 0.55);
+}
+
+/* ============================================================== Dialog */
+
+.spbwc-dlg {
+	box-sizing: border-box;
+	width: min(440px, calc(100vw - 32px));
+	max-width: 440px;
+	margin: auto;
+	padding: 0;
+	border: 0;
+	background: transparent;
+	color: var(--nbd-st-text, #1d2327);
+	z-index: var(--st-z-modal, 1100);
+	font-family: var(--st-font-sans, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif);
+	overflow: visible;
+}
+
+.spbwc-dlg,
+.spbwc-dlg * {
+	box-sizing: border-box;
+}
+
+.spbwc-dlg__box {
+	display: flex;
+	gap: var(--nbd-space-3, 12px);
+	padding: var(--nbd-space-6, 24px);
+	background: var(--nbd-st-bg, #ffffff);
+	border-radius: var(--nbd-radius-lg, 12px);
+	box-shadow: var(--shadow-xl, 0 12px 32px rgba(0, 0, 0, 0.14));
+	/* Enter animation */
+	opacity: 0;
+	transform: translateY(8px) scale(0.98);
+	transition: opacity 0.18s ease, transform 0.18s ease;
+}
+
+.spbwc-dlg.is-visible .spbwc-dlg__box {
+	opacity: 1;
+	transform: none;
+}
+
+.spbwc-dlg__icon {
+	flex: 0 0 auto;
+	width: 40px;
+	height: 40px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	border-radius: var(--nbd-radius-pill, 9999px);
+	font-size: 22px;
+	line-height: 1;
+	color: var(--nbd-color-info, #2271b1);
+	background: var(--nbd-st-primary-soft, #e6f0f7);
+}
+
+.spbwc-dlg__icon.dashicons {
+	width: 40px;
+	height: 40px;
+}
+
+.spbwc-dlg--danger .spbwc-dlg__icon {
+	color: var(--nbd-color-danger, #dc2626);
+	background: var(--nbd-color-danger-soft, #fef2f2);
+}
+
+.spbwc-dlg--warning .spbwc-dlg__icon {
+	color: var(--st-accent-pressed, #d97706);
+	background: var(--st-accent-soft, #fef3c7);
+}
+
+.spbwc-dlg--success .spbwc-dlg__icon {
+	color: var(--nbd-color-success, #16a34a);
+	background: var(--st-pill-active-bg, #dcfce7);
+}
+
+.spbwc-dlg__content {
+	flex: 1 1 auto;
+	min-width: 0;
+}
+
+.spbwc-dlg__title {
+	margin: 0 0 var(--nbd-space-2, 8px);
+	padding: 0;
+	font-size: var(--text-2xl, 18px);
+	font-weight: var(--font-semibold, 600);
+	line-height: var(--st-leading-tight, 1.25);
+	color: var(--nbd-st-text, #1d2327);
+}
+
+.spbwc-dlg__msg {
+	font-size: var(--text-md, 13px);
+	line-height: var(--st-leading-normal, 1.5);
+	color: var(--nbd-st-text-soft, #50575e);
+	word-wrap: break-word;
+}
+
+.spbwc-dlg__input {
+	display: block;
+	width: 100%;
+	margin-top: var(--nbd-space-4, 16px);
+	padding: 9px var(--nbd-space-3, 12px);
+	font-size: var(--text-md, 13px);
+	color: var(--nbd-st-text, #1d2327);
+	background: var(--nbd-st-bg-input, #ffffff);
+	border: 1px solid var(--nbd-st-border, #c3c4c7);
+	border-radius: var(--nbd-radius, 6px);
+	box-shadow: var(--shadow-input-inset, inset 0 1px 2px rgba(16, 24, 40, 0.07));
+	transition: var(--transition-fast, all 0.15s ease);
+}
+
+.spbwc-dlg__input:focus {
+	outline: none;
+	border-color: var(--st-brand, #1d4ed8);
+	box-shadow: 0 0 0 3px var(--st-brand-soft, #dbeafe);
+}
+
+.spbwc-dlg__input--error {
+	border-color: var(--nbd-color-danger, #dc2626);
+	box-shadow: 0 0 0 3px var(--nbd-color-danger-soft, #fef2f2);
+}
+
+/* ============================================================ Actions */
+
+.spbwc-dlg__foot {
+	display: flex;
+	gap: var(--nbd-space-2, 8px);
+	justify-content: flex-end;
+	margin-top: var(--nbd-space-6, 24px);
+}
+
+.spbwc-dlg__btn {
+	appearance: none;
+	cursor: pointer;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	min-width: 84px;
+	padding: 8px var(--nbd-space-4, 16px);
+	font-family: inherit;
+	font-size: var(--text-md, 13px);
+	font-weight: var(--font-semibold, 600);
+	line-height: 1.4;
+	border: 1px solid transparent;
+	border-radius: var(--nbd-radius, 6px);
+	transition: var(--transition-fast, all 0.15s ease);
+}
+
+.spbwc-dlg__btn:focus-visible {
+	outline: 2px solid var(--st-brand, #1d4ed8);
+	outline-offset: 2px;
+}
+
+.spbwc-dlg__btn--primary {
+	color: var(--nbd-st-text-inverse, #ffffff);
+	background: var(--st-brand, #1d4ed8);
+	border-color: var(--st-brand, #1d4ed8);
+}
+
+.spbwc-dlg__btn--primary:hover {
+	background: var(--st-brand-pressed, #1e40af);
+	border-color: var(--st-brand-pressed, #1e40af);
+}
+
+.spbwc-dlg__btn--danger {
+	color: var(--nbd-st-text-inverse, #ffffff);
+	background: var(--nbd-color-danger, #dc2626);
+	border-color: var(--nbd-color-danger, #dc2626);
+}
+
+.spbwc-dlg__btn--danger:hover {
+	background: #b91c1c;
+	border-color: #b91c1c;
+}
+
+.spbwc-dlg__btn--ghost {
+	color: var(--nbd-st-text-soft, #50575e);
+	background: var(--nbd-st-bg, #ffffff);
+	border-color: var(--nbd-st-border, #c3c4c7);
+}
+
+.spbwc-dlg__btn--ghost:hover {
+	background: var(--nbd-st-bg-soft, #f6f7f7);
+	border-color: var(--nbd-st-border-strong, #8c8f94);
+}
+
+/* ============================================================== Toasts */
+
+.spbwc-toast-region {
+	position: fixed;
+	inset-block-end: var(--nbd-space-5, 20px);
+	inset-inline-end: var(--nbd-space-5, 20px);
+	z-index: var(--st-z-toast, 1200);
+	display: flex;
+	flex-direction: column;
+	gap: var(--nbd-space-2, 8px);
+	max-width: min(360px, calc(100vw - 32px));
+	pointer-events: none;
+}
+
+.spbwc-toast {
+	display: flex;
+	align-items: flex-start;
+	gap: var(--nbd-space-2, 8px);
+	padding: var(--nbd-space-3, 12px) var(--nbd-space-4, 16px);
+	font-family: var(--st-font-sans, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif);
+	font-size: var(--text-md, 13px);
+	line-height: var(--st-leading-snug, 1.4);
+	color: var(--nbd-st-text, #1d2327);
+	background: var(--nbd-st-bg, #ffffff);
+	border: 1px solid var(--nbd-st-border-light, #dcdcde);
+	border-inline-start: 4px solid var(--nbd-color-info, #2271b1);
+	border-radius: var(--nbd-radius-md, 8px);
+	box-shadow: var(--shadow-lg, 0 8px 24px rgba(0, 0, 0, 0.12));
+	pointer-events: auto;
+	opacity: 0;
+	transform: translateY(8px);
+	transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.spbwc-toast.is-visible {
+	opacity: 1;
+	transform: none;
+}
+
+.spbwc-toast--success { border-inline-start-color: var(--nbd-color-success, #16a34a); }
+.spbwc-toast--error,
+.spbwc-toast--danger  { border-inline-start-color: var(--nbd-color-danger, #dc2626); }
+.spbwc-toast--warning { border-inline-start-color: var(--nbd-color-warning, #f59e0b); }
+
+.spbwc-toast__icon {
+	flex: 0 0 auto;
+	font-size: 18px;
+	line-height: 1.2;
+	color: var(--nbd-color-info, #2271b1);
+}
+
+.spbwc-toast--success .spbwc-toast__icon { color: var(--nbd-color-success, #16a34a); }
+.spbwc-toast--error .spbwc-toast__icon,
+.spbwc-toast--danger .spbwc-toast__icon  { color: var(--nbd-color-danger, #dc2626); }
+.spbwc-toast--warning .spbwc-toast__icon { color: var(--st-accent-pressed, #d97706); }
+
+.spbwc-toast__msg {
+	flex: 1 1 auto;
+	min-width: 0;
+	word-wrap: break-word;
+}
+
+.spbwc-toast__close {
+	flex: 0 0 auto;
+	cursor: pointer;
+	padding: 0;
+	margin-inline-start: var(--nbd-space-1, 4px);
+	width: 20px;
+	height: 20px;
+	font-size: 16px;
+	line-height: 20px;
+	color: var(--nbd-st-text-mute, #8c8f94);
+	background: none;
+	border: 0;
+	border-radius: var(--nbd-radius-sm, 4px);
+}
+
+.spbwc-toast__close:hover {
+	color: var(--nbd-st-text, #1d2327);
+}
+
+/* ====================================================== Reduced motion */
+
+@media ( prefers-reduced-motion: reduce ) {
+	.spbwc-dlg__box,
+	.spbwc-toast {
+		transition: none;
+	}
+}

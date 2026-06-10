@@ -32,27 +32,32 @@ if (!class_exists('SPBWC_Product_Exporter')) {
                         var btn = $(this);
                         var product_id = btn.data('id');
                         
-                        if (!confirm('<?php esc_html_e('Do you want to export and download reference data for this product?', 'storelly-product-builder-for-woocommerce'); ?>')) {
-                            return;
-                        }
+                        var msg = '<?php echo esc_js( __( 'Do you want to export and download reference data for this product?', 'storelly-product-builder-for-woocommerce' ) ); ?>';
+                        var notify = function (m, tone) { if (window.spbwcDialog) { window.spbwcDialog.toast({ message: m, tone: tone || 'error' }); } else { window.alert(m); } };
+                        var ask = window.spbwcDialog
+                            ? window.spbwcDialog.confirm({ message: msg, okText: '<?php echo esc_js( __( 'Export', 'storelly-product-builder-for-woocommerce' ) ); ?>' })
+                            : Promise.resolve(window.confirm(msg));
+                        ask.then(function (ok) {
+                            if (!ok) { return; }
 
-                        btn.prop('disabled', true).find('.dashicons').removeClass('dashicons-download').addClass('dashicons-update spin');
+                            btn.prop('disabled', true).find('.dashicons').removeClass('dashicons-download').addClass('dashicons-update spin');
 
-                        $.post(ajaxurl, {
-                            action: 'spbwc_export_product_reference',
-                            nonce: '<?php echo esc_js(wp_create_nonce('spbwc_export_product_nonce')); ?>',
-                            product_id: product_id
-                        }, function(res) {
-                            btn.prop('disabled', false).find('.dashicons').removeClass('dashicons-update spin').addClass('dashicons-download');
-                            if (res.success) {
-                                // Trigger download
-                                window.location.href = res.data.url;
-                            } else {
-                                alert('Error: ' + res.data);
-                            }
-                        }).fail(function() {
-                            btn.prop('disabled', false).find('.dashicons').removeClass('dashicons-update spin').addClass('dashicons-download');
-                            alert('Request failed');
+                            $.post(ajaxurl, {
+                                action: 'spbwc_export_product_reference',
+                                nonce: '<?php echo esc_js(wp_create_nonce('spbwc_export_product_nonce')); ?>',
+                                product_id: product_id
+                            }, function(res) {
+                                btn.prop('disabled', false).find('.dashicons').removeClass('dashicons-update spin').addClass('dashicons-download');
+                                if (res.success) {
+                                    // Trigger download
+                                    window.location.href = res.data.url;
+                                } else {
+                                    notify('Error: ' + res.data);
+                                }
+                            }).fail(function() {
+                                btn.prop('disabled', false).find('.dashicons').removeClass('dashicons-update spin').addClass('dashicons-download');
+                                notify('<?php echo esc_js( __( 'Request failed', 'storelly-product-builder-for-woocommerce' ) ); ?>');
+                            });
                         });
                     });
                 });

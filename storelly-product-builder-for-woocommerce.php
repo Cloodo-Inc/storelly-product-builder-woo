@@ -142,6 +142,12 @@ function spbwc_woocommerce_missing_notice() {
 }
 
 require_once(SPBWC_PB_PLUGIN_DIR .  'includes/class-script-hook.php');
+/* Shared token-styled dialog & toast utility (spbwcDialog) — replaces the
+ * native browser alert/confirm/prompt popups across admin + storefront. */
+require_once(SPBWC_PB_PLUGIN_DIR .  'includes/class-dialog.php');
+if ( class_exists( 'SPBWC_Dialog' ) ) {
+    SPBWC_Dialog::init();
+}
 require_once(SPBWC_PB_PLUGIN_DIR .  'includes/class-export-pdf.php');
 require_once(SPBWC_PB_PLUGIN_DIR .  'includes/class-util.php');
 require_once(SPBWC_PB_PLUGIN_DIR .  'includes/class-image.php');

@@ -309,6 +309,7 @@ $plan_benefits = $is_free
         <script>
         (function($){
             var fail = '<?php echo esc_js( __( 'Could not add the demo. Please try again.', 'storelly-product-builder-for-woocommerce' ) ); ?>';
+            function spbwcNotify(msg){ if (window.spbwcDialog) { window.spbwcDialog.toast({ message: msg, tone: 'error' }); } else { window.alert(msg); } }
             var $card = $('#spbwc-demo-card');
             if ( $card.length ) {
                 $card.on('click', function(e){
@@ -321,12 +322,12 @@ $plan_benefits = $is_free
                             window.open(res.data.view_url, '_blank', 'noopener');
                             location.reload();
                         } else {
-                            alert( (res && res.data && res.data.message) ? res.data.message : fail );
+                            spbwcNotify( (res && res.data && res.data.message) ? res.data.message : fail );
                             $card.removeClass('is-loading');
                             $('#spbwc-demo-cta').html('<span class="dashicons dashicons-download" aria-hidden="true"></span> <?php echo esc_js( __( 'Add demo product', 'storelly-product-builder-for-woocommerce' ) ); ?>');
                         }
                     }).fail(function(){
-                        alert(fail);
+                        spbwcNotify(fail);
                         $card.removeClass('is-loading');
                         $('#spbwc-demo-cta').html('<span class="dashicons dashicons-download" aria-hidden="true"></span> <?php echo esc_js( __( 'Add demo product', 'storelly-product-builder-for-woocommerce' ) ); ?>');
                     });
@@ -342,21 +343,28 @@ $plan_benefits = $is_free
                         window.open(res.data.view_url, '_blank', 'noopener');
                         location.reload();
                     } else {
-                        alert( (res && res.data && res.data.message) ? res.data.message : fail );
+                        spbwcNotify( (res && res.data && res.data.message) ? res.data.message : fail );
                         $b.removeClass('is-loading').prop('disabled', false)
                           .html('<span class="dashicons dashicons-yes" aria-hidden="true"></span> <?php echo esc_js( __( 'Publish & view', 'storelly-product-builder-for-woocommerce' ) ); ?>');
                     }
                 }).fail(function(){
-                    alert(fail);
+                    spbwcNotify(fail);
                     $b.removeClass('is-loading').prop('disabled', false)
                       .html('<span class="dashicons dashicons-yes" aria-hidden="true"></span> <?php echo esc_js( __( 'Publish & view', 'storelly-product-builder-for-woocommerce' ) ); ?>');
                 });
             });
             $('#spbwc-demo-remove').on('click', function(){
-                if ( ! window.confirm('<?php echo esc_js( __( 'Remove the demo product and its images?', 'storelly-product-builder-for-woocommerce' ) ); ?>') ) { return; }
-                var $b = $(this).prop('disabled', true);
-                $.post(ajaxurl, { action:'spbwc_demo_undo', nonce: $('#spbwc-demo-card-done').data('nonce') }, function(){ location.reload(); })
-                 .fail(function(){ $b.prop('disabled', false); });
+                var self = this;
+                var msg = '<?php echo esc_js( __( 'Remove the demo product and its images?', 'storelly-product-builder-for-woocommerce' ) ); ?>';
+                var ask = window.spbwcDialog
+                    ? window.spbwcDialog.confirm({ title: '<?php echo esc_js( __( 'Remove demo product', 'storelly-product-builder-for-woocommerce' ) ); ?>', message: msg, tone: 'danger', okText: '<?php echo esc_js( __( 'Remove', 'storelly-product-builder-for-woocommerce' ) ); ?>' })
+                    : Promise.resolve(window.confirm(msg));
+                ask.then(function(ok){
+                    if ( ! ok ) { return; }
+                    var $b = $(self).prop('disabled', true);
+                    $.post(ajaxurl, { action:'spbwc_demo_undo', nonce: $('#spbwc-demo-card-done').data('nonce') }, function(){ location.reload(); })
+                     .fail(function(){ $b.prop('disabled', false); });
+                });
             });
         })(jQuery);
         </script>
@@ -457,20 +465,26 @@ $plan_benefits = $is_free
             function send(action, extra, btn){
                 var data = $.extend({ action: action, nonce: nonce }, extra || {});
                 if ( btn ) { $(btn).addClass('is-loading').prop('disabled', true); }
+                function notify(msg){ if (window.spbwcDialog) { window.spbwcDialog.toast({ message: msg, tone: 'error' }); } else { window.alert(msg); } }
                 $.post(ajaxurl, data, function(res){
                     if ( res && res.success ) { location.reload(); }
                     else {
-                        alert( (res && res.data && res.data.message) ? res.data.message : '<?php echo esc_js( __( 'Something went wrong. Please try again.', 'storelly-product-builder-for-woocommerce' ) ); ?>' );
+                        notify( (res && res.data && res.data.message) ? res.data.message : '<?php echo esc_js( __( 'Something went wrong. Please try again.', 'storelly-product-builder-for-woocommerce' ) ); ?>' );
                         if ( btn ) { $(btn).removeClass('is-loading').prop('disabled', false); }
                     }
                 }).fail(function(){
-                    alert('<?php echo esc_js( __( 'Request failed. Check your connection.', 'storelly-product-builder-for-woocommerce' ) ); ?>');
+                    notify('<?php echo esc_js( __( 'Request failed. Check your connection.', 'storelly-product-builder-for-woocommerce' ) ); ?>');
                     if ( btn ) { $(btn).removeClass('is-loading').prop('disabled', false); }
                 });
             }
             $('#spbwc-cloud-connect').on('click', function(){ send('spbwc_cloud_connect', {}, this); });
             $('#spbwc-cloud-disconnect').on('click', function(){
-                if ( window.confirm('<?php echo esc_js( __( 'Disconnect from Storelly Cloud? PDF and sync will stop.', 'storelly-product-builder-for-woocommerce' ) ); ?>') ) { send('spbwc_cloud_disconnect', {}, this); }
+                var btn = this;
+                var msg = '<?php echo esc_js( __( 'Disconnect from Storelly Cloud? PDF and sync will stop.', 'storelly-product-builder-for-woocommerce' ) ); ?>';
+                var ask = window.spbwcDialog
+                    ? window.spbwcDialog.confirm({ title: '<?php echo esc_js( __( 'Disconnect Cloud', 'storelly-product-builder-for-woocommerce' ) ); ?>', message: msg, tone: 'danger', okText: '<?php echo esc_js( __( 'Disconnect', 'storelly-product-builder-for-woocommerce' ) ); ?>' })
+                    : Promise.resolve(window.confirm(msg));
+                ask.then(function(ok){ if ( ok ) { send('spbwc_cloud_disconnect', {}, btn); } });
             });
             // Manual Store ID link + full account management now live in
             // Settings ▸ Integration (M5.9). The Welcome card is the 1-click entry.
@@ -576,6 +590,7 @@ $plan_benefits = $is_free
             $.post(ajaxurl, { action: action, nonce: nonce }, function(res){ done(res); })
              .fail(function(){ done({ success:false }); });
         }
+        function notify(msg){ if (window.spbwcDialog) { window.spbwcDialog.toast({ message: msg, tone: 'error' }); } else { window.alert(msg); } }
 
         // While preparing, poll until staged, then reload to reveal Publish all.
         if ( status === 'scheduled' || status === 'preparing' ) {
@@ -600,17 +615,23 @@ $plan_benefits = $is_free
             post('spbwc_woo_prepare_publish', function(res){
                 if ( res && res.success ) { location.reload(); }
                 else {
-                    alert('<?php echo esc_js( __( 'Publish failed. Please try again.', 'storelly-product-builder-for-woocommerce' ) ); ?>');
+                    notify('<?php echo esc_js( __( 'Publish failed. Please try again.', 'storelly-product-builder-for-woocommerce' ) ); ?>');
                     $btn.removeClass('is-loading').prop('disabled', false);
                 }
             });
         });
 
         $('#spbwc-prep-undo').on('click', function(){
-            if ( ! window.confirm('<?php echo esc_js( __( 'Remove the prepared option sets and unlink those products? Your Woo variations are not affected.', 'storelly-product-builder-for-woocommerce' ) ); ?>') ) { return; }
-            post('spbwc_woo_prepare_undo', function(res){
-                if ( res && res.success ) { location.reload(); }
-                else { alert('<?php echo esc_js( __( 'Undo failed. Please try again.', 'storelly-product-builder-for-woocommerce' ) ); ?>'); }
+            var msg = '<?php echo esc_js( __( 'Remove the prepared option sets and unlink those products? Your Woo variations are not affected.', 'storelly-product-builder-for-woocommerce' ) ); ?>';
+            var ask = window.spbwcDialog
+                ? window.spbwcDialog.confirm({ title: '<?php echo esc_js( __( 'Undo prepared options', 'storelly-product-builder-for-woocommerce' ) ); ?>', message: msg, tone: 'danger', okText: '<?php echo esc_js( __( 'Remove', 'storelly-product-builder-for-woocommerce' ) ); ?>' })
+                : Promise.resolve(window.confirm(msg));
+            ask.then(function(ok){
+                if ( ! ok ) { return; }
+                post('spbwc_woo_prepare_undo', function(res){
+                    if ( res && res.success ) { location.reload(); }
+                    else { notify('<?php echo esc_js( __( 'Undo failed. Please try again.', 'storelly-product-builder-for-woocommerce' ) ); ?>'); }
+                });
             });
         });
     })(jQuery);
@@ -1506,6 +1527,7 @@ $plan_benefits = $is_free
         var $btn = $('#spbwc-overview-sync-btn');
         if ( ! $btn.length ) { return; }
         var btnHtml = $btn.html();
+        function notify(msg){ if (window.spbwcDialog) { window.spbwcDialog.toast({ message: msg, tone: 'error' }); } else { window.alert(msg); } }
         $btn.on('click', function(){
             if ( $btn.hasClass('is-loading') ) { return; }
             $btn.addClass('is-loading').prop('disabled', true)
@@ -1517,11 +1539,11 @@ $plan_benefits = $is_free
                 if ( res.success ) {
                     location.reload();
                 } else {
-                    alert( (res.data && res.data.msg) ? res.data.msg : '<?php echo esc_js( __( 'Sync failed.', 'storelly-product-builder-for-woocommerce' ) ); ?>' );
+                    notify( (res.data && res.data.msg) ? res.data.msg : '<?php echo esc_js( __( 'Sync failed.', 'storelly-product-builder-for-woocommerce' ) ); ?>' );
                     $btn.removeClass('is-loading').prop('disabled', false).html(btnHtml);
                 }
             }).fail(function(){
-                alert('<?php echo esc_js( __( 'Request failed. Check your connection.', 'storelly-product-builder-for-woocommerce' ) ); ?>');
+                notify('<?php echo esc_js( __( 'Request failed. Check your connection.', 'storelly-product-builder-for-woocommerce' ) ); ?>');
                 $btn.removeClass('is-loading').prop('disabled', false).html(btnHtml);
             });
         });

@@ -173,7 +173,7 @@ if ( ! class_exists( 'SPBWC_B2B_Team' ) ) {
                     echo $sym . '<input type="number" name="order_limit" min="0" step="0.01" value="' . esc_attr( $limit ?: '' ) . '" class="spbwc-team__limit" /> '; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- $sym is a currency symbol string.
                     echo '<button type="submit" class="button">' . esc_html__( 'Save', 'storelly-product-builder-for-woocommerce' ) . '</button>';
                     echo '</form></td>';
-                    echo '<td data-label="' . esc_attr__( 'Actions', 'storelly-product-builder-for-woocommerce' ) . '"><form method="post" action="' . esc_url( self::url() ) . '" onsubmit="return confirm(\'' . esc_js( __( 'Remove this member?', 'storelly-product-builder-for-woocommerce' ) ) . '\');">';
+                    echo '<td data-label="' . esc_attr__( 'Actions', 'storelly-product-builder-for-woocommerce' ) . '"><form method="post" action="' . esc_url( self::url() ) . '" onsubmit="return confirm(\'' . esc_js( __( 'Remove this member?', 'storelly-product-builder-for-woocommerce' ) ) . '\');" data-spbwc-confirm="' . esc_attr( __( 'Remove this member?', 'storelly-product-builder-for-woocommerce' ) ) . '" data-spbwc-confirm-title="' . esc_attr( __( 'Remove member', 'storelly-product-builder-for-woocommerce' ) ) . '" data-spbwc-confirm-ok="' . esc_attr( __( 'Remove', 'storelly-product-builder-for-woocommerce' ) ) . '">';
                     wp_nonce_field( 'spbwc_team_member_' . $m->ID, '_spbwc_team_nonce' );
                     echo '<input type="hidden" name="spbwc_team_do" value="remove_member" />';
                     echo '<input type="hidden" name="member_id" value="' . esc_attr( $m->ID ) . '" />';
