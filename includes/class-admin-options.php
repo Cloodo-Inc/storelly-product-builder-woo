@@ -2336,7 +2336,7 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
             $product_ids = $this->spbwc_extract_product_ids_from_option($option);
             // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Custom table write; caches/transients are flushed below.
             $result = $wpdb->update(
-                $wpdb->prefix . 'pc-product_builder_options',
+                $wpdb->prefix . 'storelly_product_builder_options',
                 array('published' => 0),
                 array('id' => $option_id),
                 array('%d'),
