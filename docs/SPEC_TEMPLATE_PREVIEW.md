@@ -194,10 +194,20 @@ Giữ mockup inline cho phản hồi tức thì khi build, NHƯNG bản **author
 3. **Gỡ legacy `views/options/preview.php`**: là widget "Create Pre builder" ẩn trùng (CTA "Pre-builder"
    thật đã ở savebar). Xoá file + `include_once`. CSS `.frontend-prview` thành dead (để dọn sau).
 
+### Bonus fix do WYSIWYG phát hiện (2026-06-10)
+Preview WYSIWYG lộ ra **bug storefront thật**: advanced-dropdown render cả `<select.nbo-dropdown>`
+(carrier) lẫn `.nbo-ad-result` (box styled) → **2 dropdown chồng**. Rule `display:none` ẩn carrier
+chỉ nằm ở `app-product-builder.css` (stylesheet designer) — KHÔNG được enqueue bởi inline option
+builder (`STORELLY_FRONTEND_OPTIONS::spbwc_frontend_enqueue_scripts` chỉ load `storefront-options.css`),
+nên trang sản phẩm pricing-only + preview đều bị. Fix: thêm
+`.nbo-style-cloodo .pcpb-field-ad-dropdown-wrap select.nbo-dropdown { display:none }` vào
+`storefront-options.css` (+ mirror RTL). → minh chứng giá trị WYSIWYG: preview bắt được lỗi frontend thật.
+
 ### Còn lại (M3+)
 - POT regen: string "Updating…" mới + gỡ "Create Pre builder" (chạy ở release gate).
 - Dọn CSS `.frontend-prview` chết trong admin-options(.css/-rtl/-v2/-v2-rtl).
 - (tùy chọn) viewport switcher desktop/tablet/mobile trong modal như Library.
+- `storefront-options-rtl.css` STALE (thiếu cả section advanced-dropdown card) → cần rtlcss regen.
 
 ### Files
 M1: `includes/templates/class-template-preview-render.php` (draft mode),

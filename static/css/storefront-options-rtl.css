@@ -440,6 +440,11 @@
     border-color: var(--st-brand);
     box-shadow: var(--shadow-input-focus);
 }
+/* Advanced dropdown's native <select> is a hidden value carrier only — hide it
+   so it doesn't render as a duplicate dropdown under the styled .nbo-ad-result.
+   (Direction-agnostic; mirrors the LTR rule. NOTE: this RTL sheet is missing the
+   rest of the advanced-dropdown card styling — flagged for an rtlcss regen.) */
+.nbo-wrapper.nbo-style-cloodo .pcpb-field-ad-dropdown-wrap select.nbo-dropdown { display: none; }
 
 /* ── Text / number / textarea inputs ─────────────────────── */
 .nbo-wrapper.nbo-style-cloodo .pcpb-field-content input[type="text"],

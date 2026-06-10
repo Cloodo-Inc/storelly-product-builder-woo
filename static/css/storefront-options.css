@@ -507,6 +507,14 @@
    browser look. Apply the same card aesthetic as the native dropdown above. */
 .nbo-wrapper.nbo-style-cloodo .pcpb-field-ad-dropdown-wrap { position: relative; }
 .nbo-wrapper.nbo-style-cloodo .pcpb-field-ad-dropdown-wrap > .pcpb-field-content > div { position: relative; }
+/* The advanced dropdown's native <select> is only a hidden value carrier — the
+   .nbo-ad-result card + pseudo-list are the visible control. The display:none
+   that hides it lives in app-product-builder.css, which the inline storefront
+   builder (and the template/option preview) do NOT enqueue — only this
+   stylesheet. Without this rule the carrier renders as a duplicate dropdown
+   stacked under the styled one. Scoped to the ad-dropdown wrap so the simple
+   native dropdown (which IS the visible control) is unaffected. */
+.nbo-wrapper.nbo-style-cloodo .pcpb-field-ad-dropdown-wrap select.nbo-dropdown { display: none; }
 .nbo-wrapper.nbo-style-cloodo .nbo-ad-result {
     display: flex;
     align-items: center;
