@@ -52,6 +52,7 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
                 // License management AJAX actions
                 'spbwc_license_activate'         => false, // admin only
                 'spbwc_license_sync'             => false, // admin only
+                'spbwc_save_api_keys'            => false, // admin only — manual API-key link (Account & Plan ▸ Advanced)
                 // Products page AJAX pagination
                 'spbwc_load_products'            => false, // admin only
                 // Pricing-option list page: re-render grid on filter/search/paginate
@@ -4437,6 +4438,17 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
             $connect_nonce = wp_create_nonce( 'spbwc_cloud_connect' );
             $connected     = class_exists( 'SPBWC_Cloud_Connect' ) && SPBWC_Cloud_Connect::is_connected();
 
+            // Manual API-key link (moved here from Settings ▸ Integration). The view shows these in
+            // the collapsed Advanced section; saving goes through the spbwc_save_api_keys AJAX.
+            $apikeys       = maybe_unserialize( get_option( 'spbwc_connect_api_keys' ) );
+            $apikeys       = is_array( $apikeys ) ? $apikeys : array();
+            $sid           = isset( $apikeys['consumer_key'] ) ? (string) $apikeys['consumer_key'] : '';
+            $secret        = isset( $apikeys['consumer_secret'] ) ? (string) $apikeys['consumer_secret'] : '';
+            $unauth_token  = isset( $apikeys['unauth_token'] ) ? (string) $apikeys['unauth_token'] : '';
+            $api_log       = isset( $apikeys['log'] ) ? (string) $apikeys['log'] : '';
+            $storelly_username = isset( $apikeys['username'] ) ? (string) $apikeys['username'] : '';
+            $keys_nonce    = wp_create_nonce( 'spbwc_save_api_keys' );
+
             // One-time welcome banner shown right after a successful connect:
             // the connect AJAX redirects back with ?spbwc_welcome=1. Display-only flag.
             $just_connected = $connected && isset( $_GET['spbwc_welcome'] ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only display flag, no state change.
@@ -4506,6 +4518,51 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
                 'package_name' => $license['package_name'],
                 'status'       => $license['status'],
                 'expires_at'   => $license['expires_at'],
+            ) );
+        }
+
+        // ============================================================
+        //  AJAX: Save raw API keys (manual link — Account & Plan ▸ Advanced)
+        // ============================================================
+
+        /**
+         * AJAX handler: store the SID + Secret the admin pasted to link this store
+         * manually, then attempt to fetch the unauth token. Mirrors the old Settings
+         * form path (spbwc_settings) but lives on the Account & Plan page now.
+         * wp_ajax_spbwc_save_api_keys
+         */
+        public function spbwc_save_api_keys() {
+            if ( ! current_user_can( 'manage_options' ) ) {
+                wp_send_json_error( array( 'msg' => esc_html__( 'Permission denied.', 'storelly-product-builder-for-woocommerce' ) ) );
+            }
+
+            $nonce = isset( $_POST['nonce'] ) ? sanitize_text_field( wp_unslash( $_POST['nonce'] ) ) : '';
+            if ( ! wp_verify_nonce( $nonce, 'spbwc_save_api_keys' ) ) {
+                wp_send_json_error( array( 'msg' => esc_html__( 'Security check failed.', 'storelly-product-builder-for-woocommerce' ) ) );
+            }
+
+            $consumer_key    = isset( $_POST['consumer_key'] ) ? sanitize_text_field( wp_unslash( $_POST['consumer_key'] ) ) : '';
+            $consumer_secret = isset( $_POST['consumer_secret'] ) ? sanitize_text_field( wp_unslash( $_POST['consumer_secret'] ) ) : '';
+
+            if ( '' === $consumer_key || '' === $consumer_secret ) {
+                wp_send_json_error( array( 'msg' => esc_html__( 'Please paste both the SID and the Secret.', 'storelly-product-builder-for-woocommerce' ) ) );
+            }
+
+            $api_keys = maybe_unserialize( get_option( 'spbwc_connect_api_keys' ) );
+            if ( ! is_array( $api_keys ) ) {
+                $api_keys = array();
+            }
+            $api_keys['consumer_key']    = $consumer_key;
+            $api_keys['consumer_secret'] = $consumer_secret;
+            update_option( 'spbwc_connect_api_keys', $api_keys );
+
+            // Validate the pair + fetch the unauth token (phones home only now, with explicit user action).
+            if ( class_exists( 'SPBWC_Storelly_Product_Builder_API' ) && is_callable( array( 'SPBWC_Storelly_Product_Builder_API', 'spbwc_create_user_storelly' ) ) ) {
+                SPBWC_Storelly_Product_Builder_API::spbwc_create_user_storelly();
+            }
+
+            wp_send_json_success( array(
+                'msg' => esc_html__( 'API keys saved and store linked.', 'storelly-product-builder-for-woocommerce' ),
             ) );
         }
 

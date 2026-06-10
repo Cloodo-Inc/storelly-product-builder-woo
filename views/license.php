@@ -356,6 +356,43 @@ $cell = function ( $cap_row, $col_family ) {
                     </button>
                 </div>
             </div>
+
+            <!-- Manual API keys (moved here from Settings ▸ Integration) -->
+            <div class="spbwc-adv-item spbwc-adv-item--stack">
+                <div class="spbwc-adv-item__head">
+                    <h4 class="spbwc-adv-item__title">
+                        <span class="dashicons dashicons-admin-network" aria-hidden="true"></span>
+                        <?php esc_html_e( 'Link manually with API keys', 'storelly-product-builder-for-woocommerce' ); ?>
+                    </h4>
+                    <p class="spbwc-adv-item__desc"><?php esc_html_e( 'Only if you ALREADY have a Storelly account and want to link this store by hand. New users do not need this — choosing a plan above creates the account and links the store for you. These fields talk to app.storelly.com.', 'storelly-product-builder-for-woocommerce' ); ?></p>
+                    <p class="spbwc-adv-item__meta" id="spbwc-keys-status"></p>
+                </div>
+                <div class="spbwc-adv-item__control spbwc-adv-item__keys">
+                    <label class="spbwc-adv-item__field">
+                        <span class="spbwc-adv-item__field-lbl"><?php esc_html_e( 'SID (Consumer Key)', 'storelly-product-builder-for-woocommerce' ); ?></span>
+                        <input type="text" id="spbwc-api-sid" class="spbwc-input spbwc-adv-item__input"
+                               placeholder="ck_xxxxx" value="<?php echo esc_attr( $sid ); ?>" />
+                    </label>
+                    <label class="spbwc-adv-item__field">
+                        <span class="spbwc-adv-item__field-lbl"><?php esc_html_e( 'Secret', 'storelly-product-builder-for-woocommerce' ); ?></span>
+                        <input type="text" id="spbwc-api-secret" class="spbwc-input spbwc-adv-item__input"
+                               placeholder="cs_xxxxx" value="<?php echo esc_attr( $secret ); ?>" />
+                    </label>
+                    <button type="button" class="spbwc-cta-btn spbwc-cta-btn--solid" id="spbwc-api-save" data-nonce="<?php echo esc_attr( $keys_nonce ); ?>">
+                        <?php esc_html_e( 'Save &amp; link', 'storelly-product-builder-for-woocommerce' ); ?>
+                    </button>
+                    <?php if ( '' !== $unauth_token || '' !== $api_log ) : ?>
+                    <p class="spbwc-adv-item__meta">
+                        <?php if ( '' !== $unauth_token ) : ?>
+                            <?php esc_html_e( 'Token:', 'storelly-product-builder-for-woocommerce' ); ?> <code><?php echo esc_html( $unauth_token ); ?></code>
+                        <?php endif; ?>
+                        <?php if ( '' !== $api_log ) : ?>
+                            <span class="spbwc-adv-item__log"><?php echo esc_html( $api_log ); ?></span>
+                        <?php endif; ?>
+                    </p>
+                    <?php endif; ?>
+                </div>
+            </div>
         </div>
     </details>
 
@@ -489,6 +526,17 @@ $cell = function ( $cap_row, $col_family ) {
         var $status = $('#spbwc-activate-status');
         if (!key) { $status.text('<?php echo esc_js( __( 'Please paste a license key.', 'storelly-product-builder-for-woocommerce' ) ); ?>'); return; }
         post('spbwc_license_activate', { nonce: $(this).data('nonce'), license_key: key }, this, function (m) {
+            $status.text(m);
+        });
+    });
+
+    // Manual API-key link (moved here from Settings ▸ Integration).
+    $('#spbwc-api-save').on('click', function () {
+        var sid = $.trim($('#spbwc-api-sid').val() || '');
+        var sec = $.trim($('#spbwc-api-secret').val() || '');
+        var $status = $('#spbwc-keys-status');
+        if (!sid || !sec) { $status.text('<?php echo esc_js( __( 'Please paste both the SID and the Secret.', 'storelly-product-builder-for-woocommerce' ) ); ?>'); return; }
+        post('spbwc_save_api_keys', { nonce: $(this).data('nonce'), consumer_key: sid, consumer_secret: sec }, this, function (m) {
             $status.text(m);
         });
     });

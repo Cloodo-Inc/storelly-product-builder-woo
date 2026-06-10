@@ -985,3 +985,26 @@ h2.spbwc-settings-tabs,
     background: transparent;
     box-shadow: none;
 }
+
+/* ========================================================== */
+/* Integration ▸ Premium status board — feature rows           */
+/* (name + benefit/flow description stacked, badge on the side) */
+/* ========================================================== */
+.spbwc-feature-row {
+    grid-template-columns: 1fr auto;
+    align-items: start;
+}
+.spbwc-feature-row__name {
+    display: block;
+    font-weight: var(--font-semibold);
+    color: var(--nbd-st-text);
+}
+.spbwc-feature-row__desc {
+    display: block;
+    margin-top: var(--nbd-space-1, 4px);
+    font-size: var(--text-md);
+    color: var(--nbd-st-text-soft);
+    line-height: 1.6;
+    font-weight: var(--font-normal);
+}
+.spbwc-feature-row .spbwc-setting-row__control { align-self: start; }

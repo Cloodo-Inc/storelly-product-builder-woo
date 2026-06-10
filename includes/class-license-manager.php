@@ -404,15 +404,60 @@ if ( ! class_exists( 'SPBWC_License_Manager' ) ) {
          */
         public static function caps_catalog() {
             return array(
-                array( 'cap' => 'cloud_pdf',        'label' => __( 'Print-ready PDF rendering', 'storelly-product-builder-for-woocommerce' ),            'plans' => array( 'standard', 'b2b' ) ),
-                array( 'cap' => 'order_sync',       'label' => __( 'Order → Dashboard sync', 'storelly-product-builder-for-woocommerce' ),               'plans' => array( 'standard', 'b2b' ) ),
-                array( 'cap' => 'design_vault',     'label' => __( 'Customer Design Vault (cloud backup)', 'storelly-product-builder-for-woocommerce' ),  'plans' => array( 'standard', 'b2b' ) ),
-                array( 'cap' => 'asset_library',    'label' => __( 'Asset Library (cliparts & fonts)', 'storelly-product-builder-for-woocommerce' ),      'plans' => array( 'standard', 'b2b' ) ),
-                array( 'cap' => 'option_analytics', 'label' => __( 'Option performance analytics', 'storelly-product-builder-for-woocommerce' ),          'plans' => array( 'standard', 'b2b' ) ),
-                array( 'cap' => 'config_snapshots', 'label' => __( 'Pricing config version history', 'storelly-product-builder-for-woocommerce' ),        'plans' => array( 'standard', 'b2b' ) ),
-                array( 'cap' => 'invoice_pdf',      'label' => __( 'Branded invoice & statement PDFs', 'storelly-product-builder-for-woocommerce' ),      'plans' => array( 'b2b' ) ),
-                array( 'cap' => 'email_trigger',    'label' => __( 'Scheduled B2B emails (dunning, statements)', 'storelly-product-builder-for-woocommerce' ), 'plans' => array( 'b2b' ) ),
-                array( 'cap' => 'analytics_b2b',    'label' => __( 'B2B account analytics (aging, DSO)', 'storelly-product-builder-for-woocommerce' ),    'plans' => array( 'b2b' ) ),
+                array(
+                    'cap'   => 'cloud_pdf',
+                    'label' => __( 'Print-ready PDF rendering', 'storelly-product-builder-for-woocommerce' ),
+                    'desc'  => __( 'Benefit: turn every personalised order into a high-resolution, print-ready PDF — no manual artwork prep. Flow: the buyer customises a product → the order is placed → you (or your print partner) download the production-ready file straight from the order.', 'storelly-product-builder-for-woocommerce' ),
+                    'plans' => array( 'standard', 'b2b' ),
+                ),
+                array(
+                    'cap'   => 'order_sync',
+                    'label' => __( 'Order → Dashboard sync', 'storelly-product-builder-for-woocommerce' ),
+                    'desc'  => __( 'Benefit: manage print jobs from every store in one place. Flow: an order is placed in WooCommerce → it syncs automatically to your Storelly dashboard → you track, print and fulfil it there without copy-pasting.', 'storelly-product-builder-for-woocommerce' ),
+                    'plans' => array( 'standard', 'b2b' ),
+                ),
+                array(
+                    'cap'   => 'design_vault',
+                    'label' => __( 'Customer Design Vault (cloud backup)', 'storelly-product-builder-for-woocommerce' ),
+                    'desc'  => __( 'Benefit: customers never lose their work and reorder in one click. Flow: a buyer saves a design → it is backed up in the cloud → they reopen and reorder it later from any device.', 'storelly-product-builder-for-woocommerce' ),
+                    'plans' => array( 'standard', 'b2b' ),
+                ),
+                array(
+                    'cap'   => 'asset_library',
+                    'label' => __( 'Asset Library (cliparts & fonts)', 'storelly-product-builder-for-woocommerce' ),
+                    'desc'  => __( 'Benefit: give buyers a curated set of cliparts and fonts to design with. Flow: you upload the assets once → they appear inside the designer → buyers pick from them while customising.', 'storelly-product-builder-for-woocommerce' ),
+                    'plans' => array( 'standard', 'b2b' ),
+                ),
+                array(
+                    'cap'   => 'option_analytics',
+                    'label' => __( 'Option performance analytics', 'storelly-product-builder-for-woocommerce' ),
+                    'desc'  => __( 'Benefit: see which options and variants actually sell so you can sharpen pricing and your catalogue. Flow: buyers choose options → Storelly aggregates the picks → you read a performance report.', 'storelly-product-builder-for-woocommerce' ),
+                    'plans' => array( 'standard', 'b2b' ),
+                ),
+                array(
+                    'cap'   => 'config_snapshots',
+                    'label' => __( 'Pricing config version history', 'storelly-product-builder-for-woocommerce' ),
+                    'desc'  => __( 'Benefit: change pricing fearlessly — every version is kept. Flow: you edit an option/pricing set → a snapshot is saved automatically → roll back to any earlier version if something breaks.', 'storelly-product-builder-for-woocommerce' ),
+                    'plans' => array( 'standard', 'b2b' ),
+                ),
+                array(
+                    'cap'   => 'invoice_pdf',
+                    'label' => __( 'Branded invoice & statement PDFs', 'storelly-product-builder-for-woocommerce' ),
+                    'desc'  => __( 'Benefit: send professional, on-brand B2B paperwork. Flow: a B2B order or billing period closes → generate a branded invoice or statement PDF → send it to the client.', 'storelly-product-builder-for-woocommerce' ),
+                    'plans' => array( 'b2b' ),
+                ),
+                array(
+                    'cap'   => 'email_trigger',
+                    'label' => __( 'Scheduled B2B emails (dunning, statements)', 'storelly-product-builder-for-woocommerce' ),
+                    'desc'  => __( 'Benefit: get paid faster without chasing clients by hand. Flow: you set a schedule → Storelly sends payment reminders and statements to B2B clients automatically at the right time.', 'storelly-product-builder-for-woocommerce' ),
+                    'plans' => array( 'b2b' ),
+                ),
+                array(
+                    'cap'   => 'analytics_b2b',
+                    'label' => __( 'B2B account analytics (aging, DSO)', 'storelly-product-builder-for-woocommerce' ),
+                    'desc'  => __( 'Benefit: keep cash flow healthy per account. Flow: B2B invoices accrue → Storelly computes aging buckets and DSO → you monitor who owes what and how late.', 'storelly-product-builder-for-woocommerce' ),
+                    'plans' => array( 'b2b' ),
+                ),
             );
         }
 

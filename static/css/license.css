@@ -291,12 +291,12 @@
 .spbwc-cm__feature {
     text-align: left;
     color: var(--nbd-st-text);
-    font-size: var(--text-sm);
+    font-size: var(--text-md);
 }
 .spbwc-cm__feature .spbwc-cm__hint {
     display: block;
     color: var(--nbd-st-text-mute);
-    font-size: var(--text-xs, 12px);
+    font-size: var(--text-sm);
     font-weight: var(--font-normal, 400);
 }
 .spbwc-cm thead th {
@@ -323,7 +323,8 @@
 .spbwc-cm-note {
     margin-top: var(--nbd-space-3);
     color: var(--nbd-st-text-mute);
-    font-size: var(--text-sm);
+    font-size: var(--text-md);
+    line-height: 1.6;
 }
 
 /* ========================================================== */
@@ -488,9 +489,9 @@
 .spbwc-adv-item__title label { cursor: pointer; }
 .spbwc-adv-item__desc {
     margin: 0;
-    font-size: var(--text-sm);
+    font-size: var(--text-md);
     color: var(--nbd-st-text-soft);
-    line-height: 1.6;
+    line-height: 1.65;
 }
 .spbwc-adv-item__meta {
     display: block;
@@ -508,6 +509,35 @@
 }
 .spbwc-adv-item__input { width: 240px; max-width: 100%; }
 #spbwc-sync-btn.is-loading .dashicons-update { animation: spbwc-admin-spin 0.8s linear infinite; }
+
+/* Manual API-keys item — full-width stacked form (moved from Settings) */
+.spbwc-adv-item--stack { grid-template-columns: 1fr; }
+.spbwc-adv-item--stack .spbwc-adv-item__control { justify-self: stretch; }
+.spbwc-adv-item__keys {
+    display: flex;
+    flex-direction: column;
+    gap: var(--nbd-space-2);
+    align-items: flex-start;
+}
+.spbwc-adv-item__field {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    width: 100%;
+    max-width: 360px;
+}
+.spbwc-adv-item__field-lbl {
+    font-size: var(--text-sm);
+    font-weight: var(--font-medium);
+    color: var(--nbd-st-text-soft);
+}
+.spbwc-adv-item__keys .spbwc-adv-item__input { width: 100%; }
+.spbwc-adv-item__log {
+    display: block;
+    margin-top: 2px;
+    word-break: break-all;
+    color: var(--nbd-st-text-mute);
+}
 
 @media (max-width: 782px) {
     .spbwc-adv-item {

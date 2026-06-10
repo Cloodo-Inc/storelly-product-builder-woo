@@ -419,6 +419,39 @@ no JS error / PHP notice). All changed PHP `php -l` clean.
 > `SPEC_ADMIN_UI_REDESIGN` menu IA. S0-state visual (disconnected) not browser-verified this pass
 > (the test store is connected); S0 markup is a lint-clean anchor + note, low risk.
 
+### 9.5 Status-board polish + API-keys relocation (2026-06-10)
+
+Follow-up from merchant feedback on §9.4. Files: `includes/class-license-manager.php`,
+`includes/class-admin-options.php`, `views/menu-settings.php`, `views/license.php`,
+`static/css/storelly-admin-ui.css` + `…-rtl.css`, `static/css/license.css`,
+`static/css/menu-setting.css`.
+
+- **Red attention marker on the Integration tab** when premium is not active. A pulsing
+  `.spbwc-nav-alert` (danger-red `dashicons-warning`) sits beside the tab label, gated on
+  `cloud_license_active()`, to pull the admin toward activation. Disappears once a plan is active.
+- **Per-feature benefit + flow copy.** `caps_catalog()` now carries a `desc` field (Benefit: … /
+  Flow: …) for all 9 caps — a single source consumed by the status board (and available to the
+  matrix). Each board row shows the feature name + a plain-language description so the merchant
+  understands *what they get* and *how it works* before deciding to upgrade. New 2-col
+  `.spbwc-feature-row` layout (name+desc stacked, badge aside).
+- **"Locked" → "Not activated", in red.** The board's not-entitled badge switched from the grey
+  `--muted` "Locked" to a new red `.spbwc-block__badge--danger` "Not activated" (tokens
+  `--st-pill-danger-*`) — framed as an action the merchant should take, not a wall.
+- **Manual API keys moved Settings → Account & Plan ▸ Advanced.** The raw SID/Secret link block
+  left the Settings Integration tab (now a pure status board) and reappears as a stacked
+  `.spbwc-adv-item--stack` item on the Account & Plan Advanced disclosure, saved via a new
+  `spbwc_save_api_keys` AJAX (nonce `spbwc_save_api_keys` + `manage_options`; persists keys then
+  calls `spbwc_create_user_storelly()` to validate + fetch the unauth token). Shows token + last
+  log when present. One manual-link home now, next to the manual license key.
+- **Bigger description text on Account & Plan** (`--text-sm`→`--text-md`): `.spbwc-adv-item__desc`,
+  `.spbwc-cm-note`, `.spbwc-cm__feature` and its hint — the descriptions were too small to read.
+
+**Verified (Chrome, isolated instance port 9301, 2026-06-10):** Integration nav shows "Premium not
+activated" alert; board renders all 9 Benefit/Flow descriptions with red "NOT ACTIVATED" badges
+(computed `#991b1b` on `#fee2e2`; nav alert `#dc2626`). Account & Plan Advanced shows the new "Link
+manually with API keys" item (SID/Secret/Save present); description font computes to 13px. Console
+clean on both, all changed PHP `php -l` clean.
+
 ---
 
 ## 10. Open items

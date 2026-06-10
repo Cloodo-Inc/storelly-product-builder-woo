@@ -1025,6 +1025,30 @@ textarea.spbwc-input:focus {
     color: var(--nbd-st-text-mute);
 }
 
+/* Danger badge — "Not activated" state: red, to nudge the merchant to activate */
+.spbwc-block__badge--danger {
+    background: var(--st-pill-danger-bg);
+    color: var(--st-pill-danger-text);
+}
+
+/* Red attention marker beside a nav tab (e.g. Integration when premium is off) */
+.spbwc-nav-alert {
+    display: inline-flex;
+    align-items: center;
+    margin-inline-start: 4px;
+    color: var(--nbd-color-danger);
+}
+.spbwc-nav-alert .dashicons {
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
+    animation: spbwc-nav-alert-pulse 1.6s ease-in-out infinite;
+}
+@keyframes spbwc-nav-alert-pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50%      { opacity: 0.5; transform: scale(1.18); }
+}
+
 /* --flat: strip card chrome — use inside an existing container (e.g. settings page) */
 .spbwc-block--flat,
 .spbwc-block--flat:hover {
