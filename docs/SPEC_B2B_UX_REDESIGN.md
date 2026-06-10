@@ -143,6 +143,30 @@ Everything else = reuse. Net: `b2b-admin.css` shrinks to the brand-hero override
 >   overridden with a higher-specificity reset (appearance/border/shadow/radius +
 >   native search-affordance removal) in `storelly-admin-ui.css`, so every
 >   `.spbwc-search-bar` is clean.
+>
+> **Flow pass (2026-06-10):**
+> - **Input token fix (root cause of off-look fields):** WordPress core's global
+>   `input[type=text|number]`, `select`, `textarea` rules (0,0,1,1) outranked the
+>   bare `.spbwc-input` class (0,0,1,0) and re-imposed default WP-admin borders /
+>   inset shadows / radii. Re-asserted the token look with an element-qualified
+>   selector (`input.spbwc-input, select.spbwc-input, textarea.spbwc-input`) in
+>   `storelly-admin-ui.css` — fixes every admin field plugin-wide. Plus: native
+>   file inputs in the Brand Store uploads are styled (`::file-selector-button`),
+>   and B2B `<select>`s get a consistent custom chevron.
+> - **Activation checklist (A2):** a "Account setup · N of 5 done" card below the
+>   detail KPIs walks the merchant through profile → tier → team → credit → first
+>   priced product, each deep-linked to its tab; it hides itself once all five are
+>   done. `render_activation_checklist()`.
+> - **Product autocomplete (B2):** the per-company pricing bind form no longer
+>   asks for a raw Product ID — it has an AJAX product search
+>   (`wp_ajax_spbwc_b2b_search_products`) with thumbnail + name + SKU + base price,
+>   a hidden `product_id`, and a submit guard. Closes the §3 "product autocomplete"
+>   debt.
+> - **Hub control-center (D4):** the four stat cards are now click-to-filter links
+>   (active card ringed); the table gains an **Outstanding** column (amount +
+>   usage meter vs credit limit) and **sortable** Company / Team / Outstanding
+>   headers (computed fields → sorted in PHP). Rows already premium from the prior
+>   pass.
 
 **Route:** `…-b2b-companies&company=<id>`
 **Now:** my new gradient hero + 3 stat tiles are OK, but below it's one long scroll of `.form-table` (settings) + `.widefat` (members) + an **ugly inline bind-row** (Product ID | %off | Value | Min qty | date | button jammed together). No structure.

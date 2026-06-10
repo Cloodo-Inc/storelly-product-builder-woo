@@ -41,6 +41,40 @@ if ( ! class_exists( 'SPBWC_B2B_Admin' ) ) {
             add_action( 'wp_ajax_spbwc_b2b_search_customers', array( $this, 'ajax_search_customers' ) );
             add_action( 'wp_ajax_spbwc_b2b_credit_txn', array( $this, 'ajax_credit_txn' ) );
             add_action( 'wp_ajax_spbwc_b2b_save_profile', array( $this, 'ajax_save_profile' ) );
+            add_action( 'wp_ajax_spbwc_b2b_search_products', array( $this, 'ajax_search_products' ) );
+        }
+
+        /**
+         * AJAX: search WooCommerce products for the per-company pricing picker,
+         * returning id + name + SKU + formatted base price + thumbnail.
+         */
+        public function ajax_search_products() {
+            check_ajax_referer( 'spbwc_b2b_picker', 'nonce' );
+            if ( ! current_user_can( self::CAPABILITY ) ) {
+                wp_send_json_error( array( 'message' => esc_html__( 'Permission denied.', 'storelly-product-builder-for-woocommerce' ) ), 403 );
+            }
+            $term = isset( $_POST['term'] ) ? sanitize_text_field( wp_unslash( $_POST['term'] ) ) : '';
+            if ( '' === $term || ! function_exists( 'wc_get_products' ) ) {
+                wp_send_json_success( array( 'results' => array() ) );
+            }
+            $products = wc_get_products( array(
+                'status'   => 'publish',
+                'limit'    => 12,
+                's'        => $term,
+                'orderby'  => 'relevance',
+            ) );
+            $out = array();
+            foreach ( $products as $p ) {
+                $thumb_id = $p->get_image_id();
+                $out[] = array(
+                    'id'    => $p->get_id(),
+                    'name'  => $p->get_name(),
+                    'sku'   => $p->get_sku(),
+                    'price' => wc_price( (float) $p->get_price() ),
+                    'thumb' => $thumb_id ? wp_get_attachment_image_url( $thumb_id, 'thumbnail' ) : '',
+                );
+            }
+            wp_send_json_success( array( 'results' => $out ) );
         }
 
         /**
@@ -750,20 +784,22 @@ if ( ! class_exists( 'SPBWC_B2B_Admin' ) ) {
                 $actions
             );
 
-            // KPI stat cards.
+            // KPI stat cards — each one filters the list to its status.
             $cards = array(
-                array( 'icon' => 'groups',   'tone' => 'brand',   'value' => self::count_all(), 'label' => __( 'Total companies', 'storelly-product-builder-for-woocommerce' ) ),
-                array( 'icon' => 'yes-alt',  'tone' => 'success', 'value' => self::count_by_status( SPBWC_Company::STATUS_ACTIVE ), 'label' => __( 'Active', 'storelly-product-builder-for-woocommerce' ) ),
-                array( 'icon' => 'clock',    'tone' => 'warning', 'value' => self::count_by_status( SPBWC_Company::STATUS_PENDING ), 'label' => __( 'Pending approval', 'storelly-product-builder-for-woocommerce' ) ),
-                array( 'icon' => 'admin-users', 'tone' => 'accent', 'value' => self::count_by_status( SPBWC_Company::STATUS_INCOMPLETE ), 'label' => __( 'Incomplete profile', 'storelly-product-builder-for-woocommerce' ) ),
+                array( 'icon' => 'groups',      'tone' => 'brand',   'filter' => 'all',                             'value' => self::count_all(), 'label' => __( 'Total companies', 'storelly-product-builder-for-woocommerce' ) ),
+                array( 'icon' => 'yes-alt',     'tone' => 'success', 'filter' => SPBWC_Company::STATUS_ACTIVE,       'value' => self::count_by_status( SPBWC_Company::STATUS_ACTIVE ), 'label' => __( 'Active', 'storelly-product-builder-for-woocommerce' ) ),
+                array( 'icon' => 'clock',       'tone' => 'warning', 'filter' => SPBWC_Company::STATUS_PENDING,      'value' => self::count_by_status( SPBWC_Company::STATUS_PENDING ), 'label' => __( 'Pending approval', 'storelly-product-builder-for-woocommerce' ) ),
+                array( 'icon' => 'admin-users', 'tone' => 'accent',  'filter' => SPBWC_Company::STATUS_INCOMPLETE,   'value' => self::count_by_status( SPBWC_Company::STATUS_INCOMPLETE ), 'label' => __( 'Incomplete profile', 'storelly-product-builder-for-woocommerce' ) ),
             );
             echo '<div class="spbwc-stat-grid">';
             foreach ( $cards as $c ) {
-                echo '<div class="spbwc-stat-card spbwc-stat-card--' . esc_attr( $c['tone'] ) . '">';
+                $curl = self::page_url( 'all' === $c['filter'] ? array() : array( 'status' => $c['filter'] ) );
+                $on   = ( $tab === $c['filter'] );
+                echo '<a class="spbwc-stat-card spbwc-stat-card--' . esc_attr( $c['tone'] ) . ( $on ? ' is-active' : '' ) . '" href="' . esc_url( $curl ) . '">';
                 echo '<span class="spbwc-stat-card__icon dashicons dashicons-' . esc_attr( $c['icon'] ) . '" aria-hidden="true"></span>';
                 echo '<span class="spbwc-stat-card__label">' . esc_html( $c['label'] ) . '</span>';
                 echo '<span class="spbwc-stat-card__value">' . esc_html( number_format_i18n( $c['value'] ) ) . '</span>';
-                echo '</div>';
+                echo '</a>';
             }
             echo '</div>';
 
@@ -794,6 +830,14 @@ if ( ! class_exists( 'SPBWC_B2B_Admin' ) ) {
             echo '</form>';
             echo '</div>';
 
+            // phpcs:disable WordPress.Security.NonceVerification.Recommended -- Read-only sort args.
+            $orderby = isset( $_GET['orderby'] ) ? sanitize_key( wp_unslash( $_GET['orderby'] ) ) : 'date';
+            $order   = ( isset( $_GET['order'] ) && 'asc' === strtolower( sanitize_key( wp_unslash( $_GET['order'] ) ) ) ) ? 'asc' : 'desc';
+            // phpcs:enable WordPress.Security.NonceVerification.Recommended
+            if ( ! in_array( $orderby, array( 'date', 'title', 'team', 'credit' ), true ) ) {
+                $orderby = 'date';
+            }
+
             $args = array(
                 'post_type'   => SPBWC_Company::POST_TYPE,
                 'post_status' => 'publish',
@@ -810,7 +854,46 @@ if ( ! class_exists( 'SPBWC_B2B_Admin' ) ) {
             }
             $companies = get_posts( $args );
 
-            if ( empty( $companies ) ) {
+            // Augment with the data we render + sort on (finance is computed, so we
+            // collect everything then sort in PHP rather than in the SQL query).
+            $rows = array();
+            foreach ( $companies as $company ) {
+                $outstanding = class_exists( 'SPBWC_B2B_Ledger' ) ? (float) SPBWC_B2B_Ledger::get_outstanding( $company->ID ) : 0;
+                $limit       = class_exists( 'SPBWC_B2B_Credit' ) ? (float) SPBWC_B2B_Credit::credit_limit( $company->ID ) : (float) get_post_meta( $company->ID, SPBWC_Company::META_CREDIT_LIMIT, true );
+                $rows[] = array(
+                    'company'     => $company,
+                    'owner'       => get_userdata( $company->post_author ),
+                    'status'      => SPBWC_Company::get_status( $company->ID ),
+                    'members'     => SPBWC_Company::count_members( $company->ID ),
+                    'seats'       => SPBWC_Company::get_seats( $company->ID ),
+                    'store'       => SPBWC_Company::store_url( $company->ID ),
+                    'logo_id'     => (int) get_post_meta( $company->ID, SPBWC_Company::META_LOGO, true ),
+                    'tier'        => (string) get_post_meta( $company->ID, SPBWC_Company::META_TIER, true ),
+                    'outstanding' => $outstanding,
+                    'limit'       => $limit,
+                    'date'        => get_post_time( 'U', true, $company ),
+                    'title'       => get_the_title( $company ),
+                );
+            }
+            if ( ! empty( $rows ) ) {
+                usort( $rows, function ( $a, $b ) use ( $orderby ) {
+                    switch ( $orderby ) {
+                        case 'title':
+                            return strcasecmp( (string) $a['title'], (string) $b['title'] );
+                        case 'team':
+                            return $a['members'] <=> $b['members'];
+                        case 'credit':
+                            return $a['outstanding'] <=> $b['outstanding'];
+                        default:
+                            return $a['date'] <=> $b['date'];
+                    }
+                } );
+                if ( 'desc' === $order ) {
+                    $rows = array_reverse( $rows );
+                }
+            }
+
+            if ( empty( $rows ) ) {
                 $msg = '' !== $search
                     ? __( 'No companies match your search.', 'storelly-product-builder-for-woocommerce' )
                     : __( 'Upgrade a customer to create their first company account.', 'storelly-product-builder-for-woocommerce' );
@@ -823,46 +906,70 @@ if ( ! class_exists( 'SPBWC_B2B_Admin' ) ) {
                 return;
             }
 
+            // Sortable column header → toggles asc/desc and keeps the active filter.
+            $sort_th = function ( $key, $label ) use ( $tab, $search, $orderby, $order ) {
+                $next  = ( $orderby === $key && 'asc' === $order ) ? 'desc' : 'asc';
+                $qargs = array( 'orderby' => $key, 'order' => $next );
+                if ( 'all' !== $tab ) {
+                    $qargs['status'] = $tab;
+                }
+                if ( '' !== $search ) {
+                    $qargs['s'] = $search;
+                }
+                $arrow = ( $orderby === $key ) ? ( 'asc' === $order ? ' ▲' : ' ▼' ) : '';
+                return '<th><a class="spbwc-sort' . ( $orderby === $key ? ' is-active' : '' ) . '" href="' . esc_url( self::page_url( $qargs ) ) . '">'
+                    . esc_html( $label ) . esc_html( $arrow ) . '</a></th>';
+            };
+
             echo '<table class="spbwc-admin-table"><thead><tr>';
-            echo '<th>' . esc_html__( 'Company', 'storelly-product-builder-for-woocommerce' ) . '</th>';
+            echo $sort_th( 'title', __( 'Company', 'storelly-product-builder-for-woocommerce' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- built from escaped parts.
             echo '<th>' . esc_html__( 'Owner', 'storelly-product-builder-for-woocommerce' ) . '</th>';
             echo '<th>' . esc_html__( 'Tier', 'storelly-product-builder-for-woocommerce' ) . '</th>';
-            echo '<th>' . esc_html__( 'Team', 'storelly-product-builder-for-woocommerce' ) . '</th>';
+            echo $sort_th( 'team', __( 'Team', 'storelly-product-builder-for-woocommerce' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- built from escaped parts.
+            echo $sort_th( 'credit', __( 'Outstanding', 'storelly-product-builder-for-woocommerce' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- built from escaped parts.
             echo '<th>' . esc_html__( 'Status', 'storelly-product-builder-for-woocommerce' ) . '</th>';
             echo '<th></th></tr></thead><tbody>';
 
-            foreach ( $companies as $company ) {
-                $owner   = get_userdata( $company->post_author );
-                $status  = SPBWC_Company::get_status( $company->ID );
-                $members = SPBWC_Company::count_members( $company->ID );
-                $seats   = SPBWC_Company::get_seats( $company->ID );
-                $store   = SPBWC_Company::store_url( $company->ID );
-                $logo_id = (int) get_post_meta( $company->ID, SPBWC_Company::META_LOGO, true );
-                $tier    = (string) get_post_meta( $company->ID, SPBWC_Company::META_TIER, true );
+            foreach ( $rows as $r ) {
+                $company = $r['company'];
                 $detail  = self::page_url( array( 'company' => $company->ID ) );
 
                 echo '<tr class="spbwc-row-link" data-href="' . esc_url( $detail ) . '">';
-                // Company (logo + name + slug).
+                // Company (logo + name).
                 echo '<td><span class="spbwc-row spbwc-row--sm">';
-                if ( $logo_id ) {
-                    echo '<span class="spbwc-avatar">' . wp_get_attachment_image( $logo_id, array( 32, 32 ) ) . '</span>';
+                if ( $r['logo_id'] ) {
+                    echo '<span class="spbwc-avatar">' . wp_get_attachment_image( $r['logo_id'], array( 32, 32 ) ) . '</span>';
                 } else {
                     echo '<span class="spbwc-avatar"><span class="dashicons dashicons-store" aria-hidden="true"></span></span>';
                 }
-                echo '<a href="' . esc_url( $detail ) . '"><strong>' . esc_html( get_the_title( $company ) ) . '</strong></a></span></td>';
+                echo '<a href="' . esc_url( $detail ) . '"><strong>' . esc_html( $r['title'] ) . '</strong></a></span></td>';
                 // Owner.
-                echo '<td><span class="spbwc-row spbwc-row--sm">' . self::avatar( $owner, 'spbwc-avatar--sm' ) // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- avatar escapes.
-                    . '<span>' . esc_html( $owner ? $owner->user_email : '—' ) . '</span></span></td>';
+                echo '<td><span class="spbwc-row spbwc-row--sm">' . self::avatar( $r['owner'], 'spbwc-avatar--sm' ) // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- avatar escapes.
+                    . '<span>' . esc_html( $r['owner'] ? $r['owner']->user_email : '—' ) . '</span></span></td>';
                 // Tier.
-                echo '<td>' . ( '' !== $tier && class_exists( 'SPBWC_B2B_Pricing' ) ? '<span class="spbwc-role-chip spbwc-role-chip--admin">' . esc_html( SPBWC_B2B_Pricing::tier_label( $tier ) ) . '</span>' : '<span class="spbwc-role-chip spbwc-role-chip--viewer">' . esc_html__( 'No tier', 'storelly-product-builder-for-woocommerce' ) . '</span>' ) . '</td>';
+                echo '<td>' . ( '' !== $r['tier'] && class_exists( 'SPBWC_B2B_Pricing' ) ? '<span class="spbwc-role-chip spbwc-role-chip--admin">' . esc_html( SPBWC_B2B_Pricing::tier_label( $r['tier'] ) ) . '</span>' : '<span class="spbwc-role-chip spbwc-role-chip--viewer">' . esc_html__( 'No tier', 'storelly-product-builder-for-woocommerce' ) . '</span>' ) . '</td>';
                 // Team meter.
-                echo '<td><span class="spbwc-stack"><span>' . esc_html( $members . ' / ' . $seats ) . '</span>' . self::meter( $members, $seats ) . '</span></td>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- meter escapes.
+                echo '<td><span class="spbwc-stack"><span>' . esc_html( $r['members'] . ' / ' . $r['seats'] ) . '</span>' . self::meter( $r['members'], $r['seats'] ) . '</span></td>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- meter escapes.
+                // Outstanding / credit.
+                echo '<td>';
+                if ( $r['outstanding'] > 0 ) {
+                    echo '<span class="spbwc-stack"><span class="spbwc-owe">' . wp_kses_post( wc_price( $r['outstanding'] ) ) . '</span>';
+                    if ( $r['limit'] > 0 ) {
+                        echo self::meter( $r['outstanding'], $r['limit'] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- meter escapes.
+                    }
+                    echo '</span>';
+                } elseif ( $r['limit'] > 0 ) {
+                    echo '<span class="spbwc-muted-sm">' . esc_html__( 'Up to date', 'storelly-product-builder-for-woocommerce' ) . '</span>';
+                } else {
+                    echo '<span class="spbwc-muted">—</span>';
+                }
+                echo '</td>';
                 // Status.
-                echo '<td>' . self::status_pill( $status ) . '</td>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- pill escapes.
+                echo '<td>' . self::status_pill( $r['status'] ) . '</td>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- pill escapes.
                 // Actions.
                 echo '<td class="spbwc-stack--end" style="white-space:nowrap;"><a class="spbwc-cta-btn spbwc-cta-btn--sm" href="' . esc_url( $detail ) . '">' . esc_html__( 'Manage', 'storelly-product-builder-for-woocommerce' ) . '</a>';
-                if ( '' !== $store ) {
-                    echo ' <a class="spbwc-cta-btn spbwc-cta-btn--sm spbwc-cta-btn--ghost" href="' . esc_url( $store ) . '" target="_blank" rel="noopener">' . esc_html__( 'Store ↗', 'storelly-product-builder-for-woocommerce' ) . '</a>';
+                if ( '' !== $r['store'] ) {
+                    echo ' <a class="spbwc-cta-btn spbwc-cta-btn--sm spbwc-cta-btn--ghost" href="' . esc_url( $r['store'] ) . '" target="_blank" rel="noopener">' . esc_html__( 'Store ↗', 'storelly-product-builder-for-woocommerce' ) . '</a>';
                 }
                 echo '</td></tr>';
             }
@@ -1026,6 +1133,10 @@ if ( ! class_exists( 'SPBWC_B2B_Admin' ) ) {
             }
             echo '</div>';
 
+            // Activation checklist — guides the merchant through the steps that make
+            // a B2B account fully usable. Disappears once everything is configured.
+            $this->render_activation_checklist( $company_id, count( $members ), count( $rules ), $tier );
+
             // Tabs. Every panel is rendered server-side; static/js/b2b-admin.js
             // shows the active one and switches instantly on click — no reload.
             // Without JS the CSS leaves all panels visible (graceful fallback).
@@ -1088,6 +1199,86 @@ if ( ! class_exists( 'SPBWC_B2B_Admin' ) ) {
                 echo '</div>';
             }
             echo '</div>';
+        }
+
+        /**
+         * Activation checklist — surfaces the steps that make a B2B account fully
+         * usable (profile, tier, team, credit, pricing) and deep-links each one to
+         * its tab. Hides itself once every step is done.
+         *
+         * @param int    $company_id   Company.
+         * @param int    $member_count Team member count.
+         * @param int    $rule_count   Bound price-rule count.
+         * @param string $tier         Current tier slug.
+         */
+        protected function render_activation_checklist( $company_id, $member_count, $rule_count, $tier ) {
+            $terms  = (string) get_post_meta( $company_id, SPBWC_Company::META_PAYMENT_TERMS, true );
+            $climit = (float) get_post_meta( $company_id, SPBWC_Company::META_CREDIT_LIMIT, true );
+            $base   = self::page_url( array( 'company' => $company_id ) );
+
+            $steps = array(
+                array(
+                    'done'  => SPBWC_Company::profile_is_complete( $company_id ),
+                    'label' => __( 'Complete the company profile', 'storelly-product-builder-for-woocommerce' ),
+                    'hint'  => __( 'Logo + legal company name.', 'storelly-product-builder-for-woocommerce' ),
+                    'tab'   => 'profile',
+                ),
+                array(
+                    'done'  => '' !== $tier,
+                    'label' => __( 'Assign a pricing tier', 'storelly-product-builder-for-woocommerce' ),
+                    'hint'  => __( 'Sets the baseline discount for this company.', 'storelly-product-builder-for-woocommerce' ),
+                    'tab'   => 'overview',
+                ),
+                array(
+                    'done'  => $member_count > 1,
+                    'label' => __( 'Invite the buying team', 'storelly-product-builder-for-woocommerce' ),
+                    'hint'  => __( 'The owner adds members from My Account.', 'storelly-product-builder-for-woocommerce' ),
+                    'tab'   => 'members',
+                ),
+                array(
+                    'done'  => ( $climit > 0 || ( '' !== $terms && 'prepaid' !== $terms ) ),
+                    'label' => __( 'Set credit & payment terms', 'storelly-product-builder-for-woocommerce' ),
+                    'hint'  => __( 'Net terms or a prepaid credit limit.', 'storelly-product-builder-for-woocommerce' ),
+                    'tab'   => 'overview',
+                ),
+                array(
+                    'done'  => $rule_count > 0,
+                    'label' => __( 'Price the first product', 'storelly-product-builder-for-woocommerce' ),
+                    'hint'  => __( 'Bind a product to this company.', 'storelly-product-builder-for-woocommerce' ),
+                    'tab'   => 'pricing',
+                ),
+            );
+            $done = 0;
+            foreach ( $steps as $s ) {
+                if ( $s['done'] ) {
+                    $done++;
+                }
+            }
+            $total = count( $steps );
+            if ( $done >= $total ) {
+                return; // Fully configured — the aid is no longer needed.
+            }
+            $pct = (int) round( $done / $total * 100 );
+            $mod = $pct >= 80 ? '' : ( $pct >= 40 ? ' spbwc-meter--warn' : ' spbwc-meter--danger' );
+
+            echo '<div class="spbwc-block spbwc-activation">';
+            echo '<div class="spbwc-block__head"><h3 class="spbwc-block__title"><span class="dashicons dashicons-yes-alt" aria-hidden="true"></span> ' . esc_html__( 'Account setup', 'storelly-product-builder-for-woocommerce' ) . '</h3>';
+            /* translators: 1: completed step count, 2: total step count. */
+            echo '<span class="spbwc-block__badge spbwc-badge--neutral">' . esc_html( sprintf( __( '%1$d of %2$d done', 'storelly-product-builder-for-woocommerce' ), $done, $total ) ) . '</span></div>';
+            echo '<div class="spbwc-block__body">';
+            echo '<span class="spbwc-meter spbwc-activation__meter' . esc_attr( $mod ) . '" role="progressbar" aria-valuenow="' . esc_attr( $pct ) . '" aria-valuemin="0" aria-valuemax="100"><span class="spbwc-meter__fill" style="width:' . esc_attr( $pct ) . '%"></span></span>';
+            echo '<ul class="spbwc-activation__list">';
+            foreach ( $steps as $s ) {
+                $url = add_query_arg( 'detail_tab', $s['tab'], $base ) . '#b2b-tab-' . $s['tab'];
+                echo '<li class="spbwc-activation__step' . ( $s['done'] ? ' is-done' : '' ) . '">';
+                echo '<span class="spbwc-activation__icon dashicons dashicons-' . ( $s['done'] ? 'yes' : 'marker' ) . '" aria-hidden="true"></span>';
+                echo '<span class="spbwc-activation__text"><span class="spbwc-activation__label">' . esc_html( $s['label'] ) . '</span><span class="spbwc-activation__hint">' . esc_html( $s['hint'] ) . '</span></span>';
+                if ( ! $s['done'] ) {
+                    echo '<a class="spbwc-cta-btn spbwc-cta-btn--ghost spbwc-cta-btn--sm" href="' . esc_url( $url ) . '">' . esc_html__( 'Set up', 'storelly-product-builder-for-woocommerce' ) . '</a>';
+                }
+                echo '</li>';
+            }
+            echo '</ul></div></div>';
         }
 
         /**
@@ -1450,7 +1641,14 @@ if ( ! class_exists( 'SPBWC_B2B_Admin' ) ) {
             // Bind form (labelled).
             echo '<form method="post" class="spbwc-b2b-bind" action="' . esc_url( self::page_url( array( 'company' => $company_id, 'detail_tab' => 'pricing' ) ) ) . '">';
             echo '<input type="hidden" name="spbwc_b2b_do" value="bind_price" /><input type="hidden" name="company" value="' . esc_attr( $company_id ) . '" /><input type="hidden" name="_spbwc_b2b_nonce" value="' . esc_attr( $nonce ) . '" />';
-            echo '<label>' . esc_html__( 'Product ID', 'storelly-product-builder-for-woocommerce' ) . '<input class="spbwc-input" type="number" name="product_id" min="1" required style="width:110px" /></label>';
+            // Product picker — AJAX search instead of typing a raw product ID.
+            echo '<label class="spbwc-prodpick js-spbwc-prodpick">' . esc_html__( 'Product', 'storelly-product-builder-for-woocommerce' );
+            echo '<span class="spbwc-prodpick__field">';
+            echo '<input type="hidden" name="product_id" class="js-spbwc-prodpick-id" required />';
+            echo '<input type="text" class="spbwc-input js-spbwc-prodpick-search" autocomplete="off" placeholder="' . esc_attr__( 'Search a product…', 'storelly-product-builder-for-woocommerce' ) . '" style="width:230px" />';
+            echo '<button type="button" class="spbwc-prodpick__clear js-spbwc-prodpick-clear" hidden aria-label="' . esc_attr__( 'Clear', 'storelly-product-builder-for-woocommerce' ) . '">&times;</button>';
+            echo '<ul class="spbwc-prodpick__results js-spbwc-prodpick-results" hidden></ul>';
+            echo '</span></label>';
             echo '<label>' . esc_html__( 'Type', 'storelly-product-builder-for-woocommerce' ) . '<select class="spbwc-input" name="override_type" style="width:120px"><option value="pct">' . esc_html__( '% off', 'storelly-product-builder-for-woocommerce' ) . '</option><option value="fixed">' . esc_html__( 'Fixed price', 'storelly-product-builder-for-woocommerce' ) . '</option></select></label>';
             echo '<label>' . esc_html__( 'Value', 'storelly-product-builder-for-woocommerce' ) . '<input class="spbwc-input" type="number" name="value" min="0" step="0.01" required style="width:110px" /></label>';
             echo '<label>' . esc_html__( 'Min qty', 'storelly-product-builder-for-woocommerce' ) . '<input class="spbwc-input" type="number" name="min_qty" min="0" style="width:90px" /></label>';

@@ -355,6 +355,31 @@
     cursor: not-allowed;
 }
 
+/* WordPress core's global `input[type="text"|"number"|…], select, textarea`
+   rules (specificity 0,0,1,1) outrank the bare `.spbwc-input` class (0,0,1,0)
+   and re-impose the default WP-admin border / inset shadow / radius, so fields
+   render off-token. Re-assert the token look with an element-qualified selector
+   (0,0,1,1, wins on source order) — the design-token fix for every admin input. */
+input.spbwc-input,
+select.spbwc-input,
+textarea.spbwc-input {
+    padding: var(--st-field-pad);
+    min-height: var(--st-btn-min-h-md, 34px);
+    background: var(--st-field-bg);
+    border: 1px solid var(--st-field-border);
+    border-radius: var(--st-field-radius);
+    font-size: var(--st-field-font);
+    line-height: var(--st-field-leading);
+    box-shadow: var(--st-field-shadow);
+}
+textarea.spbwc-input { min-height: 0; }
+input.spbwc-input:focus,
+select.spbwc-input:focus,
+textarea.spbwc-input:focus {
+    border-color: var(--st-brand);
+    box-shadow: var(--st-field-focus-shadow);
+}
+
 /* ========================================================== */
 /* License hero card                                           */
 /* Default (free): light card with brand accent.               */

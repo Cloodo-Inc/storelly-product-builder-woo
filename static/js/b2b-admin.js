@@ -375,3 +375,125 @@
 			} );
 	} );
 } )();
+
+/**
+ * Pricing & products tab — product autocomplete for the bind form.
+ *
+ * Replaces typing a raw product ID: search WooCommerce products via admin-ajax,
+ * pick one (thumb + name + SKU + base price), and the hidden product_id is set.
+ * Reuses the picker nonce. Vanilla, no dependencies.
+ */
+( function () {
+	'use strict';
+	var cfg  = window.spbwcB2BAdmin || {};
+	var pick = document.querySelector( '.js-spbwc-prodpick' );
+	if ( ! pick || ! cfg.ajaxUrl ) { return; }
+
+	var search  = pick.querySelector( '.js-spbwc-prodpick-search' );
+	var hidden  = pick.querySelector( '.js-spbwc-prodpick-id' );
+	var results = pick.querySelector( '.js-spbwc-prodpick-results' );
+	var clear   = pick.querySelector( '.js-spbwc-prodpick-clear' );
+	var i18n    = cfg.i18n || {};
+	var timer   = null;
+	var lastTerm = null;
+
+	function esc( s ) {
+		var d = document.createElement( 'div' );
+		d.textContent = s == null ? '' : String( s );
+		return d.innerHTML;
+	}
+
+	function hideResults() { results.hidden = true; results.innerHTML = ''; }
+
+	function choose( id, name ) {
+		hidden.value = id;
+		search.value = name;
+		clear.hidden = false;
+		hideResults();
+	}
+
+	function reset() {
+		hidden.value = '';
+		search.value = '';
+		clear.hidden = true;
+		lastTerm = null;
+		hideResults();
+		search.focus();
+	}
+
+	function render( list ) {
+		if ( ! list || ! list.length ) {
+			results.innerHTML = '<li class="spbwc-prodpick__empty">' + esc( ( i18n.empty ) || 'No products' ) + '</li>';
+			results.hidden = false;
+			return;
+		}
+		results.innerHTML = list.map( function ( p ) {
+			var thumb = p.thumb
+				? '<img src="' + esc( p.thumb ) + '" alt="" class="spbwc-prodpick__thumb" />'
+				: '<span class="spbwc-prodpick__thumb spbwc-prodpick__thumb--ph dashicons dashicons-format-image"></span>';
+			var sku = p.sku ? '<span class="spbwc-prodpick__sku">' + esc( p.sku ) + '</span>' : '';
+			return '<li><button type="button" class="spbwc-prodpick__item" data-id="' + esc( p.id ) + '" data-name="' + esc( p.name ) + '">' +
+				thumb +
+				'<span class="spbwc-prodpick__meta"><span class="spbwc-prodpick__name">' + esc( p.name ) + '</span>' + sku + '</span>' +
+				'<span class="spbwc-prodpick__price">' + ( p.price || '' ) + '</span>' +
+				'</button></li>';
+		} ).join( '' );
+		results.hidden = false;
+	}
+
+	function run( term ) {
+		if ( term === lastTerm ) { return; }
+		lastTerm = term;
+		var body = new URLSearchParams();
+		body.set( 'action', 'spbwc_b2b_search_products' );
+		body.set( 'nonce', cfg.nonce || '' );
+		body.set( 'term', term );
+		results.innerHTML = '<li class="spbwc-prodpick__empty">' + esc( i18n.searching || 'Searching…' ) + '</li>';
+		results.hidden = false;
+		fetch( cfg.ajaxUrl, {
+			method: 'POST',
+			credentials: 'same-origin',
+			headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+			body: body.toString()
+		} ).then( function ( r ) { return r.json(); } )
+			.then( function ( json ) { render( json && json.success && json.data ? json.data.results : [] ); } )
+			.catch( function () { render( [] ); } );
+	}
+
+	// Typing in the search box invalidates any prior selection.
+	search.addEventListener( 'input', function () {
+		hidden.value = '';
+		clear.hidden = search.value === '';
+		var term = search.value.trim();
+		window.clearTimeout( timer );
+		if ( term.length < 2 ) { lastTerm = null; hideResults(); return; }
+		timer = window.setTimeout( function () { run( term ); }, 250 );
+	} );
+
+	results.addEventListener( 'click', function ( e ) {
+		var item = e.target.closest( '.spbwc-prodpick__item' );
+		if ( ! item ) { return; }
+		choose( item.getAttribute( 'data-id' ), item.getAttribute( 'data-name' ) );
+	} );
+
+	clear.addEventListener( 'click', reset );
+
+	// Close the dropdown on outside click.
+	document.addEventListener( 'click', function ( e ) {
+		if ( ! pick.contains( e.target ) ) { hideResults(); }
+	} );
+
+	// Guard submit: hidden product_id is required but browsers ignore `required`
+	// on hidden inputs, so enforce it here.
+	var form = pick.closest( 'form' );
+	if ( form ) {
+		form.addEventListener( 'submit', function ( e ) {
+			if ( ! hidden.value ) {
+				e.preventDefault();
+				search.focus();
+				search.classList.add( 'spbwc-input--invalid' );
+				window.setTimeout( function () { search.classList.remove( 'spbwc-input--invalid' ); }, 1600 );
+			}
+		} );
+	}
+} )();

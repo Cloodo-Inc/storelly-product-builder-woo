@@ -426,6 +426,183 @@ body.spbwc-modal-open { overflow: hidden; }
 }
 .spbwc-b2b-colour__field code { font-size: var(--text-sm); color: var(--nbd-st-text); }
 
+/* Style the raw native "Choose file" control inside the upload zones. */
+.spbwc-b2b-upload input[type="file"] {
+    font-size: var(--text-sm);
+    color: var(--nbd-st-text-soft);
+    max-width: 100%;
+}
+.spbwc-b2b-upload input[type="file"]::file-selector-button {
+    margin-inline-end: 8px;
+    padding: 5px 12px;
+    border: 1px solid var(--st-brand-soft);
+    border-radius: var(--nbd-radius-md);
+    background: var(--nbd-st-bg);
+    color: var(--st-brand);
+    font-weight: var(--font-semibold);
+    font-size: var(--text-sm);
+    cursor: pointer;
+    transition: background .12s ease, border-color .12s ease;
+}
+.spbwc-b2b-upload input[type="file"]::file-selector-button:hover {
+    background: var(--st-brand-soft);
+    border-color: var(--st-brand);
+}
+
+/* Consistent custom chevron on B2B selects (native arrow varies per browser). */
+.spbwc-b2b-admin select.spbwc-input {
+    -webkit-appearance: none;
+    appearance: none;
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M2 2.5l4 4 4-4' stroke='%23667085' stroke-width='1.6' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 11px center;
+    padding-inline-end: 30px;
+}
+
+/* ── Activation checklist (company detail) ───────────────────── */
+.spbwc-activation { margin-bottom: var(--nbd-space-5); }
+.spbwc-activation__meter {
+    max-width: none;
+    height: 8px;
+    margin-bottom: var(--nbd-space-4);
+}
+.spbwc-activation__list { list-style: none; margin: 0; padding: 0; }
+.spbwc-activation__step {
+    display: flex;
+    align-items: center;
+    gap: var(--nbd-space-3);
+    padding: var(--nbd-space-3) 0;
+}
+.spbwc-activation__step + .spbwc-activation__step { border-top: 1px solid var(--nbd-st-border-subtle); }
+.spbwc-activation__icon {
+    width: 26px;
+    height: 26px;
+    font-size: 18px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--nbd-radius-pill);
+    flex: 0 0 auto;
+    background: var(--nbd-st-bg-soft);
+    color: var(--nbd-st-text-mute);
+}
+.spbwc-activation__step.is-done .spbwc-activation__icon {
+    background: var(--st-pill-active-bg);
+    color: var(--st-pill-active-text);
+}
+.spbwc-activation__text { display: flex; flex-direction: column; flex: 1; min-width: 0; }
+.spbwc-activation__label { font-weight: var(--font-semibold); color: var(--nbd-st-text); }
+.spbwc-activation__step.is-done .spbwc-activation__label {
+    color: var(--nbd-st-text-soft);
+    text-decoration: line-through;
+}
+.spbwc-activation__hint { font-size: var(--text-sm); color: var(--nbd-st-text-mute); }
+
+/* ── Pricing tab: product autocomplete picker ────────────────── */
+.spbwc-prodpick__field { position: relative; display: inline-flex; align-items: center; }
+.spbwc-prodpick__clear {
+    position: absolute;
+    inset-inline-end: 6px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 20px;
+    height: 20px;
+    border: 0;
+    border-radius: var(--nbd-radius-pill);
+    background: var(--nbd-st-bg-soft);
+    color: var(--nbd-st-text-mute);
+    font-size: 15px;
+    line-height: 1;
+    cursor: pointer;
+}
+.spbwc-prodpick__clear:hover { color: var(--nbd-color-danger); background: var(--st-pill-danger-bg); }
+.spbwc-prodpick__results {
+    position: absolute;
+    top: calc(100% + 4px);
+    inset-inline-start: 0;
+    z-index: 50;
+    width: 320px;
+    max-height: 320px;
+    overflow-y: auto;
+    margin: 0;
+    padding: 4px;
+    list-style: none;
+    background: var(--nbd-st-bg);
+    border: 1px solid var(--nbd-st-border-light);
+    border-radius: var(--nbd-radius-md);
+    box-shadow: var(--shadow-lg);
+}
+.spbwc-prodpick__results li { margin: 0; }
+.spbwc-prodpick__item {
+    display: flex;
+    align-items: center;
+    gap: var(--nbd-space-3);
+    width: 100%;
+    padding: var(--nbd-space-2);
+    border: 0;
+    border-radius: var(--nbd-radius-sm);
+    background: none;
+    text-align: start;
+    cursor: pointer;
+}
+.spbwc-prodpick__item:hover { background: var(--st-brand-soft); }
+.spbwc-prodpick__thumb {
+    width: 36px;
+    height: 36px;
+    flex: 0 0 auto;
+    border-radius: var(--nbd-radius-sm);
+    object-fit: cover;
+    background: var(--nbd-st-bg-soft);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--nbd-st-text-mute);
+}
+.spbwc-prodpick__thumb--ph { font-size: 18px; }
+.spbwc-prodpick__meta { display: flex; flex-direction: column; flex: 1; min-width: 0; }
+.spbwc-prodpick__name {
+    font-weight: var(--font-semibold);
+    color: var(--nbd-st-text);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.spbwc-prodpick__sku { font-size: var(--text-xs); color: var(--nbd-st-text-mute); }
+.spbwc-prodpick__price { font-weight: var(--font-bold); color: var(--st-brand-pressed); white-space: nowrap; }
+.spbwc-prodpick__empty { padding: var(--nbd-space-3); color: var(--nbd-st-text-mute); text-align: center; font-size: var(--text-sm); }
+/* Invalid flash when submitting with no product chosen. */
+.spbwc-input--invalid {
+    border-color: var(--nbd-color-danger) !important;
+    box-shadow: 0 0 0 3px var(--st-pill-danger-bg) !important;
+}
+
+/* ── Hub: clickable stat cards (filter) + sortable headers ───── */
+.spbwc-b2b-admin a.spbwc-stat-card {
+    text-decoration: none;
+    cursor: pointer;
+    transition: transform .12s ease, box-shadow .12s ease;
+}
+.spbwc-b2b-admin a.spbwc-stat-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+}
+.spbwc-b2b-admin a.spbwc-stat-card.is-active {
+    box-shadow: 0 0 0 2px var(--st-brand);
+}
+.spbwc-sort {
+    color: inherit;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+    cursor: pointer;
+}
+.spbwc-sort:hover,
+.spbwc-sort.is-active { color: var(--st-brand); }
+/* Outstanding balance in the hub table. */
+.spbwc-owe { font-weight: var(--font-bold); color: var(--st-pill-pending-text); }
+.spbwc-owe .woocommerce-Price-amount { font-weight: var(--font-bold); }
+
 /* ── Account-credit tab: AJAX feedback + new-row flash ───────── */
 .spbwc-credit-feedback {
     flex-basis: 100%;
