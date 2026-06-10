@@ -183,15 +183,27 @@ Giữ mockup inline cho phản hồi tức thì khi build, NHƯNG bản **author
 5. **Smoke**: thêm case 5 (`draft` → 200 + descriptor flattened + catalog bypassed) vào
    `tools/smoke-template-preview-render.php` (5/5 pass).
 
-### Còn lại (M2+, chưa làm)
-- Template Library (`views/templates/library.php`) đã WYSIWYG sẵn; chuẩn hóa khung/skeleton/fallback
-  CHUNG giữa Library và edit-option modal (aspect/max-width/skeleton token hóa thống nhất).
-- Debounce reload mockup→iframe khi đang mở modal: hiện có (base-price `ng-change` debounce 450ms);
-  có thể mở rộng auto-refresh khi field thay đổi.
-- Gỡ dần `views/options/preview.php` (legacy, chỉ còn nút "Create Pre builder").
+### M2 — đã ship (cùng đợt, 2026-06-10)
+1. **Auto-refresh live khi sửa field**: modal mở → `$scope.$watch(angular.toJson(options))` debounce 600ms
+   re-render iframe (không chỉ base price). Refresh giữ frame cũ + dim (`is-updating`) thay vì veil trắng,
+   đúng pattern "Updating…" của Library. Watch deregister khi đóng modal.
+2. **Skeleton + trạng thái thống nhất**: lần mở đầu hiện **skeleton shimmer** (title/options grid/CTA);
+   refresh dùng pill "Updating…" góc trên; error state riêng. Khung dùng CHUNG `render_document()`
+   (stage max-width 760px) nên Library ↔ modal nhất quán; framing token hóa (`--shadow-*`, `--nbd-radius-*`),
+   pill dùng logical properties (RTL-safe).
+3. **Gỡ legacy `views/options/preview.php`**: là widget "Create Pre builder" ẩn trùng (CTA "Pre-builder"
+   thật đã ở savebar). Xoá file + `include_once`. CSS `.frontend-prview` thành dead (để dọn sau).
 
-### Files (M1)
-`includes/templates/class-template-preview-render.php` (draft mode), `includes/class-admin-options.php`
-(`spbwc_preview_iframe_data()` + localize), `views/options/edit-option.php` (button + modal),
-`static/js/admin-options.js` (open/close/listener), `static/css/admin-options-v2.css` (modal + affordance),
-`tools/smoke-template-preview-render.php` (case 5).
+### Còn lại (M3+)
+- POT regen: string "Updating…" mới + gỡ "Create Pre builder" (chạy ở release gate).
+- Dọn CSS `.frontend-prview` chết trong admin-options(.css/-rtl/-v2/-v2-rtl).
+- (tùy chọn) viewport switcher desktop/tablet/mobile trong modal như Library.
+
+### Files
+M1: `includes/templates/class-template-preview-render.php` (draft mode),
+`includes/class-admin-options.php` (`spbwc_preview_iframe_data()` + localize),
+`views/options/edit-option.php` (button + modal), `static/js/admin-options.js`,
+`static/css/admin-options-v2.css`, `tools/smoke-template-preview-render.php` (case 5).
+M2: `static/js/admin-options.js` (watch/refresh/is-updating), `views/options/edit-option.php`
+(skeleton + updating pill, gỡ preview.php include), `static/css/admin-options-v2.css`
+(skeleton/shimmer/updating), xoá `views/options/preview.php`.

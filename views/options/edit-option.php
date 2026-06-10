@@ -840,13 +840,29 @@ $field_count   = isset($options['fields']) && is_array($options['fields']) ? cou
                             </div>
                         </header>
                         <div class="v2-sfprev__body">
-                            <div class="v2-sfprev__state v2-sfprev__state--loading">
-                                <span class="spinner is-active" aria-hidden="true"></span>
-                                <?php esc_html_e('Rendering storefront…', 'storelly-product-builder-for-woocommerce'); ?>
+                            <!-- First-load skeleton (shown while .is-loading). Shimmer
+                                 stand-ins for the product title, options and CTA so the
+                                 frame never flashes empty before the storefront paints. -->
+                            <div class="v2-sfprev__state v2-sfprev__state--loading" aria-hidden="true">
+                                <div class="v2-sfprev__skeleton">
+                                    <span class="v2-sfprev__sk-bar v2-sfprev__sk-bar--title"></span>
+                                    <span class="v2-sfprev__sk-bar v2-sfprev__sk-bar--wide"></span>
+                                    <span class="v2-sfprev__sk-grid">
+                                        <span></span><span></span><span></span><span></span>
+                                    </span>
+                                    <span class="v2-sfprev__sk-bar"></span>
+                                    <span class="v2-sfprev__sk-bar v2-sfprev__sk-bar--cta"></span>
+                                </div>
                             </div>
                             <div class="v2-sfprev__state v2-sfprev__state--error">
                                 <span class="dashicons dashicons-warning" aria-hidden="true"></span>
                                 <?php esc_html_e('Couldn’t load the storefront preview.', 'storelly-product-builder-for-woocommerce'); ?>
+                            </div>
+                            <!-- Non-blocking "Updating…" pill: shown on .is-updating while a
+                                 live edit re-renders, keeping the prior frame visible. -->
+                            <div class="v2-sfprev__updating" aria-hidden="true">
+                                <span class="spinner is-active"></span>
+                                <?php esc_html_e('Updating…', 'storelly-product-builder-for-woocommerce'); ?>
                             </div>
                             <!-- Posts the live option JSON into the iframe below. The
                                  endpoint URL (with nonce) is set by JS from the
@@ -1233,8 +1249,6 @@ $field_count   = isset($options['fields']) && is_array($options['fields']) ? cou
                 </div>
             </div>
         </form>
-
-        <?php include_once('preview.php'); // legacy widget — hidden via CSS, kept for backward compat ?>
     </div>
 </div>
 <div class="nbp-loading-wrap">

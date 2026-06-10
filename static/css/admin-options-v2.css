@@ -5194,6 +5194,67 @@ body.spbwc-sf-preview-lock { overflow: hidden; }
 .v2-sfprev.is-loading .v2-sfprev__state--loading { display: flex; }
 .v2-sfprev.is-error .v2-sfprev__state--error { display: flex; }
 
+/* First-load skeleton — shimmer stand-ins centred in the frame. */
+.v2-sfprev__skeleton {
+    width: min(560px, 86%);
+    display: flex;
+    flex-direction: column;
+    gap: var(--nbd-space-3);
+}
+.v2-sfprev__sk-bar,
+.v2-sfprev__sk-grid > span {
+    height: 16px;
+    border-radius: var(--nbd-radius-sm);
+    background: linear-gradient(
+        90deg,
+        var(--nbd-st-border-light) 25%,
+        var(--nbd-st-bg) 37%,
+        var(--nbd-st-border-light) 63%
+    );
+    background-size: 400% 100%;
+    animation: spbwc-sf-shimmer 1.4s ease infinite;
+}
+.v2-sfprev__sk-bar--title { height: 26px; width: 55%; }
+.v2-sfprev__sk-bar--wide { width: 100%; }
+.v2-sfprev__sk-bar { width: 80%; }
+.v2-sfprev__sk-bar--cta { height: 44px; width: 200px; border-radius: var(--nbd-radius-md); margin-top: var(--nbd-space-2); }
+.v2-sfprev__sk-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: var(--nbd-space-2);
+}
+.v2-sfprev__sk-grid > span { height: 52px; }
+@keyframes spbwc-sf-shimmer {
+    0% { background-position: 100% 0; }
+    100% { background-position: 0 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+    .v2-sfprev__sk-bar,
+    .v2-sfprev__sk-grid > span { animation: none; }
+}
+
+/* Live-edit refresh: keep the prior render visible but dimmed, and float a
+   small "Updating…" pill — same non-blocking pattern as the Template Library. */
+.v2-sfprev.is-updating .v2-sfprev__body iframe { opacity: 0.4; transition: opacity 0.15s ease; }
+.v2-sfprev__updating {
+    display: none;
+    position: absolute;
+    inset-block-start: var(--nbd-space-3);
+    inset-inline-end: var(--nbd-space-3);
+    z-index: 3;
+    align-items: center;
+    gap: var(--nbd-space-1);
+    padding: 6px var(--nbd-space-2);
+    border-radius: var(--nbd-radius-pill);
+    background: var(--nbd-st-bg);
+    border: 1px solid var(--nbd-st-border-light);
+    box-shadow: var(--shadow-md);
+    font-size: var(--text-sm);
+    color: var(--nbd-st-text-mute);
+}
+.v2-sfprev.is-updating .v2-sfprev__updating { display: inline-flex; }
+.v2-sfprev__updating .spinner { float: none; margin: 0; }
+
 @media (max-width: 600px) {
     .v2-sfprev__head { flex-direction: column; }
     .v2-sfprev__tools { width: 100%; justify-content: space-between; }

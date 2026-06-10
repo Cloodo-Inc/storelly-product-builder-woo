@@ -296,41 +296,78 @@ angular
       var c = _sfPreviewCfg();
       return !!(c && c.url);
     };
-    $scope.open_storefront_preview = function () {
+    // Push the live model into the iframe. isInitial=true shows the full
+    // skeleton (first open); a refresh keeps the prior render visible and just
+    // dims it (mirrors the Template Library "Updating…" pattern) so following
+    // edits never flash an empty frame. angular.toJson drops $$hashKey noise;
+    // the descriptor-shaped model is exactly what build_runtime_options()
+    // flattens on the server.
+    function _sfReload(isInitial) {
       var cfg = _sfPreviewCfg();
       if (!cfg || !cfg.url) return;
       var modal = document.getElementById("spbwc-sf-preview");
       var form = document.getElementById("spbwc-sf-preview-form");
       if (!modal || !form) return;
-      // angular.toJson drops $$hashKey noise; the descriptor-shaped model is
-      // exactly what build_runtime_options() flattens on the server.
       form.action = cfg.url;
       form.elements.draft.value = angular.toJson($scope.options);
       form.elements.base.value = _toNum($scope.preview.base_price);
-      modal.classList.add("is-open", "is-loading");
       modal.classList.remove("is-error");
-      modal.setAttribute("aria-hidden", "false");
-      document.body.classList.add("spbwc-sf-preview-lock");
+      modal.classList.add(isInitial ? "is-loading" : "is-updating");
       form.submit();
       // Fallback veil-clear in case the bridge never posts a height (e.g. an
       // error document rendered inside the iframe).
-      $timeout(function () {
-        modal.classList.remove("is-loading");
-      }, 2500);
+      if ($scope._sfVeilFallback) $timeout.cancel($scope._sfVeilFallback);
+      $scope._sfVeilFallback = $timeout(function () {
+        modal.classList.remove("is-loading", "is-updating");
+      }, 3000);
+    }
+    $scope.open_storefront_preview = function () {
+      var cfg = _sfPreviewCfg();
+      if (!cfg || !cfg.url) return;
+      var modal = document.getElementById("spbwc-sf-preview");
+      if (!modal) return;
+      modal.classList.add("is-open");
+      modal.setAttribute("aria-hidden", "false");
+      document.body.classList.add("spbwc-sf-preview-lock");
+      _sfReload(true);
+      // Live-follow edits while the modal stays open: re-render (debounced) on
+      // any change to the option model — not just the base price — so the
+      // storefront preview tracks what the merchant is building in real time.
+      if (!$scope._sfWatch) {
+        $scope._sfWatch = $scope.$watch(
+          function () {
+            return angular.toJson($scope.options);
+          },
+          function (nv, ov) {
+            if (nv === ov) return; // skip the initial fire
+            $scope.storefront_preview_refresh();
+          }
+        );
+      }
     };
-    $scope.storefront_preview_base_changed = function () {
+    $scope.storefront_preview_refresh = function () {
       var modal = document.getElementById("spbwc-sf-preview");
       if (!modal || !modal.classList.contains("is-open")) return;
-      if ($scope._sfBaseDebounce) $timeout.cancel($scope._sfBaseDebounce);
-      $scope._sfBaseDebounce = $timeout($scope.open_storefront_preview, 450);
+      if ($scope._sfRefreshDebounce) $timeout.cancel($scope._sfRefreshDebounce);
+      $scope._sfRefreshDebounce = $timeout(function () {
+        _sfReload(false);
+      }, 600);
     };
+    // The base-price field rides the same debounced refresh.
+    $scope.storefront_preview_base_changed = $scope.storefront_preview_refresh;
     $scope.close_storefront_preview = function () {
       var modal = document.getElementById("spbwc-sf-preview");
       if (modal) {
-        modal.classList.remove("is-open", "is-loading", "is-error");
+        modal.classList.remove("is-open", "is-loading", "is-updating", "is-error");
         modal.setAttribute("aria-hidden", "true");
       }
       document.body.classList.remove("spbwc-sf-preview-lock");
+      // Stop following edits + cancel any pending refresh until reopened.
+      if ($scope._sfWatch) {
+        $scope._sfWatch();
+        $scope._sfWatch = null;
+      }
+      if ($scope._sfRefreshDebounce) $timeout.cancel($scope._sfRefreshDebounce);
     };
     // One-time global listeners: the iframe (template-preview-bridge.js) posts
     // body height + running total; trust only our own origin. Escape closes.
@@ -349,7 +386,7 @@ angular
             var cap = Math.round(window.innerHeight * 0.74);
             fr.style.height = Math.min(parseInt(d.value, 10) || 0, cap) + "px";
           }
-          modal.classList.remove("is-loading");
+          modal.classList.remove("is-loading", "is-updating");
         } else if (d.type === "total") {
           var sub = modal.querySelector("[data-sf-total]");
           if (sub) sub.textContent = d.value ? "— " + d.value : "";
@@ -359,7 +396,7 @@ angular
         if (ev.key !== "Escape" && ev.keyCode !== 27) return;
         var modal = document.getElementById("spbwc-sf-preview");
         if (modal && modal.classList.contains("is-open")) {
-          modal.classList.remove("is-open", "is-loading", "is-error");
+          modal.classList.remove("is-open", "is-loading", "is-updating", "is-error");
           modal.setAttribute("aria-hidden", "true");
           document.body.classList.remove("spbwc-sf-preview-lock");
         }
