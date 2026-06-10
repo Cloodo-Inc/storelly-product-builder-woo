@@ -41,6 +41,7 @@
     border-radius: var(--st-field-radius);
     padding: var(--st-field-pad);
     min-height: 36px;
+    box-shadow: var(--st-field-shadow);
 }
 .spbwc-gi-btn {
     background: var(--gi-primary);

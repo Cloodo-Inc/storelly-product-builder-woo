@@ -670,9 +670,10 @@
 
 .spbwc-team__invite input[type="email"] {
     min-width: 240px;
-    border: 1px solid var(--nbd-mb-border-strong);
-    border-radius: var(--nbd-radius-md);
-    padding: var(--nbd-space-2) var(--nbd-space-3);
+    border: 1px solid var(--st-field-border);
+    border-radius: var(--st-field-radius);
+    padding: var(--st-field-pad);
+    box-shadow: var(--st-field-shadow);
 }
 
 /* Role chips */
@@ -718,9 +719,10 @@
 .spbwc-proc__actions textarea {
     width: 100%;
     margin-bottom: var(--nbd-space-2);
-    border: 1px solid var(--nbd-mb-border-strong);
-    border-radius: var(--nbd-radius-md);
-    padding: var(--nbd-space-2);
+    border: 1px solid var(--st-field-border);
+    border-radius: var(--st-field-radius);
+    padding: var(--st-field-pad);
+    box-shadow: var(--st-field-shadow);
 }
 
 .spbwc-proc__btns {

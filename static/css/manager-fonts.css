@@ -82,6 +82,7 @@
   color: #1d2327;
   cursor: pointer;
   appearance: auto;
+  box-shadow: var(--st-field-shadow);
   transition: border-color 0.15s;
 }
 
@@ -564,6 +565,7 @@
   background: var(--st-field-bg);
   width: 100%;
   box-sizing: border-box;
+  box-shadow: var(--st-field-shadow);
   transition: border-color 0.15s;
 }
 
