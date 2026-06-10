@@ -185,6 +185,91 @@ if ( ! class_exists( 'SPBWC_Template_Applier' ) ) {
 		}
 
 		/**
+		 * Install a bundled template as an UNATTACHED "sample" pricing option.
+		 *
+		 * Used by the Welcome Wizard: the merchant picks a few templates to explore,
+		 * and we fork each into its own option row WITHOUT binding it to any product
+		 * or category. Because the row carries no product_ids and no product points
+		 * at it via `_spbwc_option_id`, the resolver never surfaces it on the
+		 * storefront — it just appears in the Pricing Options list, ready to edit,
+		 * assign, or delete. The title is suffixed "(Sample)" and the blob carries an
+		 * `is_sample` marker so it reads unmistakably as throwaway demo data.
+		 *
+		 * Unlike apply(), there is NO conflict check and NO product mutation — there
+		 * is nothing to conflict with.
+		 *
+		 * @param string $slug Template slug (matches catalog).
+		 * @return array ['success'=>bool,'option_id'=>int,'title'=>string,'message'=>string]
+		 */
+		public function install_sample( $slug ) {
+			if ( ! current_user_can( 'spbwc_manage_product_builder' ) ) {
+				return $this->fail( __( 'Insufficient permissions.', 'storelly-product-builder-for-woocommerce' ) );
+			}
+
+			$catalog = SPBWC_Template_Catalog::instance();
+			$meta    = $catalog->get_template_meta( $slug );
+			if ( ! is_array( $meta ) ) {
+				return $this->fail( __( 'Template not found in catalog.', 'storelly-product-builder-for-woocommerce' ) );
+			}
+			$template_data = $catalog->get_template_data( $slug );
+			if ( ! is_array( $template_data ) ) {
+				return $this->fail( __( 'Template file unreadable.', 'storelly-product-builder-for-woocommerce' ) );
+			}
+
+			// Unattached: no product, no category. Stamp the shape the renderer uses.
+			$template_data['id']           = '';
+			$template_data['apply_for']    = 'p';
+			$template_data['product_ids']  = array();
+			$template_data['product_cats'] = array();
+			$template_data                 = $this->flatten_field_descriptors( $template_data );
+			// Marker so the option reads as sample/demo data anywhere it surfaces.
+			$template_data['is_sample'] = 1;
+
+			$name  = $this->derive_title( $meta );
+			/* translators: %s: template name, e.g. "Business Cards". */
+			$title = sprintf( __( '%s (Sample)', 'storelly-product-builder-for-woocommerce' ), $name );
+
+			global $wpdb; // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Core global.
+			$table = $wpdb->prefix . 'storelly_product_builder_options';
+			$now   = ( new DateTime() )->format( 'Y-m-d H:i:s' );
+			$uid   = wp_get_current_user()->ID;
+
+			$row = array(
+				'title'            => $title,
+				'published'        => 1,
+				'product_ids'      => serialize( array() ), // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.serialize_serialize -- Existing column shape uses PHP-serialized arrays.
+				'apply_for'        => 'p',
+				'product_cats'     => serialize( array() ), // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.serialize_serialize -- Existing column shape.
+				'created'          => $now,
+				'modified'         => $now,
+				'created_by'       => $uid,
+				'modified_by'      => $uid,
+				'fields'           => serialize( $template_data ), // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.serialize_serialize -- Existing column shape.
+				'builder'          => '',
+				'template_slug'    => isset( $meta['slug'] ) ? (string) $meta['slug'] : '',
+				'template_version' => isset( $meta['template_version'] ) ? (string) $meta['template_version'] : '1.0.0',
+			);
+			$formats = array( '%s', '%d', '%s', '%s', '%s', '%s', '%s', '%d', '%d', '%s', '%s', '%s', '%s' );
+
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Custom table insert; no per-product caches to flush (unattached).
+			$inserted = $wpdb->insert( $table, $row, $formats );
+			if ( false === $inserted ) {
+				return $this->fail( '' !== $wpdb->last_error ? $wpdb->last_error : __( 'Database insert failed.', 'storelly-product-builder-for-woocommerce' ) );
+			}
+			$option_id = (int) $wpdb->insert_id;
+
+			/** This action also fires for normal applies — see apply(). */
+			do_action( 'spbwc_template_applied', $option_id, $slug, $row );
+
+			return array(
+				'success'   => true,
+				'option_id' => $option_id,
+				'title'     => $title,
+				'message'   => __( 'Sample option installed.', 'storelly-product-builder-for-woocommerce' ),
+			);
+		}
+
+		/**
 		 * Collapse field-config descriptor objects to their flat value within each field's
 		 * general/appearance blocks, so the saved option matches what the renderer expects.
 		 *

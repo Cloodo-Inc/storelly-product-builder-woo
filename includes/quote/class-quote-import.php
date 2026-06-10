@@ -314,6 +314,69 @@ if ( ! class_exists( 'SPBWC_Quote_Import' ) ) {
             return $done;
         }
 
+        /** One-shot guard so the wizard auto-sync never re-fires. */
+        const OPTION_AUTOSYNC = 'spbwc_quote_autosync_done';
+
+        /**
+         * Kick a background sync of every order-based source that is available and
+         * has something to import (Welcome Wizard, step 2). Form-based sources are
+         * intentionally skipped — they need a per-form field mapping the merchant
+         * confirms by hand, so auto-running them would guess. Idempotent: a guard
+         * option makes this a one-shot, and import_one() de-dupes by source ref so
+         * even a manual re-run never imports a quote twice.
+         *
+         * Fully local — reads existing orders / form entries on this site only,
+         * never phones home. When Action Scheduler is missing we run a single
+         * inline batch per source (the rest is picked up on the next manual run).
+         *
+         * @param bool $force Skip the one-shot guard (used by tooling/tests).
+         * @return int Number of sources queued (or run inline).
+         */
+        public static function kick_auto_sync( $force = false ) {
+            if ( ! $force && get_option( self::OPTION_AUTOSYNC ) ) {
+                return 0;
+            }
+            update_option( self::OPTION_AUTOSYNC, 1, false );
+
+            $queued = 0;
+            $has_as = function_exists( 'as_enqueue_async_action' );
+            foreach ( self::adapters() as $adapter ) {
+                if ( $adapter instanceof SPBWC_Quote_Form_Adapter ) {
+                    continue; // Needs field mapping — not auto-runnable.
+                }
+                if ( ! $adapter->is_available() || (int) $adapter->count_importable() < 1 ) {
+                    continue;
+                }
+                if ( $has_as ) {
+                    as_enqueue_async_action( self::HOOK, array( $adapter->id(), '' ), 'spbwc-quote' );
+                } else {
+                    self::run_batch( $adapter->id(), '' );
+                }
+                $queued++;
+            }
+            return $queued;
+        }
+
+        /**
+         * Total importable count across every available order-based source — used
+         * by the wizard to tell the merchant how many quotes are syncing.
+         *
+         * @return int
+         */
+        public static function pending_import_count() {
+            $total = 0;
+            foreach ( self::adapters() as $adapter ) {
+                if ( $adapter instanceof SPBWC_Quote_Form_Adapter ) {
+                    continue;
+                }
+                if ( ! $adapter->is_available() ) {
+                    continue;
+                }
+                $total += (int) $adapter->count_importable();
+            }
+            return $total;
+        }
+
         /* ── Admin (renders inside the Quote Settings "Import" tab) ──── */
 
         /** URL of the Import tab on the Quote Settings screen. */

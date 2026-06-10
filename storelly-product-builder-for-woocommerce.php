@@ -54,6 +54,7 @@ define('SPBWC_PB_LICENSE_SLUG',             'storelly-product-builder-for-woocom
 define('SPBWC_PB_OVERVIEW_SLUG',            'storelly-product-builder-for-woocommerce-overview');
 define('SPBWC_PB_TEMPLATE_LIBRARY_SLUG',    'storelly-product-builder-for-woocommerce-templates');
 define('SPBWC_PB_VISUAL_BUILDER_SLUG',      'storelly-product-builder-for-woocommerce-visual-builder');
+define('SPBWC_PB_WIZARD_SLUG',              'storelly-product-builder-for-woocommerce-welcome');
 
 // Load translations (bundled .mo files from /languages, plus WP.org language packs).
 add_action( 'init', 'spbwc_load_textdomain' );
@@ -89,9 +90,11 @@ function spbwc_plugin_activation() {
     if ( class_exists( 'SPBWC_B2B_Sample' ) ) {
         SPBWC_B2B_Sample::arm();
     }
-    // Arm the bundled "bag" demo (product + Visual Builder). It auto-installs on
-    // the next admin load as a DRAFT — staged, hidden from buyers — so the
-    // merchant can preview the builder and publish it with one click.
+    // Arm the bundled "bag" demo (product + Visual Builder). The bag is the
+    // HEAVY seed (~100 image sideloads), so unlike B2B it does NOT run at
+    // activation. It is deferred to the first time the merchant opens the
+    // Visual Builder menu, where a loading screen + "skip" affordance keeps the
+    // wait visible and non-blocking. arm() only sets the pending flag here.
     if ( class_exists( 'SPBWC_Demo_Seeder' ) ) {
         SPBWC_Demo_Seeder::arm();
     }
@@ -159,6 +162,14 @@ require_once(SPBWC_PB_PLUGIN_DIR .  'includes/class-admin-options.php');
 require_once(SPBWC_PB_PLUGIN_DIR .  'includes/admin/class-admin-menu.php');
 require_once(SPBWC_PB_PLUGIN_DIR .  'includes/class-i18n-notice.php');
 require_once(SPBWC_PB_PLUGIN_DIR .  'includes/class-onboarding.php');
+/* Welcome Wizard — the standalone, full-screen step-by-step first-run flow the
+ * merchant lands on right after activation. Picks 1-3 sample pricing options to
+ * install, surfaces the background B2B/quote installs, and hands off to the
+ * Overview or the Setup Wizard. See docs/SPEC_ONBOARDING_ACTIVATION.md §9. */
+require_once(SPBWC_PB_PLUGIN_DIR .  'includes/class-welcome-wizard.php');
+if ( class_exists( 'SPBWC_Welcome_Wizard' ) ) {
+    SPBWC_Welcome_Wizard::init();
+}
 require_once(SPBWC_PB_PLUGIN_DIR .  'includes/class-upsell-notice.php');
 require_once(SPBWC_PB_PLUGIN_DIR .  'includes/class-review-notice.php');
 require_once(SPBWC_PB_PLUGIN_DIR .  'includes/class-demo-seeder.php');

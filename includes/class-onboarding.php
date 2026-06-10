@@ -183,15 +183,35 @@ if ( ! class_exists( 'SPBWC_Onboarding' ) ) {
 				return;
 			}
 
-			$url = add_query_arg(
-				array(
-					'page'              => SPBWC_PB_OVERVIEW_SLUG,
-					self::WELCOME_FLAG  => 1,
-				),
-				admin_url( 'admin.php' )
-			);
+			// Land on the standalone Welcome Wizard (the new first-run flow) unless
+			// it was already completed — then a re-activation just goes to Overview.
+			if ( self::is_wizard_done() ) {
+				$url = add_query_arg(
+					array(
+						'page'             => SPBWC_PB_OVERVIEW_SLUG,
+						self::WELCOME_FLAG => 1,
+					),
+					admin_url( 'admin.php' )
+				);
+			} else {
+				$url = add_query_arg(
+					array( 'page' => SPBWC_PB_WIZARD_SLUG ),
+					admin_url( 'admin.php' )
+				);
+			}
 			wp_safe_redirect( $url );
 			exit;
+		}
+
+		/** True once the merchant has finished (or skipped through) the Welcome Wizard. */
+		public static function is_wizard_done() {
+			$state = self::get_state();
+			return ! empty( $state['wizard_done'] );
+		}
+
+		/** Mark the Welcome Wizard finished so it never auto-opens again. */
+		public static function mark_wizard_done() {
+			self::update_state( array( 'wizard_done' => true ) );
 		}
 
 		/**
@@ -206,6 +226,13 @@ if ( ! class_exists( 'SPBWC_Onboarding' ) ) {
 			}
 			$state = self::get_state();
 			if ( ! empty( $state['dismissed'] ) ) {
+				return false;
+			}
+			// While the standalone Welcome Wizard is still the active first-run
+			// surface, the Overview must NOT also auto-render its welcome block —
+			// that would be two welcomes at once. Once the wizard is finished it
+			// becomes a lightweight "resume / finish setup" checklist again.
+			if ( ! self::is_wizard_done() ) {
 				return false;
 			}
 			return ! self::is_onboarding_complete();

@@ -454,3 +454,63 @@ viễn; cách bật lại duy nhất là `get_restore_url()` (ẩn) hoặc query
 
 ### Files
 `includes/class-onboarding.php`, `views/setup-wizard/landing.php`, `views/menu-settings.php`.
+
+---
+
+## §9 — Welcome Wizard redesign (standalone full-screen, 3 steps)
+
+**Mục tiêu (yêu cầu user 2026-06):** sau khi Activate, merchant vào NGAY một **trang Wizard độc lập,
+full-screen, step-by-step** — KHÔNG còn là welcome-block gắn trên Overview. Mọi tiến trình nặng chạy ngầm,
+wizard chỉ là lựa chọn đơn giản + thông báo + chúc mừng, rồi dẫn tới Overview hoặc Setup Wizard.
+
+### 9.1 Trang wizard — `SPBWC_Welcome_Wizard` (`includes/class-welcome-wizard.php`)
+- Slug ẩn `SPBWC_PB_WIZARD_SLUG` = `…-welcome`. Đăng ký qua `spbwc_pb_menu` (priority 30) bằng
+  `add_submenu_page` dưới Overview, KHÔNG `remove_submenu_page` (làm vậy WP chặn access trang) — thay vào đó
+  ẩn riêng link menu bằng CSS `admin_head` (`hide_menu_item`). Page vẫn truy cập được tại
+  `admin.php?page=…-welcome`.
+- Full-screen: filter `admin_body_class` thêm `.spbwc-wizard-screen`; `welcome-wizard.css` ẩn chrome admin
+  (sidebar/toolbar/footer/notices) và vẽ surface riêng (token-driven, RTL-safe).
+- 3 step điều hướng server-side qua `?step=1|2|3` (POST chỉ ở step 1).
+
+**Step 1 — Sample Options:** chọn **bắt buộc 1–3** trong **10 template ngẫu nhiên** lấy từ catalog bundled
+(`SPBWC_Template_Catalog`, slice cố định lưu ở option `spbwc_wizard_pick`). JS `welcome-wizard.js` ép min/max
++ bật/tắt nút. Submit → mỗi slug fork thành option **unattached** "(Sample)" qua
+`SPBWC_Template_Applier::install_sample()` (apply_for=p, product_ids rỗng → KHÔNG lên storefront; blob cờ
+`is_sample`; title hậu tố "(Sample)"); id lưu ở `spbwc_wizard_samples`. Merchant tự edit/gán/xóa/thêm sau.
+
+**Step 2 — Background setup (chỉ thông báo):** B2B sample (company + sample quotation) cài ngầm ở
+`admin_init` (`SPBWC_B2B_Sample`, nhẹ); quote auto-sync từ Woo + plugin khác kick một lần qua
+`SPBWC_Quote_Import::kick_auto_sync()` (one-shot guard `spbwc_quote_autosync_done`, chỉ adapter order-based,
+AS-queued, local, de-dupe). Hiển thị 3 task row trạng thái; không cần thao tác.
+
+**Step 3 — Done:** `mark_wizard_done()`; chúc mừng + summary + **2 nút**: "Go to Overview" /
+"Continue with Setup Wizard" (= Global Import page).
+
+### 9.2 Redirect + Overview
+- `maybe_redirect_after_activation()` giờ bounce vào **wizard** (trừ khi `is_wizard_done()` → Overview).
+- `is_welcome_mode()` trả FALSE khi wizard chưa done (tránh 2 welcome cùng lúc); sau khi done, Overview
+  welcome-block trở lại vai trò checklist "resume".
+- Helpers mới ở `SPBWC_Onboarding`: `is_wizard_done()`, `mark_wizard_done()` (cờ `wizard_done` trong
+  `spbwc_onboarding_state`).
+
+### 9.3 Bag lazy-seed ở Visual Builder (đảo M9.1b)
+- Bag (~100 ảnh, NẶNG) **KHÔNG** còn auto-seed mỗi `admin_init`. Thay vào đó **lazy-seed khi mở menu Visual
+  Builder lần đầu**: `SPBWC_Demo_Seeder::maybe_enqueue_vb_onboarding()` (gate: đúng VB page + bundle +
+  pending + chưa seeded) nạp `visual-builder-onboarding.js` → overlay loading + bắn AJAX seed (status
+  `draft`) + poll `spbwc_demo_seed_status`. Nút skip **"I'll create my own option instead"** đóng overlay +
+  điều hướng tới Create picker; seed vẫn chạy ngầm (không hủy). `ajax_seed()` thêm nhánh draft: acquire_lock
+  + clear pending one-shot. `arm()` vẫn set pending lúc activate (chỉ ghi option, không nặng).
+
+### 9.4 Verify (2026-06, qua HTTP có auth)
+- Step 1: access OK (0 "not allowed"), full-screen body class, **10 card template**, nút "Install samples",
+  0 PHP error.
+- Step 2: 3 task row render, 0 PHP error. Step 3: cả 2 nút exit + summary render.
+- VB page: load sạch; khi `spbwc_demo_seed_pending=1` + chưa seeded → overlay JS + `spbwcVbOnboarding`
+  localize được nạp (xác nhận lazy-seed wiring). Browser screenshot bị chặn do Chrome-MCP profile-lock
+  (xác minh bằng rendered HTML — mạnh hơn screenshot về tính đúng).
+
+### 9.5 Files
+NEW: `includes/class-welcome-wizard.php`, `static/css/welcome-wizard.css`, `static/js/welcome-wizard.js`,
+`static/js/visual-builder-onboarding.js`. SỬA: `class-onboarding.php`, `class-demo-seeder.php`,
+`templates/class-template-applier.php`, `quote/class-quote-import.php`,
+`storelly-product-builder-for-woocommerce.php` (constant `SPBWC_PB_WIZARD_SLUG` + require/init).

@@ -62,8 +62,12 @@ if ( ! class_exists( 'SPBWC_Demo_Seeder' ) ) {
 			add_action( 'wp_ajax_spbwc_demo_seed', array( __CLASS__, 'ajax_seed' ) );
 			add_action( 'wp_ajax_spbwc_demo_undo', array( __CLASS__, 'ajax_undo' ) );
 			add_action( 'wp_ajax_spbwc_demo_publish', array( __CLASS__, 'ajax_publish' ) );
+			add_action( 'wp_ajax_spbwc_demo_seed_status', array( __CLASS__, 'ajax_status' ) );
 			add_action( 'admin_post_' . self::ACTION_CLEANUP, array( __CLASS__, 'handle_cleanup' ) );
-			add_action( 'admin_init', array( __CLASS__, 'maybe_seed' ) );
+			// The bag is the heavy seed, so it is NOT installed on a generic admin
+			// load. It is deferred to the first visit to the Visual Builder screen,
+			// where a loading overlay (with a non-blocking "skip") fronts the wait.
+			add_action( 'admin_enqueue_scripts', array( __CLASS__, 'maybe_enqueue_vb_onboarding' ) );
 		}
 
 		/**
@@ -262,11 +266,142 @@ if ( ! class_exists( 'SPBWC_Demo_Seeder' ) ) {
 
 		public static function ajax_seed() {
 			self::guard();
+
+			// phpcs:ignore WordPress.Security.NonceVerification.Missing -- nonce verified in guard().
+			$status = isset( $_POST['status'] ) ? sanitize_key( wp_unslash( $_POST['status'] ) ) : 'publish';
+			$status = ( 'draft' === $status ) ? 'draft' : 'publish';
+
+			// Visual Builder lazy path: import as a DRAFT and treat it as a one-shot.
+			// Retire the pending flag + set the done guard up front so a reload during
+			// the long sideload neither re-shows the overlay nor starts a second seed.
+			if ( 'draft' === $status ) {
+				if ( self::is_seeded() ) {
+					update_option( self::OPTION_AUTODONE, 1, false );
+					delete_option( self::OPTION_PENDING );
+					$state = get_option( self::OPTION_STATE, array() );
+					wp_send_json_success(
+						array(
+							'product_id' => isset( $state['product_id'] ) ? (int) $state['product_id'] : 0,
+							'option_id'  => isset( $state['option_id'] ) ? (int) $state['option_id'] : 0,
+							'created'    => false,
+						)
+					);
+				}
+				// Single-writer: if another request already holds the seed lock, this
+				// one just reports "in progress" — the overlay keeps polling status.
+				if ( ! self::acquire_lock() ) {
+					wp_send_json_success( array( 'in_progress' => true ) );
+				}
+				update_option( self::OPTION_AUTODONE, 1, false );
+				delete_option( self::OPTION_PENDING );
+				try {
+					$res = self::seed( 'draft' );
+				} finally {
+					self::release_lock();
+				}
+				if ( is_wp_error( $res ) ) {
+					wp_send_json_error( array( 'message' => $res->get_error_message() ) );
+				}
+				wp_send_json_success( $res );
+			}
+
+			// Default (explicit Welcome card) path — publish immediately.
 			$res = self::seed();
 			if ( is_wp_error( $res ) ) {
 				wp_send_json_error( array( 'message' => $res->get_error_message() ) );
 			}
 			wp_send_json_success( $res );
+		}
+
+		/**
+		 * Lightweight progress endpoint for the Visual Builder loading overlay. Tells
+		 * the poller whether the bag has finished importing yet (and its status).
+		 */
+		public static function ajax_status() {
+			self::guard();
+			wp_send_json_success(
+				array(
+					'seeded' => self::is_seeded(),
+					'status' => self::seeded_status(),
+				)
+			);
+		}
+
+		/**
+		 * On the Visual Builder screen, if the bag is armed but not yet installed,
+		 * enqueue the onboarding overlay. The JS builds a full-screen "installing
+		 * your first sample data" panel, fires the draft seed via AJAX, polls for
+		 * completion, and offers a non-blocking "I'll create my own" skip that
+		 * reveals the Create button while the seed keeps running in the background.
+		 *
+		 * @param string $hook Current admin page hook (unused; we gate on ?page=).
+		 */
+		public static function maybe_enqueue_vb_onboarding( $hook ) {
+			unset( $hook );
+			if ( ! defined( 'SPBWC_PB_VISUAL_BUILDER_SLUG' ) ) {
+				return;
+			}
+			// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only screen detection for asset loading.
+			$page = isset( $_GET['page'] ) ? sanitize_text_field( wp_unslash( $_GET['page'] ) ) : '';
+			if ( SPBWC_PB_VISUAL_BUILDER_SLUG !== $page ) {
+				return;
+			}
+			if ( ! current_user_can( 'manage_woocommerce' ) ) {
+				return;
+			}
+			if ( ! self::bundle_available() || ! get_option( self::OPTION_PENDING ) ) {
+				return;
+			}
+			// Already installed (e.g. via the Welcome card): retire the flag silently.
+			if ( self::is_seeded() ) {
+				delete_option( self::OPTION_PENDING );
+				return;
+			}
+
+			if ( ! wp_style_is( 'spbwc-tokens', 'registered' ) ) {
+				wp_register_style( 'spbwc-tokens', SPBWC_PB_CSS_URL . '_tokens.css', array(), SPBWC_PB_VERSION );
+			}
+			$css = SPBWC_PB_PLUGIN_DIR . 'static/css/welcome-wizard.css';
+			wp_enqueue_style(
+				'spbwc-welcome-wizard',
+				SPBWC_PB_CSS_URL . 'welcome-wizard.css',
+				array( 'spbwc-tokens' ),
+				file_exists( $css ) ? filemtime( $css ) : SPBWC_PB_VERSION
+			);
+			$js = SPBWC_PB_PLUGIN_DIR . 'static/js/visual-builder-onboarding.js';
+			wp_enqueue_script(
+				'spbwc-vb-onboarding',
+				SPBWC_PB_ASSETS_URL . 'js/visual-builder-onboarding.js',
+				array( 'jquery' ),
+				file_exists( $js ) ? filemtime( $js ) : SPBWC_PB_VERSION,
+				true
+			);
+			$create_url = add_query_arg(
+				array(
+					'page'   => SPBWC_PB_VISUAL_BUILDER_SLUG,
+					'action' => 'create',
+				),
+				admin_url( 'admin.php' )
+			);
+			wp_localize_script(
+				'spbwc-vb-onboarding',
+				'spbwcVbOnboarding',
+				array(
+					'ajaxUrl'      => esc_url_raw( admin_url( 'admin-ajax.php' ) ),
+					'nonce'        => wp_create_nonce( self::NONCE ),
+					'seedAction'   => 'spbwc_demo_seed',
+					'statusAction' => 'spbwc_demo_seed_status',
+					'createUrl'    => esc_url_raw( $create_url ),
+					'i18n'         => array(
+						'title'    => __( 'Setting up your first sample data…', 'storelly-product-builder-for-woocommerce' ),
+						'body'     => __( 'We’re importing a ready-made customizable product and its Visual Builder so you have something to explore. This only happens once.', 'storelly-product-builder-for-woocommerce' ),
+						'skip'     => __( 'I’ll create my own option instead', 'storelly-product-builder-for-woocommerce' ),
+						'skipHint' => __( 'The sample keeps installing in the background — you can start building right away.', 'storelly-product-builder-for-woocommerce' ),
+						'done'     => __( 'Sample data ready! Reloading…', 'storelly-product-builder-for-woocommerce' ),
+						'failed'   => __( 'We couldn’t finish importing the sample. You can still build your own option.', 'storelly-product-builder-for-woocommerce' ),
+					),
+				)
+			);
 		}
 
 		public static function ajax_undo() {
