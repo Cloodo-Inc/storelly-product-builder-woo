@@ -69,9 +69,9 @@
 }
 
 .spbwc-vb__title .dashicons {
-    font-size: 24px;
-    width: 24px;
-    height: 24px;
+    font-size: var(--st-icon-xl);
+    width: var(--st-icon-xl);
+    height: var(--st-icon-xl);
     line-height: 24px;
     color: var(--vb-link);
 }
@@ -340,9 +340,9 @@
 }
 
 .spbwc-vb__card-issue-dot .dashicons {
-    font-size: 16px;
-    width: 16px;
-    height: 16px;
+    font-size: var(--st-icon-md);
+    width: var(--st-icon-md);
+    height: var(--st-icon-md);
     line-height: 16px;
 }
 
@@ -387,9 +387,9 @@
 }
 
 .spbwc-vb__card-target .dashicons {
-    font-size: 14px;
-    height: 14px;
-    width: 14px;
+    font-size: var(--st-icon-sm);
+    height: var(--st-icon-sm);
+    width: var(--st-icon-sm);
     line-height: 14px;
     flex-shrink: 0;
 }
@@ -509,19 +509,20 @@
 
 .spbwc-vb__picker-select {
     width: 100%;
-    padding: 8px 10px;
+    padding: var(--st-field-pad);
     border: 1px solid var(--vb-card-border-strong);
-    border-radius: 6px;
-    font-size: 14px;
-    background: #fff;
-    line-height: 1.4;
+    border-radius: var(--st-field-radius);
+    font-size: var(--st-field-font);
+    background: var(--st-field-bg);
+    box-shadow: var(--st-field-shadow);
+    line-height: var(--st-field-leading);
     min-height: 38px;
 }
 
 .spbwc-vb__picker-select:focus {
     outline: none;
     border-color: var(--vb-link);
-    box-shadow: 0 0 0 3px rgba(25, 113, 194, 0.15);
+    box-shadow: var(--st-field-focus-shadow);
 }
 
 .spbwc-vb__picker-help {
@@ -612,9 +613,9 @@
 }
 
 .spbwc-vb-edit__savebar-hint .dashicons {
-    font-size: 14px;
-    width: 14px;
-    height: 14px;
+    font-size: var(--st-icon-sm);
+    width: var(--st-icon-sm);
+    height: var(--st-icon-sm);
     line-height: 14px;
     color: var(--vb-link);
     flex-shrink: 0;
@@ -717,7 +718,7 @@
 }
 
 .spbwc-vb-comp-card__icon-placeholder {
-    font-size: 16px;
+    font-size: var(--st-icon-md);
     font-weight: 600;
     color: var(--vb-text-mute);
 }
@@ -728,14 +729,14 @@
     flex: 0 1 320px;
     min-width: 0;
     border: 1px solid var(--vb-card-border);
-    background: #fff;
-    box-shadow: var(--shadow-input-inset);
+    background: var(--st-field-bg);
+    box-shadow: var(--st-field-shadow);
     padding: 6px var(--nbd-space-2);
     font-size: var(--text-base, 14px);
     font-weight: 600;
     color: var(--vb-text-strong);
-    border-radius: var(--nbd-radius);
-    line-height: 1.4;
+    border-radius: var(--st-field-radius);
+    line-height: var(--st-field-leading);
     margin: 0;
 }
 
@@ -753,7 +754,7 @@
     outline: none;
     border-color: var(--vb-link);
     background: #fff;
-    box-shadow: 0 0 0 3px rgba(25, 113, 194, 0.15);
+    box-shadow: var(--st-field-focus-shadow);
 }
 
 .spbwc-vb-comp-card__meta {
@@ -837,7 +838,7 @@
     padding: 0;
     background: transparent;
     border: 1px solid transparent;
-    border-radius: 6px;
+    border-radius: var(--st-btn-radius);
     cursor: pointer;
     color: var(--vb-text-mute);
     transition: background 0.12s ease, color 0.12s ease, border-color 0.12s ease;
@@ -887,9 +888,9 @@
 }
 
 .spbwc-vb-comp-card__action .dashicons {
-    font-size: 16px;
-    width: 16px;
-    height: 16px;
+    font-size: var(--st-icon-md);
+    width: var(--st-icon-md);
+    height: var(--st-icon-md);
     line-height: 16px;
 }
 
@@ -910,9 +911,9 @@
 }
 
 .spbwc-vb-comp-card__action--primary .dashicons {
-    font-size: 18px;
-    width: 18px;
-    height: 18px;
+    font-size: var(--st-icon-lg);
+    width: var(--st-icon-lg);
+    height: var(--st-icon-lg);
     line-height: 18px;
 }
 
@@ -1017,9 +1018,9 @@
 
 .spbwc-vb-comp-iconbar__thumb .dashicons {
     color: var(--vb-text-mute);
-    font-size: 20px;
-    width: 20px;
-    height: 20px;
+    font-size: var(--st-icon-lg);
+    width: var(--st-icon-lg);
+    height: var(--st-icon-lg);
     line-height: 20px;
 }
 
@@ -1047,14 +1048,14 @@
 .spbwc-vb-comp-section__add {
     display: inline-flex;
     align-items: center;
-    gap: 4px;
+    gap: var(--st-btn-gap);
     background: transparent;
     border: 1px solid var(--vb-card-border);
     color: var(--vb-link);
     font-size: var(--text-sm, 12px);
     font-weight: 600;
-    padding: 4px 10px;
-    border-radius: var(--nbd-radius);
+    padding: var(--st-btn-pad-sm);
+    border-radius: var(--st-btn-radius);
     cursor: pointer;
     transition: background 0.12s ease, border-color 0.12s ease;
 }
@@ -1065,9 +1066,9 @@
 }
 
 .spbwc-vb-comp-section__add .dashicons {
-    font-size: 14px;
-    width: 14px;
-    height: 14px;
+    font-size: var(--st-icon-sm);
+    width: var(--st-icon-sm);
+    height: var(--st-icon-sm);
     line-height: 14px;
 }
 
@@ -1139,9 +1140,9 @@
 
 .spbwc-vb-attr-row__swatch .dashicons {
     color: var(--vb-text-mute);
-    font-size: 18px;
-    width: 18px;
-    height: 18px;
+    font-size: var(--st-icon-lg);
+    width: var(--st-icon-lg);
+    height: var(--st-icon-lg);
     line-height: 18px;
 }
 
@@ -1155,13 +1156,13 @@
     max-width: 320px;
     padding: 6px 10px;
     border: 1px solid var(--vb-card-border);
-    background: #fff;
-    box-shadow: var(--shadow-input-inset);
+    background: var(--st-field-bg);
+    box-shadow: var(--st-field-shadow);
     font-size: var(--text-base, 13px);
     font-weight: 500;
     color: var(--vb-text-strong);
-    border-radius: var(--nbd-radius);
-    line-height: 1.4;
+    border-radius: var(--st-field-radius);
+    line-height: var(--st-field-leading);
     height: 32px;
     box-sizing: border-box;
     min-height: 0;
@@ -1180,7 +1181,7 @@
 .spbwc-vb-attr-row__name:focus {
     outline: none;
     border-color: var(--vb-link);
-    box-shadow: 0 0 0 2px var(--vb-link-soft);
+    box-shadow: var(--st-field-focus-shadow);
 }
 
 /* Price input — tightly sized, WP-admin reset to prevent input min-height
@@ -1190,10 +1191,10 @@
     align-items: center;
     flex-shrink: 0;
     height: 32px;
-    background: #fff;
+    background: var(--st-field-bg);
     border: 1px solid var(--vb-card-border);
-    box-shadow: var(--shadow-input-inset);
-    border-radius: var(--nbd-radius);
+    box-shadow: var(--st-field-shadow);
+    border-radius: var(--st-field-radius);
     overflow: hidden;
     transition: border-color 0.12s ease;
 }
@@ -1201,7 +1202,7 @@
 .spbwc-vb-attr-row__price:focus-within {
     border-color: var(--vb-link);
     background: #fff;
-    box-shadow: 0 0 0 2px var(--vb-link-soft);
+    box-shadow: var(--st-field-focus-shadow);
 }
 
 .spbwc-vb-attr-row__price-prefix {
@@ -1244,7 +1245,7 @@
     padding: 0;
     background: transparent;
     border: 1px solid transparent;
-    border-radius: var(--nbd-radius);
+    border-radius: var(--st-btn-radius);
     cursor: pointer;
     color: var(--vb-text-mute);
     display: inline-flex;
@@ -1282,9 +1283,9 @@
 }
 
 .spbwc-vb-attr-row__delete .dashicons {
-    font-size: 16px;
-    width: 16px;
-    height: 16px;
+    font-size: var(--st-icon-md);
+    width: var(--st-icon-md);
+    height: var(--st-icon-md);
     line-height: 16px;
 }
 
@@ -1387,9 +1388,9 @@
 .spbwc-vb-attr-row__view-img .dashicons-upload {
     color: var(--vb-link);
     opacity: 0.55;
-    font-size: 22px;
-    width: 22px;
-    height: 22px;
+    font-size: var(--st-icon-xl);
+    width: var(--st-icon-xl);
+    height: var(--st-icon-xl);
     line-height: 22px;
 }
 
@@ -1552,7 +1553,7 @@
     padding: 0;
     background: transparent;
     border: 1px solid transparent;
-    border-radius: var(--nbd-radius);
+    border-radius: var(--st-btn-radius);
     cursor: pointer;
     color: var(--vb-text-mute);
     display: inline-flex;
@@ -1568,9 +1569,9 @@
 }
 
 .spbwc-vb-attr-row__dup .dashicons {
-    font-size: 15px;
-    width: 15px;
-    height: 15px;
+    font-size: var(--st-icon-sm);
+    width: var(--st-icon-sm);
+    height: var(--st-icon-sm);
     line-height: 15px;
 }
 
@@ -1615,7 +1616,7 @@
     padding: 2px 6px;
     background: transparent;
     border: 1px dashed var(--vb-card-border-strong);
-    border-radius: var(--nbd-radius);
+    border-radius: var(--st-btn-radius);
     color: var(--vb-link);
     font-size: 10px;
     font-weight: 500;
@@ -1631,9 +1632,9 @@
 }
 
 .spbwc-vb-attr-row__view-apply .dashicons {
-    font-size: 12px;
-    width: 12px;
-    height: 12px;
+    font-size: var(--st-icon-xs);
+    width: var(--st-icon-xs);
+    height: var(--st-icon-xs);
     line-height: 12px;
 }
 
@@ -1669,9 +1670,9 @@
 }
 
 .spbwc-vb-edit__compnav-label .dashicons {
-    font-size: 14px;
-    width: 14px;
-    height: 14px;
+    font-size: var(--st-icon-sm);
+    width: var(--st-icon-sm);
+    height: var(--st-icon-sm);
     line-height: 14px;
 }
 
@@ -1779,7 +1780,7 @@
 }
 
 .spbwc-vb-toast__icon {
-    font-size: 16px;
+    font-size: var(--st-icon-md);
     line-height: 1;
     flex-shrink: 0;
 }
@@ -1825,7 +1826,7 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    font-size: 22px;
+    font-size: var(--st-icon-xl);
     line-height: 1;
 }
 
@@ -1885,7 +1886,7 @@
 }
 
 .spbwc-vb-context__chip-icon {
-    font-size: 14px;
+    font-size: var(--st-icon-sm);
     line-height: 1;
 }
 
@@ -1909,9 +1910,9 @@
 }
 
 .spbwc-page-hero .spbwc-vb-help-link .dashicons {
-    font-size: 14px;
-    width: 14px;
-    height: 14px;
+    font-size: var(--st-icon-sm);
+    width: var(--st-icon-sm);
+    height: var(--st-icon-sm);
     line-height: 14px;
 }
 
@@ -1941,9 +1942,9 @@
 }
 
 .wp-list-table .spbwc-vb-col__icon {
-    font-size: 14px;
-    width: 14px;
-    height: 14px;
+    font-size: var(--st-icon-sm);
+    width: var(--st-icon-sm);
+    height: var(--st-icon-sm);
     line-height: 14px;
 }
 
@@ -1970,16 +1971,16 @@
 .spbwc-vb-text-input {
     width: 100%;
     max-width: 360px;
-    padding: 8px 12px;
+    padding: var(--st-field-pad);
     border: 1px solid var(--vb-card-border);
-    background: #fff;
-    /* --shadow-input-inset is the project design token (defined in _tokens.css).
-     * Subtle inner shadow → matches the rest of Storelly admin form fields. */
-    box-shadow: var(--shadow-input-inset);
+    background: var(--st-field-bg);
+    /* Sunken inner shadow (Storelly form-field depth token) → matches the
+     * rest of Storelly admin form fields. */
+    box-shadow: var(--st-field-shadow);
     font-size: var(--text-base, 13px);
     color: var(--vb-text-strong);
-    border-radius: var(--nbd-radius);
-    line-height: 1.4;
+    border-radius: var(--st-field-radius);
+    line-height: var(--st-field-leading);
     height: 36px;
     box-sizing: border-box;
     min-height: 0;
@@ -1992,7 +1993,7 @@
 .spbwc-vb-text-input:focus {
     outline: none;
     border-color: var(--vb-link);
-    box-shadow: 0 0 0 2px var(--vb-link-soft);
+    box-shadow: var(--st-field-focus-shadow);
 }
 
 /* Inline toggle row — checkbox right, label left, optional hint under label.
@@ -2097,11 +2098,11 @@
 .spbwc-vb-color-row__hex {
     padding: 4px 8px;
     border: 1px solid var(--vb-card-border);
-    background: #fff;
-    box-shadow: var(--shadow-input-inset);
+    background: var(--st-field-bg);
+    box-shadow: var(--st-field-shadow);
     font-size: var(--text-sm, 12px);
     color: var(--vb-text-strong);
-    border-radius: var(--nbd-radius-sm);
+    border-radius: var(--st-field-radius);
     height: 28px;
     box-sizing: border-box;
     min-height: 0;
@@ -2122,7 +2123,7 @@
 .spbwc-vb-color-row__hex:focus {
     outline: none;
     border-color: var(--vb-link);
-    box-shadow: 0 0 0 2px var(--vb-link-soft);
+    box-shadow: var(--st-field-focus-shadow);
 }
 
 .spbwc-vb-color-row__remove {
@@ -2132,7 +2133,7 @@
     padding: 0;
     background: transparent;
     border: 1px solid transparent;
-    border-radius: var(--nbd-radius-sm);
+    border-radius: var(--st-btn-radius);
     cursor: pointer;
     color: var(--vb-text-mute);
     display: inline-flex;
@@ -2147,9 +2148,9 @@
 }
 
 .spbwc-vb-color-row__remove .dashicons {
-    font-size: 14px;
-    width: 14px;
-    height: 14px;
+    font-size: var(--st-icon-sm);
+    width: var(--st-icon-sm);
+    height: var(--st-icon-sm);
     line-height: 14px;
 }
 
@@ -2307,13 +2308,13 @@
 .spbwc-vb-output__select {
     width: 100%;
     max-width: 360px;
-    padding: 8px 12px;
+    padding: var(--st-field-pad);
     border: 1px solid var(--vb-card-border);
-    background: #fff;
-    box-shadow: var(--shadow-input-inset);
+    background: var(--st-field-bg);
+    box-shadow: var(--st-field-shadow);
     font-size: var(--text-base, 13px);
     color: var(--vb-text-strong);
-    border-radius: var(--nbd-radius);
+    border-radius: var(--st-field-radius);
     height: 36px;
     box-sizing: border-box;
     min-height: 0;
@@ -2322,7 +2323,7 @@
 .spbwc-vb-output__select:focus {
     outline: none;
     border-color: var(--vb-link);
-    box-shadow: 0 0 0 2px var(--vb-link-soft);
+    box-shadow: var(--st-field-focus-shadow);
 }
 
 @media (max-width: 600px) {
@@ -2386,9 +2387,9 @@
 }
 
 .spbwc-vb-comp-section__advanced-toggle .dashicons {
-    font-size: 14px;
-    width: 14px;
-    height: 14px;
+    font-size: var(--st-icon-sm);
+    width: var(--st-icon-sm);
+    height: var(--st-icon-sm);
     line-height: 14px;
 }
 

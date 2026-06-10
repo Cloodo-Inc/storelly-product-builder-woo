@@ -48,7 +48,7 @@
 }
 .spbwc-edit-v2 .v2-backbar a:hover { text-decoration: underline; }
 .spbwc-edit-v2 .v2-backbar .dashicons {
-    font-size: var(--text-lg); width: 16px; height: 16px;
+    font-size: var(--text-lg); width: var(--st-icon-md); height: var(--st-icon-md);
 }
 .spbwc-edit-v2 .v2-backbar__sep { color: var(--nbd-st-text-mute); }
 .spbwc-edit-v2 .v2-backbar__current { color: var(--nbd-st-text); font-weight: var(--font-medium); }
@@ -148,14 +148,14 @@
 .spbwc-edit-v2 .v2-select,
 .spbwc-edit-v2 .v2-textarea {
     width: 100%;
-    padding: var(--nbd-space-2) var(--nbd-space-3);
-    border: 1px solid var(--nbd-st-border-light);
-    border-radius: var(--nbd-radius-md);
-    background: var(--nbd-st-bg-input);
-    font-size: var(--text-md);
+    padding: var(--st-field-pad);
+    border: 1px solid var(--st-field-border);
+    border-radius: var(--st-field-radius);
+    background: var(--st-field-bg);
+    font-size: var(--st-field-font);
     color: var(--nbd-st-text);
     font-family: inherit;
-    box-shadow: var(--shadow-input-inset);
+    box-shadow: var(--st-field-shadow);
     transition: var(--transition-fast);
 }
 .spbwc-edit-v2 .v2-input:focus,
@@ -163,7 +163,7 @@
 .spbwc-edit-v2 .v2-textarea:focus {
     outline: none;
     border-color: var(--st-brand);
-    box-shadow: var(--shadow-input-focus);
+    box-shadow: var(--st-field-focus-shadow);
 }
 .spbwc-edit-v2 .v2-textarea { min-height: 72px; resize: vertical; }
 
@@ -173,7 +173,7 @@
     -webkit-appearance: none;
     -moz-appearance: none;
     padding-right: 30px;
-    background-color: var(--nbd-st-bg-input);
+    background-color: var(--st-field-bg);
     background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath fill='none' stroke='%238c8f94' stroke-width='1.5' d='M1 1l4 4 4-4'/%3E%3C/svg%3E");
     background-repeat: no-repeat;
     background-position: right 10px center;
@@ -863,7 +863,7 @@
     color: var(--st-brand-pressed);
 }
 .spbwc-edit-v2 .v2-drag-handle__icon {
-    font-size: 14px;
+    font-size: var(--st-icon-sm);
     letter-spacing: -2px;
     line-height: 1;
     font-weight: var(--font-bold);
@@ -968,9 +968,9 @@
     border-color: var(--nbd-st-border-light);
 }
 .spbwc-edit-v2 .pcpb-field-name__title--editable:focus {
-    background: var(--nbd-st-bg-input);
+    background: var(--st-field-bg);
     border-color: var(--st-brand);
-    box-shadow: var(--shadow-input-focus);
+    box-shadow: var(--st-field-focus-shadow);
     cursor: text;
 }
 .spbwc-edit-v2 .pcpb-field-name__title--editable:placeholder-shown {
@@ -1109,7 +1109,7 @@
     margin: 0;
 }
 .spbwc-edit-v2 .nbo-sort.dashicons {
-    font-size: 14px;
+    font-size: var(--st-icon-sm);
     width: 100%;
     height: 14px;
 }
@@ -1125,7 +1125,7 @@
 .spbwc-edit-v2 .nbstorelly-right.field-action > a.nbd-mini-btn {
     width: 28px !important;
     height: 28px;
-    min-height: 28px;
+    min-height: var(--st-btn-min-h-sm);
     padding: 0 !important;
     border-radius: var(--nbd-radius-sm) !important;
     border: 1px solid transparent !important;
@@ -1151,10 +1151,10 @@
 }
 .spbwc-edit-v2 .nbstorelly-right.field-action > .nbd-mini-btn .dashicons,
 .spbwc-edit-v2 .nbstorelly-right.field-action > a.nbd-mini-btn .dashicons {
-    font-size: 16px;
-    width: 16px;
-    height: 16px;
-    line-height: 16px;
+    font-size: var(--st-icon-md);
+    width: var(--st-icon-md);
+    height: var(--st-icon-md);
+    line-height: var(--st-icon-md);
 }
 .spbwc-edit-v2 .nbstorelly-right.field-action > a.nbd-mini-btn:hover {
     background: var(--nbd-st-bg-soft) !important;
@@ -1280,23 +1280,23 @@
     line-height: 1.4;
 }
 .spbwc-edit-v2 .v2-field-actionbar__hint .dashicons {
-    font-size: 16px;
-    width: 16px;
-    height: 16px;
-    line-height: 16px;
+    font-size: var(--st-icon-md);
+    width: var(--st-icon-md);
+    height: var(--st-icon-md);
+    line-height: var(--st-icon-md);
     color: var(--nbd-st-text-mute);
 }
 .spbwc-edit-v2 .v2-field-actionbar__btn {
-    padding: 6px var(--nbd-space-3);
+    padding: var(--st-btn-pad-md);
     font-size: var(--text-sm);
     line-height: 1.2;
     min-height: 32px;
 }
 .spbwc-edit-v2 .v2-field-actionbar__btn .dashicons {
-    font-size: 14px;
-    width: 14px;
-    height: 14px;
-    line-height: 14px;
+    font-size: var(--st-icon-sm);
+    width: var(--st-icon-sm);
+    height: var(--st-icon-sm);
+    line-height: var(--st-icon-sm);
 }
 
 /* ============================================================
@@ -1386,15 +1386,15 @@
 .spbwc-edit-v2 .pcpb-field-info-2 select {
     width: 100% !important;
     max-width: 460px;
-    padding: var(--nbd-space-2) var(--nbd-space-3);
-    border: 1px solid var(--nbd-st-border-light);
-    border-radius: var(--nbd-radius-md);
-    background: var(--nbd-st-bg-input);
-    font-size: var(--text-md);
+    padding: var(--st-field-pad);
+    border: 1px solid var(--st-field-border);
+    border-radius: var(--st-field-radius);
+    background: var(--st-field-bg);
+    font-size: var(--st-field-font);
     color: var(--nbd-st-text);
     font-family: inherit;
     transition: var(--transition-fast);
-    box-shadow: var(--shadow-input-inset);
+    box-shadow: var(--st-field-shadow);
 }
 .spbwc-edit-v2 .pcpb-field-info-2 textarea {
     min-height: 80px;
@@ -1406,7 +1406,7 @@
 .spbwc-edit-v2 .pcpb-field-info-2 select:focus {
     outline: none;
     border-color: var(--st-brand);
-    box-shadow: var(--shadow-input-focus);
+    box-shadow: var(--st-field-focus-shadow);
 }
 
 /* "Short" inputs (numbers) get a tighter cap */
@@ -1560,7 +1560,7 @@
     width: 100% !important;
     max-width: none !important;
     padding: var(--nbd-space-1) var(--nbd-space-2);
-    font-size: var(--text-md);
+    font-size: var(--st-field-font);
 }
 .spbwc-edit-v2 .v2-cond-rule__op { max-width: 160px !important; }
 .spbwc-edit-v2 .v2-cond-rule__field,
@@ -1584,12 +1584,12 @@
 .spbwc-edit-v2 .v2-cond-add {
     display: inline-flex;
     align-items: center;
-    gap: var(--nbd-space-1);
-    padding: var(--nbd-space-2) var(--nbd-space-4);
+    gap: var(--st-btn-gap);
+    padding: var(--st-btn-pad-md);
     background: var(--nbd-st-bg);
     color: var(--st-brand);
     border: 1.5px dashed var(--nbd-st-border-brand);
-    border-radius: var(--nbd-radius-md);
+    border-radius: var(--st-btn-radius);
     font-size: var(--text-sm);
     font-weight: var(--font-semibold);
     cursor: pointer;
@@ -1606,9 +1606,9 @@
     box-shadow: var(--shadow-card);
 }
 .spbwc-edit-v2 .v2-cond-add .dashicons {
-    font-size: 16px;
-    width: 16px;
-    height: 16px;
+    font-size: var(--st-icon-md);
+    width: var(--st-icon-md);
+    height: var(--st-icon-md);
 }
 
 /* Remove margin-bottom from the last property row inside a section
@@ -1621,17 +1621,17 @@
 .spbwc-edit-v2 .v2-input-with-prefix {
     display: inline-flex;
     align-items: stretch;
-    border: 1px solid var(--nbd-st-border-light);
-    border-radius: var(--nbd-radius-md);
-    background: var(--nbd-st-bg-input);
+    border: 1px solid var(--st-field-border);
+    border-radius: var(--st-field-radius);
+    background: var(--st-field-bg);
     overflow: hidden;
     max-width: 220px;
-    box-shadow: var(--shadow-input-inset);
+    box-shadow: var(--st-field-shadow);
     transition: var(--transition-fast);
 }
 .spbwc-edit-v2 .v2-input-with-prefix:focus-within {
     border-color: var(--st-brand);
-    box-shadow: var(--shadow-input-focus);
+    box-shadow: var(--st-field-focus-shadow);
 }
 .spbwc-edit-v2 .v2-input-prefix {
     padding: 0 var(--nbd-space-3);
@@ -1791,13 +1791,13 @@
     width: 100% !important;
     max-width: none !important;
     padding: var(--nbd-space-1) var(--nbd-space-2) !important;
-    border: 1px solid var(--nbd-st-border-light) !important;
+    border: 1px solid var(--st-field-border) !important;
     border-radius: var(--nbd-radius-sm) !important;
     background: var(--nbd-st-bg) !important;
-    font-size: var(--text-md);
+    font-size: var(--st-field-font);
     color: var(--nbd-st-text);
     font-family: inherit;
-    box-shadow: none !important;
+    box-shadow: var(--st-field-shadow) !important;
 }
 .spbwc-edit-v2 .v2-mini-field input:focus {
     outline: none;
@@ -1861,9 +1861,9 @@
     gap: 6px;
 }
 .spbwc-edit-v2 .nbd-table--views tfoot .button .dashicons {
-    font-size: 14px;
-    width: 14px;
-    height: 14px;
+    font-size: var(--st-icon-sm);
+    width: var(--st-icon-sm);
+    height: var(--st-icon-sm);
     line-height: 1;
 }
 /* Helper text under tables / next to image uploads */
@@ -1895,11 +1895,12 @@
 .spbwc-edit-v2 .nbd-table input[type="number"] {
     width: 100%;
     padding: var(--nbd-space-1) var(--nbd-space-2);
-    border: 1px solid var(--nbd-st-border-light);
+    border: 1px solid var(--st-field-border);
     border-radius: var(--nbd-radius-sm);
-    background: var(--nbd-st-bg-input);
-    font-size: var(--text-md);
+    background: var(--st-field-bg);
+    font-size: var(--st-field-font);
     font-family: inherit;
+    box-shadow: var(--st-field-shadow);
 }
 
 /* ============================================================
@@ -2263,9 +2264,9 @@
     transition: var(--transition-fast);
 }
 .spbwc-edit-v2 .v2-swatch-tabs__tab-icon .dashicons {
-    font-size: 18px;
-    width: 18px;
-    height: 18px;
+    font-size: var(--st-icon-lg);
+    width: var(--st-icon-lg);
+    height: var(--st-icon-lg);
     line-height: 1;
 }
 .spbwc-edit-v2 .v2-swatch-tabs__tab.is-active .v2-swatch-tabs__tab-icon {
@@ -2314,9 +2315,9 @@
     height: 28px;
 }
 .spbwc-edit-v2 .v2-swatch-tabs--compact .v2-swatch-tabs__tab-icon .dashicons {
-    font-size: 16px;
-    width: 16px;
-    height: 16px;
+    font-size: var(--st-icon-md);
+    width: var(--st-icon-md);
+    height: var(--st-icon-md);
 }
 /* Stack vertically on narrow screens */
 @media (max-width: 720px) {
@@ -2399,9 +2400,9 @@
     transition: var(--transition-fast);
 }
 .spbwc-edit-v2 .v2-swatch-card__icon .dashicons {
-    font-size: 20px;
-    width: 20px;
-    height: 20px;
+    font-size: var(--st-icon-lg);
+    width: var(--st-icon-lg);
+    height: var(--st-icon-lg);
     line-height: 1;
 }
 .spbwc-edit-v2 .v2-swatch-card.is-active .v2-swatch-card__icon {
@@ -2549,9 +2550,9 @@
     box-shadow: 0 2px 6px rgba(0, 0, 0, .2);
 }
 .spbwc-edit-v2 .v2-img-upload__icon-btn .dashicons {
-    font-size: 16px;
-    width: 16px;
-    height: 16px;
+    font-size: var(--st-icon-md);
+    width: var(--st-icon-md);
+    height: var(--st-icon-md);
     line-height: 1;
 }
 .spbwc-edit-v2 .v2-img-upload__icon-btn:hover {
@@ -2704,14 +2705,14 @@
 .spbwc-edit-v2 .v2-attr-add-btn {
     display: inline-flex;
     align-items: center;
-    gap: 6px;
+    gap: var(--st-btn-gap);
     font-weight: var(--font-semibold);
     margin: 0 !important;
 }
 .spbwc-edit-v2 .v2-attr-add-btn .dashicons {
-    font-size: 16px;
-    width: 16px;
-    height: 16px;
+    font-size: var(--st-icon-md);
+    width: var(--st-icon-md);
+    height: var(--st-icon-md);
     line-height: 1;
 }
 .spbwc-edit-v2 .v2-attr-addrow__hint {
@@ -3012,17 +3013,18 @@
 .spbwc-edit-v2 .v2-attr-titlebar__input {
     width: 100% !important;
     box-sizing: border-box !important;
-    padding: var(--nbd-space-2) var(--nbd-space-3) !important;
-    border: 1px solid var(--nbd-st-border-light) !important;
-    border-radius: var(--nbd-radius-md) !important;
-    background: var(--nbd-st-bg-input) !important;
-    font-size: var(--text-md);
+    padding: var(--st-field-pad) !important;
+    border: 1px solid var(--st-field-border) !important;
+    border-radius: var(--st-field-radius) !important;
+    background: var(--st-field-bg) !important;
+    font-size: var(--st-field-font);
     font-weight: var(--font-semibold);
     color: var(--nbd-st-text);
     font-family: inherit;
     max-width: none !important;
     flex: none;
     min-width: 0;
+    box-shadow: var(--st-field-shadow) !important;
 }
 /* Default toggle now lives on its OWN row below the input — left-aligned
    so it reads as an explicit "mark this attribute as default" action. */
@@ -3032,7 +3034,7 @@
 .spbwc-edit-v2 .v2-attr-titlebar__input:focus {
     outline: none;
     border-color: var(--st-brand) !important;
-    box-shadow: var(--shadow-input-focus) !important;
+    box-shadow: var(--st-field-focus-shadow) !important;
 }
 
 /* Default star toggle — pill with ★ icon */
@@ -3113,8 +3115,9 @@
     padding: 4px var(--nbd-space-2);
     font-size: var(--text-sm);
     border-radius: var(--nbd-radius-sm);
-    border: 1px solid var(--nbd-st-border-light);
-    background: var(--nbd-st-bg-input);
+    border: 1px solid var(--st-field-border);
+    background: var(--st-field-bg);
+    box-shadow: var(--st-field-shadow);
 }
 .spbwc-edit-v2 .nbd-attribute-img-inner {
     position: relative;
@@ -3227,30 +3230,32 @@
 }
 .spbwc-edit-v2 .nbd-attribute-name input[type="text"] {
     flex: 1; min-width: 180px;
-    padding: var(--nbd-space-2) var(--nbd-space-3);
-    border: 1px solid var(--nbd-st-border-light);
-    border-radius: var(--nbd-radius-md);
-    background: var(--nbd-st-bg-input);
-    font-size: var(--text-md);
+    padding: var(--st-field-pad);
+    border: 1px solid var(--st-field-border);
+    border-radius: var(--st-field-radius);
+    background: var(--st-field-bg);
+    font-size: var(--st-field-font);
     color: var(--nbd-st-text);
     font-family: inherit;
+    box-shadow: var(--st-field-shadow);
 }
 .spbwc-edit-v2 .nbd-attribute-name input[type="text"]:focus {
     outline: none;
     border-color: var(--st-brand);
-    box-shadow: var(--shadow-input-focus);
+    box-shadow: var(--st-field-focus-shadow);
 }
 .spbwc-edit-v2 .nbd-attribute-name textarea {
     width: 100%;
-    padding: var(--nbd-space-2) var(--nbd-space-3);
+    padding: var(--st-field-pad);
     min-height: 56px;
-    border: 1px solid var(--nbd-st-border-light);
-    border-radius: var(--nbd-radius-md);
-    background: var(--nbd-st-bg-input);
-    font-size: var(--text-md);
+    border: 1px solid var(--st-field-border);
+    border-radius: var(--st-field-radius);
+    background: var(--st-field-bg);
+    font-size: var(--st-field-font);
     color: var(--nbd-st-text);
     font-family: inherit;
     resize: vertical;
+    box-shadow: var(--st-field-shadow);
 }
 .spbwc-edit-v2 .nbd-attribute-name label {
     display: inline-flex;
@@ -3294,7 +3299,7 @@
 .spbwc-edit-v2 .nbd-attribute-action > a.nbd-mini-btn {
     width: 28px !important;
     height: 28px;
-    min-height: 28px;
+    min-height: var(--st-btn-min-h-sm);
     padding: 0 !important;
     border-radius: var(--nbd-radius-sm) !important;
     border: 1px solid var(--nbd-st-border-light) !important;
@@ -3329,10 +3334,10 @@
     border-color: var(--nbd-color-danger) !important;
 }
 .spbwc-edit-v2 .nbd-attribute-action > a.nbd-mini-btn .dashicons {
-    font-size: 16px;
-    width: 16px;
-    height: 16px;
-    line-height: 16px;
+    font-size: var(--st-icon-md);
+    width: var(--st-icon-md);
+    height: var(--st-icon-md);
+    line-height: var(--st-icon-md);
 }
 
 /* Collapsed preview — legacy fallback (hidden by inline style) */
@@ -3464,12 +3469,12 @@
 .spbwc-edit-v2 .nbd-subattributes-wrapper a.button {
     display: inline-flex;
     align-items: center;
-    gap: var(--nbd-space-1);
-    padding: var(--nbd-space-2) var(--nbd-space-4);
+    gap: var(--st-btn-gap);
+    padding: var(--st-btn-pad-md);
     background: var(--nbd-st-bg);
     color: var(--st-brand);
     border: 1.5px dashed var(--nbd-st-border-brand);
-    border-radius: var(--nbd-radius-md);
+    border-radius: var(--st-btn-radius);
     font-size: var(--text-sm);
     font-weight: var(--font-semibold);
     cursor: pointer;
@@ -3477,7 +3482,7 @@
     text-decoration: none;
     box-shadow: none;
     line-height: 1.2;
-    min-height: 36px;
+    min-height: var(--st-btn-min-h-md);
 }
 .spbwc-edit-v2 .pcpb-field-info-2 a.button:hover,
 .spbwc-edit-v2 .nbd-subattributes-wrapper a.button:hover {
@@ -3490,27 +3495,27 @@
 }
 .spbwc-edit-v2 .pcpb-field-info-2 a.button .dashicons,
 .spbwc-edit-v2 .nbd-subattributes-wrapper a.button .dashicons {
-    font-size: 16px;
-    width: 16px;
-    height: 16px;
-    line-height: 16px;
+    font-size: var(--st-icon-md);
+    width: var(--st-icon-md);
+    height: var(--st-icon-md);
+    line-height: var(--st-icon-md);
 }
 
 /* Attribute price input ($ prefix + number input) */
 .spbwc-edit-v2 .v2-attr-price-input {
     display: inline-flex;
     align-items: stretch;
-    border: 1px solid var(--nbd-st-border-light);
-    border-radius: var(--nbd-radius-md);
-    background: var(--nbd-st-bg-input);
+    border: 1px solid var(--st-field-border);
+    border-radius: var(--st-field-radius);
+    background: var(--st-field-bg);
     overflow: hidden;
     max-width: 160px;
-    box-shadow: var(--shadow-input-inset);
+    box-shadow: var(--st-field-shadow);
     transition: var(--transition-fast);
 }
 .spbwc-edit-v2 .v2-attr-price-input:focus-within {
     border-color: var(--st-brand);
-    box-shadow: var(--shadow-input-focus);
+    box-shadow: var(--st-field-focus-shadow);
 }
 .spbwc-edit-v2 .v2-attr-price-input .v2-input-prefix {
     padding: 0 var(--nbd-space-3);
@@ -3719,24 +3724,26 @@
 }
 .spbwc-edit-v2 .nbd-subattributes-wrap .nbd-attribute-name input[type="text"] {
     width: 100%;
-    padding: var(--nbd-space-2) var(--nbd-space-3);
-    border: 1px solid var(--nbd-st-border-light);
-    border-radius: var(--nbd-radius-md);
-    background: var(--nbd-st-bg-input);
-    font-size: var(--text-md);
+    padding: var(--st-field-pad);
+    border: 1px solid var(--st-field-border);
+    border-radius: var(--st-field-radius);
+    background: var(--st-field-bg);
+    font-size: var(--st-field-font);
     color: var(--nbd-st-text);
     font-family: inherit;
+    box-shadow: var(--st-field-shadow);
 }
 .spbwc-edit-v2 .nbd-subattributes-wrap .nbd-attribute-name textarea {
     width: 100%;
     min-height: 50px;
-    padding: var(--nbd-space-2) var(--nbd-space-3);
-    border: 1px solid var(--nbd-st-border-light);
-    border-radius: var(--nbd-radius-md);
-    background: var(--nbd-st-bg-input);
+    padding: var(--st-field-pad);
+    border: 1px solid var(--st-field-border);
+    border-radius: var(--st-field-radius);
+    background: var(--st-field-bg);
     font-size: var(--text-sm);
     font-family: inherit;
     resize: vertical;
+    box-shadow: var(--st-field-shadow);
 }
 .spbwc-edit-v2 .nbd-subattributes-wrap .nbd-attribute-color-inner .nbd-color-picker {
     width: 48px !important;
@@ -3853,24 +3860,24 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    gap: var(--nbd-space-2);
-    padding: 10px var(--nbd-space-4);
-    font-size: var(--text-md);
+    gap: var(--st-btn-gap);
+    padding: var(--st-btn-pad-lg);
+    font-size: var(--st-btn-font-md);
     font-weight: var(--font-semibold);
-    border-radius: var(--nbd-radius-md);
+    border-radius: var(--st-btn-radius);
     text-decoration: none;
     transition: var(--transition-fast);
     cursor: pointer;
     box-shadow: none;
     height: auto;
-    min-height: 40px;
+    min-height: var(--st-btn-min-h-lg);
     line-height: 1.2;
     white-space: nowrap;
 }
 .spbwc-edit-v2 .pcpb-fields-actions .button .dashicons {
-    font-size: 18px;
-    width: 18px;
-    height: 18px;
+    font-size: var(--st-icon-lg);
+    width: var(--st-icon-lg);
+    height: var(--st-icon-lg);
     line-height: 1;
     vertical-align: middle;
     flex-shrink: 0;
@@ -4656,13 +4663,13 @@
 .spbwc-edit-v2 .v2-savebar__right .v2-btn {
     display: inline-flex;
     align-items: center;
-    gap: 4px;
+    gap: var(--st-btn-gap);
 }
 .spbwc-edit-v2 .v2-savebar__right .v2-btn .dashicons {
-    font-size: 14px;
-    width: 14px;
-    height: 14px;
-    line-height: 14px;
+    font-size: var(--st-icon-sm);
+    width: var(--st-icon-sm);
+    height: var(--st-icon-sm);
+    line-height: var(--st-icon-sm);
 }
 .spbwc-edit-v2 .v2-savebar__status {
     font-size: var(--text-base);
@@ -4721,10 +4728,10 @@
 }
 
 .spbwc-edit-v2 .v2-btn {
-    display: inline-flex; align-items: center; gap: var(--nbd-space-1);
-    padding: var(--nbd-space-2) var(--nbd-space-4);
-    border-radius: var(--nbd-radius-md);
-    font-size: var(--text-md); font-weight: var(--font-semibold);
+    display: inline-flex; align-items: center; gap: var(--st-btn-gap);
+    padding: var(--st-btn-pad-md);
+    border-radius: var(--st-btn-radius);
+    font-size: var(--st-btn-font-md); font-weight: var(--font-semibold);
     cursor: pointer; border: 1px solid transparent;
     transition: var(--transition-fast);
     text-decoration: none; white-space: nowrap;
@@ -4767,8 +4774,8 @@
 /* Force select2 (wc-product-search) match v2 look */
 .spbwc-edit-v2 .select2-container .select2-selection--multiple {
     min-height: 40px;
-    border-radius: var(--nbd-radius-md);
-    border-color: var(--nbd-st-border-light);
+    border-radius: var(--st-field-radius);
+    border-color: var(--st-field-border);
 }
 
 /* Notice for max input vars */
@@ -4983,15 +4990,15 @@
 .spbwc-edit-v2 .select2-container .select2-selection--multiple,
 .spbwc-options-page .select2-container .select2-selection--multiple {
     min-height: 40px;
-    border-radius: var(--nbd-radius-md);
-    border-color: var(--nbd-st-border-light);
-    background: var(--nbd-st-bg-input);
-    box-shadow: var(--shadow-input-inset);
+    border-radius: var(--st-field-radius);
+    border-color: var(--st-field-border);
+    background: var(--st-field-bg);
+    box-shadow: var(--st-field-shadow);
 }
 .spbwc-edit-v2 .select2-container--focus .select2-selection--multiple,
 .spbwc-options-page .select2-container--focus .select2-selection--multiple {
     border-color: var(--st-brand);
-    box-shadow: var(--shadow-input-focus);
+    box-shadow: var(--st-field-focus-shadow);
 }
 .spbwc-edit-v2 .select2-selection__choice,
 .spbwc-options-page .select2-selection__choice,
@@ -5026,7 +5033,7 @@
 .spbwc-edit-v2 .select2-search--inline .select2-search__field,
 .spbwc-options-page .select2-search--inline .select2-search__field {
     font-family: inherit;
-    font-size: var(--text-md);
+    font-size: var(--st-field-font);
     color: var(--nbd-st-text);
 }
 
@@ -5058,9 +5065,9 @@
 }
 .spbwc-edit-v2 .v2-preview__accurate-note .dashicons {
     flex: 0 0 auto;
-    font-size: 16px;
-    width: 16px;
-    height: 16px;
+    font-size: var(--st-icon-md);
+    width: var(--st-icon-md);
+    height: var(--st-icon-md);
     color: var(--st-brand);
 }
 .spbwc-edit-v2 .v2-preview__sf-btn {
@@ -5153,7 +5160,7 @@ body.spbwc-sf-preview-lock { overflow: hidden; }
     width: 36px;
     height: 36px;
     border: 1px solid var(--nbd-st-border-light);
-    border-radius: var(--nbd-radius-md);
+    border-radius: var(--st-btn-radius);
     background: var(--nbd-st-bg);
     color: var(--nbd-st-text);
     cursor: pointer;
@@ -5190,7 +5197,7 @@ body.spbwc-sf-preview-lock { overflow: hidden; }
     color: var(--nbd-st-text-mute);
     background: var(--nbd-st-bg-soft);
 }
-.v2-sfprev__state .dashicons { font-size: 28px; width: 28px; height: 28px; color: var(--nbd-color-warning); }
+.v2-sfprev__state .dashicons { font-size: var(--st-icon-2xl); width: var(--st-icon-2xl); height: var(--st-icon-2xl); color: var(--nbd-color-warning); }
 .v2-sfprev.is-loading .v2-sfprev__state--loading { display: flex; }
 .v2-sfprev.is-error .v2-sfprev__state--error { display: flex; }
 
