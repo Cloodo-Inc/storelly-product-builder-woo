@@ -2,8 +2,6 @@ angular
   .module("optionApp", [])
   .controller("optionCtrl", function ($scope, $timeout) {
     /* init parameters */
-    $scope.showPreview = false;
-    $scope.previewWide = false;
     $scope.jsonFields = "";
     $scope.formula = {
       active: false,

@@ -4589,13 +4589,6 @@
    Sticky save bar at bottom — frosted, two-column layout
    ============================================================ */
 
-/* Kill the legacy floating "Create Pre builder" widget — superseded by
-   the inline Live Preview pane + the Pre-builder button in the savebar. */
-.spbwc-edit-v2 .frontend-prview,
-.spbwc-edit-v2 .create-pre-builder-wrap {
-    display: none !important;
-}
-
 .spbwc-edit-v2 .v2-savebar {
     position: sticky;
     bottom: 0;

@@ -215,12 +215,19 @@ nên trang sản phẩm pricing-only + preview đều bị. Fix: thêm
    (resolve product TRƯỚC nhánh draft), set hidden `product_id` trên form + reload; `is-product` làm mờ
    ô sample base (bị override). Select2 dropdown nâng z-index khi modal mở (scoped `body.spbwc-sf-preview-lock`).
 
-### Còn lại (M3+)
-- POT regen: string "Updating…"/"Add at least one field…"/"Against product"… mới + gỡ "Create Pre builder" (release gate).
-- Dọn CSS `.frontend-prview` chết trong admin-options(.css/-rtl/-v2/-v2-rtl).
+### M3 — housekeeping (2026-06-10)
+1. **Dọn CSS chết**: gỡ `.frontend-prview*` + `.create-pre-builder-*` (mồ côi sau khi xoá preview.php)
+   khỏi admin-options(.css/-rtl/-v2/-v2-rtl); gỡ 2 scope var JS chết `showPreview`/`previewWide`.
+2. **rtlcss regen `storefront-options-rtl.css`**: 1289→1611 dòng, nay có đủ section advanced-dropdown
+   card + carrier-hide fix; chevron flip `right→left` đúng.
+3. **POT regen** `languages/storelly-product-builder-for-woocommerce.pot` (capture string preview mới,
+   gỡ "Create Pre builder") + `msgmerge --update` 15 .po + `msgfmt` 15 .mo (string mới = English fallback).
+
+### Còn lại
 - **Structural P0** (cần user chốt + browser verify): dock/in-column preview để vừa sửa field vừa xem
   bản thật (hiện modal full-screen che builder → auto-refresh chỉ hữu ích phần nào).
-- `storefront-options-rtl.css` STALE (thiếu cả section advanced-dropdown card) → cần rtlcss regen.
+- POT legacy `spbwc-product-builder.pot` vẫn tồn tại song song (skill template-preview tham chiếu) —
+  cân nhắc hợp nhất về 1 POT canonical sau.
 
 ### Files
 M1: `includes/templates/class-template-preview-render.php` (draft mode),
