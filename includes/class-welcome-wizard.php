@@ -43,6 +43,9 @@ if ( ! class_exists( 'SPBWC_Welcome_Wizard' ) ) {
 		/** Option storing the option-set ids created as samples (for reference / cleanup). */
 		const OPT_SAMPLES = 'spbwc_wizard_samples';
 
+		/** Option mapping sample option_id => template slug (for the live preview). */
+		const OPT_SAMPLE_SLUGS = 'spbwc_wizard_sample_slugs';
+
 		/** Option storing the random template slugs offered on step 1 (kept stable across reloads). */
 		const OPT_PICK = 'spbwc_wizard_pick';
 
@@ -240,13 +243,16 @@ if ( ! class_exists( 'SPBWC_Welcome_Wizard' ) ) {
 				$slugs = array_slice( $slugs, 0, self::MAX_PICK );
 			}
 
-			$created = array();
+			$created   = array();
+			$slug_map  = array(); // option_id => template slug (for the live preview).
 			if ( class_exists( 'SPBWC_Template_Applier' ) ) {
 				$applier = SPBWC_Template_Applier::instance();
 				foreach ( $slugs as $slug ) {
 					$res = $applier->install_sample( $slug );
 					if ( ! empty( $res['success'] ) && ! empty( $res['option_id'] ) ) {
-						$created[] = (int) $res['option_id'];
+						$oid             = (int) $res['option_id'];
+						$created[]       = $oid;
+						$slug_map[ $oid ] = $slug;
 					}
 				}
 			}
@@ -255,6 +261,9 @@ if ( ! class_exists( 'SPBWC_Welcome_Wizard' ) ) {
 				$existing = (array) get_option( self::OPT_SAMPLES, array() );
 				$merged   = array_values( array_unique( array_map( 'absint', array_merge( $existing, $created ) ) ) );
 				update_option( self::OPT_SAMPLES, $merged, false );
+
+				$existing_map = (array) get_option( self::OPT_SAMPLE_SLUGS, array() );
+				update_option( self::OPT_SAMPLE_SLUGS, $existing_map + $slug_map, false );
 			}
 
 			wp_safe_redirect( self::step_url( 2 ) );
@@ -519,6 +528,8 @@ if ( ! class_exists( 'SPBWC_Welcome_Wizard' ) ) {
 					</li>
 				</ul>
 
+				<?php self::render_sample_preview(); ?>
+
 				<div class="spbwc-wiz__actions spbwc-wiz__actions--center">
 					<a class="spbwc-wiz-btn spbwc-wiz-btn--primary" href="<?php echo esc_url( $overview ); ?>">
 						<?php esc_html_e( 'Go to Overview', 'storelly-product-builder-for-woocommerce' ); ?>
@@ -527,6 +538,85 @@ if ( ! class_exists( 'SPBWC_Welcome_Wizard' ) ) {
 						<?php esc_html_e( 'Continue with Setup Wizard', 'storelly-product-builder-for-woocommerce' ); ?>
 					</a>
 				</div>
+			</div>
+			<?php
+		}
+
+		/**
+		 * "See it in action" — for each sample just installed, a 1-click WYSIWYG
+		 * preview rendered by the real storefront engine
+		 * (SPBWC_Template_Preview_Render, by template slug) plus a link to manage /
+		 * assign it in the Pricing Options list. Gives the aha-moment right after
+		 * install without a product picker. Skipped if the preview engine is absent
+		 * or no samples were installed.
+		 */
+		private static function render_sample_preview() {
+			if ( ! class_exists( 'SPBWC_Template_Preview_Render' ) ) {
+				return;
+			}
+			$map = (array) get_option( self::OPT_SAMPLE_SLUGS, array() );
+			if ( empty( $map ) ) {
+				return;
+			}
+			$preview_base = SPBWC_Template_Preview_Render::preview_url();
+			$builder_url  = defined( 'SPBWC_PB_BUILDER_SLUG' )
+				? admin_url( 'admin.php?page=' . SPBWC_PB_BUILDER_SLUG )
+				: admin_url( 'admin.php' );
+			$catalog = class_exists( 'SPBWC_Template_Catalog' ) ? SPBWC_Template_Catalog::instance() : null;
+			?>
+			<div class="spbwc-wiz-preview">
+				<h2 class="spbwc-wiz-preview__title"><?php esc_html_e( 'See a sample in action', 'storelly-product-builder-for-woocommerce' ); ?></h2>
+				<ul class="spbwc-wiz-preview__list">
+					<?php
+					foreach ( $map as $oid => $slug ) {
+						$slug = sanitize_key( $slug );
+						if ( '' === $slug ) {
+							continue;
+						}
+						$label = $slug;
+						if ( $catalog ) {
+							$meta = $catalog->get_template_meta( $slug );
+							if ( is_array( $meta ) ) {
+								$label = $catalog->get_display_name( $meta );
+							}
+						}
+						$preview_url = add_query_arg( array( 'slug' => $slug ), $preview_base );
+						$edit_url    = add_query_arg(
+							array(
+								'page'   => defined( 'SPBWC_PB_BUILDER_SLUG' ) ? SPBWC_PB_BUILDER_SLUG : '',
+								'action' => 'edit',
+								'id'     => (int) $oid,
+							),
+							admin_url( 'admin.php' )
+						);
+						?>
+						<li class="spbwc-wiz-preview__item">
+							<span class="spbwc-wiz-preview__name"><?php echo esc_html( $label ); ?></span>
+							<span class="spbwc-wiz-preview__actions">
+								<a class="spbwc-wiz-btn spbwc-wiz-btn--ghost spbwc-wiz-btn--sm" href="<?php echo esc_url( $preview_url ); ?>" target="_blank" rel="noopener">
+									<span class="dashicons dashicons-visibility" aria-hidden="true"></span>
+									<?php esc_html_e( 'Preview', 'storelly-product-builder-for-woocommerce' ); ?>
+								</a>
+								<a class="spbwc-wiz-preview__assign" href="<?php echo esc_url( $edit_url ); ?>">
+									<?php esc_html_e( 'Edit / assign to a product', 'storelly-product-builder-for-woocommerce' ); ?>
+								</a>
+							</span>
+						</li>
+						<?php
+					}
+					?>
+				</ul>
+				<p class="spbwc-wiz-preview__hint">
+					<?php
+					echo esc_html__( 'Samples aren’t shown on your store until you assign them to a product.', 'storelly-product-builder-for-woocommerce' );
+					echo ' ';
+					printf(
+						'<a href="%s">%s</a>',
+						esc_url( $builder_url ),
+						esc_html__( 'Manage all options →', 'storelly-product-builder-for-woocommerce' )
+					);
+					?>
+				</p>
 			</div>
 			<?php
 		}

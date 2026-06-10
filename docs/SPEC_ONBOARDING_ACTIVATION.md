@@ -514,3 +514,24 @@ NEW: `includes/class-welcome-wizard.php`, `static/css/welcome-wizard.css`, `stat
 `static/js/visual-builder-onboarding.js`. SỬA: `class-onboarding.php`, `class-demo-seeder.php`,
 `templates/class-template-applier.php`, `quote/class-quote-import.php`,
 `storelly-product-builder-for-woocommerce.php` (constant `SPBWC_PB_WIZARD_SLUG` + require/init).
+
+### §9.6 — Follow-up UX (2026-06-10, commits 692a028 + sample-preview)
+Sau khi ship §9, bổ sung (user chốt #1/#3/#4-8):
+- **FIX bug skip:** `skip_url()` trước gọi `mark_wizard_done()` ngay lúc render link → chỉ xem step là
+  wizard bị đánh dấu done. Đổi skip thành action nonce (`maybe_handle_skip` trên admin_init); chỉ click
+  thật mới mark done.
+- **#1 Resume nudge:** notice dismissible "Storelly setup isn't finished — Resume" trên màn Storelly khi
+  wizard chưa done (manager + WC active, trừ trang wizard, tắt khi done/onboarding complete) → cứu user
+  đóng tab giữa chừng (redirect post-activate chỉ bắn 1 lần). `maybe_resume_notice()`.
+- **#3 Sample preview (aha-moment):** step 3 block "See a sample in action" — mỗi sample vừa cài có nút
+  **Preview** mở WYSIWYG storefront thật qua `SPBWC_Template_Preview_Render::preview_url()+&slug` (1-click,
+  cap+nonce, không cần product picker) + link "Edit / assign to a product". Lưu map id→slug ở
+  `spbwc_wizard_sample_slugs`. Nhắc rõ "sample chưa lên store tới khi gán product".
+- **#4 Preview card:** mỗi card step 1 có nút Preview xổ danh sách field titles + pricing method
+  (`template_field_titles()`). **#5 Re-roll:** "Show me different templates" (nonce, xoá `spbwc_wizard_pick`).
+  **#6:** loading state nút submit. **#7:** progress bar overlay VB (`ajax_status` trả done/total = đếm
+  attachment `_spbwc_is_sample` vs số ảnh bundle; KHÔNG đổi seed path). **#8:** Back ở step 2 + focus vào
+  nút skip của overlay.
+- **#2 (phản hồi sync quote): user KHÔNG chọn → chưa làm.**
+- Verify HTTP auth: step 1 reroll+preview (0 error), step 3 preview block (0 error), resume notice gate
+  đúng (ẩn khi onboarding complete).
