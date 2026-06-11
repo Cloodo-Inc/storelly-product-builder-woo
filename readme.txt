@@ -4,8 +4,8 @@ Donate link: https://storelly.com/
 Tags: product builder, product customize, product customizer, woocommerce custom product
 Requires at least: 4.7
 Tested up to: 7.0
-Stable tag: 1.6.5
-Version: 1.6.5
+Stable tag: 1.6.6
+Version: 1.6.6
 Requires PHP: 7.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -146,11 +146,23 @@ This plugin connects to the following external services:
 
 == Screenshots ==
 
-1. Front-end product builder — customers personalize a product with live pricing
-2. Admin: create and configure product-builder option fields (size, color, material, text, image layers)
-3. Storelly settings — optional Cloud features (print-ready PDF, order sync, dashboard analytics)
+1. Front-end product builder — customers personalize a product live, with instant pricing
+2. Live customizer with color, material and option swatches — works on any product
+3. Product builder on the storefront: step-by-step options, swatches and a running total
+4. Swatch-rich configuration with a live order summary and add to cart
+5. Admin option builder — define fields (size, color, material, text, image layers) with quantity and bulk pricing
+6. Per-option image swatches, configured in the admin option builder
+7. Manage every product-builder product from one screen
+8. Storelly overview dashboard — key metrics, customer designs and recent activity
+9. Template Library — ready-made customizable product templates to apply in one click
+10. B2B / wholesale — company accounts with tier pricing, credit limit and payment terms
 
 == Changelog ==
+= 1.6.6 =
+* **Fixed: option builder Save / Update.** The Save and Update buttons in the admin option builder now save reliably, and the apply-to-products status round-trips correctly after saving.
+* **Store listing.** Rewritten plugin intro and an expanded screenshot set: the front-end product builder and live customizer, the admin option builder with quantity & bulk pricing, the product list, the overview dashboard, the Template Library, and B2B company accounts.
+* **Polish.** Token-styled toast for order-download notices with a shared scrim token, plus minor B2B admin and dialog styling cleanups.
+
 = 1.6.5 =
 * **Fixed the demo product installing as duplicates.** On some servers activating the plugin could install the bundled demo product several times over (and briefly slow the site) if the first admin page was reloaded while it was still importing. The one-time install is now guarded so it runs exactly once.
 * **Fixed broken images in the demo product.** Component thumbnails and the per-view base images of the demo "bag" now import correctly instead of showing blank or wrong images.

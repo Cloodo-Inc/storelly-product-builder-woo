@@ -23,9 +23,16 @@ Names map 1:1 to the numbered list under `== Screenshots ==` in `readme.txt`.
 
 | File (in `.wordpress-org/`) | readme caption (line under `== Screenshots ==`) |
 |---|---|
-| `screenshot-1.png` | 1. Front-end product builder — customers personalize a product with live pricing |
-| `screenshot-2.png` | 2. Admin: create and configure product-builder option fields (size, color, material, text, image layers) |
-| `screenshot-3.png` | 3. Storelly settings — optional Cloud features (print-ready PDF, order sync, dashboard analytics) |
+| `screenshot-1.png` | 1. Front-end product builder — customers personalize a product live, with instant pricing |
+| `screenshot-2.png` | 2. Live customizer with color, material and option swatches — works on any product |
+| `screenshot-3.png` | 3. Product builder on the storefront: step-by-step options, swatches and a running total |
+| `screenshot-4.png` | 4. Swatch-rich configuration with a live order summary and add to cart |
+| `screenshot-5.png` | 5. Admin option builder — define fields (size, color, material, text, image layers) with quantity and bulk pricing |
+| `screenshot-6.png` | 6. Per-option image swatches, configured in the admin option builder |
+| `screenshot-7.png` | 7. Manage every product-builder product from one screen |
+| `screenshot-8.png` | 8. Storelly overview dashboard — key metrics, customer designs and recent activity |
+| `screenshot-9.png` | 9. Template Library — ready-made customizable product templates to apply in one click |
+| `screenshot-10.png` | 10. B2B / wholesale — company accounts with tier pricing, credit limit and payment terms |
 
 - Format: **PNG or JPG** (RGB, not CMYK). PNG preferred for UI shots.
 - Add more by appending `screenshot-4.png` + a matching `4.` caption line, etc.
