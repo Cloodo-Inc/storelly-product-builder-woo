@@ -47,7 +47,7 @@ body.spbwc-modal-open { overflow: hidden; }
     padding: 8vh var(--nbd-space-4) var(--nbd-space-4);
 }
 .spbwc-modal[hidden] { display: none; }
-.spbwc-modal__backdrop { position: absolute; inset: 0; background: rgba(16, 24, 40, 0.55); }
+.spbwc-modal__backdrop { position: absolute; inset: 0; background: var(--st-overlay, rgba(16, 24, 40, 0.55)); }
 .spbwc-modal__dialog {
     position: relative;
     width: 100%;

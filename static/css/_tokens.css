@@ -85,6 +85,11 @@
     --nbd-st-bg-input:        #ffffff;
     --nbd-st-bg-brand:        #f8fafc;
 
+    /* Modal / dialog scrim — single source of truth for every overlay
+       backdrop (spbwcDialog, B2B modal). Dark slate at 55% so content
+       behind the modal recedes without going fully black.             */
+    --st-overlay:             rgba(16, 24, 40, 0.55);
+
     /* === Text ================================================== */
     --nbd-st-text:            #1d2327;
     --nbd-st-text-soft:       #50575e;

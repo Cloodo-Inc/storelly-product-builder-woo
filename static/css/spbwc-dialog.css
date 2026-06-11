@@ -19,7 +19,7 @@
 
 /* Native <dialog> backdrop. */
 .spbwc-dlg::backdrop {
-	background: rgba(16, 24, 40, 0.55);
+	background: var(--st-overlay, rgba(16, 24, 40, 0.55));
 }
 
 /* Fallback backdrop (browsers without <dialog>). */
@@ -31,7 +31,7 @@
 	align-items: center;
 	justify-content: center;
 	padding: var(--nbd-space-4, 16px);
-	background: rgba(16, 24, 40, 0.55);
+	background: var(--st-overlay, rgba(16, 24, 40, 0.55));
 }
 
 /* ============================================================== Dialog */

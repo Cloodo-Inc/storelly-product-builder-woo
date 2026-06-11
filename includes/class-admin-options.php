@@ -465,7 +465,11 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
             wp_register_script('spbwc-tiptip', SPBWC_PB_ASSETS_URL . 'js/tiptip.js', array('jquery'), SPBWC_PB_VERSION, true);
             wp_register_script('spbwc-fontfaceobserver', SPBWC_PB_ASSETS_URL . 'libs/fontfaceobserver.js', array(), '2.0.13', true);
             wp_register_script('spbwc-sweetalert-js', SPBWC_PB_ASSETS_URL . 'libs/sweetalert.min.js', array(), '5.6.10', true);
-            wp_register_script('spbwc-general-js', SPBWC_PB_ASSETS_URL . 'js/storelly-general.js', array('jquery'), SPBWC_PB_VERSION, true);
+            // Depends on spbwc-dialog so notify() always reaches the token-styled
+            // toast (spbwcDialog) instead of falling back to the unstyled native
+            // window.alert "<site> says" popup. Declaring it as a dependency also
+            // guarantees the dialog script prints before this one.
+            wp_register_script('spbwc-general-js', SPBWC_PB_ASSETS_URL . 'js/storelly-general.js', array('jquery', 'spbwc-dialog'), SPBWC_PB_VERSION, true);
 
             // Design tokens — must load before any other Storelly admin
             // stylesheet so var(--st-*, --nbd-st-*, --gi-*) resolves.

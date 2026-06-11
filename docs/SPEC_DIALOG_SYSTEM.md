@@ -103,4 +103,16 @@ delete), `option-builder.js` (upload validation), `storelly-general.js`,
 `--st-brand` / `--st-brand-pressed`, `--nbd-color-danger/-soft`,
 `--nbd-color-success/-warning`, `--nbd-st-bg`, `--nbd-radius-lg`,
 `--shadow-xl/-lg`, `--st-z-overlay/-modal/-toast`, spacing + typography scale.
+The modal/dialog backdrop scrim is `--st-overlay` (`rgba(16,24,40,0.55)`),
+a shared token also consumed by the B2B admin modal (`.spbwc-modal__backdrop`)
+so every overlay uses one source of truth.
 No hardcoded colours/spacing in component CSS beyond token fallbacks.
+
+### Admin call-site dependency
+
+Admin inline scripts that reach `spbwcDialog` (e.g. `spbwc-general-js` →
+`storelly-general.js`, the order print-file download notices) declare
+`spbwc-dialog` as a `wp_register_script()` dependency. Belt-and-braces with the
+"enqueue on every admin page" rule above: it guarantees the dialog script prints
+*before* the consumer, so `notify()` never degrades to the native `window.alert`
+"<site> says" popup.
