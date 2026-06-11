@@ -12,7 +12,7 @@ Version:                1.6.6
 Requires Plugins:       woocommerce
 WC requires at least:   6.0.0
 WC tested up to:        10.7.0
-PHP:                    >=7.0
+Requires PHP:           7.4
 Author:                 Storelly Team
 Author URI:             https://storelly.com
 License:                GPL v2 or later
