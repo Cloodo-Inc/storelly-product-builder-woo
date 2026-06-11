@@ -1275,11 +1275,17 @@ $field_count   = isset($options['fields']) && is_array($options['fields']) ? cou
                     <a href="<?php echo esc_url($spbwc_cancel_link); ?>" class="v2-btn v2-btn--secondary">
                         <?php echo ! empty( $product_id ) ? esc_html__('Discard & back', 'storelly-product-builder-for-woocommerce') : esc_html__('Cancel', 'storelly-product-builder-for-woocommerce'); ?>
                     </a>
-                    <input ng-disabled="!nboForm.$valid"
-                           name="save" type="submit"
+                    <?php /*
+                        Save is driven by performSave() (AJAX) via an explicit
+                        click handler bound in bindAjaxSave() — the same path as
+                        Ctrl+S. We deliberately do NOT gate the button on Angular's
+                        nboForm.$valid (it diverges from native validity and left
+                        the button permanently disabled while Ctrl+S still saved);
+                        performSave runs the browser's own checkValidity() instead.
+                    */ ?>
+                    <input name="save" type="submit"
                            class="v2-btn v2-btn--primary v2-savebar__primary"
                            id="publish"
-                           ng-click="updateJsonFields($event)"
                            accesskey="p"
                            value="<?php echo esc_attr( $spbwc_save_label ); ?>" />
                 </div>
@@ -1488,6 +1494,18 @@ $field_count   = isset($options['fields']) && is_array($options['fields']) ? cou
             }
             performSave(form, false);
         });
+
+        // Explicit click handler on the primary Save/Update button. It is
+        // type=submit, but Angular's form directive (name="nboForm") can
+        // swallow the native submit so the click does nothing — which is why
+        // the button appeared dead while Ctrl+S (which calls performSave
+        // directly) worked. Drive performSave here so the button always saves.
+        if (saveBtn) {
+            saveBtn.addEventListener('click', function (e) {
+                e.preventDefault();
+                performSave(form, false);
+            });
+        }
     }
 
     /**

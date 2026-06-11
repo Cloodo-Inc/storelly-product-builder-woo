@@ -345,23 +345,35 @@
                 var form = document.getElementById( 'spbwc-vb-form' );
                 if ( form ) {
                     form.addEventListener( 'submit', function ( e ) {
-                        if ( ! form._vbAutoSaveMode ) {
-                            // Manual save — also cancel any pending debounce
-                            // so we don't accidentally double-fire.
+                        var manual = !! form._vbManualSave;
+                        var auto   = !! form._vbAutoSaveMode;
+
+                        // A submit we did not originate via the save helpers
+                        // (legacy/native path) — let the browser handle it.
+                        if ( ! manual && ! auto ) {
                             if ( autoSaveTimer ) {
                                 clearTimeout( autoSaveTimer );
                                 autoSaveTimer = null;
                             }
                             $rootScope.vbDirty = false;
-                            return; // let the browser submit normally.
+                            return;
                         }
 
-                        // Auto-save path: intercept, send via fetch().
+                        // Both manual Save and background auto-save route through
+                        // fetch() — no page reload, and preventDefault here (capture
+                        // phase) also sidesteps the jQuery(form).submit() native
+                        // re-submit quirk that left the manual button doing nothing.
                         e.preventDefault();
                         e.stopPropagation();
                         e.stopImmediatePropagation();
+                        form._vbManualSave   = false;
                         form._vbAutoSaveMode = false;
+                        if ( autoSaveTimer ) {
+                            clearTimeout( autoSaveTimer );
+                            autoSaveTimer = null;
+                        }
 
+                        var label = manual ? 'Save' : 'Auto-save';
                         var fd  = new $window.FormData( form );
                         var url = form.action || $window.location.href;
                         $window.fetch( url, {
@@ -382,28 +394,54 @@
                                     refreshLabel();
                                 } else {
                                     $rootScope.vbSavingState = 'error';
-                                    $rootScope.vbSavedLabel = 'Auto-save failed';
+                                    $rootScope.vbSavedLabel = label + ' failed';
                                 }
                             } );
                             if ( ok ) {
-                                $rootScope.vbShowToast( 'Auto-saved', 'success', '✓', 2000 );
+                                $rootScope.vbShowToast( manual ? 'Saved' : 'Auto-saved', 'success', '✓', 2000 );
                             } else {
                                 $rootScope.vbShowToast(
-                                    'Auto-save failed (HTTP ' + r.status + '). Your changes are still in the editor.',
+                                    label + ' failed (HTTP ' + r.status + '). Your changes are still in the editor.',
                                     'warning', '⚠', 5000
                                 );
                             }
                         } ).catch( function ( err ) {
                             $rootScope.$applyAsync( function () {
                                 $rootScope.vbSavingState = 'error';
-                                $rootScope.vbSavedLabel = 'Auto-save failed';
+                                $rootScope.vbSavedLabel = label + ' failed';
                             } );
                             $rootScope.vbShowToast(
-                                'Auto-save network error. Your changes are still in the editor.',
+                                label + ' network error. Your changes are still in the editor.',
                                 'warning', '⚠', 5000
                             );
                         } );
                     }, true /* capture */ );
+
+                    // Ctrl/Cmd+S → manual save (parity with the classic editor,
+                    // which the merchant expects everywhere). Run inside $apply:
+                    // getJsonFields() writes $scope.jsonFields then submits on a
+                    // 0ms timer, and the {{jsonFields}} hidden input only flushes
+                    // during a digest — the keydown fires OUTSIDE Angular, so
+                    // without this the POST would carry a stale field payload.
+                    $window.document.addEventListener( 'keydown', function ( e ) {
+                        var isSave = ( e.ctrlKey || e.metaKey ) &&
+                            ( e.key === 's' || e.key === 'S' );
+                        if ( ! isSave ) {
+                            return;
+                        }
+                        e.preventDefault();
+                        if ( typeof $rootScope.vbSaveWithValidation !== 'function' ) {
+                            return;
+                        }
+                        var phase = $rootScope.$$phase;
+                        if ( '$apply' === phase || '$digest' === phase ) {
+                            $rootScope.vbSaveWithValidation();
+                        } else {
+                            $rootScope.$apply( function () {
+                                $rootScope.vbSaveWithValidation();
+                            } );
+                        }
+                    } );
                 }
             }, 200 );
 
@@ -839,15 +877,17 @@
                 return issues;
             };
 
-            /* Save handler wrapper used by the Save Visual buttons. Runs
-             * the validator, shows a warning toast if anything looks off,
-             * then calls the classic getJsonFields() which submits the
-             * form. Issues do NOT block the save — sometimes a half-built
-             * draft is exactly what the merchant wants to persist. */
+            /* Manual save handler used by the Save Visual buttons and Ctrl+S.
+             * Runs the validator (issues are surfaced but never block — a
+             * half-built draft is often exactly what the merchant wants to
+             * persist), then flags the form for the fetch interceptor and calls
+             * the classic getJsonFields() which serialises every field into the
+             * hidden jsonFields input and submits. The submit is caught by the
+             * capture-phase interceptor above and routed through fetch(), so the
+             * button saves reliably without a full-page navigation (the old
+             * native submit silently did nothing). */
             $rootScope.vbSaveWithValidation = function () {
-                var ctrl = angular.element(
-                    document.querySelector( '[ng-controller="optionCtrl"]' )
-                ).scope();
+                var ctrl = getCtrlScope();
                 if ( ! ctrl || typeof ctrl.getJsonFields !== 'function' ) {
                     return;
                 }
@@ -859,6 +899,34 @@
                             ( issues.length > 3 ? '\n• …and ' + ( issues.length - 3 ) + ' more' : '' ) );
                     $rootScope.vbShowToast( msg, 'warning', '⚠', 5000 );
                 }
+
+                var form = document.getElementById( 'spbwc-vb-form' );
+                if ( ! form ) {
+                    return;
+                }
+
+                // Catastrophic-wipe guard (mirrors auto-save): never persist an
+                // empty field set over a saved design.
+                if ( ! ctrl.options || ! angular.isArray( ctrl.options.fields ) ||
+                     ctrl.options.fields.length === 0 ) {
+                    $rootScope.vbShowToast(
+                        'Nothing to save yet — add at least one field.',
+                        'warning', '⚠', 4000
+                    );
+                    return;
+                }
+
+                // Cancel any pending debounced auto-save so it cannot fire a
+                // second submit in the same tick (which the interceptor would
+                // see flag-less and let navigate natively).
+                if ( autoSaveTimer ) {
+                    clearTimeout( autoSaveTimer );
+                    autoSaveTimer = null;
+                }
+
+                form._vbManualSave = true;
+                $rootScope.vbSavingState = 'saving';
+                $rootScope.vbSavedLabel  = 'Saving…';
                 ctrl.getJsonFields();
             };
 

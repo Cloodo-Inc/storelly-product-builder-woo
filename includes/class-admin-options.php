@@ -676,11 +676,21 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
                         $options['modified'] = $_options['modified'];
                         $options['product_ids'] = isset( $_options['product_ids'] ) && is_array( maybe_unserialize( $_options['product_ids'] ) )
                             ? maybe_unserialize( $_options['product_ids'] ) : array();
+                        // Apply target (mode + category list) must round-trip too, or
+                        // the editor reloads showing "not applied" even though the row
+                        // stored an apply target — the status badge reads apply_for /
+                        // product_cats, which were previously never unpacked here.
+                        $options['product_cats'] = isset( $_options['product_cats'] ) && is_array( maybe_unserialize( $_options['product_cats'] ) )
+                            ? maybe_unserialize( $_options['product_cats'] ) : array();
+                        $options['apply_for'] = isset( $_options['apply_for'] ) && '' !== $_options['apply_for']
+                            ? $_options['apply_for'] : 'p';
                     } else {
                         $options             = $this->spbwc_build_options();
                         $options['id']       = 0;
                         $options['title']    = '';
                         $options['product_ids'] = array();
+                        $options['product_cats'] = array();
+                        $options['apply_for']    = 'p';
                         $options['published']= 1;
                         $options['created']  = '';
                         $options['modified'] = '';
@@ -820,11 +830,18 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
                         $options['created']             = $_options['created'];
                         $options['modified']            = $_options['modified'];
                         $options['product_ids']         = isset($_options['product_ids']) ? (is_array(maybe_unserialize($_options['product_ids'])) ? maybe_unserialize($_options['product_ids']) : array()) : array();
+                        // Round-trip the apply target (see v3 loader above) so the
+                        // "applied to N products / categories" status reflects the
+                        // saved row instead of always defaulting to an empty product list.
+                        $options['product_cats']        = isset($_options['product_cats']) ? (is_array(maybe_unserialize($_options['product_cats'])) ? maybe_unserialize($_options['product_cats']) : array()) : array();
+                        $options['apply_for']           = isset($_options['apply_for']) && '' !== $_options['apply_for'] ? $_options['apply_for'] : 'p';
                     } else {
                         $options = $this->spbwc_build_options();
                         $options['id']                  = 0;
                         $options['title']               = '';
                         $options['product_ids']         = array();
+                        $options['product_cats']        = array();
+                        $options['apply_for']           = 'p';
                         $options['published']           = 1;
                         $options['created']             = '';
                         $options['modified']            = '';
