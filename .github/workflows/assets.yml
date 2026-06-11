@@ -1,0 +1,28 @@
+name: Update WordPress.org Assets
+
+# Deploy plugin assets (screenshots, banner, icon) to the wordpress.org SVN
+# `assets/` directory WITHOUT cutting a new release. Runs whenever files under
+# .wordpress-org/ change on main, or on manual dispatch.
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - ".wordpress-org/**"
+  workflow_dispatch:
+
+jobs:
+  assets:
+    name: Deploy assets to WordPress.org
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Update plugin assets on WordPress.org
+        uses: 10up/action-wordpress-plugin-asset-update@stable
+        env:
+          SVN_USERNAME: ${{ secrets.SVN_USERNAME }}
+          SVN_PASSWORD: ${{ secrets.SVN_PASSWORD }}
+          SLUG: storelly-product-builder-for-woocommerce
+          ASSETS_DIR: .wordpress-org

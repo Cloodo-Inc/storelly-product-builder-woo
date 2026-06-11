@@ -1,6 +1,7 @@
 # File/thư mục KHÔNG đẩy lên wordpress.org (chỉ phục vụ dev)
 .git
 .github
+.wordpress-org
 .claude
 .remember
 .distignore

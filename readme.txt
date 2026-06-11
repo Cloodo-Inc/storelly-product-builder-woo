@@ -10,7 +10,7 @@ Requires PHP: 7.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-Storelly Product Builder allows customers to configure and personalize products. Ideal for customizable or made-to-order items.
+Visual product customizer for WooCommerce: let buyers personalize made-to-order products with live pricing, quotes and custom orders. Free, no limit.
 
 == Description ==
 
@@ -146,9 +146,9 @@ This plugin connects to the following external services:
 
 == Screenshots ==
 
-1. Create new option screen for product builder fields
-2. Google Fonts manager for selecting admin fonts
-3. Storelly settings page with API keys and sync options
+1. Front-end product builder — customers personalize a product with live pricing
+2. Admin: create and configure product-builder option fields (size, color, material, text, image layers)
+3. Storelly settings — optional Cloud features (print-ready PDF, order sync, dashboard analytics)
 
 == Changelog ==
 = 1.6.5 =
