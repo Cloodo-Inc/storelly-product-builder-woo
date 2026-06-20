@@ -58,6 +58,14 @@ jQuery(document).ready(function ($) {
           document.body.appendChild(link);
           link.click();
           document.body.removeChild(link);
+        } else if (res && res.locked) {
+          // Cloud feature locked (F2): show the upsell instead of a misleading
+          // "no files" notice. The merchant upgrades from Account & Plan.
+          notify(
+            (res.mes || "This is a Cloud feature.") +
+              " Upgrade from Account & Plan to unlock.",
+            "warning"
+          );
         } else {
           // No files came back. For PDF/SVG this usually means the print-ready
           // files have not been generated yet for this design.

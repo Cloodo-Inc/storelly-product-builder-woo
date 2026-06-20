@@ -32,6 +32,13 @@ if (!class_exists('SPBWC_Storelly_Export_PDF')) {
          * @return array List of generated PDF files
          */
         public static function spbwc_export_pdf($folder_design, $include_background = false) {
+            // Cloud capability gate (F2 / SPEC_FREEMIUM_V1_1 §1.3): print-ready PDF
+            // rendering is a Cloud feature. Free/expired stores get a graceful
+            // spbwc_cloud_locked error and nothing is rendered (callers fail safe).
+            if ( class_exists( 'SPBWC_License_Manager' ) && ! SPBWC_License_Manager::can( 'cloud_pdf' ) ) {
+                return SPBWC_License_Manager::cloud_locked_error( 'cloud_pdf' );
+            }
+
             $path           = SPBWC_PB_CUSTOMER_DIR . '/' . $folder_design;
             $folder         = $path . '/customer-pdfs';
             $result         = array();

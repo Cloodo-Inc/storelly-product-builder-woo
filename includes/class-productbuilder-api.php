@@ -245,6 +245,20 @@ if (!class_exists('SPBWC_Storelly_Product_Builder_API')) {
         }
 
         /**
+         * Two-condition gate for order sync (SPEC_FREEMIUM_V1_1 §4.0 / F2):
+         * the merchant must have opted in (consent) AND hold an active Cloud
+         * license that grants `order_sync`. A free/expired store that consented
+         * but has no license does NOT upload — local order data is untouched and
+         * sync resumes automatically once a Cloud plan is activated.
+         */
+        protected static function spbwc_order_sync_allowed() {
+            if ( ! self::spbwc_api_sync_enabled() ) {
+                return false;
+            }
+            return class_exists( 'SPBWC_License_Manager' ) && SPBWC_License_Manager::can( 'order_sync' );
+        }
+
+        /**
          * Checkout hook (classic + Store API). Normalises the argument to an
          * order id and queues an async sync so checkout stays fast. The classic
          * hook passes an order id; the Store-API hook passes a WC_Order.
@@ -252,8 +266,8 @@ if (!class_exists('SPBWC_Storelly_Product_Builder_API')) {
          * @param int|WC_Order $order_or_id
          */
         public function spbwc_maybe_queue_order_sync($order_or_id){
-            if (!self::spbwc_api_sync_enabled()) {
-                return; // Opt-in gate.
+            if (!self::spbwc_order_sync_allowed()) {
+                return; // Consent + license (can('order_sync')) gate.
             }
             $order_id = ($order_or_id instanceof WC_Order) ? $order_or_id->get_id() : absint($order_or_id);
             if (!$order_id) {
@@ -278,8 +292,8 @@ if (!class_exists('SPBWC_Storelly_Product_Builder_API')) {
          * @param int $order_id
          */
         public function spbwc_run_order_sync($order_id){
-            if (!self::spbwc_api_sync_enabled()) {
-                return;
+            if (!self::spbwc_order_sync_allowed()) {
+                return; // Re-check the consent + license gate at run time.
             }
             $order = wc_get_order(absint($order_id));
             if (!$order) {

@@ -565,7 +565,7 @@ use (CSRF); all of this under `manage_options` only (§1.4).
 | **F1.1** | Caps + `plan_slug` + `quota` in entitlement model; `sync_from_api()` maps server `caps[]`; `can($cap)` per §1.3 (lands inside F1) | F1 |
 | **F6** | Plans page + connect-back activation (§5.2, §6) | F1.1, O-6 |
 | **F7** | Free marketplace + versioned updates (§2) — confirm/clean existing marketplace code is unlicensed | F1.1, O-3 |
-| **F8** | Order sync backbone (§4.0): gate `spbwc_run_order_sync` with `can('order_sync')` + extend payload with per-line `options[]` (A5) → then Option Analytics (§4.3) as a view over it | F1.1, F2, **O-3 liveness** |
+| **F8** | Order sync backbone (§4.0): ✅ **gate DONE (2026-06-20, v1.7.0)** — `spbwc_run_order_sync` + `spbwc_maybe_queue_order_sync` now two-condition gated via `spbwc_order_sync_allowed()` (consent AND `can('order_sync')`). _Still pending_: extend payload with per-line `options[]` (A5) → then Option Analytics (§4.3) as a view over it | F1.1, F2, **O-3 liveness** |
 | **F9** | Design Vault (§4.1) | F1.1, A3 |
 | **F10** | B2B service layer (§3): `invoice_pdf`, `email_trigger`, `analytics_b2b`; B2B ledger events extend the §4.0 feed | F1.1, F8, backend cron/email infra (O-8) |
 | **F11** | Asset Library (§4.2) | content production A4 |

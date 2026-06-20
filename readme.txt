@@ -4,8 +4,8 @@ Donate link: https://storelly.com/
 Tags: product builder, product customize, product customizer, woocommerce custom product
 Requires at least: 4.7
 Tested up to: 7.0
-Stable tag: 1.6.5
-Version: 1.6.5
+Stable tag: 1.7.0
+Version: 1.7.0
 Requires PHP: 7.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -151,6 +151,11 @@ This plugin connects to the following external services:
 3. Storelly settings page with API keys and sync options
 
 == Changelog ==
+= 1.7.0 =
+* **Cloud features now follow your plan.** Print-ready PDF rendering and order sync now require an active Storelly Cloud plan — matching what the plugin has always described. The full product builder, pricing options, quotes and custom orders stay free and local on your own site, with no product limit; only these optional cloud features are gated.
+* **"Unlock" prompt instead of a silent failure.** A store without a Cloud plan that tries to download a print-ready PDF now sees a clear "Print-ready PDF needs a Cloud plan" message pointing to Account &amp; Plan, instead of an empty download.
+* **Order sync respects your plan.** Orders are uploaded to the Storelly Dashboard only when you have both enabled order sync AND an active Cloud plan that includes it. Your local order data is never changed; sync resumes automatically once a plan is active.
+
 = 1.6.5 =
 * **Fixed the demo product installing as duplicates.** On some servers activating the plugin could install the bundled demo product several times over (and briefly slow the site) if the first admin page was reloaded while it was still importing. The one-time install is now guarded so it runs exactly once.
 * **Fixed broken images in the demo product.** Component thumbnails and the per-view base images of the demo "bag" now import correctly instead of showing blank or wrong images.
