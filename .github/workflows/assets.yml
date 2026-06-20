@@ -11,6 +11,14 @@ on:
       - ".wordpress-org/**"
   workflow_dispatch:
 
+# Serialize with the release deploy (deploy.yml) so the two never SVN-commit the
+# wordpress.org `assets/` directory at the same time. A tag push triggers both this
+# workflow (on main) and deploy.yml (on the tag); without a shared lock they race on
+# the SVN working copy and one fails. cancel-in-progress: false → they queue instead.
+concurrency:
+  group: wporg-svn-${{ github.repository }}
+  cancel-in-progress: false
+
 jobs:
   assets:
     name: Deploy assets to WordPress.org

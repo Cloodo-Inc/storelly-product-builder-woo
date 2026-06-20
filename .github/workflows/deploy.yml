@@ -6,6 +6,12 @@ on:
     tags:
       - "[0-9]+.[0-9]+.[0-9]+"
 
+# Share the SVN lock with assets.yml so a release deploy and an asset-only update
+# never commit to the wordpress.org `assets/` directory concurrently (see assets.yml).
+concurrency:
+  group: wporg-svn-${{ github.repository }}
+  cancel-in-progress: false
+
 jobs:
   release:
     name: Deploy to WordPress.org SVN
