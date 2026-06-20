@@ -6,7 +6,7 @@ Requires at least: 6.2
 Tested up to: 7.0
 Requires PHP: 7.4
 Requires Plugins: woocommerce
-Stable tag: 1.6.6
+Stable tag: 1.7.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -236,6 +236,11 @@ This plugin includes or depends on the following open-source libraries, bundled 
 10. B2B / wholesale — company accounts with tier pricing, credit limit and payment terms
 
 == Changelog ==
+
+= 1.7.0 =
+* **Cloud features now follow your plan.** Print-ready PDF rendering and order sync now require an active Storelly Cloud plan — matching what the plugin has always described. The full product builder, pricing options, quotes and custom orders stay free and local on your own site, with no product limit; only these optional cloud features are gated.
+* **"Unlock" prompt instead of a silent failure.** A store without a Cloud plan that tries to download a print-ready PDF now sees a clear "Print-ready PDF needs a Cloud plan" message pointing to Account &amp; Plan, instead of an empty download.
+* **Order sync respects your plan.** Orders are uploaded to the Storelly Dashboard only when you have both enabled order sync AND an active Cloud plan that includes it. Your local order data is never changed; sync resumes automatically once a plan is active.
 
 = 1.6.6 =
 * **Fixed: option builder Save / Update.** The Save and Update buttons in the admin option builder now save reliably, and the apply-to-products status round-trips correctly after saving.

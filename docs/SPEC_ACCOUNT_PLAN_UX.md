@@ -268,7 +268,7 @@ freemium spec; surface each with a clear inline message, never a white screen.
 | **U1** | ✅ **DONE (2026-06-09)** — IA fix, pure refactor, no backend. See §9.1 for what shipped. | — |
 | **U2** | ✅ **DONE (2026-06-09)** — unified **Account & Plan** page (status card S0–S3 + caps matrix replacing the quota grid). See §9.2. | F1.1, U1 |
 | **U3** | ✅ **DONE plugin-side (2026-06-09)** — connect-back flow built (`SPBWC_Cloud_Activation`); **dark until backend O-6** (`/connect` + token + `/license/exchange`), falls back to manual key / Sync. See §9.2. | backend O-6 |
-| **U4** | 🟡 **PARTIAL (2026-06-09)** — `can()` gate + `cloud_locked_error()` helper + caps-matrix lock/upsell display shipped. **Control-level inline prompts on PDF/sync need F2** (wrapping the real cloud calls). See §9.2. | F2, U3 |
+| **U4** | ✅ **DONE (2026-06-20, v1.7.0)** — F2 shipped: `can()` gates wrap the real cloud calls (`cloud_pdf` on `spbwc_export_pdf()`; two-condition `order_sync` on order sync) with inline "Unlock →" upsell (`upsell_url()` + `storelly-general.js`). Backend O-6 is live (2026-06-12). See `SPEC_CLOUD_ACTIVATION_API.md` §8. | F2, U3 |
 
 Suggested order: **U1 → U2 → U3 → U4** (U1 ships value immediately and is low-risk; U2+ need the
 entitlement layer from the freemium spec).

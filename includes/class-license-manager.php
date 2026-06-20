@@ -490,5 +490,30 @@ if ( ! class_exists( 'SPBWC_License_Manager' ) ) {
                 array( 'cap' => $cap )
             );
         }
+
+        /**
+         * Build the "Unlock →" checkout URL for a locked cap (U4 / F2). Picks the
+         * cheapest plan family that offers the cap (standard if available, else
+         * b2b) from caps_catalog() and round-trips the upsell-by-intent context
+         * "cap[:object_id]" through SPBWC_Cloud_Activation::checkout_url().
+         *
+         * @param string $cap       e.g. 'cloud_pdf', 'invoice_pdf'
+         * @param int    $object_id optional object the upsell was triggered from
+         * @return string admin-post checkout URL (or the License page as a fallback)
+         */
+        public static function upsell_url( $cap, $object_id = 0 ) {
+            $plan = 'cloud-standard-monthly';
+            foreach ( self::caps_catalog() as $row ) {
+                if ( $row['cap'] === $cap ) {
+                    $plan = in_array( 'standard', $row['plans'], true ) ? 'cloud-standard-monthly' : 'cloud-b2b-monthly';
+                    break;
+                }
+            }
+            if ( class_exists( 'SPBWC_Cloud_Activation' ) ) {
+                $ctx = $object_id ? ( $cap . ':' . (int) $object_id ) : $cap;
+                return SPBWC_Cloud_Activation::checkout_url( $plan, $ctx );
+            }
+            return admin_url( 'admin.php?page=' . ( defined( 'SPBWC_PB_LICENSE_SLUG' ) ? SPBWC_PB_LICENSE_SLUG : '' ) );
+        }
     }
 }

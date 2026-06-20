@@ -4293,6 +4293,21 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
                     }
                 }
             }
+            // Cloud capability gate (F2): print-ready PDF export needs a Cloud
+            // plan. Return a structured "locked" response so the UI can show an
+            // inline "Unlock →" upsell instead of a misleading "no files" notice.
+            if ( in_array( $type_download, array( 'pdf', 'pdf-preview' ), true )
+                && class_exists( 'SPBWC_License_Manager' )
+                && ! SPBWC_License_Manager::can( 'cloud_pdf' ) ) {
+                echo wp_json_encode( array(
+                    'flag'       => 0,
+                    'locked'     => 1,
+                    'cap'        => 'cloud_pdf',
+                    'mes'        => esc_html__( 'Print-ready PDF needs a Cloud plan.', 'storelly-product-builder-for-woocommerce' ),
+                    'unlock_url' => esc_url_raw( SPBWC_License_Manager::upsell_url( 'cloud_pdf', $order_id ) ),
+                ) );
+                wp_die();
+            }
             if (is_array($item_ids) && count($item_ids) > 0) {
                 foreach ($item_ids as $key => $item_id) {
                     $folder = wc_get_order_item_meta($item_id, '_pcpb_folder', true);
@@ -4314,6 +4329,10 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
                             $item_files = SPBWC_Storelly_Export_PDF::spbwc_export_pdf($folder, false);
                         } else if ($type_download == 'pdf-preview') {
                             $item_files = SPBWC_Storelly_Export_PDF::spbwc_export_pdf($folder, true);
+                        }
+                        // Cloud gate may return a WP_Error; never let it reach count().
+                        if ( is_wp_error( $item_files ) ) {
+                            $item_files = array();
                         }
                     }
                     if (count($item_files)) {

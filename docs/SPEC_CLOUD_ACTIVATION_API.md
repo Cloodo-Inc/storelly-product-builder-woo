@@ -5,12 +5,15 @@
 > purchase→unlock flow. It closes **O-6** and the `caps[]`-issuance requirement.
 > **Audience**: Storelly Dashboard / API backend team.
 >
-> **Backend implementation status (2026-06-10)**: backend is **not yet conforming**. Working:
-> `register`, `license/packages`, `plugin/overview`. Broken/missing: `license/status` returns no
-> `caps[]` and `status` is never `"active"` (so `can()` stays false), `license/activate` is a 403
-> stub, `license/exchange` + `/connect` + the one-time token are unimplemented, and order sync hits a
-> singular `update-order` empty stub. Full gap analysis & fix list:
+> **Backend implementation status (2026-06-12)**: ✅ **conformant** — all of A–F shipped on
+> `app.storelly.com` (`/connect`, one-time token, `license/exchange`, `caps[]` + `status:"active"`
+> + canonical `plan_slug` on `license/status`, `license/activate` re-enabled, plural `update-orders`
+> with `order_sync` cap). Verified against backend `Storelly-dashboad-v6` (`WcCloudUtil`,
+> `CloudConnectController`, `LicenseController`). Original gap analysis (now closed):
 > [`CLOUD-ACTIVATION-API-GAP.md`](./CLOUD-ACTIVATION-API-GAP.md).
+> **Plugin status (2026-06-20)**: **F2 shipped** (v1.7.0) — `can()` gates now wrap the real cloud
+> entry points (`cloud_pdf` on PDF export, two-condition `order_sync` on order sync) with an inline
+> "Unlock →" upsell. See §8.
 > **Plugin code of record**: `includes/class-cloud-activation.php`, `includes/class-license-manager.php`
 > (methods `sync_from_api`, `can`, `cloud_license_active`, `caps_catalog`, `plan_family`).
 > **Related**: `SPEC_FREEMIUM_V1_1.md` (§1 caps, §6 connect-back), `SPEC_ACCOUNT_PLAN_UX.md` (§5, §9.2).
@@ -231,7 +234,23 @@ Consequences:
 
 ---
 
-## 8. After backend ships — the remaining plugin step (F2)
+## 8. After backend ships — the remaining plugin step (F2) — ✅ SHIPPED v1.7.0 (2026-06-20)
+
+**Status**: done. With **D** live, `can()` returns true for licensed stores, so F2 wired the gates:
+
+- `cloud_pdf` — gated at the shared entry point `SPBWC_Storelly_Export_PDF::spbwc_export_pdf()`
+  (`class-export-pdf.php`); all callers (admin manual export, order-PDF job, order sync) fail safe.
+  The admin "Download (PDF)" path returns a structured `locked` response → `storelly-general.js`
+  shows an inline "needs a Cloud plan" upsell instead of a misleading "no files" notice.
+- `order_sync` — now a **two-condition** gate (`enable_api_sync` consent AND `can('order_sync')`) via
+  `SPBWC_Productbuilder_Api::spbwc_order_sync_allowed()`, checked in both `spbwc_maybe_queue_order_sync()`
+  and `spbwc_run_order_sync()`. Free/expired consented stores do not upload; local data untouched.
+- `SPBWC_License_Manager::upsell_url( $cap, $object_id )` centralises the cap → cheapest-plan →
+  `checkout_url()` mapping for "Unlock →" links.
+- The 7 not-yet-implemented caps (vault, asset library, analytics, invoice_pdf, email_trigger…) get
+  their gate at the call site when each feature lands.
+
+Original design (for reference):
 
 Once **D** is live (caps issued), the plugin's `can()` starts returning true for licensed stores.
 The final plugin task **F2** then wraps the real cloud entry points so free/expired stores get an
