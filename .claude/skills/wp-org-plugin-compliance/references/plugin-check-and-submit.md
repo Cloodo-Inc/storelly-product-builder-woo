@@ -181,3 +181,81 @@ Assets cho auto-deploy: đặt trong `.wordpress-org/` ở repo, action tự syn
 | Cách lên wp.org | KHÔNG trực tiếp | bắt buộc qua SVN (tay hoặc Actions) |
 
 Bản chất auto-deploy = Actions làm hộ bước copy Git → SVN → commit SVN.
+
+---
+
+## G. Cập nhật assets (banner/icon/screenshot) KHÔNG cần release
+
+Assets sống ở `assets/` của SVN, **độc lập với code**. Đừng bắt buộc bump version chỉ để đổi
+banner/screenshot. Thêm workflow RIÊNG dùng `10up/action-wordpress-plugin-asset-update`, chạy khi
+push `main` có đổi `.wordpress-org/**`:
+
+`.github/workflows/assets.yml`:
+```yaml
+name: Update WordPress.org Assets
+on:
+  push:
+    branches: [ main ]
+    paths: [ ".wordpress-org/**" ]
+  workflow_dispatch:
+jobs:
+  assets:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: 10up/action-wordpress-plugin-asset-update@stable
+        env:
+          SVN_USERNAME: ${{ secrets.SVN_USERNAME }}
+          SVN_PASSWORD: ${{ secrets.SVN_PASSWORD }}
+          SLUG: your-plugin-slug
+          ASSETS_DIR: .wordpress-org   # mặc định của action; ghi rõ cho minh bạch
+```
+- Dùng CHUNG secrets `SVN_*` với `deploy.yml` → không setup thêm.
+- `deploy.yml` (tag) cũng tự sync assets kèm; nhưng asset-update cho phép đổi ảnh BẤT CỨ LÚC NÀO
+  không cần cắt version. Thêm `.wordpress-org` vào `.distignore` để ảnh không lọt vào zip plugin.
+
+---
+
+## H. Verify SVN nhanh — KHÔNG cần checkout
+
+Sau khi push, kiểm tra trực tiếp wp.org SVN bằng `curl` (HTTP, không cần `svn`):
+```bash
+SVN=https://plugins.svn.wordpress.org/your-plugin-slug
+curl -s "$SVN/tags/"              | grep -oE '[0-9.]+/'   # các tag đã có
+curl -s "$SVN/trunk/readme.txt"   | sed -n '1p;7p'        # trunk: title + Requires PHP
+curl -s "$SVN/tags/1.6.6/readme.txt" | sed -n '1p'        # readme trong 1 tag cụ thể
+curl -s "$SVN/assets/"            | grep -oE 'href="[^"]+"' # banner/icon/screenshot đã lên?
+```
+Trang directory wp.org có cache (vài phút → vài giờ) nhưng SVN là nguồn gốc → curl SVN cho biết
+deploy đã xong & ĐÚNG nội dung chưa, không cần đợi cache.
+
+---
+
+## I. Build zip cài tay = đúng gói SVN (folder phải = slug)
+
+Để bản zip giống hệt cái ship lên wp.org VÀ tránh false-positive Plugin Check:
+1. `git archive HEAD` (chỉ file tracked → tự loại dev junk untracked) vào staging dir tên = **slug**
+   wp.org (KHÔNG phải tên thư mục dev — folder≠slug làm Plugin Check báo ~ngàn `TextDomainMismatch`
+   GIẢ vì PCP suy text-domain từ tên folder).
+2. Xoá tiếp các path `.distignore` (docs, tools, tests, `.github`, `.claude`, `.wordpress-org`…).
+3. Nén bằng `zip` trong container Linux (forward-slash chuẩn). **KHÔNG dùng PowerShell
+   `Compress-Archive`** — nó tạo entry separator `\` → WordPress Linux `unzip_file()` giải nén
+   thành file tên `folder\file` → hỏng cài đặt.
+4. Chạy `wp plugin check <slug>` trên staging folder=slug → kết quả THẬT (0 false TextDomainMismatch).
+
+---
+
+## J. Gotchas release (đúc kết Storelly, 2026)
+
+- **Stale SVN tag**: `tags/x.y.z` đã tồn tại trên SVN → 10up action **KHÔNG ghi đè** tag đó khi
+  re-deploy (chỉ cập nhật `trunk`). Nếu lỡ deploy tag với readme sai rồi sửa → phải **bump version
+  mới** (tag mới luôn deploy sạch). ⇒ Đừng push tag khi local tag còn trỏ commit cũ. Verify bằng
+  mục H trước khi mừng.
+- **Push non-fast-forward khi repo bị agent/PR song song chèn**: ĐỪNG `--force`. `git fetch` rồi
+  `git merge origin/main` (nếu remote-only toàn docs/.distignore → merge sạch); hoặc nếu commit của
+  mình là sibling đã amend nhiều lần → `git reset --soft <origin/main>` rồi commit lại phần khác
+  biệt thành 1 commit MỚI trên đỉnh origin/main → ff push được, không rewrite cái đã đẩy. Push tag
+  KHÔNG cần ff (lên được kể cả khi branch còn rejected).
+- **Remote state authoritative**: dưới proxy (rtk…), `git log origin/main` / `rev-list --count` có
+  thể đọc tracking ref STALE. Dùng `git ls-remote origin refs/heads/main` + `git merge-base
+  --is-ancestor` để biết SỰ THẬT remote + check ff.

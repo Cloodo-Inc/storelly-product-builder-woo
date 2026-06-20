@@ -137,4 +137,23 @@ assets/
 ```
 
 Với GitHub Actions auto-deploy: đặt assets trong `.wordpress-org/` ở repo, action sẽ tự đồng bộ
-sang `assets/` của SVN.
+sang `assets/` của SVN. Có thể deploy assets KHÔNG cần release qua workflow `asset-update` riêng
+(xem `plugin-check-and-submit.md` mục G).
+
+### Bẫy: caption ↔ Stable tag (TÁCH BIỆT file ảnh vs caption)
+- **File ảnh** (`screenshot-N.png`, banner, icon) lên SVN `assets/` ngay khi push (asset-update),
+  độc lập version.
+- **Caption + SỐ LƯỢNG screenshot hiển thị** lại đọc từ mục `== Screenshots ==` trong readme.txt
+  của **bản STABLE tag đang live** — KHÔNG phải trunk, KHÔNG phải file ảnh.
+- Hệ quả: đẩy 10 file ảnh nhưng readme stable cũ chỉ liệt kê 3 caption → wp.org chỉ hiện 3 ảnh đầu,
+  dưới caption CŨ. Muốn 10 ảnh + caption mới lên → readme mới phải là bản stable ⇒ **cắt release
+  tag**. Mọi thay đổi CHỮ trong readme (short desc, Description, caption) chỉ lên sóng theo tag mới.
+- Số caption `N.` PHẢI = số file `screenshot-N`. Caption thừa không có file → không hiện gì.
+
+### External services: khai ĐÚNG thực tế, đừng khai thừa
+- Library nhúng **bundled local** (vd Vue.js ở `static/libs/vue.global.prod.js`) → KHÔNG khai như
+  "external service / CDN". Khai một CDN không gọi runtime = sai, reviewer dễ nghi. Liệt kê ở mục
+  `== Third-party resources ==` (bundled) thay vì `== External services ==`.
+- Chỉ khai ở `== External services ==` cái plugin THỰC SỰ gọi ra ngoài (verify bằng `grep` URL trong
+  code). Mô tả "dùng để làm gì" phải đúng chỗ dùng (vd Google Fonts dùng cho PDF export, không phải
+  "admin styling" nếu URL nằm ở class export PDF).
