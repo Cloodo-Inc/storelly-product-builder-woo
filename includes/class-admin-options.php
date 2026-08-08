@@ -497,6 +497,16 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
             // Shared Admin UI — enqueue on every Storelly admin page.
             wp_enqueue_style('spbwc-admin-ui');
 
+            // Prevent the AngularJS flash-of-uncompiled-template (FOUC) on the
+            // option/visual-builder/font editors. AngularJS (`spbwc-ag`) and the
+            // app load in the FOOTER, so it only injects its own ng-cloak <style>
+            // late — the body would briefly show raw `{{ }}` markup and
+            // uncompiled repeaters before it bootstraps. This render-blocking
+            // head rule (the app wrappers already carry `ng-cloak`) hides cloaked
+            // content until Angular compiles and removes the attribute. Direction
+            // agnostic, so it covers both LTR and RTL.
+            wp_add_inline_style( 'spbwc-admin-ui', '[ng-cloak],[data-ng-cloak],[x-ng-cloak],.ng-cloak,.x-ng-cloak{display:none !important;}' );
+
             // Overview page styles — only on the top-level Overview page.
             if ( $hook === 'toplevel_page_' . SPBWC_PB_OVERVIEW_SLUG ) {
                 wp_enqueue_style('spbwc-overview-css');

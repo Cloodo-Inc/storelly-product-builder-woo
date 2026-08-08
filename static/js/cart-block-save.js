@@ -50,14 +50,53 @@
 		if ( ! rows.length ) {
 			return;
 		}
-		var n = Math.min( rows.length, cart.items.length );
-		for ( var i = 0; i < n; i++ ) {
+		// Match design items to the correct DOM row by product permalink instead
+		// of list position — the Store API item order and the rendered row order
+		// are not guaranteed to align after the block re-renders (qty change,
+		// remove, extra rows), which previously put the button on the wrong row.
+		// Falls back to positional matching when identity can't disambiguate, so
+		// behaviour is unchanged in the common one-of-each-product case.
+		var normalize = function ( url ) {
+			return ( url || '' ).replace( /^https?:\/\/[^/]+/, '' ).replace( /[?#].*$/, '' ).replace( /\/+$/, '' );
+		};
+		var rowInfo = [];
+		for ( var r = 0; r < rows.length; r++ ) {
+			var link = rows[ r ].querySelector( '.wc-block-components-product-name' )
+				|| rows[ r ].querySelector( '.wc-block-cart-item__product a' )
+				|| rows[ r ].querySelector( 'a[href]' );
+			rowInfo.push( {
+				row: rows[ r ],
+				link: normalize( link && link.getAttribute( 'href' ) ),
+				claimed: false
+			} );
+		}
+
+		for ( var i = 0; i < cart.items.length; i++ ) {
 			var item = cart.items[ i ];
-			var row = rows[ i ];
 			var ext = item && item.extensions && item.extensions.storelly;
 			if ( ! ext || ! ext.is_design ) {
 				continue;
 			}
+			// Prefer an unclaimed row whose product link matches this item;
+			// otherwise fall back to the same positional row.
+			var target = null;
+			var itemLink = normalize( item.permalink );
+			if ( itemLink ) {
+				for ( var k = 0; k < rowInfo.length; k++ ) {
+					if ( ! rowInfo[ k ].claimed && rowInfo[ k ].link === itemLink ) {
+						target = rowInfo[ k ];
+						break;
+					}
+				}
+			}
+			if ( ! target && rowInfo[ i ] && ! rowInfo[ i ].claimed ) {
+				target = rowInfo[ i ];
+			}
+			if ( ! target ) {
+				continue;
+			}
+			target.claimed = true;
+			var row = target.row;
 			if ( row.dataset[ FLAG ] === '1' || row.querySelector( '.spbwc-cart-block-save' ) ) {
 				continue;
 			}

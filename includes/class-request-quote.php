@@ -349,6 +349,8 @@ if ( ! class_exists( 'SPBWC_Request_Quote' ) ) {
             wp_enqueue_style( 'spbwc-tokens-storefront', SPBWC_PB_CSS_URL . '_tokens-storefront.css', array(), SPBWC_PB_VERSION );
             $spbwc_rfq_css = SPBWC_PB_PLUGIN_DIR . 'static/css/quote-storefront.css';
             wp_enqueue_style( 'spbwc-quote-storefront', SPBWC_PB_CSS_URL . 'quote-storefront.css', array( 'spbwc-tokens-storefront' ), file_exists( $spbwc_rfq_css ) ? filemtime( $spbwc_rfq_css ) : SPBWC_PB_VERSION );
+            // Load quote-storefront-rtl.css automatically on RTL sites.
+            wp_style_add_data( 'spbwc-quote-storefront', 'rtl', 'replace' );
             if ( ! $is_quote_product ) {
                 return;
             }

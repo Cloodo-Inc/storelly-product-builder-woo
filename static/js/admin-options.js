@@ -2132,6 +2132,15 @@ angular
                 price: op.price,
               };
 
+              // Second gradient-swatch colour (added via add_remove_second_color).
+              // Not in the object literal above, so without this the whole
+              // fields[] overwrite on save silently drops it and the swatch
+              // reverts to a single colour.
+              if (angular.isDefined(op.color2)) {
+                fields[fieldIndex].general.attributes.options[opIndex].color2 =
+                  op.color2;
+              }
+
               // Preserve sub-attributes on save. The editor whitelists option
               // keys above, so without this the entire sub_attributes tree
               // (color/pattern swatches + their images) is dropped on every
@@ -2156,6 +2165,11 @@ angular
                     image: sop.image,
                     color: sop.color,
                   };
+                  // Gradient second colour on the sub-attribute swatch (see
+                  // swatch.php $sattr['color2']) — carry it or it is dropped.
+                  if (angular.isDefined(sop.color2)) {
+                    built_subs[sopIndex].color2 = sop.color2;
+                  }
                 });
                 fields[fieldIndex].general.attributes.options[
                   opIndex

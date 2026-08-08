@@ -454,6 +454,8 @@ class SPBWC_Printcart_Import_Adapter {
                         
                         if ($attachment_id) {
                             $value[$media_key] = $attachment_id;
+                        } else {
+                            $value[$media_key] = 0;
                         }
                     } elseif (is_array($item)) {
                         $media_values = array();

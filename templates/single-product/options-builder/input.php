@@ -37,7 +37,8 @@ if (!defined('ABSPATH')) exit;
                     $uploaded = 0;
                     if( isset($form_values[$field['id']]) ){
                         $file_url = SPBWC_PB_UPLOAD_URL . '/' . $form_values[$field['id']];
-                        $filename = explode('/', $form_values[$field['id']])[1];
+                        $nbd_path_parts = explode('/', (string) $form_values[$field['id']]);
+                        $filename = end($nbd_path_parts);
                         $uploaded = 1;
                     }
                 ?>

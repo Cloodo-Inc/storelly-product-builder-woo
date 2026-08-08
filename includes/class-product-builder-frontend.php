@@ -618,6 +618,9 @@ if (!class_exists('SPBWC_Storelly_Product_Builder_Frontend')) {
                     $link = $css['link'];
                     wp_register_style($key, $link, $css['depends'], $css['version']);
                 }
+                // Load app-product-builder-rtl.css automatically on RTL sites so
+                // the designer modal mirrors correctly (padding/float/absolute).
+                wp_style_add_data( 'product-builder', 'rtl', 'replace' );
                 foreach ($js_libs as $key => $js) {
                     $link = $js['link'];
                     wp_register_script($key, $link, $js['depends'], $js['version'], false);

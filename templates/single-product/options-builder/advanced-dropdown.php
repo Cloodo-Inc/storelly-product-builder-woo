@@ -16,7 +16,7 @@ if (!defined('ABSPATH')) exit;
                         $current = $key;
                     }
                 ?>
-                    <option value="<?php echo esc_attr($key); ?>" <?php selected($selected, $selected); ?>>
+                    <option value="<?php echo esc_attr($key); ?>" <?php selected($selected, $current); ?>>
                         <?php echo esc_html($attr['name']); ?>
                     </option>
                 <?php endforeach; ?>

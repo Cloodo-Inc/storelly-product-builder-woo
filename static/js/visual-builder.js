@@ -252,8 +252,21 @@
 
                 // getJsonFields() runs cleanse + populates $scope.jsonFields
                 // then setTimeouts a form.submit() — our capture-phase
-                // listener (installed below) intercepts it.
-                ctrl.getJsonFields();
+                // listener (installed below) intercepts it. The {{jsonFields}}
+                // hidden input only flushes to the DOM during a digest, and
+                // triggerAutoSave runs from a setTimeout (OUTSIDE Angular) — so,
+                // exactly like the Ctrl/Cmd+S handler below, we must run inside
+                // $apply. Without it the POST carries a stale/empty payload
+                // (then rejected by the empty-guard), silently losing edits
+                // while the UI still reports "Auto-saved ✓".
+                var vbAutoPhase = $rootScope.$$phase;
+                if ( '$apply' === vbAutoPhase || '$digest' === vbAutoPhase ) {
+                    ctrl.getJsonFields();
+                } else {
+                    $rootScope.$apply( function () {
+                        ctrl.getJsonFields();
+                    } );
+                }
             }
 
             $timeout( function () {

@@ -429,6 +429,8 @@ if (!class_exists('STORELLY_FRONTEND_OPTIONS')) {
                         wp_register_style( 'spbwc-tokens', SPBWC_PB_CSS_URL . '_tokens.css', array(), SPBWC_PB_VERSION );
                     }
                     wp_register_style( 'spbwc-storefront-options', SPBWC_PB_CSS_URL . 'storefront-options.css', array( 'spbwc-tokens' ), SPBWC_PB_VERSION );
+                    // Load storefront-options-rtl.css automatically on RTL sites.
+                    wp_style_add_data( 'spbwc-storefront-options', 'rtl', 'replace' );
                     wp_enqueue_style( 'spbwc-storefront-options' );
                 }
             }

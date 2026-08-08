@@ -8,6 +8,23 @@
 Phân loại: **P0** = mất dữ liệu / sai nghiêm trọng, fix rẻ · **P1** = sai hiển thị diện rộng ·
 **P2** = bug tình huống (cart-edit/edge) · **P3** = dead control (cần quyết định sản phẩm).
 
+## Trạng thái fix (2026-08-08)
+
+| Bug | Trạng thái | Ghi chú |
+|---|---|---|
+| B1 color2 save-drop | ✅ FIXED | `admin-options.js` getJsonFields carry `color2` (option + sub-attr) |
+| B2 import-404 image | ✅ FIXED | `class-printcart-import-adapter.php` nhánh scalar reset 0 |
+| B3 VB auto-save stale | ✅ FIXED | `visual-builder.js` bọc `$apply` như handler Ctrl+S — **cần browser-verify** |
+| B4 RTL storefront | ✅ FIXED | `wp_style_add_data(rtl,replace)` cho 3 handle + sinh `quote-storefront-rtl.css` (rtlcss) — **cần browser-verify RTL** |
+| B5 cart-block mapping | ✅ FIXED | `cart-block-save.js` match theo permalink, fallback index — **cần browser-verify** |
+| B6 upload filename | ✅ FIXED | `input.php` `end(explode())` thay index [1] |
+| B7 advanced-dropdown | ✅ FIXED | `advanced-dropdown.php` `selected($selected,$current)` |
+| **FOUC** admin editor flash | ✅ FIXED | AngularJS admin (`spbwc-ag`) + app nạp ở FOOTER, thiếu rule ng-cloak ở head → `wp_add_inline_style('spbwc-admin-ui', …ng-cloak…)` render-blocking. **cần browser-verify** |
+| D1 price_breaks/price[1..3]/depend_quantity | ⏳ CHỜ QUYẾT | wire engine (L) hay ẩn control (M) — impact report cho David |
+| D2 cart-fee/ind_qty/fixed_amount | ⏳ CHỜ QUYẾT | wire engine hay ẩn control — impact report cho David |
+
+Verify cú pháp: `php -l` sạch 4 file PHP; `node --check` sạch 3 file JS. Chưa bump version (chờ David chốt release).
+
 ---
 
 ## P0 — Mất dữ liệu / sai nghiêm trọng
