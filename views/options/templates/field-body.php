@@ -16,9 +16,17 @@
         <ng-include src="'field_body_required'"></ng-include>
         <ng-include src="'field_body_price_type'"></ng-include>
         <ng-include src="'field_body_depend_qty'"></ng-include>
-        <ng-include src="'field_body_depend_quantity'"></ng-include>
+        <!-- D1 (2026-08-08): `field_body_depend_quantity` hidden. The storefront
+             pricing engine has no code path for it (0 references), so it was a
+             dead control that let merchants configure a no-op. The data model and
+             getJsonFields still carry `depend_quantity`, so any previously saved
+             value round-trips untouched — re-enable this include if/when a real
+             engine is wired. See docs/UX_BUGS_AUDIT.md D1. -->
         <ng-include src="'field_body_price'"></ng-include>
-        <ng-include src="'field_body_price_breaks'"></ng-include>
+        <!-- D1 (2026-08-08): `field_body_price_breaks` hidden for the same reason
+             (per-tier surcharge with no storefront engine; quantity_breaks already
+             covers real tier pricing). Saved `price_breaks` values still round-trip. -->
+        <!-- <ng-include src="'field_body_price_breaks'"></ng-include> -->
         <ng-include src="'field_body_attributes'"></ng-include>
         <ng-include src="'field_body_conditional_depend'"></ng-include>
     </div>

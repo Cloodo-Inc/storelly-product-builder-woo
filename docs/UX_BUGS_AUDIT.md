@@ -20,8 +20,8 @@ Phân loại: **P0** = mất dữ liệu / sai nghiêm trọng, fix rẻ · **P1
 | B6 upload filename | ✅ FIXED | `input.php` `end(explode())` thay index [1] |
 | B7 advanced-dropdown | ✅ FIXED | `advanced-dropdown.php` `selected($selected,$current)` |
 | **FOUC** admin editor flash | ✅ FIXED | AngularJS admin (`spbwc-ag`) + app nạp ở FOOTER, thiếu rule ng-cloak ở head → `wp_add_inline_style('spbwc-admin-ui', …ng-cloak…)` render-blocking. **cần browser-verify** |
-| D1 price_breaks/price[1..3]/depend_quantity | ⏳ CHỜ QUYẾT | wire engine (L) hay ẩn control (M) — impact report cho David |
-| D2 cart-fee/ind_qty/fixed_amount | ⏳ CHỜ QUYẾT | wire engine hay ẩn control — impact report cho David |
+| D1 price_breaks/depend_quantity | ✅ FIXED (ẩn) | David chọn hướng (b): ẩn 2 control chết trong `field-body.php` (verified 0-ref engine); `price[1..3]` không có UI riêng; data cũ vẫn round-trip. Chỉ classic editor phơi (V3 không) |
+| D2 cart-fee/ind_qty/fixed_amount | ⏳ latent | scaffolding fork, nhiều khả năng không nằm trong `price_type.options` (merchant không chạm tới) → để dọn code sau, không phải bug user-facing |
 
 Verify cú pháp: `php -l` sạch 4 file PHP; `node --check` sạch 3 file JS. Chưa bump version (chờ David chốt release).
 
