@@ -6,7 +6,7 @@ Requires at least: 6.2
 Tested up to: 7.0
 Requires PHP: 7.4
 Requires Plugins: woocommerce
-Stable tag: 1.7.0
+Stable tag: 1.7.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -236,6 +236,19 @@ This plugin includes or depends on the following open-source libraries, bundled 
 10. B2B / wholesale — company accounts with tier pricing, credit limit and payment terms
 
 == Changelog ==
+
+= 1.7.1 =
+Maintenance release — a focused batch of UX/UI fixes across the admin builder and the storefront. Nothing changes about how your products or options are configured; these are reliability and display fixes.
+
+* **Fixed: gradient swatches losing their second colour on save.** Adding a second colour to a swatch to make a two‑tone gradient, then saving, now keeps both colours instead of reverting to a single colour.
+* **Fixed: Visual Builder background auto‑save.** Auto‑save now reliably persists your most recent edits. Previously it could show "Auto‑saved" while sending an out‑of‑date copy, so changes made since the last manual save could be lost when leaving the page.
+* **Fixed: right‑to‑left (RTL) storefront layout.** The product options, the designer, and the Request‑a‑Quote form now load their RTL stylesheets on RTL sites, so the layout mirrors correctly instead of appearing misaligned.
+* **Fixed: brief flash of unstyled admin editors.** Opening the option builder, Visual Builder or Font Manager no longer momentarily shows raw, unstyled markup before the editor finishes loading.
+* **Fixed: imported options showing an unrelated image.** When an image can't be downloaded during import, the option now falls back to no image instead of pointing at another product's picture.
+* **Fixed: "Save design" button in the block‑based Cart.** The button now attaches to the correct cart line even after items are reordered or removed.
+* **Fixed: uploaded file name when editing a cart item.** Editing a cart item that has an uploaded file now shows the correct file name (and no PHP notice).
+* **Fixed: advanced dropdown default state.** While JavaScript is still loading, an advanced dropdown no longer briefly shows the last option as selected.
+* **Removed two option controls that had no storefront effect.** The per‑tier "Price depend quantity breaks" and "depend quantity" fields were hidden — they never affected the storefront price. Use the Quantity breaks / bulk pricing feature for real tiered pricing. Any previously saved values are preserved.
 
 = 1.7.0 =
 * **Cloud features now follow your plan.** Print-ready PDF rendering and order sync now require an active Storelly Cloud plan — matching what the plugin has always described. The full product builder, pricing options, quotes and custom orders stay free and local on your own site, with no product limit; only these optional cloud features are gated.
