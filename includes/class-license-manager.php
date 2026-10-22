@@ -483,6 +483,10 @@ if ( ! class_exists( 'SPBWC_License_Manager' ) ) {
          * @return WP_Error
          */
         public static function cloud_locked_error( $cap ) {
+            // The merchant reached for a Cloud feature: the only moment the upsell notice may show.
+            if ( class_exists( 'SPBWC_Upsell_Notice' ) ) {
+                SPBWC_Upsell_Notice::note_intent( $cap );
+            }
             return new WP_Error(
                 'spbwc_cloud_locked',
                 /* translators: %s: cloud feature name */

@@ -55,6 +55,25 @@ if ( ! class_exists( 'SPBWC_Request_Quote' ) ) {
         /** Subdir (under the quote-attachments folder) used by the in-flight upload. */
         protected $quote_upload_subdir = '';
 
+        /**
+         * The choices of a "select" quote-form field, as entered by the merchant
+         * (one per line). Empty when none were set.
+         *
+         * @param array $field Quote form field definition.
+         * @return string[]
+         */
+        public static function select_options( $field ) {
+            $raw = isset( $field['options'] ) ? (string) $field['options'] : '';
+            $out = array();
+            foreach ( preg_split( '/\r\n|\r|\n/', $raw ) as $line ) {
+                $line = trim( $line );
+                if ( '' !== $line ) {
+                    $out[ $line ] = $line;
+                }
+            }
+            return array_values( $out );
+        }
+
         public function get_form_fields() {
             $fields = get_option( 'spbwc_quote_form_fields', array() );
             if ( empty( $fields ) || ! is_array( $fields ) ) {
@@ -478,7 +497,14 @@ if ( ! class_exists( 'SPBWC_Request_Quote' ) ) {
                                             <?php echo esc_html( isset( $field['label'] ) ? $field['label'] : ucfirst( $name ) ); ?>
                                             <?php if ( $required ) : ?><span class="spbwc-rfq-req" aria-hidden="true">*</span><?php endif; ?>
                                         </label>
-                                        <?php if ( 'textarea' === $type ) : ?>
+                                        <?php if ( 'select' === $type ) : ?>
+                                            <select id="spbwc_quote_<?php echo esc_attr( $name ); ?>" name="quote_fields[<?php echo esc_attr( $name ); ?>]" <?php echo $required ? 'required' : ''; ?>>
+                                                <option value=""><?php echo esc_html( '' !== $ph ? $ph : __( 'Select…', 'storelly-product-builder-for-woocommerce' ) ); ?></option>
+                                                <?php foreach ( SPBWC_Request_Quote::select_options( $field ) as $choice ) : ?>
+                                                    <option value="<?php echo esc_attr( $choice ); ?>"><?php echo esc_html( $choice ); ?></option>
+                                                <?php endforeach; ?>
+                                            </select>
+                                        <?php elseif ( 'textarea' === $type ) : ?>
                                             <textarea id="spbwc_quote_<?php echo esc_attr( $name ); ?>" name="quote_fields[<?php echo esc_attr( $name ); ?>]" <?php echo $required ? 'required' : ''; ?> placeholder="<?php echo esc_attr( $ph ); ?>"></textarea>
                                         <?php else : ?>
                                             <input id="spbwc_quote_<?php echo esc_attr( $name ); ?>" type="<?php echo esc_attr( in_array( $type, array( 'text', 'email', 'tel', 'number' ), true ) ? $type : 'text' ); ?>" name="quote_fields[<?php echo esc_attr( $name ); ?>]" <?php echo $required ? 'required' : ''; ?> placeholder="<?php echo esc_attr( $ph ); ?>" />
@@ -539,6 +565,10 @@ if ( ! class_exists( 'SPBWC_Request_Quote' ) ) {
                     continue;
                 }
                 $value      = isset( $fields[ $name ] ) ? $fields[ $name ] : '';
+                // A select only accepts one of its own choices.
+                if ( isset( $f['type'] ) && 'select' === $f['type'] && ! in_array( $value, SPBWC_Request_Quote::select_options( $f ), true ) ) {
+                    $value = '';
+                }
                 $label      = isset( $f['label'] ) ? $f['label'] : $name;
                 $required   = isset( $f['required'] ) && '1' === (string) $f['required'];
                 $validation = isset( $f['validation'] ) ? sanitize_key( $f['validation'] ) : '';

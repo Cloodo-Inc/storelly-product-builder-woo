@@ -90,7 +90,7 @@ if (!class_exists('SPBWC_Storelly_IO')) {
             $new_id  = substr(md5(uniqid('', true)), 0, 5) . $rand . time();
             $dst_path = SPBWC_PB_CUSTOMER_DIR . '/' . $new_id;
 
-            self::spbwc_copy_dir($src_path, $dst_path, array('customer-pdfs', 'pdf-templates', 'download'));
+            self::spbwc_copy_dir($src_path, $dst_path, array('customer-pdfs', 'watermarked-pdf', 'pdf-templates', 'download'));
 
             return is_dir($dst_path) ? $new_id : '';
         }

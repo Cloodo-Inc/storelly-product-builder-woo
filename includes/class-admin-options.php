@@ -1304,6 +1304,9 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
                 $posted_max_files = isset( $_POST['field_max_files'] ) ? (array) wp_unslash( $_POST['field_max_files'] ) : array();
                 // phpcs:ignore WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Nonce checked above; values compared as string indices via in_array() only.
                 $posted_allow_multiple = isset( $_POST['field_allow_multiple'] ) ? (array) wp_unslash( $_POST['field_allow_multiple'] ) : array();
+                // Choices of a select field, one per line (textareas always submit, so the index lines up).
+                // phpcs:ignore WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Nonce checked above; sanitized line by line in the loop below.
+                $posted_options = isset( $_POST['field_options'] ) ? (array) wp_unslash( $_POST['field_options'] ) : array();
                 $rows = max(
                     count( $posted_names ),
                     count( $posted_types ),
@@ -1343,6 +1346,16 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
                         $field['max_files']      = isset( $posted_max_files[ $i ] ) ? max( 1, absint( $posted_max_files[ $i ] ) ) : 5;
                         $field['max_size']       = isset( $posted_max_size[ $i ] ) ? max( 0, (float) $posted_max_size[ $i ] ) : 0;
                         $field['allow_type']     = implode( ',', array_unique( $exts ) );
+                    }
+                    if ( 'select' === $type ) {
+                        $choices = array();
+                        foreach ( preg_split( '/\r\n|\r|\n/', isset( $posted_options[ $i ] ) ? (string) $posted_options[ $i ] : '' ) as $line ) {
+                            $line = sanitize_text_field( $line );
+                            if ( '' !== $line ) {
+                                $choices[ $line ] = $line;
+                            }
+                        }
+                        $field['options'] = implode( "\n", array_slice( array_values( $choices ), 0, 100 ) );
                     }
                     $new_fields[ $name ] = $field;
                 }
@@ -1651,12 +1664,19 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
                                                 </td>
                                             </tr>
                                             <?php
-                                            $spbwc_is_file = ( isset( $field['type'] ) && 'file' === $field['type'] );
+                                            $spbwc_is_file   = ( isset( $field['type'] ) && 'file' === $field['type'] );
+                                            $spbwc_is_select = ( isset( $field['type'] ) && 'select' === $field['type'] );
                                             ?>
-                                            <tr class="spbwc-qf-config-row"<?php echo $spbwc_is_file ? '' : ' style="display:none;"'; ?>>
+                                            <tr class="spbwc-qf-config-row"<?php echo ( $spbwc_is_file || $spbwc_is_select ) ? '' : ' style="display:none;"'; ?>>
                                                 <td></td>
                                                 <td colspan="8">
-                                                    <div class="spbwc-qf-filecfg">
+                                                    <div class="spbwc-qf-selcfg"<?php echo $spbwc_is_select ? '' : ' style="display:none;"'; ?>>
+                                                        <label class="spbwc-qf-filecfg__item spbwc-qf-filecfg__item--wide">
+                                                            <span><?php esc_html_e( 'Choices (one per line)', 'storelly-product-builder-for-woocommerce' ); ?></span>
+                                                            <textarea name="field_options[]" rows="4" placeholder="<?php esc_attr_e( 'Small, Medium, Large', 'storelly-product-builder-for-woocommerce' ); ?>"><?php echo esc_textarea( isset( $field['options'] ) ? (string) $field['options'] : '' ); ?></textarea>
+                                                        </label>
+                                                    </div>
+                                                    <div class="spbwc-qf-filecfg"<?php echo $spbwc_is_file ? '' : ' style="display:none;"'; ?>>
                                                         <label class="spbwc-qf-filecfg__item">
                                                             <input type="checkbox" name="field_allow_multiple[]" value="<?php echo esc_attr( (string) $index ); ?>" <?php checked( isset( $field['allow_multiple'] ) ? $field['allow_multiple'] : '0', '1' ); ?> />
                                                             <span><?php esc_html_e( 'Allow multiple files', 'storelly-product-builder-for-woocommerce' ); ?></span>
@@ -1715,7 +1735,8 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
                                     + '<td><button type="button" class="spbwc-cta-btn spbwc-cta-btn--ghost spbwc-cta-btn--sm spbwc-remove-field"><span class="dashicons dashicons-trash"></span></button></td>'
                                     + '</tr>';
                                 var cfg = '<tr class="spbwc-qf-config-row" style="display:none;">'
-                                    + '<td></td><td colspan="8"><div class="spbwc-qf-filecfg">'
+                                    + '<td></td><td colspan="8"><div class="spbwc-qf-selcfg" style="display:none;"><label class="spbwc-qf-filecfg__item spbwc-qf-filecfg__item--wide"><span>Choices (one per line)</span><textarea name="field_options[]" rows="4"></textarea></label></div>'
+                                    + '<div class="spbwc-qf-filecfg" style="display:none;">'
                                     + '<label class="spbwc-qf-filecfg__item"><input type="checkbox" name="field_allow_multiple[]" value="'+ idx +'" /> <span>Allow multiple files</span></label>'
                                     + '<label class="spbwc-qf-filecfg__item"><span>Max files</span><input type="number" min="1" step="1" name="field_max_files[]" value="5" style="width:80px;" /></label>'
                                     + '<label class="spbwc-qf-filecfg__item"><span>Max size (MB)</span><input type="number" min="0" step="1" name="field_max_size[]" value="10" style="width:90px;" /></label>'
@@ -1751,7 +1772,10 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
                             // Toggle the file-config row when the type select changes.
                             $(document).on('change', '.spbwc-qf-type', function(){
                                 var $cfg = $(this).closest('tr').next('.spbwc-qf-config-row');
-                                $cfg.toggle( $(this).val() === 'file' );
+                                var type = $(this).val();
+                                $cfg.toggle( type === 'file' || type === 'select' );
+                                $cfg.find('.spbwc-qf-filecfg').toggle( type === 'file' );
+                                $cfg.find('.spbwc-qf-selcfg').toggle( type === 'select' );
                             });
                         })(jQuery);
                     </script>
@@ -4303,20 +4327,15 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
                     }
                 }
             }
-            // Cloud capability gate (F2): print-ready PDF export needs a Cloud
-            // plan. Return a structured "locked" response so the UI can show an
-            // inline "Unlock →" upsell instead of a misleading "no files" notice.
-            if ( in_array( $type_download, array( 'pdf', 'pdf-preview' ), true )
+            // Cloud capability gate (F2): print-ready PDF export needs a Cloud plan.
+            // Free stores still get one file: a watermarked preview built on their own
+            // server (SPBWC_Local_PDF), with a prompt to unlock the print-ready version.
+            $watermarked = in_array( $type_download, array( 'pdf', 'pdf-preview' ), true )
                 && class_exists( 'SPBWC_License_Manager' )
-                && ! SPBWC_License_Manager::can( 'cloud_pdf' ) ) {
-                echo wp_json_encode( array(
-                    'flag'       => 0,
-                    'locked'     => 1,
-                    'cap'        => 'cloud_pdf',
-                    'mes'        => esc_html__( 'Print-ready PDF needs a Cloud plan.', 'storelly-product-builder-for-woocommerce' ),
-                    'unlock_url' => esc_url_raw( SPBWC_License_Manager::upsell_url( 'cloud_pdf', $order_id ) ),
-                ) );
-                wp_die();
+                && ! SPBWC_License_Manager::can( 'cloud_pdf' );
+            $unlock_url  = admin_url( 'admin.php?page=' . SPBWC_PB_LICENSE_SLUG . '&intent=cloud_pdf' );
+            if ( $watermarked && class_exists( 'SPBWC_Upsell_Notice' ) ) {
+                SPBWC_Upsell_Notice::note_intent( 'cloud_pdf' );
             }
             if (is_array($item_ids) && count($item_ids) > 0) {
                 foreach ($item_ids as $key => $item_id) {
@@ -4335,6 +4354,8 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
                             $item_files = SPBWC_Storelly_IO::spbwc_get_list_files_by_type($path, 'png', 1);
                         } else if ($type_download == 'png-preview') {
                             $item_files = SPBWC_Storelly_IO::spbwc_get_list_files_by_type($path . '/preview', 'png', 1);
+                        } else if ($watermarked) {
+                            $item_files = SPBWC_Local_PDF::render($folder);
                         } else if ($type_download == 'pdf') {
                             $item_files = SPBWC_Storelly_Export_PDF::spbwc_export_pdf($folder, false);
                         } else if ($type_download == 'pdf-preview') {
@@ -4369,14 +4390,29 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
             );
             if (!count($zip_files)) {
                 $response['flag'] = 0;
+                if ($watermarked) {
+                    // The preview could not be built (e.g. no GD): fall back to the plain upsell.
+                    $response['locked']     = 1;
+                    $response['cap']        = 'cloud_pdf';
+                    $response['mes']        = esc_html__( 'Print-ready PDF needs a Cloud plan.', 'storelly-product-builder-for-woocommerce' );
+                    $response['unlock_url'] = esc_url_raw( $unlock_url );
+                }
                 echo wp_json_encode($response);
                 wp_die();
             } else {
-                $pathZip = SPBWC_PB_DATA_DIR . '/download/' . $order_id . '_' . $type_download . '.zip';
-                $urlZip = SPBWC_PB_DATA_URL . '/download/' . $order_id . '_' . $type_download . '.zip';
+                // A different name from the clean download, so a watermarked file is never served as one.
+                $zip_name = $order_id . '_' . $type_download . ($watermarked ? '-watermarked' : '') . '.zip';
+                $pathZip = SPBWC_PB_DATA_DIR . '/download/' . $zip_name;
+                $urlZip = SPBWC_PB_DATA_URL . '/download/' . $zip_name;
                 if (SPBWC_Storelly_PB_Util::spbwc_zip_files($zip_files, $pathZip, $option_name)) {
                     $response['flag'] = 1;
                     $response['file'] = $urlZip;
+                    if ($watermarked) {
+                        $response['watermarked'] = 1;
+                        $response['mes']         = esc_html__( 'Preview PDF created, with a Storelly watermark. The clean, print-ready PDF needs Storelly Cloud.', 'storelly-product-builder-for-woocommerce' );
+                        $response['unlock_url']  = esc_url_raw( $unlock_url );
+                        $response['unlock_label'] = esc_html__( 'Unlock print-ready PDF', 'storelly-product-builder-for-woocommerce' );
+                    }
                 }
             }
             echo wp_json_encode($response);

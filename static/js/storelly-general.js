@@ -1,8 +1,8 @@
 "use strict";
 
 jQuery(document).ready(function ($) {
-  function notify(msg, tone) {
-    if (window.spbwcDialog) { window.spbwcDialog.toast({ message: msg, tone: tone || "error" }); }
+  function notify(msg, tone, action) {
+    if (window.spbwcDialog) { window.spbwcDialog.toast({ message: msg, tone: tone || "error", action: action, duration: action ? 12000 : undefined }); }
     else { window.alert(msg); }
   }
   $("#storelly_order_design_check_all").on("click", function () {
@@ -58,6 +58,10 @@ jQuery(document).ready(function ($) {
           document.body.appendChild(link);
           link.click();
           document.body.removeChild(link);
+          if (res.watermarked && res.unlock_url) {
+            // Free plan: the file has a watermark, offer the print-ready one.
+            notify(res.mes, "info", { label: res.unlock_label || "Unlock print-ready PDF", href: res.unlock_url });
+          }
         } else if (res && res.locked) {
           // Cloud feature locked (F2): show the upsell instead of a misleading
           // "no files" notice. The merchant upgrades from Account & Plan.

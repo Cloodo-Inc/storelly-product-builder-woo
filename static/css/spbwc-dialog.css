@@ -279,6 +279,13 @@
 	word-wrap: break-word;
 }
 
+.spbwc-dlg-toast__action {
+	flex: 0 0 auto;
+	font-weight: 600;
+	white-space: nowrap;
+	text-decoration: underline;
+}
+
 .spbwc-dlg-toast__close {
 	flex: 0 0 auto;
 	cursor: pointer;

@@ -8,7 +8,7 @@
 Plugin Name:            Storelly Product Builder for WooCommerce
 Plugin URI:             https://storelly.com/product-builder
 Description:            Create product builder for Woocommerce products
-Version:                1.7.2
+Version:                1.8.0
 Requires Plugins:       woocommerce
 WC requires at least:   6.0.0
 WC tested up to:        10.7.0
@@ -24,7 +24,7 @@ Domain Path:            /languages
 $spbwc_upload_dir = wp_upload_dir();
 $spbwc_basedir    = $spbwc_upload_dir['basedir'];
 $spbwc_baseurl    = $spbwc_upload_dir['baseurl'];
-define('SPBWC_PB_VERSION',                  '1.7.2');
+define('SPBWC_PB_VERSION',                  '1.8.0');
 define('SPBWC_PB_NUMBER_VERSION',           138);
 define('SPBWC_PB_PLUGIN_URL',               plugin_dir_url(__FILE__));
 define('SPBWC_PB_PLUGIN_DIR',               plugin_dir_path(__FILE__));
@@ -152,6 +152,7 @@ if ( class_exists( 'SPBWC_Dialog' ) ) {
     SPBWC_Dialog::init();
 }
 require_once(SPBWC_PB_PLUGIN_DIR .  'includes/class-export-pdf.php');
+require_once(SPBWC_PB_PLUGIN_DIR .  'includes/class-local-pdf.php');
 require_once(SPBWC_PB_PLUGIN_DIR .  'includes/class-util.php');
 require_once(SPBWC_PB_PLUGIN_DIR .  'includes/class-image.php');
 require_once(SPBWC_PB_PLUGIN_DIR .  'includes/class-io.php');

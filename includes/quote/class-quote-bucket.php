@@ -261,6 +261,10 @@ if ( ! class_exists( 'SPBWC_Quote_Bucket' ) ) {
                     continue;
                 }
                 $value      = isset( $fields[ $name ] ) ? $fields[ $name ] : '';
+                // A select only accepts one of its own choices.
+                if ( isset( $f['type'] ) && 'select' === $f['type'] && ! in_array( $value, SPBWC_Request_Quote::select_options( $f ), true ) ) {
+                    $value = '';
+                }
                 $label      = isset( $f['label'] ) ? $f['label'] : $name;
                 $required   = isset( $f['required'] ) && '1' === (string) $f['required'];
                 $validation = isset( $f['validation'] ) ? sanitize_key( $f['validation'] ) : '';
@@ -440,7 +444,14 @@ if ( ! class_exists( 'SPBWC_Quote_Bucket' ) ) {
                 ?>
                 <div class="spbwc-rfq-field">
                     <label for="<?php echo esc_attr( $id ); ?>"><?php echo esc_html( $label ); ?><?php echo $required ? ' <span class="spbwc-rfq-req" aria-hidden="true">*</span>' : ''; ?></label>
-                    <?php if ( 'textarea' === $type ) : ?>
+                    <?php if ( 'select' === $type ) : ?>
+                        <select id="<?php echo esc_attr( $id ); ?>" name="quote_fields[<?php echo esc_attr( $name ); ?>]" <?php echo $required ? 'required' : ''; ?>>
+                            <option value=""><?php echo esc_html( isset( $field['placeholder'] ) && '' !== $field['placeholder'] ? $field['placeholder'] : __( 'Select…', 'storelly-product-builder-for-woocommerce' ) ); ?></option>
+                            <?php foreach ( SPBWC_Request_Quote::select_options( $field ) as $choice ) : ?>
+                                <option value="<?php echo esc_attr( $choice ); ?>"><?php echo esc_html( $choice ); ?></option>
+                            <?php endforeach; ?>
+                        </select>
+                    <?php elseif ( 'textarea' === $type ) : ?>
                         <textarea id="<?php echo esc_attr( $id ); ?>" name="quote_fields[<?php echo esc_attr( $name ); ?>]" <?php echo $required ? 'required' : ''; ?>></textarea>
                     <?php else : ?>
                         <input id="<?php echo esc_attr( $id ); ?>" type="<?php echo esc_attr( in_array( $type, array( 'text', 'email', 'tel', 'number' ), true ) ? $type : 'text' ); ?>" name="quote_fields[<?php echo esc_attr( $name ); ?>]" <?php echo $required ? 'required' : ''; ?> />

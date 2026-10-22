@@ -29,6 +29,8 @@ if ( file_exists( $spbwc_ledger ) ) {
 delete_option( 'spbwc_connect_api_keys' ); // consumer key/secret, unauth_token, store_id, username
 delete_option( 'spbwc_cloud_consent' );    // GDPR consent log
 delete_option( 'spbwc_license_data' );      // cached license status
+delete_option( 'spbwc_cloud_intent' );     // last Cloud feature the merchant touched (upsell)
+delete_option( 'spbwc_upsell_snooze' );    // upsell notice snooze
 
 $spbwc_settings = get_option( 'spbwc_pb_settings', array() );
 if ( is_array( $spbwc_settings ) ) {

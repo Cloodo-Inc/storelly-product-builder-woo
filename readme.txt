@@ -6,7 +6,7 @@ Requires at least: 6.2
 Tested up to: 7.0
 Requires PHP: 7.4
 Requires Plugins: woocommerce
-Stable tag: 1.7.2
+Stable tag: 1.8.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -237,6 +237,11 @@ This plugin includes or depends on the following open-source libraries, bundled 
 
 == Changelog ==
 
+= 1.8.0 =
+* **New: Download PDF always gives you a file.** On the free plan it now builds a preview PDF on your own site, marked "Made with Storelly", and offers the clean print-ready version through Storelly Cloud. Nothing is sent off-site for the preview.
+* **Changed: the upgrade notice only appears after you reach for a Cloud feature** (print-ready PDF, order sync). It no longer counts your products or option groups; the free plan has no product limit.
+* **Fixed: a "Select" field in the quote form now shows as a dropdown**, with the choices you list in the form editor. It was shown as a text box.
+
 = 1.7.2 =
 Security release — please update.
 
@@ -360,6 +365,9 @@ A major feature release turning Storelly into a full B2B-capable, quote-driven W
 * Initial release.
 
 == Upgrade Notice ==
+
+= 1.8.0 =
+Free stores now get a watermarked preview when they click Download PDF, the upgrade notice only shows after you use a Cloud feature, and the quote form's Select field is a real dropdown.
 
 = 1.7.2 =
 Security fix: the Storelly Cloud account created at connect time no longer has a guessable password. Update, then use "Forgot your password?" on the Storelly sign-in page if you connected with an earlier version.

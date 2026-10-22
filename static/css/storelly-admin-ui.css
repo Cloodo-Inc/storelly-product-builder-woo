@@ -1416,7 +1416,8 @@ textarea.spbwc-input:focus {
 .spbwc-qf-filecfg__item--wide { flex: 1; min-width: 200px; }
 .spbwc-qf-filecfg__item input[type="text"],
 .spbwc-qf-filecfg__item input[type="number"] { width: auto; }
-.spbwc-qf-filecfg__item--wide input[type="text"] { width: 100%; }
+.spbwc-qf-filecfg__item--wide input[type="text"],
+.spbwc-qf-selcfg textarea { width: 100%; }
 
 @media (max-width: 782px) {
     .spbwc-page-hero__grid { flex-direction: column; }

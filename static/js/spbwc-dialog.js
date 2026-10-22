@@ -291,6 +291,12 @@
 		}
 		node.appendChild( el( 'span', 'spbwc-dlg-toast__msg', opts.message != null ? opts.message : opts.body ) );
 
+		if ( opts.action && opts.action.href && opts.action.label ) {
+			var act = el( 'a', 'spbwc-dlg-toast__action', opts.action.label );
+			act.href = opts.action.href;
+			node.appendChild( act );
+		}
+
 		var close = el( 'button', 'spbwc-dlg-toast__close dashicons dashicons-no-alt' );
 		close.type = 'button';
 		close.setAttribute( 'aria-label', t( 'cancel', 'Dismiss' ) );
