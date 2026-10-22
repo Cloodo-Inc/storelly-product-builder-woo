@@ -49,6 +49,9 @@ if (!class_exists('SPBWC_Storelly_Product_Builder_API')) {
             if (empty($option['username']) || empty($option['unauth_token'])) {
                 $current_user = wp_get_current_user(); 
                 $user_name = sanitize_user($current_user->user_login) . '_' . time();
+                // Random and never shown: the owner sets their own through the link Storelly emails.
+                // (Up to 1.7.1 the password was the username, which anyone could guess.)
+                $password = wp_generate_password(32, true, false);
 
                 $datas = array(
                     "name" => sanitize_text_field($current_user->display_name),
@@ -63,7 +66,8 @@ if (!class_exists('SPBWC_Storelly_Product_Builder_API')) {
                     "email" => sanitize_email($current_user->user_email),
                     "first_name" => get_user_meta($current_user->ID, 'billing_first_name', true) ? sanitize_text_field(get_user_meta($current_user->ID, 'billing_first_name', true)) : 'firstname',
                     "username" => $user_name,
-                    "password" => $user_name,
+                    "password" => $password,
+                    "send_password_link" => 1,
                     "fy_start_month" => gmdate('n'),
                     /**
                      * Filter the accounting method sent to the Storelly Dashboard on registration.
@@ -112,7 +116,7 @@ if (!class_exists('SPBWC_Storelly_Product_Builder_API')) {
                         // (only when the server actually provisioned one, i.e. a
                         // username came back AND we just generated the password).
                         if (isset($resp['username'])) {
-                            self::spbwc_send_account_email($option['username'], $user_name);
+                            self::spbwc_send_account_email($option['username']);
                         }
                     } else {
                         $option['log'] = isset($resp['msg']) ? sanitize_text_field($resp['msg']) : esc_html__('Registration failed: unknown error', 'storelly-product-builder-for-woocommerce');
@@ -126,15 +130,15 @@ if (!class_exists('SPBWC_Storelly_Product_Builder_API')) {
             }
         }
         /**
-         * Email the site admin the credentials of the Storelly account that was
-         * auto-provisioned for them during cloud connect, so they can sign in to
-         * the dashboard (app.storelly.com). Sent once, to the site admin email
-         * only. Filterable so it can be disabled or re-targeted.
+         * Tell the site admin that a Storelly account was auto-provisioned for them
+         * during cloud connect, and how to sign in to the dashboard. No password is
+         * emailed: Storelly sends its own link to choose one, and "Forgot password"
+         * works with the same address. Sent once, to the site admin email only.
+         * Filterable so it can be disabled or re-targeted.
          *
          * @param string $username Storelly username returned by the API.
-         * @param string $password Generated password (same value used at register).
          */
-        public static function spbwc_send_account_email($username, $password){
+        public static function spbwc_send_account_email($username){
             /**
              * Filter whether to email the admin their new Storelly account details.
              *
@@ -148,7 +152,7 @@ if (!class_exists('SPBWC_Storelly_Product_Builder_API')) {
             if (!$to || !is_email($to)) {
                 return;
             }
-            $login_url = SPBWC_API_URL . '/login';
+            $login_url = 'https://storelly.com/dashboard-app/login';
             $site      = wp_specialchars_decode(get_option('blogname'), ENT_QUOTES);
             /* translators: %s: site name. */
             $subject   = sprintf(__('[%s] Your Storelly account is ready', 'storelly-product-builder-for-woocommerce'), $site);
@@ -156,12 +160,10 @@ if (!class_exists('SPBWC_Storelly_Product_Builder_API')) {
                 __('Your store has been connected to Storelly Cloud and a dashboard account was created for you.', 'storelly-product-builder-for-woocommerce'),
                 '',
                 __('Sign in at:', 'storelly-product-builder-for-woocommerce') . ' ' . esc_url_raw($login_url),
-                /* translators: %s: account username. */
-                sprintf(__('Username: %s', 'storelly-product-builder-for-woocommerce'), $username),
-                /* translators: %s: account password. */
-                sprintf(__('Password: %s', 'storelly-product-builder-for-woocommerce'), $password),
+                /* translators: %s: the email address of the account. */
+                sprintf(__('Sign in with your email address: %s', 'storelly-product-builder-for-woocommerce'), $to),
                 '',
-                __('For your security, please sign in and change this password.', 'storelly-product-builder-for-woocommerce'),
+                __('No password is sent by email. Storelly emails you a separate link to choose your own; you can also use "Forgot your password?" on the sign-in page.', 'storelly-product-builder-for-woocommerce'),
             );
             $message = implode("\n", $lines);
             wp_mail($to, $subject, $message);

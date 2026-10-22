@@ -6,7 +6,7 @@ Requires at least: 6.2
 Tested up to: 7.0
 Requires PHP: 7.4
 Requires Plugins: woocommerce
-Stable tag: 1.7.1
+Stable tag: 1.7.2
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -237,6 +237,12 @@ This plugin includes or depends on the following open-source libraries, bundled 
 
 == Changelog ==
 
+= 1.7.2 =
+Security release — please update.
+
+* **Fixed: the Storelly Cloud account created when you connect no longer has a guessable password.** Earlier versions used the account username as its password and emailed it. A strong random password is used now, none is emailed, and Storelly sends a link to choose your own. If you connected with an earlier version, open the Storelly sign-in page and use "Forgot your password?" with your admin email address, then choose a password.
+* The sign-in link in that email now points to the Storelly dashboard.
+
 = 1.7.1 =
 Maintenance release — a focused batch of UX/UI fixes across the admin builder and the storefront. Nothing changes about how your products or options are configured; these are reliability and display fixes.
 
@@ -354,6 +360,9 @@ A major feature release turning Storelly into a full B2B-capable, quote-driven W
 * Initial release.
 
 == Upgrade Notice ==
+
+= 1.7.2 =
+Security fix: the Storelly Cloud account created at connect time no longer has a guessable password. Update, then use "Forgot your password?" on the Storelly sign-in page if you connected with an earlier version.
 
 = 1.6.6 =
 Refreshed store listing (new intro and screenshots) plus a fix for the option-builder Save / Update buttons. Recommended for everyone.
