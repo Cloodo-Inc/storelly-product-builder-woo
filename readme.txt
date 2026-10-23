@@ -3,7 +3,7 @@ Contributors: storelly
 Donate link: https://storelly.com/
 Tags: product options, woocommerce, price calculator, b2b, request a quote
 Requires at least: 6.2
-Tested up to: 7.0
+Tested up to: 7.1
 Requires PHP: 7.4
 Requires Plugins: woocommerce
 Stable tag: 1.8.0
