@@ -6,7 +6,7 @@ Requires at least: 6.2
 Tested up to: 7.1
 Requires PHP: 7.4
 Requires Plugins: woocommerce
-Stable tag: 1.8.0
+Stable tag: 1.9.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -237,6 +237,14 @@ This plugin includes or depends on the following open-source libraries, bundled 
 
 == Changelog ==
 
+= 1.9.0 =
+* **New: one Settings area with tabs.** Settings, Emails, Cloud & License, Setup Wizard, System and About now share one tab bar, and the Storelly menu shows a single "Settings" item. Every old link and bookmark keeps working.
+* **Faster Overview.** The Overview no longer waits for Storelly Cloud before it shows; the cloud numbers fill in afterwards without moving the page, and a failed connection is not retried on every visit.
+* New: a count badge on Custom Orders for paid orders that are waiting to be made.
+* New: Setup Wizard card on the Overview; "License & billing" is now "Account & Plan".
+* The Storelly menu icon now follows the admin colour scheme like other menu icons.
+* Fixed: notices from other plugins no longer appear inside the page header on Settings, Account & Plan, Setup Wizard and the option editor.
+
 = 1.8.0 =
 * **New: Download PDF always gives you a file.** On the free plan it now builds a preview PDF on your own site, marked "Made with Storelly", and offers the clean print-ready version through Storelly Cloud. Nothing is sent off-site for the preview.
 * **Changed: the upgrade notice only appears after you reach for a Cloud feature** (print-ready PDF, order sync). It no longer counts your products or option groups; the free plan has no product limit.
@@ -365,6 +373,9 @@ A major feature release turning Storelly into a full B2B-capable, quote-driven W
 * Initial release.
 
 == Upgrade Notice ==
+
+= 1.9.0 =
+Settings, Emails, Account & Plan, Setup Wizard, System and About are now tabs of one Settings area, and the Overview opens without waiting for Storelly Cloud.
 
 = 1.8.0 =
 Free stores now get a watermarked preview when they click Download PDF, the upgrade notice only shows after you use a Cloud feature, and the quote form's Select field is a real dropdown.
