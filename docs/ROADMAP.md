@@ -189,6 +189,22 @@ Field type `select` đang render thành **text-input** trên storefront → buye
 
 ### S2 · v1.9.0 — "Bộ mặt sau khi cài" (Overview + Settings foundation)
 
+> **Trạng thái 2026-10-27: code xong, chưa phát hành** (commit e9fe2e8, 4b25475, ce30b86).
+> - 4.5 Settings: làm theo kiểu **tab shell** thay vì chuyển trang vào `…-options&tab=…`. Các trang
+>   Emails / License / Setup Wizard / System / About giữ nguyên slug, callback và hook enqueue (enqueue
+>   đang gắn theo tên trang, chuyển trang sẽ mất CSS/JS); một thanh tab chung (`SPBWC_Settings_Tabs`)
+>   nằm dưới hero của cả 6 trang, các trang đó ẩn khỏi menu và "Settings" luôn được tô sáng. Link dạng
+>   spec `?page=…-options&tab=license|emails|setup|system|about` được redirect sang trang thật, nên cả
+>   link cũ lẫn link mới đều chạy. System và About đăng ký lại dưới menu Storelly (cùng slug).
+> - 4.4 / A11: Overview chỉ đọc cache số liệu; khi chưa có cache thì `overview-stats.js` gọi
+>   `wp_ajax_spbwc_overview_stats` sau khi trang đã hiển thị, số thay vào ô đã giữ chỗ (không xô
+>   layout). Lỗi API được nhớ 5 phút. Thêm thẻ Setup Wizard, đổi "License & billing" thành
+>   "Account & Plan". Chưa có nút "Watch 2-min demo" vì chưa có video (chờ kênh YouTube).
+> - Menu: icon vẽ bằng CSS mask theo currentColor; badge Custom Orders (đơn processing có item
+>   builder, cache 10 phút); "General Settings" → "Settings". Breadcrumb chồng ở editor đã được gỡ từ
+>   trước; thêm `.wp-header-end` để notice không chèn vào hero (Settings, License, Setup, editor).
+> - Còn lại trước khi phát hành: kiểm thử trên demo, bump 1.9.0 + changelog.
+
 **Nguồn:** `SPEC_ADMIN_UI_REDESIGN.md` U1/U2 §5.1 · `SPEC_ADMIN_UX_POLISH_W2.md` A11.
 **Vì sao:** Overview là **màn đầu tiên** merchant thấy sau activation → first impression quyết định retention.
 Settings tab router là **FOUNDATION** (chặn Emails-tab, fold System/About/License/Setup) → làm sớm.
