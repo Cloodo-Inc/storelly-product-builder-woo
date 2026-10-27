@@ -102,6 +102,8 @@ $field_count   = isset($options['fields']) && is_array($options['fields']) ? cou
                 </div>
             </div>
         </header>
+        <?php // WP moves admin notices below this marker instead of into the hero. ?>
+        <hr class="wp-header-end" />
 
         <!-- ──────────────── Flash message ──────────────── -->
         <?php if (isset($message['flag'])) :

@@ -1439,7 +1439,7 @@ $plan_benefits = $is_free
                         <span class="dashicons dashicons-admin-network" aria-hidden="true"></span>
                     </div>
                     <h3 class="spbwc-quick-card__title">
-                        <?php esc_html_e( 'License & billing', 'storelly-product-builder-for-woocommerce' ); ?>
+                        <?php esc_html_e( 'Account & Plan', 'storelly-product-builder-for-woocommerce' ); ?>
                     </h3>
                 </div>
                 <p class="spbwc-quick-card__desc">
@@ -1447,7 +1447,7 @@ $plan_benefits = $is_free
                 </p>
                 <div class="spbwc-quick-card__footer">
                     <span class="spbwc-cta-btn">
-                        <?php esc_html_e( 'Open license', 'storelly-product-builder-for-woocommerce' ); ?>
+                        <?php esc_html_e( 'Open Account & Plan', 'storelly-product-builder-for-woocommerce' ); ?>
                         <span class="dashicons dashicons-arrow-right-alt2" aria-hidden="true"></span>
                     </span>
                 </div>
@@ -1488,6 +1488,26 @@ $plan_benefits = $is_free
                 <div class="spbwc-quick-card__footer">
                     <span class="spbwc-cta-btn">
                         <?php esc_html_e( 'Manage emails', 'storelly-product-builder-for-woocommerce' ); ?>
+                        <span class="dashicons dashicons-arrow-right-alt2" aria-hidden="true"></span>
+                    </span>
+                </div>
+            </a>
+
+            <a class="spbwc-quick-card" href="<?php echo esc_url( admin_url( 'admin.php?page=' . SPBWC_PB_OPTIONS_SLUG . '/global-import' ) ); ?>">
+                <div class="spbwc-quick-card__head">
+                    <div class="spbwc-quick-card__icon">
+                        <span class="dashicons dashicons-admin-tools" aria-hidden="true"></span>
+                    </div>
+                    <h3 class="spbwc-quick-card__title">
+                        <?php esc_html_e( 'Setup Wizard', 'storelly-product-builder-for-woocommerce' ); ?>
+                    </h3>
+                </div>
+                <p class="spbwc-quick-card__desc">
+                    <?php esc_html_e( 'Import sample products, or turn your existing WooCommerce variations into pricing options in one step.', 'storelly-product-builder-for-woocommerce' ); ?>
+                </p>
+                <div class="spbwc-quick-card__footer">
+                    <span class="spbwc-cta-btn">
+                        <?php esc_html_e( 'Open Setup Wizard', 'storelly-product-builder-for-woocommerce' ); ?>
                         <span class="dashicons dashicons-arrow-right-alt2" aria-hidden="true"></span>
                     </span>
                 </div>
