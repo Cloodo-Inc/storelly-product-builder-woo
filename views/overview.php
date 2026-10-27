@@ -102,7 +102,7 @@ $plan_benefits = $is_free
                     <span class="dashicons dashicons-store" aria-hidden="true"></span>
                     <?php esc_html_e( 'Storelly Product Builder', 'storelly-product-builder-for-woocommerce' ); ?>
                     <?php if ( ! $is_remote_ok ) : ?>
-                        <a class="spbwc-page-hero__badge" href="<?php echo esc_url( $license_url ); ?>"
+                        <a id="spbwc-local-data-badge" class="spbwc-page-hero__badge" href="<?php echo esc_url( $license_url ); ?>"
                            title="<?php esc_attr_e( 'Couldn\'t reach Storelly — showing your local database counts. Connect to enable live metrics.', 'storelly-product-builder-for-woocommerce' ); ?>">
                             <span class="dashicons dashicons-database" aria-hidden="true"></span>
                             <?php esc_html_e( 'Local data', 'storelly-product-builder-for-woocommerce' ); ?>
@@ -733,7 +733,7 @@ $plan_benefits = $is_free
                 <span class="dashicons dashicons-chart-bar" aria-hidden="true"></span>
                 <?php esc_html_e( 'Key metrics', 'storelly-product-builder-for-woocommerce' ); ?>
             </h2>
-            <p class="spbwc-section__subtitle">
+            <p class="spbwc-section__subtitle" id="spbwc-metrics-subtitle">
                 <?php
                 if ( $is_remote_ok ) {
                     esc_html_e( 'Live numbers from your Storelly dashboard. Each card links straight to the related management screen.', 'storelly-product-builder-for-woocommerce' );
@@ -752,7 +752,7 @@ $plan_benefits = $is_free
                     </div>
                     <div class="spbwc-stat-card__label"><?php esc_html_e( 'Products', 'storelly-product-builder-for-woocommerce' ); ?></div>
                 </div>
-                <div class="spbwc-stat-card__value"><?php echo esc_html( number_format_i18n( $disp_products ) ); ?></div>
+                <div class="spbwc-stat-card__value" data-spbwc-stat="products"><?php echo esc_html( number_format_i18n( $disp_products ) ); ?></div>
                 <p class="spbwc-stat-card__hint">
                     <?php esc_html_e( 'WooCommerce products that have the Storelly product builder enabled.', 'storelly-product-builder-for-woocommerce' ); ?>
                 </p>
@@ -790,7 +790,7 @@ $plan_benefits = $is_free
                     </div>
                     <div class="spbwc-stat-card__label"><?php esc_html_e( 'Orders', 'storelly-product-builder-for-woocommerce' ); ?></div>
                 </div>
-                <div class="spbwc-stat-card__value"><?php echo esc_html( number_format_i18n( $disp_orders ) ); ?></div>
+                <div class="spbwc-stat-card__value" data-spbwc-stat="orders"><?php echo esc_html( number_format_i18n( $disp_orders ) ); ?></div>
                 <p class="spbwc-stat-card__hint">
                     <?php esc_html_e( 'All-time WooCommerce orders containing a customized Storelly product.', 'storelly-product-builder-for-woocommerce' ); ?>
                 </p>
@@ -809,7 +809,7 @@ $plan_benefits = $is_free
                     </div>
                     <div class="spbwc-stat-card__label"><?php esc_html_e( 'Quote Requests', 'storelly-product-builder-for-woocommerce' ); ?></div>
                 </div>
-                <div class="spbwc-stat-card__value"><?php echo esc_html( number_format_i18n( $disp_quotes ) ); ?></div>
+                <div class="spbwc-stat-card__value" data-spbwc-stat="quotes"><?php echo esc_html( number_format_i18n( $disp_quotes ) ); ?></div>
                 <p class="spbwc-stat-card__hint">
                     <?php esc_html_e( 'Customer-submitted quote requests awaiting your response or follow-up.', 'storelly-product-builder-for-woocommerce' ); ?>
                 </p>

@@ -72,6 +72,8 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
                 // Linked Product metabox: repoint / clear the product→option pointer
                 'spbwc_swap_product_option'      => false, // admin only
                 'spbwc_unlink_product_option'    => false, // admin only
+                // Overview: refresh the Storelly stats after the page has painted (A11)
+                'spbwc_overview_stats'           => false, // admin only
             );
             foreach ($ajax_events as $ajax_event => $nopriv) {
                 add_action('wp_ajax_' . $ajax_event, array($this, $ajax_event));
@@ -521,6 +523,16 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
             // Overview page styles — only on the top-level Overview page.
             if ( $hook === 'toplevel_page_' . SPBWC_PB_OVERVIEW_SLUG ) {
                 wp_enqueue_style('spbwc-overview-css');
+                // Fills in the Storelly numbers when they were not cached yet (A11).
+                $spbwc_stats = class_exists( 'SPBWC_License_Manager' ) ? SPBWC_License_Manager::get_cached_overview_stats() : null;
+                if ( is_wp_error( $spbwc_stats ) && 'no_cache' === $spbwc_stats->get_error_code() ) {
+                    wp_enqueue_script( 'spbwc-overview-stats', SPBWC_PB_JS_URL . 'overview-stats.js', array(), SPBWC_PB_VERSION, true );
+                    wp_localize_script( 'spbwc-overview-stats', 'spbwcOverviewStats', array(
+                        'ajaxUrl'  => admin_url( 'admin-ajax.php' ),
+                        'nonce'    => wp_create_nonce( 'spbwc_overview_stats' ),
+                        'subtitle' => __( 'Live numbers from your Storelly dashboard. Each card links straight to the related management screen.', 'storelly-product-builder-for-woocommerce' ),
+                    ) );
+                }
             }
 
             // License page styles — match hook by slug suffix (works regardless of parent slug format).
@@ -4542,7 +4554,9 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
             );
 
             // --- Remote (Storelly) stats overlay ---
-            $remote_stats = SPBWC_License_Manager::get_overview_stats();
+            // Cache only: the API call moved to the spbwc_overview_stats AJAX (A11), so a
+            // slow or unreachable Storelly never holds up this page.
+            $remote_stats = SPBWC_License_Manager::get_cached_overview_stats();
 
             // --- License info ---
             $license = SPBWC_License_Manager::get_current_license();
@@ -4558,6 +4572,27 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
             }
 
             include_once( SPBWC_PB_PLUGIN_DIR . 'views/overview.php' );
+        }
+
+        /**
+         * AJAX: fetch the Storelly overview stats after the Overview page has
+         * painted (A11). The result is cached by get_overview_stats().
+         * wp_ajax_spbwc_overview_stats
+         */
+        public function spbwc_overview_stats() {
+            if ( ! current_user_can( 'manage_options' ) ) {
+                wp_send_json_error( null, 403 );
+            }
+            check_ajax_referer( 'spbwc_overview_stats', 'nonce' );
+            $stats = SPBWC_License_Manager::get_overview_stats();
+            if ( is_wp_error( $stats ) ) {
+                wp_send_json_error( array( 'code' => $stats->get_error_code() ) );
+            }
+            wp_send_json_success( array(
+                'products' => number_format_i18n( (int) $stats['total_products'] ),
+                'orders'   => number_format_i18n( (int) $stats['total_orders'] ),
+                'quotes'   => number_format_i18n( (int) $stats['total_quotes'] ),
+            ) );
         }
 
         // ============================================================

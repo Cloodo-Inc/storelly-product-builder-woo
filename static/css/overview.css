@@ -187,7 +187,7 @@
     right: 12px;
     padding: 2px 8px;
     background: var(--st-brand, #1d4ed8);
-    color: #fff;
+    color: var(--nbd-st-text-inverse, #fff);
     font-size: 11px;
     font-weight: 700;
     text-transform: uppercase;
@@ -201,7 +201,7 @@
     width: 40px;
     height: 40px;
     border-radius: var(--nbd-radius, 10px);
-    background: #fff;
+    background: var(--nbd-st-bg, #fff);
     border: 1px solid var(--nbd-st-border, #e2e8f0);
     color: var(--st-brand, #1d4ed8);
 }
@@ -371,4 +371,17 @@
 .spbwc-welcome__cloud-row > .spbwc-cta-btn { flex: none; }
 @media (max-width: 700px) {
     .spbwc-welcome__cloud-row { flex-direction: column; }
+}
+
+/* A11: numbers refreshed after paint keep the same box (digits of equal width,
+ * one line reserved), so a late update never shifts the cards. */
+.spbwc-stat-card__value {
+    font-variant-numeric: tabular-nums;
+    min-height: 1.2em;
+}
+
+/* The "Local data" badge is hidden by overview-stats.js once live numbers arrive;
+ * its display:inline-flex would otherwise win over the hidden attribute. */
+.spbwc-page-hero__badge[hidden] {
+    display: none;
 }

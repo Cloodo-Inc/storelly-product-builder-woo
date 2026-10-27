@@ -224,6 +224,28 @@ if ( ! class_exists( 'SPBWC_License_Manager' ) ) {
          *
          * @return array|WP_Error
          */
+        /**
+         * Overview stats from the cache only - never calls the API, so the
+         * Overview page can render at once (A11). WP_Error 'no_cache' means the
+         * store is connected but the numbers have to be refreshed (by AJAX).
+         *
+         * @return array|WP_Error
+         */
+        public static function get_cached_overview_stats() {
+            $cached = get_transient( self::TRANSIENT_OVERVIEW_STATS );
+            if ( false !== $cached ) {
+                return $cached;
+            }
+            $api_keys = get_option( 'spbwc_connect_api_keys', array() );
+            if ( empty( $api_keys['business_id'] ) ) {
+                return new WP_Error( 'no_business', __( 'No business ID configured.', 'storelly-product-builder-for-woocommerce' ) );
+            }
+            if ( get_transient( self::TRANSIENT_OVERVIEW_STATS . '_failed' ) ) {
+                return new WP_Error( 'api_error', __( 'Could not retrieve overview stats.', 'storelly-product-builder-for-woocommerce' ) );
+            }
+            return new WP_Error( 'no_cache', __( 'Overview stats not cached yet.', 'storelly-product-builder-for-woocommerce' ) );
+        }
+
         public static function get_overview_stats() {
             $cached = get_transient( self::TRANSIENT_OVERVIEW_STATS );
             if ( false !== $cached ) {
@@ -241,6 +263,8 @@ if ( ! class_exists( 'SPBWC_License_Manager' ) ) {
             $resp = SPBWC_Storelly_HTTP::spbwc_fetch_data( $url );
 
             if ( is_wp_error( $resp ) || empty( $resp['success'] ) ) {
+                // Remember the failure for 5 minutes so every Overview visit does not retry.
+                set_transient( self::TRANSIENT_OVERVIEW_STATS . '_failed', 1, 5 * MINUTE_IN_SECONDS );
                 return new WP_Error( 'api_error', __( 'Could not retrieve overview stats.', 'storelly-product-builder-for-woocommerce' ) );
             }
 
