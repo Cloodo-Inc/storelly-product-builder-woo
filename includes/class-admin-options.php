@@ -39,6 +39,9 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
             add_filter( 'display_post_states', array( $this, 'spbwc_add_display_post_states' ), 10, 2 );
             // REST API — Pricing Options grid (GET, read-only, faster than admin-ajax.php).
             add_action( 'rest_api_init', array( $this, 'spbwc_register_rest_routes' ) );
+            // Menu badge cache (Custom Orders to fulfil): drop it when an order moves.
+            add_action( 'woocommerce_order_status_changed', array( __CLASS__, 'flush_custom_order_count' ) );
+            add_action( 'woocommerce_new_order', array( __CLASS__, 'flush_custom_order_count' ) );
         }
         public function spbwc_ajax() {
             $ajax_events = array(
@@ -293,8 +296,8 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
                 );
                 add_submenu_page(
                     SPBWC_PB_OVERVIEW_SLUG,
-                    esc_html__('General Settings', 'storelly-product-builder-for-woocommerce'),
-                    esc_html__('General Settings', 'storelly-product-builder-for-woocommerce'),
+                    esc_html__('Settings', 'storelly-product-builder-for-woocommerce'),
+                    esc_html__('Settings', 'storelly-product-builder-for-woocommerce'),
                     'manage_options',
                     SPBWC_PB_OPTIONS_SLUG,
                     array($this, 'spbwc_settings')
@@ -323,10 +326,16 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
                     SPBWC_PB_PRODUCTS_SLUG,
                     array($this, 'spbwc_products_manager')
                 );
+                // Same bubble as Quotes and B2B: custom orders paid and waiting to be made.
+                $spbwc_orders_menu_title = esc_html__('Custom Orders', 'storelly-product-builder-for-woocommerce');
+                $spbwc_orders_to_fulfil  = self::count_custom_orders_to_fulfil();
+                if ( $spbwc_orders_to_fulfil > 0 ) {
+                    $spbwc_orders_menu_title .= ' <span class="awaiting-mod"><span class="pending-count">' . esc_html( number_format_i18n( $spbwc_orders_to_fulfil ) ) . '</span></span>';
+                }
                 add_submenu_page(
                     SPBWC_PB_OVERVIEW_SLUG,
                     esc_html__('Custom Orders', 'storelly-product-builder-for-woocommerce'),
-                    esc_html__('Custom Orders', 'storelly-product-builder-for-woocommerce'),
+                    $spbwc_orders_menu_title,
                     'manage_options',
                     SPBWC_PB_ORDERS_SLUG,
                     array($this, 'spbwc_orders_manager')
@@ -381,8 +390,10 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
                     SPBWC_PB_OPTIONS_SLUG . '/global-import',
                     array($this, 'spbwc_global_import')
                 );
+                // System and About sit under the Storelly menu (hidden there; reached
+                // through the Settings tab bar) so WP opens that menu on them.
                 add_submenu_page(
-                    SPBWC_PB_OPTIONS_SLUG,
+                    SPBWC_PB_OVERVIEW_SLUG,
                     esc_html__('System Infor', 'storelly-product-builder-for-woocommerce'),
                     esc_html__('System Infor', 'storelly-product-builder-for-woocommerce'),
                     'manage_options',
@@ -390,7 +401,7 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
                     array($this, 'spbwc_system_infor')
                 );
                 add_submenu_page(
-                    SPBWC_PB_OPTIONS_SLUG,
+                    SPBWC_PB_OVERVIEW_SLUG,
                     esc_html__('About', 'storelly-product-builder-for-woocommerce'),
                     esc_html__('About', 'storelly-product-builder-for-woocommerce'),
                     'manage_options',
@@ -1959,8 +1970,7 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
                         </div>
                     </div>
                 </header>
-                <?php // Anchor so WP admin notices land below the hero, not on it. ?>
-                <hr class="wp-header-end" />
+                <?php if ( class_exists( 'SPBWC_Settings_Tabs' ) ) { SPBWC_Settings_Tabs::render( 'system' ); } ?>
 
                 <div class="spbwc-block">
                     <div class="spbwc-block__body--flush">
@@ -2025,8 +2035,7 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
                         </div>
                     </div>
                 </header>
-                <?php // Anchor so WP admin notices land below the hero, not on it. ?>
-                <hr class="wp-header-end" />
+                <?php if ( class_exists( 'SPBWC_Settings_Tabs' ) ) { SPBWC_Settings_Tabs::render( 'about' ); } ?>
 
                 <!-- Brand intro -->
                 <section class="spbwc-block spbwc-about-intro">
@@ -2091,6 +2100,52 @@ if (!class_exists('SPBWC_Storelly_PB_Admin_Options')) {
             </div>
             <?php
         }
+        /** Transient holding the Custom Orders menu badge count. */
+        const CUSTOM_ORDER_COUNT_KEY = 'spbwc_custom_orders_to_fulfil';
+
+        /**
+         * Orders in "processing" (paid, not yet shipped) that contain at least one
+         * builder line item. Runs on every admin page for the menu badge, so it is
+         * cached for 10 minutes and dropped whenever an order changes status.
+         *
+         * @return int
+         */
+        public static function count_custom_orders_to_fulfil() {
+            $cached = get_transient( self::CUSTOM_ORDER_COUNT_KEY );
+            if ( false !== $cached ) {
+                return (int) $cached;
+            }
+            $count = 0;
+            if ( function_exists( 'wc_get_orders' ) ) {
+                $ids = wc_get_orders( array( 'status' => array( 'processing' ), 'return' => 'ids', 'limit' => 500 ) );
+                if ( ! empty( $ids ) ) {
+                    global $wpdb; // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Global variable $wpdb.
+                    $ids          = array_map( 'absint', $ids );
+                    $placeholders = implode( ',', array_fill( 0, count( $ids ), '%d' ) );
+                    // phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare -- Cached in a transient above; table names from $wpdb, ids via placeholders.
+                    $count = (int) $wpdb->get_var(
+                        $wpdb->prepare(
+                            "SELECT COUNT(DISTINCT oi.order_id)
+                            FROM {$wpdb->prefix}woocommerce_order_items oi
+                            INNER JOIN {$wpdb->prefix}woocommerce_order_itemmeta oim ON oi.order_item_id = oim.order_item_id
+                            WHERE oim.meta_key = '_pcpb_option_price'
+                            AND oi.order_item_type = 'line_item'
+                            AND oi.order_id IN ({$placeholders})",
+                            $ids
+                        )
+                    );
+                    // phpcs:enable
+                }
+            }
+            set_transient( self::CUSTOM_ORDER_COUNT_KEY, $count, 10 * MINUTE_IN_SECONDS );
+            return $count;
+        }
+
+        /** Drop the cached Custom Orders badge count. */
+        public static function flush_custom_order_count() {
+            delete_transient( self::CUSTOM_ORDER_COUNT_KEY );
+        }
+
         public function spbwc_orders_manager() {
             if ( ! current_user_can( 'spbwc_manage_product_builder' ) ) {
                 wp_die( esc_html__( 'You do not have permission to access this page.', 'storelly-product-builder-for-woocommerce' ) );

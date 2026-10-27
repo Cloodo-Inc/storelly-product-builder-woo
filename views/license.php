@@ -84,6 +84,7 @@ $cell = function ( $cap_row, $col_family ) {
             </div>
         </div>
     </header>
+    <?php if ( class_exists( 'SPBWC_Settings_Tabs' ) ) { SPBWC_Settings_Tabs::render( 'license' ); } ?>
 
     <?php if ( $just_connected ) : ?>
     <!-- ── One-time welcome banner (post-connect) ── -->

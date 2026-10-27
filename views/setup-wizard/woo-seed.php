@@ -41,6 +41,7 @@ $builder_url = admin_url( 'admin.php?page=' . SPBWC_PB_BUILDER_SLUG );
 			</div>
 		</div>
 	</section>
+	<?php if ( class_exists( 'SPBWC_Settings_Tabs' ) ) { SPBWC_Settings_Tabs::render( 'setup' ); } ?>
 
 	<div id="spbwc-woo-seed-app" class="spbwc-block spbwc-ws-app">
 		<div class="spbwc-ws-block-body">

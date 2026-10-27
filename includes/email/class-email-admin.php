@@ -258,9 +258,7 @@ if ( ! class_exists( 'SPBWC_Email_Admin' ) ) {
                         </div>
                     </div>
                 </header>
-                <?php // WP relocates admin notices to right after the first <h1>; this marker
-                      // makes them land below the hero instead of on top of the gradient. ?>
-                <hr class="wp-header-end" />
+                <?php if ( class_exists( 'SPBWC_Settings_Tabs' ) ) { SPBWC_Settings_Tabs::render( 'emails' ); } ?>
 
                 <?php if ( isset( $_GET['spbwc_test_sent'] ) ) : // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Display-only flash. ?>
                     <?php $ok = '1' === sanitize_text_field( wp_unslash( $_GET['spbwc_test_sent'] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended ?>

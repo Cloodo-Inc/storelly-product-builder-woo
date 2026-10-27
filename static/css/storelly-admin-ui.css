@@ -1877,3 +1877,51 @@ textarea.spbwc-input:focus {
 .spbwc-notice-banner__fix {
     margin: var(--nbd-space-2) 0 0;
 }
+
+/* === Settings tab bar (S2 / U2) ===============================
+ * One bar under the hero of every Settings page (General, Emails,
+ * Cloud & License, Setup Wizard, System, About). Pages keep their own
+ * slugs; the bar makes them read as one tabbed Settings area.
+ * ============================================================= */
+.spbwc-settings-tabbar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--nbd-space-1);
+    margin-block: calc(-1 * var(--nbd-space-2)) var(--nbd-space-6);
+    border-block-end: 1px solid var(--nbd-st-border-light);
+}
+
+.spbwc-settings-tabbar__tab {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--nbd-space-2);
+    padding: var(--nbd-space-3) var(--nbd-space-4);
+    margin-block-end: -1px;
+    border-block-end: 2px solid transparent;
+    color: var(--nbd-st-text-soft);
+    font-size: var(--text-md);
+    font-weight: var(--font-semibold, 600);
+    text-decoration: none;
+}
+
+.spbwc-settings-tabbar__tab .dashicons {
+    font-size: var(--text-xl);
+    width: var(--text-xl);
+    height: var(--text-xl);
+}
+
+.spbwc-settings-tabbar__tab:hover,
+.spbwc-settings-tabbar__tab:focus {
+    color: var(--st-brand);
+}
+
+.spbwc-settings-tabbar__tab:focus-visible {
+    outline: 2px solid var(--st-brand);
+    outline-offset: -2px;
+    box-shadow: none;
+}
+
+.spbwc-settings-tabbar__tab.is-active {
+    color: var(--st-brand);
+    border-block-end-color: var(--st-brand);
+}

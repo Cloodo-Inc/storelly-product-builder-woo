@@ -106,6 +106,8 @@ if ( ! in_array($spbwc_settings_tab, $spbwc_valid_tabs, true) ) {
         </div>
     </header>
 
+    <?php if ( class_exists( 'SPBWC_Settings_Tabs' ) ) { SPBWC_Settings_Tabs::render( 'general' ); } ?>
+
     <?php if ($message && $status) : ?>
     <div id="message" class="notice notice-<?php echo esc_attr($status === 'updated' ? 'success' : 'error'); ?> is-dismissible"><p><strong><?php echo esc_html($message); ?></strong></p></div>
     <?php endif; ?>

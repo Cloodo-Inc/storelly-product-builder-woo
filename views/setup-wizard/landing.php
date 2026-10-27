@@ -156,6 +156,7 @@ $spbwc_status_pill = static function ( $done ) {
 			</div>
 		</div>
 	</section>
+	<?php if ( class_exists( 'SPBWC_Settings_Tabs' ) ) { SPBWC_Settings_Tabs::render( 'setup' ); } ?>
 
 	<?php if ( $spbwc_demo_cleaned >= 0 ) : ?>
 		<div class="notice notice-success is-dismissible">

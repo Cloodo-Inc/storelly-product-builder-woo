@@ -101,6 +101,7 @@ if (!class_exists('SPBWC_Global_Import_Admin')) {
                         </div>
                     </div>
                 </header>
+                <?php if ( class_exists( 'SPBWC_Settings_Tabs' ) ) { SPBWC_Settings_Tabs::render( 'setup' ); } ?>
                 <div id="spbwc-global-import-app"></div>
             </div>
             <?php

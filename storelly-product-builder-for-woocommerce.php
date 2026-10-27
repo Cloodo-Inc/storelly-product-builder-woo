@@ -161,6 +161,7 @@ require_once(SPBWC_PB_PLUGIN_DIR .  'includes/class-product-builder-backend.php'
 require_once(SPBWC_PB_PLUGIN_DIR .  'includes/class-product-builder-frontend.php');
 require_once(SPBWC_PB_PLUGIN_DIR .  'includes/class-admin-options.php');
 require_once(SPBWC_PB_PLUGIN_DIR .  'includes/admin/class-admin-menu.php');
+require_once(SPBWC_PB_PLUGIN_DIR .  'includes/admin/class-settings-tabs.php');
 require_once(SPBWC_PB_PLUGIN_DIR .  'includes/class-i18n-notice.php');
 require_once(SPBWC_PB_PLUGIN_DIR .  'includes/class-onboarding.php');
 /* Welcome Wizard — the standalone, full-screen step-by-step first-run flow the
