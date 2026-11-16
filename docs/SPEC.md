@@ -219,7 +219,8 @@ Field properties (per `fields` JSON entry):
 
 AJAX `wp_ajax_(nopriv_)spbwc_save_product_builder_design`:
 
-1. Verify nonce `spbwc_save_design_action`.
+1. Verify nonce `spbwc_save_design_action`. The nonce is printed on public product pages, so it only blocks CSRF; it is never proof of authority.
+1a. **Ownership (1.9.1, security fix).** The folder key must match `^[A-Za-z0-9_-]{1,64}$` (else 400). `is_creating_task=1` (writes a product template and updates `storelly_product_builder_options.builder`) requires `SPBWC_Storelly_Product_Builder_Frontend::spbwc_current_user_can_manage_templates()` (`spbwc_manage_product_builder` / `manage_woocommerce` / editor / administrator), else 403. An existing folder is overwritten only by a template manager or by the visitor whose WooCommerce session created it (session key `spbwc_design_folders`, last 50 keys); anyone else is saved into a fresh key from `spbwc_new_design_key()`, so templates and other buyers' designs stay untouched. Cart items are not ownership proof (the add-to-cart form accepts any folder key). Regression test: `tests/test-save-design-auth.php` (`php tests/test-save-design-auth.php`, not shipped).
 2. Accept multipart files: `design` (preview), `config` (config.json), `used_font`, `design_output`, `frame_{n}` (per view in config.json).
 3. Validate each upload via `spbwc_sanitize_file_upload()` (see §11.4) — MIME + content checks for JSON / SVG / image.
 4. Write to `SPBWC_PB_CUSTOMER_DIR/{key}/`.
@@ -441,6 +442,8 @@ Used for migrations from the legacy nbdesigner/PrintCart plugin family — see �
 ### 11.2 Capability Checks
 
 `current_user_can('manage_woocommerce' | 'spbwc_manage_product_builder' | 'upload_files' | 'edit_user')` on every admin-only AJAX/REST handler.
+
+Public AJAX that writes (`spbwc_save_product_builder_design`) also checks ownership of the target folder, see §5.4 step 1a (1.9.1).
 
 ### 11.3 Sanitization
 

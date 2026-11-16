@@ -30,3 +30,4 @@ tools
 static/mockups
 _tmp_inspect.php
 _tmp_*
+tests

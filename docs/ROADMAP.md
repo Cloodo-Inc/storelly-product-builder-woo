@@ -100,6 +100,7 @@ Mọi sprint phải trả lời: *"nó cải thiện bước nào của funnel n
 |---|---|---|---|---|:---:|
 | **S1** | 1.8.0 | Retention/upsell rẻ nhất | Watermarked local PDF fallback · re-point upsell (bỏ `max_products`) · fix `select` field | Retention + Buyer | Không |
 | **S2** | 1.9.0 | Bộ mặt sau khi cài | Overview redesign + fix CLS (A11) · **Settings tab router** (foundation) · quick: menu icon+badge, breadcrumb | UX + Activation | Không |
+| **Hotfix** | 1.9.1 | Bản vá bảo mật (16/11/2026) | Khách chưa đăng nhập ghi đè được thiết kế mẫu qua `spbwc_save_product_builder_design` (chỉ kiểm nonce công khai) → thêm kiểm quyền + quyền sở hữu thư mục, xem `SPEC.md` §5.4 bước 1a. **Ngoại lệ nhịp 2 tuần:** David duyệt phát hành ngay 16/11/2026 ("cứ cho phát hành bản vá lên org, anh duyệt"). | Security | Không |
 | **S3** | 1.10.0 | Nơi merchant sống | **Edit Option v3** two-pane · control-token **wave-2** | UX (retention) | Không |
 | **S4** | 1.11.0 | Dọn nốt trang xấu | **Options list** redesign · inline raw pages → component (Custom Order/Quote/System/About) | UX | Không |
 | **S5** | 1.12.0 | Trải nghiệm khách cuối | Canvas **M2** restore `userLayers` + clamp · Canvas M3 mobile bottom-sheet | Buyer UX | Không |

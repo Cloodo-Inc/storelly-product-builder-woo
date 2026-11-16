@@ -181,12 +181,33 @@ if (!class_exists('SPBWC_Storelly_Product_Builder_Frontend')) {
             }
             // Generate key if still empty.
             if ('' === $pcpb_item_pb_key) {
-                $rand = wp_rand(1, 100); // phpcs:ignore WordPress.WP.AlternativeFunctions.rand_rand -- wp_rand() is always available in WordPress.
-                $pcpb_item_pb_key = substr(md5(uniqid()), 0, 5) . $rand . time();
+                $pcpb_item_pb_key = self::spbwc_new_design_key();
             }
 
             $is_creating_task = isset($_POST['is_creating_task']) ? sanitize_text_field(wp_unslash($_POST['is_creating_task'])) : '0';
             $oid = isset($_POST['oid']) ? absint(wp_unslash($_POST['oid'])) : 0;
+
+            // Folder keys are used as directory names: allow only plain tokens.
+            if ('' === $pcpb_item_pb_key || !preg_match('/^[A-Za-z0-9_-]{1,64}$/', $pcpb_item_pb_key)) {
+                wp_send_json_error(array('message' => __('Invalid design.', 'storelly-product-builder-for-woocommerce')), 400);
+            }
+
+            $can_manage_templates = self::spbwc_current_user_can_manage_templates();
+
+            // Writing a product template (is_creating_task + oid) is a store-admin action.
+            // The nonce is printed on public product pages, so it never proves authority.
+            if ('1' === $is_creating_task && !$can_manage_templates) {
+                wp_send_json_error(array('message' => __('You are not allowed to edit this product design.', 'storelly-product-builder-for-woocommerce')), 403);
+            }
+
+            // An existing design folder may only be overwritten by its owner: the visitor
+            // who created it in this WooCommerce session, or a store admin. Anyone else
+            // saves into a fresh folder (a copy), so product templates and other buyers'
+            // designs stay untouched.
+            if (file_exists(SPBWC_PB_CUSTOMER_DIR . '/' . $pcpb_item_pb_key) && !$can_manage_templates && !self::spbwc_visitor_owns_design($pcpb_item_pb_key)) {
+                $pcpb_item_pb_key = self::spbwc_new_design_key();
+            }
+
             $path = SPBWC_PB_CUSTOMER_DIR . '/' . $pcpb_item_pb_key;
             $filtered_files = array();
 
@@ -253,6 +274,7 @@ if (!class_exists('SPBWC_Storelly_Product_Builder_Frontend')) {
 
                 $result['flag'] = 'success';
                 $result['folder'] = $pcpb_item_pb_key;
+                self::spbwc_remember_visitor_design($pcpb_item_pb_key);
 
                 // Free design tools — count billable buyer-added layers from the
                 // saved frames (authoritative: the actual canvas objects, never a
@@ -279,6 +301,79 @@ if (!class_exists('SPBWC_Storelly_Product_Builder_Frontend')) {
 
             do_action('spbwc_after_save_product_builder_design', $result);
             wp_send_json($result);
+        }
+
+        /**
+         * Store admins (and editors, who may open the template editor page) can write
+         * product template designs.
+         *
+         * @return bool
+         */
+        public static function spbwc_current_user_can_manage_templates()
+        {
+            return current_user_can('spbwc_manage_product_builder')
+                || current_user_can('manage_woocommerce')
+                || current_user_can('editor')
+                || current_user_can('administrator');
+        }
+
+        /**
+         * Design folders created by the current visitor, kept in the WooCommerce session.
+         *
+         * @return string[]
+         */
+        protected static function spbwc_visitor_design_keys()
+        {
+            if (!function_exists('WC') || !WC()->session) {
+                return array();
+            }
+            $keys = WC()->session->get('spbwc_design_folders');
+            return is_array($keys) ? array_values(array_filter($keys, 'is_string')) : array();
+        }
+
+        /**
+         * Remember a design folder as owned by the current visitor.
+         *
+         * @param string $key Design folder key.
+         */
+        public static function spbwc_remember_visitor_design($key)
+        {
+            if (!function_exists('WC') || !WC()->session) {
+                return;
+            }
+            if (method_exists(WC()->session, 'has_session') && !WC()->session->has_session() && method_exists(WC()->session, 'set_customer_session_cookie')) {
+                WC()->session->set_customer_session_cookie(true);
+            }
+            $keys = self::spbwc_visitor_design_keys();
+            if (!in_array($key, $keys, true)) {
+                $keys[] = $key;
+                // Keep the list bounded.
+                $keys = array_slice($keys, -50);
+                WC()->session->set('spbwc_design_folders', $keys);
+            }
+        }
+
+        /**
+         * Whether the current visitor owns an existing design folder.
+         *
+         * @param string $key Design folder key.
+         * @return bool
+         */
+        public static function spbwc_visitor_owns_design($key)
+        {
+            // Cart items are not proof of ownership: the add-to-cart form accepts any
+            // folder key, so only folders this session created count.
+            return in_array($key, self::spbwc_visitor_design_keys(), true);
+        }
+
+        /**
+         * A new, unguessable design folder key.
+         *
+         * @return string
+         */
+        public static function spbwc_new_design_key()
+        {
+            return strtolower(wp_generate_password(12, false, false)) . time();
         }
 
         /**
